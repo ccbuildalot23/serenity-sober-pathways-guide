@@ -4,6 +4,10 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useAuditLogger } from '@/hooks/useAuditLogger';
+import { escalateCrisis } from '@/services/crisisEscalationService';
+import { useAuth } from '@/contexts/AuthContext';
+import { assessmentToObservation } from '@/fhir/convertAssessment';
+import { toast } from 'sonner';
 
 const questions = [
   {
@@ -39,6 +43,7 @@ interface Props {
 const CSSRSAssessment: React.FC<Props> = ({ onComplete }) => {
   const [responses, setResponses] = useState<number[]>(Array(questions.length).fill(-1));
   const { log } = useAuditLogger();
+  const { user } = useAuth();
 
   const handleSelect = (index: number, value: number) => {
     const r = [...responses];
@@ -48,7 +53,13 @@ const CSSRSAssessment: React.FC<Props> = ({ onComplete }) => {
 
   const handleSubmit = async () => {
     const score = responses.reduce((sum, v) => sum + (v > -1 ? v : 0), 0);
-    await log('cssrs_completed', { score });
+    const anyRisk = score > 0;
+    const obs = assessmentToObservation(user?.id || 'anonymous', 'cssrs', score);
+    await log('cssrs_completed', { score, anyRisk, fhir: obs });
+    if (anyRisk) {
+      toast.error('Immediate safety support recommended');
+      escalateCrisis(score >= 2 ? 'severe' : 'high');
+    }
     onComplete?.(score);
   };
 

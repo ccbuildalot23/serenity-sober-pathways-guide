@@ -1,6 +1,6 @@
 const enc = new TextEncoder();
 const dec = new TextDecoder();
-const secret = 'serenity-secret-key';
+const secret = import.meta.env.VITE_ENCRYPTION_KEY || 'serenity-secret-key';
 
 const getKey = async () => {
   const keyMaterial = await crypto.subtle.importKey(

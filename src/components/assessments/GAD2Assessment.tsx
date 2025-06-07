@@ -4,6 +4,10 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useAuditLogger } from '@/hooks/useAuditLogger';
+import { escalateCrisis } from '@/services/crisisEscalationService';
+import { useAuth } from '@/contexts/AuthContext';
+import { assessmentToObservation } from '@/fhir/convertAssessment';
+import { toast } from 'sonner';
 
 const questions = [
   'Over the last 2 weeks, how often have you been bothered by feeling nervous, anxious or on edge?',
@@ -24,6 +28,7 @@ interface Props {
 const GAD2Assessment: React.FC<Props> = ({ onComplete }) => {
   const [responses, setResponses] = useState<number[]>(Array(2).fill(-1));
   const { log } = useAuditLogger();
+  const { user } = useAuth();
 
   const handleSelect = (index: number, value: number) => {
     const r = [...responses];
@@ -33,7 +38,12 @@ const GAD2Assessment: React.FC<Props> = ({ onComplete }) => {
 
   const handleSubmit = async () => {
     const score = responses.reduce((sum, v) => sum + (v > -1 ? v : 0), 0);
-    await log('gad2_completed', { score });
+    const flag = score >= 3;
+    const obs = assessmentToObservation(user?.id || 'anonymous', 'gad2', score);
+    await log('gad2_completed', { score, flag, fhir: obs });
+    if (flag) {
+      toast.warning('GAD‑7 assessment recommended');
+    }
     onComplete?.(score);
   };
 

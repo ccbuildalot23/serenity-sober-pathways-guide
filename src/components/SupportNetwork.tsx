@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +21,7 @@ const SupportNetwork = () => {
     phone: '',
     email: ''
   });
+  const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
     const savedContacts = localStorage.getItem('supportContacts');
@@ -75,18 +75,48 @@ const SupportNetwork = () => {
     }
   };
 
+  if (showSettings) {
+    const SupportCircleSettings = React.lazy(() => import('./SupportCircleSettings'));
+    return (
+      <div>
+        <div className="flex items-center mb-4">
+          <Button
+            onClick={() => setShowSettings(false)}
+            variant="outline"
+            size="sm"
+          >
+            ← Back
+          </Button>
+        </div>
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <SupportCircleSettings />
+        </React.Suspense>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-semibold serenity-navy">Support Network</h3>
-        <Button
-          onClick={() => setIsAdding(true)}
-          size="sm"
-          className="bg-serenity-emerald hover:bg-emerald-600"
-        >
-          <Plus className="w-4 h-4 mr-1" />
-          Add Contact
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={() => setShowSettings(true)}
+            size="sm"
+            variant="outline"
+            className="text-xs"
+          >
+            Settings
+          </Button>
+          <Button
+            onClick={() => setIsAdding(true)}
+            size="sm"
+            className="bg-serenity-emerald hover:bg-emerald-600"
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            Add Contact
+          </Button>
+        </div>
       </div>
 
       {isAdding && (

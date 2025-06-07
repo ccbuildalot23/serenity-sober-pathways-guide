@@ -1,52 +1,47 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Bell, Heart, User, Calendar, BookOpen, History } from 'lucide-react';
-import FloatingHelpButton from './FloatingHelpButton';
+import { Home, Calendar, Users, BookOpen, User } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
-  activeTab?: string;
-  onTabChange?: (tab: string) => void;
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+  onProfileClick?: () => void;
 }
 
-const Layout = ({ children, activeTab = 'dashboard', onTabChange }: LayoutProps) => {
+const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onProfileClick }) => {
   const tabs = [
-    { id: 'dashboard', icon: Heart, label: 'Dashboard' },
-    { id: 'checkin', icon: Calendar, label: 'Check-in' },
-    { id: 'support', icon: User, label: 'Support' },
-    { id: 'resources', icon: BookOpen, label: 'Learn' },
+    { id: 'dashboard', label: 'Dashboard', icon: Home },
+    { id: 'checkin', label: 'Check-in', icon: Calendar },
+    { id: 'support', label: 'Support', icon: Users },
+    { id: 'resources', label: 'Resources', icon: BookOpen },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-emerald-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b px-4 py-4">
-        <div className="max-w-md mx-auto flex items-center justify-between">
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
           <h1 className="text-xl font-bold serenity-navy">Serenity</h1>
-          <div className="flex items-center space-x-2">
-            <Link
-              to="/alert-history"
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              title="Alert History"
+          {onProfileClick && (
+            <button
+              onClick={onProfileClick}
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
             >
-              <History className="w-5 h-5 text-gray-600" />
-            </Link>
-            <Bell className="w-6 h-6 text-gray-600" />
-          </div>
+              <User className="h-6 w-6 text-gray-600" />
+            </button>
+          )}
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto pb-20">
-        <div className="max-w-md mx-auto">
-          {children}
-        </div>
+      <main className="max-w-4xl mx-auto pb-20">
+        {children}
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t">
-        <div className="max-w-md mx-auto px-2 py-2">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg">
+        <div className="max-w-4xl mx-auto px-4">
           <div className="flex justify-around">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -55,24 +50,21 @@ const Layout = ({ children, activeTab = 'dashboard', onTabChange }: LayoutProps)
               return (
                 <button
                   key={tab.id}
-                  onClick={() => onTabChange?.(tab.id)}
-                  className={`flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 ${
+                  onClick={() => onTabChange(tab.id)}
+                  className={`flex flex-col items-center py-3 px-2 text-xs font-medium transition-colors ${
                     isActive 
-                      ? 'bg-blue-100 text-blue-700' 
-                      : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                      ? 'text-indigo-600' 
+                      : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
-                  <Icon className="w-5 h-5 mb-1" />
-                  <span className="text-xs font-medium">{tab.label}</span>
+                  <Icon className={`h-6 w-6 mb-1 ${isActive ? 'text-indigo-600' : 'text-gray-400'}`} />
+                  {tab.label}
                 </button>
               );
             })}
           </div>
         </div>
       </nav>
-
-      {/* Floating Help Button - Always Visible */}
-      <FloatingHelpButton />
     </div>
   );
 };

@@ -9,7 +9,445 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      craving_logs: {
+        Row: {
+          checkin_id: string | null
+          coping_strategy: string | null
+          created_at: string
+          id: string
+          intensity: number
+          outcome_mood: number | null
+          strategy_effectiveness: number | null
+          triggers: Json | null
+          urge_duration_minutes: number | null
+          used_urge_surfing: boolean | null
+          user_id: string
+        }
+        Insert: {
+          checkin_id?: string | null
+          coping_strategy?: string | null
+          created_at?: string
+          id?: string
+          intensity: number
+          outcome_mood?: number | null
+          strategy_effectiveness?: number | null
+          triggers?: Json | null
+          urge_duration_minutes?: number | null
+          used_urge_surfing?: boolean | null
+          user_id: string
+        }
+        Update: {
+          checkin_id?: string | null
+          coping_strategy?: string | null
+          created_at?: string
+          id?: string
+          intensity?: number
+          outcome_mood?: number | null
+          strategy_effectiveness?: number | null
+          triggers?: Json | null
+          urge_duration_minutes?: number | null
+          used_urge_surfing?: boolean | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "craving_logs_checkin_id_fkey"
+            columns: ["checkin_id"]
+            isOneToOne: false
+            referencedRelation: "daily_checkins"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "craving_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crisis_events: {
+        Row: {
+          assessment_responses: Json | null
+          created_at: string
+          crisis_resolved: boolean | null
+          cssrs_score: number | null
+          emergency_contacts_notified: boolean | null
+          follow_up_scheduled: boolean | null
+          id: string
+          interventions_used: Json | null
+          location_data: Json | null
+          notes: string | null
+          professional_contacted: boolean | null
+          resolution_time: string | null
+          risk_level: string | null
+          user_id: string
+        }
+        Insert: {
+          assessment_responses?: Json | null
+          created_at?: string
+          crisis_resolved?: boolean | null
+          cssrs_score?: number | null
+          emergency_contacts_notified?: boolean | null
+          follow_up_scheduled?: boolean | null
+          id?: string
+          interventions_used?: Json | null
+          location_data?: Json | null
+          notes?: string | null
+          professional_contacted?: boolean | null
+          resolution_time?: string | null
+          risk_level?: string | null
+          user_id: string
+        }
+        Update: {
+          assessment_responses?: Json | null
+          created_at?: string
+          crisis_resolved?: boolean | null
+          cssrs_score?: number | null
+          emergency_contacts_notified?: boolean | null
+          follow_up_scheduled?: boolean | null
+          id?: string
+          interventions_used?: Json | null
+          location_data?: Json | null
+          notes?: string | null
+          professional_contacted?: boolean | null
+          resolution_time?: string | null
+          risk_level?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crisis_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_checkins: {
+        Row: {
+          checkin_date: string
+          completed_sections: Json | null
+          created_at: string
+          energy_rating: number | null
+          gad2_q1_response: number | null
+          gad2_q2_response: number | null
+          gad2_score: number | null
+          hope_rating: number | null
+          id: string
+          is_complete: boolean | null
+          mood_rating: number | null
+          phq2_q1_response: number | null
+          phq2_q2_response: number | null
+          phq2_score: number | null
+          recovery_importance: number | null
+          recovery_strength: string | null
+          sobriety_confidence: number | null
+          support_needed: string | null
+          user_id: string
+        }
+        Insert: {
+          checkin_date: string
+          completed_sections?: Json | null
+          created_at?: string
+          energy_rating?: number | null
+          gad2_q1_response?: number | null
+          gad2_q2_response?: number | null
+          gad2_score?: number | null
+          hope_rating?: number | null
+          id?: string
+          is_complete?: boolean | null
+          mood_rating?: number | null
+          phq2_q1_response?: number | null
+          phq2_q2_response?: number | null
+          phq2_score?: number | null
+          recovery_importance?: number | null
+          recovery_strength?: string | null
+          sobriety_confidence?: number | null
+          support_needed?: string | null
+          user_id: string
+        }
+        Update: {
+          checkin_date?: string
+          completed_sections?: Json | null
+          created_at?: string
+          energy_rating?: number | null
+          gad2_q1_response?: number | null
+          gad2_q2_response?: number | null
+          gad2_score?: number | null
+          hope_rating?: number | null
+          id?: string
+          is_complete?: boolean | null
+          mood_rating?: number | null
+          phq2_q1_response?: number | null
+          phq2_q2_response?: number | null
+          phq2_score?: number | null
+          recovery_importance?: number | null
+          recovery_strength?: string | null
+          sobriety_confidence?: number | null
+          support_needed?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_checkins_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      emergency_contacts: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          notify_for_crisis: boolean | null
+          notify_for_milestones: boolean | null
+          phone_number: string | null
+          preferred_contact_method: string | null
+          priority_order: number | null
+          relationship: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          notify_for_crisis?: boolean | null
+          notify_for_milestones?: boolean | null
+          phone_number?: string | null
+          preferred_contact_method?: string | null
+          priority_order?: number | null
+          relationship: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notify_for_crisis?: boolean | null
+          notify_for_milestones?: boolean | null
+          phone_number?: string | null
+          preferred_contact_method?: string | null
+          priority_order?: number | null
+          relationship?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emergency_contacts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          assessment_reminder_time: string | null
+          created_at: string
+          data_sharing_consent: boolean | null
+          email: string | null
+          emergency_contact_consent: boolean | null
+          enable_crisis_alerts: boolean | null
+          enable_family_notifications: boolean | null
+          full_name: string | null
+          hipaa_consent_given: boolean | null
+          id: string
+          recovery_start_date: string | null
+          timezone: string | null
+          updated_at: string
+        }
+        Insert: {
+          assessment_reminder_time?: string | null
+          created_at?: string
+          data_sharing_consent?: boolean | null
+          email?: string | null
+          emergency_contact_consent?: boolean | null
+          enable_crisis_alerts?: boolean | null
+          enable_family_notifications?: boolean | null
+          full_name?: string | null
+          hipaa_consent_given?: boolean | null
+          id: string
+          recovery_start_date?: string | null
+          timezone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assessment_reminder_time?: string | null
+          created_at?: string
+          data_sharing_consent?: boolean | null
+          email?: string | null
+          emergency_contact_consent?: boolean | null
+          enable_crisis_alerts?: boolean | null
+          enable_family_notifications?: boolean | null
+          full_name?: string | null
+          hipaa_consent_given?: boolean | null
+          id?: string
+          recovery_start_date?: string | null
+          timezone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      skills_progress: {
+        Row: {
+          completion_percentage: number | null
+          created_at: string
+          id: string
+          last_practiced_at: string | null
+          mastery_level: string | null
+          notes: string | null
+          self_reported_effectiveness: number | null
+          skill_category: string
+          skill_name: string
+          times_practiced: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completion_percentage?: number | null
+          created_at?: string
+          id?: string
+          last_practiced_at?: string | null
+          mastery_level?: string | null
+          notes?: string | null
+          self_reported_effectiveness?: number | null
+          skill_category: string
+          skill_name: string
+          times_practiced?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completion_percentage?: number | null
+          created_at?: string
+          id?: string
+          last_practiced_at?: string | null
+          mastery_level?: string | null
+          notes?: string | null
+          self_reported_effectiveness?: number | null
+          skill_category?: string
+          skill_name?: string
+          times_practiced?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skills_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      thought_records: {
+        Row: {
+          automatic_thoughts: string
+          balanced_reframe: string | null
+          checkin_id: string | null
+          contains_crisis_language: boolean | null
+          created_at: string
+          emotions: Json | null
+          evidence_against: string | null
+          evidence_for: string | null
+          id: string
+          physical_sensations: Json | null
+          reviewed_by_professional: boolean | null
+          situation: string
+          user_id: string
+        }
+        Insert: {
+          automatic_thoughts: string
+          balanced_reframe?: string | null
+          checkin_id?: string | null
+          contains_crisis_language?: boolean | null
+          created_at?: string
+          emotions?: Json | null
+          evidence_against?: string | null
+          evidence_for?: string | null
+          id?: string
+          physical_sensations?: Json | null
+          reviewed_by_professional?: boolean | null
+          situation: string
+          user_id: string
+        }
+        Update: {
+          automatic_thoughts?: string
+          balanced_reframe?: string | null
+          checkin_id?: string | null
+          contains_crisis_language?: boolean | null
+          created_at?: string
+          emotions?: Json | null
+          evidence_against?: string | null
+          evidence_for?: string | null
+          id?: string
+          physical_sensations?: Json | null
+          reviewed_by_professional?: boolean | null
+          situation?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "thought_records_checkin_id_fkey"
+            columns: ["checkin_id"]
+            isOneToOne: false
+            referencedRelation: "daily_checkins"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "thought_records_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_insights: {
+        Row: {
+          created_at: string
+          id: string
+          insight_data: Json
+          insight_type: string
+          is_active: boolean | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          insight_data: Json
+          insight_type: string
+          is_active?: boolean | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          insight_data?: Json
+          insight_type?: string
+          is_active?: boolean | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_insights_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

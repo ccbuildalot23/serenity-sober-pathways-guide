@@ -425,6 +425,45 @@ export type Database = {
           },
         ]
       }
+      support_contacts: {
+        Row: {
+          contact_method: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          relationship: string
+          share_location: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_method?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          relationship: string
+          share_location?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_method?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          relationship?: string
+          share_location?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       thought_record_templates: {
         Row: {
           automatic_thought_example: string

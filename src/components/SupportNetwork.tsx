@@ -1,8 +1,12 @@
+
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, User, Heart, MessageCircle, AlertTriangle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface Contact {
   id: string;
@@ -15,6 +19,8 @@ interface Contact {
 const SupportNetwork = () => {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [isAdding, setIsAdding] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [newContact, setNewContact] = useState({
     name: '',
     relationship: '',
@@ -24,40 +30,119 @@ const SupportNetwork = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showCrisisContacts, setShowCrisisContacts] = useState(false);
 
-  useEffect(() => {
-    const savedContacts = localStorage.getItem('supportContacts');
-    if (savedContacts) {
-      setContacts(JSON.parse(savedContacts));
-    } else {
-      // Demo contacts
-      const demoContacts = [
-        { id: '1', name: 'Sarah (Sponsor)', relationship: 'Sponsor', phone: '555-0123' },
-        { id: '2', name: 'Mom', relationship: 'Family', phone: '555-0124' },
-        { id: '3', name: 'Dr. Johnson', relationship: 'Therapist', phone: '555-0125' }
-      ];
-      setContacts(demoContacts);
-    }
-  }, []);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-  const saveContacts = (updatedContacts: Contact[]) => {
-    setContacts(updatedContacts);
-    localStorage.setItem('supportContacts', JSON.stringify(updatedContacts));
+  useEffect(() => {
+    if (user) {
+      loadContacts();
+    }
+  }, [user]);
+
+  const loadContacts = async () => {
+    if (!user) return;
+
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('support_contacts')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Error loading contacts:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load your support contacts",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setContacts(data || []);
+    } catch (error) {
+      console.error('Error in loadContacts:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleAddContact = () => {
-    if (!newContact.name.trim()) return;
+  const handleAddContact = async () => {
+    if (!newContact.name.trim() || !user) return;
 
-    const contact: Contact = {
-      id: Date.now().toString(),
-      name: newContact.name,
-      relationship: newContact.relationship || 'Support Person',
-      phone: newContact.phone,
-      email: newContact.email
-    };
+    try {
+      setSaving(true);
+      const { data, error } = await supabase
+        .from('support_contacts')
+        .insert({
+          user_id: user.id,
+          name: newContact.name,
+          relationship: newContact.relationship || 'Support Person',
+          phone: newContact.phone || null,
+          email: newContact.email || null
+        })
+        .select()
+        .single();
 
-    saveContacts([...contacts, contact]);
-    setNewContact({ name: '', relationship: '', phone: '', email: '' });
-    setIsAdding(false);
+      if (error) {
+        console.error('Error adding contact:', error);
+        toast({
+          title: "Error",
+          description: "Failed to save contact. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setContacts(prev => [...prev, data]);
+      setNewContact({ name: '', relationship: '', phone: '', email: '' });
+      setIsAdding(false);
+      
+      toast({
+        title: "Success",
+        description: "Contact added successfully!",
+      });
+    } catch (error) {
+      console.error('Error in handleAddContact:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteContact = async (contactId: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('support_contacts')
+        .delete()
+        .eq('id', contactId)
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error deleting contact:', error);
+        toast({
+          title: "Error",
+          description: "Failed to delete contact",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setContacts(prev => prev.filter(contact => contact.id !== contactId));
+      toast({
+        title: "Success",
+        description: "Contact deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error in handleDeleteContact:', error);
+    }
   };
 
   const handleCall = (contact: Contact) => {
@@ -110,6 +195,20 @@ const SupportNetwork = () => {
         <React.Suspense fallback={<div>Loading...</div>}>
           <SupportCircleSettings />
         </React.Suspense>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-semibold serenity-navy">Support Network</h3>
+        </div>
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-serenity-navy mx-auto"></div>
+          <p className="text-gray-600 mt-2">Loading your support contacts...</p>
+        </div>
       </div>
     );
   }
@@ -187,17 +286,24 @@ const SupportNetwork = () => {
               value={newContact.phone}
               onChange={(e) => setNewContact({...newContact, phone: e.target.value})}
             />
+            <Input
+              placeholder="Email Address (Optional)"
+              value={newContact.email}
+              onChange={(e) => setNewContact({...newContact, email: e.target.value})}
+            />
             <div className="flex gap-2">
               <Button 
                 onClick={handleAddContact}
                 className="flex-1 bg-serenity-navy"
+                disabled={saving || !newContact.name.trim()}
               >
-                Add Contact
+                {saving ? 'Saving...' : 'Add Contact'}
               </Button>
               <Button 
                 onClick={() => setIsAdding(false)}
                 variant="outline"
                 className="flex-1"
+                disabled={saving}
               >
                 Cancel
               </Button>
@@ -220,6 +326,9 @@ const SupportNetwork = () => {
                   {contact.phone && (
                     <p className="text-xs text-gray-500">{contact.phone}</p>
                   )}
+                  {contact.email && (
+                    <p className="text-xs text-gray-500">{contact.email}</p>
+                  )}
                 </div>
               </div>
               
@@ -231,6 +340,7 @@ const SupportNetwork = () => {
                       variant="outline"
                       onClick={() => handleCall(contact)}
                       className="p-2"
+                      title="Call"
                     >
                       <Heart className="w-4 h-4" />
                     </Button>
@@ -239,11 +349,21 @@ const SupportNetwork = () => {
                       variant="outline"
                       onClick={() => handleMessage(contact)}
                       className="p-2"
+                      title="Message"
                     >
                       <MessageCircle className="w-4 h-4" />
                     </Button>
                   </>
                 )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleDeleteContact(contact.id)}
+                  className="p-2 text-red-600 hover:text-red-700"
+                  title="Delete"
+                >
+                  ×
+                </Button>
               </div>
             </div>
           </Card>

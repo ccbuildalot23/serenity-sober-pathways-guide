@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
@@ -297,11 +296,12 @@ const FloatingHelpButton = () => {
     return messageObj?.label || '';
   };
 
-  const handleLocationToggle = async (checked: boolean) => {
-    setIncludeLocation(checked);
+  const handleLocationToggle = async (checked: boolean | 'indeterminate') => {
+    const isChecked = checked === true;
+    setIncludeLocation(isChecked);
     setLocationError(null);
     
-    if (checked) {
+    if (isChecked) {
       const cached = getCachedLocation();
       if (cached && (Date.now() - cached.timestamp.getTime()) < 300000) {
         setLocationData(cached);

@@ -7,7 +7,7 @@ import { LocationData } from '@/services/geolocationService';
 
 interface LocationSelectorProps {
   includeLocation: boolean;
-  onLocationToggle: (checked: boolean) => void;
+  onLocationToggle: (checked: boolean | 'indeterminate') => void;
   isLoadingLocation: boolean;
   locationData: LocationData | null;
   locationError: string | null;

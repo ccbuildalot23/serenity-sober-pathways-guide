@@ -30,7 +30,7 @@ interface EmergencyModalProps {
   selectedContacts: string[];
   onContactToggle: (contactId: string) => void;
   includeLocation: boolean;
-  onLocationToggle: (checked: boolean) => void;
+  onLocationToggle: (checked: boolean | 'indeterminate') => void;
   isLoading: boolean;
   contacts: Contact[];
   phoneContacts: any[];

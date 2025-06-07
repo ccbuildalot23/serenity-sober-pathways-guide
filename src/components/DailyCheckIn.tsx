@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { ArrowUp, ArrowDown, ArrowRight, Battery, Sunrise } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { ArrowUp, ArrowDown, ArrowRight, Battery, Sunrise, Clock, Waves } from 'lucide-react';
 
 interface ClinicalAssessment {
   phq2Score: number;
@@ -31,6 +31,22 @@ interface CBTThoughtRecord {
   evidenceFor: string;
   evidenceAgainst: string;
   balancedReframe: string;
+}
+
+interface CravingData {
+  intensity: number;
+  triggers: string[];
+  copingStrategy: string;
+  strategyHelpfulness: number;
+  currentMood: number;
+  urgeSurfingUsed: boolean;
+}
+
+interface RecoveryData {
+  confidenceLevel: number;
+  importanceLevel: number;
+  recoveryStrength: string;
+  supportNeeds: string[];
 }
 
 const DailyCheckIn = () => {
@@ -58,14 +74,37 @@ const DailyCheckIn = () => {
     evidenceAgainst: '',
     balancedReframe: ''
   });
+
+  // Craving management state
+  const [cravingData, setCravingData] = useState<CravingData>({
+    intensity: 1,
+    triggers: [],
+    copingStrategy: '',
+    strategyHelpfulness: 5,
+    currentMood: 5,
+    urgeSurfingUsed: false
+  });
+
+  // Recovery confidence state
+  const [recoveryData, setRecoveryData] = useState<RecoveryData>({
+    confidenceLevel: 5,
+    importanceLevel: 5,
+    recoveryStrength: '',
+    supportNeeds: []
+  });
   
   const [selectedEmotion, setSelectedEmotion] = useState('');
   const [emotionIntensity, setEmotionIntensity] = useState([5]);
   const [reflection, setReflection] = useState<string>('');
+  const [customTrigger, setCustomTrigger] = useState('');
+  const [urgeSurfingActive, setUrgeSurfingActive] = useState(false);
+  const [urgeSurfingTime, setUrgeSurfingTime] = useState(0);
 
+  // Mood Emojis and Labels
   const moodEmojis = ['😢', '😟', '😐', '🙂', '😊', '😃', '🤗', '😍', '🥳', '✨'];
   const moodLabels = ['Very Low', 'Low', 'Below Average', 'Okay', 'Good', 'Great', 'Excellent', 'Amazing', 'Fantastic', 'Incredible'];
 
+  // Response Options
   const responseOptions = [
     { value: 0, label: "Not at all" },
     { value: 1, label: "Several days" },
@@ -73,27 +112,80 @@ const DailyCheckIn = () => {
     { value: 3, label: "Nearly every day" }
   ];
 
+  // PHQ-2 Depression Screening Questions
   const phq2Questions = [
     "Over the last 2 weeks, how often have you been bothered by little interest or pleasure in doing things?",
     "Over the last 2 weeks, how often have you been bothered by feeling down, depressed, or hopeless?"
   ];
 
+  // GAD-2 Anxiety Screening Questions
   const gad2Questions = [
     "Over the last 2 weeks, how often have you been bothered by feeling nervous, anxious, or on edge?",
     "Over the last 2 weeks, how often have you been bothered by not being able to stop or control worrying?"
   ];
 
+  // Emotion Options
   const emotionOptions = [
     'Sad', 'Angry', 'Anxious', 'Ashamed', 'Guilty', 'Hopeless', 
     'Frustrated', 'Lonely', 'Disappointed', 'Overwhelmed', 'Worried', 'Fearful'
   ];
 
+  // Physical Sensation Options
   const physicalSensationOptions = [
     'Tight chest', 'Headache', 'Muscle tension', 'Racing heart', 
     'Stomach ache', 'Shallow breathing', 'Sweating', 'Trembling', 
     'Fatigue', 'Dizziness', 'Nausea', 'Hot flashes'
   ];
 
+  // Trigger Options
+  const triggerOptions = [
+    'People (certain friends, family)',
+    'Places (bars, old neighborhoods)',
+    'Things (paraphernalia, money)',
+    'Emotions (stress, loneliness)',
+    'Times (weekends, evenings)',
+    'Situations (parties, celebrations)'
+  ];
+
+  // Coping Strategies
+  const copingStrategies = [
+    'Called someone from support network',
+    'Exercised or went for a walk',
+    'Practiced meditation',
+    'Used breathing technique',
+    'Left the situation',
+    'Used thought stopping technique',
+    'Listened to music',
+    'Journaled or wrote thoughts',
+    'Took a shower or bath',
+    'Used grounding techniques',
+    'None - I need help choosing'
+  ];
+
+  // Recovery Strengths
+  const recoveryStrengths = [
+    'My support system',
+    'My determination',
+    'My tools/skills',
+    'My reasons for recovery',
+    'My progress so far',
+    'My spiritual/religious beliefs',
+    'My goals and dreams'
+  ];
+
+  // Support Needs Options
+  const supportNeedsOptions = [
+    'Someone to talk to',
+    'Professional help',
+    'Family support',
+    'Practical help (housing, job)',
+    'Just encouragement',
+    'Crisis intervention',
+    'Medical support',
+    'Financial assistance'
+  ];
+
+  // Get Battery Icon
   const getBatteryIcon = (level: number) => {
     const percentage = (level / 10) * 100;
     return (
@@ -107,6 +199,7 @@ const DailyCheckIn = () => {
     );
   };
 
+  // Get Hope Gradient
   const getHopeGradient = (level: number) => {
     const colors = [
       '#1f2937', '#374151', '#4b5563', '#6b7280', '#9ca3af',
@@ -115,6 +208,38 @@ const DailyCheckIn = () => {
     return colors[Math.floor(level) - 1] || colors[4];
   };
 
+  // Get Craving Color
+  const getCravingColor = (intensity: number) => {
+    if (intensity <= 3) return 'from-green-400 to-green-600';
+    if (intensity <= 6) return 'from-yellow-400 to-yellow-600';
+    return 'from-red-400 to-red-600';
+  };
+
+  // Get Mood Face
+  const getMoodFace = (mood: number) => {
+    const faces = ['😢', '😟', '😐', '🙂', '😊'];
+    return faces[Math.floor((mood - 1) / 2)] || '😐';
+  };
+
+  // Confidence Anchors
+  const confidenceAnchors = [
+    'Not confident at all',
+    'Slightly confident',
+    'Somewhat confident',
+    'Moderately confident',
+    'Very confident'
+  ];
+
+  // Importance Anchors
+  const importanceAnchors = [
+    'Not important',
+    'Slightly important',
+    'Somewhat important',
+    'Very important',
+    'Extremely important'
+  ];
+
+  // Calculate Clinical Scores
   const calculateClinicalScores = (): ClinicalAssessment => {
     const phq2Score = phq2Responses.reduce((sum, score) => sum + score, 0);
     const gad2Score = gad2Responses.reduce((sum, score) => sum + score, 0);
@@ -127,6 +252,7 @@ const DailyCheckIn = () => {
     };
   };
 
+  // Get Clinical Interpretation
   const getClinicalInterpretation = (phq2Score: number, gad2Score: number) => {
     const interpretations = [];
     
@@ -160,22 +286,26 @@ const DailyCheckIn = () => {
     return interpretations;
   };
 
+  // Handle PHQ-2 Response
   const handlePhq2Response = (questionIndex: number, value: string) => {
     const newResponses = [...phq2Responses];
     newResponses[questionIndex] = parseInt(value);
     setPhq2Responses(newResponses);
   };
 
+  // Handle GAD-2 Response
   const handleGad2Response = (questionIndex: number, value: string) => {
     const newResponses = [...gad2Responses];
     newResponses[questionIndex] = parseInt(value);
     setGad2Responses(newResponses);
   };
 
+  // Handle Mood Change
   const handleMoodChange = (field: keyof MoodData, value: number) => {
     setMoodData(prev => ({ ...prev, [field]: value }));
   };
 
+  // Add Emotion
   const addEmotion = () => {
     if (selectedEmotion && !cbtRecord.emotions.some(e => e.emotion === selectedEmotion)) {
       setCbtRecord(prev => ({
@@ -187,6 +317,7 @@ const DailyCheckIn = () => {
     }
   };
 
+  // Remove Emotion
   const removeEmotion = (emotion: string) => {
     setCbtRecord(prev => ({
       ...prev,
@@ -194,6 +325,7 @@ const DailyCheckIn = () => {
     }));
   };
 
+  // Toggle Physical Sensation
   const togglePhysicalSensation = (sensation: string) => {
     setCbtRecord(prev => ({
       ...prev,
@@ -203,6 +335,56 @@ const DailyCheckIn = () => {
     }));
   };
 
+  // Toggle Trigger
+  const toggleTrigger = (trigger: string) => {
+    setCravingData(prev => ({
+      ...prev,
+      triggers: prev.triggers.includes(trigger)
+        ? prev.triggers.filter(t => t !== trigger)
+        : [...prev.triggers, trigger]
+    }));
+  };
+
+  // Add Custom Trigger
+  const addCustomTrigger = () => {
+    if (customTrigger.trim() && !cravingData.triggers.includes(customTrigger.trim())) {
+      setCravingData(prev => ({
+        ...prev,
+        triggers: [...prev.triggers, customTrigger.trim()]
+      }));
+      setCustomTrigger('');
+    }
+  };
+
+  // Toggle Support Need
+  const toggleSupportNeed = (need: string) => {
+    setRecoveryData(prev => ({
+      ...prev,
+      supportNeeds: prev.supportNeeds.includes(need)
+        ? prev.supportNeeds.filter(n => n !== need)
+        : [...prev.supportNeeds, need]
+    }));
+  };
+
+  // Start Urge Surfing
+  const startUrgeSurfing = () => {
+    setUrgeSurfingActive(true);
+    setUrgeSurfingTime(120); // 2 minutes
+    
+    const timer = setInterval(() => {
+      setUrgeSurfingTime(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setUrgeSurfingActive(false);
+          setCravingData(prev => ({ ...prev, urgeSurfingUsed: true }));
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  // Handle Submit
   const handleSubmit = () => {
     const clinicalAssessment = calculateClinicalScores();
     
@@ -211,7 +393,9 @@ const DailyCheckIn = () => {
       moodData,
       reflection,
       clinicalAssessment,
-      cbtRecord
+      cbtRecord,
+      cravingData,
+      recoveryData
     };
 
     // Save to localStorage for demo
@@ -238,10 +422,25 @@ const DailyCheckIn = () => {
         evidenceAgainst: '',
         balancedReframe: ''
       });
+      setCravingData({
+        intensity: 1,
+        triggers: [],
+        copingStrategy: '',
+        strategyHelpfulness: 5,
+        currentMood: 5,
+        urgeSurfingUsed: false
+      });
+      setRecoveryData({
+        confidenceLevel: 5,
+        importanceLevel: 5,
+        recoveryStrength: '',
+        supportNeeds: []
+      });
       setCurrentStep(1);
     }, 3000);
   };
 
+  // Can Proceed to Next Step
   const canProceedToNext = () => {
     switch (currentStep) {
       case 1: return phq2Responses.length === 2;
@@ -253,7 +452,11 @@ const DailyCheckIn = () => {
       case 7: return cbtRecord.physicalSensations.length > 0;
       case 8: return cbtRecord.evidenceFor.trim().length > 0 && cbtRecord.evidenceAgainst.trim().length > 0;
       case 9: return cbtRecord.balancedReframe.trim().length > 0;
-      case 10: return reflection.trim().length > 0;
+      case 10: return cravingData.triggers.length > 0; // craving triggers
+      case 11: return cravingData.copingStrategy.length > 0; // coping strategy
+      case 12: return recoveryData.recoveryStrength.length > 0; // recovery strength
+      case 13: return recoveryData.supportNeeds.length > 0; // support needs
+      case 14: return reflection.trim().length > 0; // final reflection
       default: return false;
     }
   };
@@ -271,6 +474,8 @@ const DailyCheckIn = () => {
           <div className="text-sm text-gray-600">
             <div>PHQ-2 Score: {phq2Score}/6</div>
             <div>GAD-2 Score: {gad2Score}/6</div>
+            <div>Recovery Confidence: {recoveryData.confidenceLevel}/10</div>
+            {cravingData.intensity > 1 && <div>Craving Intensity: {cravingData.intensity}/10</div>}
           </div>
           
           {interpretations.map((interp, index) => (
@@ -281,12 +486,12 @@ const DailyCheckIn = () => {
           ))}
         </div>
         
-        <p className="text-gray-600">Thank you for taking time to reflect on your wellbeing.</p>
+        <p className="text-gray-600">Thank you for taking time to reflect on your wellbeing and recovery journey.</p>
       </Card>
     );
   }
 
-  const totalSteps = 10;
+  const totalSteps = 14;
 
   return (
     <div className="space-y-6">
@@ -627,20 +832,332 @@ const DailyCheckIn = () => {
           </div>
         )}
 
-        {/* Final Reflection */}
+        {/* Craving Intensity Assessment */}
         {currentStep === 10 && (
+          <div className="space-y-6">
+            <div className="text-center">
+              <h4 className="text-lg font-medium serenity-navy mb-2">Craving Assessment</h4>
+              <p className="text-sm text-gray-600">How strong is your craving right now?</p>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="text-center">
+                <div className={`text-2xl font-bold bg-gradient-to-r ${getCravingColor(cravingData.intensity)} bg-clip-text text-transparent`}>
+                  {cravingData.intensity}/10
+                </div>
+              </div>
+              <Slider
+                value={[cravingData.intensity]}
+                onValueChange={(value) => setCravingData(prev => ({ ...prev, intensity: value[0] }))}
+                min={1}
+                max={10}
+                step={1}
+                className="w-full"
+              />
+              <div className="flex justify-between text-xs text-gray-500">
+                <span>No craving</span>
+                <span>Intense craving</span>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h5 className="font-medium text-gray-700">What triggered this craving? (Select all that apply)</h5>
+              <div className="space-y-2">
+                {triggerOptions.map((trigger) => (
+                  <div key={trigger} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={trigger}
+                      checked={cravingData.triggers.includes(trigger)}
+                      onCheckedChange={() => toggleTrigger(trigger)}
+                    />
+                    <Label htmlFor={trigger} className="text-sm">{trigger}</Label>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={customTrigger}
+                  onChange={(e) => setCustomTrigger(e.target.value)}
+                  placeholder="Add custom trigger..."
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                />
+                <Button onClick={addCustomTrigger} disabled={!customTrigger.trim()}>Add</Button>
+              </div>
+              
+              <div className="flex flex-wrap gap-2">
+                {cravingData.triggers.map((trigger, index) => (
+                  <Badge key={index} variant="secondary" className="flex items-center">
+                    {trigger}
+                    <button 
+                      onClick={() => toggleTrigger(trigger)}
+                      className="ml-2 text-red-500 hover:text-red-700"
+                    >
+                      ×
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            {cravingData.intensity >= 5 && (
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex items-center justify-between mb-2">
+                  <h5 className="font-medium text-blue-700">Try Urge Surfing</h5>
+                  <Waves className="w-5 h-5 text-blue-500" />
+                </div>
+                <p className="text-sm text-blue-600 mb-3">
+                  A 2-minute guided exercise to help you ride out the craving like a wave.
+                </p>
+                {!urgeSurfingActive && !cravingData.urgeSurfingUsed ? (
+                  <Button onClick={startUrgeSurfing} className="bg-blue-600 hover:bg-blue-700">
+                    Start Urge Surfing
+                  </Button>
+                ) : urgeSurfingActive ? (
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-700 mb-2">
+                      {Math.floor(urgeSurfingTime / 60)}:{(urgeSurfingTime % 60).toString().padStart(2, '0')}
+                    </div>
+                    <div className="text-sm text-blue-600">
+                      Notice the urge... don't fight it... let it pass like a wave
+                    </div>
+                    <div className="w-full bg-blue-200 rounded-full h-2 mt-2">
+                      <div 
+                        className="bg-blue-600 h-2 rounded-full transition-all duration-1000"
+                        style={{ width: `${((120 - urgeSurfingTime) / 120) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-green-600 font-medium">✓ Urge surfing completed</div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Coping Strategy & Outcome */}
+        {currentStep === 11 && (
+          <div className="space-y-6">
+            <div className="text-center">
+              <h4 className="text-lg font-medium serenity-navy mb-2">Coping Strategy</h4>
+              <p className="text-sm text-gray-600">What did you do to manage the craving?</p>
+            </div>
+            
+            <div className="space-y-4">
+              <Select value={cravingData.copingStrategy} onValueChange={(value) => setCravingData(prev => ({ ...prev, copingStrategy: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a coping strategy" />
+                </SelectTrigger>
+                <SelectContent>
+                  {copingStrategies.map((strategy) => (
+                    <SelectItem key={strategy} value={strategy}>{strategy}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {cravingData.copingStrategy && cravingData.copingStrategy !== 'None - I need help choosing' && (
+                <>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      How helpful was your coping strategy? ({cravingData.strategyHelpfulness}/10)
+                    </label>
+                    <Slider
+                      value={[cravingData.strategyHelpfulness]}
+                      onValueChange={(value) => setCravingData(prev => ({ ...prev, strategyHelpfulness: value[0] }))}
+                      min={1}
+                      max={10}
+                      step={1}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>Not helpful</span>
+                      <span>Very helpful</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">How do you feel now?</label>
+                    <div className="text-center">
+                      <div className="text-3xl mb-2">{getMoodFace(cravingData.currentMood)}</div>
+                      <Slider
+                        value={[cravingData.currentMood]}
+                        onValueChange={(value) => setCravingData(prev => ({ ...prev, currentMood: value[0] }))}
+                        min={1}
+                        max={10}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>😢 Worse</span>
+                        <span>😊 Better</span>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {cravingData.copingStrategy === 'None - I need help choosing' && (
+                <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                  <h5 className="font-medium text-yellow-700 mb-2">Suggested Coping Strategies:</h5>
+                  <ul className="text-sm text-yellow-600 space-y-1">
+                    <li>• Call your sponsor or a trusted friend</li>
+                    <li>• Do 10 jumping jacks or take a brisk walk</li>
+                    <li>• Try the 4-7-8 breathing technique</li>
+                    <li>• Change your environment immediately</li>
+                    <li>• Use the "HALT" check: Are you Hungry, Angry, Lonely, or Tired?</li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Recovery Confidence */}
+        {currentStep === 12 && (
+          <div className="space-y-6">
+            <div className="text-center">
+              <h4 className="text-lg font-medium serenity-navy mb-2">Recovery Confidence</h4>
+              <p className="text-sm text-gray-600">Assess your recovery mindset today</p>
+            </div>
+            
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-gray-700">
+                  How confident are you about staying sober today? ({recoveryData.confidenceLevel}/10)
+                </label>
+                <div className="text-center text-sm text-gray-600 mb-2">
+                  {confidenceAnchors[Math.floor((recoveryData.confidenceLevel - 1) / 2)] || 'Confident'}
+                </div>
+                <Slider
+                  value={[recoveryData.confidenceLevel]}
+                  onValueChange={(value) => setRecoveryData(prev => ({ ...prev, confidenceLevel: value[0] }))}
+                  min={1}
+                  max={10}
+                  step={1}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span>Not confident</span>
+                  <span>Very confident</span>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-gray-700">
+                  How important is recovery to you right now? ({recoveryData.importanceLevel}/10)
+                </label>
+                <div className="text-center text-sm text-gray-600 mb-2">
+                  {importanceAnchors[Math.floor((recoveryData.importanceLevel - 1) / 2)] || 'Important'}
+                </div>
+                <Slider
+                  value={[recoveryData.importanceLevel]}
+                  onValueChange={(value) => setRecoveryData(prev => ({ ...prev, importanceLevel: value[0] }))}
+                  min={1}
+                  max={10}
+                  step={1}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span>Not important</span>
+                  <span>Extremely important</span>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-gray-700">
+                  What's your biggest recovery strength today?
+                </label>
+                <Select value={recoveryData.recoveryStrength} onValueChange={(value) => setRecoveryData(prev => ({ ...prev, recoveryStrength: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your strength" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {recoveryStrengths.map((strength) => (
+                      <SelectItem key={strength} value={strength}>{strength}</SelectItem>
+                    ))}
+                    <SelectItem value="custom">Other (please specify)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Support Needs */}
+        {currentStep === 13 && (
+          <div className="space-y-6">
+            <div className="text-center">
+              <h4 className="text-lg font-medium serenity-navy mb-2">Support Needs</h4>
+              <p className="text-sm text-gray-600">What support do you need most today?</p>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="space-y-2">
+                {supportNeedsOptions.map((need) => (
+                  <div key={need} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={need}
+                      checked={recoveryData.supportNeeds.includes(need)}
+                      onCheckedChange={() => toggleSupportNeed(need)}
+                    />
+                    <Label htmlFor={need} className="text-sm">{need}</Label>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="flex flex-wrap gap-2">
+                {recoveryData.supportNeeds.map((need, index) => (
+                  <Badge key={index} variant="secondary" className="flex items-center">
+                    {need}
+                    <button 
+                      onClick={() => toggleSupportNeed(need)}
+                      className="ml-2 text-red-500 hover:text-red-700"
+                    >
+                      ×
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+
+              {recoveryData.supportNeeds.length > 0 && (
+                <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                  <h5 className="font-medium text-green-700 mb-2">Suggested Resources:</h5>
+                  <div className="text-sm text-green-600 space-y-1">
+                    {recoveryData.supportNeeds.includes('Someone to talk to') && (
+                      <div>• Your sponsor, trusted friend, or support group</div>
+                    )}
+                    {recoveryData.supportNeeds.includes('Professional help') && (
+                      <div>• Consider scheduling with your counselor or therapist</div>
+                    )}
+                    {recoveryData.supportNeeds.includes('Crisis intervention') && (
+                      <div>• <strong>Crisis Hotline: 988</strong> (available 24/7)</div>
+                    )}
+                    {recoveryData.supportNeeds.includes('Medical support') && (
+                      <div>• Contact your healthcare provider or treatment center</div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Final Reflection */}
+        {currentStep === 14 && (
           <div className="space-y-6">
             <div>
               <label className="block text-lg font-medium serenity-navy mb-4 text-center">
                 Final Reflection
               </label>
               <p className="text-sm text-gray-600 text-center mb-4">
-                How are you feeling after working through this thought record?
+                How are you feeling after this check-in? What insights did you gain?
               </p>
               <Textarea
                 value={reflection}
                 onChange={(e) => setReflection(e.target.value)}
-                placeholder="Reflect on what you learned from this exercise and how you're feeling now..."
+                placeholder="Reflect on your mental health, recovery journey, coping strategies, and what you learned about yourself today..."
                 className="w-full h-32 resize-none"
               />
             </div>

@@ -356,12 +356,19 @@ const FollowUpDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[...crisisHistory, ...checkInHistory]
-                .sort((a, b) => new Date(b.timestamp || b.resolutionTime).getTime() - new Date(a.timestamp || a.resolutionTime).getTime())
+              {[
+                ...crisisHistory.map(item => ({ ...item, type: 'crisis' as const })),
+                ...checkInHistory.map(item => ({ ...item, type: 'checkin' as const }))
+              ]
+                .sort((a, b) => {
+                  const aTime = a.type === 'crisis' ? new Date(a.resolutionTime).getTime() : new Date(a.timestamp).getTime();
+                  const bTime = b.type === 'crisis' ? new Date(b.resolutionTime).getTime() : new Date(b.timestamp).getTime();
+                  return bTime - aTime;
+                })
                 .slice(0, 3)
                 .map((item, index) => (
                   <div key={index} className="flex items-center space-x-3 p-2 rounded-lg bg-gray-50">
-                    {'resolutionTime' in item ? (
+                    {item.type === 'crisis' ? (
                       <>
                         <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
                         <div className="flex-1">

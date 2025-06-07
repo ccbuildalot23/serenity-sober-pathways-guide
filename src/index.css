@@ -112,11 +112,11 @@
   }
 
   .animate-gentle-fade-in {
-    animation: gentle-fade-in 1.2s ease-out;
+    animation: gentle-fade-in 2.5s ease-out;
   }
 
   .animate-gentle-fade-in-delayed {
-    animation: gentle-fade-in 1.2s ease-out 0.3s both;
+    animation: gentle-fade-in 2.5s ease-out 0.5s both;
   }
 
   .animate-smooth-shake {
@@ -153,7 +153,7 @@
 @keyframes gentle-fade-in {
   0% {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px);
   }
   100% {
     opacity: 1;

@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { requestNotificationPermission } from "@/services/mockPushService";
+import { SecurityHeaders } from "@/lib/securityHeaders";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { Crisis } from '@/modules';
@@ -18,6 +19,9 @@ const queryClient = new QueryClient();
 
 const App = () => {
   useEffect(() => {
+    // Apply security headers
+    SecurityHeaders.applySecurity();
+
     // Request notification permission on app load
     const initNotifications = async () => {
       const granted = await requestNotificationPermission();

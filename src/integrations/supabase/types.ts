@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          details_encrypted: string | null
+          id: string
+          ip_address: unknown | null
+          session_id: string | null
+          timestamp: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          details_encrypted?: string | null
+          id?: string
+          ip_address?: unknown | null
+          session_id?: string | null
+          timestamp?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          details_encrypted?: string | null
+          id?: string
+          ip_address?: unknown | null
+          session_id?: string | null
+          timestamp?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       craving_logs: {
         Row: {
           checkin_id: string | null
@@ -392,108 +425,6 @@ export type Database = {
           },
         ]
       }
-      learning_progress: {
-        Row: {
-          id: string
-          user_id: string
-          module_name: string
-          skill_name: string
-          competency_level: string | null
-          practice_count: number | null
-          last_practiced: string | null
-          average_effectiveness: number | null
-          real_world_usage_count: number | null
-          updated_at: string | null
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          module_name: string
-          skill_name: string
-          competency_level?: string | null
-          practice_count?: number | null
-          last_practiced?: string | null
-          average_effectiveness?: number | null
-          real_world_usage_count?: number | null
-          updated_at?: string | null
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          module_name?: string
-          skill_name?: string
-          competency_level?: string | null
-          practice_count?: number | null
-          last_practiced?: string | null
-          average_effectiveness?: number | null
-          real_world_usage_count?: number | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      user_goals: {
-        Row: {
-          id: string
-          user_id: string
-          goal_text: string
-          goal_type: string | null
-          target_date: string | null
-          status: string | null
-          progress_percentage: number | null
-          created_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          goal_text: string
-          goal_type?: string | null
-          target_date?: string | null
-          status?: string | null
-          progress_percentage?: number | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          goal_text?: string
-          goal_type?: string | null
-          target_date?: string | null
-          status?: string | null
-          progress_percentage?: number | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      user_values: {
-        Row: {
-          id: string
-          user_id: string
-          value_name: string
-          importance_level: string
-          recovery_connection: string | null
-          created_at: string | null
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          value_name: string
-          importance_level: string
-          recovery_connection?: string | null
-          created_at?: string | null
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          value_name?: string
-          importance_level?: string
-          recovery_connection?: string | null
-          created_at?: string | null
-        }
-        Relationships: []
-      }
       thought_record_templates: {
         Row: {
           automatic_thought_example: string
@@ -614,30 +545,6 @@ export type Database = {
         }
         Relationships: []
       }
-      audit_logs: {
-        Row: {
-          id: string
-          user_id: string | null
-          action: string
-          timestamp: string | null
-          details_encrypted: string | null
-        }
-        Insert: {
-          id?: string
-          user_id?: string | null
-          action: string
-          timestamp?: string | null
-          details_encrypted?: string | null
-        }
-        Update: {
-          id?: string
-          user_id?: string | null
-          action?: string
-          timestamp?: string | null
-          details_encrypted?: string | null
-        }
-        Relationships: []
-      }
       user_insights: {
         Row: {
           created_at: string
@@ -706,7 +613,7 @@ export type Database = {
     }
     Functions: {
       analyze_craving_patterns: {
-        Args: { user_uuid: string }
+        Args: Record<PropertyKey, never> | { user_uuid: string }
         Returns: Json
       }
       calculate_skill_mastery: {
@@ -719,7 +626,17 @@ export type Database = {
       }
       generate_daily_insights: {
         Args: Record<PropertyKey, never> | { user_uuid: string }
-        Returns: Json
+        Returns: undefined
+      }
+      get_daily_trends: {
+        Args: { user_uuid: string; days_back: number }
+        Returns: {
+          checkin_date: string
+          mood_rating: number
+          energy_rating: number
+          hope_rating: number
+          trend_direction: string
+        }[]
       }
       get_mood_trends: {
         Args: { user_uuid: string; days_back?: number }

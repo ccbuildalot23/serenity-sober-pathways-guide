@@ -11,6 +11,7 @@ import DailyCheckIn from '@/components/DailyCheckIn';
 import SupportNetwork from '@/components/SupportNetwork';
 import EducationalResources from '@/components/EducationalResources';
 import UserProfile from '@/components/UserProfile';
+import RealtimeNotifications from '@/components/RealtimeNotifications';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -39,6 +40,7 @@ const Index = () => {
   if (isSupporterView) {
     return (
       <>
+        <RealtimeNotifications />
         <ViewToggle 
           isSupporterView={isSupporterView} 
           onToggle={setIsSupporterView} 
@@ -103,6 +105,7 @@ const Index = () => {
 
   return (
     <>
+      <RealtimeNotifications />
       <ViewToggle 
         isSupporterView={isSupporterView} 
         onToggle={setIsSupporterView} 

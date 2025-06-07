@@ -110,7 +110,7 @@ export const useOfflineCrisisData = () => {
         user_id: item.user_id,
         crisis_start_time: new Date(item.crisis_start_time),
         resolution_time: new Date(item.resolution_time),
-        interventions_used: item.interventions_used || [],
+        interventions_used: Array.isArray(item.interventions_used) ? item.interventions_used : [],
         effectiveness_rating: item.effectiveness_rating,
         additional_notes: item.additional_notes || '',
         safety_confirmed: item.safety_confirmed
@@ -175,6 +175,14 @@ export const useOfflineCrisisData = () => {
     }
   };
 
+  const generateUUID = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  };
+
   const saveCrisisResolution = async (resolution: Omit<CrisisResolution, 'id' | 'user_id'>) => {
     if (!user) return;
 
@@ -182,7 +190,7 @@ export const useOfflineCrisisData = () => {
       const newResolution = {
         ...resolution,
         user_id: user.id,
-        id: crypto.randomUUID()
+        id: generateUUID()
       };
 
       if (isOnline) {
@@ -225,7 +233,7 @@ export const useOfflineCrisisData = () => {
       const newResponse = {
         ...response,
         user_id: user.id,
-        id: crypto.randomUUID()
+        id: generateUUID()
       };
 
       if (isOnline) {
@@ -267,7 +275,7 @@ export const useOfflineCrisisData = () => {
       const newTask = {
         ...task,
         user_id: user.id,
-        id: crypto.randomUUID()
+        id: generateUUID()
       };
 
       if (isOnline) {

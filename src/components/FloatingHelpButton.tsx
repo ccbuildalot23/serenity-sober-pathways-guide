@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -85,7 +86,7 @@ const FloatingHelpButton = () => {
     const messageText = getMessageText();
     const location = includeLocation ? getCurrentLocation() : undefined;
     const selectedContactObjects = contacts.filter(contact => 
-      selectedContacts.includes(contact.id)
+      selectedContacts.includes(contact.id) && contact.phone // Only include contacts with phone numbers
     );
 
     console.log('Sending emergency alert...');
@@ -95,10 +96,20 @@ const FloatingHelpButton = () => {
 
     const results = { success: [], failed: [] };
 
-    // Send alerts to all selected contacts
+    // Send alerts to all selected contacts with phone numbers
     for (const contact of selectedContactObjects) {
       try {
-        const result = await sendMockSMS(contact, messageText, location);
+        // Now contact is guaranteed to have a phone number due to the filter above
+        const result = await sendMockSMS(
+          { 
+            id: contact.id, 
+            name: contact.name, 
+            phone: contact.phone!, 
+            relationship: contact.relationship 
+          }, 
+          messageText, 
+          location
+        );
         if (result.success) {
           results.success.push(contact.name);
         } else {
@@ -242,12 +253,20 @@ const FloatingHelpButton = () => {
                 </p>
               ) : (
                 <div className="space-y-2 max-h-32 overflow-y-auto border rounded-md p-2">
-                  {contacts.map((contact) => (
+                  {contacts
+                    .filter(contact => contact.phone) // Only show contacts with phone numbers
+                    .map((contact) => (
                     <div key={contact.id} className="flex items-center space-x-2">
                       <Checkbox
                         id={contact.id}
                         checked={selectedContacts.includes(contact.id)}
-                        onCheckedChange={() => handleContactToggle(contact.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked === true) {
+                            setSelectedContacts(prev => [...prev, contact.id]);
+                          } else {
+                            setSelectedContacts(prev => prev.filter(id => id !== contact.id));
+                          }
+                        }}
                       />
                       <label 
                         htmlFor={contact.id}

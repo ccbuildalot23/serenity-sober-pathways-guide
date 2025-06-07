@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, Phone, MessageSquare, Users, Heart, CheckCircle } from 'lucide-react';
 import InterventionToolbox from './interventions/InterventionToolbox';
+import SafetyConfirmation from './SafetyConfirmation';
 
 interface CrisisResponseModalProps {
   isOpen: boolean;
@@ -17,7 +18,9 @@ const CrisisResponseModal: React.FC<CrisisResponseModalProps> = ({
   onClose,
   riskLevel
 }) => {
-  const [currentView, setCurrentView] = useState<'response' | 'tools' | 'confirmation'>('response');
+  const [currentView, setCurrentView] = useState<'response' | 'tools' | 'safety'>('response');
+  const [interventionsUsed, setInterventionsUsed] = useState<string[]>([]);
+  const [crisisStartTime] = useState(new Date());
 
   const handleCall911 = () => {
     window.location.href = 'tel:911';
@@ -31,8 +34,9 @@ const CrisisResponseModal: React.FC<CrisisResponseModalProps> = ({
     window.location.href = 'sms:741741&body=HOME';
   };
 
-  const handleToolsComplete = () => {
-    setCurrentView('confirmation');
+  const handleToolsComplete = (toolName: string) => {
+    setInterventionsUsed(prev => [...prev, toolName]);
+    setCurrentView('safety');
   };
 
   const handleSafetyConfirmation = () => {
@@ -88,53 +92,15 @@ const CrisisResponseModal: React.FC<CrisisResponseModalProps> = ({
   const riskInfo = getRiskInfo();
 
   // Safety confirmation screen
-  if (currentView === 'confirmation') {
+  if (currentView === 'safety') {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-md mx-auto p-0">
-          <Card className="border-0 shadow-none">
-            <CardHeader className="text-center pb-4">
-              <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-4">
-                <CheckCircle className="w-8 h-8 text-green-600" />
-              </div>
-              <CardTitle className="text-green-600">You're Doing Great</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6 text-center">
-              <p className="text-lg">
-                You've taken positive steps to care for yourself. How are you feeling now?
-              </p>
-              
-              <div className="space-y-3">
-                <Button 
-                  onClick={handleSafetyConfirmation}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3"
-                >
-                  <Heart className="w-4 h-4 mr-2" />
-                  I'm Safe Now
-                </Button>
-                
-                <Button 
-                  onClick={() => setCurrentView('tools')}
-                  variant="outline"
-                  className="w-full"
-                >
-                  Try Another Tool
-                </Button>
-                
-                <Button 
-                  onClick={() => setCurrentView('response')}
-                  variant="ghost"
-                  className="w-full"
-                >
-                  Back to Crisis Support
-                </Button>
-              </div>
-
-              <div className="text-sm text-gray-600 pt-4 border-t">
-                <p>Remember: You are not alone. Help is always available.</p>
-              </div>
-            </CardContent>
-          </Card>
+          <SafetyConfirmation
+            onSafetyConfirmed={handleSafetyConfirmation}
+            interventionsUsed={interventionsUsed}
+            crisisStartTime={crisisStartTime}
+          />
         </DialogContent>
       </Dialog>
     );
@@ -223,7 +189,7 @@ const CrisisResponseModal: React.FC<CrisisResponseModalProps> = ({
             {/* Safety Confirmation */}
             <div className="pt-4 border-t">
               <Button 
-                onClick={handleSafetyConfirmation}
+                onClick={() => setCurrentView('safety')}
                 className="w-full bg-green-600 hover:bg-green-700 text-white py-3"
               >
                 <Heart className="w-4 h-4 mr-2" />

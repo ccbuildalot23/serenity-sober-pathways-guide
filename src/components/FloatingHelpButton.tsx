@@ -1,468 +1,267 @@
-import React, { useState, useEffect } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
-import { sendMockSMS } from '@/services/mockSmsService';
-import { sendMockPush } from '@/services/mockPushService';
-import { getCurrentLocation, getCachedLocation, type LocationData, type GeolocationError } from '@/services/geolocationService';
-import { panicModeService } from '@/services/panicModeService';
-import { getPhoneEmergencyContacts, hasPhoneContactsAccess } from '@/services/phoneContactsService';
-import EmergencyModal from './emergency/EmergencyModal';
-import FloatingActionButtons from './emergency/FloatingActionButtons';
-
-interface Contact {
-  id: string;
-  name: string;
-  relationship: string;
-  phone?: string;
-  email?: string;
-}
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { MessageSquare, Phone, MapPin, Users, Clock, AlertTriangle, Send, X } from 'lucide-react';
 
 const FloatingHelpButton = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedMessage, setSelectedMessage] = useState('');
-  const [customMessage, setCustomMessage] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
+  const [currentStep, setCurrentStep] = useState('main');
   const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
+  const [customMessage, setCustomMessage] = useState('');
+  const [selectedTemplate, setSelectedTemplate] = useState('');
   const [includeLocation, setIncludeLocation] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [alertResults, setAlertResults] = useState<{ success: string[]; failed: string[] } | null>(null);
-  const [locationData, setLocationData] = useState<LocationData | null>(null);
-  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
-  const [locationError, setLocationError] = useState<string | null>(null);
-  const [isVoiceListening, setIsVoiceListening] = useState(false);
-  const [panicCooldown, setPanicCooldown] = useState(0);
-  const [phoneContacts, setPhoneContacts] = useState<any[]>([]);
-  const [isLoadingPhoneContacts, setIsLoadingPhoneContacts] = useState(false);
-  
-  const { toast } = useToast();
+  const [urgencyLevel, setUrgencyLevel] = useState('medium');
 
-  // Keyboard shortcut: Ctrl/Cmd + H
-  useKeyboardShortcuts([
-    {
-      key: 'h',
-      ctrlKey: true,
-      callback: () => {
-        console.log('Emergency keyboard shortcut triggered');
-        handleHelpClick();
-      }
-    }
-  ]);
+  const mockContacts = [
+    { id: '1', name: 'Sarah (Sponsor)', phone: '+1 (555) 123-4567', relationship: 'sponsor' },
+    { id: '2', name: 'Mom', phone: '+1 (555) 234-5678', relationship: 'family' },
+    { id: '3', name: 'Dr. Johnson', phone: '+1 (555) 345-6789', relationship: 'therapist' },
+    { id: '4', name: 'Mike (AA Buddy)', phone: '+1 (555) 456-7890', relationship: 'peer' },
+  ];
 
-  useEffect(() => {
-    const savedContacts = localStorage.getItem('supportContacts');
-    if (savedContacts) {
-      setContacts(JSON.parse(savedContacts));
-    }
-
-    // Load phone emergency contacts
-    loadPhoneContacts();
-  }, [isModalOpen]);
-
-  // Panic mode cooldown timer
-  useEffect(() => {
-    if (panicCooldown > 0) {
-      const timer = setInterval(() => {
-        setPanicCooldown(prev => Math.max(0, prev - 1000));
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-  }, [panicCooldown]);
-
-  const loadPhoneContacts = async () => {
-    if (!hasPhoneContactsAccess()) {
-      console.log('No phone contacts access available');
-      return;
-    }
-
-    setIsLoadingPhoneContacts(true);
-    try {
-      const phoneEmergencyContacts = await getPhoneEmergencyContacts();
-      setPhoneContacts(phoneEmergencyContacts);
-      console.log('Loaded phone emergency contacts:', phoneEmergencyContacts);
-    } catch (error) {
-      console.error('Failed to load phone contacts:', error);
-    } finally {
-      setIsLoadingPhoneContacts(false);
-    }
-  };
-
-  const handleHelpClick = () => {
-    console.log('Emergency help button clicked');
-    setIsModalOpen(true);
-    // Reset form when opening
-    setSelectedMessage('');
-    setCustomMessage('');
-    setSelectedContacts([]);
-    setIncludeLocation(false);
-    setAlertResults(null);
-    setLocationData(null);
-    setLocationError(null);
-  };
-
-  const handleVoiceCommand = () => {
-    setIsVoiceListening(true);
-    console.log('Mock: Starting voice recognition for "Hey app, I need help"');
-    
-    // Simulate voice recognition
-    setTimeout(() => {
-      console.log('Mock: Voice command recognized - "Hey app, I need help"');
-      setIsVoiceListening(false);
-      handleHelpClick();
-      toast({
-        title: "Voice command recognized",
-        description: "Emergency modal opened via voice command",
-        duration: 3000,
-      });
-    }, 2000);
-  };
-
-  const handlePanicMode = async () => {
-    const panicResult = panicModeService.triggerPanic();
-    
-    if (!panicResult.success) {
-      const remainingSeconds = Math.ceil(panicResult.cooldownRemaining! / 1000);
-      toast({
-        title: "Panic mode in cooldown",
-        description: `Please wait ${remainingSeconds} seconds before triggering again`,
-        variant: "destructive",
-        duration: 3000,
-      });
-      return;
-    }
-
-    console.log('PANIC MODE ACTIVATED: Sending emergency alert to all contacts');
-    setPanicCooldown(30000); // 30 seconds
-
-    const allContacts = [
-      ...contacts.filter(c => c.phone),
-      ...phoneContacts
-    ];
-
-    if (allContacts.length === 0) {
-      toast({
-        title: "No contacts available",
-        description: "Add emergency contacts to use panic mode",
-        variant: "destructive",
-        duration: 5000,
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    const panicMessage = "🚨 EMERGENCY ALERT: I need immediate help. This is urgent. Please contact me now.";
-    
-    // Get location for panic mode
-    let location: string | undefined;
-    try {
-      const locationData = await getCurrentLocation();
-      location = locationData.address;
-    } catch (error) {
-      console.log('Could not get location for panic mode');
-    }
-
-    const results = { success: [], failed: [] };
-
-    for (const contact of allContacts) {
-      try {
-        const smsResult = await sendMockSMS(
-          { 
-            id: contact.id, 
-            name: contact.name, 
-            phone: contact.phone!, 
-            relationship: contact.relationship 
-          }, 
-          panicMessage, 
-          location
-        );
-
-        const pushResult = await sendMockPush(
-          { 
-            id: contact.id, 
-            name: contact.name, 
-            relationship: contact.relationship 
-          }, 
-          panicMessage, 
-          location
-        );
-
-        if (smsResult.success) {
-          results.success.push(contact.name);
-        } else {
-          results.failed.push(contact.name);
-        }
-      } catch (error) {
-        console.error(`Error in panic mode for ${contact.name}:`, error);
-        results.failed.push(contact.name);
-      }
-    }
-
-    setIsLoading(false);
-
-    toast({
-      title: "🚨 PANIC MODE ALERT SENT",
-      description: `Emergency alert sent to ${results.success.length} contacts`,
-      duration: 10000,
-    });
-  };
-
-  const handleQuickTemplate = async (template: any) => {
-    if (selectedContacts.length === 0) {
-      toast({
-        title: "Select contacts first",
-        description: "Choose who to send this quick message to",
-        variant: "destructive",
-        duration: 3000,
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    console.log(`Sending quick template: ${template.label}`);
-
-    const selectedContactObjects = contacts.filter(contact => 
-      selectedContacts.includes(contact.id) && contact.phone
-    );
-
-    const location = includeLocation && locationData ? locationData.address : undefined;
-    const results = { success: [], failed: [] };
-
-    for (const contact of selectedContactObjects) {
-      try {
-        const smsResult = await sendMockSMS(
-          { 
-            id: contact.id, 
-            name: contact.name, 
-            phone: contact.phone!, 
-            relationship: contact.relationship 
-          }, 
-          template.message, 
-          location
-        );
-
-        const pushResult = await sendMockPush(
-          { 
-            id: contact.id, 
-            name: contact.name, 
-            relationship: contact.relationship 
-          }, 
-          template.message, 
-          location
-        );
-
-        if (smsResult.success) {
-          results.success.push(contact.name);
-        } else {
-          results.failed.push(contact.name);
-        }
-      } catch (error) {
-        console.error(`Error sending template to ${contact.name}:`, error);
-        results.failed.push(contact.name);
-      }
-    }
-
-    setAlertResults(results);
-    setIsLoading(false);
-
-    toast({
-      title: "Quick message sent!",
-      description: `"${template.label}" sent to ${results.success.join(', ')}`,
-      duration: 5000,
-    });
-
-    setTimeout(() => {
-      setIsModalOpen(false);
-    }, 2000);
-  };
+  const messageTemplates = [
+    { id: 'craving', text: "I'm experiencing strong cravings right now and could use some support. Can we talk?" },
+    { id: 'anxiety', text: "I'm feeling overwhelmed with anxiety. Would you be available to chat?" },
+    { id: 'general', text: "I'm struggling today and could use someone to talk to. Are you free?" },
+    { id: 'meeting', text: "I'm having a tough day. Can you help me find a meeting nearby?" },
+  ];
 
   const handleContactToggle = (contactId: string) => {
     setSelectedContacts(prev => 
-      prev.includes(contactId)
+      prev.includes(contactId) 
         ? prev.filter(id => id !== contactId)
         : [...prev, contactId]
     );
   };
 
-  const getMessageText = () => {
-    if (selectedMessage === 'custom') {
-      return customMessage;
-    }
-    const preWrittenMessages = [
-      { value: 'craving', label: 'Strong craving, need encouragement' },
-      { value: 'triggered', label: 'Feeling triggered, need to talk' },
-      { value: 'difficult', label: 'In a difficult situation, please check on me' },
-      { value: 'custom', label: 'Custom message' }
-    ];
-    const messageObj = preWrittenMessages.find(msg => msg.value === selectedMessage);
-    return messageObj?.label || '';
+  const handleLocationToggle = (checked: boolean | 'indeterminate') => {
+    // Convert the value to boolean, treating 'indeterminate' as false
+    setIncludeLocation(checked === true);
   };
 
-  const handleLocationToggle = async (checked: boolean | 'indeterminate') => {
-    const isChecked = checked === true;
-    setIncludeLocation(isChecked);
-    setLocationError(null);
-    
-    if (isChecked) {
-      const cached = getCachedLocation();
-      if (cached && (Date.now() - cached.timestamp.getTime()) < 300000) {
-        setLocationData(cached);
-        return;
-      }
+  const handleTemplateSelect = (templateId: string) => {
+    const template = messageTemplates.find(t => t.id === templateId);
+    if (template) {
+      setCustomMessage(template.text);
+      setSelectedTemplate(templateId);
+    }
+  };
+
+  const handleSendAlert = () => {
+    console.log('Sending alert:', {
+      contacts: selectedContacts,
+      message: customMessage,
+      location: includeLocation,
+      urgency: urgencyLevel,
+    });
+    setIsOpen(false);
+    resetForm();
+  };
+
+  const resetForm = () => {
+    setCurrentStep('main');
+    setSelectedContacts([]);
+    setCustomMessage('');
+    setSelectedTemplate('');
+    setIncludeLocation(false);
+    setUrgencyLevel('medium');
+  };
+
+  const renderContactSelector = () => (
+    <Card className="p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold">Select Support Contacts</h3>
+        <Button variant="ghost" size="sm" onClick={() => setCurrentStep('main')}>
+          <X className="w-4 h-4" />
+        </Button>
+      </div>
+
+      <div className="space-y-3 mb-6">
+        {mockContacts.map(contact => (
+          <div key={contact.id} className="flex items-center space-x-3 p-3 border rounded-lg">
+            <Checkbox
+              checked={selectedContacts.includes(contact.id)}
+              onCheckedChange={() => handleContactToggle(contact.id)}
+            />
+            <div className="flex-1">
+              <div className="font-medium">{contact.name}</div>
+              <div className="text-sm text-gray-500">{contact.phone}</div>
+            </div>
+            <Badge variant="secondary" className="text-xs">
+              {contact.relationship}
+            </Badge>
+          </div>
+        ))}
+      </div>
+
+      <div className="space-y-4">
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            checked={includeLocation}
+            onCheckedChange={handleLocationToggle}
+          />
+          <Label className="text-sm">Include my current location</Label>
+        </div>
+
+        <div>
+          <Label className="text-sm font-medium">Urgency Level</Label>
+          <RadioGroup value={urgencyLevel} onValueChange={setUrgencyLevel} className="mt-2">
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="low" id="low" />
+              <Label htmlFor="low">Low - Can wait</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="medium" id="medium" />
+              <Label htmlFor="medium">Medium - Need support soon</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="high" id="high" />
+              <Label htmlFor="high">High - Need immediate help</Label>
+            </div>
+          </RadioGroup>
+        </div>
+      </div>
+
+      <Button 
+        onClick={() => setCurrentStep('message')} 
+        className="w-full mt-6"
+        disabled={selectedContacts.length === 0}
+      >
+        Next: Compose Message
+      </Button>
+    </Card>
+  );
+
+  const renderMessageComposer = () => (
+    <Card className="p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold">Compose Your Message</h3>
+        <Button variant="ghost" size="sm" onClick={() => setCurrentStep('contacts')}>
+          <X className="w-4 h-4" />
+        </Button>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <Label className="text-sm font-medium">Quick Templates</Label>
+          <Select value={selectedTemplate} onValueChange={handleTemplateSelect}>
+            <SelectTrigger className="mt-2">
+              <SelectValue placeholder="Choose a template or write custom message" />
+            </SelectTrigger>
+            <SelectContent>
+              {messageTemplates.map(template => (
+                <SelectItem key={template.id} value={template.id}>
+                  {template.text.substring(0, 50)}...
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label className="text-sm font-medium">Your Message</Label>
+          <Textarea
+            value={customMessage}
+            onChange={(e) => setCustomMessage(e.target.value)}
+            placeholder="Type your message here..."
+            className="mt-2 h-32"
+          />
+        </div>
+
+        <div className="bg-gray-50 p-3 rounded-lg">
+          <div className="text-sm font-medium mb-2">Will be sent to:</div>
+          <div className="space-y-1">
+            {selectedContacts.map(contactId => {
+              const contact = mockContacts.find(c => c.id === contactId);
+              return contact ? (
+                <div key={contactId} className="text-sm text-gray-600">
+                  • {contact.name}
+                </div>
+              ) : null;
+            })}
+          </div>
+        </div>
+      </div>
+
+      <Button 
+        onClick={handleSendAlert} 
+        className="w-full mt-6 bg-red-600 hover:bg-red-700"
+        disabled={!customMessage.trim()}
+      >
+        <Send className="w-4 h-4 mr-2" />
+        Send Alert Now
+      </Button>
+    </Card>
+  );
+
+  const renderMainMenu = () => (
+    <Card className="p-6">
+      <h3 className="text-lg font-semibold mb-4 text-center">Need Support Right Now?</h3>
       
-      setIsLoadingLocation(true);
-      try {
-        const location = await getCurrentLocation();
-        setLocationData(location);
-        console.log('Location obtained:', location);
-      } catch (error) {
-        const geoError = error as GeolocationError;
-        setLocationError(geoError.message);
-        setIncludeLocation(false);
+      <div className="space-y-3">
+        <Button 
+          onClick={() => setCurrentStep('contacts')} 
+          className="w-full justify-start bg-red-600 hover:bg-red-700 text-white"
+        >
+          <AlertTriangle className="w-4 h-4 mr-2" />
+          Send Alert to Support Network
+        </Button>
         
-        toast({
-          title: "Location access failed",
-          description: geoError.message,
-          variant: "destructive",
-          duration: 5000,
-        });
-      } finally {
-        setIsLoadingLocation(false);
-      }
-    } else {
-      setLocationData(null);
-    }
-  };
+        <Button variant="outline" className="w-full justify-start">
+          <Phone className="w-4 h-4 mr-2" />
+          Call Crisis Hotline
+        </Button>
+        
+        <Button variant="outline" className="w-full justify-start">
+          <MapPin className="w-4 h-4 mr-2" />
+          Find Nearby Meeting
+        </Button>
+        
+        <Button variant="outline" className="w-full justify-start">
+          <Users className="w-4 h-4 mr-2" />
+          Connect with Peer Support
+        </Button>
+      </div>
+      
+      <div className="mt-4 pt-4 border-t text-center">
+        <div className="text-sm text-gray-600">
+          Crisis Hotline: <span className="font-medium">988</span>
+        </div>
+        <div className="text-xs text-gray-500 mt-1">
+          Available 24/7 for immediate support
+        </div>
+      </div>
+    </Card>
+  );
 
-  const handleSendAlert = async () => {
-    if (!selectedMessage || selectedContacts.length === 0) {
-      return;
-    }
-
-    setIsLoading(true);
-    setAlertResults(null);
-    
-    const messageText = getMessageText();
-    const location = includeLocation && locationData ? locationData.address : undefined;
-    const selectedContactObjects = contacts.filter(contact => 
-      selectedContacts.includes(contact.id) && contact.phone
+  if (!isOpen) {
+    return (
+      <div className="fixed bottom-6 right-6 z-50">
+        <Button
+          onClick={() => setIsOpen(true)}
+          className="h-14 w-14 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-lg animate-emergency-pulse"
+        >
+          <MessageSquare className="w-6 h-6" />
+        </Button>
+      </div>
     );
-
-    console.log('Sending emergency alert...');
-    console.log('Message:', messageText);
-    console.log('Selected contacts:', selectedContactObjects.map(c => c.name));
-    console.log('Include location:', includeLocation);
-    console.log('Location data:', locationData);
-
-    const results = { success: [], failed: [] };
-
-    for (const contact of selectedContactObjects) {
-      try {
-        const smsResult = await sendMockSMS(
-          { 
-            id: contact.id, 
-            name: contact.name, 
-            phone: contact.phone!, 
-            relationship: contact.relationship 
-          }, 
-          messageText, 
-          location
-        );
-
-        const pushResult = await sendMockPush(
-          { 
-            id: contact.id, 
-            name: contact.name, 
-            relationship: contact.relationship 
-          }, 
-          messageText, 
-          location
-        );
-
-        if (smsResult.success) {
-          results.success.push(contact.name);
-          console.log(`SMS sent to ${contact.name}`);
-        } else {
-          results.failed.push(contact.name);
-        }
-
-        if (pushResult.success) {
-          console.log(`Push notification sent for ${contact.name}`);
-        } else {
-          console.log(`Push notification failed for ${contact.name}:`, pushResult.error);
-        }
-
-      } catch (error) {
-        console.error(`Error sending to ${contact.name}:`, error);
-        results.failed.push(contact.name);
-      }
-    }
-
-    setAlertResults(results);
-    setIsLoading(false);
-
-    if (results.success.length > 0) {
-      toast({
-        title: "Alert sent successfully!",
-        description: `Alert sent to ${results.success.join(', ')}`,
-        duration: 5000,
-      });
-    }
-
-    if (results.failed.length > 0) {
-      toast({
-        title: "Some alerts failed",
-        description: `Failed to send to ${results.failed.join(', ')}`,
-        variant: "destructive",
-        duration: 5000,
-      });
-    }
-
-    if (results.failed.length === 0) {
-      setTimeout(() => {
-        setIsModalOpen(false);
-      }, 2000);
-    }
-  };
-
-  const isFormValid = selectedMessage && selectedContacts.length > 0 && 
-    (selectedMessage !== 'custom' || customMessage.trim());
+  }
 
   return (
-    <>
-      {/* Enhanced Floating Help Buttons */}
-      <FloatingActionButtons
-        onHelpClick={handleHelpClick}
-        onVoiceCommand={handleVoiceCommand}
-        onPanicMode={handlePanicMode}
-        isVoiceListening={isVoiceListening}
-        panicCooldown={panicCooldown}
-        isLoading={isLoading}
-      />
-
-      {/* Emergency Support Modal */}
-      <EmergencyModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        selectedMessage={selectedMessage}
-        onMessageChange={setSelectedMessage}
-        customMessage={customMessage}
-        onCustomMessageChange={setCustomMessage}
-        selectedContacts={selectedContacts}
-        onContactToggle={handleContactToggle}
-        includeLocation={includeLocation}
-        onLocationToggle={handleLocationToggle}
-        isLoading={isLoading}
-        contacts={contacts}
-        phoneContacts={phoneContacts}
-        isLoadingPhoneContacts={isLoadingPhoneContacts}
-        alertResults={alertResults}
-        locationData={locationData}
-        isLoadingLocation={isLoadingLocation}
-        locationError={locationError}
-        onSendAlert={handleSendAlert}
-        onQuickTemplate={handleQuickTemplate}
-        isFormValid={isFormValid}
-      />
-    </>
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {currentStep === 'main' && renderMainMenu()}
+        {currentStep === 'contacts' && renderContactSelector()}
+        {currentStep === 'message' && renderMessageComposer()}
+      </div>
+    </div>
   );
 };
 

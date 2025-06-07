@@ -2,7 +2,7 @@ import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, User, Heart, MessageCircle } from 'lucide-react';
+import { Plus, User, Heart, MessageCircle, AlertTriangle } from 'lucide-react';
 
 interface Contact {
   id: string;
@@ -22,6 +22,7 @@ const SupportNetwork = () => {
     email: ''
   });
   const [showSettings, setShowSettings] = useState(false);
+  const [showCrisisContacts, setShowCrisisContacts] = useState(false);
 
   useEffect(() => {
     const savedContacts = localStorage.getItem('supportContacts');
@@ -62,7 +63,6 @@ const SupportNetwork = () => {
   const handleCall = (contact: Contact) => {
     if (contact.phone) {
       console.log(`Calling ${contact.name} at ${contact.phone}`);
-      // In a real app, this would open the phone dialer
       window.open(`tel:${contact.phone}`);
     }
   };
@@ -70,10 +70,29 @@ const SupportNetwork = () => {
   const handleMessage = (contact: Contact) => {
     if (contact.phone) {
       console.log(`Messaging ${contact.name} at ${contact.phone}`);
-      // In a real app, this would open SMS
       window.open(`sms:${contact.phone}`);
     }
   };
+
+  if (showCrisisContacts) {
+    const CrisisContactManager = React.lazy(() => import('./emergency/CrisisContactManager'));
+    return (
+      <div>
+        <div className="flex items-center mb-4">
+          <Button
+            onClick={() => setShowCrisisContacts(false)}
+            variant="outline"
+            size="sm"
+          >
+            ← Back
+          </Button>
+        </div>
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <CrisisContactManager />
+        </React.Suspense>
+      </div>
+    );
+  }
 
   if (showSettings) {
     const SupportCircleSettings = React.lazy(() => import('./SupportCircleSettings'));
@@ -101,6 +120,14 @@ const SupportNetwork = () => {
         <h3 className="text-xl font-semibold serenity-navy">Support Network</h3>
         <div className="flex gap-2">
           <Button
+            onClick={() => setShowCrisisContacts(true)}
+            size="sm"
+            className="bg-red-600 hover:bg-red-700 text-xs"
+          >
+            <AlertTriangle className="w-4 h-4 mr-1" />
+            Crisis Contacts
+          </Button>
+          <Button
             onClick={() => setShowSettings(true)}
             size="sm"
             variant="outline"
@@ -118,6 +145,28 @@ const SupportNetwork = () => {
           </Button>
         </div>
       </div>
+
+      {/* Crisis Contacts Quick Access */}
+      <Card className="p-4 bg-red-50 border-red-200">
+        <div className="flex items-center justify-between">
+          <div>
+            <h4 className="font-semibold text-red-800 flex items-center">
+              <AlertTriangle className="w-4 h-4 mr-2" />
+              Emergency Crisis Support
+            </h4>
+            <p className="text-sm text-red-600">
+              Quick access to priority contacts for crisis situations
+            </p>
+          </div>
+          <Button
+            onClick={() => setShowCrisisContacts(true)}
+            size="sm"
+            className="bg-red-600 hover:bg-red-700"
+          >
+            Manage
+          </Button>
+        </div>
+      </Card>
 
       {isAdding && (
         <Card className="p-4 animate-scale-in">

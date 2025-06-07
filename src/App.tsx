@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { requestNotificationPermission } from "@/services/mockPushService";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import EnhancedCrisisSystem from "@/components/crisis/EnhancedCrisisSystem";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import AlertHistory from "./pages/AlertHistory";
@@ -52,6 +53,9 @@ const App = () => {
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            
+            {/* Enhanced Crisis System - Available on all authenticated pages */}
+            <EnhancedCrisisSystem />
           </BrowserRouter>
         </AuthProvider>
       </TooltipProvider>

@@ -458,7 +458,7 @@ export type Database = {
         Returns: Json
       }
       generate_daily_insights: {
-        Args: { user_uuid: string }
+        Args: Record<PropertyKey, never> | { user_uuid: string }
         Returns: Json
       }
       get_mood_trends: {

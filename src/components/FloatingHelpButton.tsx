@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Hand, AlertTriangle, Loader2, CheckCircle, XCircle, MapPin, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { sendMockSMS } from '@/services/mockSmsService';
+import { sendMockPush } from '@/services/mockPushService';
 import { getCurrentLocation, getCachedLocation, type LocationData, type GeolocationError } from '@/services/geolocationService';
 
 interface Contact {
@@ -138,8 +139,8 @@ const FloatingHelpButton = () => {
     // Send alerts to all selected contacts with phone numbers
     for (const contact of selectedContactObjects) {
       try {
-        // Now contact is guaranteed to have a phone number due to the filter above
-        const result = await sendMockSMS(
+        // Send SMS
+        const smsResult = await sendMockSMS(
           { 
             id: contact.id, 
             name: contact.name, 
@@ -149,11 +150,31 @@ const FloatingHelpButton = () => {
           messageText, 
           location
         );
-        if (result.success) {
+
+        // Send push notification
+        const pushResult = await sendMockPush(
+          { 
+            id: contact.id, 
+            name: contact.name, 
+            relationship: contact.relationship 
+          }, 
+          messageText, 
+          location
+        );
+
+        if (smsResult.success) {
           results.success.push(contact.name);
+          console.log(`SMS sent to ${contact.name}`);
         } else {
           results.failed.push(contact.name);
         }
+
+        if (pushResult.success) {
+          console.log(`Push notification sent for ${contact.name}`);
+        } else {
+          console.log(`Push notification failed for ${contact.name}:`, pushResult.error);
+        }
+
       } catch (error) {
         console.error(`Error sending to ${contact.name}:`, error);
         results.failed.push(contact.name);

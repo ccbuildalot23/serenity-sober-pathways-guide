@@ -79,6 +79,13 @@ export const useOfflineCrisisData = () => {
     }
   };
 
+  const convertJsonArrayToStringArray = (jsonArray: any): string[] => {
+    if (!Array.isArray(jsonArray)) {
+      return [];
+    }
+    return jsonArray.map(item => String(item));
+  };
+
   const loadFromDatabase = async () => {
     if (!user) return;
 
@@ -110,7 +117,7 @@ export const useOfflineCrisisData = () => {
         user_id: item.user_id,
         crisis_start_time: new Date(item.crisis_start_time),
         resolution_time: new Date(item.resolution_time),
-        interventions_used: Array.isArray(item.interventions_used) ? item.interventions_used : [],
+        interventions_used: convertJsonArrayToStringArray(item.interventions_used),
         effectiveness_rating: item.effectiveness_rating,
         additional_notes: item.additional_notes || '',
         safety_confirmed: item.safety_confirmed

@@ -47,7 +47,7 @@ const ContactSelector = ({
                   onCheckedChange={(checked) => {
                     if (checked === true) {
                       onContactToggle(contact.id);
-                    } else {
+                    } else if (checked === false) {
                       onContactToggle(contact.id);
                     }
                   }}
@@ -81,7 +81,7 @@ const ContactSelector = ({
                 onCheckedChange={(checked) => {
                   if (checked === true) {
                     onContactToggle(contact.id);
-                  } else {
+                  } else if (checked === false) {
                     onContactToggle(contact.id);
                   }
                 }}

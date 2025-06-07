@@ -20,13 +20,17 @@ const LocationSelector = ({
   locationData, 
   locationError 
 }: LocationSelectorProps) => {
+  const handleToggle = (checked: boolean | 'indeterminate') => {
+    onLocationToggle(checked);
+  };
+
   return (
     <div className="space-y-3">
       <div className="flex items-center space-x-2">
         <Checkbox
           id="location"
           checked={includeLocation}
-          onCheckedChange={onLocationToggle}
+          onCheckedChange={handleToggle}
           disabled={isLoadingLocation}
         />
         <label 

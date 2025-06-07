@@ -1,6 +1,8 @@
 
 import React, { useState } from 'react';
 import Layout from '@/components/Layout';
+import ViewToggle from '@/components/ViewToggle';
+import SupporterDashboard from '@/components/supporter/SupporterDashboard';
 import EmergencyButton from '@/components/EmergencyButton';
 import SobrietyTracker from '@/components/SobrietyTracker';
 import DailyCheckIn from '@/components/DailyCheckIn';
@@ -9,6 +11,20 @@ import EducationalResources from '@/components/EducationalResources';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isSupporterView, setIsSupporterView] = useState(false);
+
+  // If in supporter view, show the supporter dashboard
+  if (isSupporterView) {
+    return (
+      <>
+        <ViewToggle 
+          isSupporterView={isSupporterView} 
+          onToggle={setIsSupporterView} 
+        />
+        <SupporterDashboard />
+      </>
+    );
+  }
 
   const renderContent = () => {
     switch (activeTab) {
@@ -56,9 +72,15 @@ const Index = () => {
   };
 
   return (
-    <Layout activeTab={activeTab} onTabChange={setActiveTab}>
-      {renderContent()}
-    </Layout>
+    <>
+      <ViewToggle 
+        isSupporterView={isSupporterView} 
+        onToggle={setIsSupporterView} 
+      />
+      <Layout activeTab={activeTab} onTabChange={setActiveTab}>
+        {renderContent()}
+      </Layout>
+    </>
   );
 };
 

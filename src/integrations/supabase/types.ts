@@ -453,7 +453,28 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      analyze_craving_patterns: {
+        Args: { user_uuid: string }
+        Returns: Json
+      }
+      generate_daily_insights: {
+        Args: { user_uuid: string }
+        Returns: Json
+      }
+      get_mood_trends: {
+        Args: { user_uuid: string; days_back?: number }
+        Returns: {
+          checkin_date: string
+          mood_rating: number
+          energy_rating: number
+          hope_rating: number
+          trend_direction: string
+        }[]
+      }
+      get_recovery_streak: {
+        Args: { user_uuid: string }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

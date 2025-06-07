@@ -12,6 +12,7 @@ import SupportNetwork from '@/components/SupportNetwork';
 import EducationalResources from '@/components/EducationalResources';
 import UserProfile from '@/components/UserProfile';
 import RealtimeNotifications from '@/components/RealtimeNotifications';
+import CrisisInterventionSystem from '@/components/crisis/CrisisInterventionSystem';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -41,6 +42,7 @@ const Index = () => {
     return (
       <>
         <RealtimeNotifications />
+        <CrisisInterventionSystem />
         <ViewToggle 
           isSupporterView={isSupporterView} 
           onToggle={setIsSupporterView} 
@@ -106,6 +108,7 @@ const Index = () => {
   return (
     <>
       <RealtimeNotifications />
+      <CrisisInterventionSystem />
       <ViewToggle 
         isSupporterView={isSupporterView} 
         onToggle={setIsSupporterView} 

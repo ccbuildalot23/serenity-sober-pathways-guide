@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Detective, Users, ArrowLeftRight } from 'lucide-react';
+import { BookOpen, Search, Users, ArrowLeftRight } from 'lucide-react';
 import ThoughtRecordBuilder from './ThoughtRecordBuilder';
 import DistortionDetective from './DistortionDetective';
 import FriendReframing from './FriendReframing';
@@ -27,7 +26,7 @@ const CognitiveRestructuring: React.FC = () => {
       id: 'distortion-detective',
       title: 'Cognitive Distortion Detective',
       description: 'Learn to identify and challenge thinking patterns that fuel distress',
-      icon: Detective,
+      icon: Search,
       difficulty: 'Intermediate',
       duration: '15-20 min',
       badge: 'Pattern Detective'

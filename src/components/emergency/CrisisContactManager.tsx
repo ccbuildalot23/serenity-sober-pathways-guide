@@ -19,165 +19,303 @@ import {
   AlertTriangle,
   CheckCircle
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface CrisisContact {
   id: string;
   name: string;
   relationship: string;
-  phoneNumber: string;
+  phone_number: string;
   email?: string;
-  priorityOrder: number;
-  notificationPreferences: {
+  priority_order: number;
+  notification_preferences: {
     crisis: boolean;
     milestones: boolean;
     preferredMethod: 'phone' | 'text' | 'both';
   };
-  isEmergencyContact: boolean;
-  responseTime?: string;
-  lastContacted?: Date;
+  is_emergency_contact: boolean;
+  response_time?: string;
+  last_contacted?: Date;
 }
 
 const CrisisContactManager = () => {
   const [contacts, setContacts] = useState<CrisisContact[]>([]);
   const [isAdding, setIsAdding] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [newContact, setNewContact] = useState<Partial<CrisisContact>>({
     name: '',
     relationship: '',
-    phoneNumber: '',
+    phone_number: '',
     email: '',
-    priorityOrder: 1,
-    notificationPreferences: {
+    priority_order: 1,
+    notification_preferences: {
       crisis: true,
       milestones: false,
       preferredMethod: 'both'
     },
-    isEmergencyContact: true
+    is_emergency_contact: true
   });
 
+  const { user } = useAuth();
+  const { toast } = useToast();
+
   useEffect(() => {
-    const savedContacts = localStorage.getItem('crisisContacts');
-    if (savedContacts) {
-      setContacts(JSON.parse(savedContacts));
-    } else {
-      // Demo emergency contacts
-      const demoContacts: CrisisContact[] = [
-        {
-          id: '1',
-          name: 'Sarah (Sponsor)',
-          relationship: 'Sponsor',
-          phoneNumber: '555-0123',
-          priorityOrder: 1,
-          notificationPreferences: {
-            crisis: true,
-            milestones: true,
-            preferredMethod: 'both'
-          },
-          isEmergencyContact: true
-        },
-        {
-          id: '2',
-          name: 'Mom',
-          relationship: 'Family',
-          phoneNumber: '555-0124',
-          priorityOrder: 2,
-          notificationPreferences: {
-            crisis: true,
-            milestones: false,
-            preferredMethod: 'phone'
-          },
-          isEmergencyContact: true
-        }
-      ];
-      setContacts(demoContacts);
+    if (user) {
+      loadContacts();
     }
-  }, []);
+  }, [user]);
 
-  const saveContacts = (updatedContacts: CrisisContact[]) => {
-    setContacts(updatedContacts);
-    localStorage.setItem('crisisContacts', JSON.stringify(updatedContacts));
+  const loadContacts = async () => {
+    if (!user) return;
+
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('crisis_contacts')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('priority_order', { ascending: true });
+
+      if (error) {
+        console.error('Error loading crisis contacts:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load your crisis contacts",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const transformedContacts = (data || []).map(contact => ({
+        id: contact.id,
+        name: contact.name,
+        relationship: contact.relationship,
+        phone_number: contact.phone_number,
+        email: contact.email,
+        priority_order: contact.priority_order,
+        notification_preferences: contact.notification_preferences as any,
+        is_emergency_contact: contact.is_emergency_contact,
+        response_time: contact.response_time,
+        last_contacted: contact.last_contacted ? new Date(contact.last_contacted) : undefined
+      }));
+
+      setContacts(transformedContacts);
+    } catch (error) {
+      console.error('Error in loadContacts:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleAddContact = () => {
-    if (!newContact.name?.trim() || !newContact.phoneNumber?.trim()) return;
+  const handleAddContact = async () => {
+    if (!newContact.name?.trim() || !newContact.phone_number?.trim() || !user) return;
 
-    const contact: CrisisContact = {
-      id: Date.now().toString(),
-      name: newContact.name,
-      relationship: newContact.relationship || 'Support Person',
-      phoneNumber: newContact.phoneNumber,
-      email: newContact.email,
-      priorityOrder: contacts.length + 1,
-      notificationPreferences: newContact.notificationPreferences!,
-      isEmergencyContact: newContact.isEmergencyContact || false
-    };
+    try {
+      setSaving(true);
+      const { data, error } = await supabase
+        .from('crisis_contacts')
+        .insert({
+          user_id: user.id,
+          name: newContact.name,
+          relationship: newContact.relationship || 'Support Person',
+          phone_number: newContact.phone_number,
+          email: newContact.email || null,
+          priority_order: contacts.length + 1,
+          notification_preferences: newContact.notification_preferences!,
+          is_emergency_contact: newContact.is_emergency_contact || false
+        })
+        .select()
+        .single();
 
-    saveContacts([...contacts, contact]);
-    setNewContact({
-      name: '',
-      relationship: '',
-      phoneNumber: '',
-      email: '',
-      priorityOrder: 1,
-      notificationPreferences: {
-        crisis: true,
-        milestones: false,
-        preferredMethod: 'both'
-      },
-      isEmergencyContact: true
-    });
-    setIsAdding(false);
+      if (error) {
+        console.error('Error adding crisis contact:', error);
+        toast({
+          title: "Error",
+          description: "Failed to save contact. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const transformedContact = {
+        id: data.id,
+        name: data.name,
+        relationship: data.relationship,
+        phone_number: data.phone_number,
+        email: data.email,
+        priority_order: data.priority_order,
+        notification_preferences: data.notification_preferences as any,
+        is_emergency_contact: data.is_emergency_contact,
+        response_time: data.response_time,
+        last_contacted: data.last_contacted ? new Date(data.last_contacted) : undefined
+      };
+
+      setContacts([...contacts, transformedContact]);
+      setNewContact({
+        name: '',
+        relationship: '',
+        phone_number: '',
+        email: '',
+        priority_order: 1,
+        notification_preferences: {
+          crisis: true,
+          milestones: false,
+          preferredMethod: 'both'
+        },
+        is_emergency_contact: true
+      });
+      setIsAdding(false);
+      
+      toast({
+        title: "Success",
+        description: "Crisis contact added successfully!",
+      });
+    } catch (error) {
+      console.error('Error in handleAddContact:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const movePriority = (contactId: string, direction: 'up' | 'down') => {
+  const movePriority = async (contactId: string, direction: 'up' | 'down') => {
     const contactIndex = contacts.findIndex(c => c.id === contactId);
     if (contactIndex === -1) return;
 
-    const newContacts = [...contacts];
     const targetIndex = direction === 'up' ? contactIndex - 1 : contactIndex + 1;
-
     if (targetIndex < 0 || targetIndex >= contacts.length) return;
 
-    // Swap contacts
-    [newContacts[contactIndex], newContacts[targetIndex]] = 
-    [newContacts[targetIndex], newContacts[contactIndex]];
+    try {
+      const newContacts = [...contacts];
+      [newContacts[contactIndex], newContacts[targetIndex]] = 
+      [newContacts[targetIndex], newContacts[contactIndex]];
 
-    // Update priority orders
-    newContacts.forEach((contact, index) => {
-      contact.priorityOrder = index + 1;
-    });
-
-    saveContacts(newContacts);
-  };
-
-  const removeContact = (contactId: string) => {
-    const updatedContacts = contacts
-      .filter(c => c.id !== contactId)
-      .map((contact, index) => ({
-        ...contact,
-        priorityOrder: index + 1
+      // Update priority orders in database
+      const updates = newContacts.map((contact, index) => ({
+        id: contact.id,
+        priority_order: index + 1
       }));
-    saveContacts(updatedContacts);
+
+      for (const update of updates) {
+        const { error } = await supabase
+          .from('crisis_contacts')
+          .update({ priority_order: update.priority_order })
+          .eq('id', update.id)
+          .eq('user_id', user!.id);
+
+        if (error) {
+          console.error('Error updating priority:', error);
+          toast({
+            title: "Error",
+            description: "Failed to update priority order",
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+
+      // Update local state
+      newContacts.forEach((contact, index) => {
+        contact.priority_order = index + 1;
+      });
+
+      setContacts(newContacts);
+    } catch (error) {
+      console.error('Error in movePriority:', error);
+    }
   };
 
-  const handleCall = (contact: CrisisContact) => {
-    const updatedContacts = contacts.map(c => 
-      c.id === contact.id 
-        ? { ...c, lastContacted: new Date() }
-        : c
-    );
-    saveContacts(updatedContacts);
-    window.open(`tel:${contact.phoneNumber}`);
+  const removeContact = async (contactId: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('crisis_contacts')
+        .delete()
+        .eq('id', contactId)
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error deleting crisis contact:', error);
+        toast({
+          title: "Error",
+          description: "Failed to delete contact",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const updatedContacts = contacts
+        .filter(c => c.id !== contactId)
+        .map((contact, index) => ({
+          ...contact,
+          priority_order: index + 1
+        }));
+
+      setContacts(updatedContacts);
+      toast({
+        title: "Success",
+        description: "Contact deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error in removeContact:', error);
+    }
   };
 
-  const handleMessage = (contact: CrisisContact) => {
-    const updatedContacts = contacts.map(c => 
-      c.id === contact.id 
-        ? { ...c, lastContacted: new Date() }
-        : c
-    );
-    saveContacts(updatedContacts);
-    const message = "I'm struggling right now and need support. Can you talk?";
-    window.open(`sms:${contact.phoneNumber}&body=${encodeURIComponent(message)}`);
+  const handleCall = async (contact: CrisisContact) => {
+    try {
+      const { error } = await supabase
+        .from('crisis_contacts')
+        .update({ last_contacted: new Date().toISOString() })
+        .eq('id', contact.id)
+        .eq('user_id', user!.id);
+
+      if (error) {
+        console.error('Error updating last contacted:', error);
+      }
+
+      const updatedContacts = contacts.map(c => 
+        c.id === contact.id 
+          ? { ...c, last_contacted: new Date() }
+          : c
+      );
+      setContacts(updatedContacts);
+      window.open(`tel:${contact.phone_number}`);
+    } catch (error) {
+      console.error('Error in handleCall:', error);
+    }
+  };
+
+  const handleMessage = async (contact: CrisisContact) => {
+    try {
+      const { error } = await supabase
+        .from('crisis_contacts')
+        .update({ last_contacted: new Date().toISOString() })
+        .eq('id', contact.id)
+        .eq('user_id', user!.id);
+
+      if (error) {
+        console.error('Error updating last contacted:', error);
+      }
+
+      const updatedContacts = contacts.map(c => 
+        c.id === contact.id 
+          ? { ...c, last_contacted: new Date() }
+          : c
+      );
+      setContacts(updatedContacts);
+      const message = "I'm struggling right now and need support. Can you talk?";
+      window.open(`sms:${contact.phone_number}&body=${encodeURIComponent(message)}`);
+    } catch (error) {
+      console.error('Error in handleMessage:', error);
+    }
   };
 
   const getPriorityBadge = (priority: number) => {
@@ -186,6 +324,18 @@ const CrisisContactManager = () => {
     if (priority === 3) return <Badge className="bg-yellow-500">Priority 3</Badge>;
     return <Badge variant="outline">Priority {priority}</Badge>;
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold serenity-navy mb-2">Emergency Contacts</h2>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-serenity-navy mx-auto mt-4"></div>
+          <p className="text-gray-600 mt-2">Loading your contacts...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -242,8 +392,8 @@ const CrisisContactManager = () => {
                   id="phone"
                   type="tel"
                   placeholder="Phone number"
-                  value={newContact.phoneNumber || ''}
-                  onChange={(e) => setNewContact({...newContact, phoneNumber: e.target.value})}
+                  value={newContact.phone_number || ''}
+                  onChange={(e) => setNewContact({...newContact, phone_number: e.target.value})}
                 />
               </div>
               <div>
@@ -261,12 +411,12 @@ const CrisisContactManager = () => {
             <div>
               <Label htmlFor="preferredMethod">Preferred Contact Method</Label>
               <Select 
-                value={newContact.notificationPreferences?.preferredMethod || 'both'}
+                value={newContact.notification_preferences?.preferredMethod || 'both'}
                 onValueChange={(value: 'phone' | 'text' | 'both') => 
                   setNewContact({
                     ...newContact, 
-                    notificationPreferences: {
-                      ...newContact.notificationPreferences!,
+                    notification_preferences: {
+                      ...newContact.notification_preferences!,
                       preferredMethod: value
                     }
                   })
@@ -286,12 +436,12 @@ const CrisisContactManager = () => {
             <div className="flex items-center space-x-2">
               <Switch
                 id="crisisAlerts"
-                checked={newContact.notificationPreferences?.crisis || false}
+                checked={newContact.notification_preferences?.crisis || false}
                 onCheckedChange={(checked) => 
                   setNewContact({
                     ...newContact,
-                    notificationPreferences: {
-                      ...newContact.notificationPreferences!,
+                    notification_preferences: {
+                      ...newContact.notification_preferences!,
                       crisis: checked
                     }
                   })
@@ -304,13 +454,15 @@ const CrisisContactManager = () => {
               <Button 
                 onClick={handleAddContact}
                 className="flex-1 bg-red-600 hover:bg-red-700"
+                disabled={saving}
               >
-                Add Emergency Contact
+                {saving ? 'Saving...' : 'Add Emergency Contact'}
               </Button>
               <Button 
                 onClick={() => setIsAdding(false)}
                 variant="outline"
                 className="flex-1"
+                disabled={saving}
               >
                 Cancel
               </Button>
@@ -321,7 +473,7 @@ const CrisisContactManager = () => {
 
       <div className="space-y-3">
         {contacts
-          .sort((a, b) => a.priorityOrder - b.priorityOrder)
+          .sort((a, b) => a.priority_order - b.priority_order)
           .map((contact, index) => (
           <Card key={contact.id} className="border-l-4 border-l-red-500">
             <CardContent className="p-4">
@@ -333,14 +485,14 @@ const CrisisContactManager = () => {
                   <div>
                     <div className="flex items-center space-x-2">
                       <h4 className="font-semibold text-gray-900">{contact.name}</h4>
-                      {getPriorityBadge(contact.priorityOrder)}
+                      {getPriorityBadge(contact.priority_order)}
                     </div>
                     <p className="text-sm text-gray-600">{contact.relationship}</p>
-                    <p className="text-xs text-gray-500">{contact.phoneNumber}</p>
-                    {contact.lastContacted && (
+                    <p className="text-xs text-gray-500">{contact.phone_number}</p>
+                    {contact.last_contacted && (
                       <p className="text-xs text-green-600 flex items-center">
                         <CheckCircle className="w-3 h-3 mr-1" />
-                        Last contacted: {new Date(contact.lastContacted).toLocaleDateString()}
+                        Last contacted: {new Date(contact.last_contacted).toLocaleDateString()}
                       </p>
                     )}
                   </div>
@@ -371,8 +523,8 @@ const CrisisContactManager = () => {
 
                   {/* Contact Actions */}
                   <div className="flex space-x-1">
-                    {(contact.notificationPreferences.preferredMethod === 'phone' || 
-                      contact.notificationPreferences.preferredMethod === 'both') && (
+                    {(contact.notification_preferences.preferredMethod === 'phone' || 
+                      contact.notification_preferences.preferredMethod === 'both') && (
                       <Button
                         size="sm"
                         onClick={() => handleCall(contact)}
@@ -381,8 +533,8 @@ const CrisisContactManager = () => {
                         <Phone className="w-4 h-4" />
                       </Button>
                     )}
-                    {(contact.notificationPreferences.preferredMethod === 'text' || 
-                      contact.notificationPreferences.preferredMethod === 'both') && (
+                    {(contact.notification_preferences.preferredMethod === 'text' || 
+                      contact.notification_preferences.preferredMethod === 'both') && (
                       <Button
                         size="sm"
                         onClick={() => handleMessage(contact)}
@@ -404,19 +556,19 @@ const CrisisContactManager = () => {
               </div>
 
               <div className="mt-3 flex items-center space-x-4 text-xs text-gray-500">
-                {contact.notificationPreferences.crisis && (
+                {contact.notification_preferences.crisis && (
                   <span className="flex items-center">
                     <AlertTriangle className="w-3 h-3 mr-1 text-red-500" />
                     Crisis Alerts
                   </span>
                 )}
-                {contact.notificationPreferences.milestones && (
+                {contact.notification_preferences.milestones && (
                   <span className="flex items-center">
                     <Heart className="w-3 h-3 mr-1 text-green-500" />
                     Milestone Alerts
                   </span>
                 )}
-                <span>Preferred: {contact.notificationPreferences.preferredMethod}</span>
+                <span>Preferred: {contact.notification_preferences.preferredMethod}</span>
               </div>
             </CardContent>
           </Card>

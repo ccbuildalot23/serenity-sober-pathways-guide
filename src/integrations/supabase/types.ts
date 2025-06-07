@@ -42,6 +42,44 @@ export type Database = {
         }
         Relationships: []
       }
+      check_in_responses: {
+        Row: {
+          id: string
+          mood_rating: number | null
+          needs_support: boolean | null
+          notes: string | null
+          task_id: string | null
+          timestamp: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          mood_rating?: number | null
+          needs_support?: boolean | null
+          notes?: string | null
+          task_id?: string | null
+          timestamp?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          mood_rating?: number | null
+          needs_support?: boolean | null
+          notes?: string | null
+          task_id?: string | null
+          timestamp?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "check_in_responses_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "follow_up_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       craving_logs: {
         Row: {
           checkin_id: string | null
@@ -98,6 +136,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      crisis_contacts: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          is_emergency_contact: boolean | null
+          last_contacted: string | null
+          name: string
+          notification_preferences: Json | null
+          phone_number: string
+          priority_order: number
+          relationship: string
+          response_time: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_emergency_contact?: boolean | null
+          last_contacted?: string | null
+          name: string
+          notification_preferences?: Json | null
+          phone_number: string
+          priority_order?: number
+          relationship: string
+          response_time?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_emergency_contact?: boolean | null
+          last_contacted?: string | null
+          name?: string
+          notification_preferences?: Json | null
+          phone_number?: string
+          priority_order?: number
+          relationship?: string
+          response_time?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       crisis_events: {
         Row: {
@@ -157,6 +243,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      crisis_resolutions: {
+        Row: {
+          additional_notes: string | null
+          created_at: string
+          crisis_start_time: string
+          effectiveness_rating: number | null
+          id: string
+          interventions_used: Json | null
+          resolution_time: string
+          safety_confirmed: boolean | null
+          user_id: string
+        }
+        Insert: {
+          additional_notes?: string | null
+          created_at?: string
+          crisis_start_time: string
+          effectiveness_rating?: number | null
+          id?: string
+          interventions_used?: Json | null
+          resolution_time: string
+          safety_confirmed?: boolean | null
+          user_id: string
+        }
+        Update: {
+          additional_notes?: string | null
+          created_at?: string
+          crisis_start_time?: string
+          effectiveness_rating?: number | null
+          id?: string
+          interventions_used?: Json | null
+          resolution_time?: string
+          safety_confirmed?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
       }
       daily_checkins: {
         Row: {
@@ -281,6 +403,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      follow_up_tasks: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string
+          crisis_event_id: string | null
+          id: string
+          scheduled_for: string
+          task_type: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          crisis_event_id?: string | null
+          id?: string
+          scheduled_for: string
+          task_type: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          crisis_event_id?: string | null
+          id?: string
+          scheduled_for?: string
+          task_type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {

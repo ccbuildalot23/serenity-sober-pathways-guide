@@ -11,23 +11,26 @@ import {
   MessageSquare, 
   Plus, 
   MapPin, 
-  Clock,
-  Heart,
   AlertTriangle,
   User,
-  Edit,
   Trash2
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface EmergencyContact {
   id: string;
   name: string;
   relationship: string;
-  phone: string;
-  isPrimary: boolean;
-  allowLocationSharing: boolean;
-  addedAt: Date;
+  phone_number: string;
+  priority_order: number;
+  notification_preferences: {
+    crisis: boolean;
+    preferredMethod: 'phone' | 'text' | 'both';
+  };
+  is_emergency_contact: boolean;
+  last_contacted?: Date;
 }
 
 interface EmergencyContactsQuickAccessProps {
@@ -43,65 +46,168 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
 }) => {
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
   const [isAdding, setIsAdding] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [includeLocation, setIncludeLocation] = useState(false);
   const [newContact, setNewContact] = useState({
     name: '',
     relationship: '',
-    phone: '',
+    phone_number: '',
     isPrimary: false
   });
 
-  useEffect(() => {
-    const savedContacts = localStorage.getItem('emergencyContacts');
-    if (savedContacts) {
-      const parsed = JSON.parse(savedContacts);
-      setContacts(parsed.map((c: any) => ({ ...c, addedAt: new Date(c.addedAt) })));
-    }
-  }, []);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-  const saveContacts = (updatedContacts: EmergencyContact[]) => {
-    setContacts(updatedContacts);
-    localStorage.setItem('emergencyContacts', JSON.stringify(updatedContacts));
+  useEffect(() => {
+    if (user) {
+      loadContacts();
+    }
+  }, [user]);
+
+  const loadContacts = async () => {
+    if (!user) return;
+
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('crisis_contacts')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('is_emergency_contact', true)
+        .order('priority_order', { ascending: true });
+
+      if (error) {
+        console.error('Error loading emergency contacts:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load your emergency contacts",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const transformedContacts = (data || []).map(contact => ({
+        id: contact.id,
+        name: contact.name,
+        relationship: contact.relationship,
+        phone_number: contact.phone_number,
+        priority_order: contact.priority_order,
+        notification_preferences: contact.notification_preferences as any,
+        is_emergency_contact: contact.is_emergency_contact,
+        last_contacted: contact.last_contacted ? new Date(contact.last_contacted) : undefined
+      }));
+
+      setContacts(transformedContacts);
+    } catch (error) {
+      console.error('Error in loadContacts:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleAddContact = () => {
-    if (!newContact.name.trim() || !newContact.phone.trim()) {
-      toast.error('Please fill in name and phone number');
+  const handleAddContact = async () => {
+    if (!newContact.name.trim() || !newContact.phone_number.trim() || !user) {
+      toast({
+        title: "Error",
+        description: "Please fill in name and phone number",
+        variant: "destructive",
+      });
       return;
     }
 
-    const contact: EmergencyContact = {
-      id: Date.now().toString(),
-      name: newContact.name,
-      relationship: newContact.relationship || 'Emergency Contact',
-      phone: newContact.phone,
-      isPrimary: newContact.isPrimary,
-      allowLocationSharing: includeLocation,
-      addedAt: new Date()
-    };
+    try {
+      setSaving(true);
+      const { data, error } = await supabase
+        .from('crisis_contacts')
+        .insert({
+          user_id: user.id,
+          name: newContact.name,
+          relationship: newContact.relationship || 'Emergency Contact',
+          phone_number: newContact.phone_number,
+          priority_order: newContact.isPrimary ? 1 : contacts.length + 1,
+          notification_preferences: {
+            crisis: true,
+            milestones: false,
+            preferredMethod: 'both'
+          },
+          is_emergency_contact: true
+        })
+        .select()
+        .single();
 
-    const updatedContacts = [...contacts, contact];
-    saveContacts(updatedContacts);
-    onContactAdded?.(contact);
+      if (error) {
+        console.error('Error adding emergency contact:', error);
+        toast({
+          title: "Error",
+          description: "Failed to save contact. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    setNewContact({ name: '', relationship: '', phone: '', isPrimary: false });
-    setIncludeLocation(false);
-    setIsAdding(false);
+      const transformedContact = {
+        id: data.id,
+        name: data.name,
+        relationship: data.relationship,
+        phone_number: data.phone_number,
+        priority_order: data.priority_order,
+        notification_preferences: data.notification_preferences as any,
+        is_emergency_contact: data.is_emergency_contact,
+        last_contacted: data.last_contacted ? new Date(data.last_contacted) : undefined
+      };
 
-    toast.success(`${contact.name} added to emergency contacts`);
+      setContacts([...contacts, transformedContact]);
+      onContactAdded?.(transformedContact);
+
+      setNewContact({ name: '', relationship: '', phone_number: '', isPrimary: false });
+      setIncludeLocation(false);
+      setIsAdding(false);
+
+      toast({
+        title: "Success",
+        description: `${transformedContact.name} added to emergency contacts`,
+      });
+    } catch (error) {
+      console.error('Error in handleAddContact:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleCall = (contact: EmergencyContact) => {
-    window.open(`tel:${contact.phone}`, '_self');
-    onContactCalled?.(contact);
-    
-    toast.info(`Calling ${contact.name}...`);
+  const handleCall = async (contact: EmergencyContact) => {
+    try {
+      const { error } = await supabase
+        .from('crisis_contacts')
+        .update({ last_contacted: new Date().toISOString() })
+        .eq('id', contact.id)
+        .eq('user_id', user!.id);
+
+      if (error) {
+        console.error('Error updating last contacted:', error);
+      }
+
+      window.open(`tel:${contact.phone_number}`, '_self');
+      onContactCalled?.(contact);
+      
+      toast({
+        title: "Calling",
+        description: `Calling ${contact.name}...`,
+      });
+    } catch (error) {
+      console.error('Error in handleCall:', error);
+    }
   };
 
   const handleText = async (contact: EmergencyContact) => {
     let message = "I'm struggling right now and need support. Can you talk?";
     
-    if (contact.allowLocationSharing && navigator.geolocation) {
+    if (includeLocation && navigator.geolocation) {
       try {
         const position = await new Promise<GeolocationPosition>((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
@@ -114,11 +220,59 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
       }
     }
 
-    const encodedMessage = encodeURIComponent(message);
-    window.open(`sms:${contact.phone}&body=${encodedMessage}`, '_self');
-    onContactTexted?.(contact);
+    try {
+      const { error } = await supabase
+        .from('crisis_contacts')
+        .update({ last_contacted: new Date().toISOString() })
+        .eq('id', contact.id)
+        .eq('user_id', user!.id);
 
-    toast.info(`Sending crisis message to ${contact.name}...`);
+      if (error) {
+        console.error('Error updating last contacted:', error);
+      }
+
+      const encodedMessage = encodeURIComponent(message);
+      window.open(`sms:${contact.phone_number}&body=${encodedMessage}`, '_self');
+      onContactTexted?.(contact);
+
+      toast({
+        title: "Sending Message",
+        description: `Sending crisis message to ${contact.name}...`,
+      });
+    } catch (error) {
+      console.error('Error in handleText:', error);
+    }
+  };
+
+  const removeContact = async (contactId: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('crisis_contacts')
+        .delete()
+        .eq('id', contactId)
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error deleting emergency contact:', error);
+        toast({
+          title: "Error",
+          description: "Failed to delete contact",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const updatedContacts = contacts.filter(c => c.id !== contactId);
+      setContacts(updatedContacts);
+      toast({
+        title: "Success",
+        description: "Contact removed",
+      });
+    } catch (error) {
+      console.error('Error in removeContact:', error);
+    }
   };
 
   const crisisTextTemplates = [
@@ -128,14 +282,19 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
     "Going through a tough time and could use a friend to talk to."
   ];
 
-  const removeContact = (contactId: string) => {
-    const updatedContacts = contacts.filter(c => c.id !== contactId);
-    saveContacts(updatedContacts);
-    toast.success('Contact removed');
-  };
+  const primaryContacts = contacts.filter(c => c.priority_order <= 2);
+  const secondaryContacts = contacts.filter(c => c.priority_order > 2);
 
-  const primaryContacts = contacts.filter(c => c.isPrimary);
-  const secondaryContacts = contacts.filter(c => !c.isPrimary);
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
+          <p className="text-gray-600 mt-2">Loading emergency contacts...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -191,8 +350,8 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
                 id="phone"
                 type="tel"
                 placeholder="Phone number"
-                value={newContact.phone}
-                onChange={(e) => setNewContact({ ...newContact, phone: e.target.value })}
+                value={newContact.phone_number}
+                onChange={(e) => setNewContact({ ...newContact, phone_number: e.target.value })}
               />
             </div>
 
@@ -215,10 +374,19 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
             </div>
 
             <div className="flex gap-2">
-              <Button onClick={handleAddContact} className="flex-1 bg-red-600 hover:bg-red-700">
-                Add Emergency Contact
+              <Button 
+                onClick={handleAddContact} 
+                className="flex-1 bg-red-600 hover:bg-red-700"
+                disabled={saving}
+              >
+                {saving ? 'Saving...' : 'Add Emergency Contact'}
               </Button>
-              <Button onClick={() => setIsAdding(false)} variant="outline" className="flex-1">
+              <Button 
+                onClick={() => setIsAdding(false)} 
+                variant="outline" 
+                className="flex-1"
+                disabled={saving}
+              >
                 Cancel
               </Button>
             </div>
@@ -226,7 +394,7 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
         </Card>
       )}
 
-      {/* Primary Contacts */}
+      {/* Priority Contacts */}
       {primaryContacts.length > 0 && (
         <div>
           <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
@@ -248,7 +416,7 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
                           <Badge className="bg-red-500 text-xs">Priority</Badge>
                         </div>
                         <p className="text-sm text-gray-600">{contact.relationship}</p>
-                        <p className="text-xs text-gray-500">{contact.phone}</p>
+                        <p className="text-xs text-gray-500">{contact.phone_number}</p>
                       </div>
                     </div>
                     
@@ -277,13 +445,6 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
                       </Button>
                     </div>
                   </div>
-                  
-                  {contact.allowLocationSharing && (
-                    <div className="mt-2 flex items-center text-xs text-green-600">
-                      <MapPin className="w-3 h-3 mr-1" />
-                      Location sharing enabled
-                    </div>
-                  )}
                 </CardContent>
               </Card>
             ))}
@@ -307,7 +468,7 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
                       <div>
                         <span className="font-medium">{contact.name}</span>
                         <p className="text-sm text-gray-600">{contact.relationship}</p>
-                        <p className="text-xs text-gray-500">{contact.phone}</p>
+                        <p className="text-xs text-gray-500">{contact.phone_number}</p>
                       </div>
                     </div>
                     
@@ -336,13 +497,6 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
                       </Button>
                     </div>
                   </div>
-                  
-                  {contact.allowLocationSharing && (
-                    <div className="mt-2 flex items-center text-xs text-green-600">
-                      <MapPin className="w-3 h-3 mr-1" />
-                      Location sharing enabled
-                    </div>
-                  )}
                 </CardContent>
               </Card>
             ))}

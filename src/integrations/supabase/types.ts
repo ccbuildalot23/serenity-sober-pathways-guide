@@ -392,6 +392,108 @@ export type Database = {
           },
         ]
       }
+      learning_progress: {
+        Row: {
+          id: string
+          user_id: string
+          module_name: string
+          skill_name: string
+          competency_level: string | null
+          practice_count: number | null
+          last_practiced: string | null
+          average_effectiveness: number | null
+          real_world_usage_count: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          module_name: string
+          skill_name: string
+          competency_level?: string | null
+          practice_count?: number | null
+          last_practiced?: string | null
+          average_effectiveness?: number | null
+          real_world_usage_count?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          module_name?: string
+          skill_name?: string
+          competency_level?: string | null
+          practice_count?: number | null
+          last_practiced?: string | null
+          average_effectiveness?: number | null
+          real_world_usage_count?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_goals: {
+        Row: {
+          id: string
+          user_id: string
+          goal_text: string
+          goal_type: string | null
+          target_date: string | null
+          status: string | null
+          progress_percentage: number | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          goal_text: string
+          goal_type?: string | null
+          target_date?: string | null
+          status?: string | null
+          progress_percentage?: number | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          goal_text?: string
+          goal_type?: string | null
+          target_date?: string | null
+          status?: string | null
+          progress_percentage?: number | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_values: {
+        Row: {
+          id: string
+          user_id: string
+          value_name: string
+          importance_level: string
+          recovery_connection: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          value_name: string
+          importance_level: string
+          recovery_connection?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          value_name?: string
+          importance_level?: string
+          recovery_connection?: string | null
+          created_at?: string | null
+        }
+        Relationships: []
+      }
       thought_record_templates: {
         Row: {
           automatic_thought_example: string
@@ -509,6 +611,30 @@ export type Database = {
           earned_at?: string | null
           id?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      audit_logs: {
+        Row: {
+          id: string
+          user_id: string | null
+          action: string
+          timestamp: string | null
+          details_encrypted: string | null
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          action: string
+          timestamp?: string | null
+          details_encrypted?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          action?: string
+          timestamp?: string | null
+          details_encrypted?: string | null
         }
         Relationships: []
       }

@@ -3,6 +3,9 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, AlertTriangle, Users, BookOpen } from 'lucide-react';
+import RiskMapper from './RiskMapper';
+import EmergencyActionPlan from './EmergencyActionPlan';
+import SupportNetworkVisualizer from './SupportNetworkVisualizer';
 
 const RelapsePrevention: React.FC = () => {
   const [activeModule, setActiveModule] = useState('mapping');
@@ -91,20 +94,21 @@ const RelapsePrevention: React.FC = () => {
         })}
       </div>
 
-      {/* Content placeholder */}
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            {modules.find(mod => mod.id === activeModule)?.title}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-gray-600 text-center py-8">
-            Relapse prevention content would be implemented here with interactive
-            mapping tools, action plan builders, and progress tracking.
-          </p>
-        </CardContent>
-      </Card>
+      {activeModule === 'mapping' && <RiskMapper />}
+      {activeModule === 'action-plan' && <EmergencyActionPlan />}
+      {activeModule === 'network' && <SupportNetworkVisualizer />}
+      {activeModule === 'journal' && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Recovery Story Journal</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 text-center py-8">
+              Journal prompts would appear here in a full implementation.
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

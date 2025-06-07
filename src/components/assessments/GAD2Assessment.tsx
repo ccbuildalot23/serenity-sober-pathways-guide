@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useAuditLogger } from '@/hooks/useAuditLogger';
+import { escalateCrisis } from '@/services/crisisEscalationService';
+import { toast } from 'sonner';
 
 const questions = [
   'Over the last 2 weeks, how often have you been bothered by feeling nervous, anxious or on edge?',
@@ -33,7 +35,11 @@ const GAD2Assessment: React.FC<Props> = ({ onComplete }) => {
 
   const handleSubmit = async () => {
     const score = responses.reduce((sum, v) => sum + (v > -1 ? v : 0), 0);
-    await log('gad2_completed', { score });
+    const flag = score >= 3;
+    await log('gad2_completed', { score, flag });
+    if (flag) {
+      toast.warning('GAD‑7 assessment recommended');
+    }
     onComplete?.(score);
   };
 

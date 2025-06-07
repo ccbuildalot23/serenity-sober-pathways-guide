@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useAuditLogger } from '@/hooks/useAuditLogger';
+import { escalateCrisis } from '@/services/crisisEscalationService';
+import { toast } from 'sonner';
 
 const questions = [
   {
@@ -48,7 +50,12 @@ const CSSRSAssessment: React.FC<Props> = ({ onComplete }) => {
 
   const handleSubmit = async () => {
     const score = responses.reduce((sum, v) => sum + (v > -1 ? v : 0), 0);
-    await log('cssrs_completed', { score });
+    const anyRisk = score > 0;
+    await log('cssrs_completed', { score, anyRisk });
+    if (anyRisk) {
+      toast.error('Immediate safety support recommended');
+      escalateCrisis(score >= 2 ? 'severe' : 'high');
+    }
     onComplete?.(score);
   };
 

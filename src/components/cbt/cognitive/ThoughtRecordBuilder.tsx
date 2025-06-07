@@ -115,7 +115,7 @@ const ThoughtRecordBuilder: React.FC = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <steps[currentStep].icon className="w-5 h-5" />
+            {React.createElement(steps[currentStep].icon, { className: "w-5 h-5" })}
             <span>{steps[currentStep].title}</span>
           </CardTitle>
           <p className="text-gray-600">{steps[currentStep].description}</p>

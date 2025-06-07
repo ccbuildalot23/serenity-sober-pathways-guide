@@ -297,6 +297,48 @@ export type Database = {
         }
         Relationships: []
       }
+      skill_sessions: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          effectiveness_rating: number | null
+          id: string
+          module_type: string
+          notes: string | null
+          real_world_applied: boolean | null
+          session_duration_minutes: number | null
+          skill_category: string
+          skill_name: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          effectiveness_rating?: number | null
+          id?: string
+          module_type: string
+          notes?: string | null
+          real_world_applied?: boolean | null
+          session_duration_minutes?: number | null
+          skill_category: string
+          skill_name: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          effectiveness_rating?: number | null
+          id?: string
+          module_type?: string
+          notes?: string | null
+          real_world_applied?: boolean | null
+          session_duration_minutes?: number | null
+          skill_category?: string
+          skill_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       skills_progress: {
         Row: {
           completion_percentage: number | null
@@ -349,6 +391,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      thought_record_templates: {
+        Row: {
+          automatic_thought_example: string
+          balanced_thought_example: string
+          category: string
+          created_at: string | null
+          id: string
+          is_default: boolean | null
+          name: string
+          scenario: string
+        }
+        Insert: {
+          automatic_thought_example: string
+          balanced_thought_example: string
+          category: string
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          name: string
+          scenario: string
+        }
+        Update: {
+          automatic_thought_example?: string
+          balanced_thought_example?: string
+          category?: string
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          scenario?: string
+        }
+        Relationships: []
       }
       thought_records: {
         Row: {
@@ -413,6 +488,30 @@ export type Database = {
           },
         ]
       }
+      user_achievements: {
+        Row: {
+          badge_name: string
+          badge_type: string
+          earned_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_name: string
+          badge_type: string
+          earned_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_name?: string
+          badge_type?: string
+          earned_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_insights: {
         Row: {
           created_at: string
@@ -448,6 +547,33 @@ export type Database = {
           },
         ]
       }
+      user_skill_preferences: {
+        Row: {
+          completed_assessment: boolean | null
+          id: string
+          last_updated: string | null
+          learning_style: string | null
+          preferred_modules: Json | null
+          user_id: string
+        }
+        Insert: {
+          completed_assessment?: boolean | null
+          id?: string
+          last_updated?: string | null
+          learning_style?: string | null
+          preferred_modules?: Json | null
+          user_id: string
+        }
+        Update: {
+          completed_assessment?: boolean | null
+          id?: string
+          last_updated?: string | null
+          learning_style?: string | null
+          preferred_modules?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -456,6 +582,14 @@ export type Database = {
       analyze_craving_patterns: {
         Args: { user_uuid: string }
         Returns: Json
+      }
+      calculate_skill_mastery: {
+        Args: { user_uuid: string; skill_category_param: string }
+        Returns: string
+      }
+      check_badge_eligibility: {
+        Args: { user_uuid: string; badge_name_param: string }
+        Returns: boolean
       }
       generate_daily_insights: {
         Args: Record<PropertyKey, never> | { user_uuid: string }

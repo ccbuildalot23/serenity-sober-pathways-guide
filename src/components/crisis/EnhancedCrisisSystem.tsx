@@ -9,6 +9,8 @@ import EmergencyContactsQuickAccess from '../emergency/EmergencyContactsQuickAcc
 import ProfessionalCrisisResources from '../emergency/ProfessionalCrisisResources';
 import FollowUpScheduler from './FollowUpScheduler';
 import { voiceActivationService } from '@/services/voiceActivationService';
+import { escalateCrisis } from '@/services/crisisEscalationService';
+import { useAuditLogger } from '@/hooks/useAuditLogger';
 
 type RiskLevel = 'low' | 'moderate' | 'high' | 'severe';
 
@@ -32,6 +34,7 @@ const EnhancedCrisisSystem: React.FC = () => {
   const [voiceListening, setVoiceListening] = useState(false);
   const [hasLocationPermission, setHasLocationPermission] = useState(false);
   const { user } = useAuth();
+  const { log } = useAuditLogger();
 
   useEffect(() => {
     // Initialize voice activation if supported
@@ -89,6 +92,7 @@ const EnhancedCrisisSystem: React.FC = () => {
   const handleCrisisActivated = useCallback(() => {
     console.log('Crisis button activated - starting assessment');
     setShowAssessment(true);
+    log('crisis_activated');
     
     // Create crisis event
     const crisisEvent: CrisisEvent = {
@@ -130,6 +134,10 @@ const EnhancedCrisisSystem: React.FC = () => {
     setRiskLevel(level);
     setShowAssessment(false);
     setShowResponse(true);
+    log('crisis_assessment_complete', { level });
+    if (level === 'severe' || level === 'high') {
+      escalateCrisis(level);
+    }
 
     // Update crisis event
     if (currentCrisisEvent) {
@@ -151,6 +159,8 @@ const EnhancedCrisisSystem: React.FC = () => {
 
   const handleResponseComplete = useCallback(() => {
     setShowResponse(false);
+
+    log('crisis_response_complete');
     
     if (currentCrisisEvent) {
       // Mark safety as confirmed
@@ -181,6 +191,8 @@ const EnhancedCrisisSystem: React.FC = () => {
       };
       setCurrentCrisisEvent(updatedEvent);
     }
+
+    log('intervention_used', { toolName });
     
     toast.success(`${toolName} completed`, {
       description: 'Great job using coping strategies!',

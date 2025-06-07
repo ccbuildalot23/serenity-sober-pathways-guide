@@ -108,7 +108,6 @@ export const sendMockPush = async (
       icon: '/favicon.ico',
       badge: '/favicon.ico',
       tag: `emergency_${contact.id}`,
-      timestamp: Date.now(),
       requireInteraction: true,
       silent: false
     });

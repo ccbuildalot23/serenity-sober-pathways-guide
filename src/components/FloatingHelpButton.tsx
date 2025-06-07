@@ -1,13 +1,14 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Hand, AlertTriangle, Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Hand, AlertTriangle, Loader2, CheckCircle, XCircle, MapPin, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { sendMockSMS } from '@/services/mockSmsService';
+import { getCurrentLocation, getCachedLocation, type LocationData, type GeolocationError } from '@/services/geolocationService';
 
 interface Contact {
   id: string;
@@ -26,6 +27,9 @@ const FloatingHelpButton = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [alertResults, setAlertResults] = useState<{ success: string[]; failed: string[] } | null>(null);
+  const [locationData, setLocationData] = useState<LocationData | null>(null);
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
   
   const { toast } = useToast();
 
@@ -52,6 +56,8 @@ const FloatingHelpButton = () => {
     setSelectedContacts([]);
     setIncludeLocation(false);
     setAlertResults(null);
+    setLocationData(null);
+    setLocationError(null);
   };
 
   const handleContactToggle = (contactId: string) => {
@@ -70,9 +76,41 @@ const FloatingHelpButton = () => {
     return messageObj?.label || '';
   };
 
-  const getCurrentLocation = (): string => {
-    // Mock location - in a real app, you'd use navigator.geolocation
-    return "Current location: 123 Main St, City, State 12345";
+  const handleLocationToggle = async (checked: boolean) => {
+    setIncludeLocation(checked);
+    setLocationError(null);
+    
+    if (checked) {
+      // Check for cached location first
+      const cached = getCachedLocation();
+      if (cached && (Date.now() - cached.timestamp.getTime()) < 300000) { // 5 minutes
+        setLocationData(cached);
+        return;
+      }
+      
+      // Request fresh location
+      setIsLoadingLocation(true);
+      try {
+        const location = await getCurrentLocation();
+        setLocationData(location);
+        console.log('Location obtained:', location);
+      } catch (error) {
+        const geoError = error as GeolocationError;
+        setLocationError(geoError.message);
+        setIncludeLocation(false);
+        
+        toast({
+          title: "Location access failed",
+          description: geoError.message,
+          variant: "destructive",
+          duration: 5000,
+        });
+      } finally {
+        setIsLoadingLocation(false);
+      }
+    } else {
+      setLocationData(null);
+    }
   };
 
   const handleSendAlert = async () => {
@@ -84,7 +122,7 @@ const FloatingHelpButton = () => {
     setAlertResults(null);
     
     const messageText = getMessageText();
-    const location = includeLocation ? getCurrentLocation() : undefined;
+    const location = includeLocation && locationData ? locationData.address : undefined;
     const selectedContactObjects = contacts.filter(contact => 
       selectedContacts.includes(contact.id) && contact.phone // Only include contacts with phone numbers
     );
@@ -93,6 +131,7 @@ const FloatingHelpButton = () => {
     console.log('Message:', messageText);
     console.log('Selected contacts:', selectedContactObjects.map(c => c.name));
     console.log('Include location:', includeLocation);
+    console.log('Location data:', locationData);
 
     const results = { success: [], failed: [] };
 
@@ -280,19 +319,63 @@ const FloatingHelpButton = () => {
               )}
             </div>
 
-            {/* Location Toggle */}
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="location"
-                checked={includeLocation}
-                onCheckedChange={(checked) => setIncludeLocation(checked === true)}
-              />
-              <label 
-                htmlFor="location"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-              >
-                Include my current location
-              </label>
+            {/* Location Toggle and Preview */}
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="location"
+                  checked={includeLocation}
+                  onCheckedChange={handleLocationToggle}
+                  disabled={isLoadingLocation}
+                />
+                <label 
+                  htmlFor="location"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                >
+                  Include my current location
+                </label>
+                {isLoadingLocation && (
+                  <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                )}
+              </div>
+
+              {/* Location Preview */}
+              {includeLocation && locationData && (
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                  <div className="flex items-start space-x-2">
+                    <MapPin className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-blue-800 font-medium">Current Location:</p>
+                      <p className="text-xs text-blue-700 break-words">{locationData.address}</p>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <Badge 
+                          variant={locationData.accuracy === 'High' ? 'default' : locationData.accuracy === 'Medium' ? 'secondary' : 'destructive'}
+                          className="text-xs"
+                        >
+                          Accuracy: {locationData.accuracy}
+                        </Badge>
+                        <span className="text-xs text-blue-600">
+                          {new Date(locationData.timestamp).toLocaleTimeString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Location Error */}
+              {locationError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                  <div className="flex items-start space-x-2">
+                    <AlertCircle className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm text-red-800 font-medium">Location access failed</p>
+                      <p className="text-xs text-red-700">{locationError}</p>
+                      <p className="text-xs text-red-600 mt-1">Alert will be sent without location.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Action Buttons */}

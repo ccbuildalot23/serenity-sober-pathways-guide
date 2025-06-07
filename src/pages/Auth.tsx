@@ -14,10 +14,14 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md animate-scale-in">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold serenity-navy">Serenity</CardTitle>
-          <CardDescription>Your daily companion for recovery and growth</CardDescription>
+          <CardTitle className="text-2xl font-bold serenity-navy animate-gentle-fade-in">
+            Serenity
+          </CardTitle>
+          <CardDescription className="animate-gentle-fade-in-delayed">
+            Your daily companion for recovery and growth
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>

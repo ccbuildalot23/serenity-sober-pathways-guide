@@ -15,19 +15,35 @@ export const SignInForm: React.FC<SignInFormProps> = ({ onSuccess }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isShaking, setIsShaking] = useState(false);
   
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const triggerHapticFeedback = (type: 'error' | 'success') => {
+    if ('vibrate' in navigator) {
+      if (type === 'error') {
+        // Smooth tug pattern for error
+        navigator.vibrate([50, 30, 50]);
+      } else if (type === 'success') {
+        // Smooth pop for success
+        navigator.vibrate([30]);
+      }
+    }
+  };
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
+      setIsShaking(true);
+      triggerHapticFeedback('error');
       toast({
         title: "Error",
         description: "Please fill in all fields",
         variant: "destructive",
       });
+      setTimeout(() => setIsShaking(false), 500);
       return;
     }
 
@@ -35,12 +51,16 @@ export const SignInForm: React.FC<SignInFormProps> = ({ onSuccess }) => {
     const { error } = await signIn(email, password);
     
     if (error) {
+      setIsShaking(true);
+      triggerHapticFeedback('error');
       toast({
         title: "Sign In Failed",
         description: error.message,
         variant: "destructive",
       });
+      setTimeout(() => setIsShaking(false), 500);
     } else {
+      triggerHapticFeedback('success');
       toast({
         title: "Welcome back!",
         description: "You have successfully signed in.",
@@ -55,7 +75,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ onSuccess }) => {
   };
 
   return (
-    <form onSubmit={handleSignIn} className="space-y-4">
+    <form onSubmit={handleSignIn} className={`space-y-4 ${isShaking ? 'animate-smooth-shake' : ''}`}>
       <div>
         <Label htmlFor="signin-email">Email</Label>
         <Input
@@ -80,7 +100,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ onSuccess }) => {
       </div>
       <Button 
         type="submit" 
-        className="w-full serenity-primary" 
+        className="w-full serenity-primary transition-all duration-200 hover:scale-[1.02]" 
         disabled={loading}
       >
         {loading ? 'Signing In...' : 'Sign In'}

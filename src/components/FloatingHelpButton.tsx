@@ -1,11 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Hand, AlertTriangle, Loader2 } from 'lucide-react';
+import { Hand, AlertTriangle, Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { sendMockSMS } from '@/services/mockSmsService';
 
 interface Contact {
   id: string;
@@ -23,6 +24,9 @@ const FloatingHelpButton = () => {
   const [includeLocation, setIncludeLocation] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [contacts, setContacts] = useState<Contact[]>([]);
+  const [alertResults, setAlertResults] = useState<{ success: string[]; failed: string[] } | null>(null);
+  
+  const { toast } = useToast();
 
   const preWrittenMessages = [
     { value: 'craving', label: 'Strong craving, need encouragement' },
@@ -46,6 +50,7 @@ const FloatingHelpButton = () => {
     setCustomMessage('');
     setSelectedContacts([]);
     setIncludeLocation(false);
+    setAlertResults(null);
   };
 
   const handleContactToggle = (contactId: string) => {
@@ -64,24 +69,74 @@ const FloatingHelpButton = () => {
     return messageObj?.label || '';
   };
 
+  const getCurrentLocation = (): string => {
+    // Mock location - in a real app, you'd use navigator.geolocation
+    return "Current location: 123 Main St, City, State 12345";
+  };
+
   const handleSendAlert = async () => {
     if (!selectedMessage || selectedContacts.length === 0) {
       return;
     }
 
     setIsLoading(true);
+    setAlertResults(null);
+    
+    const messageText = getMessageText();
+    const location = includeLocation ? getCurrentLocation() : undefined;
+    const selectedContactObjects = contacts.filter(contact => 
+      selectedContacts.includes(contact.id)
+    );
+
     console.log('Sending emergency alert...');
-    console.log('Message:', getMessageText());
-    console.log('Selected contacts:', selectedContacts);
+    console.log('Message:', messageText);
+    console.log('Selected contacts:', selectedContactObjects.map(c => c.name));
     console.log('Include location:', includeLocation);
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      setIsModalOpen(false);
-      console.log('Emergency alert sent successfully!');
-      // TODO: Show success toast/notification
-    }, 2000);
+    const results = { success: [], failed: [] };
+
+    // Send alerts to all selected contacts
+    for (const contact of selectedContactObjects) {
+      try {
+        const result = await sendMockSMS(contact, messageText, location);
+        if (result.success) {
+          results.success.push(contact.name);
+        } else {
+          results.failed.push(contact.name);
+        }
+      } catch (error) {
+        console.error(`Error sending to ${contact.name}:`, error);
+        results.failed.push(contact.name);
+      }
+    }
+
+    setAlertResults(results);
+    setIsLoading(false);
+
+    // Show toast notifications
+    if (results.success.length > 0) {
+      toast({
+        title: "Alert sent successfully!",
+        description: `Alert sent to ${results.success.join(', ')}`,
+        duration: 5000,
+      });
+    }
+
+    if (results.failed.length > 0) {
+      toast({
+        title: "Some alerts failed",
+        description: `Failed to send to ${results.failed.join(', ')}`,
+        variant: "destructive",
+        duration: 5000,
+      });
+    }
+
+    // Auto-close modal after successful sends (but keep open if there were failures)
+    if (results.failed.length === 0) {
+      setTimeout(() => {
+        setIsModalOpen(false);
+      }, 2000);
+    }
   };
 
   const isFormValid = selectedMessage && selectedContacts.length > 0 && 
@@ -114,6 +169,34 @@ const FloatingHelpButton = () => {
           </DialogHeader>
           
           <div className="space-y-4">
+            {/* Results Display */}
+            {alertResults && (
+              <div className="space-y-2">
+                {alertResults.success.length > 0 && (
+                  <div className="flex items-center p-3 bg-green-50 border border-green-200 rounded-md">
+                    <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+                    <div>
+                      <p className="text-sm font-medium text-green-800">
+                        Alert sent to {alertResults.success.join(', ')}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                
+                {alertResults.failed.length > 0 && (
+                  <div className="flex items-center p-3 bg-red-50 border border-red-200 rounded-md">
+                    <XCircle className="w-5 h-5 text-red-600 mr-2" />
+                    <div>
+                      <p className="text-sm font-medium text-red-800">
+                        Failed to send to {alertResults.failed.join(', ')}
+                      </p>
+                      <p className="text-xs text-red-600">Please try again</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Message Selection */}
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">

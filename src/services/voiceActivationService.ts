@@ -1,17 +1,25 @@
 
+// Add type declarations for speech recognition
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
+
 interface VoiceActivationOptions {
   onCrisisDetected: () => void;
   onError?: (error: string) => void;
 }
 
 class VoiceActivationService {
-  private recognition: SpeechRecognition | null = null;
+  private recognition: any = null;
   private isListening = false;
   private options: VoiceActivationOptions | null = null;
 
   constructor() {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       this.recognition = new SpeechRecognition();
       this.setupRecognition();
     }
@@ -24,10 +32,10 @@ class VoiceActivationService {
     this.recognition.interimResults = false;
     this.recognition.lang = 'en-US';
 
-    this.recognition.onresult = (event) => {
+    this.recognition.onresult = (event: any) => {
       const transcript = Array.from(event.results)
-        .map(result => result[0])
-        .map(result => result.transcript)
+        .map((result: any) => result[0])
+        .map((result: any) => result.transcript)
         .join('');
 
       console.log('Voice input detected:', transcript);
@@ -52,15 +60,19 @@ class VoiceActivationService {
       }
     };
 
-    this.recognition.onerror = (event) => {
+    this.recognition.onerror = (event: any) => {
       console.error('Speech recognition error:', event.error);
       this.options?.onError?.(event.error);
     };
 
     this.recognition.onend = () => {
-      if (this.isListening) {
+      if (this.isListening && this.options) {
         // Restart recognition if it was supposed to be listening
-        setTimeout(() => this.startListening(), 1000);
+        setTimeout(() => {
+          if (this.options) {
+            this.startListening(this.options);
+          }
+        }, 1000);
       }
     };
   }
@@ -104,14 +116,6 @@ class VoiceActivationService {
 
   getListeningState(): boolean {
     return this.isListening;
-  }
-}
-
-// Add type declarations for speech recognition
-declare global {
-  interface Window {
-    SpeechRecognition: any;
-    webkitSpeechRecognition: any;
   }
 }
 

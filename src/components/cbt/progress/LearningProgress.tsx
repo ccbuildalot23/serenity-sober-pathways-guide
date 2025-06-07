@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Trophy, Star, Target, Calendar, TrendingUp } from 'lucide-react';
+import { useSkillSession } from '@/hooks/useSkillSession';
 
 interface SkillModule {
   id: string;
@@ -15,22 +16,94 @@ interface SkillModule {
 }
 
 interface LearningProgressProps {
-  modules: SkillModule[];
+  modules?: SkillModule[];
 }
 
-const LearningProgress: React.FC<LearningProgressProps> = ({ modules }) => {
+const LearningProgress: React.FC<LearningProgressProps> = ({ modules = [] }) => {
+  const { getUserAchievements, getSkillProgress } = useSkillSession();
+  const [achievements, setAchievements] = useState<any[]>([]);
+  const [skillProgress, setSkillProgress] = useState<any[]>([]);
+
+  // Default modules if none provided
+  const defaultModules: SkillModule[] = [
+    {
+      id: 'cognitive',
+      title: 'Cognitive Restructuring',
+      progress: 0,
+      badgesEarned: 0,
+      totalBadges: 3,
+      color: 'bg-blue-500'
+    },
+    {
+      id: 'behavioral',
+      title: 'Behavioral Activation',
+      progress: 0,
+      badgesEarned: 0,
+      totalBadges: 3,
+      color: 'bg-green-500'
+    },
+    {
+      id: 'mindfulness',
+      title: 'Mindfulness & Distress Tolerance',
+      progress: 0,
+      badgesEarned: 0,
+      totalBadges: 2,
+      color: 'bg-purple-500'
+    },
+    {
+      id: 'communication',
+      title: 'Communication Skills',
+      progress: 0,
+      badgesEarned: 0,
+      totalBadges: 2,
+      color: 'bg-yellow-500'
+    },
+    {
+      id: 'relapse_prevention',
+      title: 'Relapse Prevention',
+      progress: 0,
+      badgesEarned: 0,
+      totalBadges: 3,
+      color: 'bg-red-500'
+    }
+  ];
+
+  const activeModules = modules.length > 0 ? modules : defaultModules;
+
+  useEffect(() => {
+    loadProgressData();
+  }, []);
+
+  const loadProgressData = async () => {
+    try {
+      // Load achievements
+      const { data: achievementsData } = await getUserAchievements();
+      if (achievementsData) {
+        setAchievements(achievementsData);
+      }
+
+      // Load skill progress
+      const { data: progressData } = await getSkillProgress();
+      if (progressData) {
+        setSkillProgress(progressData);
+      }
+    } catch (error) {
+      console.error('Error loading progress data:', error);
+    }
+  };
+
   const totalProgress = Math.round(
-    modules.reduce((sum, module) => sum + module.progress, 0) / modules.length
+    activeModules.reduce((sum, module) => sum + module.progress, 0) / activeModules.length
   );
   
-  const totalBadges = modules.reduce((sum, module) => sum + module.badgesEarned, 0);
-  const maxBadges = modules.reduce((sum, module) => sum + module.totalBadges, 0);
+  const totalBadges = achievements.length;
+  const maxBadges = activeModules.reduce((sum, module) => sum + module.totalBadges, 0);
 
-  const achievements = [
-    { title: 'First Steps', description: 'Complete your first CBT exercise', earned: true },
-    { title: 'Thought Detective', description: 'Identify 10 cognitive distortions', earned: true },
+  const predefinedAchievements = [
+    { title: 'First Steps', description: 'Complete your first CBT exercise', earned: achievements.some(a => a.badge_name === 'CBT Explorer') },
+    { title: 'Thought Detective', description: 'Identify 10 cognitive distortions', earned: totalBadges >= 2 },
     { title: 'Activity Master', description: 'Schedule 20 activities', earned: false },
-    { title: 'Mindful Moments', description: 'Complete 5 meditation sessions', earned: true },
+    { title: 'Mindful Moments', description: 'Complete 5 meditation sessions', earned: achievements.some(a => a.badge_name === 'Mindfulness Master') },
     { title: 'Goal Getter', description: 'Create 3 SMART goals', earned: false },
     { title: 'Communication Pro', description: 'Practice 10 assertiveness scenarios', earned: false }
   ];
@@ -38,7 +111,7 @@ const LearningProgress: React.FC<LearningProgressProps> = ({ modules }) => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold serenity-navy mb-2">
+        <h2 className="text-2xl font-bold text-[#1E3A8A] mb-2">
           Learning Progress & Achievements
         </h2>
         <p className="text-gray-600">
@@ -83,7 +156,7 @@ const LearningProgress: React.FC<LearningProgressProps> = ({ modules }) => {
                 <Target className="w-6 h-6 text-green-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{modules.length}</p>
+                <p className="text-2xl font-bold">{activeModules.length}</p>
                 <p className="text-sm text-gray-600">Active Modules</p>
               </div>
             </div>
@@ -97,7 +170,7 @@ const LearningProgress: React.FC<LearningProgressProps> = ({ modules }) => {
           <CardTitle>Module Progress</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {modules.map((module) => (
+          {activeModules.map((module) => (
             <div key={module.id} className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
@@ -131,7 +204,7 @@ const LearningProgress: React.FC<LearningProgressProps> = ({ modules }) => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {achievements.map((achievement, index) => (
+            {predefinedAchievements.map((achievement, index) => (
               <div
                 key={index}
                 className={`p-4 rounded-lg border ${

@@ -16,9 +16,10 @@ interface SkillSessionData {
 
 interface Achievement {
   id: string;
-  badgeName: string;
-  badgeType: string;
-  earnedAt: string;
+  badge_name: string;
+  badge_type: string;
+  earned_at: string;
+  user_id: string;
 }
 
 export const useSkillSession = () => {

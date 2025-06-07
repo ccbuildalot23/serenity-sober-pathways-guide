@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -159,13 +158,29 @@ const EnhancedCBTSkillsLibrary: React.FC = () => {
     return Math.min((thisWeekSessions / weeklyGoal) * 100, 100);
   };
 
+  const prepareModulesForProgress = () => {
+    return skillModules.map(module => {
+      const progress = skillProgress.find(p => p.category === module.id);
+      const completionPercentage = progress ? Math.min((progress.totalSessions / 10) * 100, 100) : 0;
+      
+      return {
+        id: module.id,
+        title: module.name,
+        progress: Math.round(completionPercentage),
+        badgesEarned: achievements.filter(a => a.badge_name.toLowerCase().includes(module.id)).length,
+        totalBadges: 3, // Default badges per module
+        color: module.color
+      };
+    });
+  };
+
   const renderActiveModule = () => {
     if (activeModule === 'overview') {
       return <PersonalizedLearningPath />;
     }
 
     if (activeModule === 'progress') {
-      return <LearningProgress />;
+      return <LearningProgress modules={prepareModulesForProgress()} />;
     }
 
     const module = skillModules.find(m => m.id === activeModule);

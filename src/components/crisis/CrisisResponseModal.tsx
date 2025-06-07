@@ -1,8 +1,10 @@
 
-import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import React, { useState } from 'react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Phone, MessageSquare, MapPin, Users, Heart, Shield } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertTriangle, Phone, MessageSquare, Users, Heart, CheckCircle } from 'lucide-react';
+import InterventionToolbox from './interventions/InterventionToolbox';
 
 interface CrisisResponseModalProps {
   isOpen: boolean;
@@ -15,127 +17,225 @@ const CrisisResponseModal: React.FC<CrisisResponseModalProps> = ({
   onClose,
   riskLevel
 }) => {
-  const getResponseConfig = () => {
+  const [currentView, setCurrentView] = useState<'response' | 'tools' | 'confirmation'>('response');
+
+  const handleCall911 = () => {
+    window.location.href = 'tel:911';
+  };
+
+  const handleCall988 = () => {
+    window.location.href = 'tel:988';
+  };
+
+  const handleTextCrisis = () => {
+    window.location.href = 'sms:741741&body=HOME';
+  };
+
+  const handleToolsComplete = () => {
+    setCurrentView('confirmation');
+  };
+
+  const handleSafetyConfirmation = () => {
+    setCurrentView('response');
+    onClose();
+  };
+
+  const getRiskInfo = () => {
     switch (riskLevel) {
-      case 'severe':
+      case 'low':
         return {
-          title: 'Immediate Crisis Support',
-          bgColor: 'bg-red-50 border-red-200',
-          textColor: 'text-red-800',
-          actions: [
-            { icon: Phone, label: 'Call 911', action: () => window.open('tel:911', '_self'), primary: true },
-            { icon: Phone, label: 'Crisis Hotline (988)', action: () => window.open('tel:988', '_self'), primary: true },
-            { icon: MessageSquare, label: 'Text Crisis Line', action: () => window.open('sms:741741', '_self') },
-            { icon: MapPin, label: 'Find Emergency Room', action: () => window.open('https://maps.google.com/search/emergency+room+near+me', '_blank') }
-          ],
-          message: 'You are in immediate danger. Please reach out for emergency help right now. You are not alone.'
-        };
-      case 'high':
-        return {
-          title: 'Urgent Support Needed',
-          bgColor: 'bg-orange-50 border-orange-200',
-          textColor: 'text-orange-800',
-          actions: [
-            { icon: Phone, label: 'Crisis Hotline (988)', action: () => window.open('tel:988', '_self'), primary: true },
-            { icon: MessageSquare, label: 'Text Crisis Line', action: () => window.open('sms:741741', '_self') },
-            { icon: Users, label: 'Contact Support Person', action: () => {}, primary: true },
-            { icon: Shield, label: 'Safety Planning', action: () => {} }
-          ],
-          message: 'You need support right now. Please reach out to a crisis counselor or trusted person immediately.'
+          title: 'Low Risk Detected',
+          message: 'You\'re going through a difficult time. Let\'s use some tools to help you feel better.',
+          color: 'text-yellow-600',
+          bgColor: 'bg-yellow-50',
+          borderColor: 'border-yellow-200'
         };
       case 'moderate':
         return {
-          title: 'Support & Coping Resources',
-          bgColor: 'bg-yellow-50 border-yellow-200',
-          textColor: 'text-yellow-800',
-          actions: [
-            { icon: Users, label: 'Contact Support Person', action: () => {}, primary: true },
-            { icon: Phone, label: 'Crisis Hotline (988)', action: () => window.open('tel:988', '_self') },
-            { icon: Heart, label: 'Coping Skills', action: () => {} },
-            { icon: Shield, label: 'Review Safety Plan', action: () => {} }
-          ],
-          message: 'You are struggling but not in immediate danger. Let\'s connect you with support and coping resources.'
+          title: 'Moderate Risk Detected', 
+          message: 'You\'re experiencing significant distress. Let\'s get you some immediate support.',
+          color: 'text-orange-600',
+          bgColor: 'bg-orange-50',
+          borderColor: 'border-orange-200'
         };
-      default: // low
+      case 'high':
         return {
-          title: 'Wellness & Support Resources',
-          bgColor: 'bg-green-50 border-green-200',
-          textColor: 'text-green-800',
-          actions: [
-            { icon: Heart, label: 'Self-Care Activities', action: () => {} },
-            { icon: Users, label: 'Reach Out to Friend', action: () => {} },
-            { icon: Phone, label: 'Non-Emergency Support', action: () => window.open('tel:988', '_self') },
-            { icon: Shield, label: 'Wellness Check-in', action: () => {} }
-          ],
-          message: 'You are managing well. Here are some resources to help maintain your emotional wellness.'
+          title: 'High Risk Detected',
+          message: 'You\'re in serious distress. Please use these crisis resources immediately.',
+          color: 'text-red-600',
+          bgColor: 'bg-red-50',
+          borderColor: 'border-red-200'
+        };
+      case 'severe':
+        return {
+          title: 'Immediate Danger Detected',
+          message: 'You\'re in immediate danger. Please call 911 or the crisis line right now.',
+          color: 'text-red-800',
+          bgColor: 'bg-red-100',
+          borderColor: 'border-red-300'
+        };
+      default:
+        return {
+          title: 'Crisis Support',
+          message: 'You\'re taking a brave step by reaching out.',
+          color: 'text-gray-600',
+          bgColor: 'bg-gray-50',
+          borderColor: 'border-gray-200'
         };
     }
   };
 
-  const config = getResponseConfig();
+  const riskInfo = getRiskInfo();
 
+  // Safety confirmation screen
+  if (currentView === 'confirmation') {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-md mx-auto p-0">
+          <Card className="border-0 shadow-none">
+            <CardHeader className="text-center pb-4">
+              <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-4">
+                <CheckCircle className="w-8 h-8 text-green-600" />
+              </div>
+              <CardTitle className="text-green-600">You're Doing Great</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6 text-center">
+              <p className="text-lg">
+                You've taken positive steps to care for yourself. How are you feeling now?
+              </p>
+              
+              <div className="space-y-3">
+                <Button 
+                  onClick={handleSafetyConfirmation}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3"
+                >
+                  <Heart className="w-4 h-4 mr-2" />
+                  I'm Safe Now
+                </Button>
+                
+                <Button 
+                  onClick={() => setCurrentView('tools')}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Try Another Tool
+                </Button>
+                
+                <Button 
+                  onClick={() => setCurrentView('response')}
+                  variant="ghost"
+                  className="w-full"
+                >
+                  Back to Crisis Support
+                </Button>
+              </div>
+
+              <div className="text-sm text-gray-600 pt-4 border-t">
+                <p>Remember: You are not alone. Help is always available.</p>
+              </div>
+            </CardContent>
+          </Card>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // Intervention tools screen
+  if (currentView === 'tools') {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-md mx-auto p-0">
+          <InterventionToolbox 
+            onBack={() => setCurrentView('response')}
+            onComplete={handleToolsComplete}
+          />
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // Main crisis response screen
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md mx-auto">
-        <DialogHeader>
-          <DialogTitle className={config.textColor}>
-            {config.title}
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-6">
-          {/* Status Message */}
-          <div className={`p-4 rounded-lg border ${config.bgColor}`}>
-            <p className={`text-sm font-medium ${config.textColor}`}>
-              {config.message}
-            </p>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="space-y-3">
-            <h3 className="font-medium text-gray-900">Immediate Actions:</h3>
-            <div className="grid grid-cols-1 gap-2">
-              {config.actions.map((action, index) => {
-                const Icon = action.icon;
-                return (
-                  <Button
-                    key={index}
-                    onClick={action.action}
-                    variant={action.primary ? "default" : "outline"}
-                    className={`justify-start h-12 ${
-                      action.primary 
-                        ? 'bg-red-600 hover:bg-red-700 text-white' 
-                        : 'border-gray-300 hover:bg-gray-50'
-                    }`}
-                    size="lg"
-                  >
-                    <Icon className="w-5 h-5 mr-3" />
-                    {action.label}
-                  </Button>
-                );
-              })}
+      <DialogContent className="max-w-md mx-auto p-0">
+        <Card className="border-0 shadow-none">
+          <CardHeader className={`${riskInfo.bgColor} ${riskInfo.borderColor} border-b`}>
+            <div className="flex items-center gap-2">
+              <AlertTriangle className={`w-5 h-5 ${riskInfo.color}`} />
+              <CardTitle className={riskInfo.color}>{riskInfo.title}</CardTitle>
             </div>
-          </div>
+            <p className="text-sm text-gray-700">{riskInfo.message}</p>
+          </CardHeader>
+          
+          <CardContent className="space-y-4 pt-6">
+            {/* Immediate Crisis Support */}
+            {(riskLevel === 'high' || riskLevel === 'severe') && (
+              <div className="space-y-3">
+                <h3 className="font-semibold text-red-700">Immediate Help</h3>
+                <Button 
+                  onClick={handleCall911}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white py-3"
+                >
+                  <Phone className="w-4 h-4 mr-2" />
+                  Call 911 - Emergency Services
+                </Button>
+              </div>
+            )}
 
-          {/* Crisis Resources */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h4 className="font-medium text-gray-900 mb-2">24/7 Crisis Resources:</h4>
-            <div className="space-y-1 text-sm text-gray-600">
-              <div>• National Suicide Prevention Lifeline: <strong>988</strong></div>
-              <div>• Crisis Text Line: Text HOME to <strong>741741</strong></div>
-              <div>• SAMHSA National Helpline: <strong>1-800-662-4357</strong></div>
+            {/* Crisis Resources */}
+            <div className="space-y-3">
+              <h3 className="font-semibold">Crisis Support</h3>
+              
+              <Button 
+                onClick={handleCall988}
+                variant="outline"
+                className="w-full border-blue-200 hover:bg-blue-50 py-3"
+              >
+                <Phone className="w-4 h-4 mr-2" />
+                988 - Crisis Lifeline (24/7)
+              </Button>
+              
+              <Button 
+                onClick={handleTextCrisis}
+                variant="outline"
+                className="w-full border-green-200 hover:bg-green-50 py-3"
+              >
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Text HOME to 741741
+              </Button>
             </div>
-          </div>
 
-          {/* Close Button */}
-          <Button
-            onClick={onClose}
-            variant="outline"
-            className="w-full"
-          >
-            I'm Safe Now - Close
-          </Button>
-        </div>
+            {/* Intervention Tools */}
+            {(riskLevel === 'low' || riskLevel === 'moderate') && (
+              <div className="space-y-3">
+                <h3 className="font-semibold">Coping Tools</h3>
+                <Button 
+                  onClick={() => setCurrentView('tools')}
+                  variant="outline"
+                  className="w-full border-purple-200 hover:bg-purple-50 py-3"
+                >
+                  <Users className="w-4 h-4 mr-2" />
+                  Try Calming Exercises
+                </Button>
+              </div>
+            )}
+
+            {/* Safety Confirmation */}
+            <div className="pt-4 border-t">
+              <Button 
+                onClick={handleSafetyConfirmation}
+                className="w-full bg-green-600 hover:bg-green-700 text-white py-3"
+              >
+                <Heart className="w-4 h-4 mr-2" />
+                I'm Safe Now
+              </Button>
+            </div>
+
+            <div className="text-center text-sm text-gray-600">
+              <p>You are not alone. Help is available 24/7.</p>
+            </div>
+          </CardContent>
+        </Card>
       </DialogContent>
     </Dialog>
   );

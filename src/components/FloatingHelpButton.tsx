@@ -183,7 +183,7 @@ const FloatingHelpButton = () => {
               <Checkbox
                 id="location"
                 checked={includeLocation}
-                onCheckedChange={setIncludeLocation}
+                onCheckedChange={(checked) => setIncludeLocation(checked === true)}
               />
               <label 
                 htmlFor="location"

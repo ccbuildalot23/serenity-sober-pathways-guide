@@ -10,7 +10,7 @@ import UrgeSurfingTimer from './UrgeSurfingTimer';
 
 interface InterventionToolboxProps {
   onBack: () => void;
-  onComplete: () => void;
+  onComplete: (toolName: string) => void;
 }
 
 type Tool = 'grounding' | 'breathing' | 'cold-water' | 'urge-surfing' | null;
@@ -54,8 +54,9 @@ const InterventionToolbox: React.FC<InterventionToolboxProps> = ({ onBack, onCom
   const [selectedTool, setSelectedTool] = useState<Tool>(null);
 
   const handleToolComplete = () => {
+    const toolName = tools.find(tool => tool.id === selectedTool)?.name || 'Unknown Tool';
     setSelectedTool(null);
-    onComplete();
+    onComplete(toolName);
   };
 
   const handleToolBack = () => {

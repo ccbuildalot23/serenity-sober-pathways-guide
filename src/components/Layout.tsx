@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { Bell, Heart, User, Calendar, BookOpen } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Bell, Heart, User, Calendar, BookOpen, History } from 'lucide-react';
 import FloatingHelpButton from './FloatingHelpButton';
 
 interface LayoutProps {
@@ -23,7 +24,16 @@ const Layout = ({ children, activeTab = 'dashboard', onTabChange }: LayoutProps)
       <header className="bg-white shadow-sm border-b px-4 py-4">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <h1 className="text-xl font-bold serenity-navy">Serenity</h1>
-          <Bell className="w-6 h-6 text-gray-600" />
+          <div className="flex items-center space-x-2">
+            <Link
+              to="/alert-history"
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              title="Alert History"
+            >
+              <History className="w-5 h-5 text-gray-600" />
+            </Link>
+            <Bell className="w-6 h-6 text-gray-600" />
+          </div>
         </div>
       </header>
 

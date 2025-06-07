@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Bell, Heart, User, Calendar, BookOpen } from 'lucide-react';
+import FloatingHelpButton from './FloatingHelpButton';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -59,6 +60,9 @@ const Layout = ({ children, activeTab = 'dashboard', onTabChange }: LayoutProps)
           </div>
         </div>
       </nav>
+
+      {/* Floating Help Button - Always Visible */}
+      <FloatingHelpButton />
     </div>
   );
 };

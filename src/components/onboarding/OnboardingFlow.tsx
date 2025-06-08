@@ -117,7 +117,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
   };
 
   return (
-    <div className="fixed inset-0 bg-white z-50 flex flex-col">
+    <div className="fixed inset-0 bg-white z-50 flex flex-col min-h-screen">
       {/* Skip Link */}
       <div className="absolute top-4 right-4 z-10">
         <button
@@ -133,8 +133,8 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
         <ProgressDots current={currentCard} total={totalCards} />
       </div>
 
-      {/* Card Content */}
-      <div className="flex-1 flex items-center justify-center p-4">
+      {/* Card Content - Fixed height container */}
+      <div className="flex-1 flex items-center justify-center p-4 pt-20 pb-32">
         <div 
           className={`w-full max-w-md transition-all duration-300 ease-in-out ${
             isAnimating ? 'opacity-0 transform translate-x-4' : 'opacity-100 transform translate-x-0'
@@ -144,36 +144,38 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
         </div>
       </div>
 
-      {/* Navigation */}
-      <div className="p-6 flex justify-between items-center">
-        <Button
-          variant="ghost"
-          onClick={handlePrevious}
-          disabled={currentCard === 0 || isAnimating}
-          className="text-gray-600 disabled:opacity-0"
-        >
-          Previous
-        </Button>
-
-        <div className="flex-1" />
-
-        {currentCard < totalCards - 1 ? (
+      {/* Navigation - Fixed positioned footer */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-6">
+        <div className="flex justify-between items-center max-w-md mx-auto">
           <Button
-            onClick={handleNext}
-            disabled={isAnimating}
-            className="bg-blue-900 hover:bg-blue-800 text-white h-12 px-8 rounded-lg font-medium"
+            variant="ghost"
+            onClick={handlePrevious}
+            disabled={currentCard === 0 || isAnimating}
+            className="text-gray-600 disabled:opacity-0 h-12 px-6"
           >
-            Next
+            Previous
           </Button>
-        ) : (
-          <Button
-            onClick={handleComplete}
-            disabled={isAnimating}
-            className="bg-emerald-500 hover:bg-emerald-600 text-white h-14 px-8 rounded-lg font-medium text-lg"
-          >
-            Begin Journey
-          </Button>
-        )}
+
+          <div className="flex-1" />
+
+          {currentCard < totalCards - 1 ? (
+            <Button
+              onClick={handleNext}
+              disabled={isAnimating}
+              className="bg-blue-900 hover:bg-blue-800 text-white h-12 px-8 rounded-lg font-medium"
+            >
+              Next
+            </Button>
+          ) : (
+            <Button
+              onClick={handleComplete}
+              disabled={isAnimating}
+              className="bg-emerald-500 hover:bg-emerald-600 text-white h-14 px-8 rounded-lg font-medium text-lg"
+            >
+              Begin Journey
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

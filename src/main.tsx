@@ -4,10 +4,15 @@ import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { SecurityHeaders } from "./lib/securityHeaders";
+import { SecureMonitoring } from "./lib/secureMonitoring";
 
 // Apply enhanced security headers and validate environment on app start
 SecurityHeaders.applySecurity();
 SecurityHeaders.validateEnvironment();
+
+// Initialize security monitoring
+SecureMonitoring.monitorConsoleAccess();
+SecureMonitoring.trackPageAccess();
 
 // Additional security checks
 if (!SecurityHeaders.isSecureContext()) {
@@ -38,33 +43,70 @@ if (import.meta.env.PROD) {
     }
   });
 
-  // Clear console in production
+  // Enhanced console warning
   setTimeout(() => {
     console.clear();
-    console.log('%cSecurity Notice', 'color: red; font-size: 20px; font-weight: bold;');
-    console.log('%cThis is a browser feature intended for developers. Do not paste any code here that you do not understand.', 'color: red; font-size: 14px;');
+    console.log('%cSECURITY NOTICE', 'color: red; font-size: 24px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);');
+    console.log('%cThis is a browser feature intended for developers.', 'color: red; font-size: 16px; font-weight: bold;');
+    console.log('%cDo not paste any code here that you do not understand.', 'color: red; font-size: 16px; font-weight: bold;');
+    console.log('%cScammers may try to trick you into running malicious code.', 'color: red; font-size: 14px;');
+    console.log('%cIf someone told you to copy/paste something here, it is likely a scam.', 'color: red; font-size: 14px;');
   }, 1000);
 }
 
 // Enhanced cleanup of potentially sensitive data from localStorage
-const sensitivePatterns = ['debug', 'test', 'admin', 'dev', 'temp', 'cache'];
+const sensitivePatterns = ['debug', 'test', 'admin', 'dev', 'temp', 'cache', 'token', 'key', 'secret'];
 sensitivePatterns.forEach(pattern => {
   Object.keys(localStorage).forEach(key => {
-    if (key.toLowerCase().includes(pattern)) {
+    if (key.toLowerCase().includes(pattern) && 
+        !key.includes('security_') && // Preserve our security monitoring data
+        !key.startsWith('supabase.auth.')) { // Preserve auth data
       localStorage.removeItem(key);
       SecurityHeaders.logSecurityEvent('SENSITIVE_STORAGE_CLEANED', { key });
     }
   });
 });
 
-// Monitor for suspicious activity
+// Enhanced monitoring for suspicious activity
 let rapidKeyPresses = 0;
+let rapidClicks = 0;
+let unusualNavigation = 0;
+
 document.addEventListener('keydown', () => {
   rapidKeyPresses++;
   setTimeout(() => rapidKeyPresses--, 1000);
-  if (rapidKeyPresses > 20) {
-    SecurityHeaders.logSecurityEvent('SUSPICIOUS_ACTIVITY', { rapidKeyPresses });
+  if (rapidKeyPresses > 30) {
+    SecureMonitoring.trackSuspiciousActivity('RAPID_KEY_PRESSES', { count: rapidKeyPresses });
   }
+});
+
+document.addEventListener('click', () => {
+  rapidClicks++;
+  setTimeout(() => rapidClicks--, 1000);
+  if (rapidClicks > 20) {
+    SecureMonitoring.trackSuspiciousActivity('RAPID_CLICKS', { count: rapidClicks });
+  }
+});
+
+// Monitor for unusual navigation patterns
+let lastNavigationTime = Date.now();
+window.addEventListener('popstate', () => {
+  const now = Date.now();
+  if (now - lastNavigationTime < 100) {
+    unusualNavigation++;
+    if (unusualNavigation > 10) {
+      SecureMonitoring.trackSuspiciousActivity('UNUSUAL_NAVIGATION', { count: unusualNavigation });
+    }
+  }
+  lastNavigationTime = now;
+});
+
+// Monitor page visibility changes for potential security analysis
+document.addEventListener('visibilitychange', () => {
+  SecurityHeaders.logSecurityEvent('PAGE_VISIBILITY_CHANGE', {
+    hidden: document.hidden,
+    visibilityState: document.visibilityState
+  });
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

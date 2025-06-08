@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { SecurityHeaders } from '@/lib/securityHeaders';
+import { SecureMonitoring } from '@/lib/secureMonitoring';
 
 interface SignUpFormProps {
   onSuccess?: () => void;
@@ -100,6 +101,17 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess }) => {
       return;
     }
 
+    // Check for common weak passwords
+    const commonPasswords = ['Password123!', '12345678!', 'Qwerty123!'];
+    if (commonPasswords.includes(sanitizedPassword)) {
+      toast({
+        title: "Error",
+        description: "Please choose a more unique password",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setLoading(true);
       SecurityHeaders.logSecurityEvent('SIGNUP_ATTEMPT', { email: sanitizedEmail });
@@ -128,6 +140,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess }) => {
 
       if (error) {
         SecurityHeaders.logSecurityEvent('SIGNUP_FAILED', { error: error.message });
+        SecureMonitoring.trackSuspiciousActivity('SIGNUP_FAILURE', { email: sanitizedEmail, error: error.message });
         throw error;
       }
 
@@ -195,7 +208,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess }) => {
           maxLength={128}
         />
         <p className="text-xs text-gray-600 mt-1">
-          Must contain uppercase, lowercase, numbers, and special characters
+          Must contain uppercase, lowercase, numbers, and special characters. Avoid common passwords.
         </p>
       </div>
       

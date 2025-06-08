@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { SecurityHeaders } from '@/lib/securityHeaders';
+import { SecureMonitoring } from '@/lib/secureMonitoring';
 
 export const SignInForm = () => {
   const [email, setEmail] = useState('');
@@ -59,6 +60,17 @@ export const SignInForm = () => {
       return;
     }
 
+    // Check if user is rate limited due to failed attempts
+    if (!SecureMonitoring.trackAuthAttempt(sanitizedEmail, false)) {
+      toast({
+        title: "Security Notice",
+        description: "Too many failed attempts. Please try again later.",
+        variant: "destructive",
+      });
+      SecurityHeaders.logSecurityEvent('AUTH_RATE_LIMITED', { email: sanitizedEmail });
+      return;
+    }
+
     try {
       setLoading(true);
       SecurityHeaders.logSecurityEvent('SIGNIN_ATTEMPT', { email: sanitizedEmail });
@@ -81,11 +93,15 @@ export const SignInForm = () => {
       });
 
       if (error) {
+        // Track failed attempt
+        SecureMonitoring.trackAuthAttempt(sanitizedEmail, false);
         SecurityHeaders.logSecurityEvent('SIGNIN_FAILED', { error: error.message });
         throw error;
       }
 
       if (data.user) {
+        // Track successful attempt
+        SecureMonitoring.trackAuthAttempt(sanitizedEmail, true);
         SecurityHeaders.logSecurityEvent('SIGNIN_SUCCESS', { userId: data.user.id });
         toast({
           title: "Success",

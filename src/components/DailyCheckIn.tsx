@@ -78,8 +78,8 @@ const DailyCheckIn = () => {
           hope: data.hope_rating,
           sobriety_confidence: data.sobriety_confidence,
           recovery_importance: data.recovery_importance,
-          recovery_strength: data.recovery_strength,
-          support_needed: typeof data.support_needed === 'boolean' ? data.support_needed : false,
+          recovery_strength: data.recovery_strength ? parseFloat(data.recovery_strength) : null,
+          support_needed: typeof data.support_needed === 'boolean' ? data.support_needed : data.support_needed === 'true',
           phq2_q1: data.phq2_q1_response,
           phq2_q2: data.phq2_q2_response,
           gad2_q1: data.gad2_q1_response,
@@ -87,9 +87,12 @@ const DailyCheckIn = () => {
         });
         
         if (data.completed_sections && typeof data.completed_sections === 'string') {
-          setCompletedSections(new Set(JSON.parse(data.completed_sections)));
+          const parsed = JSON.parse(data.completed_sections);
+          if (Array.isArray(parsed)) {
+            setCompletedSections(new Set(parsed.map(item => String(item))));
+          }
         } else if (Array.isArray(data.completed_sections)) {
-          setCompletedSections(new Set(data.completed_sections));
+          setCompletedSections(new Set(data.completed_sections.map(item => String(item))));
         }
       }
     } catch (error) {

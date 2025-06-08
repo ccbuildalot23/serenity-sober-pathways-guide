@@ -36,6 +36,17 @@ export interface CrisisPlan {
   nextReviewDate: Date;
 }
 
+interface CrisisPlanRow {
+  id: string;
+  user_id: string;
+  plan_encrypted: string;
+  created_by: string;
+  last_reviewed: string;
+  next_review_date: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export class EncryptedCrisisPlanService {
   static async saveCrisisPlan(plan: CrisisPlan): Promise<CrisisPlan> {
     try {
@@ -72,7 +83,7 @@ export class EncryptedCrisisPlanService {
 
       return {
         ...plan,
-        id: data.id
+        id: (data as CrisisPlanRow).id
       };
     } catch (error) {
       console.error('Failed to save crisis plan:', error);
@@ -88,27 +99,29 @@ export class EncryptedCrisisPlanService {
         .eq('user_id', userId)
         .order('updated_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (error) {
-        if (error.code === 'PGRST116') {
-          // No crisis plan found
-          return null;
-        }
         throw error;
       }
 
+      if (!data) {
+        return null;
+      }
+
+      const planRow = data as CrisisPlanRow;
+
       // Decrypt the plan
-      const decryptedData = await serverSideEncryption.decrypt(data.plan_encrypted);
+      const decryptedData = await serverSideEncryption.decrypt(planRow.plan_encrypted);
       const planData = JSON.parse(decryptedData);
 
       return {
-        id: data.id,
-        userId: data.user_id,
+        id: planRow.id,
+        userId: planRow.user_id,
         ...planData,
-        createdBy: data.created_by,
-        lastReviewed: new Date(data.last_reviewed),
-        nextReviewDate: new Date(data.next_review_date)
+        createdBy: planRow.created_by as 'self' | 'therapist_review' | 'collaborative',
+        lastReviewed: new Date(planRow.last_reviewed),
+        nextReviewDate: new Date(planRow.next_review_date)
       };
     } catch (error) {
       console.error('Failed to load crisis plan:', error);

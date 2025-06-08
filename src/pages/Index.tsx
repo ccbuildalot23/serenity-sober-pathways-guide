@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -111,9 +112,9 @@ const Index = () => {
                   <Button 
                     size="sm" 
                     className="bg-orange-600 hover:bg-orange-700"
-                    onClick={() => window.location.href = '/crisis-toolkit'}
+                    asChild
                   >
-                    View Tools
+                    <Link to="/crisis-toolkit">View Tools</Link>
                   </Button>
                 </div>
               </CardContent>
@@ -131,18 +132,22 @@ const Index = () => {
             <Button 
               variant="outline" 
               className="h-16 border-2 border-[#1E3A8A] text-[#1E3A8A] hover:bg-blue-50"
-              onClick={() => window.location.href = '/calendar'}
+              asChild
             >
-              <CalendarDays className="mr-2 h-5 w-5" />
-              View Calendar
+              <Link to="/calendar">
+                <CalendarDays className="mr-2 h-5 w-5" />
+                View Calendar
+              </Link>
             </Button>
             <Button 
               variant="outline" 
               className="h-16 border-2 border-[#10B981] text-[#10B981] hover:bg-green-50"
-              onClick={() => window.location.href = '/checkin'}
+              asChild
             >
-              <Heart className="mr-2 h-5 w-5" />
-              Full Check-in
+              <Link to="/checkin">
+                <Heart className="mr-2 h-5 w-5" />
+                Full Check-in
+              </Link>
             </Button>
           </div>
 
@@ -180,9 +185,9 @@ const Index = () => {
                 </p>
                 <Button 
                   className="bg-red-600 hover:bg-red-700"
-                  onClick={() => window.location.href = '/crisis-toolkit'}
+                  asChild
                 >
-                  Access Crisis Toolkit
+                  <Link to="/crisis-toolkit">Access Crisis Toolkit</Link>
                 </Button>
               </div>
             </CardContent>

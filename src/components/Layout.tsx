@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { Home, Calendar, Users, BookOpen, User, Settings } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { Home, Calendar, Users, BookOpen, User, Settings, Heart } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,22 +11,16 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onProfileClick }) => {
+  const location = useLocation();
+  
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/' },
     { id: 'calendar', label: 'Calendar', icon: Calendar, path: '/calendar' },
-    { id: 'checkin', label: 'Check-in', icon: Calendar, path: '/checkin' },
+    { id: 'checkin', label: 'Check-in', icon: Heart, path: '/checkin' },
     { id: 'support', label: 'Support', icon: Users, path: '/support' },
     { id: 'resources', label: 'Resources', icon: BookOpen, path: '/resources' },
     { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' },
   ];
-
-  const handleTabClick = (tab: any) => {
-    if (tab.path && tab.path !== window.location.pathname) {
-      window.location.href = tab.path;
-    } else {
-      onTabChange(tab.id);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -55,12 +50,13 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onPro
           <div className="flex justify-around">
             {tabs.map((tab) => {
               const Icon = tab.icon;
-              const isActive = activeTab === tab.id || window.location.pathname === tab.path;
+              const isActive = location.pathname === tab.path;
               
               return (
-                <button
+                <Link
                   key={tab.id}
-                  onClick={() => handleTabClick(tab)}
+                  to={tab.path}
+                  onClick={() => onTabChange(tab.id)}
                   className={`flex flex-col items-center py-3 px-2 text-xs font-medium transition-colors ${
                     isActive 
                       ? 'text-indigo-600' 
@@ -69,7 +65,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onPro
                 >
                   <Icon className={`h-6 w-6 mb-1 ${isActive ? 'text-indigo-600' : 'text-gray-400'}`} />
                   {tab.label}
-                </button>
+                </Link>
               );
             })}
           </div>

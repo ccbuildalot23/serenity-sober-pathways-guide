@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { serverSideEncryption } from '@/lib/serverSideEncryption';
 import { InputValidator } from '@/lib/inputValidation';
@@ -66,15 +65,33 @@ export const logSecurityEvent = async (eventType: string, details: Record<string
 };
 
 // Log the security hardening implementation
-export const logSecurityHardening = async () => {
-  await logSecurityEvent('SECURITY_HARDENING_COMPLETE', {
-    improvements: [
-      'eliminated_client_side_encryption',
-      'removed_encryption_key_exposure',
-      'standardized_server_side_encryption',
-      'enhanced_security_monitoring'
-    ],
-    impact: 'critical_vulnerability_resolved',
-    encryption_method: 'server_side_only'
-  });
+export const logSecurityHardening = async (): Promise<void> => {
+  try {
+    const securityEvent = {
+      event: 'SECURITY_HARDENING_INITIALIZED',
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent.substring(0, 100),
+      url: window.location.href,
+      severity: 'info'
+    };
+
+    console.log('Security hardening initialized:', securityEvent);
+    
+    // Store security event locally
+    try {
+      const securityLogs = JSON.parse(localStorage.getItem('security_events') || '[]');
+      securityLogs.push(securityEvent);
+      
+      // Keep only last 50 events to prevent storage bloat
+      if (securityLogs.length > 50) {
+        securityLogs.splice(0, securityLogs.length - 50);
+      }
+      
+      localStorage.setItem('security_events', JSON.stringify(securityLogs));
+    } catch (error) {
+      console.warn('Could not store security event:', error);
+    }
+  } catch (error) {
+    console.error('Failed to log security hardening:', error);
+  }
 };

@@ -30,23 +30,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Clean up auth state helper
+  // Enhanced auth state cleanup helper
   const cleanupAuthState = () => {
     Object.keys(localStorage).forEach((key) => {
-      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+      if (key.startsWith('supabase.auth.') || key.includes('sb-') || key.includes('supabase-auth')) {
         localStorage.removeItem(key);
       }
     });
     
     Object.keys(sessionStorage || {}).forEach((key) => {
-      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+      if (key.startsWith('supabase.auth.') || key.includes('sb-') || key.includes('supabase-auth')) {
         sessionStorage.removeItem(key);
       }
     });
+    
+    SecurityHeaders.logSecurityEvent('AUTH_STATE_CLEANED');
   };
 
   const signOut = async () => {
     try {
+      SecurityHeaders.logSecurityEvent('SIGNOUT_ATTEMPT', { userId: user?.id });
+      
       // Clean up auth state first
       cleanupAuthState();
       
@@ -57,10 +61,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
         console.log('Global signout completed');
       }
       
+      SecurityHeaders.logSecurityEvent('SIGNOUT_SUCCESS');
+      
       // Force page reload for clean state
       window.location.href = '/auth';
     } catch (error) {
       console.error('Sign out error:', error);
+      SecurityHeaders.logSecurityEvent('SIGNOUT_ERROR', { error: error.message });
       // Force redirect even if signout fails
       window.location.href = '/auth';
     }
@@ -72,6 +79,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      
+      if (session?.user) {
+        SecurityHeaders.logSecurityEvent('SESSION_RESTORED', { userId: session.user.id });
+      }
     });
 
     // Listen for auth changes
@@ -79,6 +90,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state change:', event);
+      SecurityHeaders.logSecurityEvent('AUTH_STATE_CHANGE', { event });
       
       // Update state synchronously
       setSession(session);
@@ -88,12 +100,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // Defer any additional processing to prevent deadlocks
         setTimeout(() => {
           console.log('User signed in successfully');
+          SecurityHeaders.logSecurityEvent('USER_SIGNED_IN', { userId: session?.user?.id });
         }, 0);
       } else if (event === 'SIGNED_OUT') {
         // Clean up any remaining auth data
         cleanupAuthState();
         setUser(null);
         setSession(null);
+        SecurityHeaders.logSecurityEvent('USER_SIGNED_OUT');
       }
       
       setLoading(false);
@@ -102,13 +116,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Security validation on user change
+  // Enhanced security validation on user change
   useEffect(() => {
     if (user) {
       // Validate that we're in a secure context for authenticated users
       if (!SecurityHeaders.isSecureContext()) {
         console.warn('User authenticated but not in secure context');
+        SecurityHeaders.logSecurityEvent('INSECURE_AUTH_CONTEXT', { userId: user.id });
       }
+      
+      // Log user session details for security monitoring
+      SecurityHeaders.logSecurityEvent('USER_SESSION_ACTIVE', { 
+        userId: user.id,
+        email: user.email,
+        lastSignIn: user.last_sign_in_at 
+      });
     }
   }, [user]);
 

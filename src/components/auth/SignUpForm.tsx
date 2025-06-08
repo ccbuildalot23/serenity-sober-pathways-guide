@@ -14,34 +14,38 @@ interface SignUpFormProps {
 export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  // Clean up auth state before attempting sign up
+  // Enhanced auth state cleanup
   const cleanupAuthState = () => {
     Object.keys(localStorage).forEach((key) => {
-      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+      if (key.startsWith('supabase.auth.') || key.includes('sb-') || key.includes('supabase-auth')) {
         localStorage.removeItem(key);
       }
     });
     
     Object.keys(sessionStorage || {}).forEach((key) => {
-      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+      if (key.startsWith('supabase.auth.') || key.includes('sb-') || key.includes('supabase-auth')) {
         sessionStorage.removeItem(key);
       }
     });
+    
+    SecurityHeaders.logSecurityEvent('AUTH_STATE_CLEANED');
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Sanitize inputs
-    const sanitizedEmail = SecurityHeaders.sanitizeUserInput(email.trim());
+    // Enhanced input sanitization and validation
+    const sanitizedEmail = SecurityHeaders.sanitizeUserInput(email.trim().toLowerCase());
     const sanitizedFullName = SecurityHeaders.sanitizeUserInput(fullName.trim());
     const sanitizedPassword = password.trim();
+    const sanitizedConfirmPassword = confirmPassword.trim();
     
-    if (!sanitizedEmail || !sanitizedPassword || !sanitizedFullName) {
+    if (!sanitizedEmail || !sanitizedPassword || !sanitizedFullName || !sanitizedConfirmPassword) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -50,11 +54,47 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess }) => {
       return;
     }
 
-    // Basic password validation
-    if (sanitizedPassword.length < 6) {
+    // Enhanced email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(sanitizedEmail)) {
       toast({
         title: "Error",
-        description: "Password must be at least 6 characters",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Password confirmation check
+    if (sanitizedPassword !== sanitizedConfirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Enhanced password validation
+    if (sanitizedPassword.length < 8) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 8 characters long",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check for basic password complexity
+    const hasUpperCase = /[A-Z]/.test(sanitizedPassword);
+    const hasLowerCase = /[a-z]/.test(sanitizedPassword);
+    const hasNumbers = /\d/.test(sanitizedPassword);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(sanitizedPassword);
+
+    if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
+      toast({
+        title: "Error",
+        description: "Password must contain uppercase, lowercase, numbers, and special characters",
         variant: "destructive",
       });
       return;
@@ -62,6 +102,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess }) => {
 
     try {
       setLoading(true);
+      SecurityHeaders.logSecurityEvent('SIGNUP_ATTEMPT', { email: sanitizedEmail });
       
       // Clean up existing state
       cleanupAuthState();
@@ -80,13 +121,18 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess }) => {
         options: {
           data: {
             full_name: sanitizedFullName,
-          }
+          },
+          emailRedirectTo: `${window.location.origin}/`
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        SecurityHeaders.logSecurityEvent('SIGNUP_FAILED', { error: error.message });
+        throw error;
+      }
 
       if (data.user) {
+        SecurityHeaders.logSecurityEvent('SIGNUP_SUCCESS', { userId: data.user.id });
         toast({
           title: "Success",
           description: "Account created successfully! Please check your email to verify your account.",
@@ -117,6 +163,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess }) => {
           required
           autoComplete="name"
           disabled={loading}
+          maxLength={100}
         />
       </div>
       
@@ -130,6 +177,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess }) => {
           required
           autoComplete="email"
           disabled={loading}
+          maxLength={254}
         />
       </div>
       
@@ -143,7 +191,26 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess }) => {
           required
           autoComplete="new-password"
           disabled={loading}
-          minLength={6}
+          minLength={8}
+          maxLength={128}
+        />
+        <p className="text-xs text-gray-600 mt-1">
+          Must contain uppercase, lowercase, numbers, and special characters
+        </p>
+      </div>
+      
+      <div>
+        <Label htmlFor="confirmPassword">Confirm Password</Label>
+        <Input
+          id="confirmPassword"
+          type="password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+          autoComplete="new-password"
+          disabled={loading}
+          minLength={8}
+          maxLength={128}
         />
       </div>
       

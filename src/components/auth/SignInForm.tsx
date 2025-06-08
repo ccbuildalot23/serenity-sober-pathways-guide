@@ -13,28 +13,30 @@ export const SignInForm = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  // Clean up auth state before attempting sign in
+  // Enhanced auth state cleanup
   const cleanupAuthState = () => {
     // Remove all Supabase auth keys from localStorage
     Object.keys(localStorage).forEach((key) => {
-      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+      if (key.startsWith('supabase.auth.') || key.includes('sb-') || key.includes('supabase-auth')) {
         localStorage.removeItem(key);
       }
     });
     
     // Remove from sessionStorage if in use
     Object.keys(sessionStorage || {}).forEach((key) => {
-      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+      if (key.startsWith('supabase.auth.') || key.includes('sb-') || key.includes('supabase-auth')) {
         sessionStorage.removeItem(key);
       }
     });
+    
+    SecurityHeaders.logSecurityEvent('AUTH_STATE_CLEANED');
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Sanitize inputs
-    const sanitizedEmail = SecurityHeaders.sanitizeUserInput(email.trim());
+    // Enhanced input sanitization and validation
+    const sanitizedEmail = SecurityHeaders.sanitizeUserInput(email.trim().toLowerCase());
     const sanitizedPassword = password.trim();
     
     if (!sanitizedEmail || !sanitizedPassword) {
@@ -46,8 +48,20 @@ export const SignInForm = () => {
       return;
     }
 
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(sanitizedEmail)) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setLoading(true);
+      SecurityHeaders.logSecurityEvent('SIGNIN_ATTEMPT', { email: sanitizedEmail });
       
       // Clean up existing state
       cleanupAuthState();
@@ -66,9 +80,13 @@ export const SignInForm = () => {
         password: sanitizedPassword,
       });
 
-      if (error) throw error;
+      if (error) {
+        SecurityHeaders.logSecurityEvent('SIGNIN_FAILED', { error: error.message });
+        throw error;
+      }
 
       if (data.user) {
+        SecurityHeaders.logSecurityEvent('SIGNIN_SUCCESS', { userId: data.user.id });
         toast({
           title: "Success",
           description: "Welcome back!",
@@ -101,6 +119,7 @@ export const SignInForm = () => {
           required
           autoComplete="email"
           disabled={loading}
+          maxLength={254}
         />
       </div>
       
@@ -114,6 +133,7 @@ export const SignInForm = () => {
           required
           autoComplete="current-password"
           disabled={loading}
+          maxLength={128}
         />
       </div>
       

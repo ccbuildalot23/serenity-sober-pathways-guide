@@ -6,6 +6,8 @@ import { Plus, User, Heart, MessageCircle, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import CrisisProtocolSetup from './support/CrisisProtocolSetup';
+import CheckInAccountability from './support/CheckInAccountability';
 
 interface Contact {
   id: string;

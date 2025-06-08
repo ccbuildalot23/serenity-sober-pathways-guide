@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import DailyCheckIn from '@/components/DailyCheckIn';
@@ -71,7 +70,7 @@ const Index = () => {
       const permission = await NotificationService.requestPermission();
       setNotificationPermission(permission);
       
-      if (permission === 'granted') {
+      if (permission === 'granted' && user?.id) {
         toast.success('Notifications enabled! We\'ll send you gentle reminders to support your recovery.');
         
         // Set default notification schedule
@@ -80,7 +79,7 @@ const Index = () => {
           freq: 3,
           toggles: { checkIn: true, affirm: true, support: true, spiritual: true }
         };
-        await NotificationService.scheduleAll(defaultSettings);
+        await NotificationService.scheduleAll(defaultSettings, user.id);
       } else {
         toast.error('Notifications were not enabled. You can enable them anytime in your browser settings.');
       }

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Bell, Clock, Heart, Phone, BookOpen } from 'lucide-react';
 import { NotificationService } from '@/services/notificationService';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface NotificationToggles {
   checkIn: boolean;
@@ -15,6 +16,7 @@ interface NotificationToggles {
 }
 
 export default function NotificationSettings() {
+  const { user } = useAuth();
   const [time, setTime] = useState('09:00');
   const [freq, setFreq] = useState(3);
   const [toggles, setToggles] = useState<NotificationToggles>({ 
@@ -37,9 +39,11 @@ export default function NotificationSettings() {
   }, []);
 
   const save = async () => {
+    if (!user?.id) return;
+    
     const settings = { time, freq, toggles };
     localStorage.setItem('notification_settings', JSON.stringify(settings));
-    await NotificationService.scheduleAll(settings);
+    await NotificationService.scheduleAll(settings, user.id);
   };
 
   const requestPermission = async () => {

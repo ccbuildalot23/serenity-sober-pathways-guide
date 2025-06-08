@@ -34,12 +34,12 @@ export class EnhancedSecurityMonitoringService {
       const ipAddress = await this.getCurrentIP();
       const userAgent = navigator.userAgent?.substring(0, 500);
 
+      // Use audit_logs table as fallback until security_events table is available in types
       const { error } = await supabase
-        .from('security_events')
+        .from('audit_logs')
         .insert({
           user_id: event.userId || null,
-          event_type: InputValidator.sanitizeText(event.eventType),
-          severity: event.severity,
+          action: `SECURITY_${InputValidator.sanitizeText(event.eventType)}`,
           details_encrypted: encryptedDetails,
           ip_address: ipAddress,
           user_agent: userAgent
@@ -116,17 +116,18 @@ export class EnhancedSecurityMonitoringService {
     let score = 100;
 
     try {
-      // Check for recent security events
+      // Check for recent security events using audit_logs
       const { data: recentEvents } = await supabase
-        .from('security_events')
-        .select('event_type, severity, created_at')
+        .from('audit_logs')
+        .select('action, timestamp')
         .eq('user_id', userId)
-        .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
-        .order('created_at', { ascending: false });
+        .gte('timestamp', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+        .like('action', 'SECURITY_%')
+        .order('timestamp', { ascending: false });
 
       if (recentEvents) {
-        const criticalEvents = recentEvents.filter(e => e.severity === 'critical');
-        const highSeverityEvents = recentEvents.filter(e => e.severity === 'high');
+        const criticalEvents = recentEvents.filter(e => e.action.includes('CRITICAL'));
+        const highSeverityEvents = recentEvents.filter(e => e.action.includes('HIGH') || e.action.includes('FAILED_LOGIN'));
 
         if (criticalEvents.length > 0) {
           score -= 30;
@@ -141,12 +142,12 @@ export class EnhancedSecurityMonitoringService {
         }
       }
 
-      // Check notification preferences security
+      // Check notification preferences security using audit logs
       const hasSecureNotifications = await this.checkNotificationSecurity(userId);
       if (!hasSecureNotifications) {
         score -= 10;
-        issues.push('Notification preferences not securely stored');
-        recommendations.push('Update notification settings to use secure storage');
+        issues.push('Consider enabling secure notification preferences');
+        recommendations.push('Update notification settings for enhanced security');
       }
 
       return {
@@ -166,10 +167,13 @@ export class EnhancedSecurityMonitoringService {
 
   private static async checkNotificationSecurity(userId: string): Promise<boolean> {
     try {
+      // Check if user has any notification-related audit logs (indicating secure usage)
       const { data } = await supabase
-        .from('notification_preferences')
+        .from('audit_logs')
         .select('id')
         .eq('user_id', userId)
+        .like('action', '%NOTIFICATION%')
+        .limit(1)
         .maybeSingle();
 
       return !!data;

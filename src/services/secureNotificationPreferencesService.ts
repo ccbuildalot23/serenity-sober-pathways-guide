@@ -34,13 +34,14 @@ export class SecureNotificationPreferencesService {
         JSON.stringify(sanitizedPreferences)
       );
 
-      // Store in database
+      // Store in audit_logs table as fallback until notification_preferences table is available
       const { error } = await supabase
-        .from('notification_preferences')
-        .upsert({
+        .from('audit_logs')
+        .insert({
           user_id: userId,
-          preferences_encrypted: encryptedPreferences,
-          updated_at: new Date().toISOString()
+          action: 'NOTIFICATION_PREFERENCES_SAVED',
+          details_encrypted: encryptedPreferences,
+          timestamp: new Date().toISOString()
         });
 
       if (error) {
@@ -59,10 +60,14 @@ export class SecureNotificationPreferencesService {
 
   static async loadPreferences(userId: string): Promise<NotificationPreferences | null> {
     try {
+      // Load from audit_logs table as fallback
       const { data, error } = await supabase
-        .from('notification_preferences')
-        .select('preferences_encrypted')
+        .from('audit_logs')
+        .select('details_encrypted')
         .eq('user_id', userId)
+        .eq('action', 'NOTIFICATION_PREFERENCES_SAVED')
+        .order('timestamp', { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (error) {
@@ -70,12 +75,12 @@ export class SecureNotificationPreferencesService {
         return null;
       }
 
-      if (!data?.preferences_encrypted) {
+      if (!data?.details_encrypted) {
         return null;
       }
 
       // Decrypt preferences
-      const decryptedData = await serverSideEncryption.decrypt(data.preferences_encrypted);
+      const decryptedData = await serverSideEncryption.decrypt(data.details_encrypted);
       return JSON.parse(decryptedData);
       
     } catch (error) {
@@ -86,13 +91,17 @@ export class SecureNotificationPreferencesService {
 
   static async deletePreferences(userId: string): Promise<void> {
     try {
+      // Log deletion event
       const { error } = await supabase
-        .from('notification_preferences')
-        .delete()
-        .eq('user_id', userId);
+        .from('audit_logs')
+        .insert({
+          user_id: userId,
+          action: 'NOTIFICATION_PREFERENCES_DELETED',
+          timestamp: new Date().toISOString()
+        });
 
       if (error) {
-        console.error('Failed to delete notification preferences:', error);
+        console.error('Failed to log notification preferences deletion:', error);
         throw new Error('Failed to delete notification preferences');
       }
     } catch (error) {

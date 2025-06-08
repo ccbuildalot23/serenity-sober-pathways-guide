@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -266,6 +265,12 @@ const SupportNetwork = () => {
           </Button>
         </div>
       </Card>
+
+      {/* Crisis Protocol Setup */}
+      <CrisisProtocolSetup />
+
+      {/* Check-In Accountability */}
+      <CheckInAccountability />
 
       {isAdding && (
         <Card className="p-4 animate-scale-in">

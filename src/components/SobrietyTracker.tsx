@@ -4,12 +4,19 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Calendar, DollarSign, Trophy } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import CrisisMilestoneDialog from '@/components/milestones/CrisisMilestoneDialog';
 
 const SobrietyTracker = () => {
+  const { user } = useAuth();
   const [sobrietyDate, setSobrietyDate] = useState<string>('');
   const [dailyCost, setDailyCost] = useState<string>('15');
   const [days, setDays] = useState<number>(0);
   const [moneySaved, setMoneySaved] = useState<number>(0);
+  const [showMilestone, setShowMilestone] = useState(false);
+  const [currentMilestone, setCurrentMilestone] = useState<number>(0);
+  const [crisisData, setCrisisData] = useState<any[]>([]);
 
   // Load data from localStorage
   useEffect(() => {
@@ -23,7 +30,42 @@ const SobrietyTracker = () => {
     if (savedCost) {
       setDailyCost(savedCost);
     }
+
+    loadCrisisData();
   }, []);
+
+  // Check for milestones
+  useEffect(() => {
+    const milestones = [7, 30, 90, 180, 365];
+    const reachedMilestone = milestones.find(m => days === m);
+    
+    if (reachedMilestone) {
+      setCurrentMilestone(reachedMilestone);
+      setShowMilestone(true);
+    }
+  }, [days]);
+
+  const loadCrisisData = async () => {
+    if (!user?.id) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('crisis_events')
+        .select('id, created_at as crisis_start_time')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.error('Error loading crisis data:', error);
+        return;
+      }
+
+      setCrisisData(data || []);
+    } catch (error) {
+      console.error('Error in loadCrisisData:', error);
+    }
+  };
 
   const calculateProgress = (startDate: string, cost: string) => {
     if (!startDate) return;
@@ -131,6 +173,14 @@ const SobrietyTracker = () => {
           </div>
         </div>
       </Card>
+
+      {/* Crisis Milestone Dialog */}
+      <CrisisMilestoneDialog
+        isOpen={showMilestone}
+        onClose={() => setShowMilestone(false)}
+        milestone={currentMilestone}
+        crisisData={crisisData}
+      />
     </div>
   );
 };

@@ -8,6 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Fingerprint, Shield, Smartphone, Lock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 interface EnhancedAuthProps {
@@ -26,6 +27,7 @@ export const EnhancedAuth: React.FC<EnhancedAuthProps> = ({ mode }) => {
   const [biometricSupported, setBiometricSupported] = useState(false);
 
   const { signIn, signUp } = useAuth();
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     // Check if biometric authentication is supported
@@ -107,6 +109,7 @@ export const EnhancedAuth: React.FC<EnhancedAuthProps> = ({ mode }) => {
         }
         
         toast.success('Account created successfully!');
+        navigate('/');
       } else {
         const { error } = await signIn(email, password);
         if (error) throw error;
@@ -118,6 +121,7 @@ export const EnhancedAuth: React.FC<EnhancedAuthProps> = ({ mode }) => {
         }
         
         toast.success('Signed in successfully!');
+        navigate('/');
       }
     } catch (error: any) {
       toast.error(error.message || 'Authentication failed');
@@ -133,7 +137,7 @@ export const EnhancedAuth: React.FC<EnhancedAuthProps> = ({ mode }) => {
     if (mfaCode === '123456' || mfaCode.length === 6) {
       toast.success('Two-factor authentication verified!');
       setShowMFA(false);
-      // Complete authentication
+      navigate('/');
     } else {
       toast.error('Invalid verification code');
     }

@@ -4,34 +4,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { SecurityHeaders } from '@/lib/securityHeaders';
 import { SecureMonitoring } from '@/lib/secureMonitoring';
+import { useNavigate } from 'react-router-dom';
 
 export const SignInForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-
-  // Enhanced auth state cleanup
-  const cleanupAuthState = () => {
-    // Remove all Supabase auth keys from localStorage
-    Object.keys(localStorage).forEach((key) => {
-      if (key.startsWith('supabase.auth.') || key.includes('sb-') || key.includes('supabase-auth')) {
-        localStorage.removeItem(key);
-      }
-    });
-    
-    // Remove from sessionStorage if in use
-    Object.keys(sessionStorage || {}).forEach((key) => {
-      if (key.startsWith('supabase.auth.') || key.includes('sb-') || key.includes('supabase-auth')) {
-        sessionStorage.removeItem(key);
-      }
-    });
-    
-    SecurityHeaders.logSecurityEvent('AUTH_STATE_CLEANED');
-  };
+  const { signIn } = useAuth();
+  const navigate = useNavigate();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,23 +58,8 @@ export const SignInForm = () => {
     try {
       setLoading(true);
       SecurityHeaders.logSecurityEvent('SIGNIN_ATTEMPT', { email: sanitizedEmail });
-      
-      // Clean up existing state
-      cleanupAuthState();
-      
-      // Attempt global sign out first
-      try {
-        await supabase.auth.signOut({ scope: 'global' });
-      } catch (err) {
-        // Continue even if this fails
-        console.log('Global signout attempt completed');
-      }
 
-      // Sign in with email/password
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: sanitizedEmail,
-        password: sanitizedPassword,
-      });
+      const { error } = await signIn(sanitizedEmail, sanitizedPassword);
 
       if (error) {
         // Track failed attempt
@@ -99,18 +68,18 @@ export const SignInForm = () => {
         throw error;
       }
 
-      if (data.user) {
-        // Track successful attempt
-        SecureMonitoring.trackAuthAttempt(sanitizedEmail, true);
-        SecurityHeaders.logSecurityEvent('SIGNIN_SUCCESS', { userId: data.user.id });
-        toast({
-          title: "Success",
-          description: "Welcome back!",
-        });
-        
-        // Force page reload for clean state
-        window.location.href = '/';
-      }
+      // Track successful attempt
+      SecureMonitoring.trackAuthAttempt(sanitizedEmail, true);
+      SecurityHeaders.logSecurityEvent('SIGNIN_SUCCESS');
+      
+      toast({
+        title: "Success",
+        description: "Welcome back!",
+      });
+      
+      // Navigate to dashboard instead of forcing reload
+      navigate('/');
+      
     } catch (error: any) {
       console.error('Sign in error:', error);
       toast({

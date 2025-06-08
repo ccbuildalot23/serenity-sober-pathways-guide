@@ -1,8 +1,10 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { NotificationSettings } from './notification/types';
-import { scheduleAll, clearScheduled } from './notification/scheduling';
+import { scheduleAllSecure, clearScheduled } from './notification/secureScheduling';
 import { handleActionClick, logNotificationScheduled } from './notification/handlers';
+import { SecureNotificationPreferencesService } from './secureNotificationPreferencesService';
+import { EnhancedSecurityMonitoringService } from './enhancedSecurityMonitoringService';
 
 class NotificationServiceClass {
   async requestPermission(): Promise<NotificationPermission> {
@@ -21,6 +23,14 @@ class NotificationServiceClass {
 
     try {
       const permission = await Notification.requestPermission();
+      
+      // Log permission request
+      await EnhancedSecurityMonitoringService.logSecurityEvent({
+        eventType: 'NOTIFICATION_PERMISSION_REQUESTED',
+        severity: 'low',
+        details: { permission_granted: permission === 'granted' }
+      });
+      
       return permission;
     } catch (error) {
       console.error('Error requesting notification permission:', error);
@@ -28,8 +38,8 @@ class NotificationServiceClass {
     }
   }
 
-  async scheduleAll(settings: NotificationSettings): Promise<void> {
-    await scheduleAll(settings);
+  async scheduleAll(settings: NotificationSettings, userId: string): Promise<void> {
+    await scheduleAllSecure(settings, userId);
     await logNotificationScheduled(settings);
   }
 
@@ -43,6 +53,14 @@ class NotificationServiceClass {
 
   getPermissionStatus(): NotificationPermission {
     return Notification.permission;
+  }
+
+  async loadSecureSettings(userId: string): Promise<NotificationSettings | null> {
+    return SecureNotificationPreferencesService.loadPreferences(userId);
+  }
+
+  async deleteSecureSettings(userId: string): Promise<void> {
+    return SecureNotificationPreferencesService.deletePreferences(userId);
   }
 }
 

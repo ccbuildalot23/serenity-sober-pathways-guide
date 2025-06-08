@@ -209,7 +209,6 @@ class NotificationServiceClass {
       badge: '/favicon.ico',
       tag: `serenity_${type}_${Date.now()}`,
       requireInteraction: true,
-      actions: message.actions || [],
       data: { type, timestamp: Date.now() }
     });
 

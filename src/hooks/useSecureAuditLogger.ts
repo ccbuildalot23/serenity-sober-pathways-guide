@@ -1,8 +1,12 @@
 
 import { useAuth } from '@/contexts/AuthContext';
-import { secureLogEvent } from '@/services/secureAuditLogService';
+import { secureLogEvent } from '@/services/secureServerAuditLogService';
 import { formRateLimiter } from '@/lib/inputValidation';
 
+/**
+ * Hook for secure audit logging using server-side encryption only
+ * This eliminates client-side encryption vulnerabilities
+ */
 export const useSecureAuditLogger = () => {
   const { user } = useAuth();
   

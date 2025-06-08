@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { secureEncryption } from '@/lib/secureEncryption';
+import { serverSideEncryption } from '@/lib/serverSideEncryption';
 import { InputValidator } from '@/lib/inputValidation';
 
 interface AuditEntry {
@@ -22,9 +22,9 @@ export const secureLogEvent = async (entry: AuditEntry) => {
       userAgent: entry.userAgent ? InputValidator.sanitizeText(entry.userAgent) : null
     };
 
-    // Encrypt sensitive details using secure encryption
+    // Use server-side encryption for maximum security
     const encryptedDetails = sanitizedEntry.details 
-      ? await secureEncryption.encrypt(JSON.stringify(sanitizedEntry.details))
+      ? await serverSideEncryption.encrypt(JSON.stringify(sanitizedEntry.details))
       : null;
 
     // Get client IP and user agent (if available)
@@ -52,27 +52,29 @@ export const secureLogEvent = async (entry: AuditEntry) => {
   }
 };
 
-// Security event logging with enhanced tracking
+// Security event logging with server-side encryption
 export const logSecurityEvent = async (eventType: string, details: Record<string, any>) => {
   await secureLogEvent({
     action: `SECURITY_${eventType}`,
     details: {
       event_type: eventType,
       timestamp: new Date().toISOString(),
-      security_improvement: 'encryption_hardening_applied',
+      security_level: 'maximum_server_side_encryption',
       ...details
     }
   });
 };
 
-// Log the security improvement implementation
-export const logSecurityImprovement = async () => {
-  await logSecurityEvent('SECURITY_HARDENING', {
+// Log the security hardening implementation
+export const logSecurityHardening = async () => {
+  await logSecurityEvent('SECURITY_HARDENING_COMPLETE', {
     improvements: [
-      'removed_legacy_encryption_file',
-      'strengthened_key_validation',
+      'eliminated_client_side_encryption',
+      'removed_encryption_key_exposure',
+      'standardized_server_side_encryption',
       'enhanced_security_monitoring'
     ],
-    impact: 'critical_vulnerability_resolved'
+    impact: 'critical_vulnerability_resolved',
+    encryption_method: 'server_side_only'
   });
 };

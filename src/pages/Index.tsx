@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import Layout from '@/components/Layout';
 import { UnifiedRecoveryContent } from '@/components/daily/UnifiedRecoveryContent';
 import QuickCheckIn from '@/components/daily/QuickCheckIn';
-import { EnhancedCrisisSystem } from '@/components/crisis/EnhancedCrisisSystem';
+import EnhancedCrisisSystem from '@/components/crisis/EnhancedCrisisSystem';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
 const Index = () => {

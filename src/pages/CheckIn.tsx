@@ -56,24 +56,43 @@ const CheckIn = () => {
         {/* Check-in Sections */}
         <div className="space-y-6">
           <MoodSection
-            responses={responses}
-            setResponses={setResponses}
-            onSectionComplete={() => markSectionComplete('mood')}
-            isCompleted={completedSections.has('mood')}
+            mood={responses.mood}
+            onMoodChange={(value) => {
+              setResponses(prev => ({ ...prev, mood: value }));
+              markSectionComplete('mood');
+            }}
           />
 
           <WellnessSection
-            responses={responses}
-            setResponses={setResponses}
-            onSectionComplete={() => markSectionComplete('wellness')}
-            isCompleted={completedSections.has('wellness')}
+            energy={responses.energy}
+            hope={responses.hope}
+            sobrietyConfidence={responses.sobriety_confidence}
+            recoveryImportance={responses.recovery_importance}
+            recoveryStrength={responses.recovery_strength}
+            supportNeeded={responses.support_needed}
+            onEnergyChange={(value) => setResponses(prev => ({ ...prev, energy: value }))}
+            onHopeChange={(value) => setResponses(prev => ({ ...prev, hope: value }))}
+            onSobrietyConfidenceChange={(value) => setResponses(prev => ({ ...prev, sobriety_confidence: value }))}
+            onRecoveryImportanceChange={(value) => setResponses(prev => ({ ...prev, recovery_importance: value }))}
+            onRecoveryStrengthChange={(value) => setResponses(prev => ({ ...prev, recovery_strength: value }))}
+            onSupportNeededChange={(checked) => {
+              setResponses(prev => ({ ...prev, support_needed: checked }));
+              markSectionComplete('wellness');
+            }}
           />
 
           <AssessmentsSection
-            responses={responses}
-            setResponses={setResponses}
-            onSectionComplete={() => markSectionComplete('assessments')}
-            isCompleted={completedSections.has('assessments')}
+            phq2Q1={responses.phq2_q1}
+            phq2Q2={responses.phq2_q2}
+            gad2Q1={responses.gad2_q1}
+            gad2Q2={responses.gad2_q2}
+            onPhq2Q1Change={(value) => setResponses(prev => ({ ...prev, phq2_q1: value }))}
+            onPhq2Q2Change={(value) => setResponses(prev => ({ ...prev, phq2_q2: value }))}
+            onGad2Q1Change={(value) => setResponses(prev => ({ ...prev, gad2_q1: value }))}
+            onGad2Q2Change={(value) => {
+              setResponses(prev => ({ ...prev, gad2_q2: value }));
+              markSectionComplete('assessments');
+            }}
           />
         </div>
 

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,14 +10,13 @@ import {
   Phone, Brain, Users, Headphones, Heart, AlertCircle, 
   MapPin, Mic, MicOff, WifiOff, Battery, Shield
 } from 'lucide-react';
-import { toast } from 'sonner';
-import { useAuth } from '@/contexts/AuthContext';
 import { panicModeService } from '@/services/panicModeService';
-import { getCurrentLocation, getCachedLocation } from '@/services/geolocationService';
-import { sendMockSMS, sendMockPush } from '@/services/mockSmsService';
+import { getCurrentLocation } from '@/services/geolocationService';
+import { voiceActivationService } from '@/services/voiceActivationService';
+import { sendMockSMS } from '@/services/mockSmsService';
 import { escalateCrisis } from '@/services/crisisEscalationService';
-import { offlineStorage } from '@/services/offlineStorageService';
-import { UltraSecureCrisisDataService } from '@/services/ultraSecureCrisisDataService';
+import { useOfflineCrisisData } from '@/hooks/useOfflineCrisisData';
+import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 interface EnhancedCrisisToolkitProps {
@@ -150,8 +148,7 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
       for (const contact of emergencyContacts) {
         try {
           await Promise.all([
-            sendMockSMS(contact, alertMessage, location?.address),
-            sendMockPush(contact, alertMessage, location?.address)
+            sendMockSMS(contact, alertMessage, location?.address)
           ]);
         } catch (error) {
           console.error(`Failed to alert ${contact.name}:`, error);

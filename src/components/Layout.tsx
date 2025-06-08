@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Home, Calendar, Users, BookOpen, User } from 'lucide-react';
+import { Home, Calendar, Users, BookOpen, User, Settings } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -16,6 +16,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onPro
     { id: 'checkin', label: 'Check-in', icon: Calendar, path: '/checkin' },
     { id: 'support', label: 'Support', icon: Users, path: '/support' },
     { id: 'resources', label: 'Resources', icon: BookOpen, path: '/resources' },
+    { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' },
   ];
 
   const handleTabClick = (tab: any) => {

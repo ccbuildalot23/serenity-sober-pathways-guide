@@ -20,32 +20,29 @@ class SecureEncryption {
     if (this.keyInitialized) return;
 
     try {
-      // Try to get encryption key from Supabase secrets
+      // Get encryption key from Supabase secrets via edge function
       const { data, error } = await supabase.functions.invoke('get-encryption-key');
       
-      if (!error && data?.key) {
-        this.encryptionKey = data.key;
-      } else {
-        // Check environment variable but validate it's not a default value
-        const envKey = import.meta.env.VITE_ENCRYPTION_KEY;
-        
-        // Reject default/weak keys for security
-        const forbiddenKeys = [
-          'serenity-secret-key',
-          'your-secret-key',
-          'default-key',
-          'test-key',
-          'dev-key'
-        ];
-        
-        if (!envKey || forbiddenKeys.includes(envKey) || envKey.length < 32) {
-          console.error('SECURITY ERROR: Secure encryption key not configured or using default/weak key');
-          throw new Error('Secure encryption key required - please configure a strong encryption key');
-        }
-        
-        this.encryptionKey = envKey;
+      if (error || !data?.key) {
+        console.error('SECURITY ERROR: Failed to retrieve encryption key from Supabase secrets');
+        throw new Error('Secure encryption key not available - please configure ENCRYPTION_SECRET in Supabase');
+      }
+
+      // Validate the key is not a default/weak value
+      const forbiddenKeys = [
+        'serenity-secret-key',
+        'your-secret-key',
+        'default-key',
+        'test-key',
+        'dev-key'
+      ];
+      
+      if (forbiddenKeys.includes(data.key) || data.key.length < 32) {
+        console.error('SECURITY ERROR: Weak encryption key detected');
+        throw new Error('Weak encryption key - please configure a strong ENCRYPTION_SECRET');
       }
       
+      this.encryptionKey = data.key;
       this.keyInitialized = true;
     } catch (error) {
       console.error('Failed to initialize encryption key:', error);

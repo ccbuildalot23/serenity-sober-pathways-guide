@@ -2,6 +2,8 @@
 import React from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { useEnhancedSessionSecurity } from '@/hooks/useEnhancedSessionSecurity';
+import { SessionWarningDialog } from '@/components/security/SessionWarningDialog';
 import FloatingCrisisButton from './FloatingCrisisButton';
 import CrisisAssessmentModal from './CrisisAssessmentModal';
 import CrisisResponseModal from './CrisisResponseModal';
@@ -11,7 +13,8 @@ import { CrisisModals } from './CrisisModals';
 import { CrisisDebugInfo } from './CrisisDebugInfo';
 
 const EnhancedCrisisSystem: React.FC = () => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+  const { sessionValid, sessionWarning, extendSession } = useEnhancedSessionSecurity();
   const {
     showAssessment,
     showResponse,
@@ -37,11 +40,22 @@ const EnhancedCrisisSystem: React.FC = () => {
     toast.success(`${contact.name} added to emergency contacts`);
   };
 
-  // Don't render if user is not authenticated
-  if (!user) return null;
+  const handleSessionLogout = async () => {
+    await signOut();
+  };
+
+  // Don't render if user is not authenticated or session is invalid
+  if (!user || !sessionValid) return null;
 
   return (
     <>
+      {/* Session Warning Dialog */}
+      <SessionWarningDialog
+        open={sessionWarning}
+        onExtend={extendSession}
+        onLogout={handleSessionLogout}
+      />
+
       {/* Floating Crisis Button */}
       <FloatingCrisisButton onCrisisActivated={handleCrisisActivated} />
       

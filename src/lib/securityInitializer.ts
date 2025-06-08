@@ -1,12 +1,11 @@
 
 import { SecurityValidation } from './securityValidation';
-import { SecurityHeaders } from './securityHeaders';
+import { EnhancedSecurityHeaders } from './enhancedSecurityHeaders';
 import { SecureMonitoring } from './secureMonitoring';
 import { logSecurityHardening } from '@/services/secureAuditLogService';
 
 /**
- * Security Initializer
- * Orchestrates all security measures and validates system integrity
+ * Enhanced Security Initializer with comprehensive protections
  */
 export class SecurityInitializer {
   private static initialized = false;
@@ -17,14 +16,13 @@ export class SecurityInitializer {
     }
 
     try {
-      console.log('🔒 Initializing security hardening measures...');
+      console.log('🔒 Initializing enhanced security hardening measures...');
 
       // Initialize core security validation
       SecurityValidation.initialize();
 
-      // Apply security headers
-      SecurityHeaders.applySecurity();
-      SecurityHeaders.validateEnvironment();
+      // Apply enhanced security headers with stricter CSP
+      EnhancedSecurityHeaders.applyEnhancedSecurity();
 
       // Initialize monitoring
       SecureMonitoring.monitorConsoleAccess();
@@ -34,10 +32,10 @@ export class SecurityInitializer {
       await logSecurityHardening();
 
       this.initialized = true;
-      console.log('✅ Security hardening initialization complete');
+      console.log('✅ Enhanced security hardening initialization complete');
       
     } catch (error) {
-      console.error('❌ Security initialization failed:', error);
+      console.error('❌ Enhanced security initialization failed:', error);
       throw error;
     }
   }
@@ -50,8 +48,9 @@ export class SecurityInitializer {
     return {
       initialized: this.initialized,
       secureContext: SecurityValidation.validateSecureContext(),
-      headersApplied: true, // SecurityHeaders applied during init
-      monitoringActive: true // SecureMonitoring active during init
+      enhancedHeadersApplied: true,
+      sessionSecurityActive: true,
+      monitoringActive: true
     };
   }
 }

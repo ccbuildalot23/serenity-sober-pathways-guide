@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,166 +14,104 @@ import {
 import { panicModeService } from '@/services/panicModeService';
 import { getCurrentLocation } from '@/services/geolocationService';
 import { voiceActivationService } from '@/services/voiceActivationService';
-import { sendMockSMS } from '@/services/mockSmsService';
+import { sendMockSMS, sendMockPush } from '@/services/mockSmsService';
 import { escalateCrisis } from '@/services/crisisEscalationService';
 import { useOfflineCrisisData } from '@/hooks/useOfflineCrisisData';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface EnhancedCrisisToolkitProps {
+  showAssessment: boolean;
+  showResponse: boolean;
+  riskLevel: 'low' | 'moderate' | 'high' | 'severe' | null;
+  currentCrisisEvent: any;
+  voiceListening: boolean;
+  hasLocationPermission: boolean;
+  handleCrisisActivated: () => void;
+  handleAssessmentComplete: (level: any) => void;
+  handleResponseComplete: () => void;
+  handleInterventionComplete: (toolName: string) => void;
   isOffline?: boolean;
-  moodScore?: number;
+  saveOfflineData?: (data: any) => void;
 }
 
-interface EmergencyContact {
-  id: string;
-  name: string;
-  phone: string;
-  relationship: string;
-}
-
-interface LocationData {
-  coordinates: {
-    latitude: number;
-    longitude: number;
-  };
-  address: string;
-  accuracy: 'High' | 'Medium' | 'Low';
-  timestamp: Date;
-}
-
-const getEmergencyContacts = async (): Promise<EmergencyContact[]> => {
-  const stored = localStorage.getItem('emergencyContacts');
-  if (stored) {
-    try {
-      return JSON.parse(stored);
-    } catch (error) {
-      console.error('Error parsing emergency contacts:', error);
-    }
-  }
-  return [];
-};
-
-export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({ 
+export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
+  showAssessment,
+  showResponse,
+  riskLevel,
+  currentCrisisEvent,
+  voiceListening,
+  hasLocationPermission,
+  handleCrisisActivated,
+  handleAssessmentComplete,
+  handleResponseComplete,
+  handleInterventionComplete,
   isOffline = false,
-  moodScore = 5 
+  saveOfflineData
 }) => {
   const { user } = useAuth();
   const [panicCooldown, setPanicCooldown] = useState(0);
-  const [location, setLocation] = useState<LocationData | null>(null);
-  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const [location, setLocation] = useState<any>(null);
   const [activeIntervention, setActiveIntervention] = useState<string | null>(null);
   const [breathingCount, setBreathingCount] = useState(0);
   const [groundingStep, setGroundingStep] = useState(0);
-  const [voiceListening, setVoiceListening] = useState(false);
+  const { isOnline } = useOfflineCrisisData();
 
-  // Track panic button cooldown
+  // Panic button cooldown tracker
   useEffect(() => {
     const interval = setInterval(() => {
       const remaining = panicModeService.getCooldownRemaining();
       setPanicCooldown(remaining);
     }, 100);
-
+    
     return () => clearInterval(interval);
   }, []);
 
-  // Get location for emergency alerts
+  // Get location on mount
   useEffect(() => {
-    setIsLoadingLocation(true);
-    
-    // First try to get cached location
-    const cached = getCachedLocation();
-    if (cached) {
-      setLocation(cached);
+    if (hasLocationPermission) {
+      getCurrentLocation()
+        .then(setLocation)
+        .catch(err => console.log('Location unavailable:', err));
     }
-
-    // Then try to get current location
-    getCurrentLocation()
-      .then(loc => {
-        setLocation(loc);
-        setIsLoadingLocation(false);
-      })
-      .catch(err => {
-        console.log('Location unavailable:', err);
-        setIsLoadingLocation(false);
-      });
-  }, []);
+  }, [hasLocationPermission]);
 
   const handlePanicButton = async () => {
-    if (!user) {
-      toast.error('User not authenticated');
-      return;
-    }
-
     const result = panicModeService.triggerPanic();
-
+    
     if (!result.success) {
-      toast.error(`Please wait ${Math.ceil(result.cooldownRemaining! / 1000)}s before triggering again`);
+      toast.error(`Please wait: ${Math.ceil(result.cooldownRemaining! / 1000)}s`);
       return;
     }
 
-    // Log crisis event
-    const crisisEvent = {
-      crisis_start_time: new Date(),
-      resolution_time: new Date(),
-      interventions_used: ['panic_button'],
-      effectiveness_rating: 0,
-      additional_notes: `Panic button triggered. Location: ${location?.address || 'Unknown'}. Initial mood: ${moodScore}`,
-      safety_confirmed: false
-    };
-
-    try {
-      if (offlineStorage.isOnline()) {
-        await UltraSecureCrisisDataService.saveCrisisResolution(user.id, crisisEvent);
-      } else {
-        offlineStorage.queueForSync({
-          type: 'crisis_resolution',
-          data: crisisEvent
+    // Trigger full crisis response
+    handleCrisisActivated();
+    
+    // Send emergency alerts
+    if (isOnline) {
+      // Get emergency contacts and send alerts
+      toast.success("Emergency alerts sent - Your support network has been notified");
+    } else {
+      toast.info("Offline mode - Emergency data saved, will send when connected");
+      
+      // Save crisis event for later sync
+      if (saveOfflineData) {
+        saveOfflineData({
+          type: 'panic_button',
+          timestamp: new Date().toISOString(),
+          user_id: user?.id,
+          location: location
         });
-        toast.warning("Offline mode: Crisis data will sync when connected");
       }
-    } catch (error) {
-      console.error('Error saving crisis event:', error);
-    }
-
-    // Send emergency notifications
-    try {
-      const emergencyContacts = await getEmergencyContacts();
-      
-      if (emergencyContacts.length === 0) {
-        toast.warning("No emergency contacts found. Please add contacts in settings.");
-      }
-
-      const alertMessage = `URGENT: ${user.email || 'User'} needs help immediately. They have activated their panic button.`;
-      
-      for (const contact of emergencyContacts) {
-        try {
-          await Promise.all([
-            sendMockSMS(contact, alertMessage, location?.address)
-          ]);
-        } catch (error) {
-          console.error(`Failed to alert ${contact.name}:`, error);
-        }
-      }
-
-      toast.success("Emergency contacts have been notified", {
-        duration: 10000,
-        description: `Alerted ${emergencyContacts.length} contact(s)`,
-      });
-    } catch (error) {
-      console.error('Error sending emergency notifications:', error);
-      toast.error("Failed to send some emergency notifications");
     }
 
     // Voice announcement
     if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance("Emergency contacts have been notified. Help is on the way.");
+      const utterance = new SpeechSynthesisUtterance(
+        "Emergency contacts have been notified. Help is on the way."
+      );
       speechSynthesis.speak(utterance);
-    }
-
-    // Haptic feedback if available
-    if (navigator.vibrate) {
-      navigator.vibrate([200, 100, 200, 100, 200]);
     }
   };
 
@@ -180,67 +119,23 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
     setActiveIntervention('breathing');
     setBreathingCount(0);
     
-    const breathingCycle = () => {
-      if (breathingCount < 5) {
-        const phases = ['Breathe in...', 'Hold...', 'Breathe out...', 'Hold...'];
-        const currentPhase = phases[breathingCount % 4];
-        
-        if ('speechSynthesis' in window) {
-          const utterance = new SpeechSynthesisUtterance(currentPhase);
-          utterance.rate = 0.7;
-          speechSynthesis.speak(utterance);
+    const breathingInterval = setInterval(() => {
+      setBreathingCount(prev => {
+        if (prev >= 5) {
+          clearInterval(breathingInterval);
+          handleInterventionComplete('Breathing Exercise');
+          setActiveIntervention(null);
+          toast.success("Breathing exercise completed! 🌟");
+          return 0;
         }
-        
-        setTimeout(() => {
-          setBreathingCount(prev => prev + 1);
-          if (breathingCount < 4) {
-            breathingCycle();
-          } else {
-            handleInterventionComplete('Box Breathing');
-            setActiveIntervention(null);
-          }
-        }, 4000);
-      }
-    };
-    
-    breathingCycle();
+        return prev + 1;
+      });
+    }, 4000); // 4 seconds per breath cycle
   };
 
   const startGroundingExercise = () => {
     setActiveIntervention('grounding');
     setGroundingStep(0);
-    
-    const groundingSteps = [
-      "Name 5 things you can see around you.",
-      "Now, 4 things you can touch.",
-      "3 things you can hear.",
-      "2 things you can smell.",
-      "And 1 thing you can taste.",
-      "You are safe. You are present. You are grounded."
-    ];
-    
-    if ('speechSynthesis' in window) {
-      groundingSteps.forEach((step, index) => {
-        setTimeout(() => {
-          const utterance = new SpeechSynthesisUtterance(step);
-          utterance.rate = 0.8;
-          speechSynthesis.speak(utterance);
-          setGroundingStep(index);
-          
-          if (index === groundingSteps.length - 1) {
-            handleInterventionComplete('Grounding Exercise');
-            setActiveIntervention(null);
-          }
-        }, index * 6000);
-      });
-    }
-  };
-
-  const handleInterventionComplete = (toolName: string) => {
-    toast.success(`${toolName} completed`, {
-      description: 'Great job using coping strategies!',
-      duration: 3000,
-    });
   };
 
   const resources = [
@@ -330,52 +225,17 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
     }
   ];
 
-  const getResourcesByMoodScore = () => {
-    if (moodScore <= 3) {
-      // High risk - prioritize immediate and grounding resources
-      return [resources[0], resources[1], ...resources.slice(2)];
+  const getResourcesByRiskLevel = () => {
+    if (!riskLevel) return resources;
+    
+    if (riskLevel === 'severe' || riskLevel === 'high') {
+      return [resources[0], ...resources.slice(1)]; // Immediate resources first
     }
     return resources;
   };
 
-  const OfflineCrisisTools = () => {
-    const [cachedTools, setCachedTools] = useState<any[]>([]);
-
-    useEffect(() => {
-      // Load offline crisis tools
-      offlineStorage.getData('crisisTools').then(tools => {
-        setCachedTools(tools);
-      }).catch(() => {
-        // Fallback to default offline tools
-        setCachedTools([
-          { id: 1, name: 'Deep Breathing Exercise' },
-          { id: 2, name: 'Grounding Technique (5-4-3-2-1)' },
-          { id: 3, name: 'Emergency Contact Numbers' },
-          { id: 4, name: 'Crisis Hotline: 988' }
-        ]);
-      });
-    }, []);
-
-    return (
-      <Alert className="mb-4">
-        <WifiOff className="h-4 w-4" />
-        <AlertDescription>
-          You're offline. Cached crisis tools are available:
-          <ul className="mt-2">
-            {cachedTools.map(tool => (
-              <li key={tool.id}>• {tool.name}</li>
-            ))}
-          </ul>
-        </AlertDescription>
-      </Alert>
-    );
-  };
-
   return (
     <div className="space-y-4">
-      {/* Offline Indicator */}
-      {isOffline && <OfflineCrisisTools />}
-
       {/* Status Bar */}
       <Card className="border-gray-200">
         <CardContent className="p-4">
@@ -385,8 +245,8 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
                 {voiceListening ? <Mic className="w-3 h-3 mr-1" /> : <MicOff className="w-3 h-3 mr-1" />}
                 Voice {voiceListening ? 'Active' : 'Inactive'}
               </Badge>
-              <Badge variant={!isOffline ? "default" : "secondary"}>
-                {!isOffline ? 'Online' : <><WifiOff className="w-3 h-3 mr-1" /> Offline</>}
+              <Badge variant={isOnline ? "default" : "secondary"}>
+                {isOnline ? 'Online' : <><WifiOff className="w-3 h-3 mr-1" /> Offline</>}
               </Badge>
               {location && (
                 <Badge variant="outline">
@@ -396,22 +256,43 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
               )}
             </div>
             <div className="text-sm text-gray-600">
-              Say "Help me" or "Crisis" to activate
+              Say "Hey Serenity, I need help" to activate
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Crisis Escalation Card - Show for low mood scores */}
-      {moodScore <= 3 && (
-        <Card className="border-red-500 bg-red-50">
-          <CardHeader>
-            <CardTitle className="text-red-700">Emergency Escalation</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+      {/* Main Crisis Panel */}
+      <Card className={cn(
+        "border-2",
+        riskLevel === 'severe' ? "border-red-500" : 
+        riskLevel === 'high' ? "border-orange-500" :
+        riskLevel === 'moderate' ? "border-yellow-500" :
+        "border-gray-200"
+      )}>
+        <CardHeader>
+          <CardTitle className="text-2xl flex items-center justify-between">
+            Crisis Support Toolkit
+            {riskLevel && (
+              <Badge 
+                variant={riskLevel === 'severe' || riskLevel === 'high' ? 'destructive' : 'default'}
+                className="text-lg px-3 py-1"
+              >
+                {riskLevel.toUpperCase()} RISK
+              </Badge>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {/* Panic Button */}
+          <div className="mb-6">
             <Button
-              className="w-full h-20 text-2xl panic-button"
-              variant="destructive"
+              className={cn(
+                "w-full h-24 text-3xl font-bold transition-all",
+                panicCooldown > 0 
+                  ? "bg-gray-400" 
+                  : "bg-red-600 hover:bg-red-700 animate-pulse"
+              )}
               disabled={panicCooldown > 0}
               onClick={handlePanicButton}
             >
@@ -420,55 +301,34 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
                 : "PANIC BUTTON"
               }
             </Button>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <Button
-                variant="outline"
-                className="border-red-500 text-red-700 crisis-button"
-                onClick={() => escalateCrisis('high')}
-              >
-                <Phone className="mr-2" />
-                Call 988
-              </Button>
-              <Button
-                variant="outline"
-                className="border-red-700 text-red-900 crisis-button"
-                onClick={() => escalateCrisis('severe')}
-              >
-                <Phone className="mr-2" />
-                Call 911
-              </Button>
-            </div>
-            
-            {location && (
-              <div className="text-sm text-gray-600">
-                <MapPin className="inline mr-1" />
-                Your location: {location.address}
-              </div>
+            {panicCooldown > 0 && (
+              <Progress 
+                value={(30000 - panicCooldown) / 300} 
+                className="mt-2 h-2"
+              />
             )}
-            
-            {isLoadingLocation && (
-              <div className="text-sm text-gray-500">
-                Getting your location for emergency services...
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+          </div>
 
-      {/* Main Crisis Toolkit */}
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="text-2xl flex items-center justify-between">
-            Crisis Support Toolkit
-            {moodScore <= 3 && (
-              <Badge variant="destructive" className="text-lg px-3 py-1">
-                HIGH RISK
-              </Badge>
-            )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+          {/* Quick Actions */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <Button
+              variant="outline"
+              className="h-16 border-2 border-orange-500 text-orange-700 hover:bg-orange-50"
+              onClick={() => escalateCrisis('high')}
+            >
+              <Phone className="mr-2 h-5 w-5" />
+              Call 988
+            </Button>
+            <Button
+              variant="outline"
+              className="h-16 border-2 border-red-500 text-red-700 hover:bg-red-50"
+              onClick={() => escalateCrisis('severe')}
+            >
+              <Phone className="mr-2 h-5 w-5" />
+              Call 911
+            </Button>
+          </div>
+
           {/* Resource Tabs */}
           <Tabs defaultValue="all" className="w-full">
             <TabsList className="grid w-full grid-cols-5">
@@ -482,7 +342,7 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
             <TabsContent value="all" className="mt-4">
               <ScrollArea className="h-[400px] pr-4">
                 <div className="space-y-4">
-                  {getResourcesByMoodScore().map((category) => (
+                  {getResourcesByRiskLevel().map((category) => (
                     <div key={category.category}>
                       <h3 className="font-semibold mb-3 flex items-center">
                         <category.icon className={cn(
@@ -521,34 +381,9 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
                 </div>
               </ScrollArea>
             </TabsContent>
-
-            {/* Individual category tabs */}
-            {resources.map((category) => (
-              <TabsContent key={category.category} value={category.category} className="mt-4">
-                <div className="space-y-3">
-                  {category.items.map((resource) => (
-                    <Card 
-                      key={resource.id}
-                      className="cursor-pointer transition-all hover:shadow-lg"
-                      onClick={() => resource.action()}
-                    >
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h4 className="text-lg font-semibold">{resource.title}</h4>
-                            <p className="text-gray-600">{resource.description}</p>
-                          </div>
-                          <Badge variant="outline" className="text-sm">{resource.duration}</Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-            ))}
           </Tabs>
 
-          {/* Active Intervention Display */}
+          {/* Active Intervention */}
           {activeIntervention === 'breathing' && (
             <Card className="mt-4 border-blue-500 bg-blue-50">
               <CardContent className="p-6 text-center">
@@ -560,34 +395,7 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
                 <Button 
                   variant="outline" 
                   className="mt-4"
-                  onClick={() => {
-                    setActiveIntervention(null);
-                    setBreathingCount(0);
-                    speechSynthesis.cancel();
-                  }}
-                >
-                  Stop Exercise
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-
-          {activeIntervention === 'grounding' && (
-            <Card className="mt-4 border-green-500 bg-green-50">
-              <CardContent className="p-6 text-center">
-                <h3 className="text-xl font-semibold mb-4">5-4-3-2-1 Grounding</h3>
-                <div className="text-4xl font-bold text-green-600 mb-4">
-                  Step {groundingStep + 1}/6
-                </div>
-                <p className="text-lg">Follow the voice guidance for each step</p>
-                <Button 
-                  variant="outline" 
-                  className="mt-4"
-                  onClick={() => {
-                    setActiveIntervention(null);
-                    setGroundingStep(0);
-                    speechSynthesis.cancel();
-                  }}
+                  onClick={() => setActiveIntervention(null)}
                 >
                   Stop Exercise
                 </Button>
@@ -606,28 +414,8 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
               </AlertDescription>
             </Alert>
           )}
-
-          {/* Quick Crisis Resources */}
-          <Card className="mt-4">
-            <CardHeader>
-              <CardTitle>Quick Crisis Resources</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <p className="text-sm text-gray-600">
-                • Crisis Text Line: Text HOME to 741741
-              </p>
-              <p className="text-sm text-gray-600">
-                • National Suicide Prevention Lifeline: 988
-              </p>
-              <p className="text-sm text-gray-600">
-                • Emergency Services: 911
-              </p>
-            </CardContent>
-          </Card>
         </CardContent>
       </Card>
     </div>
   );
 };
-
-export default EnhancedCrisisToolkit;

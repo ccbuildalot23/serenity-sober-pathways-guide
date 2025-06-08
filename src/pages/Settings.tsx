@@ -6,15 +6,107 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { 
-  Settings, Bell, Shield, Accessibility, Database, 
+  Settings as SettingsIcon, Bell, Shield, Accessibility, Database, 
   User, LogOut, Download, Trash2, Eye
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import Layout from '@/components/Layout';
-import { SmartReminderSettings } from '@/components/settings/SmartReminderSettings';
+import SmartReminderSettings from '@/components/settings/SmartReminderSettings';
 import { CrisisAccessibilitySettings } from '@/components/settings/CrisisAccessibilitySettings';
+
+// Additional settings components defined inline for now
+const NotificationPreferences = () => {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Notification Preferences</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <h4 className="font-medium">Daily Content</h4>
+          <div className="space-y-2">
+            <label className="flex items-center space-x-2">
+              <input type="checkbox" defaultChecked />
+              <span>Morning Affirmation</span>
+            </label>
+            <label className="flex items-center space-x-2">
+              <input type="checkbox" defaultChecked />
+              <span>Daily Focus Reminder</span>
+            </label>
+            <label className="flex items-center space-x-2">
+              <input type="checkbox" />
+              <span>Evening Reflection</span>
+            </label>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const PrivacySettings = () => {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Privacy Settings</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h4 className="font-medium">Anonymous Mode</h4>
+            <p className="text-sm text-gray-600">
+              Hide personal information in the app
+            </p>
+          </div>
+          <Switch />
+        </div>
+        <Separator />
+        <div className="flex items-center justify-between">
+          <div>
+            <h4 className="font-medium">Share Usage Analytics</h4>
+            <p className="text-sm text-gray-600">
+              Help improve the app (anonymous data only)
+            </p>
+          </div>
+          <Switch defaultChecked />
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const DataManagement = () => {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Backup & Sync</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h4 className="font-medium">Auto Backup</h4>
+            <p className="text-sm text-gray-600">
+              Automatically backup data to cloud
+            </p>
+          </div>
+          <Switch defaultChecked />
+        </div>
+        <Separator />
+        <div>
+          <h4 className="font-medium mb-2">Last Backup</h4>
+          <p className="text-sm text-gray-600">
+            {new Date().toLocaleString()}
+          </p>
+          <Button variant="outline" size="sm" className="mt-2">
+            Backup Now
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 export default function Settings() {
   const { user, signOut } = useAuth();
@@ -91,7 +183,7 @@ export default function Settings() {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="general">
-              <Settings className="w-4 h-4" />
+              <SettingsIcon className="w-4 h-4" />
             </TabsTrigger>
             <TabsTrigger value="reminders">
               <Bell className="w-4 h-4" />
@@ -286,95 +378,3 @@ export default function Settings() {
     </Layout>
   );
 }
-
-// Additional settings components defined inline
-const NotificationPreferences = () => {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Notification Preferences</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <h4 className="font-medium">Daily Content</h4>
-          <div className="space-y-2">
-            <label className="flex items-center space-x-2">
-              <input type="checkbox" defaultChecked />
-              <span>Morning Affirmation</span>
-            </label>
-            <label className="flex items-center space-x-2">
-              <input type="checkbox" defaultChecked />
-              <span>Daily Focus Reminder</span>
-            </label>
-            <label className="flex items-center space-x-2">
-              <input type="checkbox" />
-              <span>Evening Reflection</span>
-            </label>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-const PrivacySettings = () => {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Privacy Settings</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h4 className="font-medium">Anonymous Mode</h4>
-            <p className="text-sm text-gray-600">
-              Hide personal information in the app
-            </p>
-          </div>
-          <Switch />
-        </div>
-        <Separator />
-        <div className="flex items-center justify-between">
-          <div>
-            <h4 className="font-medium">Share Usage Analytics</h4>
-            <p className="text-sm text-gray-600">
-              Help improve the app (anonymous data only)
-            </p>
-          </div>
-          <Switch defaultChecked />
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-const DataManagement = () => {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Backup & Sync</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h4 className="font-medium">Auto Backup</h4>
-            <p className="text-sm text-gray-600">
-              Automatically backup data to cloud
-            </p>
-          </div>
-          <Switch defaultChecked />
-        </div>
-        <Separator />
-        <div>
-          <h4 className="font-medium mb-2">Last Backup</h4>
-          <p className="text-sm text-gray-600">
-            {new Date().toLocaleString()}
-          </p>
-          <Button variant="outline" size="sm" className="mt-2">
-            Backup Now
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};

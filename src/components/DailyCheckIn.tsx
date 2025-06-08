@@ -79,13 +79,18 @@ const DailyCheckIn = () => {
           sobriety_confidence: data.sobriety_confidence,
           recovery_importance: data.recovery_importance,
           recovery_strength: data.recovery_strength,
-          support_needed: data.support_needed,
+          support_needed: typeof data.support_needed === 'boolean' ? data.support_needed : false,
           phq2_q1: data.phq2_q1_response,
           phq2_q2: data.phq2_q2_response,
           gad2_q1: data.gad2_q1_response,
           gad2_q2: data.gad2_q2_response,
         });
-        setCompletedSections(new Set(JSON.parse(data.completed_sections)));
+        
+        if (data.completed_sections && typeof data.completed_sections === 'string') {
+          setCompletedSections(new Set(JSON.parse(data.completed_sections)));
+        } else if (Array.isArray(data.completed_sections)) {
+          setCompletedSections(new Set(data.completed_sections));
+        }
       }
     } catch (error) {
       console.error('Error loading existing check-in:', error);
@@ -173,15 +178,15 @@ const DailyCheckIn = () => {
         hope_rating: responses.hope,
         sobriety_confidence: responses.sobriety_confidence,
         recovery_importance: responses.recovery_importance,
-        recovery_strength: responses.recovery_strength,
-        support_needed: responses.support_needed,
+        recovery_strength: responses.recovery_strength?.toString() || null,
+        support_needed: responses.support_needed?.toString() || null,
         phq2_q1_response: responses.phq2_q1,
         phq2_q2_response: responses.phq2_q2,
         phq2_score: (responses.phq2_q1 || 0) + (responses.phq2_q2 || 0),
         gad2_q1_response: responses.gad2_q1,
         gad2_q2_response: responses.gad2_q2,
         gad2_score: (responses.gad2_q1 || 0) + (responses.gad2_q2 || 0),
-        completed_sections: JSON.stringify(completedSections),
+        completed_sections: JSON.stringify(Array.from(completedSections)),
         is_complete: true
       };
 

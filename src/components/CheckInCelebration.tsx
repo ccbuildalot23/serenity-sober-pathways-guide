@@ -70,8 +70,9 @@ const CheckInCelebration: React.FC<CheckInCelebrationProps> = ({
       const { data: recoveryData } = await supabase
         .rpc('get_recovery_streak', { user_uuid: user.id });
 
-      if (recoveryData) {
-        const currentStreak = recoveryData.current_streak_days || 1;
+      if (recoveryData && typeof recoveryData === 'object' && recoveryData !== null) {
+        const streakData = recoveryData as { current_streak_days?: number };
+        const currentStreak = streakData.current_streak_days || 1;
         setStreak(currentStreak);
         
         const affirmations: { [key: number]: string } = {

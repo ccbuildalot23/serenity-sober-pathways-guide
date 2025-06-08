@@ -7,6 +7,7 @@ import CalendarHeader from '@/components/calendar/CalendarHeader';
 import CalendarGrid from '@/components/calendar/CalendarGrid';
 import CalendarInsights from '@/components/calendar/CalendarInsights';
 import DayDetailSheet from '@/components/calendar/DayDetailSheet';
+import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
@@ -78,43 +79,47 @@ const Calendar: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto p-4 space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded mb-4"></div>
-          <div className="h-64 bg-gray-200 rounded mb-4"></div>
-          <div className="h-32 bg-gray-200 rounded"></div>
+      <Layout activeTab="calendar" onTabChange={() => {}}>
+        <div className="p-4 space-y-6">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded mb-4"></div>
+            <div className="h-64 bg-gray-200 rounded mb-4"></div>
+            <div className="h-32 bg-gray-200 rounded"></div>
+          </div>
         </div>
-      </div>
+      </Layout>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 space-y-6">
-      <CalendarHeader onExport={handleExport} />
-      
-      <CalendarGrid
-        selectedDate={selectedDate}
-        selectedMonth={selectedMonth}
-        dayDataMap={dayDataMap}
-        onDateSelect={setSelectedDate}
-        onMonthChange={setSelectedMonth}
-        onDayClick={handleDayClick}
-      />
+    <Layout activeTab="calendar" onTabChange={() => {}}>
+      <div className="p-4 space-y-6">
+        <CalendarHeader onExport={handleExport} />
+        
+        <CalendarGrid
+          selectedDate={selectedDate}
+          selectedMonth={selectedMonth}
+          dayDataMap={dayDataMap}
+          onDateSelect={setSelectedDate}
+          onMonthChange={setSelectedMonth}
+          onDayClick={handleDayClick}
+        />
 
-      <CalendarInsights
-        chartData={chartData}
-        totalEntries={totalEntries}
-        averageMood={averageMood}
-        topTriggers={topTriggers}
-      />
+        <CalendarInsights
+          chartData={chartData}
+          totalEntries={totalEntries}
+          averageMood={averageMood}
+          topTriggers={topTriggers}
+        />
 
-      <DayDetailSheet
-        isOpen={isDayDetailOpen}
-        onOpenChange={setIsDayDetailOpen}
-        selectedDate={selectedDate}
-        selectedDayData={selectedDayData}
-      />
-    </div>
+        <DayDetailSheet
+          isOpen={isDayDetailOpen}
+          onOpenChange={setIsDayDetailOpen}
+          selectedDate={selectedDate}
+          selectedDayData={selectedDayData}
+        />
+      </div>
+    </Layout>
   );
 };
 

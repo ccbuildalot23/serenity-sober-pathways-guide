@@ -1,49 +1,42 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { SignInForm } from '@/components/auth/SignInForm';
-import { SignUpForm } from '@/components/auth/SignUpForm';
-import { OnboardingWrapper } from '@/components/onboarding/OnboardingWrapper';
+import { Button } from '@/components/ui/button';
+import { EnhancedAuth } from '@/components/auth/EnhancedAuth';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
 const Auth = () => {
-  const [activeTab, setActiveTab] = useState('signin');
-
-  const handleSignUpSuccess = () => {
-    setActiveTab('signin');
-  };
+  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
 
   return (
-    <OnboardingWrapper>
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-        <Card className="w-full max-w-md animate-scale-in">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold serenity-navy animate-gentle-fade-in">
-              Serenity
-            </CardTitle>
-            <CardDescription className="animate-gentle-fade-in-delayed">
-              Your daily companion for recovery and growth
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="signin">
-                <SignInForm />
-              </TabsContent>
-              
-              <TabsContent value="signup">
-                <SignUpForm onSuccess={handleSignUpSuccess} />
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-emerald-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-6">
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <div className="flex items-center justify-center space-x-4">
+            <h1 className="text-3xl font-bold text-[#1E3A8A]">Serenity</h1>
+            <ThemeToggle />
+          </div>
+          <p className="text-gray-600">Your recovery companion</p>
+        </div>
+
+        {/* Enhanced Auth Component */}
+        <EnhancedAuth mode={mode} />
+
+        {/* Toggle Mode */}
+        <div className="text-center">
+          <Button
+            variant="link"
+            onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
+            className="text-sm"
+          >
+            {mode === 'signin' 
+              ? "Don't have an account? Sign up" 
+              : "Already have an account? Sign in"
+            }
+          </Button>
+        </div>
       </div>
-    </OnboardingWrapper>
+    </div>
   );
 };
 

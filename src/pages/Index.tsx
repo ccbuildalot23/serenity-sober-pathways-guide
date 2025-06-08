@@ -1,4 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import DailyCheckIn from '@/components/DailyCheckIn';
 import EnhancedCBTSkillsLibrary from '@/components/cbt/EnhancedCBTSkillsLibrary';
@@ -10,17 +12,30 @@ import ViewToggle from '@/components/ViewToggle';
 import NotificationPreview from '@/components/NotificationPreview';
 import NotificationBanner from '@/components/NotificationBanner';
 import NotificationFeedback from '@/components/NotificationFeedback';
+import SmartReminderSettings from '@/components/settings/SmartReminderSettings';
 import { useRealtimeUpdates } from '@/hooks/useRealtimeUpdates';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { NotificationService } from '@/services/notificationService';
 import { toast } from 'sonner';
 
 const Index = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [currentView, setCurrentView] = useState('dashboard');
   const [showNotificationPreview, setShowNotificationPreview] = useState(false);
   const [showNotificationBanner, setShowNotificationBanner] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
+
+  // Set up keyboard shortcuts
+  useKeyboardShortcuts([
+    { key: 'h', ctrlKey: true, callback: () => navigate('/') },
+    { key: 'c', ctrlKey: true, callback: () => navigate('/calendar') },
+    { key: 'k', ctrlKey: true, callback: () => navigate('/crisis-toolkit') },
+    { key: '?', callback: () => setShowShortcuts(true) },
+    { key: 'Escape', callback: () => setShowShortcuts(false) }
+  ]);
 
   // Set up real-time updates for notifications
   useRealtimeUpdates({
@@ -129,6 +144,8 @@ const Index = () => {
         return <UserProfile />;
       case 'resources':
         return <EducationalResources />;
+      case 'settings':
+        return <SmartReminderSettings />;
       default:
         return (
           <div className="space-y-8">
@@ -171,6 +188,22 @@ const Index = () => {
           {renderView()}
         </main>
       </div>
+
+      {/* Keyboard Shortcuts Help */}
+      {showShortcuts && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md">
+            <h3 className="text-lg font-bold mb-4">Keyboard Shortcuts</h3>
+            <div className="space-y-2 text-sm">
+              <div><kbd>Ctrl + H</kbd> - Home</div>
+              <div><kbd>Ctrl + C</kbd> - Calendar</div>
+              <div><kbd>Ctrl + K</kbd> - Crisis Toolkit</div>
+              <div><kbd>?</kbd> - Show this help</div>
+              <div><kbd>Esc</kbd> - Close dialogs</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Notification Preview Modal */}
       {showNotificationPreview && (

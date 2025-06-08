@@ -1,133 +1,100 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Mic, Clock, Zap, Phone, TrendingUp, AlertTriangle } from 'lucide-react';
-import { voiceActivationService } from '@/services/voiceActivationService';
-import { subscribeToCrisisEvents, subscribeToMoodUpdates, unsubscribeFromChannel } from '@/services/realtimeService';
-import { UltraSecureCrisisDataService } from '@/services/ultraSecureCrisisDataService';
-import { secureServerLogEvent } from '@/services/secureServerAuditLogService';
-import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Clock, Bell, AlertTriangle } from 'lucide-react';
+import { useOfflineCrisisData } from '@/hooks/useOfflineCrisisData';
+import { NotificationService } from '@/services/notificationService';
 import { toast } from 'sonner';
-import { identifyVulnerableHours } from '@/utils/patternAnalysis';
 
-export const SmartReminderSettings: React.FC = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  const [voiceEnabled, setVoiceEnabled] = useState(false);
-  const [adaptiveReminders, setAdaptiveReminders] = useState(true);
-  const [vulnerableHours, setVulnerableHours] = useState<Array<{ hour: number; probability: number }>>([]);
+interface ReminderSettings {
+  dailyCheckIn: { enabled: boolean; time: string };
+  eveningReflection: { enabled: boolean; time: string };
+  vulnerableHours: number[];
+  adaptiveSchedule: boolean;
+}
+
+const SmartReminderSettings: React.FC = () => {
+  const [settings, setSettings] = useState<ReminderSettings>({
+    dailyCheckIn: { enabled: true, time: '09:00' },
+    eveningReflection: { enabled: true, time: '20:00' },
+    vulnerableHours: [],
+    adaptiveSchedule: true
+  });
+  
+  const { crisisResolutions } = useOfflineCrisisData();
 
   useEffect(() => {
-    if (user?.id && adaptiveReminders) {
-      setupAdaptiveReminders();
+    // Load saved settings
+    const saved = localStorage.getItem('smartReminderSettings');
+    if (saved) {
+      setSettings(JSON.parse(saved));
     }
-  }, [user?.id, adaptiveReminders]);
 
-  useEffect(() => {
-    if (!user?.id) return;
+    // Request notification permission
+    NotificationService.requestPermission();
+    
+    // Analyze vulnerable hours from crisis data
+    analyzeVulnerableHours();
+  }, [crisisResolutions]);
 
-    // Subscribe to mood updates for dynamic reminders
-    const moodChannel = subscribeToMoodUpdates(user.id, (payload) => {
-      const newData = payload.new;
-      
-      if (newData.mood_rating <= 4) {
-        // Schedule follow-up reminder in 2 hours
-        setTimeout(() => {
-          toast("How are you feeling now?", {
-            description: "Your mood was low earlier. Let's check in.",
-            action: {
-              label: "Quick Check",
-              onClick: () => navigate('/daily-checkin')
-            },
-            duration: 30000
-          });
-        }, 2 * 60 * 60 * 1000);
-        
-        // Log for pattern analysis
-        secureServerLogEvent({
-          action: 'LOW_MOOD_FOLLOWUP_SCHEDULED',
-          details: {
-            initial_mood: newData.mood_rating,
-            scheduled_time: new Date(Date.now() + 2 * 60 * 60 * 1000)
-          },
-          userId: user.id
-        });
-      }
+  const analyzeVulnerableHours = () => {
+    if (crisisResolutions.length === 0) return;
+
+    // Count crisis events by hour
+    const hourCounts: Record<number, number> = {};
+    
+    crisisResolutions.forEach(resolution => {
+      const hour = new Date(resolution.crisis_start_time).getHours();
+      hourCounts[hour] = (hourCounts[hour] || 0) + 1;
     });
-
-    // Subscribe to crisis events
-    const crisisChannel = subscribeToCrisisEvents(user.id, (payload) => {
-      toast.warning("Crisis pattern detected", {
-        description: "Your support network has been notified",
-        action: {
-          label: "View Tools",
-          onClick: () => navigate('/crisis-toolkit')
-        }
-      });
-    });
-
-    return () => {
-      unsubscribeFromChannel(moodChannel);
-      unsubscribeFromChannel(crisisChannel);
-    };
-  }, [user?.id, navigate]);
-
-  const setupAdaptiveReminders = async () => {
-    if (!user?.id) return;
-
-    try {
-      // Get crisis resolution data
-      const resolutions = await UltraSecureCrisisDataService.loadCrisisResolutions(user.id);
-      
-      // Analyze crisis timing patterns
-      const vulnerableHoursList = identifyVulnerableHours(resolutions);
-      setVulnerableHours(vulnerableHoursList);
-
-      // Log adaptive reminder setup
-      await secureServerLogEvent({
-        action: 'ADAPTIVE_REMINDERS_CONFIGURED',
-        details: {
-          vulnerable_hours: vulnerableHoursList,
-          crisis_count: resolutions.length
-        },
-        userId: user.id
-      });
-
-    } catch (error) {
-      console.error('Failed to setup adaptive reminders:', error);
-      toast.error('Failed to configure adaptive reminders');
+    
+    // Find hours with 2+ crisis events
+    const vulnerableHours = Object.entries(hourCounts)
+      .filter(([_, count]) => count >= 2)
+      .map(([hour]) => parseInt(hour))
+      .sort((a, b) => a - b);
+    
+    if (vulnerableHours.length > 0) {
+      setSettings(prev => ({ ...prev, vulnerableHours }));
     }
   };
 
-  const toggleVoiceReminders = async (enabled: boolean) => {
-    if (enabled) {
-      const started = voiceActivationService.startListening({
-        onCrisisDetected: () => {
-          toast.error("Crisis detected! Opening support tools...", {
-            duration: 10000,
-            action: {
-              label: "Call 988",
-              onClick: () => window.location.href = 'tel:988'
-            }
-          });
-          navigate('/crisis-toolkit');
-        },
-        onError: (error) => {
-          toast.error(`Voice activation failed: ${error}`);
-        }
-      });
-      
-      if (started) {
-        toast.success("Voice reminders activated! Say 'Hey Serenity, time to check in'");
-      }
-    } else {
-      voiceActivationService.stopListening();
+  const saveSettings = () => {
+    localStorage.setItem('smartReminderSettings', JSON.stringify(settings));
+    toast.success('Reminder settings saved');
+  };
+
+  const scheduleNotification = (type: string, time: string) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    const now = new Date();
+    const scheduled = new Date();
+    scheduled.setHours(hours, minutes, 0, 0);
+    
+    // If time has passed today, schedule for tomorrow
+    if (scheduled <= now) {
+      scheduled.setDate(scheduled.getDate() + 1);
     }
-    setVoiceEnabled(enabled);
+    
+    const timeout = scheduled.getTime() - now.getTime();
+    
+    setTimeout(() => {
+      if (Notification.permission === 'granted') {
+        new Notification('Serenity Reminder', {
+          body: type === 'daily' ? 'Time for your daily check-in!' : 'Time for evening reflection',
+          icon: '/favicon.ico',
+          tag: type,
+          requireInteraction: true
+        });
+      }
+    }, timeout);
+    
+    toast.success(`${type} reminder scheduled for ${time}`);
   };
 
   const formatHour = (hour: number) => {
@@ -138,114 +105,155 @@ export const SmartReminderSettings: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Voice Activation */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Mic className="w-5 h-5" />
-            Voice-Activated Check-ins
+            <Bell className="w-5 h-5" />
+            Smart Reminders
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <p className="font-medium">Enable Voice Commands</p>
-              <p className="text-sm text-gray-600">
-                Activate check-ins and crisis support using voice commands
-              </p>
-            </div>
-            <Switch
-              checked={voiceEnabled}
-              onCheckedChange={toggleVoiceReminders}
-            />
-          </div>
-          
-          {voiceEnabled && (
-            <div className="p-3 bg-green-50 rounded-lg">
-              <p className="text-sm text-green-800 font-medium mb-2">Voice commands active:</p>
-              <ul className="text-sm text-green-700 space-y-1">
-                <li>• "Hey Serenity, I need help" - Crisis mode</li>
-                <li>• "Serenity, time to check in" - Daily check-in</li>
-                <li>• "Serenity crisis" - Emergency support</li>
-              </ul>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Adaptive Reminders */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Zap className="w-5 h-5" />
-            Smart Adaptive Reminders
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <p className="font-medium">Pattern-Based Timing</p>
-              <p className="text-sm text-gray-600">
-                Automatically schedule reminders based on your crisis patterns
-              </p>
-            </div>
-            <Switch
-              checked={adaptiveReminders}
-              onCheckedChange={setAdaptiveReminders}
-            />
-          </div>
-
-          {adaptiveReminders && vulnerableHours.length > 0 && (
-            <div className="p-3 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-800 font-medium mb-2">Vulnerable hours identified:</p>
-              <div className="flex flex-wrap gap-2">
-                {vulnerableHours.slice(0, 3).map(({ hour, probability }) => (
-                  <Badge key={hour} variant="outline" className="text-xs">
-                    <Clock className="w-3 h-3 mr-1" />
-                    {formatHour(hour)} ({Math.round(probability * 100)}%)
-                  </Badge>
-                ))}
+        <CardContent className="space-y-6">
+          {/* Daily Check-in */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="daily-checkin">Morning Check-in</Label>
+                <p className="text-sm text-gray-500">Daily mood and wellness tracking</p>
               </div>
-              <p className="text-xs text-blue-600 mt-2">
-                Preventive reminders will be sent 1 hour before these times.
+              <Switch
+                id="daily-checkin"
+                checked={settings.dailyCheckIn.enabled}
+                onCheckedChange={(checked) => {
+                  setSettings(prev => ({
+                    ...prev,
+                    dailyCheckIn: { ...prev.dailyCheckIn, enabled: checked }
+                  }));
+                  if (checked) {
+                    scheduleNotification('daily', settings.dailyCheckIn.time);
+                  }
+                }}
+              />
+            </div>
+            <Input
+              type="time"
+              value={settings.dailyCheckIn.time}
+              onChange={(e) => setSettings(prev => ({
+                ...prev,
+                dailyCheckIn: { ...prev.dailyCheckIn, time: e.target.value }
+              }))}
+              disabled={!settings.dailyCheckIn.enabled}
+              className="w-32"
+            />
+          </div>
+
+          {/* Evening Reflection */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="evening-reflection">Evening Reflection</Label>
+                <p className="text-sm text-gray-500">End-of-day gratitude and planning</p>
+              </div>
+              <Switch
+                id="evening-reflection"
+                checked={settings.eveningReflection.enabled}
+                onCheckedChange={(checked) => {
+                  setSettings(prev => ({
+                    ...prev,
+                    eveningReflection: { ...prev.eveningReflection, enabled: checked }
+                  }));
+                  if (checked) {
+                    scheduleNotification('evening', settings.eveningReflection.time);
+                  }
+                }}
+              />
+            </div>
+            <Input
+              type="time"
+              value={settings.eveningReflection.time}
+              onChange={(e) => setSettings(prev => ({
+                ...prev,
+                eveningReflection: { ...prev.eveningReflection, time: e.target.value }
+              }))}
+              disabled={!settings.eveningReflection.enabled}
+              className="w-32"
+            />
+          </div>
+
+          {/* Vulnerable Hours Alert */}
+          {settings.vulnerableHours.length > 0 && (
+            <Alert className="bg-amber-50 border-amber-200">
+              <AlertTriangle className="h-4 w-4 text-amber-600" />
+              <AlertDescription>
+                <div className="space-y-2">
+                  <p className="font-medium text-amber-800">High-Risk Times Detected</p>
+                  <p className="text-sm text-amber-700">
+                    Based on your history, you may need extra support around:
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {settings.vulnerableHours.map(hour => (
+                      <Badge key={hour} variant="outline" className="text-amber-700 border-amber-300">
+                        {formatHour(hour)}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Adaptive Schedule */}
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="adaptive">Adaptive Scheduling</Label>
+              <p className="text-sm text-gray-500">
+                Adjust reminder times based on your patterns
               </p>
             </div>
-          )}
+            <Switch
+              id="adaptive"
+              checked={settings.adaptiveSchedule}
+              onCheckedChange={(checked) => 
+                setSettings(prev => ({ ...prev, adaptiveSchedule: checked }))
+              }
+            />
+          </div>
+
+          {/* Save Button */}
+          <Button onClick={saveSettings} className="w-full">
+            Save Reminder Settings
+          </Button>
         </CardContent>
       </Card>
 
-      {/* Voice Commands Reference */}
+      {/* Quick Actions */}
       <Card>
         <CardHeader>
-          <CardTitle>Voice Commands Reference</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="w-5 h-5" />
+            Quick Actions
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <h4 className="font-medium text-red-600 flex items-center gap-1">
-                <AlertTriangle className="w-4 h-4" />
-                Crisis Commands
-              </h4>
-              <ul className="space-y-1 text-sm">
-                <li>• "Hey Serenity, I need help"</li>
-                <li>• "Serenity crisis"</li>
-                <li>• "Emergency help"</li>
-              </ul>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-medium text-blue-600 flex items-center gap-1">
-                <TrendingUp className="w-4 h-4" />
-                Check-in Commands
-              </h4>
-              <ul className="space-y-1 text-sm">
-                <li>• "Serenity, time to check in"</li>
-                <li>• "Serenity help me"</li>
-                <li>• "Hey Serenity i need help"</li>
-              </ul>
-            </div>
-          </div>
+        <CardContent className="space-y-3">
+          <Button 
+            variant="outline" 
+            onClick={() => scheduleNotification('daily', settings.dailyCheckIn.time)}
+            disabled={!settings.dailyCheckIn.enabled}
+            className="w-full"
+          >
+            Test Morning Reminder
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={() => scheduleNotification('evening', settings.eveningReflection.time)}
+            disabled={!settings.eveningReflection.enabled}
+            className="w-full"
+          >
+            Test Evening Reminder
+          </Button>
         </CardContent>
       </Card>
     </div>
   );
 };
+
+export default SmartReminderSettings;

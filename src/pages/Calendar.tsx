@@ -1,57 +1,54 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { format } from 'date-fns';
+import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { groupEntriesByDay, prepareChartData, calculateTriggerCounts, getTopTriggers } from '@/utils/calendarUtils';
 import CalendarHeader from '@/components/calendar/CalendarHeader';
 import CalendarGrid from '@/components/calendar/CalendarGrid';
 import CalendarInsights from '@/components/calendar/CalendarInsights';
 import DayDetailSheet from '@/components/calendar/DayDetailSheet';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import type { MoodEntry } from '@/types/calendar';
 
-// Mock data - replace with actual Supabase query
-const mockData: MoodEntry[] = [
-  {
-    id: '1',
-    date: new Date(2024, 5, 5),
-    mood_rating: 7,
-    energy_rating: 6,
-    triggers: ['work stress'],
-    gratitude: ['supportive team'],
-    notes: 'Good day overall',
-    created_at: new Date()
-  },
-  {
-    id: '2', 
-    date: new Date(2024, 5, 6),
-    mood_rating: 4,
-    energy_rating: 3,
-    triggers: ['loneliness', 'work stress'],
-    gratitude: ['morning coffee'],
-    notes: 'Challenging day',
-    created_at: new Date()
-  },
-  {
-    id: '3',
-    date: new Date(2024, 5, 7),
-    mood_rating: 8,
-    energy_rating: 8,
-    triggers: [],
-    gratitude: ['family time', 'good weather'],
-    notes: 'Great day!',
-    created_at: new Date()
-  }
-];
-
-const CalendarPage: React.FC = () => {
+const Calendar: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   const [isDayDetailOpen, setIsDayDetailOpen] = useState(false);
+  const { user } = useAuth();
 
-  // Mock query - replace with actual Supabase query
-  const { data: monthEntries = [] } = useQuery({
-    queryKey: ['calendar-entries', format(selectedMonth, 'yyyy-MM')],
-    queryFn: () => Promise.resolve(mockData),
+  // Enhanced query to load month data
+  const { data: monthEntries = [], isLoading } = useQuery({
+    queryKey: ['calendar-entries', format(selectedMonth, 'yyyy-MM'), user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      
+      const { data, error } = await supabase
+        .from('daily_checkins')
+        .select('*')
+        .eq('user_id', user.id)
+        .gte('checkin_date', format(startOfMonth(selectedMonth), 'yyyy-MM-dd'))
+        .lte('checkin_date', format(endOfMonth(selectedMonth), 'yyyy-MM-dd'))
+        .order('checkin_date', { ascending: true });
+
+      if (error) throw error;
+      
+      // Transform to match MoodEntry type
+      return (data || []).map(entry => ({
+        id: entry.id,
+        date: new Date(entry.checkin_date),
+        mood_rating: entry.mood_rating || 5,
+        energy_rating: entry.energy_rating || 5,
+        triggers: [], // We don't have triggers in daily_checkins, could add later
+        gratitude: [], // We don't have gratitude in daily_checkins, could add later
+        notes: entry.support_needed || '',
+        created_at: new Date(entry.created_at)
+      }));
+    },
+    enabled: !!user?.id,
   });
 
   // Process data
@@ -75,9 +72,21 @@ const CalendarPage: React.FC = () => {
   const selectedDayData = selectedDate ? dayDataMap.get(format(selectedDate, 'yyyy-MM-dd')) : undefined;
 
   const handleExport = () => {
-    // Mock export functionality
     console.log('Exporting month report...');
+    // Could implement CSV export later
   };
+
+  if (isLoading) {
+    return (
+      <div className="max-w-4xl mx-auto p-4 space-y-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded mb-4"></div>
+          <div className="h-64 bg-gray-200 rounded mb-4"></div>
+          <div className="h-32 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-6">
@@ -109,4 +118,4 @@ const CalendarPage: React.FC = () => {
   );
 };
 
-export default CalendarPage;
+export default Calendar;

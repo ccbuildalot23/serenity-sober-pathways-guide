@@ -11,18 +11,27 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onProfileClick }) => {
   const tabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: Home },
-    { id: 'checkin', label: 'Check-in', icon: Calendar },
-    { id: 'support', label: 'Support', icon: Users },
-    { id: 'resources', label: 'Resources', icon: BookOpen },
+    { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/' },
+    { id: 'calendar', label: 'Calendar', icon: Calendar, path: '/calendar' },
+    { id: 'checkin', label: 'Check-in', icon: Calendar, path: '/checkin' },
+    { id: 'support', label: 'Support', icon: Users, path: '/support' },
+    { id: 'resources', label: 'Resources', icon: BookOpen, path: '/resources' },
   ];
+
+  const handleTabClick = (tab: any) => {
+    if (tab.path && tab.path !== window.location.pathname) {
+      window.location.href = tab.path;
+    } else {
+      onTabChange(tab.id);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-          <h1 className="text-xl font-bold serenity-navy">Serenity</h1>
+          <h1 className="text-xl font-bold text-blue-900">Serenity</h1>
           {onProfileClick && (
             <button
               onClick={onProfileClick}
@@ -45,12 +54,12 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onPro
           <div className="flex justify-around">
             {tabs.map((tab) => {
               const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
+              const isActive = activeTab === tab.id || window.location.pathname === tab.path;
               
               return (
                 <button
                   key={tab.id}
-                  onClick={() => onTabChange(tab.id)}
+                  onClick={() => handleTabClick(tab)}
                   className={`flex flex-col items-center py-3 px-2 text-xs font-medium transition-colors ${
                     isActive 
                       ? 'text-indigo-600' 

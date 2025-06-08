@@ -6,9 +6,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Calendar, Heart, Brain, TrendingUp, CheckCircle, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import CheckInCelebration from './CheckInCelebration';
+import { PredictiveCrisisAlert } from './crisis/PredictiveCrisisAlert';
+import { UltraSecureCrisisDataService } from '@/services/ultraSecureCrisisDataService';
+import { subscribeToCrisisEvents, unsubscribeFromChannel } from '@/services/realtimeService';
+import { secureServerLogEvent } from '@/services/secureServerAuditLogService';
+import { analyzePatterns } from '@/utils/patternAnalysis';
+import { useNavigate } from 'react-router-dom';
+import { useRealtimeUpdates } from '@/hooks/useRealtimeUpdates';
 
 interface DailyCheckInProps {
   // Add any props here
@@ -30,6 +38,7 @@ interface CheckinResponses {
 
 const DailyCheckIn = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [currentTab, setCurrentTab] = useState('mood');
   const [showCelebration, setShowCelebration] = useState(false);
   
@@ -50,6 +59,49 @@ const DailyCheckIn = () => {
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [existingCheckin, setExistingCheckin] = useState<any>(null);
+
+  // Pattern analysis
+  const { data: crisisPatterns } = useQuery({
+    queryKey: ['crisis-patterns', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      
+      const resolutions = await UltraSecureCrisisDataService.loadCrisisResolutions(user.id);
+      const checkIns = await UltraSecureCrisisDataService.loadCheckInResponses(user.id);
+      
+      return analyzePatterns(resolutions, checkIns);
+    },
+    enabled: !!user?.id
+  });
+
+  // Real-time subscription to crisis events
+  useRealtimeUpdates({
+    onCrisisEvent: (payload) => {
+      toast.warning("Crisis pattern detected", {
+        description: "Your support network has been notified",
+        action: {
+          label: "View Tools",
+          onClick: () => navigate('/crisis-toolkit')
+        }
+      });
+    }
+  });
+
+  // Log pattern detection for audit
+  useEffect(() => {
+    if (crisisPatterns && crisisPatterns.riskScore > 0.5) {
+      secureServerLogEvent({
+        action: 'PATTERN_DETECTION',
+        details: {
+          risk_level: crisisPatterns.riskScore,
+          vulnerable_hours: crisisPatterns.vulnerableHours,
+          precursor_count: crisisPatterns.crisisPrecursors.length,
+          timestamp: new Date().toISOString()
+        },
+        userId: user?.id
+      });
+    }
+  }, [crisisPatterns, user?.id]);
 
   useEffect(() => {
     const todayDate = new Date().toISOString().slice(0, 10);
@@ -409,6 +461,15 @@ const DailyCheckIn = () => {
           <p className="text-gray-600">How are you doing today? Take a moment to reflect.</p>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Predictive Crisis Alert */}
+          {crisisPatterns && (
+            <PredictiveCrisisAlert
+              patterns={crisisPatterns}
+              onCrisisDetected={handleCrisisDetected}
+              onShowInterventions={handleShowInterventions}
+            />
+          )}
+
           <Tabs value={currentTab} onValueChange={setCurrentTab}>
             <TabsList className="grid grid-cols-3 w-full">
               <TabsTrigger value="mood" className="flex items-center space-x-2">

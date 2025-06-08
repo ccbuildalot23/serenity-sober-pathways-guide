@@ -14,7 +14,8 @@ import {
 import { panicModeService } from '@/services/panicModeService';
 import { getCurrentLocation } from '@/services/geolocationService';
 import { voiceActivationService } from '@/services/voiceActivationService';
-import { sendMockSMS, sendMockPush } from '@/services/mockSmsService';
+import { sendMockSMS } from '@/services/mockSmsService';
+import { sendMockPush } from '@/services/mockPushService';
 import { escalateCrisis } from '@/services/crisisEscalationService';
 import { useOfflineCrisisData } from '@/hooks/useOfflineCrisisData';
 import { toast } from 'sonner';
@@ -34,6 +35,7 @@ interface EnhancedCrisisToolkitProps {
   handleInterventionComplete: (toolName: string) => void;
   isOffline?: boolean;
   saveOfflineData?: (data: any) => void;
+  moodScore?: number;
 }
 
 export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({

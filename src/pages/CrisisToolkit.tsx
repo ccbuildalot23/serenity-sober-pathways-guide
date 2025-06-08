@@ -84,8 +84,18 @@ const CrisisToolkit: React.FC = () => {
 
       {/* Main Crisis Toolkit */}
       <EnhancedCrisisToolkit 
+        showAssessment={crisisSystem.showAssessment}
+        showResponse={crisisSystem.showResponse}
+        riskLevel={crisisSystem.riskLevel}
+        currentCrisisEvent={crisisSystem.currentCrisisEvent}
+        voiceListening={crisisSystem.voiceListening}
+        hasLocationPermission={crisisSystem.hasLocationPermission}
+        handleCrisisActivated={crisisSystem.handleCrisisActivated}
+        handleAssessmentComplete={crisisSystem.handleAssessmentComplete}
+        handleResponseComplete={crisisSystem.handleResponseComplete}
+        handleInterventionComplete={crisisSystem.handleInterventionComplete}
         isOffline={!offlineData.isOnline}
-        moodScore={5} // Could get from latest check-in
+        moodScore={5}
       />
 
       {/* Crisis Resolution History */}

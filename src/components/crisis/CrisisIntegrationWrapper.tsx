@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -6,6 +5,7 @@ import { toast } from 'sonner';
 import { offlineStorage } from '@/services/offlineStorageService';
 import { EnhancedCrisisToolkit } from './EnhancedCrisisToolkit';
 import { CrisisAccessibilitySettings } from '../settings/CrisisAccessibilitySettings';
+import { useCrisisSystem } from '@/hooks/useCrisisSystem';
 
 interface CrisisIntegrationWrapperProps {
   children?: React.ReactNode;
@@ -20,6 +20,8 @@ export const CrisisIntegrationWrapper: React.FC<CrisisIntegrationWrapperProps> =
   const navigate = useNavigate();
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [showAccessibilitySettings, setShowAccessibilitySettings] = useState(false);
+  
+  const crisisSystem = useCrisisSystem();
 
   // Monitor online/offline status
   useEffect(() => {
@@ -82,8 +84,18 @@ export const CrisisIntegrationWrapper: React.FC<CrisisIntegrationWrapperProps> =
       {currentMoodScore <= 3 && (
         <div className="fixed bottom-4 right-4 z-50 max-w-sm">
           <EnhancedCrisisToolkit 
-            moodScore={currentMoodScore}
+            showAssessment={crisisSystem.showAssessment}
+            showResponse={crisisSystem.showResponse}
+            riskLevel={crisisSystem.riskLevel}
+            currentCrisisEvent={crisisSystem.currentCrisisEvent}
+            voiceListening={crisisSystem.voiceListening}
+            hasLocationPermission={crisisSystem.hasLocationPermission}
+            handleCrisisActivated={crisisSystem.handleCrisisActivated}
+            handleAssessmentComplete={crisisSystem.handleAssessmentComplete}
+            handleResponseComplete={crisisSystem.handleResponseComplete}
+            handleInterventionComplete={crisisSystem.handleInterventionComplete}
             isOffline={isOffline}
+            moodScore={currentMoodScore}
           />
         </div>
       )}

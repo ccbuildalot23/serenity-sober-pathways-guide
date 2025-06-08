@@ -62,7 +62,7 @@ const mockData: MoodEntry[] = [
   }
 ];
 
-const Calendar: React.FC = () => {
+const CalendarPage: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   const [isDayDetailOpen, setIsDayDetailOpen] = useState(false);
@@ -185,7 +185,6 @@ const Calendar: React.FC = () => {
         </CardHeader>
         <CardContent>
           <Calendar
-            mode="single"
             selected={selectedDate}
             onSelect={setSelectedDate}
             month={selectedMonth}
@@ -378,4 +377,4 @@ const Calendar: React.FC = () => {
   );
 };
 
-export default Calendar;
+export default CalendarPage;

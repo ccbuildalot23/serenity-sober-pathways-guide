@@ -1,10 +1,11 @@
 
 import React, { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { SecurityHeaders } from '@/lib/securityHeaders';
 
 interface SignUpFormProps {
   onSuccess?: () => void;
@@ -14,108 +15,140 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [recoveryStartDate, setRecoveryStartDate] = useState('');
   const [loading, setLoading] = useState(false);
-  
-  const { signUp } = useAuth();
   const { toast } = useToast();
+
+  // Clean up auth state before attempting sign up
+  const cleanupAuthState = () => {
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+        localStorage.removeItem(key);
+      }
+    });
+    
+    Object.keys(sessionStorage || {}).forEach((key) => {
+      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+        sessionStorage.removeItem(key);
+      }
+    });
+  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password || !fullName) {
+    
+    // Sanitize inputs
+    const sanitizedEmail = SecurityHeaders.sanitizeUserInput(email.trim());
+    const sanitizedFullName = SecurityHeaders.sanitizeUserInput(fullName.trim());
+    const sanitizedPassword = password.trim();
+    
+    if (!sanitizedEmail || !sanitizedPassword || !sanitizedFullName) {
       toast({
         title: "Error",
-        description: "Please fill in all required fields",
+        description: "Please fill in all fields",
         variant: "destructive",
       });
       return;
     }
 
-    setLoading(true);
-    const { error } = await signUp(email, password, {
-      fullName,
-      recoveryStartDate: recoveryStartDate || undefined,
-    });
-    
-    if (error) {
-      if (error.message.includes('User already registered')) {
-        toast({
-          title: "Account Already Exists",
-          description: "An account with this email already exists. Please sign in instead.",
-          variant: "destructive",
-        });
-        if (onSuccess) {
-          onSuccess();
-        }
-      } else {
-        toast({
-          title: "Sign Up Failed",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
-    } else {
+    // Basic password validation
+    if (sanitizedPassword.length < 6) {
       toast({
-        title: "Welcome to Serenity!",
-        description: "Your account has been created successfully. Please check your email to verify your account.",
+        title: "Error",
+        description: "Password must be at least 6 characters",
+        variant: "destructive",
       });
-      if (onSuccess) {
-        onSuccess();
-      }
+      return;
     }
-    setLoading(false);
+
+    try {
+      setLoading(true);
+      
+      // Clean up existing state
+      cleanupAuthState();
+      
+      // Attempt global sign out first
+      try {
+        await supabase.auth.signOut({ scope: 'global' });
+      } catch (err) {
+        // Continue even if this fails
+        console.log('Global signout attempt completed');
+      }
+
+      const { data, error } = await supabase.auth.signUp({
+        email: sanitizedEmail,
+        password: sanitizedPassword,
+        options: {
+          data: {
+            full_name: sanitizedFullName,
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.user) {
+        toast({
+          title: "Success",
+          description: "Account created successfully! Please check your email to verify your account.",
+        });
+        onSuccess?.();
+      }
+    } catch (error: any) {
+      console.error('Sign up error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create account",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <form onSubmit={handleSignUp} className="space-y-4">
       <div>
-        <Label htmlFor="signup-name">Full Name *</Label>
+        <Label htmlFor="fullName">Full Name</Label>
         <Input
-          id="signup-name"
+          id="fullName"
           type="text"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
-          placeholder="Enter your full name"
           required
+          autoComplete="name"
+          disabled={loading}
         />
       </div>
+      
       <div>
-        <Label htmlFor="signup-email">Email *</Label>
+        <Label htmlFor="email">Email</Label>
         <Input
-          id="signup-email"
+          id="email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter your email"
           required
+          autoComplete="email"
+          disabled={loading}
         />
       </div>
+      
       <div>
-        <Label htmlFor="signup-password">Password *</Label>
+        <Label htmlFor="password">Password</Label>
         <Input
-          id="signup-password"
+          id="password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Create a password"
           required
+          autoComplete="new-password"
+          disabled={loading}
+          minLength={6}
         />
       </div>
-      <div>
-        <Label htmlFor="recovery-date">Recovery Start Date (Optional)</Label>
-        <Input
-          id="recovery-date"
-          type="date"
-          value={recoveryStartDate}
-          onChange={(e) => setRecoveryStartDate(e.target.value)}
-        />
-      </div>
-      <Button 
-        type="submit" 
-        className="w-full serenity-primary" 
-        disabled={loading}
-      >
-        {loading ? 'Creating Account...' : 'Create Account'}
+      
+      <Button type="submit" className="w-full" disabled={loading}>
+        {loading ? 'Creating account...' : 'Create Account'}
       </Button>
     </form>
   );

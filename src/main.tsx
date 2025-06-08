@@ -10,7 +10,7 @@ import { SecureMonitoring } from "./lib/secureMonitoring";
 SecurityHeaders.applySecurity();
 SecurityHeaders.validateEnvironment();
 
-// Initialize security monitoring
+// Initialize security monitoring (only in production for console access)
 SecureMonitoring.monitorConsoleAccess();
 SecureMonitoring.trackPageAccess();
 
@@ -23,7 +23,7 @@ if (!SecurityHeaders.isSecureContext()) {
   });
 }
 
-// Enhanced security measures for production
+// Enhanced security measures for production only
 if (import.meta.env.PROD) {
   // Disable right-click context menu in production
   document.addEventListener('contextmenu', (e) => {
@@ -54,54 +54,59 @@ if (import.meta.env.PROD) {
   }, 1000);
 }
 
-// Enhanced cleanup of potentially sensitive data from localStorage
-const sensitivePatterns = ['debug', 'test', 'admin', 'dev', 'temp', 'cache', 'token', 'key', 'secret'];
-sensitivePatterns.forEach(pattern => {
-  Object.keys(localStorage).forEach(key => {
-    if (key.toLowerCase().includes(pattern) && 
-        !key.includes('security_') && // Preserve our security monitoring data
-        !key.startsWith('supabase.auth.')) { // Preserve auth data
-      localStorage.removeItem(key);
-      SecurityHeaders.logSecurityEvent('SENSITIVE_STORAGE_CLEANED', { key });
-    }
+// Enhanced cleanup of potentially sensitive data from localStorage (production only)
+if (import.meta.env.PROD) {
+  const sensitivePatterns = ['debug', 'test', 'admin', 'dev', 'temp', 'cache'];
+  sensitivePatterns.forEach(pattern => {
+    Object.keys(localStorage).forEach(key => {
+      if (key.toLowerCase().includes(pattern) && 
+          !key.includes('security_') && // Preserve our security monitoring data
+          !key.startsWith('supabase.auth.')) { // Preserve auth data
+        localStorage.removeItem(key);
+        SecurityHeaders.logSecurityEvent('SENSITIVE_STORAGE_CLEANED', { key });
+      }
+    });
   });
-});
+}
 
-// Enhanced monitoring for suspicious activity
+// Reduced monitoring for suspicious activity (development-friendly)
 let rapidKeyPresses = 0;
 let rapidClicks = 0;
 let unusualNavigation = 0;
 
-document.addEventListener('keydown', () => {
-  rapidKeyPresses++;
-  setTimeout(() => rapidKeyPresses--, 1000);
-  if (rapidKeyPresses > 30) {
-    SecureMonitoring.trackSuspiciousActivity('RAPID_KEY_PRESSES', { count: rapidKeyPresses });
-  }
-});
-
-document.addEventListener('click', () => {
-  rapidClicks++;
-  setTimeout(() => rapidClicks--, 1000);
-  if (rapidClicks > 20) {
-    SecureMonitoring.trackSuspiciousActivity('RAPID_CLICKS', { count: rapidClicks });
-  }
-});
-
-// Monitor for unusual navigation patterns
-let lastNavigationTime = Date.now();
-window.addEventListener('popstate', () => {
-  const now = Date.now();
-  if (now - lastNavigationTime < 100) {
-    unusualNavigation++;
-    if (unusualNavigation > 10) {
-      SecureMonitoring.trackSuspiciousActivity('UNUSUAL_NAVIGATION', { count: unusualNavigation });
+// Only monitor in production
+if (import.meta.env.PROD) {
+  document.addEventListener('keydown', () => {
+    rapidKeyPresses++;
+    setTimeout(() => rapidKeyPresses--, 1000);
+    if (rapidKeyPresses > 50) { // Increased threshold
+      SecureMonitoring.trackSuspiciousActivity('RAPID_KEY_PRESSES', { count: rapidKeyPresses });
     }
-  }
-  lastNavigationTime = now;
-});
+  });
 
-// Monitor page visibility changes for potential security analysis
+  document.addEventListener('click', () => {
+    rapidClicks++;
+    setTimeout(() => rapidClicks--, 1000);
+    if (rapidClicks > 30) { // Increased threshold
+      SecureMonitoring.trackSuspiciousActivity('RAPID_CLICKS', { count: rapidClicks });
+    }
+  });
+
+  // Monitor for unusual navigation patterns
+  let lastNavigationTime = Date.now();
+  window.addEventListener('popstate', () => {
+    const now = Date.now();
+    if (now - lastNavigationTime < 50) { // More lenient timing
+      unusualNavigation++;
+      if (unusualNavigation > 20) { // Increased threshold
+        SecureMonitoring.trackSuspiciousActivity('UNUSUAL_NAVIGATION', { count: unusualNavigation });
+      }
+    }
+    lastNavigationTime = now;
+  });
+}
+
+// Monitor page visibility changes for potential security analysis (all environments)
 document.addEventListener('visibilitychange', () => {
   SecurityHeaders.logSecurityEvent('PAGE_VISIBILITY_CHANGE', {
     hidden: document.hidden,

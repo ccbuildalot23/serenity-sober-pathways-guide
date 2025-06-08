@@ -36,8 +36,8 @@ export const SignInForm = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Enhanced input sanitization and validation
-    const sanitizedEmail = SecurityHeaders.sanitizeUserInput(email.trim().toLowerCase());
+    // Basic input validation
+    const sanitizedEmail = email.trim().toLowerCase();
     const sanitizedPassword = password.trim();
     
     if (!sanitizedEmail || !sanitizedPassword) {
@@ -60,11 +60,11 @@ export const SignInForm = () => {
       return;
     }
 
-    // Check if user is rate limited due to failed attempts
+    // Check if user is rate limited due to failed attempts (more lenient)
     if (!SecureMonitoring.trackAuthAttempt(sanitizedEmail, false)) {
       toast({
-        title: "Security Notice",
-        description: "Too many failed attempts. Please try again later.",
+        title: "Too Many Attempts",
+        description: "Please wait before trying again.",
         variant: "destructive",
       });
       SecurityHeaders.logSecurityEvent('AUTH_RATE_LIMITED', { email: sanitizedEmail });

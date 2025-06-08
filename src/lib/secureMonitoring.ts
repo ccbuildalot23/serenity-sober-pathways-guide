@@ -3,8 +3,8 @@
  * Provides real-time security event tracking and analysis
  */
 export class SecureMonitoring {
-  private static readonly MAX_FAILED_ATTEMPTS = 5;
-  private static readonly RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
+  private static readonly MAX_FAILED_ATTEMPTS = 10; // Increased from 5 to 10
+  private static readonly RATE_LIMIT_WINDOW = 30 * 60 * 1000; // Increased from 15 to 30 minutes
   private static failedAttempts = new Map<string, number[]>();
   private static suspiciousActivity = new Map<string, any[]>();
 
@@ -21,7 +21,7 @@ export class SecureMonitoring {
       const recentAttempts = attempts.filter(time => now - time < this.RATE_LIMIT_WINDOW);
       this.failedAttempts.set(key, recentAttempts);
       
-      // Check if user is under attack
+      // Check if user is under attack (more lenient threshold)
       if (recentAttempts.length >= this.MAX_FAILED_ATTEMPTS) {
         this.logSecurityThreat('BRUTE_FORCE_ATTEMPT', {
           email,
@@ -51,8 +51,8 @@ export class SecureMonitoring {
     );
     this.suspiciousActivity.set(key, recentActivities);
     
-    // Analyze patterns
-    if (recentActivities.length > 10) {
+    // Analyze patterns (more lenient threshold)
+    if (recentActivities.length > 20) { // Increased from 10 to 20
       this.logSecurityThreat('SUSPICIOUS_PATTERN_DETECTED', {
         type,
         count: recentActivities.length,
@@ -62,7 +62,7 @@ export class SecureMonitoring {
   }
 
   static trackPageAccess() {
-    const sensitivePages = ['/auth', '/crisis', '/profile'];
+    const sensitivePages = ['/crisis', '/profile']; // Removed /auth from sensitive pages
     const currentPath = window.location.pathname;
     
     if (sensitivePages.some(page => currentPath.includes(page))) {
@@ -74,6 +74,11 @@ export class SecureMonitoring {
   }
 
   static monitorConsoleAccess() {
+    // Only monitor in production to avoid interfering with development
+    if (!import.meta.env.PROD) {
+      return;
+    }
+
     // Detect console manipulation attempts
     let devtools = { open: false, orientation: null };
     const threshold = 160;
@@ -97,13 +102,14 @@ export class SecureMonitoring {
       }
     };
 
-    if (import.meta.env.PROD) {
-      setInterval(checkDevTools, 500);
-    }
+    setInterval(checkDevTools, 1000); // Less frequent checking
   }
 
   private static logSecurityEvent(event: string, details: any = {}) {
-    console.log(`Security Monitor: ${event}`, details);
+    // Only log in development for debugging, reduce noise in production
+    if (import.meta.env.DEV) {
+      console.log(`Security Monitor: ${event}`, details);
+    }
     
     // Store in local monitoring log
     try {
@@ -114,14 +120,14 @@ export class SecureMonitoring {
         ...details
       });
       
-      // Keep only last 100 monitoring events
-      if (monitoringLogs.length > 100) {
-        monitoringLogs.splice(0, monitoringLogs.length - 100);
+      // Keep only last 50 monitoring events (reduced from 100)
+      if (monitoringLogs.length > 50) {
+        monitoringLogs.splice(0, monitoringLogs.length - 50);
       }
       
       localStorage.setItem('security_monitoring', JSON.stringify(monitoringLogs));
     } catch (error) {
-      console.warn('Could not store monitoring event:', error);
+      // Silently fail to avoid blocking user experience
     }
   }
 
@@ -141,7 +147,6 @@ export class SecureMonitoring {
         suspiciousActivity: Object.fromEntries(this.suspiciousActivity)
       };
     } catch (error) {
-      console.warn('Could not retrieve monitoring data:', error);
       return { events: [], failedAttempts: {}, suspiciousActivity: {} };
     }
   }

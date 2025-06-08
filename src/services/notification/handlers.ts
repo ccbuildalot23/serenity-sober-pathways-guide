@@ -71,13 +71,22 @@ export async function handleActionClick(action: string, data?: any): Promise<voi
 
 export async function logFeedback(data: any): Promise<void> {
   try {
+    // Get current authenticated user for RLS compliance
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      console.warn('Cannot log notification feedback: User not authenticated');
+      return;
+    }
+
     await supabase.from('audit_logs').insert({
+      user_id: user.id, // Required for RLS policy
       action: 'NOTIFICATION_FEEDBACK',
-      details: {
+      details_encrypted: JSON.stringify({
         feedback: 'positive',
         notification_type: data?.type,
         timestamp: new Date().toISOString()
-      }
+      })
     });
   } catch (error) {
     console.error('Failed to log notification feedback:', error);
@@ -86,12 +95,21 @@ export async function logFeedback(data: any): Promise<void> {
 
 export async function logNotificationScheduled(settings: any): Promise<void> {
   try {
+    // Get current authenticated user for RLS compliance
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      console.warn('Cannot log notification scheduling: User not authenticated');
+      return;
+    }
+
     await supabase.from('audit_logs').insert({
+      user_id: user.id, // Required for RLS policy
       action: 'NOTIFICATION_SCHEDULED',
-      details: {
+      details_encrypted: JSON.stringify({
         settings,
         timestamp: new Date().toISOString()
-      }
+      })
     });
   } catch (error) {
     console.error('Failed to log notification scheduling:', error);

@@ -1,5 +1,6 @@
+
 import { supabase } from '@/integrations/supabase/client';
-import { encrypt } from '@/lib/encryption';
+import { secureEncryption } from '@/lib/secureEncryption';
 
 interface AuditEntry {
   action: string;
@@ -8,7 +9,7 @@ interface AuditEntry {
 }
 
 export const logEvent = async (entry: AuditEntry) => {
-  const encryptedDetails = entry.details ? await encrypt(JSON.stringify(entry.details)) : null;
+  const encryptedDetails = entry.details ? await secureEncryption.encrypt(JSON.stringify(entry.details)) : null;
   await supabase.from('audit_logs').insert({
     user_id: entry.userId || null,
     action: entry.action,

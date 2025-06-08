@@ -26,19 +26,30 @@ class SecureEncryption {
       if (!error && data?.key) {
         this.encryptionKey = data.key;
       } else {
-        // Fallback to environment variable (not recommended for production)
-        this.encryptionKey = import.meta.env.VITE_ENCRYPTION_KEY;
+        // Check environment variable but validate it's not a default value
+        const envKey = import.meta.env.VITE_ENCRYPTION_KEY;
         
-        if (!this.encryptionKey || this.encryptionKey === 'serenity-secret-key') {
-          console.error('SECURITY WARNING: Using default or missing encryption key');
-          throw new Error('Secure encryption key not configured');
+        // Reject default/weak keys for security
+        const forbiddenKeys = [
+          'serenity-secret-key',
+          'your-secret-key',
+          'default-key',
+          'test-key',
+          'dev-key'
+        ];
+        
+        if (!envKey || forbiddenKeys.includes(envKey) || envKey.length < 32) {
+          console.error('SECURITY ERROR: Secure encryption key not configured or using default/weak key');
+          throw new Error('Secure encryption key required - please configure a strong encryption key');
         }
+        
+        this.encryptionKey = envKey;
       }
       
       this.keyInitialized = true;
     } catch (error) {
       console.error('Failed to initialize encryption key:', error);
-      throw new Error('Encryption system initialization failed');
+      throw new Error('Encryption system initialization failed - secure key required');
     }
   }
 

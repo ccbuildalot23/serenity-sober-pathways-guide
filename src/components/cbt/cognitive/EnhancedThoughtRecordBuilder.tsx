@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -368,11 +367,26 @@ const EnhancedThoughtRecordBuilder: React.FC = () => {
 
       case 4:
         return (
-          <div className="space-y-4">
+          <div className="space-y-6">
+            <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+              <h3 className="text-lg font-semibold text-[#1E3A8A] mb-2">
+                Let's examine the evidence for and against this thought
+              </h3>
+              <p className="text-sm text-[#1E3A8A] mb-4">
+                This step helps you pause and look at the thought objectively. What makes it feel true? What makes you think it might not be the whole story?
+              </p>
+            </div>
+            
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Evidence that supports your automatic thought:
+              <label className="block text-sm font-bold text-[#1E3A8A] mb-2">
+                Evidence FOR this thought:
               </label>
+              <p className="text-xs text-[#1E3A8A] mb-1">
+                What facts or experiences support the thought?
+              </p>
+              <p className="text-xs text-gray-500 mb-3">
+                e.g., "I messed up yesterday," "Someone was upset with me."
+              </p>
               <Textarea
                 value={thoughtRecord.evidenceFor}
                 onChange={(e) => setThoughtRecord(prev => ({ ...prev, evidenceFor: e.target.value }))}
@@ -382,9 +396,15 @@ const EnhancedThoughtRecordBuilder: React.FC = () => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Evidence that contradicts your automatic thought:
+              <label className="block text-sm font-bold text-[#1E3A8A] mb-2">
+                Evidence AGAINST this thought:
               </label>
+              <p className="text-xs text-[#1E3A8A] mb-1">
+                What shows this thought might be too harsh or incomplete?
+              </p>
+              <p className="text-xs text-gray-500 mb-3">
+                e.g., "I've made it through worse," "I reached out for help," "People still care."
+              </p>
               <Textarea
                 value={thoughtRecord.evidenceAgainst}
                 onChange={(e) => setThoughtRecord(prev => ({ ...prev, evidenceAgainst: e.target.value }))}

@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -126,6 +125,10 @@
   .animate-emergency-pulse {
     animation: emergency-pulse 1.5s ease-in-out infinite;
   }
+
+  .animate-celebration-glow {
+    animation: celebration-glow 2s ease-in-out infinite;
+  }
 }
 
 @keyframes gentle-pulse {
@@ -181,5 +184,16 @@
   50% {
     transform: scale(1.05);
     box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+}
+
+@keyframes celebration-glow {
+  0%, 100% {
+    text-shadow: 0 0 5px #10B981;
+    transform: scale(1);
+  }
+  50% {
+    text-shadow: 0 0 20px #10B981, 0 0 30px #10B981;
+    transform: scale(1.02);
   }
 }

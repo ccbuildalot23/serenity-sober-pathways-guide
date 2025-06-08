@@ -1,17 +1,15 @@
 
-import { createRoot } from 'react-dom/client'
+import React from 'react'
+import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
-import { register } from './services/serviceWorkerRegistration'
+import confetti from 'canvas-confetti'
 
-createRoot(document.getElementById("root")!).render(<App />);
+// Make confetti available globally
+window.confetti = confetti;
 
-// Register service worker for offline functionality
-register({
-  onSuccess: () => {
-    console.log('Service worker registered successfully');
-  },
-  onUpdate: () => {
-    console.log('New content available, please refresh');
-  }
-});
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)

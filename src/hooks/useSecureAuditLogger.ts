@@ -1,6 +1,6 @@
 
 import { useAuth } from '@/contexts/AuthContext';
-import { secureLogEvent } from '@/services/secureServerAuditLogService';
+import { secureServerLogEvent } from '@/services/secureServerAuditLogService';
 import { formRateLimiter } from '@/lib/inputValidation';
 
 /**
@@ -18,7 +18,7 @@ export const useSecureAuditLogger = () => {
       return;
     }
 
-    await secureLogEvent({ 
+    await secureServerLogEvent({ 
       action, 
       details, 
       userId: user?.id 

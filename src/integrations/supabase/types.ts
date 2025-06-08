@@ -18,7 +18,7 @@ export type Database = {
           session_id: string | null
           timestamp: string
           user_agent: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           action: string
@@ -28,7 +28,7 @@ export type Database = {
           session_id?: string | null
           timestamp?: string
           user_agent?: string | null
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           action?: string
@@ -38,7 +38,7 @@ export type Database = {
           session_id?: string | null
           timestamp?: string
           user_agent?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -662,6 +662,7 @@ export type Database = {
           is_default: boolean | null
           name: string
           scenario: string
+          user_id: string | null
         }
         Insert: {
           automatic_thought_example: string
@@ -672,6 +673,7 @@ export type Database = {
           is_default?: boolean | null
           name: string
           scenario: string
+          user_id?: string | null
         }
         Update: {
           automatic_thought_example?: string
@@ -682,6 +684,7 @@ export type Database = {
           is_default?: boolean | null
           name?: string
           scenario?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -878,6 +881,10 @@ export type Database = {
       get_recovery_streak: {
         Args: { user_uuid: string }
         Returns: Json
+      }
+      log_security_violation: {
+        Args: { violation_type: string; details?: Json }
+        Returns: undefined
       }
     }
     Enums: {

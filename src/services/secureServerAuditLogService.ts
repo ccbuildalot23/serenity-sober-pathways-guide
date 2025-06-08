@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { serverSideEncryption } from '@/lib/serverSideEncryption';
 import { InputValidator } from '@/lib/inputValidation';
@@ -13,15 +12,25 @@ interface AuditEntry {
 
 /**
  * Ultra-secure audit logging service that uses server-side encryption
- * This ensures sensitive audit data is encrypted before it ever reaches the client
+ * Updated to work with RLS policies requiring authenticated users
  */
 export const secureServerLogEvent = async (entry: AuditEntry) => {
   try {
+    // Get current authenticated user for RLS compliance
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      console.warn('Cannot log audit event: User not authenticated');
+      // Store in local fallback for anonymous events
+      storeLocalFallback(entry);
+      return;
+    }
+
     // Validate and sanitize input data
     const sanitizedEntry = {
       action: InputValidator.sanitizeText(entry.action),
       details: entry.details ? InputValidator.sanitizeJsonData(entry.details) : null,
-      userId: entry.userId,
+      userId: entry.userId || user.id, // Use authenticated user ID
       ipAddress: entry.ipAddress,
       userAgent: entry.userAgent ? InputValidator.sanitizeText(entry.userAgent) : null
     };
@@ -39,7 +48,7 @@ export const secureServerLogEvent = async (entry: AuditEntry) => {
     };
 
     const { error } = await supabase.from('audit_logs').insert({
-      user_id: sanitizedEntry.userId || null,
+      user_id: user.id, // Required for RLS policy - always use authenticated user
       action: sanitizedEntry.action,
       details_encrypted: encryptedDetails,
       timestamp: new Date().toISOString(),
@@ -48,11 +57,31 @@ export const secureServerLogEvent = async (entry: AuditEntry) => {
 
     if (error) {
       console.error('Secure audit log insertion failed:', error);
-      // Don't throw error to avoid breaking main functionality
+      storeLocalFallback(entry);
     }
   } catch (error) {
     console.error('Secure audit logging error:', error);
-    // Fail silently to not disrupt user experience
+    storeLocalFallback(entry);
+  }
+};
+
+const storeLocalFallback = (entry: AuditEntry) => {
+  try {
+    const fallbackLogs = JSON.parse(localStorage.getItem('audit_fallback') || '[]');
+    fallbackLogs.push({
+      ...entry,
+      timestamp: new Date().toISOString(),
+      fallback: true
+    });
+    
+    // Keep only last 50 events
+    if (fallbackLogs.length > 50) {
+      fallbackLogs.splice(0, fallbackLogs.length - 50);
+    }
+    
+    localStorage.setItem('audit_fallback', JSON.stringify(fallbackLogs));
+  } catch (error) {
+    console.warn('Failed to store audit fallback:', error);
   }
 };
 
@@ -75,7 +104,9 @@ export const logSecurityUpgrade = async () => {
     improvements: [
       'implemented_server_side_encryption',
       'encryption_key_never_leaves_server',
-      'maximum_security_compliance'
+      'maximum_security_compliance',
+      'rls_policies_enforced',
+      'user_authentication_required'
     ],
     impact: 'highest_security_level_achieved'
   });

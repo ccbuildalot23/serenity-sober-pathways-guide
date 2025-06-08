@@ -1,6 +1,7 @@
+
 /**
  * Security Validation Service
- * Prevents client-side encryption key exposure and validates security practices
+ * Enhanced to work with RLS policies and database-level security
  */
 export class SecurityValidation {
   private static readonly FORBIDDEN_CLIENT_KEYS = [
@@ -52,6 +53,86 @@ export class SecurityValidation {
       this.logSecurityEvent('PRODUCTION_INSECURE_CONTEXT');
       return false;
     }
+    return true;
+  }
+
+  /**
+   * Validates database access patterns for RLS compliance
+   */
+  static async validateDatabaseAccess(operation: string, table: string, userRequired: boolean = true): Promise<boolean> {
+    if (userRequired) {
+      // Import dynamically to avoid circular dependencies
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        this.logSecurityViolation('DATABASE_ACCESS_WITHOUT_AUTH', {
+          operation,
+          table,
+          timestamp: new Date().toISOString()
+        });
+        return false;
+      }
+    }
+    
+    return true;
+  }
+
+  /**
+   * Validates user input for potential security issues
+   */
+  static validateUserInput(input: string, maxLength: number = 1000): boolean {
+    if (!input || typeof input !== 'string') {
+      return true; // Empty/null input is valid
+    }
+
+    // Check for potential XSS patterns
+    const xssPatterns = [
+      /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+      /javascript:/gi,
+      /on\w+\s*=/gi,
+      /<iframe/gi,
+      /<object/gi,
+      /<embed/gi
+    ];
+
+    for (const pattern of xssPatterns) {
+      if (pattern.test(input)) {
+        this.logSecurityViolation('XSS_ATTEMPT_DETECTED', {
+          input_sample: input.substring(0, 100),
+          pattern: pattern.source
+        });
+        return false;
+      }
+    }
+
+    // Check for SQL injection patterns
+    const sqlPatterns = [
+      /(\bunion\b|\bselect\b|\binsert\b|\bupdate\b|\bdelete\b|\bdrop\b|\bcreate\b|\balter\b)/gi,
+      /(\bor\b|\band\b)\s+\d+\s*=\s*\d+/gi,
+      /;\s*--/gi,
+      /\/\*[\s\S]*?\*\//gi
+    ];
+
+    for (const pattern of sqlPatterns) {
+      if (pattern.test(input)) {
+        this.logSecurityViolation('SQL_INJECTION_ATTEMPT', {
+          input_sample: input.substring(0, 100),
+          pattern: pattern.source
+        });
+        return false;
+      }
+    }
+
+    // Check length
+    if (input.length > maxLength) {
+      this.logSecurityViolation('INPUT_LENGTH_EXCEEDED', {
+        actual_length: input.length,
+        max_length: maxLength
+      });
+      return false;
+    }
+
     return true;
   }
 
@@ -114,7 +195,7 @@ export class SecurityValidation {
     this.preventClientSideEncryption();
     this.validateSecureContext();
     
-    console.log('🔒 Security validation system initialized');
+    console.log('🔒 Enhanced security validation system initialized');
   }
 
   static getSecurityEvents(): any[] {

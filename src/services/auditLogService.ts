@@ -10,13 +10,21 @@ interface AuditEntry {
 
 export const logEvent = async (entry: AuditEntry) => {
   try {
+    // Get current authenticated user for RLS compliance
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      console.warn('Cannot log audit event: User not authenticated');
+      return;
+    }
+
     // Use server-side encryption for all audit logging
     const encryptedDetails = entry.details 
       ? await serverSideEncryption.encrypt(JSON.stringify(entry.details))
       : null;
     
     const { error } = await supabase.from('audit_logs').insert({
-      user_id: entry.userId || null,
+      user_id: user.id, // Required for RLS policy
       action: entry.action,
       details_encrypted: encryptedDetails,
       timestamp: new Date().toISOString()

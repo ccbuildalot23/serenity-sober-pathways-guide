@@ -98,3 +98,15 @@ export function unregister() {
       });
   }
 }
+
+// Handle notification actions
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', event => {
+    if (event.data && event.data.type === 'NOTIFICATION_ACTION') {
+      // Import and use NotificationService
+      import('../services/notificationService').then(({ NotificationService }) => {
+        NotificationService.handleActionClick(event.data.action, event.data.data);
+      });
+    }
+  });
+}

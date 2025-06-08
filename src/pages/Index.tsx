@@ -8,24 +8,109 @@ import SupportNetwork from '@/components/SupportNetwork';
 import UserProfile from '@/components/UserProfile';
 import EducationalResources from '@/components/EducationalResources';
 import ViewToggle from '@/components/ViewToggle';
+import NotificationPreview from '@/components/NotificationPreview';
+import NotificationBanner from '@/components/NotificationBanner';
+import NotificationFeedback from '@/components/NotificationFeedback';
 import { useRealtimeUpdates } from '@/hooks/useRealtimeUpdates';
+import { NotificationService } from '@/services/notificationService';
 import { toast } from 'sonner';
 
 const Index = () => {
   const { user } = useAuth();
   const [currentView, setCurrentView] = useState('dashboard');
+  const [showNotificationPreview, setShowNotificationPreview] = useState(false);
+  const [showNotificationBanner, setShowNotificationBanner] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
 
   // Set up real-time updates for notifications
   useRealtimeUpdates({
     onMoodUpdate: (payload) => {
-      // Handle mood updates from support network
       console.log('Mood update received:', payload);
     },
     onCheckInUpdate: (payload) => {
-      // Handle check-in updates from support network  
       console.log('Check-in update received:', payload);
     }
   });
+
+  useEffect(() => {
+    // Check notification permission status
+    const checkNotificationStatus = () => {
+      const permission = NotificationService.getPermissionStatus();
+      setNotificationPermission(permission);
+
+      // Check if user has seen notification preview
+      const hasSeenPreview = localStorage.getItem('notification_preview_seen');
+      const hasDismissedBanner = localStorage.getItem('notification_banner_dismissed');
+
+      if (!hasSeenPreview && permission === 'default') {
+        setShowNotificationPreview(true);
+      } else if (!hasDismissedBanner && permission !== 'granted') {
+        setShowNotificationBanner(true);
+      }
+    };
+
+    checkNotificationStatus();
+
+    // Listen for permission changes
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        const newPermission = NotificationService.getPermissionStatus();
+        if (newPermission !== notificationPermission) {
+          setNotificationPermission(newPermission);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [notificationPermission]);
+
+  const handleEnableNotifications = async () => {
+    try {
+      const permission = await NotificationService.requestPermission();
+      setNotificationPermission(permission);
+      
+      if (permission === 'granted') {
+        toast.success('Notifications enabled! We\'ll send you gentle reminders to support your recovery.');
+        
+        // Set default notification schedule
+        const defaultSettings = {
+          time: '09:00',
+          freq: 3,
+          toggles: { checkIn: true, affirm: true, support: true, spiritual: true }
+        };
+        await NotificationService.scheduleAll(defaultSettings);
+      } else {
+        toast.error('Notifications were not enabled. You can enable them anytime in your browser settings.');
+      }
+    } catch (error) {
+      console.error('Error enabling notifications:', error);
+      toast.error('There was an issue enabling notifications.');
+    }
+    
+    setShowNotificationPreview(false);
+    setShowNotificationBanner(false);
+    localStorage.setItem('notification_preview_seen', 'true');
+  };
+
+  const handleSkipNotifications = () => {
+    setShowNotificationPreview(false);
+    localStorage.setItem('notification_preview_seen', 'true');
+    
+    // Show banner later if they skipped
+    setTimeout(() => {
+      const hasDismissedBanner = localStorage.getItem('notification_banner_dismissed');
+      if (!hasDismissedBanner && NotificationService.getPermissionStatus() !== 'granted') {
+        setShowNotificationBanner(true);
+      }
+    }, 24 * 60 * 60 * 1000); // 24 hours later
+  };
+
+  const handleDismissBanner = () => {
+    setShowNotificationBanner(false);
+    localStorage.setItem('notification_banner_dismissed', 'true');
+  };
 
   const renderView = () => {
     switch (currentView) {
@@ -60,6 +145,14 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+      {/* Notification Banner */}
+      {showNotificationBanner && (
+        <NotificationBanner
+          onEnable={handleEnableNotifications}
+          onDismiss={handleDismissBanner}
+        />
+      )}
+
       <div className="container mx-auto px-4 py-8">
         <header className="mb-8">
           <div className="flex items-center justify-between">
@@ -79,6 +172,21 @@ const Index = () => {
           {renderView()}
         </main>
       </div>
+
+      {/* Notification Preview Modal */}
+      {showNotificationPreview && (
+        <NotificationPreview
+          onEnable={handleEnableNotifications}
+          onSkip={handleSkipNotifications}
+        />
+      )}
+
+      {/* Notification Feedback Modal */}
+      <NotificationFeedback
+        isOpen={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
+        notificationType="general"
+      />
     </div>
   );
 };

@@ -1,25 +1,11 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-
-interface CheckinResponses {
-  mood: number | null;
-  energy: number | null;
-  hope: number | null;
-  sobriety_confidence: number | null;
-  recovery_importance: number | null;
-  recovery_strength: number | null;
-  support_needed: boolean;
-  phq2_q1: number | null;
-  phq2_q2: number | null;
-  gad2_q1: number | null;
-  gad2_q2: number | null;
-}
-
-const DRAFT_KEY_PREFIX = 'daily-checkin-draft-';
-const COMPLETED_KEY_PREFIX = 'daily-checkin-completed-';
+import { CheckinResponses } from '@/types/dailyCheckIn';
+import { checkinStorage } from '@/utils/checkinStorage';
+import { checkinValidation } from '@/utils/checkinValidation';
+import { checkinSubmissionService } from '@/services/checkinSubmissionService';
+import { checkinDataService } from '@/services/checkinDataService';
 
 export const useDailyCheckIn = () => {
   const { user } = useAuth();
@@ -52,95 +38,34 @@ export const useDailyCheckIn = () => {
   // Auto-save draft responses whenever they change
   useEffect(() => {
     if (today && !existingCheckin) {
-      saveDraftResponses();
+      checkinStorage.saveDraft(today, responses, completedSections);
     }
-  }, [responses, today, existingCheckin]);
+  }, [responses, today, existingCheckin, completedSections]);
 
   const loadExistingCheckin = async (checkinDate: string) => {
     if (!user) return;
 
-    try {
-      const { data, error } = await supabase
-        .from('daily_checkins')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('checkin_date', checkinDate)
-        .single();
-
-      if (error && error.code !== 'PGRST116') throw error;
-
-      if (data) {
-        console.log('Loaded existing check-in:', data);
-        setExistingCheckin(data);
-        setResponses({
-          mood: data.mood_rating,
-          energy: data.energy_rating,
-          hope: data.hope_rating,
-          sobriety_confidence: data.sobriety_confidence,
-          recovery_importance: data.recovery_importance,
-          recovery_strength: data.recovery_strength ? parseFloat(data.recovery_strength) : null,
-          support_needed: typeof data.support_needed === 'boolean' ? data.support_needed : data.support_needed === 'true',
-          phq2_q1: data.phq2_q1_response,
-          phq2_q2: data.phq2_q2_response,
-          gad2_q1: data.gad2_q1_response,
-          gad2_q2: data.gad2_q2_response,
-        });
-        
-        if (data.completed_sections && typeof data.completed_sections === 'string') {
-          const parsed = JSON.parse(data.completed_sections);
-          if (Array.isArray(parsed)) {
-            setCompletedSections(new Set(parsed.map(item => String(item))));
-          }
-        } else if (Array.isArray(data.completed_sections)) {
-          setCompletedSections(new Set(data.completed_sections.map(item => String(item))));
-        }
-        
-        // Clear draft if check-in is complete
-        clearDraftResponses(checkinDate);
+    const result = await checkinDataService.loadExistingCheckin(user.id, checkinDate);
+    
+    if (result.existingCheckin) {
+      setExistingCheckin(result.existingCheckin);
+      if (result.responses) {
+        setResponses(result.responses);
       }
-    } catch (error) {
-      console.error('Error loading existing check-in:', error);
-      // Fallback to localStorage check
-      const localCompleted = localStorage.getItem(COMPLETED_KEY_PREFIX + checkinDate);
-      if (localCompleted) {
-        setExistingCheckin(JSON.parse(localCompleted));
-      }
+      setCompletedSections(result.completedSections);
+      // Clear draft if check-in is complete
+      checkinStorage.clearDraft(checkinDate);
     }
   };
 
   const loadDraftResponses = (checkinDate: string) => {
     if (existingCheckin) return;
     
-    const draftKey = DRAFT_KEY_PREFIX + checkinDate;
-    const savedDraft = localStorage.getItem(draftKey);
-    
-    if (savedDraft) {
-      try {
-        const draft = JSON.parse(savedDraft);
-        setResponses(prev => ({ ...prev, ...draft.responses }));
-        setCompletedSections(new Set(draft.completedSections || []));
-      } catch (error) {
-        console.error('Error loading draft responses:', error);
-      }
+    const draft = checkinStorage.loadDraft(checkinDate);
+    if (draft) {
+      setResponses(prev => ({ ...prev, ...draft.responses }));
+      setCompletedSections(new Set(draft.completedSections || []));
     }
-  };
-
-  const saveDraftResponses = () => {
-    if (!today || existingCheckin) return;
-    
-    const draftKey = DRAFT_KEY_PREFIX + today;
-    const draft = {
-      responses,
-      completedSections: Array.from(completedSections),
-      timestamp: new Date().toISOString()
-    };
-    
-    localStorage.setItem(draftKey, JSON.stringify(draft));
-  };
-
-  const clearDraftResponses = (checkinDate: string) => {
-    const draftKey = DRAFT_KEY_PREFIX + checkinDate;
-    localStorage.removeItem(draftKey);
   };
 
   const markSectionComplete = (section: string) => {
@@ -148,25 +73,9 @@ export const useDailyCheckIn = () => {
     setCompletedSections(prev => {
       const newSet = new Set(prev);
       
-      // Validate section completion
-      if (section === 'mood' && responses.mood !== null) {
-        newSet.add('mood');
-        console.log('Mood section completed');
-      } else if (section === 'wellness' && 
-        responses.energy !== null && 
-        responses.hope !== null && 
-        responses.sobriety_confidence !== null && 
-        responses.recovery_importance !== null && 
-        responses.recovery_strength !== null) {
-        newSet.add('wellness');
-        console.log('Wellness section completed');
-      } else if (section === 'assessments' && 
-        responses.phq2_q1 !== null && 
-        responses.phq2_q2 !== null && 
-        responses.gad2_q1 !== null && 
-        responses.gad2_q2 !== null) {
-        newSet.add('assessments');
-        console.log('Assessments section completed');
+      if (checkinValidation.validateSectionCompletion(section, responses)) {
+        newSet.add(section);
+        console.log(`${section} section completed`);
       }
       
       console.log('Updated completed sections:', Array.from(newSet));
@@ -175,35 +84,20 @@ export const useDailyCheckIn = () => {
   };
 
   const canComplete = () => {
-    const isComplete = completedSections.size === 3 && 
-           completedSections.has('mood') && 
-           completedSections.has('wellness') && 
-           completedSections.has('assessments');
+    const isComplete = checkinValidation.canComplete(completedSections);
     console.log('Can complete check:', isComplete, 'Completed sections:', Array.from(completedSections));
     return isComplete;
   };
 
   const validateCompletion = () => {
-    const missing = [];
-    if (!completedSections.has('mood')) missing.push('Mood');
-    if (!completedSections.has('wellness')) missing.push('Wellness');
-    if (!completedSections.has('assessments')) missing.push('Assessments');
-    
-    if (missing.length > 0) {
-      toast.error(`Please complete the following sections: ${missing.join(', ')}`, {
-        description: "All sections must be filled out before submitting your check-in.",
-        duration: 5000
-      });
-      return false;
-    }
-    return true;
+    return checkinValidation.validateCompletion(completedSections);
   };
 
   const handleComplete = async (isRetry: boolean = false) => {
     console.log('Starting check-in completion...', { canComplete: canComplete(), user: !!user });
     
     if (!user) {
-      toast.error('You must be logged in to complete a check-in');
+      checkinSubmissionService.showErrorMessage('You must be logged in to complete a check-in', () => {});
       return false;
     }
     
@@ -218,56 +112,20 @@ export const useDailyCheckIn = () => {
       
       console.log('Submitting check-in data:', responses);
       
-      const checkinData = {
-        user_id: user.id,
-        checkin_date: today,
-        mood_rating: responses.mood,
-        energy_rating: responses.energy,
-        hope_rating: responses.hope,
-        sobriety_confidence: responses.sobriety_confidence,
-        recovery_importance: responses.recovery_importance,
-        recovery_strength: responses.recovery_strength?.toString() || null,
-        support_needed: responses.support_needed?.toString() || 'false',
-        phq2_q1_response: responses.phq2_q1,
-        phq2_q2_response: responses.phq2_q2,
-        phq2_score: (responses.phq2_q1 || 0) + (responses.phq2_q2 || 0),
-        gad2_q1_response: responses.gad2_q1,
-        gad2_q2_response: responses.gad2_q2,
-        gad2_score: (responses.gad2_q1 || 0) + (responses.gad2_q2 || 0),
-        completed_sections: JSON.stringify(['mood', 'wellness', 'assessments']),
-        is_complete: true
-      };
-
-      console.log('Prepared checkin data:', checkinData);
-
-      const { data, error } = await supabase
-        .from('daily_checkins')
-        .upsert(checkinData, {
-          onConflict: 'user_id,checkin_date'
-        })
-        .select();
-
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
-      }
-
-      console.log('Successfully saved check-in:', data);
+      const checkinData = checkinSubmissionService.prepareCheckinData(user.id, today, responses);
+      await checkinSubmissionService.submitCheckin(checkinData);
 
       // Mark as completed
       setExistingCheckin(checkinData);
       setCompletedSections(new Set(['mood', 'wellness', 'assessments']));
       
       // Save to localStorage as backup
-      localStorage.setItem(COMPLETED_KEY_PREFIX + today, JSON.stringify(checkinData));
+      checkinStorage.saveCompleted(today, checkinData);
       
       // Clear draft
-      clearDraftResponses(today);
+      checkinStorage.clearDraft(today);
       
-      toast.success('Daily check-in completed successfully!', {
-        description: "Great job completing today's check-in. Come back tomorrow!",
-        duration: 4000
-      });
+      checkinSubmissionService.showSuccessMessage();
       return true;
       
     } catch (error) {
@@ -275,14 +133,7 @@ export const useDailyCheckIn = () => {
       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
       setLastSubmissionError(errorMessage);
       
-      toast.error('Failed to complete check-in', {
-        description: "There was a problem saving your check-in. Your responses are saved and you can try again.",
-        duration: 8000,
-        action: {
-          label: "Retry",
-          onClick: () => handleComplete(true)
-        }
-      });
+      checkinSubmissionService.showErrorMessage(errorMessage, () => handleComplete(true));
       return false;
     } finally {
       setIsSubmitting(false);

@@ -12,16 +12,18 @@ export const useEnhancedSessionSecurity = () => {
   useEffect(() => {
     if (!user) return;
 
-    // Validate session on mount
-    const isValid = EnhancedSecurityHeaders.validateSession();
-    setSessionValid(isValid);
+    // Delay initial validation to allow auth flow to complete
+    const initialValidationDelay = setTimeout(() => {
+      const isValid = EnhancedSecurityHeaders.validateSession();
+      setSessionValid(isValid);
 
-    if (!isValid) {
-      EnhancedSecurityAuditService.logSecurityViolation('SESSION_VALIDATION_FAILED', {
-        user_id: user.id,
-        timestamp: new Date().toISOString()
-      });
-    }
+      if (!isValid) {
+        EnhancedSecurityAuditService.logSecurityViolation('SESSION_VALIDATION_FAILED', {
+          user_id: user.id,
+          timestamp: new Date().toISOString()
+        });
+      }
+    }, 2000); // Wait 2 seconds after user is set
 
     // Set up periodic session validation
     const sessionCheckInterval = setInterval(() => {
@@ -52,6 +54,7 @@ export const useEnhancedSessionSecurity = () => {
     }, 30000); // Check every 30 seconds
 
     return () => {
+      clearTimeout(initialValidationDelay);
       clearInterval(sessionCheckInterval);
       clearInterval(warningInterval);
     };

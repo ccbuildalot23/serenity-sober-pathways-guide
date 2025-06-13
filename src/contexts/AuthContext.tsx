@@ -121,7 +121,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state change:', event);
+      console.log('Auth state change:', event, 'Current path:', window.location.pathname);
       SecurityHeaders.logSecurityEvent('AUTH_STATE_CHANGE', { event });
       
       // Update state synchronously
@@ -133,13 +133,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
         console.log('User signed in successfully');
         SecurityHeaders.logSecurityEvent('USER_SIGNED_IN', { userId: session?.user?.id });
         
-        // Use setTimeout to ensure state is updated before navigation
-        setTimeout(() => {
-          if (window.location.pathname === '/auth') {
-            console.log('Redirecting to home page...');
-            window.location.replace('/');
-          }
-        }, 100);
+        // Set session activity immediately for security tracking
+        localStorage.setItem('session_last_activity', Date.now().toString());
+        
+        // Only redirect if we're on the auth page
+        if (window.location.pathname === '/auth') {
+          console.log('Redirecting to home page...');
+          // Use window.location.href for a clean redirect
+          window.location.href = '/';
+        }
       } else if (event === 'SIGNED_OUT') {
         // Clean up any remaining auth data
         cleanupAuthState();

@@ -40,22 +40,26 @@ export const checkinDataService = {
       // Fallback to localStorage check
       const localCompleted = checkinStorage.loadCompleted(checkinDate);
       if (localCompleted) {
-        return { existingCheckin: localCompleted, responses: null, completedSections: new Set() };
+        return { existingCheckin: localCompleted, responses: null, completedSections: new Set<string>() };
       }
     }
 
-    return { existingCheckin: null, responses: null, completedSections: new Set() };
+    return { existingCheckin: null, responses: null, completedSections: new Set<string>() };
   },
 
   parseCompletedSections: (completedSections: any): Set<string> => {
-    if (completedSections && typeof completedSections === 'string') {
-      const parsed = JSON.parse(completedSections);
-      if (Array.isArray(parsed)) {
-        return new Set(parsed.map(item => String(item)));
+    try {
+      if (completedSections && typeof completedSections === 'string') {
+        const parsed = JSON.parse(completedSections);
+        if (Array.isArray(parsed)) {
+          return new Set(parsed.map(item => String(item)));
+        }
+      } else if (Array.isArray(completedSections)) {
+        return new Set(completedSections.map(item => String(item)));
       }
-    } else if (Array.isArray(completedSections)) {
-      return new Set(completedSections.map(item => String(item)));
+    } catch (error) {
+      console.error('Error parsing completed sections:', error);
     }
-    return new Set();
+    return new Set<string>();
   }
 };

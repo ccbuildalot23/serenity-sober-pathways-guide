@@ -52,8 +52,8 @@ const EnhancedCrisisSystem: React.FC = () => {
       {/* Session Warning Dialog */}
       <SessionWarningDialog
         open={sessionWarning}
-        onExtend={extendSession}
-        onLogout={handleSessionLogout}
+        onExtendSession={extendSession}
+        onSignOut={handleSessionLogout}
       />
 
       {/* Floating Crisis Button */}

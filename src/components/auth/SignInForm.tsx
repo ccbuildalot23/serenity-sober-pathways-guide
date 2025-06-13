@@ -77,8 +77,8 @@ export const SignInForm = () => {
         description: "Welcome back!",
       });
       
-      // Navigate to dashboard instead of forcing reload
-      navigate('/');
+      // Force navigation to home page
+      window.location.href = '/';
       
     } catch (error: any) {
       console.error('Sign in error:', error);

@@ -1,7 +1,6 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
 import type { User, Session } from '@supabase/supabase-js';
 import { SecurityHeaders } from '@/lib/securityHeaders';
 
@@ -52,6 +51,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const signIn = async (email: string, password: string) => {
     try {
+      // Clean up any existing auth state before signing in
+      cleanupAuthState();
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -127,17 +129,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUser(session?.user ?? null);
       
       if (event === 'SIGNED_IN') {
-        // Defer any additional processing to prevent deadlocks
-        setTimeout(() => {
-          console.log('User signed in successfully');
-          SecurityHeaders.logSecurityEvent('USER_SIGNED_IN', { userId: session?.user?.id });
-        }, 0);
+        console.log('User signed in successfully');
+        SecurityHeaders.logSecurityEvent('USER_SIGNED_IN', { userId: session?.user?.id });
+        
+        // Navigate to home page after successful sign in
+        if (window.location.pathname === '/auth') {
+          window.location.href = '/';
+        }
       } else if (event === 'SIGNED_OUT') {
         // Clean up any remaining auth data
         cleanupAuthState();
         setUser(null);
         setSession(null);
         SecurityHeaders.logSecurityEvent('USER_SIGNED_OUT');
+        
+        // Redirect to auth page if not already there
+        if (window.location.pathname !== '/auth') {
+          window.location.href = '/auth';
+        }
       }
       
       setLoading(false);

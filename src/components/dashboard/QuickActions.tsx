@@ -9,7 +9,7 @@ export const QuickActions: React.FC = () => {
     <div className="grid grid-cols-2 gap-4">
       <Button 
         variant="outline" 
-        className="h-16 border-2 border-[#1E3A8A] text-[#1E3A8A] hover:bg-blue-50"
+        className="h-16 btn-outline-navy"
         asChild
       >
         <Link to="/calendar">
@@ -19,7 +19,7 @@ export const QuickActions: React.FC = () => {
       </Button>
       <Button 
         variant="outline" 
-        className="h-16 border-2 border-[#10B981] text-[#10B981] hover:bg-green-50"
+        className="h-16 btn-outline-emerald"
         asChild
       >
         <Link to="/checkin">

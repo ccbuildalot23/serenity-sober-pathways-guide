@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,22 +7,22 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 215 27% 17%;
+    --foreground: 222 84% 4.9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 215 27% 17%;
+    --card-foreground: 222 84% 4.9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 27% 17%;
+    --popover-foreground: 222 84% 4.9%;
 
-    --primary: 224 76% 32%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 20% 96%;
-    --secondary-foreground: 215 27% 17%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 210 20% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 46%;
 
     --accent: 158 64% 52%;
     --accent-foreground: 0 0% 100%;
@@ -33,45 +32,45 @@
 
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 224 76% 32%;
+    --ring: 221 83% 53%;
 
     --radius: 0.75rem;
 
-    /* Custom colors for Serenity */
-    --serenity-navy: 224 76% 32%;
+    /* Custom Serenity colors with better contrast */
+    --serenity-navy: 221 83% 53%;
     --serenity-emerald: 158 64% 52%;
     --serenity-light-blue: 213 97% 96%;
     --serenity-success: 158 64% 52%;
   }
 
   .dark {
-    --background: 215 27% 17%;
+    --background: 222 84% 4.9%;
     --foreground: 210 40% 98%;
 
-    --card: 215 27% 17%;
+    --card: 222 84% 4.9%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 215 27% 17%;
+    --popover: 222 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 224 76% 48%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 84% 4.9%;
 
-    --secondary: 215 27% 26%;
+    --secondary: 217 32% 17%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 215 27% 26%;
+    --muted: 217 32% 17%;
     --muted-foreground: 215 20% 65%;
 
     --accent: 158 64% 52%;
-    --accent-foreground: 0 0% 100%;
+    --accent-foreground: 222 84% 4.9%;
 
-    --destructive: 0 62% 31%;
+    --destructive: 0 62% 30%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 215 27% 26%;
-    --input: 215 27% 26%;
-    --ring: 224 76% 48%;
+    --border: 217 32% 17%;
+    --input: 217 32% 17%;
+    --ring: 217 91% 60%;
   }
 }
 
@@ -86,21 +85,57 @@
   }
 }
 
+@layer components {
+  /* Improved button styling for better visibility */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-2 focus:ring-primary focus:ring-offset-2;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-input;
+  }
+  
+  .btn-outline {
+    @apply border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground;
+  }
+  
+  .btn-destructive {
+    @apply bg-destructive text-destructive-foreground hover:bg-destructive/90;
+  }
+  
+  /* Serenity specific button styles */
+  .btn-serenity-navy {
+    @apply bg-blue-700 text-white hover:bg-blue-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  }
+  
+  .btn-serenity-emerald {
+    @apply bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2;
+  }
+  
+  .btn-outline-navy {
+    @apply border-2 border-blue-700 text-blue-700 hover:bg-blue-700 hover:text-white;
+  }
+  
+  .btn-outline-emerald {
+    @apply border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white;
+  }
+}
+
 @layer utilities {
   .serenity-navy {
-    color: hsl(var(--serenity-navy));
+    color: #1d4ed8;
   }
   
   .bg-serenity-navy {
-    background-color: hsl(var(--serenity-navy));
+    background-color: #1d4ed8;
   }
   
   .serenity-emerald {
-    color: hsl(var(--serenity-emerald));
+    color: #059669;
   }
   
   .bg-serenity-emerald {
-    background-color: hsl(var(--serenity-emerald));
+    background-color: #059669;
   }
 
   .animate-gentle-pulse {

@@ -40,6 +40,7 @@ export const useDailyCheckIn = () => {
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [existingCheckin, setExistingCheckin] = useState<any>(null);
+  const [lastSubmissionError, setLastSubmissionError] = useState<string | null>(null);
 
   useEffect(() => {
     const todayDate = new Date().toISOString().slice(0, 10);
@@ -181,13 +182,16 @@ export const useDailyCheckIn = () => {
     if (!completedSections.has('assessments')) missing.push('Assessments');
     
     if (missing.length > 0) {
-      toast.error(`Please complete the following sections: ${missing.join(', ')}`);
+      toast.error(`Please complete the following sections: ${missing.join(', ')}`, {
+        description: "All sections must be filled out before submitting your check-in.",
+        duration: 5000
+      });
       return false;
     }
     return true;
   };
 
-  const handleComplete = async () => {
+  const handleComplete = async (isRetry: boolean = false) => {
     if (!user || !canComplete()) {
       validateCompletion();
       return false;
@@ -195,6 +199,7 @@ export const useDailyCheckIn = () => {
 
     try {
       setIsSubmitting(true);
+      setLastSubmissionError(null);
       
       const checkinData = {
         user_id: user.id,
@@ -232,12 +237,25 @@ export const useDailyCheckIn = () => {
       // Clear draft
       clearDraftResponses(today);
       
-      toast.success('Daily check-in completed successfully!');
+      toast.success('Daily check-in completed successfully!', {
+        description: "Great job completing today's check-in. Come back tomorrow!",
+        duration: 4000
+      });
       return true;
       
     } catch (error) {
       console.error('Error completing check-in:', error);
-      toast.error('Failed to complete check-in. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      setLastSubmissionError(errorMessage);
+      
+      toast.error('Failed to complete check-in', {
+        description: "There was a problem saving your check-in. Your responses are saved and you can try again.",
+        duration: 8000,
+        action: {
+          label: "Retry",
+          onClick: () => handleComplete(true)
+        }
+      });
       return false;
     } finally {
       setIsSubmitting(false);
@@ -253,6 +271,7 @@ export const useDailyCheckIn = () => {
     validateCompletion,
     handleComplete,
     isSubmitting,
-    existingCheckin
+    existingCheckin,
+    lastSubmissionError
   };
 };

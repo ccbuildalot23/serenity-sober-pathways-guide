@@ -2,7 +2,7 @@
 import React from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Heart, CheckCircle, Calendar, TrendingUp, AlertCircle } from 'lucide-react';
+import { Heart, CheckCircle, Calendar, TrendingUp, AlertCircle, Loader2 } from 'lucide-react';
 import { useDailyCheckIn } from '@/hooks/useDailyCheckIn';
 import { MoodSection } from '@/components/daily-checkin/MoodSection';
 import { WellnessSection } from '@/components/daily-checkin/WellnessSection';
@@ -124,12 +124,21 @@ const CheckIn = () => {
         {/* Check-in Sections */}
         <div className="space-y-6">
           {/* Mood Section */}
-          <Card className={completedSections.has('mood') ? 'border-green-200 bg-green-50' : ''}>
+          <Card className={`${
+            completedSections.has('mood') 
+              ? 'border-green-200 bg-green-50' 
+              : !canComplete() && completedSections.size > 0 
+                ? 'border-yellow-200 bg-yellow-50' 
+                : ''
+          }`}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Heart className="w-5 h-5 text-pink-500" />
                 Mood Check
                 {completedSections.has('mood') && <CheckCircle className="w-4 h-4 text-green-600" />}
+                {!completedSections.has('mood') && !canComplete() && completedSections.size > 0 && (
+                  <AlertCircle className="w-4 h-4 text-yellow-600" />
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -141,12 +150,21 @@ const CheckIn = () => {
           </Card>
 
           {/* Wellness Section */}
-          <Card className={completedSections.has('wellness') ? 'border-green-200 bg-green-50' : ''}>
+          <Card className={`${
+            completedSections.has('wellness') 
+              ? 'border-green-200 bg-green-50' 
+              : !canComplete() && completedSections.size > 0 
+                ? 'border-yellow-200 bg-yellow-50' 
+                : ''
+          }`}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-blue-500" />
                 Wellness Check
                 {completedSections.has('wellness') && <CheckCircle className="w-4 h-4 text-green-600" />}
+                {!completedSections.has('wellness') && !canComplete() && completedSections.size > 0 && (
+                  <AlertCircle className="w-4 h-4 text-yellow-600" />
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -169,12 +187,21 @@ const CheckIn = () => {
           </Card>
 
           {/* Assessments Section */}
-          <Card className={completedSections.has('assessments') ? 'border-green-200 bg-green-50' : ''}>
+          <Card className={`${
+            completedSections.has('assessments') 
+              ? 'border-green-200 bg-green-50' 
+              : !canComplete() && completedSections.size > 0 
+                ? 'border-yellow-200 bg-yellow-50' 
+                : ''
+          }`}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="w-5 h-5 text-purple-500" />
                 Mental Health Screening
                 {completedSections.has('assessments') && <CheckCircle className="w-4 h-4 text-green-600" />}
+                {!completedSections.has('assessments') && !canComplete() && completedSections.size > 0 && (
+                  <AlertCircle className="w-4 h-4 text-yellow-600" />
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -221,7 +248,7 @@ const CheckIn = () => {
             >
               {isSubmitting ? (
                 <div className="flex items-center justify-center space-x-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   <span>Completing...</span>
                 </div>
               ) : (

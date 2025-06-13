@@ -31,38 +31,46 @@ const AlertHistory = () => {
   const [chartPeriod, setChartPeriod] = useState<'week' | 'month'>('week');
   const [editingNotes, setEditingNotes] = useState<string | null>(null);
   const [notesText, setNotesText] = useState('');
-  const [historyEnabled, setHistoryEnabled] = useState(() => 
+  const [historyEnabled, setHistoryEnabled] = useState(() =>
     localStorage.getItem('alertHistoryEnabled') !== 'false'
   );
+  const [error, setError] = useState<string | null>(null);
   
   const { toast } = useToast();
 
   // Combine SMS and push notification history
   const alertHistory = useMemo((): AlertRecord[] => {
     if (!historyEnabled) return [];
-    
-    const smsAlerts = getSentAlerts().map(alert => ({
-      id: alert.id,
-      timestamp: alert.timestamp,
-      message: alert.message,
-      recipients: [alert.contactName],
-      location: alert.location,
-      notes: localStorage.getItem(`alert_notes_${alert.id}`) || undefined,
-      type: 'sms' as const
-    }));
 
-    const pushAlerts = getNotificationHistory().map(notif => ({
-      id: notif.id,
-      timestamp: notif.timestamp,
-      message: notif.message,
-      recipients: [notif.contactName],
-      location: notif.location,
-      notes: localStorage.getItem(`alert_notes_${notif.id}`) || undefined,
-      type: 'push' as const
-    }));
+    try {
+      const smsAlerts = getSentAlerts().map(alert => ({
+        id: alert.id,
+        timestamp: alert.timestamp instanceof Date ? alert.timestamp : new Date(alert.timestamp),
+        message: alert.message,
+        recipients: [alert.contactName],
+        location: alert.location,
+        notes: localStorage.getItem(`alert_notes_${alert.id}`) || undefined,
+        type: 'sms' as const
+      }));
 
-    return [...smsAlerts, ...pushAlerts]
-      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+      const pushAlerts = getNotificationHistory().map(notif => ({
+        id: notif.id,
+        timestamp: notif.timestamp instanceof Date ? notif.timestamp : new Date(notif.timestamp),
+        message: notif.message,
+        recipients: [notif.contactName],
+        location: notif.location,
+        notes: localStorage.getItem(`alert_notes_${notif.id}`) || undefined,
+        type: 'push' as const
+      }));
+
+      setError(null);
+      return [...smsAlerts, ...pushAlerts]
+        .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    } catch (err) {
+      console.error('Failed to load alert history:', err);
+      setError('Failed to load alert history. You may need to clear your browser storage.');
+      return [];
+    }
   }, [historyEnabled]);
 
   // Chart data for weekly/monthly view
@@ -210,13 +218,14 @@ const AlertHistory = () => {
               id="history-toggle"
               checked={historyEnabled}
               onCheckedChange={handleToggleHistory}
+              aria-label="Toggle alert history tracking"
             />
             <span className="text-sm text-gray-600">
               {historyEnabled ? 'Tracking enabled' : 'Tracking disabled'}
             </span>
           </div>
           
-          <Button onClick={handleExportCSV} variant="outline" size="sm">
+          <Button onClick={handleExportCSV} variant="outline" size="sm" aria-label="Export alert history as CSV">
             <Download className="w-4 h-4 mr-2" />
             Export CSV
           </Button>
@@ -233,6 +242,14 @@ const AlertHistory = () => {
                 <p className="text-sm text-yellow-700">Enable tracking to see new alerts and analytics.</p>
               </div>
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {error && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="p-4">
+            <p className="text-red-700">{error}</p>
           </CardContent>
         </Card>
       )}
@@ -288,7 +305,7 @@ const AlertHistory = () => {
           {/* Controls */}
           <div className="flex flex-wrap gap-4">
             <Select value={groupBy} onValueChange={(value: any) => setGroupBy(value)}>
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-48" aria-label="Group alerts">
                 <SelectValue placeholder="Group by..." />
               </SelectTrigger>
               <SelectContent>
@@ -301,6 +318,11 @@ const AlertHistory = () => {
 
           {/* Alert List */}
           <div className="space-y-4">
+            {alertHistory.length === 0 && (
+              <p className="text-gray-500 text-center py-8">
+                No alerts to display yet. Alerts you send will appear here!
+              </p>
+            )}
             {Object.entries(groupedAlerts).map(([groupName, alerts]) => (
               <Card key={groupName}>
                 <CardHeader>
@@ -351,13 +373,14 @@ const AlertHistory = () => {
                         
                         <Dialog>
                           <DialogTrigger asChild>
-                            <Button 
-                              variant="ghost" 
+                            <Button
+                              variant="ghost"
                               size="sm"
                               onClick={() => {
                                 setEditingNotes(alert.id);
                                 setNotesText(alert.notes || '');
                               }}
+                              aria-label="Add or edit notes for this alert"
                             >
                               <Edit3 className="w-4 h-4" />
                             </Button>
@@ -405,7 +428,7 @@ const AlertHistory = () => {
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Alert Frequency</h3>
             <Select value={chartPeriod} onValueChange={(value: any) => setChartPeriod(value)}>
-              <SelectTrigger className="w-32">
+              <SelectTrigger className="w-32" aria-label="Select time period">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -423,7 +446,12 @@ const AlertHistory = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ChartContainer config={chartConfig} className="h-[300px]">
+              <ChartContainer
+                config={chartConfig}
+                className="h-[300px]"
+                role="img"
+                aria-label="Alert frequency bar chart"
+              >
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" />

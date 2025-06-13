@@ -4,7 +4,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCrisisSystem } from '@/hooks/useCrisisSystem';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useEnhancedSessionSecurity } from '@/hooks/useEnhancedSessionSecurity';
+import { useDashboardData } from '@/hooks/useDashboardData';
 import { NotificationService } from '@/services/notificationService';
+import { notificationPermissionService } from '@/services/notificationPermissionService';
 import { EnhancedSecurityHeaders } from '@/lib/enhancedSecurityHeaders';
 import { SecureMonitoring } from '@/lib/secureMonitoring';
 import Layout from '@/components/Layout';
@@ -18,16 +20,15 @@ import { QuickActions } from '@/components/dashboard/QuickActions';
 import { WeeklyGoals } from '@/components/dashboard/WeeklyGoals';
 import { CrisisAlert } from '@/components/dashboard/CrisisAlert';
 import { CrisisSupport } from '@/components/dashboard/CrisisSupport';
+import { NotificationBanner } from '@/components/dashboard/NotificationBanner';
+import { DashboardHeaderSkeleton, DashboardStatsSkeleton } from '@/components/dashboard/LoadingSkeleton';
+import { toast } from 'sonner';
 
 const Index = () => {
   const { user, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showProfile, setShowProfile] = useState(false);
-  const [stats, setStats] = useState({
-    streak: 42,
-    checkIns: 15,
-    goals: { completed: 3, total: 5 }
-  });
+  const [showNotificationBanner, setShowNotificationBanner] = useState(false);
 
   const {
     riskLevel,
@@ -37,8 +38,11 @@ const Index = () => {
     handleInterventionComplete
   } = useCrisisSystem();
 
-  // Enhanced session security
+  // Enhanced session security with improved sign-out handling
   const { sessionValid, sessionWarning, extendSession } = useEnhancedSessionSecurity();
+
+  // Dashboard data with live updates
+  const { stats, profile, loading, error, refreshStats } = useDashboardData();
 
   // Set up keyboard shortcuts
   useKeyboardShortcuts([
@@ -58,9 +62,17 @@ const Index = () => {
     SecureMonitoring.trackPageAccess();
     
     const initNotifications = async () => {
-      const permission = await NotificationService.requestPermission();
-      if (permission === 'granted') {
-        console.log('Notifications enabled');
+      // Check if we should show permission prompt
+      if (notificationPermissionService.shouldShowPermissionPrompt()) {
+        const permission = await notificationPermissionService.requestPermission();
+        if (permission === 'granted') {
+          console.log('Notifications enabled');
+        }
+      }
+      
+      // Check if we should show the banner for denied permissions
+      if (notificationPermissionService.shouldShowBanner()) {
+        setShowNotificationBanner(true);
       }
     };
     
@@ -70,11 +82,18 @@ const Index = () => {
   const handleSignOut = async () => {
     try {
       await signOut();
+      window.location.href = '/auth';
     } catch (error) {
       console.error('Sign out error:', error);
+      toast.error('Sign out failed, but redirecting anyway');
       // Force redirect even if sign out fails
       window.location.href = '/auth';
     }
+  };
+
+  const handleCheckInComplete = () => {
+    // Refresh stats when check-in is completed
+    refreshStats();
   };
 
   // Redirect if session is invalid
@@ -89,18 +108,37 @@ const Index = () => {
         onTabChange={setActiveTab}
         onProfileClick={() => setShowProfile(!showProfile)}
       >
-        <div className="p-4 space-y-6">
+        <div className="p-4 space-y-6 max-w-4xl mx-auto">
           {/* Header */}
-          <DashboardHeader userEmail={user?.email} streak={stats.streak} />
+          {loading ? (
+            <DashboardHeaderSkeleton />
+          ) : (
+            <DashboardHeader 
+              userEmail={user?.email} 
+              userName={profile?.full_name}
+              streak={stats.streak} 
+            />
+          )}
+
+          {/* Notification Banner */}
+          {showNotificationBanner && (
+            <NotificationBanner 
+              onDismiss={() => setShowNotificationBanner(false)}
+            />
+          )}
 
           {/* Quick Stats */}
-          <DashboardStats stats={stats} />
+          {loading ? (
+            <DashboardStatsSkeleton />
+          ) : (
+            <DashboardStats stats={stats} />
+          )}
 
-          {/* Crisis Status */}
-          {riskLevel && <CrisisAlert riskLevel={riskLevel} />}
+          {/* Crisis Status - Only show if riskLevel exists */}
+          <CrisisAlert riskLevel={riskLevel} />
 
           {/* Quick Check-In */}
-          <QuickCheckIn />
+          <QuickCheckIn onCheckInComplete={handleCheckInComplete} />
 
           {/* Today's Recovery Content */}
           <UnifiedRecoveryContent />
@@ -125,6 +163,36 @@ const Index = () => {
         onExtendSession={extendSession}
         onSignOut={handleSignOut}
       />
+
+      {/* Add responsive styles */}
+      <style jsx>{`
+        @media (max-width: 600px) {
+          .grid-cols-2 {
+            grid-template-columns: 1fr !important;
+          }
+          
+          .p-4 {
+            padding: 1rem !important;
+          }
+          
+          .space-y-6 > * + * {
+            margin-top: 1.5rem !important;
+          }
+        }
+        
+        /* Focus styles for accessibility */
+        button:focus,
+        a:focus,
+        [tabindex]:focus {
+          outline: 2px solid #3b82f6 !important;
+          outline-offset: 2px !important;
+        }
+        
+        /* Ensure no horizontal scrolling on mobile */
+        body {
+          overflow-x: hidden;
+        }
+      `}</style>
     </>
   );
 };

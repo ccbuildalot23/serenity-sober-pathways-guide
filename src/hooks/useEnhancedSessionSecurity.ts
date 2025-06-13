@@ -5,7 +5,7 @@ import { EnhancedSecurityHeaders } from '@/lib/enhancedSecurityHeaders';
 import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
 
 export const useEnhancedSessionSecurity = () => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [sessionValid, setSessionValid] = useState(true);
   const [sessionWarning, setSessionWarning] = useState(false);
 
@@ -22,10 +22,12 @@ export const useEnhancedSessionSecurity = () => {
           user_id: user.id,
           timestamp: new Date().toISOString()
         });
+        // Redirect to auth if session is invalid
+        window.location.href = '/auth';
       }
     }, 2000); // Wait 2 seconds after user is set
 
-    // Set up periodic session validation
+    // Set up periodic session validation every 60 seconds
     const sessionCheckInterval = setInterval(() => {
       const valid = EnhancedSecurityHeaders.validateSession();
       setSessionValid(valid);
@@ -35,8 +37,10 @@ export const useEnhancedSessionSecurity = () => {
           user_id: user.id,
           timestamp: new Date().toISOString()
         });
+        // Redirect to auth if session expires
+        window.location.href = '/auth';
       }
-    }, 60000); // Check every minute
+    }, 60000); // Check every 60 seconds
 
     // Set up session warning (5 minutes before timeout)
     const warningInterval = setInterval(() => {
@@ -58,7 +62,7 @@ export const useEnhancedSessionSecurity = () => {
       clearInterval(sessionCheckInterval);
       clearInterval(warningInterval);
     };
-  }, [user]);
+  }, [user, signOut]);
 
   const extendSession = () => {
     localStorage.setItem('session_last_activity', Date.now().toString());

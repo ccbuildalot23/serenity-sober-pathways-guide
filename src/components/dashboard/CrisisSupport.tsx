@@ -17,7 +17,12 @@ export const CrisisSupport: React.FC = () => {
             className="btn-destructive"
             asChild
           >
-            <Link to="/crisis-toolkit">Access Crisis Toolkit</Link>
+            <Link 
+              to="/crisis-toolkit"
+              aria-label="Access crisis support toolkit with emergency resources"
+            >
+              Access Crisis Toolkit
+            </Link>
           </Button>
         </div>
       </CardContent>

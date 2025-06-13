@@ -6,10 +6,13 @@ import { Button } from '@/components/ui/button';
 import { AlertTriangle } from 'lucide-react';
 
 interface CrisisAlertProps {
-  riskLevel: string;
+  riskLevel: string | null;
 }
 
 export const CrisisAlert: React.FC<CrisisAlertProps> = ({ riskLevel }) => {
+  // Only render if riskLevel exists
+  if (!riskLevel) return null;
+
   return (
     <Card className="border-orange-500 bg-orange-50 dark:border-orange-600 dark:bg-orange-950">
       <CardContent className="p-4">
@@ -26,7 +29,7 @@ export const CrisisAlert: React.FC<CrisisAlertProps> = ({ riskLevel }) => {
             className="bg-orange-600 hover:bg-orange-700 text-white"
             asChild
           >
-            <Link to="/crisis-toolkit">View Tools</Link>
+            <Link to="/crisis-toolkit" aria-label="Access crisis support tools">View Tools</Link>
           </Button>
         </div>
       </CardContent>

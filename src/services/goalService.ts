@@ -216,7 +216,7 @@ export class GoalService {
         duration: 8000
       });
 
-      await this.awardGoalCompletionBadge(goal.user_id, goal.category);
+      await this.awardGoalCompletionBadge(userId, goal.category);
     } catch (error) {
       console.error('Error completing goal:', error);
     }

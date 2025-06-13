@@ -127,15 +127,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Update state synchronously
       setSession(session);
       setUser(session?.user ?? null);
+      setLoading(false);
       
       if (event === 'SIGNED_IN') {
         console.log('User signed in successfully');
         SecurityHeaders.logSecurityEvent('USER_SIGNED_IN', { userId: session?.user?.id });
         
-        // Navigate to home page after successful sign in
-        if (window.location.pathname === '/auth') {
-          window.location.href = '/';
-        }
+        // Use setTimeout to ensure state is updated before navigation
+        setTimeout(() => {
+          if (window.location.pathname === '/auth') {
+            console.log('Redirecting to home page...');
+            window.location.replace('/');
+          }
+        }, 100);
       } else if (event === 'SIGNED_OUT') {
         // Clean up any remaining auth data
         cleanupAuthState();
@@ -148,8 +152,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
           window.location.href = '/auth';
         }
       }
-      
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();

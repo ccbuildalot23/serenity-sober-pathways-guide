@@ -7,7 +7,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { SecurityHeaders } from '@/lib/securityHeaders';
 import { SecureMonitoring } from '@/lib/secureMonitoring';
-import { useNavigate } from 'react-router-dom';
 
 export const SignInForm = () => {
   const [email, setEmail] = useState('');
@@ -15,7 +14,6 @@ export const SignInForm = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const { signIn } = useAuth();
-  const navigate = useNavigate();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,8 +75,8 @@ export const SignInForm = () => {
         description: "Welcome back!",
       });
       
-      // Force navigation to home page
-      window.location.href = '/';
+      // Let the auth context handle the redirect
+      console.log('Sign in successful, waiting for auth state change...');
       
     } catch (error: any) {
       console.error('Sign in error:', error);

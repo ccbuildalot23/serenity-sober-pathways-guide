@@ -107,8 +107,8 @@ export const useRecoveryGoals = () => {
       priority: goal.priority as RecoveryGoal['priority'],
       status: goal.status as RecoveryGoal['status'],
       reminder_frequency: goal.reminder_frequency as RecoveryGoal['reminder_frequency'],
-      milestones: Array.isArray(goal.milestones) ? goal.milestones as Milestone[] : [],
-      tags: Array.isArray(goal.tags) ? goal.tags as string[] : []
+      milestones: Array.isArray(goal.milestones) ? (goal.milestones as unknown as Milestone[]) : [],
+      tags: Array.isArray(goal.tags) ? (goal.tags as unknown as string[]) : []
     }));
     
     setGoals(transformedGoals);
@@ -126,8 +126,8 @@ export const useRecoveryGoals = () => {
     const transformedTemplates: GoalTemplate[] = (data || []).map(template => ({
       ...template,
       category: template.category as RecoveryGoal['category'],
-      suggested_milestones: Array.isArray(template.suggested_milestones) ? template.suggested_milestones as Omit<Milestone, 'id' | 'completed' | 'completed_at'>[] : [],
-      tags: Array.isArray(template.tags) ? template.tags as string[] : []
+      suggested_milestones: Array.isArray(template.suggested_milestones) ? (template.suggested_milestones as unknown as Omit<Milestone, 'id' | 'completed' | 'completed_at'>[]) : [],
+      tags: Array.isArray(template.tags) ? (template.tags as unknown as string[]) : []
     }));
     
     setGoalTemplates(transformedTemplates);
@@ -189,7 +189,7 @@ export const useRecoveryGoals = () => {
           target_value: goalData.target_value,
           current_value: 0,
           unit: goalData.unit,
-          milestones: milestonesWithIds,
+          milestones: milestonesWithIds as unknown as any,
           progress: 0,
           status: 'active',
           tags: goalData.tags || [],
@@ -297,7 +297,7 @@ export const useRecoveryGoals = () => {
     if (newCompletions.length > 0) {
       const { error } = await supabase
         .from('recovery_goals')
-        .update({ milestones: updatedMilestones })
+        .update({ milestones: updatedMilestones as unknown as any })
         .eq('id', goalId);
 
       if (error) {

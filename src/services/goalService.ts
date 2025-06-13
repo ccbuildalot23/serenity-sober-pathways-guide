@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { RecoveryGoal, GoalTemplate, GoalProgress, CreateGoalData, UpdateProgressData, Milestone } from '@/types/recoveryGoals';
 import { calculateNextReminder, calculateProgressFromMilestones } from '@/utils/goalUtils';
@@ -146,7 +145,7 @@ export class GoalService {
       await this.checkMilestoneCompletion(goalId, newCurrentValue, goal);
 
       if (newProgress >= 100) {
-        await this.completeGoal(goalId, goal);
+        await this.completeGoal(goalId, goal, userId);
       }
 
       toast.success('Progress updated!', {
@@ -198,7 +197,7 @@ export class GoalService {
     }
   }
 
-  static async completeGoal(goalId: string, goal: RecoveryGoal) {
+  static async completeGoal(goalId: string, goal: RecoveryGoal, userId: string) {
     try {
       const { error } = await supabase
         .from('recovery_goals')

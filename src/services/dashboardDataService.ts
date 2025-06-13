@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 export const dashboardDataService = {
   async getUserStats(userId: string) {
     try {
-      // Get recovery streak
+      // Get recovery streak - properly type the response
       const { data: streakData } = await supabase
         .rpc('get_recovery_streak', { user_uuid: userId });
 
@@ -28,8 +28,11 @@ export const dashboardDataService = {
       const completedGoals = goalsData?.filter(goal => goal.progress >= 100).length || 0;
       const totalGoals = goalsData?.length || 0;
 
+      // Type assertion for streak data since it comes from a database function
+      const streakResult = streakData as { current_streak_days?: number } | null;
+
       return {
-        streak: streakData?.current_streak_days || 0,
+        streak: streakResult?.current_streak_days || 0,
         checkIns: checkinsData?.length || 0,
         goals: {
           completed: completedGoals,

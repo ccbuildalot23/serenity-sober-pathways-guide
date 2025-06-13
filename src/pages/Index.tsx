@@ -164,8 +164,8 @@ const Index = () => {
         onSignOut={handleSignOut}
       />
 
-      {/* Add responsive styles */}
-      <style jsx>{`
+      {/* Add responsive styles - Fixed: removed jsx property */}
+      <style>{`
         @media (max-width: 600px) {
           .grid-cols-2 {
             grid-template-columns: 1fr !important;

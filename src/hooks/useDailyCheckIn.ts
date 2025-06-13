@@ -70,6 +70,7 @@ export const useDailyCheckIn = () => {
       if (error && error.code !== 'PGRST116') throw error;
 
       if (data) {
+        console.log('Loaded existing check-in:', data);
         setExistingCheckin(data);
         setResponses({
           mood: data.mood_rating,
@@ -143,12 +144,14 @@ export const useDailyCheckIn = () => {
   };
 
   const markSectionComplete = (section: string) => {
+    console.log('Marking section complete:', section, 'Current responses:', responses);
     setCompletedSections(prev => {
       const newSet = new Set(prev);
       
       // Validate section completion
       if (section === 'mood' && responses.mood !== null) {
         newSet.add('mood');
+        console.log('Mood section completed');
       } else if (section === 'wellness' && 
         responses.energy !== null && 
         responses.hope !== null && 
@@ -156,23 +159,28 @@ export const useDailyCheckIn = () => {
         responses.recovery_importance !== null && 
         responses.recovery_strength !== null) {
         newSet.add('wellness');
+        console.log('Wellness section completed');
       } else if (section === 'assessments' && 
         responses.phq2_q1 !== null && 
         responses.phq2_q2 !== null && 
         responses.gad2_q1 !== null && 
         responses.gad2_q2 !== null) {
         newSet.add('assessments');
+        console.log('Assessments section completed');
       }
       
+      console.log('Updated completed sections:', Array.from(newSet));
       return newSet;
     });
   };
 
   const canComplete = () => {
-    return completedSections.size === 3 && 
+    const isComplete = completedSections.size === 3 && 
            completedSections.has('mood') && 
            completedSections.has('wellness') && 
            completedSections.has('assessments');
+    console.log('Can complete check:', isComplete, 'Completed sections:', Array.from(completedSections));
+    return isComplete;
   };
 
   const validateCompletion = () => {
@@ -192,7 +200,14 @@ export const useDailyCheckIn = () => {
   };
 
   const handleComplete = async (isRetry: boolean = false) => {
-    if (!user || !canComplete()) {
+    console.log('Starting check-in completion...', { canComplete: canComplete(), user: !!user });
+    
+    if (!user) {
+      toast.error('You must be logged in to complete a check-in');
+      return false;
+    }
+    
+    if (!canComplete()) {
       validateCompletion();
       return false;
     }
@@ -200,6 +215,8 @@ export const useDailyCheckIn = () => {
     try {
       setIsSubmitting(true);
       setLastSubmissionError(null);
+      
+      console.log('Submitting check-in data:', responses);
       
       const checkinData = {
         user_id: user.id,
@@ -210,22 +227,32 @@ export const useDailyCheckIn = () => {
         sobriety_confidence: responses.sobriety_confidence,
         recovery_importance: responses.recovery_importance,
         recovery_strength: responses.recovery_strength?.toString() || null,
-        support_needed: responses.support_needed?.toString() || null,
+        support_needed: responses.support_needed?.toString() || 'false',
         phq2_q1_response: responses.phq2_q1,
         phq2_q2_response: responses.phq2_q2,
         phq2_score: (responses.phq2_q1 || 0) + (responses.phq2_q2 || 0),
         gad2_q1_response: responses.gad2_q1,
         gad2_q2_response: responses.gad2_q2,
         gad2_score: (responses.gad2_q1 || 0) + (responses.gad2_q2 || 0),
-        completed_sections: JSON.stringify(Array.from(completedSections)),
+        completed_sections: JSON.stringify(['mood', 'wellness', 'assessments']),
         is_complete: true
       };
 
-      const { error } = await supabase
-        .from('daily_checkins')
-        .upsert(checkinData);
+      console.log('Prepared checkin data:', checkinData);
 
-      if (error) throw error;
+      const { data, error } = await supabase
+        .from('daily_checkins')
+        .upsert(checkinData, {
+          onConflict: 'user_id,checkin_date'
+        })
+        .select();
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      console.log('Successfully saved check-in:', data);
 
       // Mark as completed
       setExistingCheckin(checkinData);

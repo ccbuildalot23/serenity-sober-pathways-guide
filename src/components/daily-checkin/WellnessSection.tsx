@@ -32,7 +32,7 @@ export const WellnessSection: React.FC<WellnessSectionProps> = ({
   onSupportNeededChange,
   onSectionComplete
 }) => {
-  // Check if section is complete whenever values change
+  // Check if section is complete whenever values change - support checkbox is optional
   useEffect(() => {
     if (energy !== null && 
         hope !== null && 

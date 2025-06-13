@@ -99,7 +99,19 @@ export const useRecoveryGoals = () => {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    setGoals(data || []);
+    
+    // Transform the data to match our interface
+    const transformedGoals: RecoveryGoal[] = (data || []).map(goal => ({
+      ...goal,
+      category: goal.category as RecoveryGoal['category'],
+      priority: goal.priority as RecoveryGoal['priority'],
+      status: goal.status as RecoveryGoal['status'],
+      reminder_frequency: goal.reminder_frequency as RecoveryGoal['reminder_frequency'],
+      milestones: Array.isArray(goal.milestones) ? goal.milestones as Milestone[] : [],
+      tags: Array.isArray(goal.tags) ? goal.tags as string[] : []
+    }));
+    
+    setGoals(transformedGoals);
   };
 
   const loadGoalTemplates = async () => {
@@ -109,7 +121,16 @@ export const useRecoveryGoals = () => {
       .order('category', { ascending: true });
 
     if (error) throw error;
-    setGoalTemplates(data || []);
+    
+    // Transform the data to match our interface
+    const transformedTemplates: GoalTemplate[] = (data || []).map(template => ({
+      ...template,
+      category: template.category as RecoveryGoal['category'],
+      suggested_milestones: Array.isArray(template.suggested_milestones) ? template.suggested_milestones as Omit<Milestone, 'id' | 'completed' | 'completed_at'>[] : [],
+      tags: Array.isArray(template.tags) ? template.tags as string[] : []
+    }));
+    
+    setGoalTemplates(transformedTemplates);
   };
 
   const loadGoalProgress = async () => {

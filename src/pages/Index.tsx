@@ -80,7 +80,7 @@ const Index = () => {
           <QuickActions />
 
           {/* Weekly Goals Progress */}
-          <WeeklyGoals goals={stats.goals} />
+          <WeeklyGoals />
 
           {/* Quick Access to Crisis Tools */}
           <CrisisSupport />

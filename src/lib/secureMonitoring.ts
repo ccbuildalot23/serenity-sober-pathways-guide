@@ -1,10 +1,10 @@
 /**
- * Enhanced Security Monitoring Service
- * Provides real-time security event tracking and analysis
+ * Enhanced Security Monitoring Service - Production Optimized
+ * Provides real-time security event tracking with reduced verbosity
  */
 export class SecureMonitoring {
-  private static readonly MAX_FAILED_ATTEMPTS = 10; // Increased from 5 to 10
-  private static readonly RATE_LIMIT_WINDOW = 30 * 60 * 1000; // Increased from 15 to 30 minutes
+  private static readonly MAX_FAILED_ATTEMPTS = 10;
+  private static readonly RATE_LIMIT_WINDOW = 30 * 60 * 1000; // 30 minutes
   private static failedAttempts = new Map<string, number[]>();
   private static suspiciousActivity = new Map<string, any[]>();
 
@@ -21,9 +21,9 @@ export class SecureMonitoring {
       const recentAttempts = attempts.filter(time => now - time < this.RATE_LIMIT_WINDOW);
       this.failedAttempts.set(key, recentAttempts);
       
-      // Check if user is under attack (more lenient threshold)
+      // Check if user should be rate limited
       if (recentAttempts.length >= this.MAX_FAILED_ATTEMPTS) {
-        this.logSecurityThreat('BRUTE_FORCE_ATTEMPT', {
+        this.logSecurityThreat('AUTHENTICATION_BRUTE_FORCE', {
           email,
           attemptCount: recentAttempts.length,
           timeWindow: this.RATE_LIMIT_WINDOW
@@ -51,25 +51,28 @@ export class SecureMonitoring {
     );
     this.suspiciousActivity.set(key, recentActivities);
     
-    // Analyze patterns (more lenient threshold)
-    if (recentActivities.length > 20) { // Increased from 10 to 20
+    // Analyze patterns with higher threshold for production
+    if (recentActivities.length > 25) {
       this.logSecurityThreat('SUSPICIOUS_PATTERN_DETECTED', {
         type,
         count: recentActivities.length,
-        recentDetails: recentActivities.slice(-5)
+        recentDetails: recentActivities.slice(-3) // Only log last 3 events
       });
     }
   }
 
   static trackPageAccess() {
-    const sensitivePages = ['/crisis', '/profile']; // Removed /auth from sensitive pages
+    const sensitivePages = ['/crisis', '/profile'];
     const currentPath = window.location.pathname;
     
     if (sensitivePages.some(page => currentPath.includes(page))) {
-      this.logSecurityEvent('SENSITIVE_PAGE_ACCESS', {
-        page: currentPath,
-        timestamp: new Date().toISOString()
-      });
+      // Only log in development mode to reduce noise
+      if (import.meta.env.DEV) {
+        this.logSecurityEvent('SENSITIVE_PAGE_ACCESS', {
+          page: currentPath,
+          timestamp: new Date().toISOString()
+        });
+      }
     }
   }
 
@@ -79,7 +82,7 @@ export class SecureMonitoring {
       return;
     }
 
-    // Detect console manipulation attempts
+    // Detect console manipulation attempts with less aggressive checking
     let devtools = { open: false, orientation: null };
     const threshold = 160;
 
@@ -102,16 +105,17 @@ export class SecureMonitoring {
       }
     };
 
-    setInterval(checkDevTools, 1000); // Less frequent checking
+    // Check less frequently in production
+    setInterval(checkDevTools, 5000);
   }
 
   private static logSecurityEvent(event: string, details: any = {}) {
-    // Only log in development for debugging, reduce noise in production
-    if (import.meta.env.DEV) {
-      console.log(`Security Monitor: ${event}`, details);
+    // Only log critical events in production to reduce noise
+    if (import.meta.env.PROD && !event.includes('THREAT') && !event.includes('VIOLATION')) {
+      return;
     }
     
-    // Store in local monitoring log
+    // Store in local monitoring log with size limits
     try {
       const monitoringLogs = JSON.parse(localStorage.getItem('security_monitoring') || '[]');
       monitoringLogs.push({
@@ -120,9 +124,9 @@ export class SecureMonitoring {
         ...details
       });
       
-      // Keep only last 50 monitoring events (reduced from 100)
-      if (monitoringLogs.length > 50) {
-        monitoringLogs.splice(0, monitoringLogs.length - 50);
+      // Keep only last 25 monitoring events to prevent storage bloat
+      if (monitoringLogs.length > 25) {
+        monitoringLogs.splice(0, monitoringLogs.length - 25);
       }
       
       localStorage.setItem('security_monitoring', JSON.stringify(monitoringLogs));
@@ -135,8 +139,10 @@ export class SecureMonitoring {
     console.warn(`SECURITY THREAT DETECTED: ${threat}`, details);
     this.logSecurityEvent(`THREAT_${threat}`, details);
     
-    // Additional threat response could be implemented here
-    // such as temporarily blocking IP, showing CAPTCHA, etc.
+    // In production, could integrate with external security monitoring service
+    if (import.meta.env.PROD) {
+      // TODO: Send to external security monitoring service
+    }
   }
 
   static getMonitoringData() {

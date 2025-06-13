@@ -18,7 +18,7 @@ export class EnhancedSecurityHeaders {
       "font-src 'self' https://fonts.gstatic.com data:",
       "img-src 'self' data: blob: https:",
       // Stricter connect-src - only allow specific Supabase endpoints
-      "connect-src 'self' https://tqyiqstpvwztvofrxpuf.supabase.co/rest/v1/ https://tqyiqstpvwztvofrxpuf.supabase.co/auth/v1/ https://tqyiqstpvwztvofrxpuf.supabase.co/realtime/v1/ wss://tqyiqstpvwztvofrxpuf.supabase.co/realtime/v1/websocket",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
       "frame-src 'none'",
       "object-src 'none'",
       "base-uri 'self'",
@@ -52,7 +52,9 @@ export class EnhancedSecurityHeaders {
     // Store nonce for potential use
     this.setNonce(nonce);
     
-    console.log('Enhanced security headers applied with stricter CSP and session management');
+    if (import.meta.env.DEV) {
+      console.log('Enhanced security headers applied with stricter CSP and session management');
+    }
   }
 
   private static generateDeviceFingerprint(): void {
@@ -71,7 +73,9 @@ export class EnhancedSecurityHeaders {
       this.deviceFingerprint = btoa(fingerprint).substring(0, 32);
       localStorage.setItem('device_fp', this.deviceFingerprint);
       
-      console.log('Device fingerprint generated for session validation');
+      if (import.meta.env.DEV) {
+        console.log('Device fingerprint generated for session validation');
+      }
     } catch (error) {
       console.warn('Could not generate device fingerprint:', error);
     }
@@ -110,7 +114,9 @@ export class EnhancedSecurityHeaders {
   }
 
   private static handleSessionTimeout(): void {
-    console.warn('Session timeout - redirecting to login');
+    if (import.meta.env.DEV) {
+      console.warn('Session timeout - cleaning up authentication state');
+    }
     
     // Clear session data
     Object.keys(localStorage).forEach((key) => {

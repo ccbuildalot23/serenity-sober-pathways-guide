@@ -1,57 +1,47 @@
 
 import React from 'react';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Clock, Shield } from 'lucide-react';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { AlertTriangle } from 'lucide-react';
 
 interface SessionWarningDialogProps {
   open: boolean;
-  onExtend: () => void;
-  onLogout: () => void;
+  onExtendSession: () => void;
+  onSignOut: () => void;
 }
 
 export const SessionWarningDialog: React.FC<SessionWarningDialogProps> = ({
   open,
-  onExtend,
-  onLogout
+  onExtendSession,
+  onSignOut
 }) => {
   return (
-    <AlertDialog open={open}>
-      <AlertDialogContent className="max-w-md">
-        <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-center gap-2 text-amber-600">
-            <Clock className="w-5 h-5" />
+    <Dialog open={open}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-amber-500" />
             Session Expiring Soon
-          </AlertDialogTitle>
-          <AlertDialogDescription className="space-y-2">
-            <div className="flex items-start gap-2">
-              <Shield className="w-4 h-4 mt-0.5 text-amber-500" />
-              <div>
-                <p>Your session will expire in less than 5 minutes for security purposes.</p>
-                <p className="text-sm text-gray-600 mt-1">
-                  This helps protect your sensitive recovery data from unauthorized access.
-                </p>
-              </div>
-            </div>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={onLogout}>
-            Logout Now
-          </AlertDialogCancel>
-          <AlertDialogAction onClick={onExtend} className="bg-blue-600 hover:bg-blue-700">
+          </DialogTitle>
+          <DialogDescription>
+            Your session will expire in 5 minutes due to inactivity. Would you like to extend your session?
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex gap-3 justify-end">
+          <Button variant="outline" onClick={onSignOut}>
+            Sign Out
+          </Button>
+          <Button onClick={onExtendSession}>
             Extend Session
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };

@@ -470,6 +470,83 @@ export type Database = {
         }
         Relationships: []
       }
+      goal_progress: {
+        Row: {
+          confidence_rating: number | null
+          created_at: string
+          date: string
+          goal_id: string
+          id: string
+          mood_rating: number | null
+          notes: string | null
+          user_id: string
+          value: number
+        }
+        Insert: {
+          confidence_rating?: number | null
+          created_at?: string
+          date: string
+          goal_id: string
+          id?: string
+          mood_rating?: number | null
+          notes?: string | null
+          user_id: string
+          value: number
+        }
+        Update: {
+          confidence_rating?: number | null
+          created_at?: string
+          date?: string
+          goal_id?: string
+          id?: string
+          mood_rating?: number | null
+          notes?: string | null
+          user_id?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_progress_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "recovery_goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goal_templates: {
+        Row: {
+          category: string
+          created_at: string
+          default_duration_days: number | null
+          description: string
+          id: string
+          suggested_milestones: Json | null
+          tags: Json | null
+          title: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          default_duration_days?: number | null
+          description: string
+          id?: string
+          suggested_milestones?: Json | null
+          tags?: Json | null
+          title: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          default_duration_days?: number | null
+          description?: string
+          id?: string
+          suggested_milestones?: Json | null
+          tags?: Json | null
+          title?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           assessment_reminder_time: string | null
@@ -515,6 +592,75 @@ export type Database = {
           recovery_start_date?: string | null
           timezone?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      recovery_goals: {
+        Row: {
+          accountability_partner_id: string | null
+          category: string
+          completed_at: string | null
+          created_at: string
+          current_value: number | null
+          description: string
+          id: string
+          milestones: Json | null
+          next_reminder: string | null
+          pause_reason: string | null
+          priority: string
+          progress: number | null
+          reminder_frequency: string | null
+          status: string
+          tags: Json | null
+          target_date: string
+          target_value: number | null
+          title: string
+          unit: string | null
+          user_id: string
+        }
+        Insert: {
+          accountability_partner_id?: string | null
+          category: string
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number | null
+          description: string
+          id?: string
+          milestones?: Json | null
+          next_reminder?: string | null
+          pause_reason?: string | null
+          priority: string
+          progress?: number | null
+          reminder_frequency?: string | null
+          status?: string
+          tags?: Json | null
+          target_date: string
+          target_value?: number | null
+          title: string
+          unit?: string | null
+          user_id: string
+        }
+        Update: {
+          accountability_partner_id?: string | null
+          category?: string
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number | null
+          description?: string
+          id?: string
+          milestones?: Json | null
+          next_reminder?: string | null
+          pause_reason?: string | null
+          priority?: string
+          progress?: number | null
+          reminder_frequency?: string | null
+          status?: string
+          tags?: Json | null
+          target_date?: string
+          target_value?: number | null
+          title?: string
+          unit?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -884,6 +1030,10 @@ export type Database = {
       }
       log_security_violation: {
         Args: { violation_type: string; details?: Json }
+        Returns: undefined
+      }
+      notify_partner: {
+        Args: { partner_id: string; notification_type: string; data: Json }
         Returns: undefined
       }
     }

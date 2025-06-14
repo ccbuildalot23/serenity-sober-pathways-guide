@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
-import CalendarHeader from '@/components/calendar/CalendarHeader';
 import CalendarGrid from '@/components/calendar/CalendarGrid';
 import CalendarInsights from '@/components/calendar/CalendarInsights';
 import DayDetailSheet from '@/components/calendar/DayDetailSheet';
@@ -104,7 +103,16 @@ const Calendar: React.FC = () => {
   return (
     <Layout activeTab="calendar" onTabChange={() => {}}>
       <div className="p-4 space-y-6">
-        <CalendarHeader onExport={handleExport} />
+        {/* Simple header since CalendarHeader was removed */}
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Calendar</h1>
+          <button 
+            onClick={handleExport}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Export
+          </button>
+        </div>
         
         <CalendarGrid
           selectedDate={selectedDate}

@@ -119,7 +119,7 @@ const EnhancedCalendar: React.FC<{
 
         if (error) throw error;
         
-        const transformedData = (checkins || []).map((entry: any) => ({
+        const transformedData = (checkins || []).map((entry: any): MoodEntry => ({
           id: entry.id,
           date: new Date(entry.checkin_date),
           mood_rating: entry.mood_rating || 5,

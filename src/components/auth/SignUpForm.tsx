@@ -1,235 +1,223 @@
 
 import React, { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { SecurityHeaders } from '@/lib/securityHeaders';
-import { SecureMonitoring } from '@/lib/secureMonitoring';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2, Mail, Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
 
 interface SignUpFormProps {
   onSuccess?: () => void;
 }
 
 export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess }) => {
+  const { signUp } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  // Enhanced auth state cleanup
-  const cleanupAuthState = () => {
-    Object.keys(localStorage).forEach((key) => {
-      if (key.startsWith('supabase.auth.') || key.includes('sb-') || key.includes('supabase-auth')) {
-        localStorage.removeItem(key);
-      }
-    });
-    
-    Object.keys(sessionStorage || {}).forEach((key) => {
-      if (key.startsWith('supabase.auth.') || key.includes('sb-') || key.includes('supabase-auth')) {
-        sessionStorage.removeItem(key);
-      }
-    });
-    
-    SecurityHeaders.logSecurityEvent('AUTH_STATE_CLEANED');
+  const validatePassword = (password: string): string | null => {
+    if (password.length < 6) {
+      return 'Password must be at least 6 characters long';
+    }
+    return null;
   };
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Enhanced input sanitization and validation
-    const sanitizedEmail = SecurityHeaders.sanitizeUserInput(email.trim().toLowerCase());
-    const sanitizedFullName = SecurityHeaders.sanitizeUserInput(fullName.trim());
-    const sanitizedPassword = password.trim();
-    const sanitizedConfirmPassword = confirmPassword.trim();
-    
-    if (!sanitizedEmail || !sanitizedPassword || !sanitizedFullName || !sanitizedConfirmPassword) {
-      toast({
-        title: "Error",
-        description: "Please fill in all fields",
-        variant: "destructive",
-      });
+  const handleSubmit = async () => {
+    setError(null);
+    setSuccess(false);
+
+    // Basic validation
+    if (!email || !password || !confirmPassword) {
+      setError('Please fill in all fields');
       return;
     }
 
-    // Enhanced email validation
+    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(sanitizedEmail)) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid email address",
-        variant: "destructive",
-      });
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address');
       return;
     }
 
-    // Password confirmation check
-    if (sanitizedPassword !== sanitizedConfirmPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords do not match",
-        variant: "destructive",
-      });
+    // Password validation
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
 
-    // Enhanced password validation
-    if (sanitizedPassword.length < 8) {
-      toast({
-        title: "Error",
-        description: "Password must be at least 8 characters long",
-        variant: "destructive",
-      });
+    // Confirm password match
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
       return;
     }
 
-    // Check for basic password complexity
-    const hasUpperCase = /[A-Z]/.test(sanitizedPassword);
-    const hasLowerCase = /[a-z]/.test(sanitizedPassword);
-    const hasNumbers = /\d/.test(sanitizedPassword);
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(sanitizedPassword);
-
-    if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
-      toast({
-        title: "Error",
-        description: "Password must contain uppercase, lowercase, numbers, and special characters",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Check for common weak passwords
-    const commonPasswords = ['Password123!', '12345678!', 'Qwerty123!'];
-    if (commonPasswords.includes(sanitizedPassword)) {
-      toast({
-        title: "Error",
-        description: "Please choose a more unique password",
-        variant: "destructive",
-      });
-      return;
-    }
+    setIsLoading(true);
 
     try {
-      setLoading(true);
-      SecurityHeaders.logSecurityEvent('SIGNUP_ATTEMPT', { email: sanitizedEmail });
+      const { error } = await signUp(email, password);
       
-      // Clean up existing state
-      cleanupAuthState();
-      
-      // Attempt global sign out first
-      try {
-        await supabase.auth.signOut({ scope: 'global' });
-      } catch (err) {
-        // Continue even if this fails
-        console.log('Global signout attempt completed');
-      }
-
-      const { data, error } = await supabase.auth.signUp({
-        email: sanitizedEmail,
-        password: sanitizedPassword,
-        options: {
-          data: {
-            full_name: sanitizedFullName,
-          },
-          emailRedirectTo: `${window.location.origin}/`
-        }
-      });
-
       if (error) {
-        SecurityHeaders.logSecurityEvent('SIGNUP_FAILED', { error: error.message });
-        SecureMonitoring.trackSuspiciousActivity('SIGNUP_FAILURE', { email: sanitizedEmail, error: error.message });
-        throw error;
+        // Handle specific Supabase errors
+        if (error.message?.includes('User already registered')) {
+          setError('An account with this email already exists');
+        } else if (error.message?.includes('Invalid email')) {
+          setError('Please enter a valid email address');
+        } else {
+          setError(error.message || 'Failed to create account. Please try again.');
+        }
+      } else {
+        setSuccess(true);
+        // Clear form
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+        
+        // Call onSuccess callback after a short delay
+        setTimeout(() => {
+          onSuccess?.();
+        }, 2000);
       }
-
-      if (data.user) {
-        SecurityHeaders.logSecurityEvent('SIGNUP_SUCCESS', { userId: data.user.id });
-        toast({
-          title: "Success",
-          description: "Account created successfully! Please check your email to verify your account.",
-        });
-        onSuccess?.();
-      }
-    } catch (error: any) {
-      console.error('Sign up error:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create account",
-        variant: "destructive",
-      });
+    } catch (err) {
+      console.error('Sign up error:', err);
+      setError('An unexpected error occurred. Please try again.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !isLoading) {
+      handleSubmit();
+    }
+  };
+
+  if (success) {
+    return (
+      <Card className="w-full">
+        <CardContent className="pt-6">
+          <div className="text-center space-y-4">
+            <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center">
+              <CheckCircle className="w-8 h-8 text-green-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-green-800">Account Created!</h3>
+            <p className="text-sm text-gray-600">
+              Please check your email to verify your account before signing in.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <form onSubmit={handleSignUp} className="space-y-4">
-      <div>
-        <Label htmlFor="fullName">Full Name</Label>
-        <Input
-          id="fullName"
-          type="text"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          required
-          autoComplete="name"
-          disabled={loading}
-          maxLength={100}
-        />
-      </div>
-      
-      <div>
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          autoComplete="email"
-          disabled={loading}
-          maxLength={254}
-        />
-      </div>
-      
-      <div>
-        <Label htmlFor="password">Password</Label>
-        <Input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          autoComplete="new-password"
-          disabled={loading}
-          minLength={8}
-          maxLength={128}
-        />
-        <p className="text-xs text-gray-600 mt-1">
-          Must contain uppercase, lowercase, numbers, and special characters. Avoid common passwords.
-        </p>
-      </div>
-      
-      <div>
-        <Label htmlFor="confirmPassword">Confirm Password</Label>
-        <Input
-          id="confirmPassword"
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-          autoComplete="new-password"
-          disabled={loading}
-          minLength={8}
-          maxLength={128}
-        />
-      </div>
-      
-      <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? 'Creating account...' : 'Create Account'}
-      </Button>
-    </form>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Create Account</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          <div className="space-y-2">
+            <Label htmlFor="signup-email">Email</Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                id="signup-email"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyPress={handleKeyPress}
+                disabled={isLoading}
+                className="pl-10"
+                autoComplete="email"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="signup-password">Password</Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                id="signup-password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyPress={handleKeyPress}
+                disabled={isLoading}
+                className="pl-10 pr-10"
+                autoComplete="new-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            <p className="text-xs text-gray-500">Must be at least 6 characters</p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="signup-confirm-password">Confirm Password</Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                id="signup-confirm-password"
+                type={showConfirmPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                onKeyPress={handleKeyPress}
+                disabled={isLoading}
+                className="pl-10 pr-10"
+                autoComplete="new-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                tabIndex={-1}
+              >
+                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+
+          <Button
+            onClick={handleSubmit}
+            className="w-full"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creating account...
+              </>
+            ) : (
+              'Create Account'
+            )}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };

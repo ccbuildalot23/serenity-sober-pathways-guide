@@ -1,6 +1,4 @@
-
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
 import { Home, Calendar, Users, BookOpen, User, Settings, Heart } from 'lucide-react';
 
 interface LayoutProps {
@@ -11,7 +9,8 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onProfileClick }) => {
-  const location = useLocation();
+  // Get current path without react-router
+  const currentPath = window.location.pathname;
   
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/' },
@@ -21,6 +20,11 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onPro
     { id: 'resources', label: 'Resources', icon: BookOpen, path: '/resources' },
     { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' },
   ];
+
+  const handleNavClick = (tab: any) => {
+    onTabChange(tab.id);
+    window.location.href = tab.path;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
@@ -50,13 +54,12 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onPro
           <div className="flex justify-around">
             {tabs.map((tab) => {
               const Icon = tab.icon;
-              const isActive = location.pathname === tab.path;
+              const isActive = currentPath === tab.path;
               
               return (
-                <Link
+                <button
                   key={tab.id}
-                  to={tab.path}
-                  onClick={() => onTabChange(tab.id)}
+                  onClick={() => handleNavClick(tab)}
                   className={`flex flex-col items-center py-3 px-2 text-xs font-medium transition-colors ${
                     isActive 
                       ? 'text-blue-600 dark:text-blue-400' 
@@ -65,7 +68,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onPro
                 >
                   <Icon className={`h-6 w-6 mb-1 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'}`} />
                   {tab.label}
-                </Link>
+                </button>
               );
             })}
           </div>

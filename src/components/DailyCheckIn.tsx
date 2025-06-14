@@ -6,7 +6,6 @@ import { Calendar, Heart, Brain, TrendingUp, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
 import { useRealtimeUpdates } from '@/hooks/useRealtimeUpdates';
 import { useDailyCheckIn } from '@/hooks/useDailyCheckIn';
 import { MoodSection } from './daily-checkin/MoodSection';
@@ -20,7 +19,6 @@ import { analyzePatterns } from '@/utils/patternAnalysis';
 
 const DailyCheckIn = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [currentTab, setCurrentTab] = useState('mood');
   const [showCelebration, setShowCelebration] = useState(false);
 
@@ -88,7 +86,6 @@ const DailyCheckIn = () => {
         onClick: () => navigate('/crisis-toolkit')
       }
     });
-    navigate('/crisis-toolkit');
   };
 
   // Handler for showing interventions
@@ -193,6 +190,10 @@ const DailyCheckIn = () => {
 
   const handleCloseCelebration = () => {
     setShowCelebration(false);
+  };
+
+  const navigate = (path: string) => {
+    window.location.href = path;
   };
 
   return (

@@ -1,12 +1,16 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { TrendingUp, Calendar } from 'lucide-react';
 
 interface DashboardStatsProps {
   stats: {
     streak: number;
     checkIns: number;
-    goals: { completed: number; total: number };
+    goals: {
+      completed: number;
+      total: number;
+    };
   };
 }
 
@@ -15,13 +19,16 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ stats }) => {
     <div className="grid grid-cols-2 gap-4">
       <Card>
         <CardContent className="p-4 text-center">
-          <div className="text-2xl font-bold text-[#10B981]">{stats.streak}</div>
+          <TrendingUp className="h-8 w-8 mx-auto text-emerald-600 mb-2" />
+          <div className="text-2xl font-bold">{stats.streak}</div>
           <div className="text-sm text-gray-600">Day Streak</div>
         </CardContent>
       </Card>
+      
       <Card>
         <CardContent className="p-4 text-center">
-          <div className="text-2xl font-bold text-[#1E3A8A]">{stats.checkIns}</div>
+          <Calendar className="h-8 w-8 mx-auto text-blue-600 mb-2" />
+          <div className="text-2xl font-bold">{stats.checkIns}</div>
           <div className="text-sm text-gray-600">Check-ins</div>
         </CardContent>
       </Card>

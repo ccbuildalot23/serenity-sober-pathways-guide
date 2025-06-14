@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { dashboardDataService } from '@/services/dashboardDataService';
@@ -25,74 +24,51 @@ export const useDashboardData = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [hasFetched, setHasFetched] = useState(false);
 
   const fetchData = useCallback(async () => {
-    if (!user?.id || hasFetched) {
+    if (!user?.id) {
       setLoading(false);
       return;
     }
 
-    console.log('Starting dashboard data fetch for user:', user.id);
-    setLoading(true);
-    setError(null);
-
+    console.log('Fetching dashboard data for user:', user.id);
+    
     try {
-      // Add timeout to prevent hanging
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timeout')), 10000)
-      );
-
-      const dataPromise = Promise.all([
+      const [statsData, profileData] = await Promise.all([
         dashboardDataService.getUserStats(user.id),
         dashboardDataService.getUserProfile(user.id)
       ]);
-
-      const [statsData, profileData] = await Promise.race([dataPromise, timeoutPromise]) as [DashboardStats, UserProfile | null];
       
-      console.log('Dashboard data fetched successfully:', { statsData, profileData });
+      console.log('Dashboard data fetched:', { statsData, profileData });
       setStats(statsData);
       setProfile(profileData);
-      setHasFetched(true);
+      setError(null);
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
       setError('Failed to load dashboard data');
       
-      // Don't show toast for timeout errors to avoid spam
-      if (!(err as Error).message.includes('timeout')) {
-        toast.error('Failed to load dashboard data', {
-          action: {
-            label: 'Retry',
-            onClick: () => {
-              setHasFetched(false);
-              fetchData();
-            }
-          }
-        });
-      }
+      // Set default values to prevent blank screen
+      setStats({
+        streak: 0,
+        checkIns: 0,
+        goals: { completed: 0, total: 0 }
+      });
     } finally {
       setLoading(false);
     }
-  }, [user?.id, hasFetched]);
+  }, [user?.id]);
 
   const refreshStats = useCallback(() => {
     if (user?.id) {
       console.log('Refreshing dashboard stats');
-      setHasFetched(false);
       setLoading(true);
+      fetchData();
     }
-  }, [user?.id]);
+  }, [user?.id, fetchData]);
 
   useEffect(() => {
-    if (user?.id && !hasFetched) {
-      // Small delay to prevent immediate execution
-      const timer = setTimeout(() => {
-        fetchData();
-      }, 100);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [user?.id, hasFetched, fetchData]);
+    fetchData();
+  }, [fetchData]);
 
   return {
     stats,

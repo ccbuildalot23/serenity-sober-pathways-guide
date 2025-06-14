@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -150,7 +149,7 @@ const DailyCheckIn = () => {
     markSectionComplete('wellness');
   };
 
-  const handleRecoveryStrengthChange = (value: number) => {
+  const handleRecoveryStrengthChange = (value: string) => {
     setResponses(prev => ({ ...prev, recovery_strength: value }));
     markSectionComplete('wellness');
   };

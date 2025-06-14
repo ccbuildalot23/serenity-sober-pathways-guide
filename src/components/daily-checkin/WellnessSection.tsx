@@ -1,18 +1,22 @@
-
-import React, { useEffect } from 'react';
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Slider } from '@/components/ui/slider';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface WellnessSectionProps {
   energy: number | null;
   hope: number | null;
   sobrietyConfidence: number | null;
   recoveryImportance: number | null;
-  recoveryStrength: number | null;
+  recoveryStrength: string | null;
   supportNeeded: boolean;
   onEnergyChange: (value: number) => void;
   onHopeChange: (value: number) => void;
   onSobrietyConfidenceChange: (value: number) => void;
   onRecoveryImportanceChange: (value: number) => void;
-  onRecoveryStrengthChange: (value: number) => void;
+  onRecoveryStrengthChange: (value: string) => void;
   onSupportNeededChange: (checked: boolean) => void;
   onSectionComplete?: () => void;
 }
@@ -32,144 +36,100 @@ export const WellnessSection: React.FC<WellnessSectionProps> = ({
   onSupportNeededChange,
   onSectionComplete
 }) => {
-  // Check if section is complete whenever values change - support checkbox is optional
-  useEffect(() => {
-    if (energy !== null && 
-        hope !== null && 
-        sobrietyConfidence !== null && 
-        recoveryImportance !== null && 
-        recoveryStrength !== null) {
-      onSectionComplete?.();
+  const handleRecoveryStrengthChange = (value: string) => {
+    onRecoveryStrengthChange(value);
+    if (onSectionComplete) {
+      onSectionComplete();
     }
-  }, [energy, hope, sobrietyConfidence, recoveryImportance, recoveryStrength, onSectionComplete]);
-
-  const getFieldLabel = (value: number | null, fieldName: string) => {
-    if (value === null) return '';
-    return `${fieldName}: ${value}/10`;
   };
 
-  const isFieldRequired = (value: number | null) => value === null;
-
   return (
+    
     <div className="space-y-6">
-      <div>
-        <h3 className="text-xl font-semibold mb-2">Wellness Check</h3>
-        <p className="text-gray-600 mb-4">Rate these aspects of your well-being today.</p>
+      {/* Energy Slider */}
+      <div className="space-y-3">
+        <Label className="text-sm font-medium">Energy Level ({energy}/10)</Label>
+        <Slider
+          value={energy ? [energy] : [5]}
+          onValueChange={(value) => onEnergyChange(value[0])}
+          max={10}
+          min={1}
+          step={1}
+          className="w-full"
+        />
       </div>
 
-      <div className="space-y-5">
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Energy Level {isFieldRequired(energy) && <span className="text-red-500">*</span>}
-          </label>
-          <input
-            type="range"
-            min="1"
-            max="10"
-            value={energy || 5}
-            onChange={(e) => onEnergyChange(parseInt(e.target.value))}
-            className="w-full h-2 bg-blue-100 rounded-lg appearance-none cursor-pointer"
-            aria-label="Energy level from 1 to 10"
-          />
-          <div className="text-sm text-gray-500 text-center">
-            {energy ? getFieldLabel(energy, 'Energy') : 'Select your energy level'}
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Level of Hope {isFieldRequired(hope) && <span className="text-red-500">*</span>}
-          </label>
-          <input
-            type="range"
-            min="1"
-            max="10"
-            value={hope || 5}
-            onChange={(e) => onHopeChange(parseInt(e.target.value))}
-            className="w-full h-2 bg-blue-100 rounded-lg appearance-none cursor-pointer"
-            aria-label="Hope level from 1 to 10"
-          />
-          <div className="text-sm text-gray-500 text-center">
-            {hope ? getFieldLabel(hope, 'Hope') : 'Select your hope level'}
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Sobriety Confidence {isFieldRequired(sobrietyConfidence) && <span className="text-red-500">*</span>}
-          </label>
-          <input
-            type="range"
-            min="1"
-            max="10"
-            value={sobrietyConfidence || 5}
-            onChange={(e) => onSobrietyConfidenceChange(parseInt(e.target.value))}
-            className="w-full h-2 bg-blue-100 rounded-lg appearance-none cursor-pointer"
-            aria-label="Sobriety confidence from 1 to 10"
-          />
-          <div className="text-sm text-gray-500 text-center">
-            {sobrietyConfidence ? getFieldLabel(sobrietyConfidence, 'Sobriety Confidence') : 'Rate your confidence in staying sober'}
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Importance of Recovery {isFieldRequired(recoveryImportance) && <span className="text-red-500">*</span>}
-          </label>
-          <input
-            type="range"
-            min="1"
-            max="10"
-            value={recoveryImportance || 5}
-            onChange={(e) => onRecoveryImportanceChange(parseInt(e.target.value))}
-            className="w-full h-2 bg-blue-100 rounded-lg appearance-none cursor-pointer"
-            aria-label="Recovery importance from 1 to 10"
-          />
-          <div className="text-sm text-gray-500 text-center">
-            {recoveryImportance ? getFieldLabel(recoveryImportance, 'Recovery Importance') : 'How important is recovery to you today?'}
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Personal Recovery Strength {isFieldRequired(recoveryStrength) && <span className="text-red-500">*</span>}
-          </label>
-          <input
-            type="range"
-            min="1"
-            max="10"
-            value={recoveryStrength || 5}
-            onChange={(e) => onRecoveryStrengthChange(parseInt(e.target.value))}
-            className="w-full h-2 bg-blue-100 rounded-lg appearance-none cursor-pointer"
-            aria-label="Recovery strength from 1 to 10"
-          />
-          <div className="text-sm text-gray-500 text-center">
-            {recoveryStrength ? getFieldLabel(recoveryStrength, 'Recovery Strength') : 'How strong do you feel in your recovery today?'}
-          </div>
-        </div>
-
-        <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-          <input
-            type="checkbox"
-            id="supportNeeded"
-            checked={supportNeeded || false}
-            onChange={(e) => onSupportNeededChange(e.target.checked)}
-            className="h-5 w-5 rounded text-blue-500 focus:ring-blue-500 mt-1"
-            aria-describedby="support-help"
-          />
-          <div className="flex-1">
-            <label htmlFor="supportNeeded" className="text-sm font-medium text-gray-700 cursor-pointer">
-              I need extra support today
-            </label>
-            <p id="support-help" className="text-xs text-gray-500 mt-1">
-              Check this if you're feeling like you could use additional help or someone to talk to today.
-            </p>
-          </div>
-        </div>
+      {/* Hope Slider */}
+      <div className="space-y-3">
+        <Label className="text-sm font-medium">Hope Level ({hope}/10)</Label>
+        <Slider
+          value={hope ? [hope] : [5]}
+          onValueChange={(value) => onHopeChange(value[0])}
+          max={10}
+          min={1}
+          step={1}
+          className="w-full"
+        />
       </div>
 
-      <div className="text-xs text-gray-500">
-        <span className="text-red-500">*</span> Required fields
+      {/* Sobriety Confidence Slider */}
+      <div className="space-y-3">
+        <Label className="text-sm font-medium">Sobriety Confidence ({sobrietyConfidence}/10)</Label>
+        <Slider
+          value={sobrietyConfidence ? [sobrietyConfidence] : [5]}
+          onValueChange={(value) => onSobrietyConfidenceChange(value[0])}
+          max={10}
+          min={1}
+          step={1}
+          className="w-full"
+        />
+      </div>
+
+      {/* Recovery Importance Slider */}
+      <div className="space-y-3">
+        <Label className="text-sm font-medium">Recovery Importance ({recoveryImportance}/10)</Label>
+        <Slider
+          value={recoveryImportance ? [recoveryImportance] : [5]}
+          onValueChange={(value) => onRecoveryImportanceChange(value[0])}
+          max={10}
+          min={1}
+          step={1}
+          className="w-full"
+        />
+      </div>
+
+      {/* Recovery Strength Select */}
+      <div className="space-y-3">
+        <Label className="text-sm font-medium">Current Recovery Strength</Label>
+        <Select value={recoveryStrength || undefined} onValueChange={handleRecoveryStrengthChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select your current strength level" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="1">1 - Very Low</SelectItem>
+            <SelectItem value="2">2 - Low</SelectItem>
+            <SelectItem value="3">3 - Below Average</SelectItem>
+            <SelectItem value="4">4 - Somewhat Low</SelectItem>
+            <SelectItem value="5">5 - Average</SelectItem>
+            <SelectItem value="6">6 - Somewhat High</SelectItem>
+            <SelectItem value="7">7 - Above Average</SelectItem>
+            <SelectItem value="8">8 - High</SelectItem>
+            <SelectItem value="9">9 - Very High</SelectItem>
+            <SelectItem value="10">10 - Excellent</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Support Needed Checkbox */}
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="support-needed"
+          checked={supportNeeded}
+          onCheckedChange={onSupportNeededChange}
+        />
+        <Label htmlFor="support-needed" className="text-sm font-medium">
+          I need additional support today
+        </Label>
       </div>
     </div>
   );

@@ -24,7 +24,7 @@ const QuickCheckIn: React.FC<QuickCheckInProps> = ({ onCheckInComplete }) => {
       hope: 5,
       sobriety_confidence: 5,
       recovery_importance: 5,
-      recovery_strength: 5,
+      recovery_strength: "5", // Change from number to string
       support_needed: false,
       phq2_q1: 0,
       phq2_q2: 0,

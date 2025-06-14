@@ -22,6 +22,9 @@ export const useDailyCheckIn = () => {
     phq2_q2: null,
     gad2_q1: null,
     gad2_q2: null,
+    notes: '',
+    mood_triggers: [],
+    gratitude_entries: []
   });
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -113,7 +116,7 @@ export const useDailyCheckIn = () => {
       console.log('Submitting check-in data:', responses);
       
       const checkinData = checkinSubmissionService.prepareCheckinData(user.id, today, responses);
-      await checkinSubmissionService.submitCheckin(checkinData);
+      await checkinSubmissionService.submitCheckin(checkinData, responses);
 
       // Mark as completed
       setExistingCheckin(checkinData);

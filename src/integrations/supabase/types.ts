@@ -326,6 +326,7 @@ export type Database = {
           id: string
           is_complete: boolean | null
           mood_rating: number | null
+          notes: string | null
           phq2_q1_response: number | null
           phq2_q2_response: number | null
           phq2_score: number | null
@@ -347,6 +348,7 @@ export type Database = {
           id?: string
           is_complete?: boolean | null
           mood_rating?: number | null
+          notes?: string | null
           phq2_q1_response?: number | null
           phq2_q2_response?: number | null
           phq2_score?: number | null
@@ -368,6 +370,7 @@ export type Database = {
           id?: string
           is_complete?: boolean | null
           mood_rating?: number | null
+          notes?: string | null
           phq2_q1_response?: number | null
           phq2_q2_response?: number | null
           phq2_score?: number | null
@@ -546,6 +549,64 @@ export type Database = {
           title?: string
         }
         Relationships: []
+      }
+      gratitude_entries: {
+        Row: {
+          checkin_id: string | null
+          created_at: string | null
+          gratitude_text: string
+          id: string
+        }
+        Insert: {
+          checkin_id?: string | null
+          created_at?: string | null
+          gratitude_text: string
+          id?: string
+        }
+        Update: {
+          checkin_id?: string | null
+          created_at?: string | null
+          gratitude_text?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gratitude_entries_checkin_id_fkey"
+            columns: ["checkin_id"]
+            isOneToOne: false
+            referencedRelation: "daily_checkins"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mood_triggers: {
+        Row: {
+          checkin_id: string | null
+          created_at: string | null
+          id: string
+          trigger_name: string
+        }
+        Insert: {
+          checkin_id?: string | null
+          created_at?: string | null
+          id?: string
+          trigger_name: string
+        }
+        Update: {
+          checkin_id?: string | null
+          created_at?: string | null
+          id?: string
+          trigger_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mood_triggers_checkin_id_fkey"
+            columns: ["checkin_id"]
+            isOneToOne: false
+            referencedRelation: "daily_checkins"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {

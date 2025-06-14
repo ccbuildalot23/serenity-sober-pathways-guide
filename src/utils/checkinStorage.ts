@@ -22,7 +22,28 @@ export const checkinStorage = {
     
     if (savedDraft) {
       try {
-        return JSON.parse(savedDraft);
+        const parsed = JSON.parse(savedDraft);
+        // Ensure new fields have default values
+        return {
+          ...parsed,
+          responses: {
+            mood: null,
+            energy: null,
+            hope: null,
+            sobriety_confidence: null,
+            recovery_importance: null,
+            recovery_strength: null,
+            support_needed: false,
+            phq2_q1: null,
+            phq2_q2: null,
+            gad2_q1: null,
+            gad2_q2: null,
+            notes: '',
+            mood_triggers: [],
+            gratitude_entries: [],
+            ...parsed.responses
+          }
+        };
       } catch (error) {
         console.error('Error loading draft responses:', error);
         return null;

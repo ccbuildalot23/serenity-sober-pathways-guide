@@ -11,6 +11,9 @@ export interface CheckinResponses {
   phq2_q2: number | null;
   gad2_q1: number | null;
   gad2_q2: number | null;
+  notes?: string;
+  mood_triggers?: string[];
+  gratitude_entries?: string[];
 }
 
 export interface CheckinDraft {
@@ -37,4 +40,19 @@ export interface CheckinData {
   gad2_score: number;
   completed_sections: string;
   is_complete: boolean;
+  notes?: string;
+}
+
+export interface MoodTrigger {
+  id: string;
+  checkin_id: string;
+  trigger_name: string;
+  created_at: string;
+}
+
+export interface GratitudeEntry {
+  id: string;
+  checkin_id: string;
+  gratitude_text: string;
+  created_at: string;
 }

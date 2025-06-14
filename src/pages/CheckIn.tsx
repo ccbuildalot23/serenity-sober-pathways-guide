@@ -37,6 +37,17 @@ const CheckIn = () => {
     localStorage.setItem('checkin-draft', JSON.stringify(responses));
   }, [responses]);
 
+  // Add keyboard navigation
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && canComplete()) {
+        handleSubmit();
+      }
+    };
+    window.addEventListener('keypress', handleKeyPress);
+    return () => window.removeEventListener('keypress', handleKeyPress);
+  }, [canComplete]);
+
   const progressPercentage = (completedSections.size / 3) * 100;
 
   const handleMoodChange = (value: number) => {

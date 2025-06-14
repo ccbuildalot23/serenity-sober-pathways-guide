@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -43,22 +44,12 @@ import {
 import { useCalendarFilters } from '@/hooks/useCalendarFilters';
 import { calculateMonthlyTrends, calculateTriggerCounts, getTopTriggers } from '@/utils/calendarAnalytics';
 import { exportToJSON, exportToCSV } from '@/utils/calendarExport';
+import { groupEntriesByDay, prepareChartData } from '@/utils/calendarUtils';
+import { MoodEntry } from '@/types/calendar';
 import CalendarFilters from './CalendarFilters';
 import CalendarGrid from './CalendarGrid';
 import CalendarInsights from './CalendarInsights';
 import DayDetailSheet from './DayDetailSheet';
-
-// Types
-interface MoodEntry {
-  id: string;
-  date: Date;
-  mood_rating: number;
-  energy_rating: number;
-  triggers: string[];
-  gratitude: string[];
-  notes: string;
-  created_at: Date;
-}
 
 interface MonthStats {
   totalEntries: number;
@@ -93,26 +84,6 @@ const startOfMonth = (date: Date): Date => {
 
 const endOfMonth = (date: Date): Date => {
   return new Date(date.getFullYear(), date.getMonth() + 1, 0);
-};
-
-const groupEntriesByDay = (entries: MoodEntry[]): Map<string, MoodEntry> => {
-  const map = new Map<string, MoodEntry>();
-  entries.forEach(entry => {
-    const key = formatDate(entry.date, 'yyyy-MM-dd');
-    map.set(key, entry);
-  });
-  return map;
-};
-
-const prepareChartData = (dayDataMap: Map<string, MoodEntry>) => {
-  const data = Array.from(dayDataMap.entries())
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, entry]) => ({
-      date: parseInt(date.split('-')[2]),
-      mood: entry.mood_rating,
-      energy: entry.energy_rating
-    }));
-  return data;
 };
 
 const calculateStreak = (entries: MoodEntry[]): number => {
@@ -170,7 +141,7 @@ const EnhancedCalendar: React.FC<{
   const { filters, setFilters, filteredEntries } = useCalendarFilters(monthEntries);
 
   // Get available triggers for filter
-  const availableTriggers = Array.from(new Set(monthEntries.flatMap(e => e.triggers)));
+  const availableTriggers = Array.from(new Set(monthEntries.flatMap(e => e.triggers || [])));
 
   // Simple notification system
   const showNotification = (type: 'success' | 'error', message: string) => {
@@ -286,14 +257,15 @@ const EnhancedCalendar: React.FC<{
   const handleDayClick = (date: Date) => {
     setSelectedDate(date);
     const dateKey = formatDate(date, 'yyyy-MM-dd');
-    if (dayDataMap.has(dateKey)) {
+    const dayData = dayDataMap.get(dateKey);
+    if (dayData && dayData.entries.length > 0) {
       setIsDayDetailOpen(true);
     } else {
       showNotification('error', 'No entry for this day');
     }
   };
 
-  const selectedDayData = selectedDate ? dayDataMap.get(formatDate(selectedDate, 'yyyy-MM-dd')) : undefined;
+  const selectedDayData = selectedDate ? dayDataMap.get(formatDate(selectedDate, 'yyyy-MM-dd'))?.entries[0] : undefined;
 
   // Enhanced export functionality
   const handleExport = async (format: 'csv' | 'json' = 'csv') => {

@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -85,6 +86,24 @@
   }
 }
 
+/* Dark mode text fixes */
+.dark input::placeholder {
+  color: #9ca3af !important;
+}
+
+.dark .text-gray-600 {
+  color: #d1d5db !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: #1f2937 !important;
+}
+
+.dark .bg-white {
+  background-color: #111827 !important;
+  color: #f3f4f6 !important;
+}
+
 @layer components {
   /* Improved button styling for better visibility */
   .btn-primary {
@@ -165,6 +184,14 @@
   .animate-celebration-glow {
     animation: celebration-glow 2s ease-in-out infinite;
   }
+
+  .animate-float {
+    animation: gentle-float 6s ease-in-out infinite;
+  }
+
+  .animate-soft-pulse {
+    animation: soft-pulse 4s ease-in-out infinite;
+  }
 }
 
 @keyframes gentle-pulse {
@@ -234,6 +261,25 @@
   }
 }
 
+/* New calming animations */
+@keyframes gentle-float {
+  0%, 100% { 
+    transform: translateY(0px); 
+  }
+  50% { 
+    transform: translateY(-10px); 
+  }
+}
+
+@keyframes soft-pulse {
+  0%, 100% { 
+    opacity: 1; 
+  }
+  50% { 
+    opacity: 0.8; 
+  }
+}
+
 /* Crisis Accessibility Styles */
 
 /* Large panic button mode */
@@ -296,7 +342,9 @@
   .animate-gentle-fade-in,
   .animate-gentle-fade-in-delayed,
   .animate-smooth-shake,
-  .animate-celebration-glow {
+  .animate-celebration-glow,
+  .animate-float,
+  .animate-soft-pulse {
     animation: none !important;
   }
 }

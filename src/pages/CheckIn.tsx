@@ -134,12 +134,12 @@ const CheckIn = () => {
           setResponses={setResponses}
           completedSections={completedSections}
           markSectionComplete={markSectionComplete}
-          canComplete={canComplete}
+          canComplete={canComplete()}
           checkWellnessCompletion={checkWellnessCompletion}
         />
 
         <CheckInCompletion
-          canComplete={canComplete}
+          canComplete={canComplete()}
           isSubmitting={isSubmitting}
           onSubmit={handleSubmit}
           isSaving={isSaving || false}

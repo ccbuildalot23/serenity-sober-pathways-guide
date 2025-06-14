@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Heart, CheckCircle, Calendar, TrendingUp, AlertCircle, Loader2, ArrowLeft, Save } from 'lucide-react';
@@ -31,6 +31,11 @@ const CheckIn = () => {
     existingCheckin,
     isSaving = false
   } = useDailyCheckIn();
+
+  // Save progress to localStorage as backup
+  useEffect(() => {
+    localStorage.setItem('checkin-draft', JSON.stringify(responses));
+  }, [responses]);
 
   const progressPercentage = (completedSections.size / 3) * 100;
 

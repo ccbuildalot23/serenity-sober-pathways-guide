@@ -5,17 +5,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { getMoodColorClass } from '@/utils/calendarUtils';
-import type { DayData } from '@/types/calendar';
+import type { CalendarGridProps, DayData } from '@/types/calendar';
 import CalendarLegend from './CalendarLegend';
-
-interface CalendarGridProps {
-  selectedDate?: Date;
-  selectedMonth: Date;
-  dayDataMap: Map<string, DayData>;
-  onDateSelect: (date: Date | undefined) => void;
-  onMonthChange: (month: Date) => void;
-  onDayClick: (date: Date) => void;
-}
 
 const CalendarGrid: React.FC<CalendarGridProps> = ({
   selectedDate,

@@ -21,3 +21,12 @@ export interface ChartDataPoint {
   mood: number;
   energy: number;
 }
+
+export interface CalendarGridProps {
+  selectedDate?: Date;
+  selectedMonth: Date;
+  dayDataMap: Map<string, DayData>;
+  onDateSelect: (date: Date | undefined) => void;
+  onMonthChange: (month: Date) => void;
+  onDayClick: (date: Date) => void;
+}

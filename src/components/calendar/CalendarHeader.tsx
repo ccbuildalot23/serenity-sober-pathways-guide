@@ -1,22 +1,22 @@
 
 import React from 'react';
-import { Download, Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Download, Calendar } from 'lucide-react';
 
 interface CalendarHeaderProps {
   onExport: () => void;
 }
 
-const CalendarHeader: React.FC<CalendarHeaderProps> = ({ onExport }) => {
+export const CalendarHeader: React.FC<CalendarHeaderProps> = ({ onExport }) => {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex justify-between items-center mb-6">
       <div className="flex items-center gap-2">
-        <CalendarIcon className="w-6 h-6 text-blue-900" />
-        <h1 className="text-2xl font-bold text-blue-900">Recovery Calendar</h1>
+        <Calendar className="h-6 w-6" />
+        <h1 className="text-2xl font-bold">Mood Calendar</h1>
       </div>
-      <Button onClick={onExport} variant="outline" className="flex items-center gap-2">
-        <Download className="w-4 h-4" />
-        Export Report
+      <Button onClick={onExport} variant="outline" size="sm">
+        <Download className="h-4 w-4 mr-2" />
+        Export Month
       </Button>
     </div>
   );

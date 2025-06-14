@@ -1,100 +1,118 @@
 
 import React from 'react';
-import { TrendingUp, Target } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { cn } from '@/lib/utils';
-import { getMoodColorClass } from '@/utils/calendarUtils';
-import type { ChartDataPoint } from '@/types/calendar';
+import { TrendingUp, Brain, Zap, Target } from 'lucide-react';
 
 interface CalendarInsightsProps {
-  chartData: ChartDataPoint[];
-  totalEntries: number;
-  averageMood: number;
-  topTriggers: [string, number][];
+  chartData: any[];
+  monthStats: {
+    totalEntries: number;
+    averageMood: string;
+    averageEnergy: string;
+    streakDays: number;
+    topTriggers: Array<{name: string; count: number}>;
+  };
 }
 
-const CalendarInsights: React.FC<CalendarInsightsProps> = ({
-  chartData,
-  totalEntries,
-  averageMood,
-  topTriggers
-}) => {
+const CalendarInsights: React.FC<CalendarInsightsProps> = ({ chartData, monthStats }) => {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* Mood Trend Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5" />
-            Mood Trend
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {chartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={chartData}>
-                <XAxis dataKey="date" />
-                <YAxis domain={[1, 10]} />
-                <Tooltip />
-                <Line 
-                  type="monotone" 
-                  dataKey="mood" 
-                  stroke="#1E3A8A" 
-                  strokeWidth={2}
-                  dot={{ fill: '#1E3A8A' }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="h-200 flex items-center justify-center text-gray-500">
-              No data available
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Insights Panel */}
-      <Card className="bg-gray-50">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="w-5 h-5" />
-            Monthly Insights
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Average Mood */}
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Average Mood</span>
+    <div className="space-y-4">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold">{averageMood.toFixed(1)}</span>
-              <div className={cn("w-3 h-3 rounded-full", getMoodColorClass(averageMood))} />
+              <Target className="h-4 w-4 text-blue-500" />
+              <span className="text-sm text-gray-600">Entries</span>
             </div>
-          </div>
+            <p className="text-2xl font-bold mt-1">{monthStats.totalEntries}</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Brain className="h-4 w-4 text-purple-500" />
+              <span className="text-sm text-gray-600">Avg Mood</span>
+            </div>
+            <p className="text-2xl font-bold mt-1">{monthStats.averageMood}/10</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-yellow-500" />
+              <span className="text-sm text-gray-600">Avg Energy</span>
+            </div>
+            <p className="text-2xl font-bold mt-1">{monthStats.averageEnergy}/10</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-green-500" />
+              <span className="text-sm text-gray-600">Streak</span>
+            </div>
+            <p className="text-2xl font-bold mt-1">{monthStats.streakDays} days</p>
+          </CardContent>
+        </Card>
+      </div>
 
-          {/* Top Triggers */}
-          <div>
-            <span className="text-sm font-medium mb-2 block">Top Triggers</span>
-            <div className="space-y-1">
-              {topTriggers.length > 0 ? topTriggers.map(([trigger, count]) => (
-                <div key={trigger} className="flex items-center justify-between">
-                  <span className="text-sm capitalize">{trigger}</span>
-                  <Badge variant="secondary">{count}x</Badge>
+      {/* Chart */}
+      {chartData.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Mood & Energy Trends</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData}>
+                  <XAxis dataKey="date" />
+                  <YAxis domain={[0, 10]} />
+                  <Tooltip />
+                  <Line 
+                    type="monotone" 
+                    dataKey="mood" 
+                    stroke="#8b5cf6" 
+                    strokeWidth={2}
+                    name="Mood"
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="energy" 
+                    stroke="#eab308" 
+                    strokeWidth={2}
+                    name="Energy"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Top Triggers */}
+      {monthStats.topTriggers.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Common Triggers</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {monthStats.topTriggers.map((trigger, index) => (
+                <div key={index} className="flex justify-between items-center">
+                  <span className="text-sm">{trigger.name}</span>
+                  <span className="text-sm font-medium text-gray-600">{trigger.count}x</span>
                 </div>
-              )) : (
-                <span className="text-sm text-gray-500">No triggers logged</span>
-              )}
+              ))}
             </div>
-          </div>
-
-          {/* Entry Count */}
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Check-ins</span>
-            <span className="text-lg font-semibold">{totalEntries}</span>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

@@ -2,18 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
-import { groupEntriesByDay, prepareChartData, calculateTriggerCounts, getTopTriggers } from '@/utils/calendarUtils';
-import CalendarHeader from '@/components/calendar/CalendarHeader';
-import CalendarGrid from '@/components/calendar/CalendarGrid';
-import CalendarInsights from '@/components/calendar/CalendarInsights';
+import { CalendarHeader } from '@/components/calendar/CalendarHeader';
+import { CalendarGrid } from '@/components/calendar/CalendarGrid';
+import { CalendarInsights } from '@/components/calendar/CalendarInsights';
 import DayDetailSheet from '@/components/calendar/DayDetailSheet';
 import Layout from '@/components/Layout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import type { MoodEntry } from '@/types/calendar';
 
 const Calendar: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date>();
@@ -37,30 +32,40 @@ const Calendar: React.FC = () => {
 
       if (error) throw error;
       
-      // Transform to match MoodEntry type
-      return (data || []).map(entry => ({
-        id: entry.id,
-        date: new Date(entry.checkin_date),
-        mood_rating: entry.mood_rating || 5,
-        energy_rating: entry.energy_rating || 5,
-        triggers: [], // We don't have triggers in daily_checkins, could add later
-        gratitude: [], // We don't have gratitude in daily_checkins, could add later
-        notes: entry.support_needed || '',
-        created_at: new Date(entry.created_at)
-      }));
+      return data || [];
     },
     enabled: !!user?.id,
   });
 
-  // Process data
-  const dayDataMap = groupEntriesByDay(monthEntries);
-  const chartData = prepareChartData(dayDataMap);
+  // Process data for calendar
+  const dayDataMap = new Map();
+  const chartData: any[] = [];
   
-  // Calculate insights
-  const totalEntries = monthEntries.length;
-  const averageMood = totalEntries > 0 ? monthEntries.reduce((sum, e) => sum + e.mood_rating, 0) / totalEntries : 0;
-  const triggerCounts = calculateTriggerCounts(monthEntries);
-  const topTriggers = getTopTriggers(triggerCounts);
+  monthEntries.forEach(entry => {
+    const dateKey = entry.checkin_date;
+    dayDataMap.set(dateKey, {
+      ...entry,
+      averageMood: entry.mood_rating || 5,
+      entries: [entry]
+    });
+    
+    chartData.push({
+      date: format(new Date(entry.checkin_date), 'MMM dd'),
+      mood: entry.mood_rating || 5,
+      energy: entry.energy_rating || 5
+    });
+  });
+
+  // Calculate month stats
+  const monthStats = {
+    totalEntries: monthEntries.length,
+    averageMood: monthEntries.length > 0 ? 
+      (monthEntries.reduce((sum, e) => sum + (e.mood_rating || 5), 0) / monthEntries.length).toFixed(1) : '0.0',
+    averageEnergy: monthEntries.length > 0 ? 
+      (monthEntries.reduce((sum, e) => sum + (e.energy_rating || 5), 0) / monthEntries.length).toFixed(1) : '0.0',
+    streakDays: 0, // Could implement streak calculation
+    topTriggers: [] // Could implement trigger analysis
+  };
 
   const handleDayClick = (date: Date) => {
     setSelectedDate(date);
@@ -107,9 +112,7 @@ const Calendar: React.FC = () => {
 
         <CalendarInsights
           chartData={chartData}
-          totalEntries={totalEntries}
-          averageMood={averageMood}
-          topTriggers={topTriggers}
+          monthStats={monthStats}
         />
 
         <DayDetailSheet

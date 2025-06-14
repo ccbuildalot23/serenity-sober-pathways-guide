@@ -1,14 +1,5 @@
 
-interface MoodEntry {
-  id: string;
-  date: Date;
-  mood_rating: number;
-  energy_rating: number;
-  triggers: string[];
-  gratitude: string[];
-  notes: string;
-  created_at: Date;
-}
+import { MoodEntry } from '@/types/calendar';
 
 export async function exportToJSON(entries: MoodEntry[], monthName: string) {
   const { calculateTriggerCounts, getTopTriggers } = await import('./calendarAnalytics');
@@ -20,14 +11,14 @@ export async function exportToJSON(entries: MoodEntry[], monthName: string) {
     entries: entries.map(entry => ({
       date: entry.date.toISOString(),
       mood: entry.mood_rating,
-      energy: entry.energy_rating,
-      triggers: entry.triggers,
-      gratitude: entry.gratitude,
-      notes: entry.notes,
+      energy: entry.energy_rating || 0,
+      triggers: entry.triggers || [],
+      gratitude: entry.gratitude || [],
+      notes: entry.notes || '',
     })),
     summary: {
-      averageMood: entries.reduce((sum, e) => sum + e.mood_rating, 0) / entries.length,
-      averageEnergy: entries.reduce((sum, e) => sum + e.energy_rating, 0) / entries.length,
+      averageMood: entries.length > 0 ? entries.reduce((sum, e) => sum + e.mood_rating, 0) / entries.length : 0,
+      averageEnergy: entries.length > 0 ? entries.reduce((sum, e) => sum + (e.energy_rating || 0), 0) / entries.length : 0,
       commonTriggers: getTopTriggers(calculateTriggerCounts(entries), 3),
     },
   };
@@ -50,10 +41,10 @@ export async function exportToCSV(entries: MoodEntry[], monthName: string) {
   const csvRows = entries.map(entry => [
     entry.date.toISOString().split('T')[0],
     entry.mood_rating,
-    entry.energy_rating,
-    entry.triggers.join('; '),
-    entry.gratitude.join('; '),
-    entry.notes.replace(/"/g, '""')
+    entry.energy_rating || 0,
+    (entry.triggers || []).join('; '),
+    (entry.gratitude || []).join('; '),
+    (entry.notes || '').replace(/"/g, '""')
   ]);
 
   const csvContent = [

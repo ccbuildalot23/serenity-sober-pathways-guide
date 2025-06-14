@@ -134,7 +134,7 @@ const CheckIn = () => {
           setResponses={setResponses}
           completedSections={completedSections}
           markSectionComplete={markSectionComplete}
-          canComplete={canComplete()}
+          canComplete={canComplete}
           checkWellnessCompletion={checkWellnessCompletion}
         />
 

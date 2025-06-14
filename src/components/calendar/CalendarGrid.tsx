@@ -60,7 +60,7 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
             <div className="mt-1">
               <div className="h-1 w-full bg-gradient-to-r from-blue-400 to-green-400 rounded" 
                 style={{
-                  opacity: (entry.averageMood || entry.mood_rating || 5) / 10
+                  opacity: entry.averageMood / 10
                 }}
               />
             </div>

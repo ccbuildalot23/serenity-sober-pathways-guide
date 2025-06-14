@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
-import { CalendarHeader } from '@/components/calendar/CalendarHeader';
-import { CalendarGrid } from '@/components/calendar/CalendarGrid';
-import { CalendarInsights } from '@/components/calendar/CalendarInsights';
+import CalendarHeader from '@/components/calendar/CalendarHeader';
+import CalendarGrid from '@/components/calendar/CalendarGrid';
+import CalendarInsights from '@/components/calendar/CalendarInsights';
 import DayDetailSheet from '@/components/calendar/DayDetailSheet';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';

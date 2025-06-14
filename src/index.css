@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -192,16 +191,70 @@
   .animate-soft-pulse {
     animation: soft-pulse 4s ease-in-out infinite;
   }
+
+  /* New calming animations */
+  .animate-fade-in {
+    animation: fade-in 0.6s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.8s ease-out;
+  }
+
+  .animate-gentle-bounce {
+    animation: gentle-bounce 2s ease-in-out infinite;
+  }
+
+  .animate-bounce-once {
+    animation: bounce-once 0.3s ease-in-out;
+  }
+
+  .animate-pulse-subtle {
+    animation: pulse-subtle 3s ease-in-out infinite;
+  }
+
+  .animate-shimmer {
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+
+  /* Hover effects */
+  .hover-lift {
+    transition: all 0.3s ease-out;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Slider gradient styles */
+  .slider-gradient-pink .bg-primary {
+    background: linear-gradient(to right, #fbbf24, #ec4899) !important;
+  }
+
+  .slider-gradient-blue .bg-primary {
+    background: linear-gradient(to right, #60a5fa, #3b82f6) !important;
+  }
+
+  /* Dark mode specific fixes for sliders */
+  .dark .slider-gradient-pink .bg-primary {
+    background: linear-gradient(to right, #f59e0b, #db2777) !important;
+  }
+
+  .dark .slider-gradient-blue .bg-primary {
+    background: linear-gradient(to right, #3b82f6, #1e40af) !important;
+  }
 }
 
 @keyframes gentle-pulse {
   0%, 100% {
     transform: scale(1);
-    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
   }
   50% {
-    transform: scale(1.02);
-    opacity: 0.9;
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
   }
 }
 
@@ -280,6 +333,62 @@
   }
 }
 
+/* New calming animations keyframes */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes gentle-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes bounce-once {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
 /* Crisis Accessibility Styles */
 
 /* Large panic button mode */
@@ -334,6 +443,11 @@
   outline-offset: 2px !important;
 }
 
+/* Enhanced animations for form elements */
+button, a, input, textarea, select {
+  transition: all 0.2s ease-out;
+}
+
 /* Reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
   .animate-emergency-pulse,
@@ -344,8 +458,18 @@
   .animate-smooth-shake,
   .animate-celebration-glow,
   .animate-float,
-  .animate-soft-pulse {
+  .animate-soft-pulse,
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-gentle-bounce,
+  .animate-bounce-once,
+  .animate-pulse-subtle,
+  .animate-shimmer {
     animation: none !important;
+  }
+  
+  .hover-lift:hover {
+    transform: none !important;
   }
 }
 

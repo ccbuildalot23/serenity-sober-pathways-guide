@@ -5,114 +5,67 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Target, Plus } from 'lucide-react';
-import { useRecoveryGoals } from '@/hooks/useRecoveryGoals';
 
 export const WeeklyGoals: React.FC = () => {
-  const { goals, loading, getActiveGoals, getGoalsNeedingAttention } = useRecoveryGoals();
-  
-  const activeGoals = getActiveGoals();
-  const urgentGoals = getGoalsNeedingAttention();
-
-  if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            Recovery Goals
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="animate-pulse">
-                <div className="h-4 bg-muted rounded mb-2"></div>
-                <div className="h-2 bg-muted rounded"></div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (activeGoals.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            Recovery Goals
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-center py-8">
-          <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground mb-4">No active goals yet</p>
-          <Button size="sm" className="gap-2">
-            <Plus className="h-4 w-4" />
-            Create Your First Goal
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
+  // Mock data for now - replace with actual hook when available
+  const mockGoals = [
+    { id: 1, title: "Daily Check-ins", progress: 70, category: "wellness", priority: "high" },
+    { id: 2, title: "Meditation Practice", progress: 40, category: "mindfulness", priority: "medium" },
+    { id: 3, title: "Exercise 3x Week", progress: 60, category: "health", priority: "high" }
+  ];
 
   return (
-    <Card>
+    <Card className="animate-slide-up hover-lift">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Target className="h-5 w-5" />
+        <CardTitle className="flex items-center gap-2 text-gray-800 dark:text-gray-100">
+          <Target className="h-5 w-5 text-purple-600 dark:text-purple-400" />
           Recovery Goals
-          <Badge variant="outline" className="ml-auto">
-            {activeGoals.length} Active
+          <Badge variant="outline" className="ml-auto dark:border-gray-600 dark:text-gray-300">
+            {mockGoals.length} Active
           </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {urgentGoals.length > 0 && (
-            <div className="border-l-4 border-orange-500 pl-4 mb-4">
-              <h4 className="font-medium text-orange-700 dark:text-orange-400 mb-2">
-                Goals Needing Attention
-              </h4>
-              <div className="space-y-2">
-                {urgentGoals.slice(0, 2).map((goal) => (
-                  <div key={goal.id} className="text-sm">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium">{goal.title}</span>
-                      <Badge variant="secondary" className="text-xs">
-                        {goal.progress}%
-                      </Badge>
-                    </div>
-                    <Progress value={goal.progress} className="h-2" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {activeGoals.slice(0, 3).map((goal) => (
-            <div key={goal.id} className="space-y-2">
+          {mockGoals.map((goal, index) => (
+            <div 
+              key={goal.id} 
+              className="space-y-2 animate-fade-in"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h4 className="font-medium text-sm">{goal.title}</h4>
-                  <p className="text-xs text-muted-foreground capitalize">
+                  <h4 className="font-medium text-sm text-gray-800 dark:text-gray-100">
+                    {goal.title}
+                  </h4>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 capitalize">
                     {goal.category} • {goal.priority} priority
                   </p>
                 </div>
-                <Badge variant="outline" className="text-xs">
+                <Badge 
+                  variant="outline" 
+                  className="text-xs dark:border-gray-600 dark:text-gray-300"
+                >
                   {goal.progress}%
                 </Badge>
               </div>
-              <Progress value={goal.progress} className="h-2" />
+              <div className="relative">
+                <Progress 
+                  value={goal.progress} 
+                  className="h-2 bg-gray-200 dark:bg-gray-700"
+                />
+              </div>
             </div>
           ))}
           
-          {activeGoals.length > 3 && (
-            <Button variant="ghost" size="sm" className="w-full">
-              View All {activeGoals.length} Goals
-            </Button>
-          )}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full mt-4 hover:scale-105 transition-transform dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add New Goal
+          </Button>
         </div>
       </CardContent>
     </Card>

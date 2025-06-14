@@ -20,11 +20,11 @@ export const ThemeToggle = () => {
   const getIcon = () => {
     switch (theme) {
       case 'light':
-        return <Sun className="w-4 h-4" />;
+        return <Sun className="w-4 h-4 animate-pulse-subtle" />;
       case 'dark':
-        return <Moon className="w-4 h-4" />;
+        return <Moon className="w-4 h-4 animate-pulse-subtle" />;
       case 'system':
-        return <Monitor className="w-4 h-4" />;
+        return <Monitor className="w-4 h-4 animate-pulse-subtle" />;
     }
   };
 
@@ -33,7 +33,7 @@ export const ThemeToggle = () => {
       variant="outline"
       size="sm"
       onClick={toggleTheme}
-      className="w-10 h-10 p-0"
+      className="w-10 h-10 p-0 hover:scale-105 transition-all duration-300 dark:border-gray-600 dark:hover:bg-gray-800"
     >
       {getIcon()}
     </Button>

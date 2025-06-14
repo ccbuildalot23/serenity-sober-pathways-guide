@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,6 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Fingerprint, Shield, Smartphone, Lock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 interface EnhancedAuthProps {
@@ -27,7 +25,9 @@ export const EnhancedAuth: React.FC<EnhancedAuthProps> = ({ mode }) => {
   const [biometricSupported, setBiometricSupported] = useState(false);
 
   const { signIn, signUp } = useAuth();
-  const navigate = useNavigate();
+  const navigate = (path: string) => {
+    window.location.href = path;
+  };
 
   React.useEffect(() => {
     // Check if biometric authentication is supported

@@ -1,14 +1,5 @@
 
-interface MoodEntry {
-  id: string;
-  date: Date;
-  mood_rating: number;
-  energy_rating: number;
-  triggers: string[];
-  gratitude: string[];
-  notes: string;
-  created_at: Date;
-}
+import { MoodEntry } from '@/types/calendar';
 
 export function calculateMonthlyTrends(entries: MoodEntry[]) {
   // Group by week
@@ -20,7 +11,7 @@ export function calculateMonthlyTrends(entries: MoodEntry[]) {
       weeklyData[weekNumber] = { mood: [], energy: [] };
     }
     weeklyData[weekNumber].mood.push(entry.mood_rating);
-    weeklyData[weekNumber].energy.push(entry.energy_rating);
+    weeklyData[weekNumber].energy.push(entry.energy_rating || 0);
   });
 
   // Calculate weekly averages

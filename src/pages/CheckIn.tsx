@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +9,7 @@ import { AssessmentsSection } from '@/components/daily-checkin/AssessmentsSectio
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -17,6 +17,7 @@ const CheckIn = () => {
   const navigate = useNavigate();
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   
   const {
     responses,
@@ -347,7 +348,7 @@ const CheckIn = () => {
             )}
             
             <Button
-              onClick={handleSubmit}
+              onClick={() => setShowConfirmDialog(true)}
               disabled={!canComplete() || isSubmitting}
               className={`w-full py-3 text-lg ${
                 canComplete() 
@@ -382,6 +383,60 @@ const CheckIn = () => {
         <div className="text-center text-xs text-gray-500">
           {isSaving ? 'Saving your responses...' : 'Your responses are automatically saved as you go'}
         </div>
+
+        {/* Confirmation Dialog */}
+        <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Confirm Check-In Submission</AlertDialogTitle>
+              <AlertDialogDescription>
+                Please review your responses before submitting. Once submitted, you won't be able to modify today's check-in.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="font-medium text-gray-700">Mood:</span>
+                  <span className="ml-2">{responses.mood || 'N/A'}/10</span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-700">Energy:</span>
+                  <span className="ml-2">{responses.energy || 'N/A'}/10</span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-700">Hope:</span>
+                  <span className="ml-2">{responses.hope || 'N/A'}/10</span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-700">Sobriety Confidence:</span>
+                  <span className="ml-2">{responses.sobriety_confidence || 'N/A'}/10</span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-700">Recovery Importance:</span>
+                  <span className="ml-2">{responses.recovery_importance || 'N/A'}/10</span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-700">Recovery Strength:</span>
+                  <span className="ml-2">{responses.recovery_strength || 'N/A'}/10</span>
+                </div>
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Support Needed:</span>
+                <span className="ml-2">{responses.support_needed ? 'Yes' : 'No'}</span>
+              </div>
+            </div>
+
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setShowConfirmDialog(false)}>
+                Review Again
+              </AlertDialogCancel>
+              <AlertDialogAction onClick={handleSubmit} className="bg-green-600 hover:bg-green-700">
+                Submit Check-In
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </Layout>
   );

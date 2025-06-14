@@ -1,16 +1,6 @@
 
 import { useState, useMemo } from 'react';
-
-interface MoodEntry {
-  id: string;
-  date: Date;
-  mood_rating: number;
-  energy_rating: number;
-  triggers: string[];
-  gratitude: string[];
-  notes: string;
-  created_at: Date;
-}
+import { MoodEntry } from '@/types/calendar';
 
 export function useCalendarFilters(entries: MoodEntry[]) {
   const [filters, setFilters] = useState({
@@ -29,7 +19,7 @@ export function useCalendarFilters(entries: MoodEntry[]) {
 
       // Trigger filter
       if (filters.triggers.length > 0) {
-        const hasMatchingTrigger = entry.triggers.some(trigger =>
+        const hasMatchingTrigger = (entry.triggers || []).some(trigger =>
           filters.triggers.includes(trigger)
         );
         if (!hasMatchingTrigger) return false;
@@ -38,8 +28,8 @@ export function useCalendarFilters(entries: MoodEntry[]) {
       // Search filter
       if (filters.searchTerm) {
         const searchLower = filters.searchTerm.toLowerCase();
-        const matchesNotes = entry.notes.toLowerCase().includes(searchLower);
-        const matchesGratitude = entry.gratitude.some(g =>
+        const matchesNotes = (entry.notes || '').toLowerCase().includes(searchLower);
+        const matchesGratitude = (entry.gratitude || []).some(g =>
           g.toLowerCase().includes(searchLower)
         );
         if (!matchesNotes && !matchesGratitude) return false;

@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -249,7 +250,7 @@ const EnhancedCalendar: React.FC<{
   // Calculate insights from filtered data
   const totalEntries = filteredEntries.length;
   const averageMood = totalEntries > 0 ? filteredEntries.reduce((sum, e) => sum + e.mood_rating, 0) / totalEntries : 0;
-  const averageEnergy = totalEntries > 0 ? filteredEntries.reduce((sum, e) => sum + e.energy_rating, 0) / totalEntries : 0;
+  const averageEnergy = totalEntries > 0 ? filteredEntries.reduce((sum, e) => sum + (e.energy_rating || 0), 0) / totalEntries : 0;
   const triggerCounts = calculateTriggerCounts(filteredEntries);
   const topTriggers = getTopTriggers(triggerCounts);
   const monthlyTrends = calculateMonthlyTrends(filteredEntries);

@@ -55,7 +55,8 @@ export const useDailyCheckIn = () => {
       if (result.responses) {
         setResponses(result.responses);
       }
-      setCompletedSections(result.completedSections);
+      // Fix the type casting issue here
+      setCompletedSections(new Set(Array.from(result.completedSections).map(String)));
       // Clear draft if check-in is complete
       checkinStorage.clearDraft(checkinDate);
     }

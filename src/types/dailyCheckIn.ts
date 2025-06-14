@@ -5,7 +5,7 @@ export interface CheckinResponses {
   hope: number | null;
   sobriety_confidence: number | null;
   recovery_importance: number | null;
-  recovery_strength: number | null;
+  recovery_strength: string | null;
   support_needed: boolean;
   phq2_q1: number | null;
   phq2_q2: number | null;

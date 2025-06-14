@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -36,6 +37,17 @@ export const WellnessSection: React.FC<WellnessSectionProps> = ({
   onSupportNeededChange,
   onSectionComplete
 }) => {
+  // Auto-complete section when all required fields are filled
+  useEffect(() => {
+    if (energy !== null && 
+        hope !== null && 
+        sobrietyConfidence !== null && 
+        recoveryImportance !== null && 
+        recoveryStrength !== null) {
+      onSectionComplete?.();
+    }
+  }, [energy, hope, sobrietyConfidence, recoveryImportance, recoveryStrength, onSectionComplete]);
+
   const handleRecoveryStrengthChange = (value: string) => {
     onRecoveryStrengthChange(value);
     if (onSectionComplete) {

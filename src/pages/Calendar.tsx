@@ -82,6 +82,11 @@ const Calendar: React.FC = () => {
     // Could implement CSV export later
   };
 
+  const handleUpdate = (updates: any) => {
+    console.log('Updating entry:', updates);
+    // Could implement update functionality later
+  };
+
   if (isLoading) {
     return (
       <Layout activeTab="calendar" onTabChange={() => {}}>
@@ -120,6 +125,7 @@ const Calendar: React.FC = () => {
           onOpenChange={setIsDayDetailOpen}
           selectedDate={selectedDate}
           selectedDayData={selectedDayData}
+          onUpdate={handleUpdate}
         />
       </div>
     </Layout>

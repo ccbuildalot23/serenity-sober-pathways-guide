@@ -29,6 +29,7 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showProfile, setShowProfile] = useState(false);
   const [showNotificationBanner, setShowNotificationBanner] = useState(false);
+  const [securityInitialized, setSecurityInitialized] = useState(false);
 
   const {
     riskLevel,
@@ -44,7 +45,7 @@ const Index = () => {
   // Dashboard data with live updates
   const { stats, profile, loading, error, refreshStats } = useDashboardData();
 
-  // Set up keyboard shortcuts
+  // Set up keyboard shortcuts with error boundary
   useKeyboardShortcuts([
     { key: 'h', ctrlKey: true, callback: () => window.location.href = '/' },
     { key: 'c', ctrlKey: true, callback: () => window.location.href = '/calendar' },
@@ -52,32 +53,49 @@ const Index = () => {
     { key: 's', ctrlKey: true, callback: () => window.location.href = '/settings' }
   ]);
 
-  // Initialize enhanced security and notifications
+  // Initialize enhanced security and notifications - only once
   useEffect(() => {
-    // Apply enhanced security headers
-    EnhancedSecurityHeaders.applyEnhancedSecurity();
+    if (securityInitialized) return;
     
-    // Initialize security monitoring
-    SecureMonitoring.monitorConsoleAccess();
-    SecureMonitoring.trackPageAccess();
+    console.log('Initializing security and notifications');
     
-    const initNotifications = async () => {
-      // Check if we should show permission prompt
-      if (notificationPermissionService.shouldShowPermissionPrompt()) {
-        const permission = await notificationPermissionService.requestPermission();
-        if (permission === 'granted') {
-          console.log('Notifications enabled');
-        }
-      }
+    try {
+      // Apply enhanced security headers
+      EnhancedSecurityHeaders.applyEnhancedSecurity();
       
-      // Check if we should show the banner for denied permissions
-      if (notificationPermissionService.shouldShowBanner()) {
-        setShowNotificationBanner(true);
+      // Initialize security monitoring
+      SecureMonitoring.monitorConsoleAccess();
+      SecureMonitoring.trackPageAccess();
+      
+      setSecurityInitialized(true);
+    } catch (error) {
+      console.warn('Security initialization failed:', error);
+      setSecurityInitialized(true); // Don't block the app
+    }
+    
+    // Initialize notifications separately to avoid blocking
+    const initNotifications = async () => {
+      try {
+        // Check if we should show permission prompt
+        if (notificationPermissionService.shouldShowPermissionPrompt()) {
+          const permission = await notificationPermissionService.requestPermission();
+          if (permission === 'granted') {
+            console.log('Notifications enabled');
+          }
+        }
+        
+        // Check if we should show the banner for denied permissions
+        if (notificationPermissionService.shouldShowBanner()) {
+          setShowNotificationBanner(true);
+        }
+      } catch (error) {
+        console.warn('Notification initialization failed:', error);
       }
     };
     
+    // Don't await this to prevent blocking
     initNotifications();
-  }, []);
+  }, [securityInitialized]);
 
   const handleSignOut = async () => {
     try {
@@ -99,6 +117,34 @@ const Index = () => {
   // Redirect if session is invalid
   if (!sessionValid) {
     return null; // Component will unmount as user gets redirected
+  }
+
+  // Show error state if there's a critical error
+  if (error && !loading) {
+    return (
+      <Layout 
+        activeTab={activeTab} 
+        onTabChange={setActiveTab}
+        onProfileClick={() => setShowProfile(!showProfile)}
+      >
+        <div className="p-4 space-y-6 max-w-4xl mx-auto">
+          <div className="text-center py-8">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
+              Unable to Load Dashboard
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              We're having trouble loading your data. Please try refreshing the page.
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Refresh Page
+            </button>
+          </div>
+        </div>
+      </Layout>
+    );
   }
 
   return (
@@ -164,7 +210,7 @@ const Index = () => {
         onSignOut={handleSignOut}
       />
 
-      {/* Add responsive styles - Fixed: removed jsx property */}
+      {/* Add responsive styles */}
       <style>{`
         @media (max-width: 600px) {
           .grid-cols-2 {

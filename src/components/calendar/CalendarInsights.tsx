@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { TrendingUp, Brain, Zap, Target } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { TrendingUp, Brain, Zap, Target, Calendar } from 'lucide-react';
 
 interface CalendarInsightsProps {
   chartData: any[];
@@ -13,9 +13,19 @@ interface CalendarInsightsProps {
     streakDays: number;
     topTriggers: Array<{name: string; count: number}>;
   };
+  monthlyTrends?: Array<{
+    week: string;
+    avgMood: number;
+    avgEnergy: number;
+    entryCount: number;
+  }>;
 }
 
-const CalendarInsights: React.FC<CalendarInsightsProps> = ({ chartData, monthStats }) => {
+const CalendarInsights: React.FC<CalendarInsightsProps> = ({ 
+  chartData, 
+  monthStats, 
+  monthlyTrends = [] 
+}) => {
   return (
     <div className="space-y-4">
       {/* Stats Cards */}
@@ -61,11 +71,11 @@ const CalendarInsights: React.FC<CalendarInsightsProps> = ({ chartData, monthSta
         </Card>
       </div>
 
-      {/* Chart */}
+      {/* Daily Chart */}
       {chartData.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Mood & Energy Trends</CardTitle>
+            <CardTitle>Daily Mood & Energy Trends</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-64">
@@ -89,6 +99,31 @@ const CalendarInsights: React.FC<CalendarInsightsProps> = ({ chartData, monthSta
                     name="Energy"
                   />
                 </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Weekly Trends */}
+      {monthlyTrends.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              Weekly Overview
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthlyTrends}>
+                  <XAxis dataKey="week" />
+                  <YAxis domain={[0, 10]} />
+                  <Tooltip />
+                  <Bar dataKey="avgMood" fill="#8b5cf6" name="Avg Mood" />
+                  <Bar dataKey="avgEnergy" fill="#eab308" name="Avg Energy" />
+                </BarChart>
               </ResponsiveContainer>
             </div>
           </CardContent>

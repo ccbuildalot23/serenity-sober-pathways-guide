@@ -28,7 +28,7 @@ const CheckIn = () => {
     handleComplete,
     isSubmitting,
     existingCheckin,
-    isSaving
+    isSaving = false
   } = useDailyCheckIn();
 
   const progressPercentage = (completedSections.size / 3) * 100;
@@ -68,7 +68,7 @@ const CheckIn = () => {
   if (existingCheckin) {
     return (
       <Layout activeTab="checkin" onTabChange={() => {}}>
-        <div className="p-4 space-y-6 max-w-2xl mx-auto animate-fade-in">
+        <div className="p-4 space-y-6 max-w-2xl mx-auto">
           <Button
             onClick={() => navigate('/')}
             variant="ghost"
@@ -79,7 +79,7 @@ const CheckIn = () => {
           </Button>
           
           <div className="text-center space-y-4">
-            <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center animate-scale-in">
+            <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center">
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
             <h1 className="text-2xl font-bold text-green-800">Check-In Complete!</h1>
@@ -95,11 +95,11 @@ const CheckIn = () => {
                 <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
                   <div>
                     <span className="text-green-700">Mood:</span>
-                    <span className="font-semibold ml-1">{responses.mood}/10</span>
+                    <span className="font-semibold ml-1">{responses.mood || 'N/A'}/10</span>
                   </div>
                   <div>
                     <span className="text-green-700">Energy:</span>
-                    <span className="font-semibold ml-1">{responses.energy}/10</span>
+                    <span className="font-semibold ml-1">{responses.energy || 'N/A'}/10</span>
                   </div>
                 </div>
               </div>
@@ -128,9 +128,9 @@ const CheckIn = () => {
   if (showSuccess) {
     return (
       <Layout activeTab="checkin" onTabChange={() => {}}>
-        <div className="p-4 space-y-6 max-w-2xl mx-auto animate-fade-in">
+        <div className="p-4 space-y-6 max-w-2xl mx-auto">
           <div className="text-center space-y-4">
-            <div className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center animate-bounce">
+            <div className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center animate-pulse">
               <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
             <h1 className="text-3xl font-bold text-green-800">Great Job!</h1>

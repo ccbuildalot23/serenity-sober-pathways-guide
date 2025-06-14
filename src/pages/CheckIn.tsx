@@ -1,15 +1,23 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Heart, CheckCircle, Calendar, TrendingUp, AlertCircle, Loader2 } from 'lucide-react';
+import { Heart, CheckCircle, Calendar, TrendingUp, AlertCircle, Loader2, ArrowLeft, Save } from 'lucide-react';
 import { useDailyCheckIn } from '@/hooks/useDailyCheckIn';
 import { MoodSection } from '@/components/daily-checkin/MoodSection';
 import { WellnessSection } from '@/components/daily-checkin/WellnessSection';
 import { AssessmentsSection } from '@/components/daily-checkin/AssessmentsSection';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const CheckIn = () => {
+  const navigate = useNavigate();
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
   const {
     responses,
     setResponses,
@@ -19,7 +27,8 @@ const CheckIn = () => {
     validateCompletion,
     handleComplete,
     isSubmitting,
-    existingCheckin
+    existingCheckin,
+    isSaving
   } = useDailyCheckIn();
 
   const progressPercentage = (completedSections.size / 3) * 100;
@@ -30,24 +39,47 @@ const CheckIn = () => {
   };
 
   const handleSubmit = async () => {
+    setError(null);
+    
     if (!canComplete()) {
       validateCompletion();
+      toast.error('Please complete all sections before submitting');
       return;
     }
 
-    const success = await handleComplete();
-    if (success) {
-      // Scroll to top to show completion message
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    try {
+      const success = await handleComplete();
+      if (success) {
+        setShowSuccess(true);
+        toast.success('Check-in completed successfully!');
+        
+        // Navigate after a short delay
+        setTimeout(() => {
+          navigate('/');
+        }, 2000);
+      }
+    } catch (err) {
+      setError('Failed to submit check-in. Please try again.');
+      toast.error('Something went wrong. Please try again.');
+      console.error('Check-in submission error:', err);
     }
   };
 
   if (existingCheckin) {
     return (
       <Layout activeTab="checkin" onTabChange={() => {}}>
-        <div className="p-4 space-y-6 max-w-2xl mx-auto">
+        <div className="p-4 space-y-6 max-w-2xl mx-auto animate-fade-in">
+          <Button
+            onClick={() => navigate('/')}
+            variant="ghost"
+            className="mb-4"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
+          
           <div className="text-center space-y-4">
-            <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center animate-scale-in">
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
             <h1 className="text-2xl font-bold text-green-800">Check-In Complete!</h1>
@@ -74,13 +106,38 @@ const CheckIn = () => {
             </CardContent>
           </Card>
 
-          <div className="text-center">
+          <div className="text-center space-x-4">
             <Button
-              onClick={() => window.location.href = '/'}
+              onClick={() => navigate('/')}
               className="bg-green-600 hover:bg-green-700"
             >
               Return to Dashboard
             </Button>
+            <Button
+              onClick={() => navigate('/progress')}
+              variant="outline"
+            >
+              View Progress
+            </Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (showSuccess) {
+    return (
+      <Layout activeTab="checkin" onTabChange={() => {}}>
+        <div className="p-4 space-y-6 max-w-2xl mx-auto animate-fade-in">
+          <div className="text-center space-y-4">
+            <div className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center animate-bounce">
+              <CheckCircle className="w-10 h-10 text-green-600" />
+            </div>
+            <h1 className="text-3xl font-bold text-green-800">Great Job!</h1>
+            <p className="text-green-700 text-lg">
+              Your check-in has been saved. Keep up the amazing work on your recovery journey!
+            </p>
+            <p className="text-gray-600">Redirecting to dashboard...</p>
           </div>
         </div>
       </Layout>
@@ -90,11 +147,38 @@ const CheckIn = () => {
   return (
     <Layout activeTab="checkin" onTabChange={() => {}}>
       <div className="p-4 space-y-6 max-w-2xl mx-auto">
+        {/* Header with Back Button */}
+        <div className="flex items-center justify-between">
+          <Button
+            onClick={() => navigate('/')}
+            variant="ghost"
+            size="sm"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+          
+          {isSaving && (
+            <div className="flex items-center text-sm text-gray-500">
+              <Save className="w-4 h-4 mr-1 animate-pulse" />
+              Saving...
+            </div>
+          )}
+        </div>
+
         {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold text-[#1E3A8A]">Daily Check-In</h1>
           <p className="text-gray-600">Take a moment to reflect on your day</p>
         </div>
+
+        {/* Error Alert */}
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
         {/* Progress Bar */}
         <Card>
@@ -120,16 +204,38 @@ const CheckIn = () => {
           </CardContent>
         </Card>
 
+        {/* Skip to incomplete section button */}
+        {completedSections.size > 0 && completedSections.size < 3 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const incompleteSection = ['mood', 'wellness', 'assessments'].find(
+                section => !completedSections.has(section)
+              );
+              if (incompleteSection) {
+                document.getElementById(incompleteSection)?.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            className="mx-auto block"
+          >
+            Skip to next incomplete section
+          </Button>
+        )}
+
         {/* Check-in Sections */}
         <div className="space-y-6">
           {/* Mood Section */}
-          <Card className={`${
-            completedSections.has('mood') 
-              ? 'border-green-200 bg-green-50' 
-              : !canComplete() && completedSections.size > 0 
-                ? 'border-yellow-200 bg-yellow-50' 
-                : ''
-          }`}>
+          <Card 
+            id="mood"
+            className={`transition-all duration-300 ${
+              completedSections.has('mood') 
+                ? 'border-green-200 bg-green-50' 
+                : !canComplete() && completedSections.size > 0 && !completedSections.has('mood')
+                  ? 'border-yellow-200 bg-yellow-50 ring-2 ring-yellow-300' 
+                  : ''
+            }`}
+          >
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Heart className="w-5 h-5 text-pink-500" />
@@ -149,13 +255,16 @@ const CheckIn = () => {
           </Card>
 
           {/* Wellness Section */}
-          <Card className={`${
-            completedSections.has('wellness') 
-              ? 'border-green-200 bg-green-50' 
-              : !canComplete() && completedSections.size > 0 
-                ? 'border-yellow-200 bg-yellow-50' 
-                : ''
-          }`}>
+          <Card 
+            id="wellness"
+            className={`transition-all duration-300 ${
+              completedSections.has('wellness') 
+                ? 'border-green-200 bg-green-50' 
+                : !canComplete() && completedSections.size > 0 && !completedSections.has('wellness')
+                  ? 'border-yellow-200 bg-yellow-50 ring-2 ring-yellow-300' 
+                  : ''
+            }`}
+          >
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-blue-500" />
@@ -186,13 +295,16 @@ const CheckIn = () => {
           </Card>
 
           {/* Assessments Section */}
-          <Card className={`${
-            completedSections.has('assessments') 
-              ? 'border-green-200 bg-green-50' 
-              : !canComplete() && completedSections.size > 0 
-                ? 'border-yellow-200 bg-yellow-50' 
-                : ''
-          }`}>
+          <Card 
+            id="assessments"
+            className={`transition-all duration-300 ${
+              completedSections.has('assessments') 
+                ? 'border-green-200 bg-green-50' 
+                : !canComplete() && completedSections.size > 0 && !completedSections.has('assessments')
+                  ? 'border-yellow-200 bg-yellow-50 ring-2 ring-yellow-300' 
+                  : ''
+            }`}
+          >
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="w-5 h-5 text-purple-500" />
@@ -268,7 +380,7 @@ const CheckIn = () => {
 
         {/* Auto-save indicator */}
         <div className="text-center text-xs text-gray-500">
-          Your responses are automatically saved as you go
+          {isSaving ? 'Saving your responses...' : 'Your responses are automatically saved as you go'}
         </div>
       </div>
     </Layout>

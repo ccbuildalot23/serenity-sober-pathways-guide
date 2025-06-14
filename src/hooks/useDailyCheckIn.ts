@@ -28,6 +28,7 @@ export const useDailyCheckIn = () => {
   });
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [existingCheckin, setExistingCheckin] = useState<any>(null);
   const [lastSubmissionError, setLastSubmissionError] = useState<string | null>(null);
 
@@ -41,7 +42,16 @@ export const useDailyCheckIn = () => {
   // Auto-save draft responses whenever they change
   useEffect(() => {
     if (today && !existingCheckin) {
-      checkinStorage.saveDraft(today, responses, completedSections);
+      setIsSaving(true);
+      const timeoutId = setTimeout(() => {
+        checkinStorage.saveDraft(today, responses, completedSections);
+        setIsSaving(false);
+      }, 500); // Add a small delay to debounce rapid changes
+
+      return () => {
+        clearTimeout(timeoutId);
+        setIsSaving(false);
+      };
     }
   }, [responses, today, existingCheckin, completedSections]);
 
@@ -153,6 +163,7 @@ export const useDailyCheckIn = () => {
     validateCompletion,
     handleComplete,
     isSubmitting,
+    isSaving,
     existingCheckin,
     lastSubmissionError
   };

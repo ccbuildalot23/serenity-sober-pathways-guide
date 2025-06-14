@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,6 +19,9 @@ const CheckIn = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  
+  // Track how long user takes to complete
+  const [startTime] = useState(Date.now());
   
   const {
     responses,
@@ -65,6 +69,9 @@ const CheckIn = () => {
     }
 
     try {
+      const completionTime = Date.now() - startTime;
+      console.log(`Check-in completed in ${Math.round(completionTime / 1000)} seconds`);
+      
       const success = await handleComplete();
       if (success) {
         setShowSuccess(true);

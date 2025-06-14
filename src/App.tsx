@@ -10,6 +10,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Calendar from "./pages/Calendar";
+import EnhancedCalendar from "./pages/EnhancedCalendar";
 import CheckIn from "./pages/CheckIn";
 import Support from "./pages/Support";
 import Resources from "./pages/Resources";
@@ -41,6 +42,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Calendar />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/enhanced-calendar"
+              element={
+                <ProtectedRoute>
+                  <EnhancedCalendar />
                 </ProtectedRoute>
               }
             />

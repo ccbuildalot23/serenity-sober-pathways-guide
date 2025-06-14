@@ -44,6 +44,9 @@ import { useCalendarFilters } from '@/hooks/useCalendarFilters';
 import { calculateMonthlyTrends, calculateTriggerCounts, getTopTriggers } from '@/utils/calendarAnalytics';
 import { exportToJSON, exportToCSV } from '@/utils/calendarExport';
 import CalendarFilters from './CalendarFilters';
+import CalendarGrid from './CalendarGrid';
+import CalendarInsights from './CalendarInsights';
+import DayDetailSheet from './DayDetailSheet';
 
 // Types
 interface MoodEntry {

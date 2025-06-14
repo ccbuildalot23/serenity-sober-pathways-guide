@@ -13,17 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Brain, Zap, Heart, Save } from 'lucide-react';
-
-interface MoodEntry {
-  id: string;
-  date: Date;
-  mood_rating: number;
-  energy_rating: number;
-  triggers: string[];
-  gratitude: string[];
-  notes: string;
-  created_at: Date;
-}
+import { MoodEntry } from '@/types/calendar';
 
 interface DayDetailSheetProps {
   isOpen: boolean;
@@ -47,7 +37,7 @@ const DayDetailSheet: React.FC<DayDetailSheetProps> = ({
     if (selectedDayData) {
       setEditedData({
         mood_rating: selectedDayData.mood_rating,
-        energy_rating: selectedDayData.energy_rating,
+        energy_rating: selectedDayData.energy_rating || 5,
         notes: selectedDayData.notes,
       });
     }
@@ -68,6 +58,8 @@ const DayDetailSheet: React.FC<DayDetailSheetProps> = ({
   };
 
   if (!selectedDate || !selectedDayData) return null;
+
+  const energyRating = selectedDayData.energy_rating || 5;
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
@@ -142,16 +134,16 @@ const DayDetailSheet: React.FC<DayDetailSheetProps> = ({
                 <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-yellow-500 transition-all"
-                    style={{ width: `${(selectedDayData.energy_rating / 10) * 100}%` }}
+                    style={{ width: `${(energyRating / 10) * 100}%` }}
                   />
                 </div>
-                <span className="text-sm font-medium">{selectedDayData.energy_rating}/10</span>
+                <span className="text-sm font-medium">{energyRating}/10</span>
               </div>
             )}
           </div>
 
           {/* Triggers */}
-          {selectedDayData.triggers.length > 0 && (
+          {selectedDayData.triggers && selectedDayData.triggers.length > 0 && (
             <div className="space-y-3">
               <Label>Triggers</Label>
               <div className="flex flex-wrap gap-2">
@@ -165,7 +157,7 @@ const DayDetailSheet: React.FC<DayDetailSheetProps> = ({
           )}
 
           {/* Gratitude */}
-          {selectedDayData.gratitude.length > 0 && (
+          {selectedDayData.gratitude && selectedDayData.gratitude.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Heart className="h-4 w-4 text-red-500" />
@@ -213,7 +205,7 @@ const DayDetailSheet: React.FC<DayDetailSheetProps> = ({
                     setIsEditing(false);
                     setEditedData({
                       mood_rating: selectedDayData.mood_rating,
-                      energy_rating: selectedDayData.energy_rating,
+                      energy_rating: selectedDayData.energy_rating || 5,
                       notes: selectedDayData.notes,
                     });
                   }}

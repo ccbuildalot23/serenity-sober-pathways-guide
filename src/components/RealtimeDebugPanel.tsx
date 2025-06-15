@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Wifi, WifiOff, Database, RefreshCw } from 'lucide-react';
 
-export const RealtimeDebugPanel: React.FC = () => {
+const RealtimeDebugPanel: React.FC = () => {
   const [debugInfo, setDebugInfo] = useState<any>({});
   const [isVisible, setIsVisible] = useState(false);
 

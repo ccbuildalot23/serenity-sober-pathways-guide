@@ -1,220 +1,11 @@
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
-import React from 'react';
 import { pollingService } from './pollingService';
-
-// Debug mode for tracking issues
-const DEBUG = true;
-const log = (category: string, message: string, data?: any) => {
-  if (!DEBUG) return;
-  const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] [${category.toUpperCase()}] ${message}`, data || '');
-  
-  // Store in debug log
-  if (typeof window !== 'undefined' && window.debugLog) {
-    window.debugLog.push({ timestamp, category, message, data });
-  }
-};
-
-// WebSocket debugging interceptor
-function setupWebSocketDebugging() {
-  if (typeof window === 'undefined' || (window as any).wsDebuggingSetup) return;
-  
-  const OriginalWebSocket = window.WebSocket;
-  
-  // Create a proper constructor function that extends the original
-  function DebugWebSocket(url: string | URL, protocols?: string | string[]) {
-    log('websocket', 'WebSocket connection attempt', { url: url.toString() });
-    
-    const ws = new OriginalWebSocket(url, protocols);
-    
-    ws.addEventListener('open', () => {
-      log('websocket', 'WebSocket opened', { url: url.toString() });
-      showConnectionStatus('connected');
-    });
-    
-    ws.addEventListener('close', (event) => {
-      log('websocket', 'WebSocket closed', {
-        url: url.toString(),
-        code: event.code,
-        reason: event.reason,
-        wasClean: event.wasClean
-      });
-      showConnectionStatus('disconnected');
-    });
-    
-    ws.addEventListener('error', (error) => {
-      log('error', 'WebSocket error', { url: url.toString(), error });
-    });
-    
-    ws.addEventListener('message', (event) => {
-      if (event.data.includes('ping') || event.data.includes('pong')) {
-        log('websocket', 'Heartbeat received', { url: url.toString() });
-        // Update connection monitor if available
-        if ((window as any).realtimeConnectionMonitor) {
-          (window as any).realtimeConnectionMonitor.updatePingTime();
-        }
-      }
-    });
-    
-    return ws;
-  }
-  
-  // Copy static properties from original WebSocket
-  DebugWebSocket.prototype = OriginalWebSocket.prototype;
-  DebugWebSocket.CONNECTING = OriginalWebSocket.CONNECTING;
-  DebugWebSocket.OPEN = OriginalWebSocket.OPEN;
-  DebugWebSocket.CLOSING = OriginalWebSocket.CLOSING;
-  DebugWebSocket.CLOSED = OriginalWebSocket.CLOSED;
-  
-  // Replace the global WebSocket with our debug version
-  window.WebSocket = DebugWebSocket as any;
-  
-  (window as any).wsDebuggingSetup = true;
-  log('websocket', 'WebSocket debugging interceptor setup complete');
-}
-
-// Connection status display function
-function showConnectionStatus(status: 'connected' | 'connecting' | 'disconnected' | 'connected-polling') {
-  const statusElement = document.getElementById('connection-status') || 
-    (() => {
-      const el = document.createElement('div');
-      el.id = 'connection-status';
-      el.style.cssText = `
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        padding: 10px 20px;
-        border-radius: 5px;
-        font-family: monospace;
-        z-index: 9999;
-        transition: all 0.3s ease;
-        font-size: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      `;
-      document.body.appendChild(el);
-      return el;
-    })();
-
-  const styles = {
-    connected: { bg: '#4ade80', color: '#166534' },
-    'connected-polling': { bg: '#3b82f6', color: '#1e40af' },
-    connecting: { bg: '#fbbf24', color: '#92400e' },
-    disconnected: { bg: '#f87171', color: '#991b1b' }
-  };
-
-  const style = styles[status] || styles.disconnected;
-  statusElement.style.backgroundColor = style.bg;
-  statusElement.style.color = style.color;
-  
-  const displayText = status === 'connected-polling' ? 'Connected (Polling)' : 
-                     status.charAt(0).toUpperCase() + status.slice(1);
-  statusElement.textContent = `Connection: ${displayText}`;
-}
-
-interface RealtimeAlert {
-  id: string;
-  type: 'crisis' | 'check-in' | 'status-update';
-  senderId: string;
-  senderName: string;
-  message: string;
-  urgency: 'high' | 'medium' | 'low';
-  location?: string;
-  timestamp: string;
-}
-
-interface RealtimePresence {
-  userId: string;
-  userName: string;
-  status: 'online' | 'away' | 'in-crisis';
-  lastSeen: string;
-}
-
-class ConnectionMonitor {
-  private maxReconnectAttempts = 5;
-  private reconnectDelay = 1000;
-  private attempts = 0;
-  private lastPingTime = Date.now();
-  private monitorInterval: NodeJS.Timeout | null = null;
-  private realtimeService: RealtimeService;
-
-  constructor(realtimeService: RealtimeService) {
-    this.realtimeService = realtimeService;
-    // Make monitor available globally for WebSocket debugging
-    (window as any).realtimeConnectionMonitor = this;
-  }
-
-  startMonitoring() {
-    if (this.monitorInterval) {
-      clearInterval(this.monitorInterval);
-    }
-
-    // Monitor connection health
-    this.monitorInterval = setInterval(() => {
-      const timeSinceLastPing = Date.now() - this.lastPingTime;
-      
-      if (timeSinceLastPing > 30000) { // 30 seconds
-        log('monitor', 'Connection appears unhealthy', { timeSinceLastPing });
-        this.handleReconnect();
-      }
-    }, 10000);
-
-    log('monitor', 'Connection monitoring started');
-  }
-
-  stopMonitoring() {
-    if (this.monitorInterval) {
-      clearInterval(this.monitorInterval);
-      this.monitorInterval = null;
-    }
-    log('monitor', 'Connection monitoring stopped');
-  }
-
-  handleReconnect() {
-    if (this.attempts >= this.maxReconnectAttempts) {
-      log('critical', 'Max reconnection attempts reached. Switching to polling mode...');
-      this.realtimeService.enablePollingFallback();
-      return;
-    }
-
-    this.attempts++;
-    const delay = this.reconnectDelay * Math.pow(2, this.attempts - 1);
-    
-    log('monitor', `Reconnection attempt ${this.attempts} in ${delay}ms`);
-    
-    setTimeout(() => {
-      this.reconnect();
-    }, delay);
-  }
-
-  async reconnect() {
-    try {
-      log('monitor', 'Attempting to reconnect...');
-      await this.realtimeService.forceReconnect();
-      
-      // Reset attempts on successful connection
-      this.attempts = 0;
-      this.updatePingTime();
-      log('monitor', 'Reconnection successful');
-    } catch (error) {
-      log('error', 'Reconnection failed', { error: error.message });
-      // Let the interval try again
-    }
-  }
-
-  updatePingTime() {
-    this.lastPingTime = Date.now();
-  }
-
-  getStatus() {
-    return {
-      attempts: this.attempts,
-      lastPingTime: this.lastPingTime,
-      timeSinceLastPing: Date.now() - this.lastPingTime,
-      isHealthy: (Date.now() - this.lastPingTime) < 30000
-    };
-  }
-}
+import { ConnectionMonitor } from './realtime/connectionMonitor';
+import { setupWebSocketDebugging } from './realtime/webSocketDebugger';
+import { showConnectionStatus, removeConnectionStatus } from './realtime/connectionStatusDisplay';
+import { log } from './realtime/debugUtils';
+import { RealtimeAlert, RealtimePresence } from './realtime/types';
 
 class RealtimeService {
   private channels: Map<string, RealtimeChannel> = new Map();
@@ -992,6 +783,94 @@ class RealtimeService {
     // Additional contact change handling
   }
 
+  private handleChannelError(channelName: string): void {
+    log('error', 'Channel error', { channelName });
+    
+    // Remove the failed channel
+    const channel = this.channels.get(channelName);
+    if (channel) {
+      channel.unsubscribe();
+      this.channels.delete(channelName);
+    }
+    
+    // Trigger reconnection if too many channels have failed
+    if (this.channels.size === 0) {
+      this.handleDisconnect();
+    }
+  }
+
+  private async handleDisconnect(): Promise<void> {
+    log('realtime', 'Handling disconnect', { attempts: this.reconnectAttempts });
+    
+    this.connectionStatus = 'disconnected';
+    this.updateConnectionStatusDisplay();
+    
+    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+      log('critical', 'Max reconnection attempts reached, switching to polling');
+      
+      // Switch to polling fallback
+      if (this.userId && !this.usePollingFallback) {
+        this.usePollingFallback = true;
+        this.enablePollingFallback();
+      }
+      
+      this.notifyUserOfConnectionIssue();
+      return;
+    }
+
+    const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
+    this.reconnectAttempts++;
+    
+    setTimeout(async () => {
+      try {
+        await this.reconnect();
+      } catch (error) {
+        log('error', 'Reconnection failed', { error: error.message });
+        this.handleDisconnect();
+      }
+    }, delay);
+  }
+
+  private async reconnect(): Promise<void> {
+    log('realtime', 'Reconnecting all channels');
+    
+    if (!this.userId) {
+      throw new Error('No user ID available for reconnection');
+    }
+
+    // Clean up existing channels
+    this.channels.forEach((channel, name) => {
+      channel.unsubscribe();
+    });
+    this.channels.clear();
+    
+    if (this.presenceChannel) {
+      this.presenceChannel.unsubscribe();
+      this.presenceChannel = null;
+    }
+
+    // Reinitialize
+    await this.initialize(this.userId);
+  }
+
+  private notifyUserOfConnectionIssue(): void {
+    log('critical', 'Persistent connection issues detected');
+    
+    // Try to show notification
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('Connection Issue', {
+        body: 'Having trouble staying connected. Some features may be limited.',
+        icon: '/icon-192x192.png',
+        requireInteraction: true
+      });
+    }
+    
+    // Dispatch custom event for UI handling
+    window.dispatchEvent(new CustomEvent('realtime-connection-issue', {
+      detail: { attempts: this.reconnectAttempts, maxAttempts: this.maxReconnectAttempts }
+    }));
+  }
+
   /**
    * Cleanup all subscriptions
    */
@@ -1033,10 +912,7 @@ class RealtimeService {
     this.usePollingFallback = false;
 
     // Remove status display
-    const statusElement = document.getElementById('connection-status');
-    if (statusElement) {
-      statusElement.remove();
-    }
+    removeConnectionStatus();
 
     // Clean up global references
     delete (window as any).realtimeConnectionMonitor;
@@ -1139,82 +1015,5 @@ const startConnectionMonitor = () => {
 // Start monitoring when service is used
 startConnectionMonitor();
 
-// Hook for React components
-export function useRealtime() {
-  const [alerts, setAlerts] = React.useState<RealtimeAlert[]>([]);
-  const [presence, setPresence] = React.useState<RealtimePresence[]>([]);
-  const [isConnected, setIsConnected] = React.useState(false);
-  const [connectionError, setConnectionError] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    let unsubscribeAlert: (() => void) | null = null;
-    let unsubscribePresence: (() => void) | null = null;
-
-    const initialize = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          log('error', 'No user found for realtime initialization');
-          setConnectionError('Not authenticated');
-          return;
-        }
-
-        log('realtime', 'Initializing realtime for user', { userId: user.id });
-        await realtimeService.initialize(user.id);
-        setIsConnected(true);
-        setConnectionError(null);
-
-        // Subscribe to alerts
-        unsubscribeAlert = realtimeService.onAlert((alert) => {
-          setAlerts(prev => [alert, ...prev].slice(0, 50));
-        });
-
-        // Subscribe to presence
-        unsubscribePresence = realtimeService.onPresenceUpdate((presenceList) => {
-          setPresence(presenceList);
-        });
-
-        // Listen for connection issues
-        const handleConnectionIssue = (event: CustomEvent) => {
-          setIsConnected(false);
-          setConnectionError('Connection lost. Retrying...');
-          log('realtime', 'Connection issue event received', event.detail);
-        };
-
-        window.addEventListener('realtime-connection-issue', handleConnectionIssue as any);
-
-        return () => {
-          window.removeEventListener('realtime-connection-issue', handleConnectionIssue as any);
-        };
-      } catch (error) {
-        log('error', 'Failed to initialize realtime', { error: error.message });
-        setConnectionError(error.message);
-        setIsConnected(false);
-      }
-    };
-
-    initialize();
-
-    return () => {
-      unsubscribeAlert?.();
-      unsubscribePresence?.();
-      realtimeService.cleanup();
-      setIsConnected(false);
-    };
-  }, []);
-
-  return {
-    alerts,
-    presence,
-    isConnected,
-    connectionError,
-    sendAlert: realtimeService.sendAlert.bind(realtimeService),
-    sendCrisisAlert: realtimeService.sendCrisisAlert.bind(realtimeService),
-    updateStatus: realtimeService.updateStatus.bind(realtimeService)
-  };
-}
-
-// Initialize debug log
-if (typeof window !== 'undefined') {
-  (window as any).debugLog = (window as any).debugLog || [];
-}
+// Export the useRealtime hook
+export { useRealtime } from './realtime/useRealtimeHook';

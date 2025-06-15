@@ -3,6 +3,12 @@ import { RealtimeChannel } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { debugService } from './debugService';
 
+// DEDUPLICATION: Candidate to replace `realtimeService.ts`
+// Reason: provides connection health monitoring and reconnection logic.
+// Missing features: alert broadcasting and presence updates currently in
+// `realtimeService.ts`. Consumers using those features must be updated
+// once functionality is merged.
+
 interface ConnectionHealth {
   isConnected: boolean;
   lastPing: number;

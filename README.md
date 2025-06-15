@@ -96,6 +96,9 @@ uses the enhanced versions exclusively:
 
 These components provide richer functionality and improved security compared to
 their predecessors.
+See `docs/DEDUPLICATION_PLAN.md` for details about remaining duplicates and the
+migration checklist.
+
 main
 ### Deployment to Vercel
 

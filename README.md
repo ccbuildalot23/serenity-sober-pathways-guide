@@ -71,3 +71,28 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+
+## Security Logging
+
+This project uses `EnhancedSecurityAuditService` for all audit and security events. Previous services like `auditLogService` and `secureAuditLogService` were removed in favor of this consolidated implementation.
+
+## Development Notes
+
+### Linting
+Run `npm run lint` to check code style. The project uses a minimal ESLint configuration without extra plugins.
+
+## Component Consolidation
+
+Legacy implementations of several major features have been removed. The app now
+uses the enhanced versions exclusively:
+
+- **EnhancedCBTSkillsLibrary** replaces the basic CBT skills library
+- **EnhancedCrisisSystem** replaces the old crisis intervention system
+- **EnhancedCalendarPage** replaces the previous calendar page
+- **dashboard/NotificationBanner** replaces the generic banner component
+- **useSecureAuditLogger** replaces useAuditLogger and server-side variants
+- **EnhancedSecurityAuditService** consolidates audit logging services
+- **EnhancedInputValidator** consolidates input validation utilities
+
+These components provide richer functionality and improved security compared to
+their predecessors.

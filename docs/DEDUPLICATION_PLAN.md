@@ -1,6 +1,6 @@
 # Deduplication Refactoring Plan
 
-This document lists the duplicate areas identified during the review. All items have been migrated to their enhanced versions and the plan is now complete.
+This document lists remaining duplicate areas and migration checklists for consolidating onto the advanced implementations.
 
 ## Notification Banner
 - **Kept**: `src/components/dashboard/NotificationBanner.tsx`
@@ -44,5 +44,7 @@ This document lists the duplicate areas identified during the review. All items 
 
 All imports were updated to use the enhanced service and the legacy file has been deleted.
 
+### Centralized Exports
 
-All duplicate code has been removed. The repository now relies solely on the enhanced implementations.
+Core components are re-exported from `src/components/index.ts` and common
+utilities from `src/utils/index.ts` to simplify imports across the codebase.

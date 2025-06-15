@@ -1,5 +1,6 @@
 
 import React from 'react';
+// DEDUPLICATION: Replaces legacy CrisisInterventionSystem with extended security features
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEnhancedSessionSecurity } from '@/hooks/useEnhancedSessionSecurity';

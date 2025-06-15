@@ -1,5 +1,6 @@
 
 import React from 'react';
+// DEDUPLICATION: Replaces Calendar.tsx with enhanced calendar page and hooks
 import Layout from '@/components/Layout';
 import EnhancedCalendar from '@/components/calendar/EnhancedCalendar';
 import { useAuth } from '@/contexts/AuthContext';

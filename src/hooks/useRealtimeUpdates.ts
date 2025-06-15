@@ -7,7 +7,7 @@ import {
   subscribeToMoodUpdates,
   subscribeToAllCheckInUpdates,
   unsubscribeFromChannel
-} from '@/services/realtimeService';
+} from '@/services/enhancedRealtimeService';
 
 interface UseRealtimeUpdatesProps {
   onCrisisEvent?: (payload: any) => void;

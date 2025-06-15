@@ -1,4 +1,4 @@
-# Welcome to your Lovable project
+<!-- ...existing code or leave empty if no content... -->
 
 ## Project info
 

@@ -1,6 +1,5 @@
-
 import { useAuth } from '@/contexts/AuthContext';
-import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
+import { logAuditEvent } from '@/services/enhancedSecurityAuditService';
 import { formRateLimiter } from '@/lib/enhancedInputValidation';
 // DEDUPLICATION: Replaces useAuditLogger and useServerSideAuditLogger
 // Reason: provides RLS-compliant logging with rate limiting
@@ -26,14 +25,14 @@ export const useSecureAuditLogger = () => {
       return;
     }
 
-    await EnhancedSecurityAuditService.logSecurityEvent({
+    await logAuditEvent({
       action,
       details,
     });
   };
 
   const logSecurityEvent = async (eventType: string, details?: Record<string, any>) => {
-    await EnhancedSecurityAuditService.logSecurityEvent({
+    await logAuditEvent({
       action: eventType,
       details: {
         event_type: eventType,
@@ -44,7 +43,7 @@ export const useSecureAuditLogger = () => {
   };
 
   const logDataAccess = async (table: string, operation: string, recordCount: number = 1) => {
-    await EnhancedSecurityAuditService.logDataAccessEvent(table, operation, recordCount);
+    await logAuditEvent(table, operation, recordCount);
   };
   
   return { 
@@ -54,3 +53,4 @@ export const useSecureAuditLogger = () => {
     isAuthenticated: !!user 
   };
 };
+

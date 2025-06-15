@@ -2,6 +2,8 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
 import { formRateLimiter } from '@/lib/inputValidation';
+// DEDUPLICATION: Replaces useAuditLogger and useServerSideAuditLogger
+// Reason: provides RLS-compliant logging with rate limiting
 
 /**
  * Hook for secure audit logging using server-side encryption only

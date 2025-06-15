@@ -1,5 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
+// DEDUPLICATION: Unified crisis hooks with EnhancedCrisisSystem
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { voiceActivationService } from '@/services/voiceActivationService';

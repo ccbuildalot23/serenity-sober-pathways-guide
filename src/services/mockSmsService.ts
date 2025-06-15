@@ -1,73 +1,32 @@
 
-export interface SentAlert {
-  id: string;
-  contactName: string;
-  contactPhone: string;
-  message: string;
-  location?: string;
-  timestamp: Date;
-  status: 'success' | 'failure';
-}
-
-export interface Contact {
+interface Contact {
   id: string;
   name: string;
   phone: string;
   relationship: string;
 }
 
-export const sendMockSMS = async (
-  contact: Contact, 
-  message: string, 
-  location?: string
-): Promise<{ success: boolean; error?: string }> => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
+export const sendMockSMS = async (contact: Contact, message: string): Promise<void> => {
+  // In production, this would integrate with a real SMS service like Twilio
+  console.log(`Sending SMS to ${contact.name} (${contact.phone}): ${message}`);
   
-  // Simulate 90% success rate
-  const success = Math.random() > 0.1;
+  // Simulate API call delay
+  await new Promise(resolve => setTimeout(resolve, 1000));
   
-  const alert: SentAlert = {
-    id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-    contactName: contact.name,
-    contactPhone: contact.phone,
-    message,
-    location,
-    timestamp: new Date(),
-    status: success ? 'success' : 'failure'
-  };
-  
-  // Store to localStorage
-  const existingAlerts = getSentAlerts();
-  const updatedAlerts = [alert, ...existingAlerts];
-  localStorage.setItem('sentAlerts', JSON.stringify(updatedAlerts));
-  
-  if (success) {
-    console.log(`SMS sent successfully to ${contact.name} (${contact.phone})`);
-    return { success: true };
-  } else {
-    console.log(`Failed to send SMS to ${contact.name} (${contact.phone})`);
-    return { success: false, error: 'Network error occurred' };
-  }
+  // Mock success response
+  return Promise.resolve();
 };
 
-export const getSentAlerts = (): SentAlert[] => {
-  const stored = localStorage.getItem('sentAlerts');
-  if (!stored) return [];
+export const sendEmergencyAlert = async (contacts: Contact[], message: string, location?: { lat: number; lng: number }): Promise<void> => {
+  console.log('Sending emergency alert to contacts:', contacts.map(c => c.name));
+  console.log('Message:', message);
   
-  try {
-    const alerts = JSON.parse(stored);
-    // Convert timestamp strings back to Date objects
-    return alerts.map((alert: any) => ({
-      ...alert,
-      timestamp: new Date(alert.timestamp)
-    }));
-  } catch (error) {
-    console.error('Error parsing sent alerts:', error);
-    return [];
+  if (location) {
+    console.log('Location:', location);
   }
-};
-
-export const clearSentAlerts = (): void => {
-  localStorage.removeItem('sentAlerts');
+  
+  // In production, this would send to all contacts simultaneously
+  for (const contact of contacts) {
+    await sendMockSMS(contact, message);
+  }
 };

@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import React from 'react';
+import { pollingService } from './pollingService';
 
 // Debug mode for tracking issues
 const DEBUG = true;
@@ -45,6 +46,8 @@ class RealtimeService {
   private healthCheckInterval: NodeJS.Timeout | null = null;
   private lastPing = Date.now();
   private connectionStatus: 'connecting' | 'connected' | 'disconnected' | 'error' = 'disconnected';
+  private usePollingFallback = false;
+  private pollingEnabled = false;
 
   /**
    * Initialize realtime connections for a user
@@ -75,29 +78,68 @@ class RealtimeService {
       log('realtime', 'Session verified', { userId: session.user.id });
 
       // Start with a simple test channel
-      await this.createTestChannel();
+      try {
+        await this.createTestChannel();
+        log('realtime', 'Test channel successful, proceeding with realtime');
+        this.usePollingFallback = false;
+      } catch (testError) {
+        log('error', 'Test channel failed, enabling polling fallback', { error: testError.message });
+        this.usePollingFallback = true;
+        this.enablePollingFallback(userId);
+      }
 
       // If test successful, proceed with other channels
-      await this.subscribeToAlerts(userId);
-      await this.subscribeToPresence(userId);
-      await this.subscribeToDbChanges(userId);
+      if (!this.usePollingFallback) {
+        await this.subscribeToAlerts(userId);
+        await this.subscribeToPresence(userId);
+        await this.subscribeToDbChanges(userId);
 
-      // Start health monitoring
-      this.startHealthMonitoring();
+        // Start health monitoring
+        this.startHealthMonitoring();
+      }
       
       this.isInitialized = true;
-      this.connectionStatus = 'connected';
+      this.connectionStatus = this.usePollingFallback ? 'connected' : 'connected';
       this.reconnectAttempts = 0;
       
       log('realtime', 'Initialization complete', { 
         channelCount: this.channels.size,
-        status: this.connectionStatus 
+        status: this.connectionStatus,
+        usingPolling: this.usePollingFallback
       });
     } catch (error) {
       log('error', 'Failed to initialize realtime', { error: error.message });
       this.connectionStatus = 'error';
+      
+      // Fallback to polling
+      log('realtime', 'Falling back to polling mode due to initialization failure');
+      this.usePollingFallback = true;
+      this.enablePollingFallback(userId);
+      
       throw error;
     }
+  }
+
+  /**
+   * Enable polling fallback when realtime fails
+   */
+  private enablePollingFallback(userId: string): void {
+    if (this.pollingEnabled) return;
+
+    log('realtime', 'Enabling polling fallback', { userId });
+    
+    // Poll for crisis events
+    pollingService.startCrisisEventPolling(userId, (events) => {
+      events.forEach(event => this.handleCrisisEvent(event));
+    });
+
+    // Poll for contact changes
+    pollingService.startContactPolling(userId, (contacts) => {
+      log('realtime', 'Contact changes detected via polling', { count: contacts.length });
+    });
+
+    this.pollingEnabled = true;
+    this.connectionStatus = 'connected';
   }
 
   /**
@@ -388,7 +430,14 @@ class RealtimeService {
     this.connectionStatus = 'disconnected';
     
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      log('critical', 'Max reconnection attempts reached');
+      log('critical', 'Max reconnection attempts reached, switching to polling');
+      
+      // Switch to polling fallback
+      if (this.userId && !this.usePollingFallback) {
+        this.usePollingFallback = true;
+        this.enablePollingFallback(this.userId);
+      }
+      
       this.notifyUserOfConnectionIssue();
       return;
     }
@@ -605,7 +654,25 @@ class RealtimeService {
    * Get connection status
    */
   getConnectionStatus(): string {
+    if (this.usePollingFallback) {
+      return 'connected-polling';
+    }
     return this.connectionStatus;
+  }
+
+  /**
+   * Get debug info
+   */
+  getDebugInfo() {
+    return {
+      connectionStatus: this.connectionStatus,
+      channelCount: this.channels.size,
+      usingPolling: this.usePollingFallback,
+      pollingActive: pollingService.getActivePollingCount(),
+      isInitialized: this.isInitialized,
+      userId: this.userId,
+      reconnectAttempts: this.reconnectAttempts
+    };
   }
 
   /**
@@ -713,6 +780,11 @@ class RealtimeService {
     this.isInitialized = false;
     this.connectionStatus = 'disconnected';
     
+    // Stop polling
+    pollingService.stopAllPolling();
+    this.pollingEnabled = false;
+    this.usePollingFallback = false;
+
     log('realtime', 'Cleanup complete');
   }
 }

@@ -14,6 +14,9 @@ import CheckIn from '@/pages/CheckIn';
 import EnhancedCrisisSystem from '@/components/crisis/EnhancedCrisisSystem';
 import RealtimeNotifications from '@/components/RealtimeNotifications';
 import ProductionMonitor from '@/components/ProductionMonitor';
+import RealtimeConnectionTest from '@/components/RealtimeConnectionTest';
+import MinimalRealtimeExample from '@/components/MinimalRealtimeExample';
+import RealtimeDebugPanel from '@/components/RealtimeDebugPanel';
 
 function App() {
   const queryClient = new QueryClient();
@@ -25,6 +28,8 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/auth" element={<Auth />} />
+              <Route path="/test-realtime" element={<RealtimeConnectionTest />} />
+              <Route path="/test-minimal" element={<MinimalRealtimeExample />} />
               <Route path="/" element={
                 <Layout activeTab="dashboard" onTabChange={() => {}}>
                   <Index />
@@ -54,6 +59,7 @@ function App() {
             <Toaster />
             <RealtimeNotifications />
             <EnhancedCrisisSystem />
+            <RealtimeDebugPanel />
           </BrowserRouter>
         </ProductionMonitor>
       </AuthProvider>

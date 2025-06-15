@@ -1,22 +1,13 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { User, Phone, Mail, UserPlus } from 'lucide-react';
+import { X } from 'lucide-react';
 
 interface AddContactFormProps {
-  onSubmit: (contact: {
-    name: string;
-    relationship: string;
-    phone?: string;
-    email?: string;
-    contact_method?: 'sms' | 'push' | 'both';
-    share_location?: boolean;
-  }) => Promise<boolean>;
+  onSubmit: (contact: any) => Promise<boolean>;
   onCancel: () => void;
   loading?: boolean;
 }
@@ -27,134 +18,100 @@ const AddContactForm: React.FC<AddContactFormProps> = ({ onSubmit, onCancel, loa
     relationship: '',
     phone: '',
     email: '',
-    contact_method: 'both' as 'sms' | 'push' | 'both',
+    contact_method: 'both',
     share_location: false
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name.trim()) return;
-
-    const success = await onSubmit({
-      name: formData.name,
-      relationship: formData.relationship || 'Support Person',
-      phone: formData.phone || undefined,
-      email: formData.email || undefined,
-      contact_method: formData.contact_method,
-      share_location: formData.share_location
-    });
-
-    if (success) {
-      setFormData({
-        name: '',
-        relationship: '',
-        phone: '',
-        email: '',
-        contact_method: 'both',
-        share_location: false
-      });
-      onCancel();
-    }
+    await onSubmit(formData);
   };
 
   return (
-    <Card className="animate-slide-up">
+    <Card className="mb-4">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <UserPlus className="w-5 h-5 text-blue-600" />
+        <CardTitle className="flex items-center justify-between">
           Add Support Contact
+          <Button onClick={onCancel} variant="ghost" size="sm">
+            <X className="w-4 h-4" />
+          </Button>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="name">Name *</Label>
-              <Input
-                id="name"
-                placeholder="Contact name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="relationship">Relationship</Label>
-              <Input
-                id="relationship"
-                placeholder="e.g., Sponsor, Family, Friend"
-                value={formData.relationship}
-                onChange={(e) => setFormData({ ...formData, relationship: e.target.value })}
-              />
-            </div>
+          <div>
+            <Label htmlFor="name">Name *</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              required
+            />
           </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="Phone number"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="Email address"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              />
-            </div>
+          
+          <div>
+            <Label htmlFor="relationship">Relationship *</Label>
+            <Input
+              id="relationship"
+              value={formData.relationship}
+              onChange={(e) => setFormData({ ...formData, relationship: e.target.value })}
+              placeholder="e.g., Friend, Family, Sponsor"
+              required
+            />
           </div>
-
+          
+          <div>
+            <Label htmlFor="phone">Phone Number</Label>
+            <Input
+              id="phone"
+              type="tel"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            />
+          </div>
+          
           <div>
             <Label htmlFor="contact_method">Preferred Contact Method</Label>
-            <Select 
+            <Select
               value={formData.contact_method}
-              onValueChange={(value: 'sms' | 'push' | 'both') => 
-                setFormData({ ...formData, contact_method: value })
-              }
+              onValueChange={(value) => setFormData({ ...formData, contact_method: value })}
             >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="sms">SMS Only</SelectItem>
-                <SelectItem value="push">Push Notification Only</SelectItem>
-                <SelectItem value="both">Both SMS & Push</SelectItem>
+                <SelectItem value="sms">SMS</SelectItem>
+                <SelectItem value="push">Push Notification</SelectItem>
+                <SelectItem value="both">Both</SelectItem>
               </SelectContent>
             </Select>
           </div>
-
-          <div className="flex items-center space-x-2">
-            <Switch
+          
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
               id="share_location"
               checked={formData.share_location}
-              onCheckedChange={(checked) => setFormData({ ...formData, share_location: checked })}
+              onChange={(e) => setFormData({ ...formData, share_location: e.target.checked })}
             />
-            <Label htmlFor="share_location">Share location with this contact</Label>
+            <Label htmlFor="share_location">Share location in emergencies</Label>
           </div>
-
+          
           <div className="flex gap-2">
-            <Button 
-              type="submit" 
-              className="flex-1 bg-blue-600 hover:bg-blue-700"
-              disabled={loading || !formData.name.trim()}
-            >
+            <Button type="submit" disabled={loading} className="flex-1">
               {loading ? 'Adding...' : 'Add Contact'}
             </Button>
-            <Button 
-              type="button"
-              onClick={onCancel}
-              variant="outline"
-              className="flex-1"
-              disabled={loading}
-            >
+            <Button type="button" onClick={onCancel} variant="outline">
               Cancel
             </Button>
           </div>

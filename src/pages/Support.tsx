@@ -1,61 +1,184 @@
-
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Phone, MessageSquare, Users, Heart, Clock, Shield, BarChart3 } from 'lucide-react';
-import SupportAnalytics from '@/components/support/SupportAnalytics';
+import {
+  Phone, MessageSquare, Users, Heart, Clock, Shield,
+  BarChart3, Settings, AlertTriangle, UserPlus, Globe,
+  MapPin, Loader2
+} from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+
+const SupportAnalytics = lazy(() => import('@/components/support/SupportAnalytics'));
+const SupportNetwork = lazy(() => import('@/components/SupportNetwork'));
+const SupportCircleSettings = lazy(() => import('@/components/SupportCircleSettings'));
+const SupporterDashboard = lazy(() => import('@/components/supporter/SupporterDashboard'));
+
+import meetingFinderService from '@/services/meetingFinderService';
+import { onlineSupportResources, sponsorshipResources } from '@/utils/supportResources';
 
 const Support = () => {
-  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [activeView, setActiveView] = useState<'main' | 'analytics' | 'network' | 'settings' | 'supporter'>('main');
+  const [showMeetingFinder, setShowMeetingFinder] = useState(false);
+  const [loadingMeetings, setLoadingMeetings] = useState(false);
+  const [nearbyMeetings, setNearbyMeetings] = useState<any[]>([]);
+
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleCall988 = () => {
-    window.open('tel:988', '_self');
-    toast.success('Calling 988 Suicide & Crisis Lifeline');
+    const confirmed = window.confirm(
+      'You are about to call the 988 Suicide & Crisis Lifeline. This is a free, confidential service available 24/7. Continue?'
+    );
+    if (confirmed) {
+      window.location.href = 'tel:988';
+      toast.success('Connecting to 988 Suicide & Crisis Lifeline');
+    }
   };
 
   const handleTextCrisis = () => {
-    window.open('sms:741741', '_self');
-    toast.success('Opening text to Crisis Text Line');
+    const confirmed = window.confirm(
+      'You are about to text the Crisis Text Line. Text HOME to 741741 for free, 24/7 crisis support. Continue?'
+    );
+    if (confirmed) {
+      window.location.href = 'sms:741741&body=HOME';
+      toast.success('Opening text to Crisis Text Line');
+    }
   };
 
-  const handleAddSupportContact = () => {
-    navigate('/support#add-contact');
-    toast.info('Navigate to add support contact');
-  };
+  const handleMeetingFinder = async () => {
+    setShowMeetingFinder(true);
+    setLoadingMeetings(true);
 
-  const handleAddTherapist = () => {
-    toast.info('Therapist contact feature coming soon');
-  };
-
-  const handleAddPsychiatrist = () => {
-    toast.info('Psychiatrist contact feature coming soon');
-  };
-
-  const handleAddSupportGroup = () => {
-    toast.info('Support group feature coming soon');
-  };
-
-  const handleMeetingFinder = () => {
-    toast.info('Meeting finder feature coming soon');
+    try {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const meetings = await meetingFinderService.searchMeetings({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            radius: 10
+          });
+          setNearbyMeetings(meetings);
+          setLoadingMeetings(false);
+        },
+        async () => {
+          const meetings = await meetingFinderService.searchMeetings({});
+          setNearbyMeetings(meetings);
+          setLoadingMeetings(false);
+        }
+      );
+    } catch (error) {
+      console.error('Error loading meetings:', error);
+      toast.error('Failed to load meetings');
+      setLoadingMeetings(false);
+    }
   };
 
   const handleOnlineSupportGroups = () => {
-    toast.info('Online support groups feature coming soon');
+    const modal = window.confirm(
+      'Online Support Groups Available:\n\n' +
+      '• In The Rooms - Global recovery community\n' +
+      '• SMART Recovery - Science-based meetings\n' +
+      '• AA Online Intergroup - Virtual AA meetings\n' +
+      '• Sober Grid - Sober social network\n\n' +
+      'Would you like to visit In The Rooms?'
+    );
+
+    if (modal) {
+      window.open('https://www.intherooms.com', '_blank');
+      toast.success('Opening In The Rooms website');
+    }
   };
 
   const handleSponsorConnection = () => {
-    toast.info('Sponsor connection feature coming soon');
+    const tips = sponsorshipResources.findingSponsor.tips.slice(0, 4).join('\n• ');
+
+    if (window.confirm(
+      'Finding a Sponsor:\n\n• ' + tips + '\n\n' +
+      'Would you like to learn more about sponsorship?'
+    )) {
+      toast.info('Check local meetings to find potential sponsors');
+    }
   };
 
-  if (showAnalytics) {
+  const handleViewSupportNetwork = () => {
+    setActiveView('network');
+  };
+
+  const handleViewSettings = () => {
+    setActiveView('settings');
+  };
+
+  const handleViewSupporter = () => {
+    setActiveView('supporter');
+  };
+
+  const LoadingSpinner = () => (
+    <div className="flex items-center justify-center p-8">
+      <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+    </div>
+  );
+
+  if (activeView === 'analytics') {
     return (
       <Layout activeTab="support" onTabChange={() => {}}>
         <div className="p-4">
-          <SupportAnalytics onBack={() => setShowAnalytics(false)} />
+          <Suspense fallback={<LoadingSpinner />}>
+            <SupportAnalytics onBack={() => setActiveView('main')} />
+          </Suspense>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (activeView === 'network') {
+    return (
+      <Layout activeTab="support" onTabChange={() => {}}>
+        <div className="p-4">
+          <div className="mb-4">
+            <Button onClick={() => setActiveView('main')} variant="ghost" size="sm">
+              ← Back to Support
+            </Button>
+          </div>
+          <Suspense fallback={<LoadingSpinner />}>
+            <SupportNetwork />
+          </Suspense>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (activeView === 'settings') {
+    return (
+      <Layout activeTab="support" onTabChange={() => {}}>
+        <div className="p-4">
+          <div className="mb-4">
+            <Button onClick={() => setActiveView('main')} variant="ghost" size="sm">
+              ← Back to Support
+            </Button>
+          </div>
+          <Suspense fallback={<LoadingSpinner />}>
+            <SupportCircleSettings />
+          </Suspense>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (activeView === 'supporter') {
+    return (
+      <Layout activeTab="support" onTabChange={() => {}}>
+        <div className="p-4">
+          <div className="mb-4">
+            <Button onClick={() => setActiveView('main')} variant="ghost" size="sm">
+              ← Back to Support
+            </Button>
+          </div>
+          <Suspense fallback={<LoadingSpinner />}>
+            <SupporterDashboard />
+          </Suspense>
         </div>
       </Layout>
     );
@@ -63,13 +186,32 @@ const Support = () => {
 
   return (
     <Layout activeTab="support" onTabChange={() => {}}>
-      <div className="p-4 space-y-6">
+      <div className="p-4 space-y-6 max-w-4xl mx-auto">
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold text-[#1E3A8A]">Support Network</h1>
           <p className="text-gray-600">Connect with your support system</p>
         </div>
 
-        {/* Analytics Access */}
+        <div className="flex flex-wrap gap-2 justify-center">
+          <Button
+            onClick={handleViewSupporter}
+            variant="outline"
+            size="sm"
+            className="text-purple-600 border-purple-300"
+          >
+            <Shield className="w-4 h-4 mr-1" />
+            Supporter View
+          </Button>
+          <Button
+            onClick={handleViewSettings}
+            variant="outline"
+            size="sm"
+          >
+            <Settings className="w-4 h-4 mr-1" />
+            Settings
+          </Button>
+        </div>
+
         <Card className="border-purple-200 bg-purple-50">
           <CardHeader>
             <CardTitle className="text-purple-700 flex items-center gap-2">
@@ -81,8 +223,8 @@ const Support = () => {
             <p className="text-sm text-purple-600 mb-4">
               Get insights into your support network effectiveness and patterns
             </p>
-            <Button 
-              onClick={() => setShowAnalytics(true)}
+            <Button
+              onClick={() => setActiveView('analytics')}
               className="bg-purple-600 hover:bg-purple-700 text-white"
             >
               <BarChart3 className="w-4 h-4 mr-2" />
@@ -91,7 +233,6 @@ const Support = () => {
           </CardContent>
         </Card>
 
-        {/* Emergency Support */}
         <Card className="border-red-200 bg-red-50">
           <CardHeader>
             <CardTitle className="text-red-700 flex items-center gap-2">
@@ -101,26 +242,28 @@ const Support = () => {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-1 gap-3">
-              <Button 
+              <Button
                 className="bg-red-600 hover:bg-red-700 text-white"
                 onClick={handleCall988}
               >
                 <Phone className="w-4 h-4 mr-2" />
                 Call 988 Suicide & Crisis Lifeline
               </Button>
-              <Button 
-                variant="outline" 
-                className="border-red-300 text-red-700"
+              <Button
+                variant="outline"
+                className="border-red-300 text-red-700 hover:bg-red-50"
                 onClick={handleTextCrisis}
               >
                 <MessageSquare className="w-4 h-4 mr-2" />
                 Text HOME to 741741
               </Button>
             </div>
+            <p className="text-xs text-red-600 mt-2">
+              Free, confidential support available 24/7
+            </p>
           </CardContent>
         </Card>
 
-        {/* Support Circle */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -129,16 +272,22 @@ const Support = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="text-center py-8 text-gray-500">
-              <Users className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-              <h3 className="font-semibold mb-2">Build Your Support Network</h3>
-              <p className="text-sm mb-4">Add trusted friends and family who can support you</p>
-              <Button onClick={handleAddSupportContact}>Add Support Contact</Button>
+            <p className="text-sm text-gray-600">
+              Manage your trusted contacts and support network
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <Button onClick={handleViewSupportNetwork} className="w-full">
+                <Users className="w-4 h-4 mr-2" />
+                View Network
+              </Button>
+              <Button onClick={handleViewSettings} variant="outline" className="w-full">
+                <UserPlus className="w-4 h-4 mr-2" />
+                Add Contacts
+              </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Professional Support */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -147,33 +296,20 @@ const Support = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <h4 className="font-medium">Therapist</h4>
-                  <p className="text-sm text-gray-600">Not configured</p>
-                </div>
-                <Button variant="outline" size="sm" onClick={handleAddTherapist}>Add</Button>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <h4 className="font-medium">Psychiatrist</h4>
-                  <p className="text-sm text-gray-600">Not configured</p>
-                </div>
-                <Button variant="outline" size="sm" onClick={handleAddPsychiatrist}>Add</Button>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <h4 className="font-medium">Support Group</h4>
-                  <p className="text-sm text-gray-600">Not configured</p>
-                </div>
-                <Button variant="outline" size="sm" onClick={handleAddSupportGroup}>Add</Button>
-              </div>
-            </div>
+            <p className="text-sm text-gray-600 mb-4">
+              Connect with healthcare professionals through your support network
+            </p>
+            <Button
+              onClick={handleViewSettings}
+              className="w-full"
+              variant="outline"
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              Manage Professional Contacts
+            </Button>
           </CardContent>
         </Card>
 
-        {/* Recovery Resources */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -182,24 +318,24 @@ const Support = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="w-full justify-start"
               onClick={handleMeetingFinder}
             >
               <Clock className="w-4 h-4 mr-2" />
               Meeting Finder
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="w-full justify-start"
               onClick={handleOnlineSupportGroups}
             >
-              <MessageSquare className="w-4 h-4 mr-2" />
+              <Globe className="w-4 h-4 mr-2" />
               Online Support Groups
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="w-full justify-start"
               onClick={handleSponsorConnection}
             >
@@ -208,6 +344,82 @@ const Support = () => {
             </Button>
           </CardContent>
         </Card>
+
+        {showMeetingFinder && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-auto">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold">Recovery Meetings Near You</h2>
+                  <Button
+                    onClick={() => setShowMeetingFinder(false)}
+                    variant="ghost"
+                    size="sm"
+                  >
+                    ✕
+                  </Button>
+                </div>
+
+                {loadingMeetings ? (
+                  <LoadingSpinner />
+                ) : (
+                  <div className="space-y-4">
+                    {nearbyMeetings.map(meeting => (
+                      <div key={meeting.id} className="p-4 border rounded-lg hover:bg-gray-50">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-semibold">{meeting.name}</h3>
+                            <p className="text-sm text-gray-600">
+                              {meeting.type} • {meeting.day} at {meeting.time}
+                            </p>
+                            <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
+                              <MapPin className="w-3 h-3" />
+                              {meeting.location}
+                            </p>
+                          </div>
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              if (meeting.virtual && meeting.link) {
+                                window.open(meeting.link, '_blank');
+                              } else {
+                                window.open(meetingFinderService.getDirectionsUrl(meeting), '_blank');
+                              }
+                            }}
+                          >
+                            {meeting.virtual ? 'Join' : 'Directions'}
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+
+                    <div className="text-center text-sm text-gray-500 mt-4">
+                      <p>For more meetings, visit:</p>
+                      <div className="flex gap-4 justify-center mt-2">
+                        <a
+                          href="https://aa.org/find-aa"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline"
+                        >
+                          AA.org
+                        </a>
+                        <a
+                          href="https://www.na.org/meetingsearch"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline"
+                        >
+                          NA.org
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   );

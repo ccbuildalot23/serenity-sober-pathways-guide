@@ -9,7 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Trophy } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { useServerSideAuditLogger } from '@/hooks/useServerSideAuditLogger';
+import { useSecureAuditLogger } from '@/hooks/useSecureAuditLogger';
 import confetti from 'canvas-confetti';
 import { toast } from 'sonner';
 
@@ -41,7 +41,7 @@ const CrisisMilestoneDialog: React.FC<CrisisMilestoneDialogProps> = ({
   crisisData 
 }) => {
   const { user } = useAuth();
-  const { log } = useServerSideAuditLogger();
+  const { log } = useSecureAuditLogger();
   const [helpfulInterventions, setHelpfulInterventions] = useState<string[]>([]);
   const [crisisMessage, setCrisisMessage] = useState('');
 

@@ -1,13 +1,55 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Phone, MessageSquare, Users, Heart, Clock, Shield, BarChart3 } from 'lucide-react';
 import SupportAnalytics from '@/components/support/SupportAnalytics';
+import { toast } from 'sonner';
 
 const Support = () => {
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const navigate = useNavigate();
+
+  const handleCall988 = () => {
+    window.open('tel:988', '_self');
+    toast.success('Calling 988 Suicide & Crisis Lifeline');
+  };
+
+  const handleTextCrisis = () => {
+    window.open('sms:741741', '_self');
+    toast.success('Opening text to Crisis Text Line');
+  };
+
+  const handleAddSupportContact = () => {
+    navigate('/support#add-contact');
+    toast.info('Navigate to add support contact');
+  };
+
+  const handleAddTherapist = () => {
+    toast.info('Therapist contact feature coming soon');
+  };
+
+  const handleAddPsychiatrist = () => {
+    toast.info('Psychiatrist contact feature coming soon');
+  };
+
+  const handleAddSupportGroup = () => {
+    toast.info('Support group feature coming soon');
+  };
+
+  const handleMeetingFinder = () => {
+    toast.info('Meeting finder feature coming soon');
+  };
+
+  const handleOnlineSupportGroups = () => {
+    toast.info('Online support groups feature coming soon');
+  };
+
+  const handleSponsorConnection = () => {
+    toast.info('Sponsor connection feature coming soon');
+  };
 
   if (showAnalytics) {
     return (
@@ -59,11 +101,18 @@ const Support = () => {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-1 gap-3">
-              <Button className="bg-red-600 hover:bg-red-700 text-white">
+              <Button 
+                className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={handleCall988}
+              >
                 <Phone className="w-4 h-4 mr-2" />
                 Call 988 Suicide & Crisis Lifeline
               </Button>
-              <Button variant="outline" className="border-red-300 text-red-700">
+              <Button 
+                variant="outline" 
+                className="border-red-300 text-red-700"
+                onClick={handleTextCrisis}
+              >
                 <MessageSquare className="w-4 h-4 mr-2" />
                 Text HOME to 741741
               </Button>
@@ -84,7 +133,7 @@ const Support = () => {
               <Users className="w-12 h-12 mx-auto mb-4 text-gray-400" />
               <h3 className="font-semibold mb-2">Build Your Support Network</h3>
               <p className="text-sm mb-4">Add trusted friends and family who can support you</p>
-              <Button>Add Support Contact</Button>
+              <Button onClick={handleAddSupportContact}>Add Support Contact</Button>
             </div>
           </CardContent>
         </Card>
@@ -104,21 +153,21 @@ const Support = () => {
                   <h4 className="font-medium">Therapist</h4>
                   <p className="text-sm text-gray-600">Not configured</p>
                 </div>
-                <Button variant="outline" size="sm">Add</Button>
+                <Button variant="outline" size="sm" onClick={handleAddTherapist}>Add</Button>
               </div>
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div>
                   <h4 className="font-medium">Psychiatrist</h4>
                   <p className="text-sm text-gray-600">Not configured</p>
                 </div>
-                <Button variant="outline" size="sm">Add</Button>
+                <Button variant="outline" size="sm" onClick={handleAddPsychiatrist}>Add</Button>
               </div>
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div>
                   <h4 className="font-medium">Support Group</h4>
                   <p className="text-sm text-gray-600">Not configured</p>
                 </div>
-                <Button variant="outline" size="sm">Add</Button>
+                <Button variant="outline" size="sm" onClick={handleAddSupportGroup}>Add</Button>
               </div>
             </div>
           </CardContent>
@@ -133,15 +182,27 @@ const Support = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button variant="outline" className="w-full justify-start">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={handleMeetingFinder}
+            >
               <Clock className="w-4 h-4 mr-2" />
               Meeting Finder
             </Button>
-            <Button variant="outline" className="w-full justify-start">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={handleOnlineSupportGroups}
+            >
               <MessageSquare className="w-4 h-4 mr-2" />
               Online Support Groups
             </Button>
-            <Button variant="outline" className="w-full justify-start">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={handleSponsorConnection}
+            >
               <Heart className="w-4 h-4 mr-2" />
               Sponsor Connection
             </Button>

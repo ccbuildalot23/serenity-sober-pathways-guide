@@ -137,6 +137,11 @@
   .btn-outline-emerald {
     @apply border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white;
   }
+
+  /* Shared heading style for large section titles */
+  .heading-large {
+    @apply text-2xl font-bold;
+  }
 }
 
 @layer utilities {

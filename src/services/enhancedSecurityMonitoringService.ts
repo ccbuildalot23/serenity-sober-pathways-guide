@@ -1,7 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { serverSideEncryption } from '@/lib/serverSideEncryption';
-import { InputValidator } from '@/lib/inputValidation';
+import { EnhancedInputValidator as InputValidator } from '@/lib/enhancedInputValidation';
 
 interface SecurityEvent {
   eventType: string;

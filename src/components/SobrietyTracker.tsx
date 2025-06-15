@@ -122,13 +122,13 @@ const SobrietyTracker = () => {
                 <div className="bg-white rounded-lg p-4 shadow-sm">
                   <Calendar className="w-6 h-6 text-blue-600 mx-auto mb-2" />
                   <div className="text-sm text-gray-600">Days Sober</div>
-                  <div className="text-2xl font-bold serenity-navy">{days}</div>
+                  <div className="heading-large serenity-navy">{days}</div>
                 </div>
                 
                 <div className="bg-white rounded-lg p-4 shadow-sm">
                   <DollarSign className="w-6 h-6 text-emerald-600 mx-auto mb-2" />
                   <div className="text-sm text-gray-600">Money Saved</div>
-                  <div className="text-2xl font-bold serenity-emerald">${moneySaved.toFixed(0)}</div>
+                  <div className="heading-large serenity-emerald">${moneySaved.toFixed(0)}</div>
                 </div>
               </div>
             </>

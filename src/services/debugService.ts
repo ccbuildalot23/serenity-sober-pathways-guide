@@ -1,7 +1,7 @@
 
 interface DebugLogEntry {
   timestamp: string;
-  category: 'sms' | 'realtime' | 'location' | 'api' | 'error' | 'critical' | 'performance';
+  category: 'sms' | 'realtime' | 'location' | 'api' | 'error' | 'critical' | 'performance' | 'system';
   message: string;
   data?: any;
   userId?: string;

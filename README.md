@@ -113,3 +113,4 @@ This project can be deployed on [Vercel](https://vercel.com). A `vercel.json` fi
 1. Import the repository into Vercel.
 2. Ensure required environment variables (e.g. `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) are set in the project settings.
 3. Trigger a deployment.
+

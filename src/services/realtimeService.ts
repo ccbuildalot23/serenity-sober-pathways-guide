@@ -21,7 +21,9 @@ function setupWebSocketDebugging() {
   if (typeof window === 'undefined' || (window as any).wsDebuggingSetup) return;
   
   const OriginalWebSocket = window.WebSocket;
-  window.WebSocket = function(url: string | URL, protocols?: string | string[]) {
+  
+  // Create a proper constructor function that extends the original
+  function DebugWebSocket(url: string | URL, protocols?: string | string[]) {
     log('websocket', 'WebSocket connection attempt', { url: url.toString() });
     
     const ws = new OriginalWebSocket(url, protocols);
@@ -56,7 +58,17 @@ function setupWebSocketDebugging() {
     });
     
     return ws;
-  };
+  }
+  
+  // Copy static properties from original WebSocket
+  DebugWebSocket.prototype = OriginalWebSocket.prototype;
+  DebugWebSocket.CONNECTING = OriginalWebSocket.CONNECTING;
+  DebugWebSocket.OPEN = OriginalWebSocket.OPEN;
+  DebugWebSocket.CLOSING = OriginalWebSocket.CLOSING;
+  DebugWebSocket.CLOSED = OriginalWebSocket.CLOSED;
+  
+  // Replace the global WebSocket with our debug version
+  window.WebSocket = DebugWebSocket as any;
   
   (window as any).wsDebuggingSetup = true;
   log('websocket', 'WebSocket debugging interceptor setup complete');

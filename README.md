@@ -92,6 +92,7 @@ uses the enhanced versions exclusively:
 - **dashboard/NotificationBanner** replaces the generic banner component
 - **useSecureAuditLogger** replaces useAuditLogger and server-side variants
 - **EnhancedSecurityAuditService** consolidates audit logging services
+- **EnhancedInputValidator** consolidates input validation utilities
 
 These components provide richer functionality and improved security compared to
 their predecessors.

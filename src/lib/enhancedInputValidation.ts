@@ -1,4 +1,3 @@
-
 import DOMPurify from 'dompurify';
 import crypto from 'crypto';
 

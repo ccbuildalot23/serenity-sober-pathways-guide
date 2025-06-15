@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { enhancedRealtimeService } from '@/services/enhancedRealtimeService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Wifi, WifiOff, Database, RefreshCw } from 'lucide-react';
 
-export default function RealtimeDebugPanel() {
+const RealtimeDebugPanel: React.FC = () => {
   const [debugInfo, setDebugInfo] = useState<any>({});
   const [isVisible, setIsVisible] = useState(false);
 
@@ -159,4 +158,6 @@ export default function RealtimeDebugPanel() {
       </Card>
     </div>
   );
-}
+};
+
+export default RealtimeDebugPanel;

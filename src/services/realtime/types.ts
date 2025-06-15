@@ -1,13 +1,13 @@
 
 export interface RealtimeAlert {
   id: string;
-  type: 'crisis' | 'check-in' | 'status-update';
+  type: 'crisis' | 'milestone' | 'support' | 'system';
   senderId: string;
   senderName: string;
   message: string;
-  urgency: 'high' | 'medium' | 'low';
-  location?: string;
+  urgency: 'low' | 'medium' | 'high';
   timestamp: string;
+  location?: string;
 }
 
 export interface RealtimePresence {
@@ -15,4 +15,16 @@ export interface RealtimePresence {
   userName: string;
   status: 'online' | 'away' | 'in-crisis';
   lastSeen: string;
+}
+
+export interface RealtimeChannelConfig {
+  config?: {
+    broadcast?: {
+      self?: boolean;
+      ack?: boolean;
+    };
+    presence?: {
+      key?: string;
+    };
+  };
 }

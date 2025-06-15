@@ -44,3 +44,7 @@ This document lists remaining duplicate areas and migration checklists for conso
 
 All imports were updated to use the enhanced service and the legacy file has been deleted.
 
+### Centralized Exports
+
+Core components are re-exported from `src/components/index.ts` and common
+utilities from `src/utils/index.ts` to simplify imports across the codebase.

@@ -1,14 +1,11 @@
-
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { debugService } from './debugService';
 import { RealtimeAlert, RealtimePresence } from './realtime/types';
 
-// DEDUPLICATION: Candidate to replace `realtimeService.ts`
-// Reason: provides connection health monitoring and reconnection logic.
-// Missing features: alert broadcasting and presence updates currently in
-// `realtimeService.ts`. Consumers using those features must be updated
-// once functionality is merged.
+// DEDUPLICATION: Replaces `realtimeService.ts`
+// Combines connection health monitoring, alert broadcasting,
+// and presence tracking in a single service.
 
 interface ConnectionHealth {
   isConnected: boolean;
@@ -29,7 +26,7 @@ export class EnhancedRealtimeService {
   private presenceHandlers = new Set<(presence: RealtimePresence[]) => void>();
   private userId: string | null = null;
   private isInitialized = false;
-  
+
   constructor() {
     this.startHealthMonitoring();
     this.setupConnectionEventListeners();
@@ -57,7 +54,7 @@ export class EnhancedRealtimeService {
   private checkConnectionHealth(): void {
     const now = Date.now();
     const timeSinceLastPing = now - this.lastPing;
-    
+
     if (timeSinceLastPing > 60000) { // No ping in 60 seconds
       debugService.log('error', 'Connection unhealthy - no ping received', {
         timeSinceLastPing,
@@ -70,7 +67,7 @@ export class EnhancedRealtimeService {
   async subscribe(channelName: string, config: any = {}): Promise<RealtimeChannel> {
     try {
       const channel = supabase.channel(channelName, config);
-      
+
       // Set up ping/pong for health monitoring
       channel.on('system', { event: 'ping' }, () => {
         this.lastPing = Date.now();
@@ -95,9 +92,9 @@ export class EnhancedRealtimeService {
 
       this.channels.set(channelName, channel);
       debugService.log('realtime', 'Channel subscribed', { channelName });
-      
+
       return channel;
-    } catch (error) {
+    } catch (error: any) {
       debugService.log('error', 'Failed to subscribe to channel', {
         channelName,
         error: error.message
@@ -199,7 +196,7 @@ export class EnhancedRealtimeService {
     const profile = profileResult.data;
     const contacts = contactsResult.data || [];
 
-    const recipientIds = contacts.map((c) => c.id);
+    const recipientIds = contacts.map((c: any) => c.id);
 
     await this.sendAlert(recipientIds, {
       type: 'crisis',
@@ -298,9 +295,9 @@ export class EnhancedRealtimeService {
   }
 
   private async handleDisconnect(channelName?: string): Promise<void> {
-    debugService.log('realtime', 'Handling disconnect', { 
-      channelName, 
-      attempts: this.reconnectAttempts 
+    debugService.log('realtime', 'Handling disconnect', {
+      channelName,
+      attempts: this.reconnectAttempts
     });
 
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
@@ -311,7 +308,7 @@ export class EnhancedRealtimeService {
 
     const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
     this.reconnectAttempts++;
-    
+
     this.reconnectTimeout = setTimeout(async () => {
       try {
         if (channelName) {
@@ -319,7 +316,7 @@ export class EnhancedRealtimeService {
         } else {
           await this.reconnectAllChannels();
         }
-      } catch (error) {
+      } catch (error: any) {
         debugService.log('error', 'Reconnection failed', { error: error.message });
         this.handleDisconnect(channelName);
       }
@@ -332,7 +329,7 @@ export class EnhancedRealtimeService {
       supabase.removeChannel(existingChannel);
       this.channels.delete(channelName);
     }
-    
+
     // Recreate channel with same configuration
     debugService.log('realtime', 'Attempting to reconnect channel', { channelName });
     // Note: In a real implementation, you'd store the original config
@@ -342,14 +339,14 @@ export class EnhancedRealtimeService {
   private async reconnectAllChannels(): Promise<void> {
     debugService.log('realtime', 'Reconnecting all channels');
     const channelNames = Array.from(this.channels.keys());
-    
+
     for (const channelName of channelNames) {
       try {
         await this.reconnectChannel(channelName);
-      } catch (error) {
-        debugService.log('error', 'Failed to reconnect channel', { 
-          channelName, 
-          error: error.message 
+      } catch (error: any) {
+        debugService.log('error', 'Failed to reconnect channel', {
+          channelName,
+          error: error.message
         });
       }
     }
@@ -374,7 +371,7 @@ export class EnhancedRealtimeService {
 
   private notifyUserOfConnectionIssue(): void {
     debugService.log('critical', 'Persistent connection issues detected');
-    
+
     // Show persistent notification about connection issues
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification('Connection Issue', {
@@ -387,7 +384,7 @@ export class EnhancedRealtimeService {
 
     // Dispatch custom event for UI components to handle
     window.dispatchEvent(new CustomEvent('connection-issue', {
-      detail: { 
+      detail: {
         reconnectAttempts: this.reconnectAttempts,
         maxAttempts: this.maxReconnectAttempts
       }
@@ -397,11 +394,11 @@ export class EnhancedRealtimeService {
   getConnectionHealth(): ConnectionHealth {
     const now = Date.now();
     const timeSinceLastPing = now - this.lastPing;
-    
+
     let connectionQuality: ConnectionHealth['connectionQuality'] = 'excellent';
     if (timeSinceLastPing > 30000) connectionQuality = 'poor';
     else if (timeSinceLastPing > 15000) connectionQuality = 'good';
-    
+
     if (!navigator.onLine) connectionQuality = 'offline';
 
     return {
@@ -427,11 +424,11 @@ export class EnhancedRealtimeService {
       debugService.log('realtime', 'Channel unsubscribed', { channelName });
     }
     this.channels.clear();
-    
+
     if (this.healthCheckInterval) {
       clearInterval(this.healthCheckInterval);
     }
-    
+
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout);
     }

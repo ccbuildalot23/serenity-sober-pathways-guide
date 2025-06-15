@@ -6,6 +6,14 @@ interface Contact {
   relationship: string;
 }
 
+interface SentAlert {
+  id: string;
+  contactName: string;
+  message: string;
+  timestamp: Date;
+  status: 'sent' | 'delivered' | 'failed';
+}
+
 export const sendMockSMS = async (contact: Contact, message: string): Promise<void> => {
   // In production, this would integrate with a real SMS service like Twilio
   console.log(`Sending SMS to ${contact.name} (${contact.phone}): ${message}`);
@@ -29,4 +37,26 @@ export const sendEmergencyAlert = async (contacts: Contact[], message: string, l
   for (const contact of contacts) {
     await sendMockSMS(contact, message);
   }
+};
+
+export const getSentAlerts = async (): Promise<SentAlert[]> => {
+  // Mock data for alert history
+  const mockAlerts: SentAlert[] = [
+    {
+      id: '1',
+      contactName: 'John D.',
+      message: 'Emergency: Need immediate support',
+      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
+      status: 'delivered'
+    },
+    {
+      id: '2',
+      contactName: 'Sarah M.',
+      message: 'Check-in: How are you doing?',
+      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
+      status: 'sent'
+    }
+  ];
+  
+  return Promise.resolve(mockAlerts);
 };

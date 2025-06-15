@@ -42,7 +42,18 @@ export const useSupportContacts = () => {
         return;
       }
 
-      setContacts(data || []);
+      // Transform data to ensure proper typing
+      const transformedContacts: SupportContact[] = (data || []).map(contact => ({
+        id: contact.id,
+        name: contact.name,
+        relationship: contact.relationship,
+        phone: contact.phone || undefined,
+        email: contact.email || undefined,
+        contact_method: (contact.contact_method as 'sms' | 'push' | 'both') || 'both',
+        share_location: contact.share_location || false
+      }));
+
+      setContacts(transformedContacts);
     } catch (error) {
       console.error('Error in loadContacts:', error);
     } finally {
@@ -79,7 +90,18 @@ export const useSupportContacts = () => {
         return false;
       }
 
-      setContacts(prev => [...prev, data]);
+      // Transform the returned data to match our interface
+      const newContact: SupportContact = {
+        id: data.id,
+        name: data.name,
+        relationship: data.relationship,
+        phone: data.phone || undefined,
+        email: data.email || undefined,
+        contact_method: (data.contact_method as 'sms' | 'push' | 'both') || 'both',
+        share_location: data.share_location || false
+      };
+
+      setContacts(prev => [...prev, newContact]);
       toast({
         title: "Success",
         description: "Contact added successfully!",

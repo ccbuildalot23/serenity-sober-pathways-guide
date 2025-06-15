@@ -27,7 +27,7 @@ const AddContactForm: React.FC<AddContactFormProps> = ({ onSubmit, onCancel, loa
     relationship: '',
     phone: '',
     email: '',
-    contact_method: 'both' as const,
+    contact_method: 'both' as 'sms' | 'push' | 'both',
     share_location: false
   });
 

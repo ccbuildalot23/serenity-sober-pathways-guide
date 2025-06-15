@@ -1,10 +1,10 @@
 
-import { InputValidator } from './inputValidation';
+import { EnhancedInputValidator } from './enhancedInputValidation';
 
 /**
  * Enhanced validation specifically for crisis data
  */
-export class CrisisDataValidator extends InputValidator {
+export class CrisisDataValidator extends EnhancedInputValidator {
   
   /**
    * Validates crisis assessment responses with additional safety checks

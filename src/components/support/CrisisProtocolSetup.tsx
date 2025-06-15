@@ -9,7 +9,10 @@ import { Smartphone } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { getPhoneEmergencyContacts, hasPhoneContactsAccess } from '@/services/phoneContactsService';
-import { subscribeToEmergencyContactUpdates, unsubscribeFromChannel } from '@/services/realtimeService';
+import {
+  subscribeToEmergencyContactUpdates,
+  unsubscribeFromChannel
+} from '@/services/enhancedRealtimeService';
 import { toast } from 'sonner';
 
 const CrisisProtocolSetup: React.FC = () => {

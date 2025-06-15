@@ -126,11 +126,11 @@ const SupportAnalytics: React.FC<SupportAnalyticsProps> = ({ onBack }) => {
               
               <div className="grid grid-cols-2 gap-4 pt-4">
                 <div className="text-center p-3 bg-white rounded-lg">
-                  <p className="text-2xl font-bold text-gray-800">{metrics.totalContacts}</p>
+                  <p className="heading-large text-gray-800">{metrics.totalContacts}</p>
                   <p className="text-sm text-gray-600">Total Contacts</p>
                 </div>
                 <div className="text-center p-3 bg-white rounded-lg">
-                  <p className="text-2xl font-bold text-green-600">{metrics.activeContacts}</p>
+                  <p className="heading-large text-green-600">{metrics.activeContacts}</p>
                   <p className="text-sm text-gray-600">Active Contacts</p>
                 </div>
               </div>
@@ -150,7 +150,7 @@ const SupportAnalytics: React.FC<SupportAnalyticsProps> = ({ onBack }) => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold">{metrics.alertsSent}</p>
+              <p className="heading-large">{metrics.alertsSent}</p>
               <p className="text-xs text-gray-600">Last {timeRange} days</p>
             </CardContent>
           </Card>
@@ -163,7 +163,7 @@ const SupportAnalytics: React.FC<SupportAnalyticsProps> = ({ onBack }) => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold">
+              <p className="heading-large">
                 {metrics.alertsSent > 0 
                   ? Math.round((metrics.alertsAcknowledged / metrics.alertsSent) * 100)
                   : 0}%
@@ -197,7 +197,7 @@ const SupportAnalytics: React.FC<SupportAnalyticsProps> = ({ onBack }) => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold">{metrics.crisisEventsResolved}</p>
+              <p className="heading-large">{metrics.crisisEventsResolved}</p>
               <p className="text-xs text-gray-600">Successfully managed</p>
             </CardContent>
           </Card>

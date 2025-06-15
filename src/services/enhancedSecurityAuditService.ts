@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { serverSideEncryption } from '@/lib/serverSideEncryption';
-import { InputValidator } from '@/lib/inputValidation';
+import { EnhancedInputValidator as InputValidator } from '@/lib/enhancedInputValidation';
+// DEDUPLICATION: Consolidated audit logging replacing auditLogService and secure* services
 
 interface SecurityAuditEntry {
   action: string;
@@ -115,6 +116,37 @@ export class EnhancedSecurityAuditService {
         ...details
       }
     });
+  }
+
+  static async logSecurityHardening(): Promise<void> {
+    await this.logSecurityEvent({
+      action: 'HARDENING_INITIALIZED',
+      severity: 'info',
+      details: {
+        event: 'SECURITY_HARDENING_INITIALIZED',
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent.substring(0, 100),
+        url: window.location.href,
+      }
+    });
+
+    try {
+      const securityLogs = JSON.parse(localStorage.getItem('security_events') || '[]');
+      securityLogs.push({
+        event: 'SECURITY_HARDENING_INITIALIZED',
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent.substring(0, 100),
+        url: window.location.href,
+        severity: 'info'
+      });
+
+      if (securityLogs.length > 50) {
+        securityLogs.splice(0, securityLogs.length - 50);
+      }
+      localStorage.setItem('security_events', JSON.stringify(securityLogs));
+    } catch (error) {
+      console.warn('Could not store security event:', error);
+    }
   }
 
   private static logToLocalStorage(entry: SecurityAuditEntry): void {

@@ -1,4 +1,13 @@
 
+// Add type declarations for global window properties
+declare global {
+  interface Window {
+    realtimeConnectionMonitor?: {
+      stopMonitoring: () => void;
+    };
+  }
+}
+
 class RecoveryService {
   private failureCount = 0;
   private readonly MAX_FAILURES = 3;
@@ -9,21 +18,18 @@ class RecoveryService {
   }
 
   private initializeRecoveryMonitoring() {
-    // Monitor for connection failures
     window.addEventListener('error', (event) => {
       if (this.isConnectionError(event.message)) {
         this.handleConnectionFailure();
       }
     });
 
-    // Monitor for unhandled promise rejections
     window.addEventListener('unhandledrejection', (event) => {
       if (this.isConnectionError(event.reason?.message || '')) {
         this.handleConnectionFailure();
       }
     });
 
-    // Reset failure count periodically if online
     setInterval(() => {
       if (navigator.onLine && this.failureCount > 0) {
         this.failureCount = Math.max(0, this.failureCount - 1);
@@ -61,21 +67,16 @@ class RecoveryService {
     console.warn('Recovery: Initiating emergency recovery procedure...');
     
     try {
-      // Stop all realtime services
       if (window.realtimeConnectionMonitor) {
         window.realtimeConnectionMonitor.stopMonitoring();
       }
       
-      // Clear problematic storage
       this.clearProblematicStorage();
       
-      // Reset realtime service
       await this.resetRealtimeService();
       
-      // Show user notification
       this.showRecoveryNotification();
       
-      // Reset failure count
       this.failureCount = 0;
       
     } catch (error) {
@@ -88,7 +89,6 @@ class RecoveryService {
 
   private clearProblematicStorage() {
     try {
-      // Clear specific realtime-related items
       const keysToRemove = Object.keys(localStorage).filter(key =>
         key.includes('realtime') || 
         key.includes('supabase') ||
@@ -97,7 +97,6 @@ class RecoveryService {
       
       keysToRemove.forEach(key => localStorage.removeItem(key));
       
-      // Clear session storage
       sessionStorage.clear();
       
       console.log('Recovery: Cleared problematic storage');
@@ -108,7 +107,6 @@ class RecoveryService {
 
   private async resetRealtimeService() {
     try {
-      // Dynamic import to avoid circular dependencies
       const { realtimeService } = await import('./realtimeService');
       await realtimeService.cleanup();
       console.log('Recovery: Realtime service reset');
@@ -138,19 +136,16 @@ class RecoveryService {
     }
   }
 
-  // Public method to manually trigger recovery
   public manualRecovery() {
     console.log('Recovery: Manual recovery initiated');
     this.failureCount = this.MAX_FAILURES;
     this.initiateEmergencyRecovery();
   }
 
-  // Check if recovery is needed
   public needsRecovery(): boolean {
     return this.failureCount >= this.MAX_FAILURES;
   }
 
-  // Get recovery status
   public getStatus() {
     return {
       failureCount: this.failureCount,

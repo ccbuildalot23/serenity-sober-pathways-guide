@@ -13,6 +13,11 @@ import CalendarGrid from './CalendarGrid';
 import CalendarInsights from './CalendarInsights';
 import DayDetailSheet from './DayDetailSheet';
 import CalendarHeader from './CalendarHeader';
+
+/**
+ * DEDUPLICATION: Replaces legacy calendar component and page.
+ * Reason: modular hooks with export and notification support.
+ */
 import CalendarLoadingState from './CalendarLoadingState';
 import NotificationToast from './NotificationToast';
 

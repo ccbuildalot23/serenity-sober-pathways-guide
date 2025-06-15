@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { enhancedRealtimeService } from '@/services/enhancedRealtimeService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -161,4 +160,5 @@ const RealtimeDebugPanel: React.FC = () => {
   );
 };
 
+export default RealtimeDebugPanel;
 export default RealtimeDebugPanel;

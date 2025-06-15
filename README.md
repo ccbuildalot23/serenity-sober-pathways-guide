@@ -1,4 +1,4 @@
-# Welcome to your Lovable project
+<!-- ...existing code or leave empty if no content... -->
 
 ## Project info
 
@@ -105,6 +105,7 @@ migration checklist.
 
 Core components are re-exported from `src/components/index.ts` and common
 utilities from `src/utils/index.ts` to simplify imports across the codebase.
+
 ### Deployment to Vercel
 
 This project can be deployed on [Vercel](https://vercel.com). A `vercel.json` file is included to configure the build command and output directory. Vercel will run `npm run build` and serve the generated static files from the `dist` directory.

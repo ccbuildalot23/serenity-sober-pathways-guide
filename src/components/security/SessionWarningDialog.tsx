@@ -16,7 +16,7 @@ interface SessionWarningDialogProps {
   onSignOut: () => void;
 }
 
-export const SessionWarningDialog: React.FC<SessionWarningDialogProps> = ({
+const SessionWarningDialog: React.FC<SessionWarningDialogProps> = ({
   open,
   onExtendSession,
   onSignOut
@@ -45,3 +45,5 @@ export const SessionWarningDialog: React.FC<SessionWarningDialogProps> = ({
     </Dialog>
   );
 };
+
+export default SessionWarningDialog;

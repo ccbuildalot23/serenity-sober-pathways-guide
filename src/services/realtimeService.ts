@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import React from 'react';
@@ -11,7 +10,7 @@ const log = (category: string, message: string, data?: any) => {
   console.log(`[${timestamp}] [${category.toUpperCase()}] ${message}`, data || '');
   
   // Store in debug log
-  if (window.debugLog) {
+  if (typeof window !== 'undefined' && window.debugLog) {
     window.debugLog.push({ timestamp, category, message, data });
   }
 };
@@ -223,7 +222,22 @@ class RealtimeService {
       this.presenceChannel
         .on('presence', { event: 'sync' }, () => {
           const state = this.presenceChannel?.presenceState() || {};
-          const presenceList = Object.values(state).flat() as RealtimePresence[];
+          // Convert presence state to our format
+          const presenceList: RealtimePresence[] = [];
+          Object.entries(state).forEach(([key, presences]) => {
+            if (Array.isArray(presences)) {
+              presences.forEach((presence: any) => {
+                if (presence.userId && presence.userName && presence.status && presence.lastSeen) {
+                  presenceList.push({
+                    userId: presence.userId,
+                    userName: presence.userName,
+                    status: presence.status,
+                    lastSeen: presence.lastSeen
+                  });
+                }
+              });
+            }
+          });
           log('realtime', 'Presence sync', { count: presenceList.length });
           this.handlePresenceUpdate(presenceList);
         })

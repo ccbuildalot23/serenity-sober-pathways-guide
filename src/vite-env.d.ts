@@ -6,6 +6,12 @@ declare global {
     confetti: any;
     AudioContext: any;
     webkitAudioContext: any;
+    debugLog: Array<{
+      timestamp: string;
+      category: string;
+      message: string;
+      data?: any;
+    }>;
   }
 }
 

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { realtimeService } from '@/services/realtimeService';
+import { enhancedRealtimeService } from '@/services/enhancedRealtimeService';
 import { pollingService } from '@/services/pollingService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,7 +13,7 @@ export const RealtimeDebugPanel: React.FC = () => {
 
   useEffect(() => {
     const updateDebugInfo = () => {
-      const info = realtimeService.getDebugInfo();
+      const info = enhancedRealtimeService.getDebugInfo();
       setDebugInfo(info);
     };
 

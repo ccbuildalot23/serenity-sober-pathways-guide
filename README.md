@@ -75,3 +75,24 @@ Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-trick
 ## Security Logging
 
 This project uses `EnhancedSecurityAuditService` for all audit and security events. Previous services like `auditLogService` and `secureAuditLogService` were removed in favor of this consolidated implementation.
+## Security Logging
+
+This project uses `EnhancedSecurityAuditService` for all audit and security events. Previous services like `auditLogService` and `secureAuditLogService` were removed in favor of this consolidated implementation.
+
+## Development Notes
+
+### Linting
+Run `npm run lint` to check code style. The project uses a minimal ESLint configuration without extra plugins.
+
+## Component Consolidation
+
+Legacy implementations of several major features have been removed. The app now
+uses the enhanced versions exclusively:
+
+- **EnhancedCBTSkillsLibrary** replaces the basic CBT skills library
+- **EnhancedCrisisSystem** replaces the old crisis intervention system
+- **EnhancedCalendarPage** replaces the previous calendar page
+
+These components provide richer functionality and improved security compared to
+their predecessors.
+main

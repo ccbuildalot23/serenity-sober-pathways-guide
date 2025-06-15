@@ -1,8 +1,8 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { serverSideEncryption } from '@/lib/serverSideEncryption';
 import { EnhancedInputValidator as InputValidator } from '@/lib/enhancedInputValidation';
 // DEDUPLICATION: Consolidated audit logging replacing auditLogService and secure* services
-main
 
 interface SecurityAuditEntry {
   action: string;
@@ -122,7 +122,7 @@ export class EnhancedSecurityAuditService {
   static async logSecurityHardening(): Promise<void> {
     await this.logSecurityEvent({
       action: 'HARDENING_INITIALIZED',
-      severity: 'info',
+      severity: 'low', // Changed from 'info' to 'low'
       details: {
         event: 'SECURITY_HARDENING_INITIALIZED',
         timestamp: new Date().toISOString(),
@@ -138,7 +138,7 @@ export class EnhancedSecurityAuditService {
         timestamp: new Date().toISOString(),
         userAgent: navigator.userAgent.substring(0, 100),
         url: window.location.href,
-        severity: 'info'
+        severity: 'low' // Changed from 'info' to 'low'
       });
 
       if (securityLogs.length > 50) {

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { useAuditLogger } from '@/hooks/useAuditLogger';
+import { useSecureAuditLogger } from '@/hooks/useSecureAuditLogger';
 import { escalateCrisis } from '@/services/crisisEscalationService';
 import { useAuth } from '@/contexts/AuthContext';
 import { assessmentToObservation } from '@/fhir/convertAssessment';
@@ -42,7 +42,7 @@ interface Props {
 
 const CSSRSAssessment: React.FC<Props> = ({ onComplete }) => {
   const [responses, setResponses] = useState<number[]>(Array(questions.length).fill(-1));
-  const { log } = useAuditLogger();
+  const { log } = useSecureAuditLogger();
   const { user } = useAuth();
 
   const handleSelect = (index: number, value: number) => {

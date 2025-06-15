@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { PredictiveCrisisAlert } from '@/components/crisis/PredictiveCrisisAlert';
 import { UltraSecureCrisisDataService } from '@/services/ultraSecureCrisisDataService';
-import { secureServerLogEvent } from '@/services/secureServerAuditLogService';
+import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
 import { analyzePatterns } from '@/utils/patternAnalysis';
 
 interface CheckInPatternAnalysisProps {
@@ -36,7 +36,7 @@ export const CheckInPatternAnalysis: React.FC<CheckInPatternAnalysisProps> = ({
   // Log pattern detection for audit
   useEffect(() => {
     if (crisisPatterns && crisisPatterns.riskScore > 0.5) {
-      secureServerLogEvent({
+      EnhancedSecurityAuditService.logSecurityEvent({
         action: 'PATTERN_DETECTION',
         details: {
           risk_level: crisisPatterns.riskScore,
@@ -44,7 +44,6 @@ export const CheckInPatternAnalysis: React.FC<CheckInPatternAnalysisProps> = ({
           precursor_count: crisisPatterns.crisisPrecursors.length,
           timestamp: new Date().toISOString()
         },
-        userId: user?.id
       });
     }
   }, [crisisPatterns, user?.id]);

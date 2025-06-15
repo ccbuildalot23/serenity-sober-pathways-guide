@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -35,42 +35,55 @@ const AlertHistory = () => {
     localStorage.getItem('alertHistoryEnabled') !== 'false'
   );
   const [error, setError] = useState<string | null>(null);
+  const [alertHistory, setAlertHistory] = useState<AlertRecord[]>([]);
   
   const { toast } = useToast();
 
-  // Combine SMS and push notification history
-  const alertHistory = useMemo((): AlertRecord[] => {
-    if (!historyEnabled) return [];
+  // Load alert history from both SMS and push services
+  useEffect(() => {
+    const loadAlertHistory = async () => {
+      if (!historyEnabled) {
+        setAlertHistory([]);
+        return;
+      }
 
-    try {
-      const smsAlerts = getSentAlerts().map(alert => ({
-        id: alert.id,
-        timestamp: alert.timestamp instanceof Date ? alert.timestamp : new Date(alert.timestamp),
-        message: alert.message,
-        recipients: [alert.contactName],
-        location: alert.location,
-        notes: localStorage.getItem(`alert_notes_${alert.id}`) || undefined,
-        type: 'sms' as const
-      }));
+      try {
+        const [smsAlerts, pushAlerts] = await Promise.all([
+          getSentAlerts(),
+          Promise.resolve(getNotificationHistory())
+        ]);
 
-      const pushAlerts = getNotificationHistory().map(notif => ({
-        id: notif.id,
-        timestamp: notif.timestamp instanceof Date ? notif.timestamp : new Date(notif.timestamp),
-        message: notif.message,
-        recipients: [notif.contactName],
-        location: notif.location,
-        notes: localStorage.getItem(`alert_notes_${notif.id}`) || undefined,
-        type: 'push' as const
-      }));
+        const combinedAlerts: AlertRecord[] = [
+          ...smsAlerts.map(alert => ({
+            id: alert.id,
+            timestamp: alert.timestamp instanceof Date ? alert.timestamp : new Date(alert.timestamp),
+            message: alert.message,
+            recipients: [alert.contactName],
+            location: undefined,
+            notes: localStorage.getItem(`alert_notes_${alert.id}`) || undefined,
+            type: 'sms' as const
+          })),
+          ...pushAlerts.map(notif => ({
+            id: notif.id,
+            timestamp: notif.timestamp instanceof Date ? notif.timestamp : new Date(notif.timestamp),
+            message: notif.message,
+            recipients: [notif.contactName],
+            location: notif.location,
+            notes: localStorage.getItem(`alert_notes_${notif.id}`) || undefined,
+            type: 'push' as const
+          }))
+        ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
-      setError(null);
-      return [...smsAlerts, ...pushAlerts]
-        .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-    } catch (err) {
-      console.error('Failed to load alert history:', err);
-      setError('Failed to load alert history. You may need to clear your browser storage.');
-      return [];
-    }
+        setAlertHistory(combinedAlerts);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to load alert history:', err);
+        setError('Failed to load alert history. You may need to clear your browser storage.');
+        setAlertHistory([]);
+      }
+    };
+
+    loadAlertHistory();
   }, [historyEnabled]);
 
   // Chart data for weekly/monthly view

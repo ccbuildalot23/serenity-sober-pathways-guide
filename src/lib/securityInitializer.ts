@@ -2,7 +2,7 @@
 import { SecurityValidation } from './securityValidation';
 import { EnhancedSecurityHeaders } from './enhancedSecurityHeaders';
 import { SecureMonitoring } from './secureMonitoring';
-import { logSecurityHardening } from '@/services/secureAuditLogService';
+import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
 
 /**
  * Enhanced Security Initializer with comprehensive protections
@@ -29,7 +29,7 @@ export class SecurityInitializer {
       SecureMonitoring.trackPageAccess();
 
       // Log the security hardening completion
-      await logSecurityHardening();
+      await EnhancedSecurityAuditService.logSecurityHardening();
 
       this.initialized = true;
       console.log('✅ Enhanced security hardening initialization complete');

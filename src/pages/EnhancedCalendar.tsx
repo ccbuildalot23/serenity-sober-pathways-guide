@@ -6,6 +6,11 @@ import EnhancedCalendar from '@/components/calendar/EnhancedCalendar';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
+/**
+ * DEDUPLICATION: Replaces `Calendar` page.
+ * Reason: loads the enhanced calendar component with modular hooks.
+ */
+
 const EnhancedCalendarPage: React.FC = () => {
   const { user } = useAuth();
 

@@ -2,6 +2,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { serverSideEncryption } from '@/lib/serverSideEncryption';
 import { EnhancedInputValidator as InputValidator } from '@/lib/enhancedInputValidation';
 // DEDUPLICATION: Consolidated audit logging replacing auditLogService and secure* services
+/**
+ * DEDUPLICATION: Consolidated audit services.
+ * Replaces `auditLogService`, `secureAuditLogService` and `secureServerAuditLogService`.
+ */
+main
 
 interface SecurityAuditEntry {
   action: string;

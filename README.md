@@ -80,3 +80,15 @@ This project uses `EnhancedSecurityAuditService` for all audit and security even
 
 ### Linting
 Run `npm run lint` to check code style. The project uses a minimal ESLint configuration without extra plugins.
+
+## Component Consolidation
+
+Legacy implementations of several major features have been removed. The app now
+uses the enhanced versions exclusively:
+
+- **EnhancedCBTSkillsLibrary** replaces the basic CBT skills library
+- **EnhancedCrisisSystem** replaces the old crisis intervention system
+- **EnhancedCalendarPage** replaces the previous calendar page
+
+These components provide richer functionality and improved security compared to
+their predecessors.

@@ -7,6 +7,12 @@ main
 // Reason: provides RLS-compliant logging with rate limiting
 
 /**
+ * DEDUPLICATION: Replaces `useAuditLogger`.
+ * Reason: enforces authentication and rate limiting for all audit events.
+ * Removed file: `src/hooks/useAuditLogger.ts`.
+ */
+
+/**
  * Hook for secure audit logging using server-side encryption only
  * Updated to work with RLS policies requiring authenticated users
  */

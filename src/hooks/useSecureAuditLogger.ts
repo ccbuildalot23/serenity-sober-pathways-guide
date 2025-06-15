@@ -1,6 +1,6 @@
 
 import { useAuth } from '@/contexts/AuthContext';
-import { secureServerLogEvent } from '@/services/secureServerAuditLogService';
+import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
 import { formRateLimiter } from '@/lib/inputValidation';
 
 /**
@@ -24,28 +24,25 @@ export const useSecureAuditLogger = () => {
       return;
     }
 
-    await secureServerLogEvent({ 
-      action, 
-      details, 
-      userId: user.id 
+    await EnhancedSecurityAuditService.logSecurityEvent({
+      action,
+      details,
     });
   };
 
   const logSecurityEvent = async (eventType: string, details?: Record<string, any>) => {
-    await log(`SECURITY_${eventType}`, {
-      event_type: eventType,
-      timestamp: new Date().toISOString(),
-      ...details
+    await EnhancedSecurityAuditService.logSecurityEvent({
+      action: eventType,
+      details: {
+        event_type: eventType,
+        timestamp: new Date().toISOString(),
+        ...details,
+      },
     });
   };
 
   const logDataAccess = async (table: string, operation: string, recordCount: number = 1) => {
-    await log('DATA_ACCESS', {
-      table,
-      operation,
-      record_count: recordCount,
-      timestamp: new Date().toISOString()
-    });
+    await EnhancedSecurityAuditService.logDataAccessEvent(table, operation, recordCount);
   };
   
   return { 

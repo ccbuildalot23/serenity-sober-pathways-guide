@@ -4,11 +4,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { debugService } from './debugService';
 import { RealtimeAlert, RealtimePresence } from './realtime/types';
 
-// DEDUPLICATION: Candidate to replace `realtimeService.ts`
-// Reason: provides connection health monitoring and reconnection logic.
-// Missing features: alert broadcasting and presence updates currently in
-// `realtimeService.ts`. Consumers using those features must be updated
-// once functionality is merged.
+// DEDUPLICATION: Replaces `realtimeService.ts`
+// Combines connection health monitoring, alert broadcasting,
+// and presence tracking in a single service.
 
 interface ConnectionHealth {
   isConnected: boolean;

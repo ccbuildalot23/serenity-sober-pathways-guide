@@ -1,4 +1,4 @@
-
+export * from './calendarAnalytics'
 export * from './calendarExport'
 export * from './calendarUtils'
 export * from './checkInUtils'
@@ -7,4 +7,3 @@ export * from './checkinValidation'
 export * from './crisisDataUtils'
 export * from './goalUtils'
 export * from './patternAnalysis'
-export { calculateMonthlyTrends } from './calendarAnalytics'

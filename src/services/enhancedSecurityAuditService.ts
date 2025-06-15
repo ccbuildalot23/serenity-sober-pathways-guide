@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { serverSideEncryption } from '@/lib/serverSideEncryption';
 import { EnhancedInputValidator as InputValidator } from '@/lib/enhancedInputValidation';
@@ -122,7 +121,7 @@ export class EnhancedSecurityAuditService {
   static async logSecurityHardening(): Promise<void> {
     await this.logSecurityEvent({
       action: 'HARDENING_INITIALIZED',
-      severity: 'low', // Changed from 'info' to 'low'
+      severity: 'info',
       details: {
         event: 'SECURITY_HARDENING_INITIALIZED',
         timestamp: new Date().toISOString(),
@@ -138,7 +137,7 @@ export class EnhancedSecurityAuditService {
         timestamp: new Date().toISOString(),
         userAgent: navigator.userAgent.substring(0, 100),
         url: window.location.href,
-        severity: 'low' // Changed from 'info' to 'low'
+        severity: 'info'
       });
 
       if (securityLogs.length > 50) {

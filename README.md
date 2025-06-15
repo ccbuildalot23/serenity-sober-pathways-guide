@@ -93,11 +93,18 @@ uses the enhanced versions exclusively:
 - **useSecureAuditLogger** replaces useAuditLogger and server-side variants
 - **EnhancedSecurityAuditService** consolidates audit logging services
 - **EnhancedInputValidator** consolidates input validation utilities
-- **enhancedRealtimeService** now handles all realtime features
+- **EnhancedRealtimeService** replaces the legacy realtime service
 
 These components provide richer functionality and improved security compared to
 their predecessors.
-main
+
+See `docs/DEDUPLICATION_PLAN.md` for details about remaining duplicates and the
+migration checklist.
+
+### Centralized Exports
+
+Core components are re-exported from `src/components/index.ts` and common
+utilities from `src/utils/index.ts` to simplify imports across the codebase.
 ### Deployment to Vercel
 
 This project can be deployed on [Vercel](https://vercel.com). A `vercel.json` file is included to configure the build command and output directory. Vercel will run `npm run build` and serve the generated static files from the `dist` directory.
@@ -105,4 +112,4 @@ This project can be deployed on [Vercel](https://vercel.com). A `vercel.json` fi
 1. Import the repository into Vercel.
 2. Ensure required environment variables (e.g. `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) are set in the project settings.
 3. Trigger a deployment.
-main
+

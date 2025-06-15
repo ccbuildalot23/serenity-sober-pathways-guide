@@ -40,12 +40,9 @@ This document lists remaining duplicate areas and migration checklists for conso
 ## Realtime Service
 - **Kept**: `src/services/enhancedRealtimeService.ts`
 - **Deprecated**: `src/services/realtimeService.ts` (removed)
-- **Reason**: Enhanced connection monitoring now includes alert broadcasting and presence updates.
-- **Dependencies updated**:
-  - `src/components/support/CrisisProtocolSetup.tsx`
-  - `src/components/RealtimeDebugPanel.tsx`
-  - all hooks previously importing `realtimeService`
+- **Reason**: The enhanced service now handles alert broadcasting and presence updates along with advanced connection monitoring.
 
-**Migration Completed**
-All features were ported to `enhancedRealtimeService` and imports updated. The legacy service and related helpers were removed.
+All imports were updated to use the enhanced service and the legacy file has been deleted.
 
+
+All duplicate code has been removed. The repository now relies solely on the enhanced implementations.

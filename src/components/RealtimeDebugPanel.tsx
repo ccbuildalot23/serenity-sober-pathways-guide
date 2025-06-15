@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { enhancedRealtimeService } from '@/services/enhancedRealtimeService';
-import { pollingService } from '@/services/pollingService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

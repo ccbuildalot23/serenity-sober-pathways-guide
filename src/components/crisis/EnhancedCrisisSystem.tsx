@@ -4,7 +4,7 @@ import React from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEnhancedSessionSecurity } from '@/hooks/useEnhancedSessionSecurity';
-import { SessionWarningDialog } from '@/components/security/SessionWarningDialog';
+import SessionWarningDialog from '@/components/security/SessionWarningDialog';
 import FloatingCrisisButton from './FloatingCrisisButton';
 import CrisisAssessmentModal from './CrisisAssessmentModal';
 import CrisisResponseModal from './CrisisResponseModal';
@@ -12,6 +12,11 @@ import { useCrisisSystem } from '@/hooks/useCrisisSystem';
 import { VoiceActivationStatus } from './VoiceActivationStatus';
 import { CrisisModals } from './CrisisModals';
 import { CrisisDebugInfo } from './CrisisDebugInfo';
+
+/**
+ * DEDUPLICATION: Replaces `CrisisInterventionSystem`.
+ * Reason: adds session security checks and advanced crisis modals.
+ */
 
 const EnhancedCrisisSystem: React.FC = () => {
   const { user, signOut } = useAuth();

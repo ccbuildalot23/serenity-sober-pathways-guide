@@ -6,7 +6,7 @@ import { useDashboardKeyboardShortcuts } from '@/hooks/useDashboardKeyboardShort
 import { useDashboardSessionManager } from '@/hooks/useDashboardSessionManager';
 import Layout from '@/components/Layout';
 import { DashboardContent } from '@/components/dashboard/DashboardContent';
-import { SessionWarningDialog } from '@/components/security/SessionWarningDialog';
+import SessionWarningDialog from '@/components/security/SessionWarningDialog';
 import { toast } from 'sonner';
 
 const Index = () => {

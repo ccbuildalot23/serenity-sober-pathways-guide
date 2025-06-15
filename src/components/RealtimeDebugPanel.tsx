@@ -161,4 +161,3 @@ const RealtimeDebugPanel: React.FC = () => {
 };
 
 export default RealtimeDebugPanel;
-export default RealtimeDebugPanel;

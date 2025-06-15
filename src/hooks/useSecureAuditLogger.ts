@@ -2,7 +2,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
 import { formRateLimiter } from '@/lib/enhancedInputValidation';
-main
 // DEDUPLICATION: Replaces useAuditLogger and useServerSideAuditLogger
 // Reason: provides RLS-compliant logging with rate limiting
 
@@ -11,6 +10,7 @@ main
  * Reason: enforces authentication and rate limiting for all audit events.
  * Removed file: `src/hooks/useAuditLogger.ts`.
  */
+main
 
 /**
  * Hook for secure audit logging using server-side encryption only

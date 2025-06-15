@@ -24,3 +24,8 @@ export default tseslint.config(
     },
   }
 );
+main
+    },
+    rules: {},
+  },
+];

@@ -8,6 +8,11 @@ import { Brain, Heart, Target, Users, Award, Star, TrendingUp, BookOpen, Trophy,
 import { useAuth } from '@/contexts/AuthContext';
 import { useSkillSession } from '@/hooks/useSkillSession';
 
+/**
+ * DEDUPLICATION: Replaces `CBTSkillsLibrary`.
+ * Reason: includes personalized skills and achievement tracking.
+ */
+
 // Import enhanced components
 import EnhancedThoughtRecordBuilder from './cognitive/EnhancedThoughtRecordBuilder';
 import DistractionWheel from './mindfulness/DistractionWheel';

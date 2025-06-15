@@ -5,6 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Bell, X } from 'lucide-react';
 import { notificationPermissionService } from '@/services/notificationPermissionService';
 
+/**
+ * DEDUPLICATION: Replaces `src/components/NotificationBanner.tsx`.
+ * Reason: includes permission checks for notification access.
+ */
+
 interface NotificationBannerProps {
   onDismiss: () => void;
 }

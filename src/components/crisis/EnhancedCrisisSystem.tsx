@@ -12,6 +12,11 @@ import { VoiceActivationStatus } from './VoiceActivationStatus';
 import { CrisisModals } from './CrisisModals';
 import { CrisisDebugInfo } from './CrisisDebugInfo';
 
+/**
+ * DEDUPLICATION: Replaces `CrisisInterventionSystem`.
+ * Reason: adds session security checks and advanced crisis modals.
+ */
+
 const EnhancedCrisisSystem: React.FC = () => {
   const { user, signOut } = useAuth();
   const { sessionValid, sessionWarning, extendSession } = useEnhancedSessionSecurity();

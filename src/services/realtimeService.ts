@@ -16,6 +16,44 @@ const log = (category: string, message: string, data?: any) => {
   }
 };
 
+// Connection status display function
+function showConnectionStatus(status: 'connected' | 'connecting' | 'disconnected' | 'connected-polling') {
+  const statusElement = document.getElementById('connection-status') || 
+    (() => {
+      const el = document.createElement('div');
+      el.id = 'connection-status';
+      el.style.cssText = `
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-family: monospace;
+        z-index: 9999;
+        transition: all 0.3s ease;
+        font-size: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      `;
+      document.body.appendChild(el);
+      return el;
+    })();
+
+  const styles = {
+    connected: { bg: '#4ade80', color: '#166534' },
+    'connected-polling': { bg: '#3b82f6', color: '#1e40af' },
+    connecting: { bg: '#fbbf24', color: '#92400e' },
+    disconnected: { bg: '#f87171', color: '#991b1b' }
+  };
+
+  const style = styles[status] || styles.disconnected;
+  statusElement.style.backgroundColor = style.bg;
+  statusElement.style.color = style.color;
+  
+  const displayText = status === 'connected-polling' ? 'Connected (Polling)' : 
+                     status.charAt(0).toUpperCase() + status.slice(1);
+  statusElement.textContent = `Connection: ${displayText}`;
+}
+
 interface RealtimeAlert {
   id: string;
   type: 'crisis' | 'check-in' | 'status-update';
@@ -136,6 +174,12 @@ class RealtimeService {
 
   constructor() {
     this.connectionMonitor = new ConnectionMonitor(this);
+    this.updateConnectionStatusDisplay();
+  }
+
+  private updateConnectionStatusDisplay() {
+    const status = this.getConnectionStatus();
+    showConnectionStatus(status as any);
   }
 
   /**
@@ -158,6 +202,7 @@ class RealtimeService {
 
       this.userId = userId;
       this.connectionStatus = 'connecting';
+      this.updateConnectionStatusDisplay();
 
       // Verify Supabase client is ready
       const { data: { session }, error } = await supabase.auth.getSession();
@@ -190,6 +235,7 @@ class RealtimeService {
       this.isInitialized = true;
       this.connectionStatus = this.usePollingFallback ? 'connected' : 'connected';
       this.reconnectAttempts = 0;
+      this.updateConnectionStatusDisplay();
       
       log('realtime', 'Initialization complete', { 
         channelCount: this.channels.size,
@@ -199,6 +245,7 @@ class RealtimeService {
     } catch (error) {
       log('error', 'Failed to initialize realtime', { error: error.message });
       this.connectionStatus = 'error';
+      this.updateConnectionStatusDisplay();
       
       // Fallback to polling
       log('realtime', 'Falling back to polling mode due to initialization failure');
@@ -233,6 +280,7 @@ class RealtimeService {
     this.pollingEnabled = true;
     this.connectionStatus = 'connected';
     this.usePollingFallback = true;
+    this.updateConnectionStatusDisplay();
   }
 
   /**
@@ -244,6 +292,8 @@ class RealtimeService {
     }
 
     log('realtime', 'Force reconnecting all channels');
+    this.connectionStatus = 'connecting';
+    this.updateConnectionStatusDisplay();
     
     // Clean up existing channels
     this.channels.forEach((channel, name) => {
@@ -558,6 +608,7 @@ class RealtimeService {
     log('realtime', 'Handling disconnect', { attempts: this.reconnectAttempts });
     
     this.connectionStatus = 'disconnected';
+    this.updateConnectionStatusDisplay();
     
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       log('critical', 'Max reconnection attempts reached, switching to polling');
@@ -911,11 +962,18 @@ class RealtimeService {
     this.presenceHandlers.clear();
     this.isInitialized = false;
     this.connectionStatus = 'disconnected';
+    this.updateConnectionStatusDisplay();
     
     // Stop polling
     pollingService.stopAllPolling();
     this.pollingEnabled = false;
     this.usePollingFallback = false;
+
+    // Remove status display
+    const statusElement = document.getElementById('connection-status');
+    if (statusElement) {
+      statusElement.remove();
+    }
 
     log('realtime', 'Cleanup complete');
   }

@@ -34,6 +34,90 @@ interface RealtimePresence {
   lastSeen: string;
 }
 
+class ConnectionMonitor {
+  private maxReconnectAttempts = 5;
+  private reconnectDelay = 1000;
+  private attempts = 0;
+  private lastPingTime = Date.now();
+  private monitorInterval: NodeJS.Timeout | null = null;
+  private realtimeService: RealtimeService;
+
+  constructor(realtimeService: RealtimeService) {
+    this.realtimeService = realtimeService;
+  }
+
+  startMonitoring() {
+    if (this.monitorInterval) {
+      clearInterval(this.monitorInterval);
+    }
+
+    // Monitor connection health
+    this.monitorInterval = setInterval(() => {
+      const timeSinceLastPing = Date.now() - this.lastPingTime;
+      
+      if (timeSinceLastPing > 30000) { // 30 seconds
+        log('monitor', 'Connection appears unhealthy', { timeSinceLastPing });
+        this.handleReconnect();
+      }
+    }, 10000);
+
+    log('monitor', 'Connection monitoring started');
+  }
+
+  stopMonitoring() {
+    if (this.monitorInterval) {
+      clearInterval(this.monitorInterval);
+      this.monitorInterval = null;
+    }
+    log('monitor', 'Connection monitoring stopped');
+  }
+
+  handleReconnect() {
+    if (this.attempts >= this.maxReconnectAttempts) {
+      log('critical', 'Max reconnection attempts reached. Switching to polling mode...');
+      this.realtimeService.enablePollingFallback();
+      return;
+    }
+
+    this.attempts++;
+    const delay = this.reconnectDelay * Math.pow(2, this.attempts - 1);
+    
+    log('monitor', `Reconnection attempt ${this.attempts} in ${delay}ms`);
+    
+    setTimeout(() => {
+      this.reconnect();
+    }, delay);
+  }
+
+  async reconnect() {
+    try {
+      log('monitor', 'Attempting to reconnect...');
+      await this.realtimeService.forceReconnect();
+      
+      // Reset attempts on successful connection
+      this.attempts = 0;
+      this.updatePingTime();
+      log('monitor', 'Reconnection successful');
+    } catch (error) {
+      log('error', 'Reconnection failed', { error: error.message });
+      // Let the interval try again
+    }
+  }
+
+  updatePingTime() {
+    this.lastPingTime = Date.now();
+  }
+
+  getStatus() {
+    return {
+      attempts: this.attempts,
+      lastPingTime: this.lastPingTime,
+      timeSinceLastPing: Date.now() - this.lastPingTime,
+      isHealthy: (Date.now() - this.lastPingTime) < 30000
+    };
+  }
+}
+
 class RealtimeService {
   private channels: Map<string, RealtimeChannel> = new Map();
   private presenceChannel: RealtimeChannel | null = null;
@@ -48,6 +132,11 @@ class RealtimeService {
   private connectionStatus: 'connecting' | 'connected' | 'disconnected' | 'error' = 'disconnected';
   private usePollingFallback = false;
   private pollingEnabled = false;
+  private connectionMonitor: ConnectionMonitor;
+
+  constructor() {
+    this.connectionMonitor = new ConnectionMonitor(this);
+  }
 
   /**
    * Initialize realtime connections for a user
@@ -85,7 +174,7 @@ class RealtimeService {
       } catch (testError) {
         log('error', 'Test channel failed, enabling polling fallback', { error: testError.message });
         this.usePollingFallback = true;
-        this.enablePollingFallback(userId);
+        this.enablePollingFallback();
       }
 
       // If test successful, proceed with other channels
@@ -94,8 +183,8 @@ class RealtimeService {
         await this.subscribeToPresence(userId);
         await this.subscribeToDbChanges(userId);
 
-        // Start health monitoring
-        this.startHealthMonitoring();
+        // Start connection monitoring
+        this.connectionMonitor.startMonitoring();
       }
       
       this.isInitialized = true;
@@ -114,7 +203,7 @@ class RealtimeService {
       // Fallback to polling
       log('realtime', 'Falling back to polling mode due to initialization failure');
       this.usePollingFallback = true;
-      this.enablePollingFallback(userId);
+      this.enablePollingFallback();
       
       throw error;
     }
@@ -123,23 +212,60 @@ class RealtimeService {
   /**
    * Enable polling fallback when realtime fails
    */
-  private enablePollingFallback(userId: string): void {
-    if (this.pollingEnabled) return;
+  enablePollingFallback(): void {
+    if (this.pollingEnabled || !this.userId) return;
 
-    log('realtime', 'Enabling polling fallback', { userId });
+    log('realtime', 'Enabling polling fallback', { userId: this.userId });
+    
+    // Stop connection monitoring since we're switching to polling
+    this.connectionMonitor.stopMonitoring();
     
     // Poll for crisis events
-    pollingService.startCrisisEventPolling(userId, (events) => {
+    pollingService.startCrisisEventPolling(this.userId, (events) => {
       events.forEach(event => this.handleCrisisEvent(event));
     });
 
     // Poll for contact changes
-    pollingService.startContactPolling(userId, (contacts) => {
+    pollingService.startContactPolling(this.userId, (contacts) => {
       log('realtime', 'Contact changes detected via polling', { count: contacts.length });
     });
 
     this.pollingEnabled = true;
     this.connectionStatus = 'connected';
+    this.usePollingFallback = true;
+  }
+
+  /**
+   * Force reconnect (called by ConnectionMonitor)
+   */
+  async forceReconnect(): Promise<void> {
+    if (!this.userId) {
+      throw new Error('No user ID available for reconnection');
+    }
+
+    log('realtime', 'Force reconnecting all channels');
+    
+    // Clean up existing channels
+    this.channels.forEach((channel, name) => {
+      channel.unsubscribe();
+    });
+    this.channels.clear();
+    
+    if (this.presenceChannel) {
+      this.presenceChannel.unsubscribe();
+      this.presenceChannel = null;
+    }
+
+    // Stop polling if it was enabled
+    if (this.pollingEnabled) {
+      pollingService.stopAllPolling();
+      this.pollingEnabled = false;
+    }
+
+    // Try to reinitialize
+    this.isInitialized = false;
+    this.usePollingFallback = false;
+    await this.initialize(this.userId);
   }
 
   /**
@@ -163,12 +289,14 @@ class RealtimeService {
       testChannel
         .on('broadcast', { event: 'test' }, (payload) => {
           log('realtime', 'Test broadcast received', payload);
+          this.connectionMonitor.updatePingTime();
         })
         .subscribe((status) => {
           log('realtime', 'Test channel status', { status });
           
           if (status === 'SUBSCRIBED') {
             clearTimeout(timeout);
+            this.connectionMonitor.updatePingTime();
             // Send a test message
             testChannel.send({
               type: 'broadcast',
@@ -210,18 +338,20 @@ class RealtimeService {
     channel
       .on('broadcast', { event: 'alert' }, (payload) => {
         log('realtime', 'Alert received', payload);
+        this.connectionMonitor.updatePingTime();
         const alert = payload.payload as RealtimeAlert;
         this.handleAlert(alert);
       })
       .on('presence', { event: 'sync' }, () => {
         log('realtime', 'Presence sync on alerts channel');
+        this.connectionMonitor.updatePingTime();
       })
       .subscribe((status) => {
         log('realtime', 'Alerts channel status', { status, channelName });
         
         if (status === 'SUBSCRIBED') {
           this.channels.set(channelName, channel);
-          this.updateLastPing();
+          this.connectionMonitor.updatePingTime();
         } else if (status === 'CHANNEL_ERROR') {
           log('error', 'Alerts channel error', { channelName });
           this.handleChannelError(channelName);
@@ -281,13 +411,16 @@ class RealtimeService {
             }
           });
           log('realtime', 'Presence sync', { count: presenceList.length });
+          this.connectionMonitor.updatePingTime();
           this.handlePresenceUpdate(presenceList);
         })
         .on('presence', { event: 'join' }, ({ key, newPresences }) => {
           log('realtime', 'User joined', { key, newPresences });
+          this.connectionMonitor.updatePingTime();
         })
         .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
           log('realtime', 'User left', { key, leftPresences });
+          this.connectionMonitor.updatePingTime();
         })
         .subscribe(async (status) => {
           log('realtime', 'Presence channel status', { status, channelName });
@@ -310,7 +443,7 @@ class RealtimeService {
             
             await this.presenceChannel?.track(presenceData);
             log('realtime', 'Tracking presence', presenceData);
-            this.updateLastPing();
+            this.connectionMonitor.updatePingTime();
           }
         });
     } catch (error) {
@@ -338,6 +471,7 @@ class RealtimeService {
         },
         (payload: RealtimePostgresChangesPayload<any>) => {
           log('realtime', 'Crisis event detected', payload);
+          this.connectionMonitor.updatePingTime();
           this.handleCrisisEvent(payload.new);
         }
       )
@@ -345,7 +479,7 @@ class RealtimeService {
         log('realtime', 'Crisis events channel status', { status });
         if (status === 'SUBSCRIBED') {
           this.channels.set(crisisChannelName, crisisChannel);
-          this.updateLastPing();
+          this.connectionMonitor.updatePingTime();
         }
       });
 
@@ -363,6 +497,7 @@ class RealtimeService {
         },
         (payload: RealtimePostgresChangesPayload<any>) => {
           log('realtime', 'Contact change detected', payload);
+          this.connectionMonitor.updatePingTime();
           this.handleContactChange(payload);
         }
       )
@@ -370,7 +505,7 @@ class RealtimeService {
         log('realtime', 'Contacts channel status', { status });
         if (status === 'SUBSCRIBED') {
           this.channels.set(contactsChannelName, contactsChannel);
-          this.updateLastPing();
+          this.connectionMonitor.updatePingTime();
         }
       });
   }
@@ -414,16 +549,11 @@ class RealtimeService {
     }, 10000); // Check every 10 seconds
   }
 
-  /**
-   * Update last ping time
-   */
   private updateLastPing(): void {
     this.lastPing = Date.now();
+    this.connectionMonitor.updatePingTime();
   }
 
-  /**
-   * Handle disconnect
-   */
   private async handleDisconnect(): Promise<void> {
     log('realtime', 'Handling disconnect', { attempts: this.reconnectAttempts });
     
@@ -435,7 +565,7 @@ class RealtimeService {
       // Switch to polling fallback
       if (this.userId && !this.usePollingFallback) {
         this.usePollingFallback = true;
-        this.enablePollingFallback(this.userId);
+        this.enablePollingFallback();
       }
       
       this.notifyUserOfConnectionIssue();
@@ -455,9 +585,6 @@ class RealtimeService {
     }, delay);
   }
 
-  /**
-   * Reconnect all channels
-   */
   private async reconnect(): Promise<void> {
     log('realtime', 'Reconnecting all channels');
     
@@ -480,9 +607,6 @@ class RealtimeService {
     await this.initialize(this.userId);
   }
 
-  /**
-   * Handle channel error
-   */
   private handleChannelError(channelName: string): void {
     log('error', 'Channel error', { channelName });
     
@@ -499,9 +623,6 @@ class RealtimeService {
     }
   }
 
-  /**
-   * Notify user of connection issues
-   */
   private notifyUserOfConnectionIssue(): void {
     log('critical', 'Persistent connection issues detected');
     
@@ -548,7 +669,7 @@ class RealtimeService {
     });
 
     await Promise.all(promises);
-    this.updateLastPing();
+    this.connectionMonitor.updatePingTime();
   }
 
   /**
@@ -595,7 +716,7 @@ class RealtimeService {
       });
     }
     
-    this.updateLastPing();
+    this.connectionMonitor.updatePingTime();
   }
 
   /**
@@ -620,7 +741,7 @@ class RealtimeService {
       lastSeen: new Date().toISOString()
     });
     
-    this.updateLastPing();
+    this.connectionMonitor.updatePingTime();
   }
 
   /**
@@ -664,6 +785,8 @@ class RealtimeService {
    * Get debug info
    */
   getDebugInfo() {
+    const monitorStatus = this.connectionMonitor.getStatus();
+    
     return {
       connectionStatus: this.connectionStatus,
       channelCount: this.channels.size,
@@ -671,7 +794,13 @@ class RealtimeService {
       pollingActive: pollingService.getActivePollingCount(),
       isInitialized: this.isInitialized,
       userId: this.userId,
-      reconnectAttempts: this.reconnectAttempts
+      reconnectAttempts: this.reconnectAttempts,
+      monitor: {
+        attempts: monitorStatus.attempts,
+        lastPingTime: monitorStatus.lastPingTime,
+        timeSinceLastPing: monitorStatus.timeSinceLastPing,
+        isHealthy: monitorStatus.isHealthy
+      }
     };
   }
 
@@ -688,7 +817,7 @@ class RealtimeService {
   private handleAlert(alert: RealtimeAlert): void {
     log('realtime', 'Processing alert', { alertId: alert.id, urgency: alert.urgency });
     
-    this.updateLastPing();
+    this.connectionMonitor.updatePingTime();
     
     // Notify all registered handlers
     this.alertHandlers.forEach(handler => {
@@ -717,7 +846,7 @@ class RealtimeService {
   private handlePresenceUpdate(presence: RealtimePresence[]): void {
     log('realtime', 'Processing presence update', { count: presence.length });
     
-    this.updateLastPing();
+    this.connectionMonitor.updatePingTime();
     
     this.presenceHandlers.forEach(handler => {
       try {
@@ -733,7 +862,7 @@ class RealtimeService {
    */
   private handleCrisisEvent(event: any): void {
     log('realtime', 'Processing crisis event', { eventId: event.id });
-    this.updateLastPing();
+    this.connectionMonitor.updatePingTime();
     // Additional crisis event handling
   }
 
@@ -745,7 +874,7 @@ class RealtimeService {
       eventType: payload.eventType,
       table: payload.table 
     });
-    this.updateLastPing();
+    this.connectionMonitor.updatePingTime();
     // Additional contact change handling
   }
 
@@ -755,6 +884,9 @@ class RealtimeService {
   async cleanup(): Promise<void> {
     log('realtime', 'Cleaning up realtime service');
     
+    // Stop connection monitoring
+    this.connectionMonitor.stopMonitoring();
+
     // Clear health check interval
     if (this.healthCheckInterval) {
       clearInterval(this.healthCheckInterval);

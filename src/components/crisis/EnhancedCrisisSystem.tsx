@@ -4,7 +4,7 @@ import React from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEnhancedSessionSecurity } from '@/hooks/useEnhancedSessionSecurity';
-import { SessionWarningDialog } from '@/components/security/SessionWarningDialog';
+import SessionWarningDialog from '@/components/security/SessionWarningDialog';
 import FloatingCrisisButton from './FloatingCrisisButton';
 import CrisisAssessmentModal from './CrisisAssessmentModal';
 import CrisisResponseModal from './CrisisResponseModal';

@@ -1,6 +1,11 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
+
+// DEDUPLICATION: Deprecated in favor of `enhancedRealtimeService.ts`
+// This legacy service provides alert broadcasting and presence updates
+// used by `useRealtimeHook`. Migrate functionality into the enhanced
+// service before removing this file.
 import { pollingService } from './pollingService';
 import { ConnectionMonitor } from './realtime/connectionMonitor';
 import { setupWebSocketDebugging } from './realtime/webSocketDebugger';

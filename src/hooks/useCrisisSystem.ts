@@ -1,10 +1,11 @@
 
 import { useState, useEffect, useCallback } from 'react';
+// DEDUPLICATION: Unified crisis hooks with EnhancedCrisisSystem
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { voiceActivationService } from '@/services/voiceActivationService';
 import { escalateCrisis } from '@/services/crisisEscalationService';
-import { useAuditLogger } from '@/hooks/useAuditLogger';
+import { useSecureAuditLogger } from '@/hooks/useSecureAuditLogger';
 
 type RiskLevel = 'low' | 'moderate' | 'high' | 'severe';
 
@@ -28,7 +29,7 @@ export const useCrisisSystem = () => {
   const [voiceListening, setVoiceListening] = useState(false);
   const [hasLocationPermission, setHasLocationPermission] = useState(false);
   const { user } = useAuth();
-  const { log } = useAuditLogger();
+  const { log } = useSecureAuditLogger();
 
   useEffect(() => {
     // Initialize voice activation if supported

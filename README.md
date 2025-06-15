@@ -93,6 +93,7 @@ uses the enhanced versions exclusively:
 - **useSecureAuditLogger** replaces useAuditLogger and server-side variants
 - **EnhancedSecurityAuditService** consolidates audit logging services
 - **EnhancedInputValidator** consolidates input validation utilities
+- **EnhancedRealtimeService** replaces the legacy realtime service
 
 These components provide richer functionality and improved security compared to
 their predecessors.

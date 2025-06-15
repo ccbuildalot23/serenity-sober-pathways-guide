@@ -1,11 +1,24 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Phone, MessageSquare, Users, Heart, Clock, Shield } from 'lucide-react';
+import { Phone, MessageSquare, Users, Heart, Clock, Shield, BarChart3 } from 'lucide-react';
+import SupportAnalytics from '@/components/support/SupportAnalytics';
 
 const Support = () => {
+  const [showAnalytics, setShowAnalytics] = useState(false);
+
+  if (showAnalytics) {
+    return (
+      <Layout activeTab="support" onTabChange={() => {}}>
+        <div className="p-4">
+          <SupportAnalytics onBack={() => setShowAnalytics(false)} />
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout activeTab="support" onTabChange={() => {}}>
       <div className="p-4 space-y-6">
@@ -13,6 +26,28 @@ const Support = () => {
           <h1 className="text-2xl font-bold text-[#1E3A8A]">Support Network</h1>
           <p className="text-gray-600">Connect with your support system</p>
         </div>
+
+        {/* Analytics Access */}
+        <Card className="border-purple-200 bg-purple-50">
+          <CardHeader>
+            <CardTitle className="text-purple-700 flex items-center gap-2">
+              <BarChart3 className="w-5 h-5" />
+              Network Analytics
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-purple-600 mb-4">
+              Get insights into your support network effectiveness and patterns
+            </p>
+            <Button 
+              onClick={() => setShowAnalytics(true)}
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              <BarChart3 className="w-4 h-4 mr-2" />
+              View Analytics
+            </Button>
+          </CardContent>
+        </Card>
 
         {/* Emergency Support */}
         <Card className="border-red-200 bg-red-50">

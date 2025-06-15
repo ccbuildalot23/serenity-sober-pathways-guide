@@ -107,8 +107,8 @@ class RecoveryService {
 
   private async resetRealtimeService() {
     try {
-      const { realtimeService } = await import('./realtimeService');
-      await realtimeService.cleanup();
+      const { enhancedRealtimeService } = await import('./enhancedRealtimeService');
+      await enhancedRealtimeService.cleanup();
       console.log('Recovery: Realtime service reset');
     } catch (error) {
       console.error('Recovery: Failed to reset realtime service:', error);

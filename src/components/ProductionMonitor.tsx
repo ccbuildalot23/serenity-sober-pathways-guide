@@ -1,11 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Settings, Eye, EyeOff } from 'lucide-react';
+import { AlertTriangle, Settings, Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { debugService } from '@/services/debugService';
 import { emergencyProceduresService } from '@/services/emergencyProceduresService';
+import { recoveryService } from '@/services/recoveryService';
 import SystemHealthDashboard from './admin/SystemHealthDashboard';
 
 interface ProductionMonitorProps {
@@ -16,6 +16,7 @@ const ProductionMonitor: React.FC<ProductionMonitorProps> = ({ children }) => {
   const [showHealthDashboard, setShowHealthDashboard] = useState(false);
   const [activeProcedures, setActiveProcedures] = useState(emergencyProceduresService.getActiveProcedures());
   const [criticalErrors, setCriticalErrors] = useState(0);
+  const [recoveryStatus, setRecoveryStatus] = useState(recoveryService.getStatus());
 
   // Secret key combination to show admin panel
   useEffect(() => {
@@ -39,6 +40,18 @@ const ProductionMonitor: React.FC<ProductionMonitorProps> = ({ children }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Monitor recovery service status
+  useEffect(() => {
+    const checkRecoveryStatus = () => {
+      setRecoveryStatus(recoveryService.getStatus());
+    };
+
+    checkRecoveryStatus();
+    const interval = setInterval(checkRecoveryStatus, 5000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
   // Monitor for critical errors and emergency procedures
   useEffect(() => {
     const checkForIssues = () => {
@@ -53,13 +66,19 @@ const ProductionMonitor: React.FC<ProductionMonitorProps> = ({ children }) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Listen for connection issues
+  // Listen for connection issues with reduced frequency
   useEffect(() => {
+    let lastLogTime = 0;
     const handleConnectionIssue = (event: CustomEvent) => {
-      debugService.log('critical', 'Connection issue detected by monitor', {
-        attempts: event.detail.reconnectAttempts,
-        maxAttempts: event.detail.maxAttempts
-      });
+      const now = Date.now();
+      // Only log once per 10 seconds to prevent spam
+      if (now - lastLogTime > 10000) {
+        debugService.log('critical', 'Connection issue detected by monitor', {
+          attempts: event.detail.reconnectAttempts,
+          maxAttempts: event.detail.maxAttempts
+        });
+        lastLogTime = now;
+      }
     };
 
     window.addEventListener('connection-issue', handleConnectionIssue as EventListener);
@@ -72,6 +91,10 @@ const ProductionMonitor: React.FC<ProductionMonitorProps> = ({ children }) => {
     } else {
       debugService.enableDebugMode();
     }
+  };
+
+  const handleManualRecovery = () => {
+    recoveryService.manualRecovery();
   };
 
   const handleEmergencyTrigger = async (type: string) => {
@@ -110,9 +133,41 @@ const ProductionMonitor: React.FC<ProductionMonitorProps> = ({ children }) => {
     <>
       {children}
       
-      {/* Production Monitor Overlay - Only visible in dev or when issues detected */}
-      {(import.meta.env.DEV || criticalErrors > 0 || activeProcedures.length > 0) && (
+      {/* Production Monitor Overlay */}
+      {(import.meta.env.DEV || criticalErrors > 0 || activeProcedures.length > 0 || recoveryStatus.needsRecovery) && (
         <div className="fixed bottom-4 right-4 z-40 space-y-2">
+          {/* Recovery Status Alert */}
+          {recoveryStatus.needsRecovery && (
+            <Card className="bg-orange-50 border-orange-200 max-w-sm">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm text-orange-800 flex items-center">
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Recovery Needed
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="text-xs">
+                  <Badge className="bg-orange-100 text-orange-800">
+                    {recoveryStatus.failureCount}/{recoveryStatus.maxFailures} failures
+                  </Badge>
+                </div>
+                {recoveryStatus.recoveryInProgress && (
+                  <div className="text-xs text-orange-600">
+                    Recovery in progress...
+                  </div>
+                )}
+                <Button 
+                  onClick={handleManualRecovery}
+                  size="sm"
+                  className="w-full"
+                  disabled={recoveryStatus.recoveryInProgress}
+                >
+                  Manual Recovery
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Critical Issues Alert */}
           {(criticalErrors > 0 || activeProcedures.length > 0) && (
             <Card className="bg-red-50 border-red-200 max-w-sm">
@@ -186,26 +241,14 @@ const ProductionMonitor: React.FC<ProductionMonitorProps> = ({ children }) => {
                   Health Dashboard
                 </Button>
 
-                {/* Emergency Test Buttons */}
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-blue-800">Test Emergency:</p>
-                  <Button
-                    onClick={() => handleEmergencyTrigger('service_degradation')}
-                    variant="outline"
-                    size="sm"
-                    className="w-full text-xs"
-                  >
-                    Service Degradation
-                  </Button>
-                  <Button
-                    onClick={() => handleEmergencyTrigger('mass_alert')}
-                    variant="outline"
-                    size="sm"
-                    className="w-full text-xs"
-                  >
-                    Mass Alert
-                  </Button>
-                </div>
+                <Button
+                  onClick={handleManualRecovery}
+                  variant="outline"
+                  size="sm"
+                  className="w-full text-xs"
+                >
+                  Test Recovery
+                </Button>
               </CardContent>
             </Card>
           )}

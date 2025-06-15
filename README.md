@@ -96,6 +96,7 @@ uses the enhanced versions exclusively:
 
 These components provide richer functionality and improved security compared to
 their predecessors.
+main
 ### Deployment to Vercel
 
 This project can be deployed on [Vercel](https://vercel.com). A `vercel.json` file is included to configure the build command and output directory. Vercel will run `npm run build` and serve the generated static files from the `dist` directory.

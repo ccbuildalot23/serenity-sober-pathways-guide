@@ -1,6 +1,6 @@
-
 import React from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { debugService } from './debugService';
 
 export interface SupportMetrics {
   supportNetworkHealth: number;
@@ -46,6 +46,11 @@ class AnalyticsService {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - timeRangeDays);
 
+    debugService.log('api', 'Fetching analytics data', {
+      userId: userId.substring(0, 8) + '...',
+      timeRangeDays
+    });
+
     try {
       // Get support contacts
       const { data: contacts } = await supabase
@@ -53,7 +58,11 @@ class AnalyticsService {
         .select('*')
         .eq('user_id', userId);
 
-      // Get crisis events within time range (using crisis_events instead of alert_history)
+      debugService.log('api', 'Support contacts fetched', {
+        count: contacts?.length || 0
+      });
+
+      // Get crisis events within time range
       const { data: crisisEvents } = await supabase
         .from('crisis_events')
         .select('*')
@@ -61,7 +70,12 @@ class AnalyticsService {
         .gte('created_at', startDate.toISOString())
         .lte('created_at', endDate.toISOString());
 
-      // Get check-in data for recovery progress (using daily_checkins instead of daily_check_ins)
+      debugService.log('api', 'Crisis events fetched', {
+        count: crisisEvents?.length || 0,
+        timeRange: timeRangeDays
+      });
+
+      // Get check-in data for recovery progress
       const { data: checkIns } = await supabase
         .from('daily_checkins')
         .select('created_at, mood_rating, energy_rating, hope_rating')
@@ -69,13 +83,25 @@ class AnalyticsService {
         .gte('created_at', startDate.toISOString())
         .order('created_at', { ascending: true });
 
+      debugService.log('api', 'Check-ins fetched', {
+        count: checkIns?.length || 0
+      });
+
       const metrics = this.calculateMetrics(contacts || [], crisisEvents || []);
       const engagement = this.calculateEngagement(contacts || [], crisisEvents || []);
       const insights = this.generateInsights(crisisEvents || [], checkIns || []);
 
+      debugService.log('api', 'Analytics calculation completed', {
+        networkHealth: metrics.supportNetworkHealth,
+        engagementCount: engagement.length
+      });
+
       return { metrics, engagement, insights };
     } catch (error) {
-      console.error('Error fetching analytics:', error);
+      debugService.log('error', 'Error fetching analytics', {
+        error: error.message,
+        userId: userId.substring(0, 8) + '...'
+      });
       return { metrics: null, engagement: [], insights: null };
     }
   }
@@ -216,6 +242,10 @@ class AnalyticsService {
   }
 
   async generateInsightsReport(userId: string): Promise<string> {
+    debugService.log('api', 'Generating insights report', {
+      userId: userId.substring(0, 8) + '...'
+    });
+
     const analytics = await this.getAnalytics(userId, 90);
     
     const report = `
@@ -238,6 +268,10 @@ Recommendations:
 - ${analytics.insights?.preferredContactMethod === 'sms' ? 'Continue using SMS for quick responses' : 'Consider SMS for faster responses'}
 - ${analytics.insights?.crisisPatterns.length ? 'Plan extra support during vulnerable times' : 'Monitor for crisis patterns'}
     `;
+
+    debugService.log('api', 'Insights report generated', {
+      reportLength: report.length
+    });
 
     return report;
   }

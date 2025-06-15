@@ -1,4 +1,5 @@
 
+
 import DOMPurify from 'dompurify';
 import crypto from 'crypto';
 
@@ -111,7 +112,6 @@ export class InputValidator {
     };
   }
 }
-main
 
 export class EnhancedInputValidator extends InputValidator {
   /**
@@ -244,3 +244,4 @@ export class EnhancedInputValidator extends InputValidator {
 // Create rate limiters for different operations using the consolidated class
 export const authRateLimiter = InputValidator.createRateLimiter(5, 15 * 60 * 1000); // 5 attempts per 15 minutes
 export const formRateLimiter = InputValidator.createRateLimiter(10, 60 * 1000); // 10 submissions per minute
+

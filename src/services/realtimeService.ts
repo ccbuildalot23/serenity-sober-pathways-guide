@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { pollingService } from './pollingService';
@@ -414,48 +415,20 @@ class RealtimeService {
       });
   }
 
-  /**
-   * Health monitoring
-   */
-  private startHealthMonitoring(): void {
-    log('realtime', 'Starting health monitoring');
+  private handleChannelError(channelName: string): void {
+    log('error', 'Channel error', { channelName });
     
-    // Clear existing interval
-    if (this.healthCheckInterval) {
-      clearInterval(this.healthCheckInterval);
+    // Remove the failed channel
+    const channel = this.channels.get(channelName);
+    if (channel) {
+      channel.unsubscribe();
+      this.channels.delete(channelName);
     }
-
-    // Update last ping time
-    this.lastPing = Date.now();
-
-    // Monitor connection health
-    this.healthCheckInterval = setInterval(() => {
-      const now = Date.now();
-      const timeSinceLastPing = now - this.lastPing;
-      
-      if (timeSinceLastPing > 60000) { // No activity for 60 seconds
-        log('error', 'Connection unhealthy - no ping received', { 
-          timeSinceLastPing,
-          channelCount: this.channels.size 
-        });
-        
-        if (this.connectionStatus === 'connected') {
-          this.handleDisconnect();
-        }
-      } else {
-        // Connection is healthy
-        if (this.connectionStatus !== 'connected' && this.channels.size > 0) {
-          this.connectionStatus = 'connected';
-          this.reconnectAttempts = 0;
-          log('realtime', 'Connection restored');
-        }
-      }
-    }, 10000); // Check every 10 seconds
-  }
-
-  private updateLastPing(): void {
-    this.lastPing = Date.now();
-    this.connectionMonitor.updatePingTime();
+    
+    // Trigger reconnection if too many channels have failed
+    if (this.channels.size === 0) {
+      this.handleDisconnect();
+    }
   }
 
   private async handleDisconnect(): Promise<void> {
@@ -510,22 +483,6 @@ class RealtimeService {
 
     // Reinitialize
     await this.initialize(this.userId);
-  }
-
-  private handleChannelError(channelName: string): void {
-    log('error', 'Channel error', { channelName });
-    
-    // Remove the failed channel
-    const channel = this.channels.get(channelName);
-    if (channel) {
-      channel.unsubscribe();
-      this.channels.delete(channelName);
-    }
-    
-    // Trigger reconnection if too many channels have failed
-    if (this.channels.size === 0) {
-      this.handleDisconnect();
-    }
   }
 
   private notifyUserOfConnectionIssue(): void {
@@ -781,94 +738,6 @@ class RealtimeService {
     });
     this.connectionMonitor.updatePingTime();
     // Additional contact change handling
-  }
-
-  private handleChannelError(channelName: string): void {
-    log('error', 'Channel error', { channelName });
-    
-    // Remove the failed channel
-    const channel = this.channels.get(channelName);
-    if (channel) {
-      channel.unsubscribe();
-      this.channels.delete(channelName);
-    }
-    
-    // Trigger reconnection if too many channels have failed
-    if (this.channels.size === 0) {
-      this.handleDisconnect();
-    }
-  }
-
-  private async handleDisconnect(): Promise<void> {
-    log('realtime', 'Handling disconnect', { attempts: this.reconnectAttempts });
-    
-    this.connectionStatus = 'disconnected';
-    this.updateConnectionStatusDisplay();
-    
-    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      log('critical', 'Max reconnection attempts reached, switching to polling');
-      
-      // Switch to polling fallback
-      if (this.userId && !this.usePollingFallback) {
-        this.usePollingFallback = true;
-        this.enablePollingFallback();
-      }
-      
-      this.notifyUserOfConnectionIssue();
-      return;
-    }
-
-    const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
-    this.reconnectAttempts++;
-    
-    setTimeout(async () => {
-      try {
-        await this.reconnect();
-      } catch (error) {
-        log('error', 'Reconnection failed', { error: error.message });
-        this.handleDisconnect();
-      }
-    }, delay);
-  }
-
-  private async reconnect(): Promise<void> {
-    log('realtime', 'Reconnecting all channels');
-    
-    if (!this.userId) {
-      throw new Error('No user ID available for reconnection');
-    }
-
-    // Clean up existing channels
-    this.channels.forEach((channel, name) => {
-      channel.unsubscribe();
-    });
-    this.channels.clear();
-    
-    if (this.presenceChannel) {
-      this.presenceChannel.unsubscribe();
-      this.presenceChannel = null;
-    }
-
-    // Reinitialize
-    await this.initialize(this.userId);
-  }
-
-  private notifyUserOfConnectionIssue(): void {
-    log('critical', 'Persistent connection issues detected');
-    
-    // Try to show notification
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification('Connection Issue', {
-        body: 'Having trouble staying connected. Some features may be limited.',
-        icon: '/icon-192x192.png',
-        requireInteraction: true
-      });
-    }
-    
-    // Dispatch custom event for UI handling
-    window.dispatchEvent(new CustomEvent('realtime-connection-issue', {
-      detail: { attempts: this.reconnectAttempts, maxAttempts: this.maxReconnectAttempts }
-    }));
   }
 
   /**

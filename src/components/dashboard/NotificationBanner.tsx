@@ -1,5 +1,7 @@
 
 import React from 'react';
+// DEDUPLICATION: Keeping dashboard/NotificationBanner over src/components/NotificationBanner.tsx
+// Reason: this variant integrates notificationPermissionService and advanced dismissal logic
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Bell, X } from 'lucide-react';

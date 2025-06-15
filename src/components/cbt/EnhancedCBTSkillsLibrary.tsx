@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// DEDUPLICATION: Replaces CBTSkillsLibrary with enhanced tracking and personalization
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

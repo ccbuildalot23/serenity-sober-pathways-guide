@@ -22,11 +22,31 @@ class RealtimeService {
   private pollingEnabled = false;
   private connectionMonitor: ConnectionMonitor;
   private initializationInProgress = false;
+  private authCheckInterval: NodeJS.Timeout | null = null;
 
   constructor() {
     this.connectionMonitor = new ConnectionMonitor(this);
     this.updateConnectionStatusDisplay();
     setupWebSocketDebugging();
+    this.startAuthCheck();
+  }
+
+  private startAuthCheck() {
+    // Check for authentication every 5 seconds
+    this.authCheckInterval = setInterval(async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user && !this.isInitialized) {
+          log('realtime', 'User authenticated, initializing service', { userId: user.id });
+          await this.initialize(user.id);
+        } else if (!user && this.isInitialized) {
+          log('realtime', 'User logged out, cleaning up service');
+          await this.cleanup();
+        }
+      } catch (error) {
+        log('error', 'Auth check failed', { error: error.message });
+      }
+    }, 5000);
   }
 
   private updateConnectionStatusDisplay() {
@@ -58,22 +78,30 @@ class RealtimeService {
       this.connectionStatus = 'connecting';
       this.updateConnectionStatusDisplay();
 
+      // Verify session is active
       const { data: { session }, error } = await supabase.auth.getSession();
       if (error || !session) {
         throw new Error('No active session found');
       }
       log('realtime', 'Session verified', { userId: session.user.id });
 
+      // Start with polling fallback for reliability
       log('realtime', 'Starting with polling fallback to ensure stability');
       this.usePollingFallback = true;
       this.enablePollingFallback();
+      
+      // Set up alert channel
+      await this.setupAlertChannel(userId);
+      
+      // Set up presence channel
+      await this.setupPresenceChannel();
       
       this.isInitialized = true;
       this.connectionStatus = 'connected';
       this.reconnectAttempts = 0;
       this.updateConnectionStatusDisplay();
       
-      log('realtime', 'Initialization complete with polling mode', { 
+      log('realtime', 'Initialization complete', { 
         channelCount: this.channels.size,
         status: this.connectionStatus,
         usingPolling: this.usePollingFallback
@@ -83,12 +111,80 @@ class RealtimeService {
       this.connectionStatus = 'error';
       this.updateConnectionStatusDisplay();
       
+      // Fallback to polling on initialization failure
       log('realtime', 'Falling back to polling mode due to initialization failure');
       this.usePollingFallback = true;
       this.enablePollingFallback();
     } finally {
       this.initializationInProgress = false;
     }
+  }
+
+  private async setupAlertChannel(userId: string): Promise<void> {
+    const channelName = `alerts:${userId}`;
+    
+    try {
+      const channel = supabase.channel(channelName)
+        .on('broadcast', { event: 'alert' }, (payload) => {
+          this.handleAlert(payload.payload);
+        })
+        .subscribe((status) => {
+          log('realtime', 'Alert channel status', { channelName, status });
+          if (status === 'SUBSCRIBED') {
+            this.connectionMonitor.updatePingTime();
+          }
+        });
+
+      this.channels.set(channelName, channel);
+      log('realtime', 'Alert channel setup complete', { channelName });
+    } catch (error) {
+      log('error', 'Failed to setup alert channel', { error: error.message });
+      throw error;
+    }
+  }
+
+  private async setupPresenceChannel(): Promise<void> {
+    if (!this.userId) return;
+
+    try {
+      const presenceChannel = supabase.channel('presence')
+        .on('presence', { event: 'sync' }, () => {
+          const state = presenceChannel.presenceState();
+          const presence = this.transformPresenceState(state);
+          this.handlePresenceUpdate(presence);
+        })
+        .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+          log('realtime', 'User joined', { key, count: newPresences.length });
+        })
+        .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+          log('realtime', 'User left', { key, count: leftPresences.length });
+        })
+        .subscribe();
+
+      this.presenceChannel = presenceChannel;
+      log('realtime', 'Presence channel setup complete');
+    } catch (error) {
+      log('error', 'Failed to setup presence channel', { error: error.message });
+    }
+  }
+
+  private transformPresenceState(state: any): RealtimePresence[] {
+    const presence: RealtimePresence[] = [];
+    
+    Object.keys(state).forEach(key => {
+      const userPresence = state[key];
+      if (userPresence && userPresence.length > 0) {
+        const latest = userPresence[0];
+        presence.push({
+          userId: latest.userId || key,
+          userName: latest.userName || 'Anonymous',
+          status: latest.status || 'online',
+          lastSeen: latest.lastSeen || new Date().toISOString()
+        });
+      }
+    });
+    
+    return presence;
   }
 
   enablePollingFallback(): void {
@@ -125,6 +221,7 @@ class RealtimeService {
     this.connectionStatus = 'connecting';
     this.updateConnectionStatusDisplay();
     
+    // Clean up existing channels
     this.channels.forEach((channel, name) => {
       try {
         channel.unsubscribe();
@@ -339,16 +436,13 @@ class RealtimeService {
     this.connectionMonitor.updatePingTime();
   }
 
-  private handleContactChange(payload: RealtimePostgresChangesPayload<any>): void {
-    log('realtime', 'Processing contact change', { 
-      eventType: payload.eventType,
-      table: payload.table 
-    });
-    this.connectionMonitor.updatePingTime();
-  }
-
   async cleanup(): Promise<void> {
     log('realtime', 'Cleaning up realtime service');
+    
+    if (this.authCheckInterval) {
+      clearInterval(this.authCheckInterval);
+      this.authCheckInterval = null;
+    }
     
     this.connectionMonitor.stopMonitoring();
 
@@ -393,6 +487,7 @@ class RealtimeService {
 
 export const realtimeService = new RealtimeService();
 
+// Legacy exports for backward compatibility
 export const subscribeToCrisisEvents = (userId: string, callback: (payload: any) => void): RealtimeChannel => {
   return supabase
     .channel('crisis_events')
@@ -460,25 +555,5 @@ export const subscribeToEmergencyContactUpdates = (userId: string, callback: (pa
     )
     .subscribe();
 };
-
-let connectionMonitor: NodeJS.Timeout | null = null;
-
-const startConnectionMonitor = () => {
-  if (connectionMonitor) return;
-  
-  connectionMonitor = setInterval(() => {
-    const status = realtimeService.getConnectionStatus();
-    const channelCount = realtimeService.getChannelCount();
-    
-    if (status === 'disconnected' && channelCount === 0) {
-      log('critical', 'Connection issue detected by monitor', {
-        attempts: (realtimeService as any).reconnectAttempts,
-        maxAttempts: (realtimeService as any).maxReconnectAttempts
-      });
-    }
-  }, 5000);
-};
-
-startConnectionMonitor();
 
 export { useRealtime } from './realtime/useRealtimeHook';

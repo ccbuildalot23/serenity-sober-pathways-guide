@@ -2,34 +2,40 @@
 import { log } from './debugUtils';
 
 export class ConnectionMonitor {
-  private maxReconnectAttempts = 5;
-  private reconnectDelay = 1000;
+  private maxReconnectAttempts = 3; // Reduced from 5
+  private reconnectDelay = 2000; // Increased delay
   private attempts = 0;
   private lastPingTime = Date.now();
   private monitorInterval: NodeJS.Timeout | null = null;
   private realtimeService: any;
+  private isEnabled = true;
 
   constructor(realtimeService: any) {
     this.realtimeService = realtimeService;
-    // Make monitor available globally for WebSocket debugging
+    // Make monitor available globally for debugging
     (window as any).realtimeConnectionMonitor = this;
   }
 
   startMonitoring() {
-    if (this.monitorInterval) {
-      clearInterval(this.monitorInterval);
+    if (this.monitorInterval || !this.isEnabled) {
+      return;
     }
 
-    // Monitor connection health with reduced frequency to prevent log spam
+    // Monitor connection health with increased thresholds
     this.monitorInterval = setInterval(() => {
       const timeSinceLastPing = Date.now() - this.lastPingTime;
       
-      // Only log critical issues if we haven't already reached max attempts
-      if (timeSinceLastPing > 60000 && this.attempts < this.maxReconnectAttempts) { // Increased to 60 seconds
-        log('monitor', 'Connection appears unhealthy', { timeSinceLastPing });
+      // Only trigger if we haven't pinged in over 2 minutes AND we have active channels
+      const debugInfo = this.realtimeService.getDebugInfo();
+      if (timeSinceLastPing > 120000 && debugInfo.channelCount > 0 && this.attempts < this.maxReconnectAttempts) {
+        log('monitor', 'Connection appears unhealthy', { 
+          timeSinceLastPing, 
+          channelCount: debugInfo.channelCount,
+          attempts: this.attempts 
+        });
         this.handleReconnect();
       }
-    }, 30000); // Reduced frequency to 30 seconds
+    }, 45000); // Check every 45 seconds
 
     log('monitor', 'Connection monitoring started');
   }
@@ -39,7 +45,6 @@ export class ConnectionMonitor {
       clearInterval(this.monitorInterval);
       this.monitorInterval = null;
     }
-    // Reset attempts when stopping
     this.attempts = 0;
     log('monitor', 'Connection monitoring stopped');
   }
@@ -51,11 +56,12 @@ export class ConnectionMonitor {
       import('../recoveryService').then(({ recoveryService }) => {
         recoveryService.manualRecovery();
       });
+      this.stopMonitoring(); // Stop monitoring to prevent spam
       return;
     }
 
     this.attempts++;
-    const delay = Math.min(this.reconnectDelay * Math.pow(2, this.attempts - 1), 30000);
+    const delay = Math.min(this.reconnectDelay * Math.pow(1.5, this.attempts - 1), 30000);
     
     log('monitor', `Reconnection attempt ${this.attempts} in ${delay}ms`);
     
@@ -88,8 +94,9 @@ export class ConnectionMonitor {
       attempts: this.attempts,
       lastPingTime: this.lastPingTime,
       timeSinceLastPing: Date.now() - this.lastPingTime,
-      isHealthy: (Date.now() - this.lastPingTime) < 60000, // Increased threshold
-      maxAttempts: this.maxReconnectAttempts
+      isHealthy: (Date.now() - this.lastPingTime) < 120000, // 2 minute threshold
+      maxAttempts: this.maxReconnectAttempts,
+      isEnabled: this.isEnabled
     };
   }
 
@@ -98,5 +105,14 @@ export class ConnectionMonitor {
     this.attempts = 0;
     this.updatePingTime();
     log('monitor', 'Monitor state reset');
+  }
+
+  // Enable/disable monitoring
+  setEnabled(enabled: boolean) {
+    this.isEnabled = enabled;
+    if (!enabled) {
+      this.stopMonitoring();
+    }
+    log('monitor', `Monitoring ${enabled ? 'enabled' : 'disabled'}`);
   }
 }

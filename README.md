@@ -96,7 +96,7 @@ uses the enhanced versions exclusively:
 
 These components provide richer functionality and improved security compared to
 their predecessors.
-
+main
 ### Deployment to Vercel
 
 This project can be deployed on [Vercel](https://vercel.com). A `vercel.json` file is included to configure the build command and output directory. Vercel will run `npm run build` and serve the generated static files from the `dist` directory.
@@ -104,4 +104,4 @@ This project can be deployed on [Vercel](https://vercel.com). A `vercel.json` fi
 1. Import the repository into Vercel.
 2. Ensure required environment variables (e.g. `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) are set in the project settings.
 3. Trigger a deployment.
-
+main

@@ -111,6 +111,7 @@ export class InputValidator {
     };
   }
 }
+main
 
 export class EnhancedInputValidator extends InputValidator {
   /**

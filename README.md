@@ -75,6 +75,9 @@ Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-trick
 ## Security Logging
 
 This project uses `EnhancedSecurityAuditService` for all audit and security events. Previous services like `auditLogService` and `secureAuditLogService` were removed in favor of this consolidated implementation.
+## Security Logging
+
+This project uses `EnhancedSecurityAuditService` for all audit and security events. Previous services like `auditLogService` and `secureAuditLogService` were removed in favor of this consolidated implementation.
 
 ## Development Notes
 
@@ -92,3 +95,4 @@ uses the enhanced versions exclusively:
 
 These components provide richer functionality and improved security compared to
 their predecessors.
+main

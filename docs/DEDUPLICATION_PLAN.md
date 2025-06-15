@@ -44,5 +44,4 @@ This document lists remaining duplicate areas and migration checklists for conso
 
 All imports were updated to use the enhanced service and the legacy file has been deleted.
 
-
-All duplicate code has been removed. The repository now relies solely on the enhanced implementations.
+main

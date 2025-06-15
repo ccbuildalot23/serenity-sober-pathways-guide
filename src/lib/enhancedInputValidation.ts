@@ -113,8 +113,6 @@ export class InputValidator {
 }
 
 export class EnhancedInputValidator extends InputValidator {
-
-export class EnhancedInputValidator extends InputValidator {
   /**
    * Validates phone number format
    */

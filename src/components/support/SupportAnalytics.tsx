@@ -146,7 +146,7 @@ const SupportAnalytics: React.FC<SupportAnalyticsProps> = ({ onBack }) => {
             <CardHeader className="pb-2">
               <CardTitle className="text-sm flex items-center">
                 <MessageSquare className="w-4 h-4 mr-2 text-blue-600" />
-                Alerts Sent
+                Crisis Events
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -159,7 +159,7 @@ const SupportAnalytics: React.FC<SupportAnalyticsProps> = ({ onBack }) => {
             <CardHeader className="pb-2">
               <CardTitle className="text-sm flex items-center">
                 <Heart className="w-4 h-4 mr-2 text-green-600" />
-                Response Rate
+                Resolution Rate
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -398,7 +398,6 @@ const SupportAnalytics: React.FC<SupportAnalyticsProps> = ({ onBack }) => {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
               const report = await analyticsService.generateInsightsReport(user.id);
-              // You could show this in a modal or download as PDF
               console.log(report);
               toast.success("Report Generated", {
                 description: "Your insights report has been created",

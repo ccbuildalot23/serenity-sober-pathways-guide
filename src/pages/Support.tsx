@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import {
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 
+// Use correct lazy imports for all components
 const SupportAnalytics = lazy(() => import('@/components/support/SupportAnalytics'));
 const SupportNetwork = lazy(() => import('@/components/SupportNetwork'));
 const SupportCircleSettings = lazy(() => import('@/components/SupportCircleSettings'));
@@ -28,6 +29,7 @@ const Support = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  // 988 call modal
   const handleCall988 = () => {
     const confirmed = window.confirm(
       'You are about to call the 988 Suicide & Crisis Lifeline. This is a free, confidential service available 24/7. Continue?'
@@ -38,6 +40,7 @@ const Support = () => {
     }
   };
 
+  // Text crisis modal
   const handleTextCrisis = () => {
     const confirmed = window.confirm(
       'You are about to text the Crisis Text Line. Text HOME to 741741 for free, 24/7 crisis support. Continue?'
@@ -48,6 +51,7 @@ const Support = () => {
     }
   };
 
+  // Meeting finder modal
   const handleMeetingFinder = async () => {
     setShowMeetingFinder(true);
     setLoadingMeetings(true);
@@ -76,6 +80,7 @@ const Support = () => {
     }
   };
 
+  // Online support groups
   const handleOnlineSupportGroups = () => {
     const modal = window.confirm(
       'Online Support Groups Available:\n\n' +
@@ -92,6 +97,7 @@ const Support = () => {
     }
   };
 
+  // Sponsor connection
   const handleSponsorConnection = () => {
     const tips = sponsorshipResources.findingSponsor.tips.slice(0, 4).join('\n• ');
 
@@ -103,6 +109,7 @@ const Support = () => {
     }
   };
 
+  // Navigation handlers
   const handleViewSupportNetwork = () => {
     setActiveView('network');
   };
@@ -115,12 +122,14 @@ const Support = () => {
     setActiveView('supporter');
   };
 
+  // Loading spinner
   const LoadingSpinner = () => (
     <div className="flex items-center justify-center p-8">
       <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
     </div>
   );
 
+  // Analytics view
   if (activeView === 'analytics') {
     return (
       <Layout activeTab="support" onTabChange={() => {}}>
@@ -133,6 +142,7 @@ const Support = () => {
     );
   }
 
+  // Support network view
   if (activeView === 'network') {
     return (
       <Layout activeTab="support" onTabChange={() => {}}>
@@ -150,6 +160,7 @@ const Support = () => {
     );
   }
 
+  // Settings view
   if (activeView === 'settings') {
     return (
       <Layout activeTab="support" onTabChange={() => {}}>
@@ -167,6 +178,7 @@ const Support = () => {
     );
   }
 
+  // Supporter dashboard view
   if (activeView === 'supporter') {
     return (
       <Layout activeTab="support" onTabChange={() => {}}>
@@ -184,6 +196,7 @@ const Support = () => {
     );
   }
 
+  // Main support UI
   return (
     <Layout activeTab="support" onTabChange={() => {}}>
       <div className="p-4 space-y-6 max-w-4xl mx-auto">
@@ -246,15 +259,15 @@ const Support = () => {
                 className="bg-red-600 hover:bg-red-700 text-white"
                 onClick={handleCall988}
               >
-                <Phone className="w-4 h-4 mr-2" />
-                Call 988 Suicide & Crisis Lifeline
+                <Phone className="w-5 h-5 mr-3" />
+                Call 988 Lifeline
               </Button>
               <Button
                 variant="outline"
                 className="border-red-300 text-red-700 hover:bg-red-50"
                 onClick={handleTextCrisis}
               >
-                <MessageSquare className="w-4 h-4 mr-2" />
+                <MessageSquare className="w-5 h-5 mr-3" />
                 Text HOME to 741741
               </Button>
             </div>

@@ -50,7 +50,8 @@ function App() {
                   <Settings />
                 </Layout>
               } />
-              <Route path="/check-in" element={
+              {/* Check-in route should match navigation path */}
+              <Route path="/checkin" element={
                 <Layout activeTab="checkin" onTabChange={() => {}}>
                   <CheckIn />
                 </Layout>

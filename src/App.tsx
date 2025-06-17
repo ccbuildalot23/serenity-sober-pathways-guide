@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
@@ -30,12 +29,32 @@ function App() {
               <Route path="/auth" element={<Auth />} />
               <Route path="/test-realtime" element={<RealtimeConnectionTest />} />
               <Route path="/test-minimal" element={<MinimalRealtimeExample />} />
-              <Route path="/" element={<Index />} />
-              <Route path="/support" element={<Support />} />
-              <Route path="/crisis-toolkit" element={<CrisisToolkit />} />
-              <Route path="/settings" element={<Settings />} />
+              <Route path="/" element={
+                <Layout activeTab="dashboard" onTabChange={() => {}}>
+                  <Index />
+                </Layout>
+              } />
+              <Route path="/support" element={
+                <Layout activeTab="support" onTabChange={() => {}}>
+                  <Support />
+                </Layout>
+              } />
+              <Route path="/crisis-toolkit" element={
+                <Layout activeTab="resources" onTabChange={() => {}}>
+                  <CrisisToolkit />
+                </Layout>
+              } />
+              <Route path="/settings" element={
+                <Layout activeTab="settings" onTabChange={() => {}}>
+                  <Settings />
+                </Layout>
+              } />
               {/* Check-in route should match navigation path */}
-              <Route path="/checkin" element={<CheckIn />} />
+              <Route path="/checkin" element={
+                <Layout activeTab="checkin" onTabChange={() => {}}>
+                  <CheckIn />
+                </Layout>
+              } />
             </Routes>
             <Toaster />
             <RealtimeNotifications />

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Calendar, Users, BookOpen, User, Settings, Heart } from 'lucide-react';
 
 interface LayoutProps {
@@ -9,21 +10,21 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onProfileClick }) => {
-  // Get current path without react-router
-  const currentPath = window.location.pathname;
+  const navigate = useNavigate();
+  const location = useLocation();
   
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/' },
     { id: 'calendar', label: 'Calendar', icon: Calendar, path: '/calendar' },
     { id: 'checkin', label: 'Check-in', icon: Heart, path: '/checkin' },
     { id: 'support', label: 'Support', icon: Users, path: '/support' },
-    { id: 'resources', label: 'Resources', icon: BookOpen, path: '/resources' },
+    { id: 'resources', label: 'Resources', icon: BookOpen, path: '/crisis-toolkit' },
     { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' },
   ];
 
   const handleNavClick = (tab: any) => {
     onTabChange(tab.id);
-    window.location.href = tab.path;
+    navigate(tab.path);
   };
 
   return (
@@ -54,7 +55,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onPro
           <div className="flex justify-around">
             {tabs.map((tab) => {
               const Icon = tab.icon;
-              const isActive = currentPath === tab.path;
+              const isActive = location.pathname === tab.path;
               
               return (
                 <button

@@ -49,11 +49,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       // Clean up any existing auth state before signing in
       cleanupAuthState();
-      
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
+
+      if (!error) {
+        // Reset session activity timestamp on successful sign in
+        localStorage.setItem('session_last_activity', Date.now().toString());
+      }
+
       return { error };
     } catch (error) {
       return { error };

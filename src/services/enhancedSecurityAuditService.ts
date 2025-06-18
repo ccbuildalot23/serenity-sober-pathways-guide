@@ -62,6 +62,55 @@ export class EnhancedSecurityAuditService {
     }
   }
 
+  // Add missing methods that are being called in other files
+  static async logSecurityEvent(params: {
+    action: string;
+    details?: Record<string, any>;
+    severity?: 'low' | 'medium' | 'high' | 'critical';
+  }): Promise<void> {
+    const instance = this.getInstance();
+    await instance.logSecurityEvent(
+      params.action,
+      params.details || {},
+      params.severity || 'low'
+    );
+  }
+
+  static async logSecurityViolation(violation: string, details: Record<string, any> = {}): Promise<void> {
+    const instance = this.getInstance();
+    await instance.logSecurityEvent(violation, details, 'high');
+  }
+
+  static async logDataAccessEvent(table: string, operation: string, recordCount: number = 1): Promise<void> {
+    const instance = this.getInstance();
+    await instance.logSecurityEvent(
+      'DATA_ACCESS',
+      { table, operation, record_count: recordCount },
+      'low'
+    );
+  }
+
+  static async logRLSViolation(table: string, operation: string, details: Record<string, any> = {}): Promise<void> {
+    const instance = this.getInstance();
+    await instance.logSecurityEvent(
+      'RLS_VIOLATION',
+      { table, operation, ...details },
+      'critical'
+    );
+  }
+
+  static async logSecurityHardening(): Promise<void> {
+    const instance = this.getInstance();
+    await instance.logSecurityEvent(
+      'SECURITY_HARDENING_INITIALIZED',
+      { 
+        timestamp: new Date().toISOString(),
+        environment: import.meta.env.MODE 
+      },
+      'low'
+    );
+  }
+
   private async flushEvents(): Promise<void> {
     if (this.eventQueue.length === 0) return;
 
@@ -107,17 +156,6 @@ export class EnhancedSecurityAuditService {
       'SESSION_ACTIVITY',
       { activity_type: activityType, ...metadata },
       'low'
-    );
-  }
-
-  async logSecurityHardening(): Promise<void> {
-    await this.logSecurityEvent(
-      'SECURITY_HARDENING_INITIALIZED',
-      { 
-        timestamp: new Date().toISOString(),
-        environment: import.meta.env.MODE 
-      },
-      'low' // Changed from 'info' to 'low'
     );
   }
 

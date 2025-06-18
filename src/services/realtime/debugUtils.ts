@@ -17,3 +17,6 @@ export const debugWarn = (category: string, message: string, data?: any) => {
     console.warn(`[${category}] Warning: ${message}`, data || '');
   }
 };
+
+// Add the missing 'log' export
+export const log = debugLog;

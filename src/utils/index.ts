@@ -8,12 +8,15 @@ export * from './checkinStorage';
 export * from './checkinValidation';
 export * from './patternAnalysis';
 
-// Calendar analytics exports (avoiding duplicates)
+// Calendar analytics exports
 export { 
   analyzeCalendarPatterns,
   generateInsights,
   calculateStreaks,
-  identifyTrends
+  identifyTrends,
+  calculateMonthlyTrends,
+  calculateTriggerCounts,
+  getTopTriggers
 } from './calendarAnalytics';
 
 // Calendar utils exports

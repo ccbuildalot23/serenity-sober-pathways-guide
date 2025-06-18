@@ -1,5 +1,5 @@
-
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AuthForm } from '@/components/auth/AuthForm';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 
 const Auth = () => {
+  const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [showFeatures, setShowFeatures] = useState(false);
@@ -45,13 +46,13 @@ const Auth = () => {
       // Clear any error states
       localStorage.removeItem('auth_error');
       
-      // Show success state briefly before redirect
+      // Use React Router navigation instead of window.location
       setTimeout(() => {
         console.log('Redirecting to home page...');
-        window.location.href = '/';
-      }, 1500);
+        navigate('/');
+      }, 1000);
     }
-  }, [user, authLoading, isRedirecting]);
+  }, [user, authLoading, isRedirecting, navigate]);
 
   // Show features after a delay
   useEffect(() => {
@@ -113,7 +114,7 @@ const Auth = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => window.location.href = '/'}
+                          onClick={() => navigate('/')}
                           className="flex-1"
                         >
                           Skip to Home
@@ -121,7 +122,7 @@ const Auth = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => window.location.href = '/checkin'}
+                          onClick={() => navigate('/checkin')}
                           className="flex-1"
                         >
                           Skip to Check-in

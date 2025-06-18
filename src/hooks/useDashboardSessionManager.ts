@@ -6,7 +6,7 @@ export const useDashboardSessionManager = () => {
 
   useEffect(() => {
     const checkSession = () => {
-      const lastActivity = localStorage.getItem('lastActivity');
+      const lastActivity = localStorage.getItem('session_last_activity');
       if (lastActivity) {
         const timeSinceActivity = Date.now() - parseInt(lastActivity);
         // Show warning after 25 minutes of inactivity
@@ -16,12 +16,31 @@ export const useDashboardSessionManager = () => {
       }
     };
 
+    // Update activity on user interaction
+    const updateActivity = () => {
+      localStorage.setItem('session_last_activity', Date.now().toString());
+    };
+
+    // Set initial activity
+    updateActivity();
+
+    // Add event listeners for user activity
+    window.addEventListener('click', updateActivity);
+    window.addEventListener('keypress', updateActivity);
+    window.addEventListener('scroll', updateActivity);
+
     const interval = setInterval(checkSession, 60000); // Check every minute
-    return () => clearInterval(interval);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('click', updateActivity);
+      window.removeEventListener('keypress', updateActivity);
+      window.removeEventListener('scroll', updateActivity);
+    };
   }, []);
 
   const extendSession = () => {
-    localStorage.setItem('lastActivity', Date.now().toString());
+    localStorage.setItem('session_last_activity', Date.now().toString());
     setSessionWarning(false);
   };
 

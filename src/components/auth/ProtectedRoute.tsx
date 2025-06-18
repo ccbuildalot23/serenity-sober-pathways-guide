@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,15 +11,6 @@ interface ProtectedRouteProps {
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
-
-  useEffect(() => {
-    // Log navigation for debugging
-    console.log('ProtectedRoute check:', {
-      user: user?.email,
-      loading,
-      path: location.pathname,
-    });
-  }, [user, loading, location]);
 
   // Show loading state while checking auth
   if (loading) {
@@ -34,10 +26,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   // Redirect to auth if not authenticated
   if (!user) {
-    console.log('No user found, redirecting to auth');
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  // User is authenticated, render the protected content
   return <>{children}</>;
 };

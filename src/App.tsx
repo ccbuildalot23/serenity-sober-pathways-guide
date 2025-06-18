@@ -13,7 +13,7 @@ import Settings from '@/pages/Settings';
 import Auth from '@/pages/Auth';
 import CheckIn from '@/pages/CheckIn';
 
-// Simple Calendar component to prevent errors
+// Simple Calendar component
 const Calendar = () => {
   const [activeTab, setActiveTab] = useState('calendar');
   return (

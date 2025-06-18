@@ -1,12 +1,6 @@
 
-import { SecurityValidation } from './securityValidation';
-import { EnhancedSecurityHeaders } from './enhancedSecurityHeaders';
-import { SecureMonitoring } from './secureMonitoring';
-import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
+import { SecurityHeaders } from './securityHeaders';
 
-/**
- * Enhanced Security Initializer with comprehensive protections
- */
 export class SecurityInitializer {
   private static initialized = false;
 
@@ -16,27 +10,18 @@ export class SecurityInitializer {
     }
 
     try {
-      console.log('🔒 Initializing enhanced security hardening measures...');
+      console.log('🔒 Initializing security measures...');
 
-      // Initialize core security validation
-      SecurityValidation.initialize();
-
-      // Apply enhanced security headers with stricter CSP
-      EnhancedSecurityHeaders.applyEnhancedSecurity();
-
-      // Initialize monitoring
-      SecureMonitoring.monitorConsoleAccess();
-      SecureMonitoring.trackPageAccess();
-
-      // Log the security hardening completion
-      await EnhancedSecurityAuditService.logSecurityHardening();
+      // Apply basic security headers
+      SecurityHeaders.applySecurity();
+      SecurityHeaders.validateEnvironment();
 
       this.initialized = true;
-      console.log('✅ Enhanced security hardening initialization complete');
+      console.log('✅ Security initialization complete');
       
     } catch (error) {
-      console.error('❌ Enhanced security initialization failed:', error);
-      throw error;
+      console.error('❌ Security initialization failed:', error);
+      // Don't throw - allow app to continue
     }
   }
 
@@ -47,10 +32,8 @@ export class SecurityInitializer {
   static getSecurityStatus(): Record<string, boolean> {
     return {
       initialized: this.initialized,
-      secureContext: SecurityValidation.validateSecureContext(),
-      enhancedHeadersApplied: true,
-      sessionSecurityActive: true,
-      monitoringActive: true
+      secureContext: SecurityHeaders.isSecureContext(),
+      headersApplied: true,
     };
   }
 }

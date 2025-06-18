@@ -30,37 +30,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-
-  // Simple auth state cleanup helper
-  const cleanupAuthState = () => {
-    Object.keys(localStorage).forEach((key) => {
-      if (key.startsWith('supabase.auth.') || key.includes('sb-') || key.includes('supabase-auth')) {
-        localStorage.removeItem(key);
-      }
-    });
-    
-    Object.keys(sessionStorage || {}).forEach((key) => {
-      if (key.startsWith('supabase.auth.') || key.includes('sb-') || key.includes('supabase-auth')) {
-        sessionStorage.removeItem(key);
-      }
-    });
-  };
+  const [initialized, setInitialized] = useState(false);
 
   const signIn = async (email: string, password: string) => {
     try {
-      // Clean up any existing auth state before signing in
-      cleanupAuthState();
-
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-
-      if (!error) {
-        // Reset session activity timestamp on successful sign in
-        localStorage.setItem('session_last_activity', Date.now().toString());
-      }
-
       return { error };
     } catch (error) {
       return { error };
@@ -84,68 +61,48 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const signOut = async () => {
     try {
-      // Clean up auth state first
-      cleanupAuthState();
-      
-      // Attempt global sign out
-      try {
-        await supabase.auth.signOut({ scope: 'global' });
-      } catch (err) {
-        console.log('Global signout completed');
-      }
-      
-      // Force page reload for clean state
-      window.location.href = '/auth';
+      await supabase.auth.signOut();
     } catch (error) {
       console.error('Sign out error:', error);
-      // Force redirect even if signout fails
-      window.location.href = '/auth';
     }
   };
 
   useEffect(() => {
+    if (initialized) return;
+
     let mounted = true;
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (mounted) {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
+    const initialize = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (mounted) {
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false);
+          setInitialized(true);
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        if (mounted) {
+          setLoading(false);
+          setInitialized(true);
+        }
       }
-    });
+    };
 
-    // Listen for auth changes
+    initialize();
+
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (!mounted) return;
-
-      console.log('Auth state change:', event);
       
-      // Update state synchronously
       setSession(session);
       setUser(session?.user ?? null);
-      setLoading(false);
       
-      if (event === 'SIGNED_IN') {
-        console.log('User signed in successfully');
-        
-        // Only redirect if we're on the auth page
-        if (window.location.pathname === '/auth') {
-          console.log('Redirecting to home page...');
-          window.location.href = '/';
-        }
-      } else if (event === 'SIGNED_OUT') {
-        // Clean up any remaining auth data
-        cleanupAuthState();
-        setUser(null);
-        setSession(null);
-        
-        // Redirect to auth page if not already there
-        if (window.location.pathname !== '/auth') {
-          window.location.href = '/auth';
-        }
+      if (loading) {
+        setLoading(false);
       }
     });
 
@@ -153,7 +110,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []); // Empty dependency array to prevent infinite loops
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, session, loading, signIn, signUp, signOut }}>
@@ -162,5 +119,4 @@ export function AuthProvider({ children }: AuthProviderProps) {
   );
 }
 
-// Add default export for compatibility
 export default AuthProvider;

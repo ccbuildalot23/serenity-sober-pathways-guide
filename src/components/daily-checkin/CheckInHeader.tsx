@@ -26,7 +26,7 @@ export const CheckInHeader: React.FC<CheckInHeaderProps> = ({
         </Button>
         
         {isSaving && (
-          <div className="flex items-center text-sm text-gray-500">
+          <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
             <Save className="w-4 h-4 mr-1 animate-pulse" />
             Saving...
           </div>
@@ -36,8 +36,8 @@ export const CheckInHeader: React.FC<CheckInHeaderProps> = ({
       {/* Header */}
       <div className="text-center space-y-2">
         <h1 className="text-2xl font-bold text-[#1E3A8A]">Daily Check-In</h1>
-        <p className="text-gray-600">Take a moment to reflect on your day</p>
-        <p className="text-sm text-gray-500">
+        <p className="text-gray-600 dark:text-gray-300">Take a moment to reflect on your day</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           {new Date().toLocaleDateString('en-US', { 
             weekday: 'long', 
             year: 'numeric', 

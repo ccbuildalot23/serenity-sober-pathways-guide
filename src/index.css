@@ -85,24 +85,6 @@
   }
 }
 
-/* Dark mode text fixes */
-.dark input::placeholder {
-  color: #9ca3af !important;
-}
-
-.dark .text-gray-600 {
-  color: #d1d5db !important;
-}
-
-.dark .bg-gray-50 {
-  background-color: #1f2937 !important;
-}
-
-.dark .bg-white {
-  background-color: #111827 !important;
-  color: #f3f4f6 !important;
-}
-
 @layer components {
   /* Improved button styling for better visibility */
   .btn-primary {
@@ -254,6 +236,12 @@
   /* Range slider styles */
   input[type='range'] {
     @apply w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700;
+  }
+  input[type='range']::-webkit-slider-runnable-track {
+    @apply h-2 rounded-lg bg-gray-200 dark:bg-gray-600;
+  }
+  input[type='range']::-moz-range-track {
+    @apply h-2 rounded-lg bg-gray-200 dark:bg-gray-600;
   }
   input[type='range']::-webkit-slider-thumb {
     @apply appearance-none w-5 h-5 rounded-full bg-primary border-2 border-white shadow dark:border-gray-950;

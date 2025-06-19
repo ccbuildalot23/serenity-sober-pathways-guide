@@ -33,8 +33,9 @@ This document lists remaining duplicate areas and migration checklists for conso
 - **Dependencies to update**: none.
 
 ## Calendar Page
-- **Kept**: `src/pages/EnhancedCalendar.tsx` and `src/components/calendar/EnhancedCalendar.tsx`
-- **Deprecated**: `src/pages/Calendar.tsx`
+- **Kept**: `src/pages/Calendar.tsx` which dynamically loads
+  `src/components/calendar/EnhancedCalendar.tsx`
+- **Deprecated**: none
 - **Dependencies to update**: none.
 
 ## Realtime Service

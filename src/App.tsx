@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
 import Home from '@/pages/Home';
 import CheckIn from '@/pages/CheckIn';
-import EnhancedCalendarPage from '@/pages/EnhancedCalendar';
+import Calendar from '@/pages/Calendar';
 import Progress from '@/pages/Progress';
 import Support from '@/pages/Support';
 import CrisisToolkit from '@/pages/CrisisToolkit';
@@ -32,7 +32,7 @@ function App() {
             } />
             <Route path="/calendar" element={
               <ProtectedRoute>
-                <EnhancedCalendarPage />
+                <Calendar />
               </ProtectedRoute>
             } />
             <Route path="/progress" element={

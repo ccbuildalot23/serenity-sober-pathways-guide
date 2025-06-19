@@ -13,9 +13,10 @@ DEDUPLICATION: Keeping `src/components/crisis/EnhancedCrisisSystem.tsx` over the
 Reason: includes additional security checks and voice activation support.
 
 ### Enhanced Calendar Page
-DEDUPLICATION: Keeping `src/pages/EnhancedCalendar.tsx` with `src/components/calendar/EnhancedCalendar.tsx`.
-`src/pages/Calendar.tsx` has been removed.
-Reason: improved hooks, notifications and export options.
+DEDUPLICATION: Keeping `src/components/calendar/EnhancedCalendar.tsx` and loading
+it dynamically from `src/pages/Calendar.tsx`.
+`src/pages/Calendar.tsx` now provides a runtime-safe fallback calendar.
+Reason: improved hooks, notifications, export options and graceful loading.
 
 ### Notification Banner
 DEDUPLICATION: Keeping `src/components/dashboard/NotificationBanner.tsx`.

@@ -289,7 +289,7 @@ export const UnifiedRecoveryContent = () => {
             </Alert>
             
             {/* Affirmation Card */}
-            <Card className="bg-gradient-to-br from-green-50 to-emerald-50">
+            <Card className="bg-white dark:bg-gray-800 border-2 border-green-500 dark:border-green-400">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold flex items-center">
@@ -306,14 +306,14 @@ export const UnifiedRecoveryContent = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-lg font-medium text-gray-800 text-center py-4">
+                <p className="text-lg font-medium text-gray-900 dark:text-gray-100 text-center py-4">
                   {todaysContent?.affirmation?.text || getContextualAffirmation()}
                 </p>
               </CardContent>
             </Card>
             
             {/* Daily Focus Card */}
-            <Card className="bg-gradient-to-br from-blue-50 to-indigo-50">
+            <Card className="bg-white dark:bg-gray-800 border-2 border-blue-500 dark:border-blue-400">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold flex items-center">
@@ -326,7 +326,7 @@ export const UnifiedRecoveryContent = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-800 mb-4">
+                <p className="text-gray-900 dark:text-gray-100 mb-4">
                   {todaysContent?.dailyFocus?.text || "Focus on progress, not perfection."}
                 </p>
                 <Button 
@@ -344,7 +344,7 @@ export const UnifiedRecoveryContent = () => {
             </Card>
             
             {/* Principle Card */}
-            <Card className="bg-gradient-to-br from-purple-50 to-pink-50">
+            <Card className="bg-white dark:bg-gray-800 border-2 border-purple-500 dark:border-purple-400">
               <CardHeader>
                 <h3 className="font-semibold flex items-center">
                   <Compass className="w-5 h-5 mr-2 text-purple-600" />
@@ -352,19 +352,19 @@ export const UnifiedRecoveryContent = () => {
                 </h3>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-800 mb-2">
+                <p className="text-gray-900 dark:text-gray-100 mb-2">
                   {todaysContent?.principle?.description}
                 </p>
-                <p className="text-sm text-gray-600 italic">
+                <p className="text-sm text-gray-600 dark:text-gray-300 italic">
                   Today's reflection: {todaysContent?.principle?.daily_reflection}
                 </p>
               </CardContent>
             </Card>
             
             {/* Personal Reflection */}
-            <Card>
+            <Card className="bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600">
               <CardHeader>
-                <h3 className="font-semibold">Your Reflection</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100">Your Reflection</h3>
               </CardHeader>
               <CardContent>
                 <Textarea
@@ -409,10 +409,10 @@ export const UnifiedRecoveryContent = () => {
           
           {/* Individual content tabs */}
           <TabsContent value="affirmation" className="mt-4">
-            <Card className="bg-gradient-to-br from-green-50 to-transparent">
+            <Card className="bg-white dark:bg-gray-800 border-2 border-green-500 dark:border-green-400">
               <CardContent className="p-8 text-center">
                 <Heart className="w-12 h-12 text-emerald-600 mx-auto mb-4" />
-                <p className="text-xl font-medium text-gray-800 mb-6">
+                <p className="text-xl font-medium text-gray-900 dark:text-gray-100 mb-6">
                   {todaysContent?.affirmation?.text}
                 </p>
                 <div className="flex gap-2 justify-center">
@@ -436,11 +436,11 @@ export const UnifiedRecoveryContent = () => {
           </TabsContent>
           
           <TabsContent value="daily" className="mt-4">
-            <Card className="bg-gradient-to-br from-blue-50 to-transparent">
+            <Card className="bg-white dark:bg-gray-800 border-2 border-blue-500 dark:border-blue-400">
               <CardContent className="p-8">
                 <Calendar className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-center mb-4">Just for Today...</h3>
-                <p className="text-lg text-gray-800 text-center mb-6">
+                <h3 className="text-xl font-semibold text-center mb-4 text-gray-900 dark:text-gray-100">Just for Today...</h3>
+                <p className="text-lg text-gray-900 dark:text-gray-100 text-center mb-6">
                   {todaysContent?.dailyFocus?.text}
                 </p>
                 <Button 
@@ -452,7 +452,7 @@ export const UnifiedRecoveryContent = () => {
                   {todaysContent?.dailyFocus?.completed ? '✓ Completed' : 'Mark Complete'}
                 </Button>
                 {todaysContent?.dailyFocus?.actionable && (
-                  <p className="text-sm text-center text-gray-600 mt-4">
+                  <p className="text-sm text-center text-gray-600 dark:text-gray-400 mt-4">
                     💡 This is an actionable item - try to complete it today!
                   </p>
                 )}
@@ -461,18 +461,18 @@ export const UnifiedRecoveryContent = () => {
           </TabsContent>
           
           <TabsContent value="principle" className="mt-4">
-            <Card className="bg-gradient-to-br from-purple-50 to-transparent">
+            <Card className="bg-white dark:bg-gray-800 border-2 border-purple-500 dark:border-purple-400">
               <CardContent className="p-8">
                 <Compass className="w-12 h-12 text-purple-600 mx-auto mb-4" />
-                <h3 className="text-2xl font-bold text-center mb-2">
+                <h3 className="text-2xl font-bold text-center mb-2 text-gray-900 dark:text-gray-100">
                   {todaysContent?.principle?.name}
                 </h3>
-                <p className="text-gray-800 mb-6 text-center">
+                <p className="text-gray-900 dark:text-gray-100 mb-6 text-center">
                   {todaysContent?.principle?.description}
                 </p>
-                <div className="bg-white rounded-lg p-4 border border-purple-200">
-                  <h4 className="font-semibold mb-2">Today's Reflection:</h4>
-                  <p className="text-gray-700 italic">
+                <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-purple-200 dark:border-purple-700">
+                  <h4 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">Today's Reflection:</h4>
+                  <p className="text-gray-700 dark:text-gray-300 italic">
                     {todaysContent?.principle?.daily_reflection}
                   </p>
                 </div>

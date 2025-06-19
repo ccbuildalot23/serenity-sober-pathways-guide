@@ -84,11 +84,12 @@ Run `npm run lint` to check code style. The project uses a minimal ESLint config
 ## Component Consolidation
 
 Legacy implementations of several major features have been removed. The app now
-uses the enhanced versions exclusively:
+uses the enhanced versions exclusively (with a runtime-safe calendar page):
 
 - **EnhancedCBTSkillsLibrary** replaces the basic CBT skills library
 - **EnhancedCrisisSystem** replaces the old crisis intervention system
-- **EnhancedCalendarPage** replaces the previous calendar page
+- **Calendar** dynamically loads the enhanced calendar and falls back to a
+  simple calendar when unavailable
 - **dashboard/NotificationBanner** replaces the generic banner component
 - **useSecureAuditLogger** replaces useAuditLogger and server-side variants
 - **EnhancedSecurityAuditService** consolidates audit logging services

@@ -13,12 +13,8 @@ import CalendarGrid from './CalendarGrid';
 import CalendarInsights from './CalendarInsights';
 import DayDetailSheet from './DayDetailSheet';
 import CalendarHeader from './CalendarHeader';
-
-/**
- * DEDUPLICATION: Replaces legacy calendar component and page.
- * Reason: modular hooks with export and notification support.
- */
 import CalendarLoadingState from './CalendarLoadingState';
+import CalendarLegend from './CalendarLegend';
 import NotificationToast from './NotificationToast';
 
 // Main Calendar Component
@@ -51,13 +47,15 @@ const EnhancedCalendar: React.FC<{
 
   // Update entry
   const handleUpdate = async (updates: Partial<MoodEntry>) => {
-    if (!supabase) {
+    if (!supabase || !selectedDate) {
       showNotification('success', 'Entry updated (demo mode)');
       return;
     }
 
     try {
+      // In demo mode, just show success
       showNotification('success', 'Entry updated successfully');
+      setIsDayDetailOpen(false);
     } catch (error) {
       showNotification('error', 'Failed to update entry');
     }
@@ -75,7 +73,7 @@ const EnhancedCalendar: React.FC<{
     if (dayData && dayData.entries.length > 0) {
       setIsDayDetailOpen(true);
     } else {
-      showNotification('error', 'No entry for this day');
+      showNotification('error', 'No entry for this day. Create a check-in first!');
     }
   };
 
@@ -92,51 +90,73 @@ const EnhancedCalendar: React.FC<{
   }
 
   return (
-    <div className="p-4 space-y-6 max-w-7xl mx-auto">
-      {/* Notification */}
-      <NotificationToast notification={notification} />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+      <div className="p-4 space-y-6 max-w-7xl mx-auto">
+        {/* Notification */}
+        <NotificationToast notification={notification} />
 
-      {/* Header with Filter Toggle */}
-      <CalendarHeader
-        showFilters={showFilters}
-        onToggleFilters={() => setShowFilters(!showFilters)}
-        onExport={onExport}
-      />
-
-      {/* Filters */}
-      {showFilters && (
-        <CalendarFilters
-          filters={filters}
-          onFiltersChange={setFilters}
-          availableTriggers={availableTriggers}
+        {/* Header with Filter Toggle */}
+        <CalendarHeader
+          showFilters={showFilters}
+          onToggleFilters={() => setShowFilters(!showFilters)}
+          onExport={onExport}
         />
-      )}
 
-      {/* Calendar Grid */}
-      <CalendarGrid
-        selectedDate={selectedDate}
-        selectedMonth={selectedMonth}
-        dayDataMap={dayDataMap}
-        onDateSelect={setSelectedDate}
-        onMonthChange={setSelectedMonth}
-        onDayClick={handleDayClick}
-      />
+        {/* Error Alert */}
+        {error && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+            <p className="text-sm text-red-600 dark:text-red-400">
+              {error}
+            </p>
+          </div>
+        )}
 
-      {/* Calendar Insights */}
-      <CalendarInsights
-        chartData={chartData}
-        monthStats={monthStats}
-        monthlyTrends={monthlyTrends}
-      />
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Calendar Grid */}
+          <div className="lg:col-span-2 space-y-4">
+            {/* Filters */}
+            {showFilters && (
+              <CalendarFilters
+                filters={filters}
+                onFiltersChange={setFilters}
+                availableTriggers={availableTriggers}
+              />
+            )}
 
-      {/* Day Detail Sheet */}
-      <DayDetailSheet
-        isOpen={isDayDetailOpen}
-        onOpenChange={setIsDayDetailOpen}
-        selectedDate={selectedDate}
-        selectedDayData={selectedDayData}
-        onUpdate={handleUpdate}
-      />
+            {/* Calendar Grid */}
+            <CalendarGrid
+              selectedDate={selectedDate}
+              selectedMonth={selectedMonth}
+              dayDataMap={dayDataMap}
+              onDateSelect={setSelectedDate}
+              onMonthChange={setSelectedMonth}
+              onDayClick={handleDayClick}
+            />
+
+            {/* Calendar Legend */}
+            <CalendarLegend />
+          </div>
+
+          {/* Right Column - Insights */}
+          <div className="lg:col-span-1">
+            <CalendarInsights
+              chartData={chartData}
+              monthStats={monthStats}
+              monthlyTrends={monthlyTrends}
+            />
+          </div>
+        </div>
+
+        {/* Day Detail Sheet */}
+        <DayDetailSheet
+          isOpen={isDayDetailOpen}
+          onOpenChange={setIsDayDetailOpen}
+          selectedDate={selectedDate}
+          selectedDayData={selectedDayData}
+          onUpdate={handleUpdate}
+        />
+      </div>
     </div>
   );
 };

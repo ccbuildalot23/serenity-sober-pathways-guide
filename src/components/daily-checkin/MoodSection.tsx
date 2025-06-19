@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
+import RangeSlider from './RangeSlider';
 
 interface MoodSectionProps {
   mood: number | null;
@@ -34,13 +35,12 @@ export const MoodSection: React.FC<MoodSectionProps> = ({ mood, onMoodChange }) 
         </div>
         
         <div className="relative">
-          <input
-            type="range"
-            min="1"
-            max="10"
+          <RangeSlider
+            min={1}
+            max={10}
             value={mood || 5}
             onChange={(e) => handleMoodChange(parseInt(e.target.value))}
-            className="w-full h-3 bg-blue-100 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-blue-500 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-md"
+            className="w-full"
             aria-label="Mood rating from 1 to 10"
           />
           <div className="flex justify-between text-xs text-gray-400 mt-1 px-1">

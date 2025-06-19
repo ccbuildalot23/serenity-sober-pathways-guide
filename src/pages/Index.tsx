@@ -5,7 +5,12 @@ import { useDashboardData } from '@/hooks/useDashboardData';
 import { useDashboardKeyboardShortcuts } from '@/hooks/useDashboardKeyboardShortcuts';
 import { useDashboardSessionManager } from '@/hooks/useDashboardSessionManager';
 import Layout from '@/components/Layout';
-import { DashboardContent } from '@/components/dashboard/DashboardContent';
+import WelcomeHeader from '@/components/home/WelcomeHeader';
+import CheckInStatus from '@/components/home/CheckInStatus';
+import RecoveryFocus from '@/components/home/RecoveryFocus';
+import QuickActions from '@/components/home/QuickActions';
+import RecoveryGoals from '@/components/home/RecoveryGoals';
+import { useDailyCheckIn } from '@/hooks/useDailyCheckIn';
 import SessionWarningDialog from '@/components/security/SessionWarningDialog';
 import { toast } from 'sonner';
 
@@ -34,6 +39,8 @@ const Index = () => {
     refreshStats();
     toast.success('Check-in completed!');
   };
+
+  const { existingCheckin } = useDailyCheckIn();
 
   // Show error state if there's a critical error
   if (error && !loading) {
@@ -65,18 +72,22 @@ const Index = () => {
 
   return (
     <>
-      <Layout 
-        activeTab={activeTab} 
+      <Layout
+        activeTab={activeTab}
         onTabChange={setActiveTab}
         onProfileClick={() => setShowProfile(!showProfile)}
       >
-        <DashboardContent
-          user={user}
-          profile={profile}
-          stats={stats}
-          loading={loading}
-          onCheckInComplete={handleCheckInComplete}
-        />
+        <div className="p-4 space-y-6 max-w-4xl mx-auto">
+          <WelcomeHeader
+            name={profile?.full_name || user?.email?.split('@')[0]}
+            streak={stats.streak}
+            checkIns={stats.checkIns}
+          />
+          <CheckInStatus checkedIn={!!existingCheckin} />
+          <RecoveryFocus />
+          <QuickActions />
+          <RecoveryGoals />
+        </div>
       </Layout>
 
       {/* Session Warning Dialog */}

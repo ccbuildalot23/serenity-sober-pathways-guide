@@ -54,28 +54,28 @@ export const CheckInCompleted: React.FC<CheckInCompletedProps> = ({
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white p-3 rounded-lg">
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600 text-sm">Mood</span>
+                  <span className="text-gray-600 dark:text-gray-300 text-sm">Mood</span>
                   <Heart className="w-4 h-4 text-pink-500" />
                 </div>
                 <div className="mt-1">
                   <span className="text-2xl font-bold">{responses.mood || 0}</span>
-                  <span className="text-gray-500">/10</span>
+                  <span className="text-gray-500 dark:text-gray-400">/10</span>
                 </div>
                 <p className={`text-xs mt-1 ${getScoreSummary(responses.mood || 0).color}`}>
                   {getScoreSummary(responses.mood || 0).label}
                 </p>
               </div>
               
-              <div className="bg-white p-3 rounded-lg">
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600 text-sm">Energy</span>
+                  <span className="text-gray-600 dark:text-gray-300 text-sm">Energy</span>
                   <Battery className="w-4 h-4 text-blue-500" />
                 </div>
                 <div className="mt-1">
                   <span className="text-2xl font-bold">{responses.energy || 0}</span>
-                  <span className="text-gray-500">/10</span>
+                  <span className="text-gray-500 dark:text-gray-400">/10</span>
                 </div>
                 <p className={`text-xs mt-1 ${getScoreSummary(responses.energy || 0).color}`}>
                   {getScoreSummary(responses.energy || 0).label}
@@ -84,25 +84,25 @@ export const CheckInCompleted: React.FC<CheckInCompletedProps> = ({
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white p-3 rounded-lg">
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600 text-sm">Hope Level</span>
+                  <span className="text-gray-600 dark:text-gray-300 text-sm">Hope Level</span>
                   <Trophy className="w-4 h-4 text-yellow-500" />
                 </div>
                 <div className="mt-1">
                   <span className="text-2xl font-bold">{responses.hope || 0}</span>
-                  <span className="text-gray-500">/10</span>
+                  <span className="text-gray-500 dark:text-gray-400">/10</span>
                 </div>
               </div>
               
-              <div className="bg-white p-3 rounded-lg">
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600 text-sm">Sobriety Confidence</span>
+                  <span className="text-gray-600 dark:text-gray-300 text-sm">Sobriety Confidence</span>
                   <Brain className="w-4 h-4 text-purple-500" />
                 </div>
                 <div className="mt-1">
                   <span className="text-2xl font-bold">{responses.sobriety_confidence || 0}</span>
-                  <span className="text-gray-500">/10</span>
+                  <span className="text-gray-500 dark:text-gray-400">/10</span>
                 </div>
               </div>
             </div>

@@ -15,7 +15,7 @@ export const CheckInSuccess: React.FC = () => {
           <p className="text-green-700 text-lg">
             Your check-in has been saved. Keep up the amazing work on your recovery journey!
           </p>
-          <div className="flex items-center justify-center space-x-2 text-gray-600">
+          <div className="flex items-center justify-center space-x-2 text-gray-600 dark:text-gray-300">
             <Loader2 className="w-4 h-4 animate-spin" />
             <span>Redirecting to dashboard...</span>
           </div>

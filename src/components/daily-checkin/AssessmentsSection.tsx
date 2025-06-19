@@ -57,7 +57,7 @@ export const AssessmentsSection: React.FC<AssessmentsSectionProps> = ({
               </TooltipContent>
             </Tooltip>
           </h3>
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600 dark:text-gray-300 mb-4">
             Answer these questions to help track your mental well-being over time.
           </p>
         </div>
@@ -70,7 +70,7 @@ export const AssessmentsSection: React.FC<AssessmentsSectionProps> = ({
             
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                   Little interest or pleasure in doing things? {isFieldRequired(phq2Q1) && <span className="text-red-500">*</span>}
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -90,14 +90,14 @@ export const AssessmentsSection: React.FC<AssessmentsSectionProps> = ({
                         onChange={() => onPhq2Q1Change(option.value)}
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500"
                       />
-                      <span className="text-sm text-gray-700">{option.label}</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-200">{option.label}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                   Feeling down, depressed, or hopeless? {isFieldRequired(phq2Q2) && <span className="text-red-500">*</span>}
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -117,7 +117,7 @@ export const AssessmentsSection: React.FC<AssessmentsSectionProps> = ({
                         onChange={() => onPhq2Q2Change(option.value)}
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500"
                       />
-                      <span className="text-sm text-gray-700">{option.label}</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-200">{option.label}</span>
                     </label>
                   ))}
                 </div>
@@ -132,7 +132,7 @@ export const AssessmentsSection: React.FC<AssessmentsSectionProps> = ({
             
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                   Feeling nervous, anxious, or on edge? {isFieldRequired(gad2Q1) && <span className="text-red-500">*</span>}
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -152,14 +152,14 @@ export const AssessmentsSection: React.FC<AssessmentsSectionProps> = ({
                         onChange={() => onGad2Q1Change(option.value)}
                         className="h-4 w-4 text-green-600 focus:ring-green-500"
                       />
-                      <span className="text-sm text-gray-700">{option.label}</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-200">{option.label}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                   Not being able to stop or control worrying? {isFieldRequired(gad2Q2) && <span className="text-red-500">*</span>}
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -179,7 +179,7 @@ export const AssessmentsSection: React.FC<AssessmentsSectionProps> = ({
                         onChange={() => onGad2Q2Change(option.value)}
                         className="h-4 w-4 text-green-600 focus:ring-green-500"
                       />
-                      <span className="text-sm text-gray-700">{option.label}</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-200">{option.label}</span>
                     </label>
                   ))}
                 </div>
@@ -188,7 +188,7 @@ export const AssessmentsSection: React.FC<AssessmentsSectionProps> = ({
           </div>
         </div>
 
-        <div className="text-xs text-gray-500">
+        <div className="text-xs text-gray-500 dark:text-gray-400">
           <span className="text-red-500">*</span> All questions are required to complete this section
         </div>
       </div>

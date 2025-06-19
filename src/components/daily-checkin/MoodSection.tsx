@@ -25,11 +25,11 @@ export const MoodSection: React.FC<MoodSectionProps> = ({ mood, onMoodChange }) 
     <div className="space-y-4">
       <div>
         <h3 className="text-xl font-semibold mb-2">How are you feeling today?</h3>
-        <p className="text-gray-600 mb-4">Rate your overall mood on a scale from 1 to 10.</p>
+        <p className="text-gray-600 dark:text-gray-300 mb-4">Rate your overall mood on a scale from 1 to 10.</p>
       </div>
       
       <div className="space-y-4">
-        <div className="flex items-center justify-between text-sm text-gray-500 px-1">
+        <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 px-1">
           <span>Not Great (1)</span>
           <span>Great! (10)</span>
         </div>

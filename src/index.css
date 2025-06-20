@@ -485,3 +485,5 @@ button, a, input, textarea, select {
     font-weight: bold !important;
   }
 }
+
+@import './styles/calendar-theme.css';

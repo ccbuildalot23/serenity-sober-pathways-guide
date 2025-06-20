@@ -77,20 +77,36 @@ export default {
 						height: 'var(--radix-accordion-content-height)'
 					}
 				},
-				'accordion-up': {
-					from: {
-						height: 'var(--radix-accordion-content-height)'
-					},
-					to: {
-						height: '0'
-					}
-				}
-			},
-			animation: {
-				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
-			}
-		}
-	},
-	plugins: [require("tailwindcss-animate")],
+                                'accordion-up': {
+                                        from: {
+                                                height: 'var(--radix-accordion-content-height)'
+                                        },
+                                        to: {
+                                                height: '0'
+                                        }
+                                },
+                                slideInRight: {
+                                        '0%': { transform: 'translateX(100%)', opacity: '0' },
+                                        '100%': { transform: 'translateX(0)', opacity: '1' }
+                                },
+                                calendarPulse: {
+                                        '0%, 100%': { transform: 'scale(1)', opacity: '1' },
+                                        '50%': { transform: 'scale(1.05)', opacity: '0.9' }
+                                },
+                                sparkle: {
+                                        '0%': { transform: 'scale(0) rotate(0deg)', opacity: '0' },
+                                        '50%': { transform: 'scale(1) rotate(180deg)', opacity: '1' },
+                                        '100%': { transform: 'scale(0) rotate(360deg)', opacity: '0' }
+                                }
+                        },
+                        animation: {
+                                'accordion-down': 'accordion-down 0.2s ease-out',
+                                'accordion-up': 'accordion-up 0.2s ease-out',
+                                'slide-in-right': 'slideInRight 0.3s ease-out',
+                                'calendar-pulse': 'calendarPulse 2s ease-in-out infinite',
+                                'sparkle': 'sparkle 3s ease-in-out infinite'
+                        }
+                }
+        },
+        plugins: [require("tailwindcss-animate")],
 } satisfies Config;

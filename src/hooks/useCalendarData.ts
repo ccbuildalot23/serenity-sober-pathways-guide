@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { MoodEntry } from '@/types/calendar';
 import { formatDate, startOfMonth, endOfMonth } from '@/components/calendar/utils/calendarHelpers';
@@ -12,28 +11,81 @@ export function useCalendarData(
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Mock data for demo
+  // Enhanced mock data for demo
   const getMockData = (): MoodEntry[] => {
     const today = new Date();
     const entries: MoodEntry[] = [];
     
-    for (let i = 0; i < 15; i++) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
+    // Create more realistic recovery journey data
+    const triggers = [
+      'Work stress', 'Poor sleep', 'Social anxiety', 'Financial worry', 
+      'Family conflict', 'Loneliness', 'FOMO', 'Cravings'
+    ];
+    
+    const gratitudes = [
+      'Family support', 'Good weather', 'Productive day', 'Friend reached out',
+      'Healthy meal', 'Exercise completed', 'Meditation helped', 'Good therapy session',
+      'Sober another day', 'Feeling stronger', 'Made progress', 'Self-care time'
+    ];
+    
+    const notes = [
+      'Felt really good today. The meditation practice is helping.',
+      'Tough day but I pushed through. Proud of myself for not giving up.',
+      'Had some cravings but used my coping strategies. It worked!',
+      'Amazing day! Feeling grateful for my recovery journey.',
+      'Low energy but still showed up. That\'s what matters.',
+      'Connected with my sponsor today. Feeling supported.',
+      'Realized how far I\'ve come. Celebrating small wins!',
+      ''
+    ];
+    
+    // Generate entries for the current month
+    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    const currentDay = today.getDate();
+    
+    for (let i = 1; i <= Math.min(currentDay, daysInMonth); i++) {
+      const date = new Date(today.getFullYear(), today.getMonth(), i);
+      
+      // Create a more realistic mood pattern (generally improving over time with some fluctuations)
+      const baselineProgress = i / currentDay; // Progress through the month
+      const dailyVariation = Math.sin(i * 0.5) * 2; // Natural ups and downs
+      const trendUpward = baselineProgress * 2; // General upward trend
+      
+      const moodBase = Math.min(Math.max(4 + trendUpward + dailyVariation, 3), 10);
+      const mood = Math.round(moodBase);
+      
+      const energyBase = Math.min(Math.max(3 + trendUpward + Math.cos(i * 0.7) * 2, 2), 10);
+      const energy = Math.round(energyBase);
+      
+      // More likely to have triggers on lower mood days
+      const hasTriggers = mood < 6 && Math.random() > 0.5;
+      const dayTriggers = hasTriggers 
+        ? triggers.filter(() => Math.random() > 0.7).slice(0, 2)
+        : [];
+      
+      // More likely to express gratitude on higher mood days
+      const hasGratitude = mood > 5 || Math.random() > 0.6;
+      const dayGratitude = hasGratitude
+        ? gratitudes.filter(() => Math.random() > 0.7).slice(0, 3)
+        : [];
+      
+      // Add notes sometimes
+      const hasNotes = Math.random() > 0.6;
+      const dayNotes = hasNotes ? notes[Math.floor(Math.random() * notes.length)] : '';
       
       entries.push({
         id: `mock-${i}`,
         date: date,
-        mood_rating: Math.floor(Math.random() * 5) + 5,
-        energy_rating: Math.floor(Math.random() * 5) + 5,
-        triggers: i % 3 === 0 ? ['Work stress', 'Poor sleep'] : [],
-        gratitude: i % 2 === 0 ? ['Family time', 'Good weather'] : [],
-        notes: i % 4 === 0 ? 'Had a good day overall' : '',
+        mood_rating: mood,
+        energy_rating: energy,
+        triggers: dayTriggers,
+        gratitude: dayGratitude,
+        notes: dayNotes,
         created_at: date
       });
     }
     
-    return entries;
+    return entries.reverse(); // Most recent first
   };
 
   // Fetch data

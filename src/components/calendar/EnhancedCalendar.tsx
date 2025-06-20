@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState } from 'react'; 
 import { MoodEntry } from '@/types/calendar';
 import { useCalendarFilters } from '@/hooks/useCalendarFilters';
 import { useCalendarData } from '@/hooks/useCalendarData';
@@ -16,6 +15,8 @@ import CalendarHeader from './CalendarHeader';
 import CalendarLoadingState from './CalendarLoadingState';
 import CalendarLegend from './CalendarLegend';
 import NotificationToast from './NotificationToast';
+import { Card, CardContent } from '@/components/ui/card';
+import { Sparkles, Heart, TrendingUp } from 'lucide-react';
 
 // Main Calendar Component
 const EnhancedCalendar: React.FC<{
@@ -73,7 +74,7 @@ const EnhancedCalendar: React.FC<{
     if (dayData && dayData.entries.length > 0) {
       setIsDayDetailOpen(true);
     } else {
-      showNotification('error', 'No entry for this day. Create a check-in first!');
+      showNotification('error', 'No check-in for this day yet. Keep building your journey! 💪');
     }
   };
 
@@ -85,15 +86,42 @@ const EnhancedCalendar: React.FC<{
     showNotification(result.success ? 'success' : 'error', result.message);
   };
 
+  // Get motivational message based on stats
+  const getMotivationalMessage = () => {
+    const avgMood = parseFloat(monthStats.averageMood);
+    if (avgMood >= 7) return "You're doing amazing! Keep shining ✨";
+    if (avgMood >= 5) return "You're making progress every day 🌱";
+    return "Every day is a new opportunity to grow 🌅";
+  };
+
   if (isLoading) {
     return <CalendarLoadingState />;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-emerald-50 dark:from-gray-900 dark:to-gray-800 transition-colors">
       <div className="p-4 space-y-6 max-w-7xl mx-auto">
         {/* Notification */}
         <NotificationToast notification={notification} />
+
+        {/* Motivational Header */}
+        <Card className="bg-gradient-to-r from-blue-500 to-emerald-500 text-white border-0">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold mb-2">Your Recovery Journey</h1>
+                <p className="text-blue-100 flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  {getMotivationalMessage()}
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="text-4xl font-bold">{monthStats.streakDays}</div>
+                <div className="text-sm text-blue-100">day streak</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Header with Filter Toggle */}
         <CalendarHeader
@@ -104,8 +132,8 @@ const EnhancedCalendar: React.FC<{
 
         {/* Error Alert */}
         {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-            <p className="text-sm text-red-600 dark:text-red-400">
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+            <p className="text-sm text-amber-800 dark:text-amber-400">
               {error}
             </p>
           </div>
@@ -122,6 +150,18 @@ const EnhancedCalendar: React.FC<{
                 onFiltersChange={setFilters}
                 availableTriggers={availableTriggers}
               />
+            )}
+
+            {/* Progress Message */}
+            {monthStats.totalEntries > 0 && (
+              <Card className="bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <Heart className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                  <p className="text-emerald-800 dark:text-emerald-200">
+                    You've checked in {monthStats.totalEntries} times this month. Every check-in is a victory!
+                  </p>
+                </CardContent>
+              </Card>
             )}
 
             {/* Calendar Grid */}

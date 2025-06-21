@@ -139,21 +139,22 @@ const EnhancedCalendar: React.FC<{
           </div>
         )}
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Calendar Grid */}
-          <div className="lg:col-span-2 space-y-4">
-            {/* Filters */}
-            {showFilters && (
-              <CalendarFilters
-                filters={filters}
-                onFiltersChange={setFilters}
-                availableTriggers={availableTriggers}
-              />
-            )}
+        {/* Main Content */}
+        <div className="space-y-8">
+          {/* Filters with animation */}
+          <div
+            className={`transition-all duration-500 ease-in-out ${showFilters ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform -translate-y-4 hidden'}`}
+          >
+            <CalendarFilters
+              filters={filters}
+              onFiltersChange={setFilters}
+              availableTriggers={availableTriggers}
+            />
+          </div>
 
-            {/* Progress Message */}
-            {monthStats.totalEntries > 0 && (
+          {/* Progress Message with animation */}
+          {monthStats.totalEntries > 0 && (
+            <div className="animate-fade-in-up">
               <Card className="bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800">
                 <CardContent className="p-4 flex items-center gap-3">
                   <Heart className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
@@ -162,9 +163,11 @@ const EnhancedCalendar: React.FC<{
                   </p>
                 </CardContent>
               </Card>
-            )}
+            </div>
+          )}
 
-            {/* Calendar Grid */}
+          {/* Calendar Grid with animation */}
+          <div className="animate-fade-in-up animation-delay-100">
             <CalendarGrid
               selectedDate={selectedDate}
               selectedMonth={selectedMonth}
@@ -173,13 +176,15 @@ const EnhancedCalendar: React.FC<{
               onMonthChange={setSelectedMonth}
               onDayClick={handleDayClick}
             />
+          </div>
 
-            {/* Calendar Legend */}
+          {/* Calendar Legend with animation */}
+          <div className="animate-fade-in-up animation-delay-200">
             <CalendarLegend />
           </div>
 
-          {/* Right Column - Insights */}
-          <div className="lg:col-span-1">
+          {/* Centered Insights Section */}
+          <div className="max-w-4xl mx-auto animate-fade-in-up animation-delay-300">
             <CalendarInsights
               chartData={chartData}
               monthStats={monthStats}

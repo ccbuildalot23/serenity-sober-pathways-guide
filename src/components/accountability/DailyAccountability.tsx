@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,18 +33,18 @@ const DailyAccountability: React.FC = () => {
     if (!user) return;
 
     try {
-      // Load accountability partners
-      const { data: partnerData } = await supabase
-        .from('accountability_partners')
+      // Since accountability_partners table doesn't exist, we'll use support_contacts as partners
+      const { data: contactData } = await supabase
+        .from('support_contacts')
         .select('*')
         .eq('user_id', user.id);
 
-      // Load check-in history
+      // Load check-in history from daily_checkins (not daily_check_ins)
       const { data: checkInData } = await supabase
-        .from('daily_check_ins')
+        .from('daily_checkins')
         .select('*')
         .eq('user_id', user.id)
-        .order('check_in_date', { ascending: false })
+        .order('checkin_date', { ascending: false })
         .limit(30);
 
       // Calculate streak
@@ -53,11 +54,20 @@ const DailyAccountability: React.FC = () => {
       // Check if already checked in today
       const today = new Date().toISOString().split('T')[0];
       const checkedInToday = checkInData?.some(
-        check => check.check_in_date === today
+        check => check.checkin_date === today
       );
       setTodayCheckedIn(checkedInToday || false);
 
-      setPartners(partnerData || []);
+      // Convert contacts to partners format
+      const partnersData: AccountabilityPartner[] = (contactData || []).map(contact => ({
+        id: contact.id,
+        name: contact.name,
+        checkInTime: '09:00', // Default time since we don't have this field
+        lastCheckIn: undefined,
+        streak: 0 // Default streak
+      }));
+
+      setPartners(partnersData);
     } catch (error) {
       console.error('Error loading accountability data:', error);
     }
@@ -68,7 +78,7 @@ const DailyAccountability: React.FC = () => {
 
     let streak = 0;
     const today = new Date();
-    const dates = checkIns.map(c => new Date(c.check_in_date));
+    const dates = checkIns.map(c => new Date(c.checkin_date));
 
     for (let i = 0; i < dates.length; i++) {
       const expectedDate = new Date(today);
@@ -88,14 +98,15 @@ const DailyAccountability: React.FC = () => {
     if (!user) return;
 
     try {
-      const { data: preferences } = await supabase
-        .from('user_preferences')
-        .select('check_in_time')
-        .eq('user_id', user.id)
+      // Since user_preferences table doesn't exist, we'll use profile settings
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('assessment_reminder_time')
+        .eq('id', user.id)
         .single();
 
-      if (preferences?.check_in_time) {
-        const [hours, minutes] = preferences.check_in_time.split(':');
+      if (profile?.assessment_reminder_time) {
+        const [hours, minutes] = profile.assessment_reminder_time.split(':');
         const next = new Date();
         next.setHours(parseInt(hours), parseInt(minutes), 0);
 
@@ -115,10 +126,10 @@ const DailyAccountability: React.FC = () => {
 
     try {
       const { error } = await supabase
-        .from('daily_check_ins')
+        .from('daily_checkins')
         .insert({
           user_id: user.id,
-          check_in_date: new Date().toISOString().split('T')[0],
+          checkin_date: new Date().toISOString().split('T')[0],
           mood_rating: 7, // This would come from a mood selector
           notes: 'Feeling strong today'
         });
@@ -128,27 +139,14 @@ const DailyAccountability: React.FC = () => {
       setTodayCheckedIn(true);
       setStreak(streak + 1);
 
-      // Notify accountability partners
-      await notifyPartners();
+      // Notify accountability partners (simplified since notifications table doesn't exist)
+      console.log('Check-in completed, would notify partners:', partners.length);
 
       toast.success('Check-in complete! Keep up the great work!');
     } catch (error) {
       console.error('Error checking in:', error);
       toast.error('Failed to complete check-in');
     }
-  };
-
-  const notifyPartners = async () => {
-    const notifications = partners.map(partner =>
-      supabase.from('notifications').insert({
-        user_id: partner.id,
-        type: 'partner_check_in',
-        message: `${user?.email} completed their daily check-in!`,
-        data: { streak }
-      })
-    );
-
-    await Promise.all(notifications);
   };
 
   const addAccountabilityPartner = () => {

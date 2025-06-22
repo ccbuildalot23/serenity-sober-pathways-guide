@@ -19,6 +19,8 @@ const SupporterDashboard = lazy(() => import('@/components/supporter/SupporterDa
 
 import meetingFinderService from '@/services/meetingFinderService';
 import { onlineSupportResources, sponsorshipResources } from '@/utils/supportResources';
+import CrisisResponseSystem from '@/components/crisis/CrisisResponseSystem';
+import TriggerManagementToolkit from '@/components/triggers/TriggerManagementToolkit';
 
 const Support = () => {
   const [activeView, setActiveView] = useState<'main' | 'analytics' | 'network' | 'settings' | 'supporter'>('main');
@@ -116,6 +118,10 @@ const Support = () => {
 
   const handleViewSettings = () => {
     setActiveView('settings');
+  };
+
+  const handleViewTriggers = () => {
+    navigate('/triggers/manage');
   };
 
   const handleViewSupporter = () => {
@@ -246,6 +252,8 @@ const Support = () => {
           </CardContent>
         </Card>
 
+        <CrisisResponseSystem />
+
         <Card className="border-red-200 bg-red-50">
           <CardHeader>
             <CardTitle className="text-red-700 flex items-center gap-2">
@@ -319,6 +327,24 @@ const Support = () => {
             >
               <Settings className="w-4 h-4 mr-2" />
               Manage Professional Contacts
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" />
+              Trigger Management
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-gray-600">
+              Track and handle common relapse triggers
+            </p>
+            <Button onClick={handleViewTriggers} className="w-full" variant="outline">
+              <AlertTriangle className="w-4 h-4 mr-2" />
+              Manage Triggers
             </Button>
           </CardContent>
         </Card>

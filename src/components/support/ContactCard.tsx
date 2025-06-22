@@ -42,7 +42,15 @@ const ContactCard: React.FC<ContactCardProps> = ({ contact, onCall, onMessage, o
               <MessageSquare className="w-4 h-4" />
             </Button>
             <Button
-              onClick={() => onDelete(contact.id)}
+              onClick={() => {
+                if (
+                  window.confirm(
+                    `Are you sure you want to remove ${contact.name} from your support network?`
+                  )
+                ) {
+                  onDelete(contact.id);
+                }
+              }}
               size="sm"
               variant="ghost"
               className="text-red-600"

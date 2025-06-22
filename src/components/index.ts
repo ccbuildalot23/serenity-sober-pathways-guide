@@ -13,3 +13,4 @@ export { default as SessionWarningDialog } from './security/SessionWarningDialog
 export { default as EnhancedCBTSkillsLibrary } from './cbt/EnhancedCBTSkillsLibrary'
 export { default as EnhancedCrisisSystem } from './crisis/EnhancedCrisisSystem'
 export { default as EnhancedCalendar } from './calendar/EnhancedCalendar'
+export { default as DailyAccountability } from './accountability/DailyAccountability'

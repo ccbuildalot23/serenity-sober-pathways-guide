@@ -39,14 +39,37 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return { error };
   };
 
+  const defaultTriggers = [
+    { name: 'Stress', category: 'emotional', intensity: 5, coping_strategies: ['Deep breathing'] },
+    { name: 'Social gatherings', category: 'social', intensity: 6, coping_strategies: ['Call sponsor'] },
+    { name: 'Bars or clubs', category: 'environmental', intensity: 7, coping_strategies: ['Leave immediately'] }
+  ];
+
   const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/`
       }
     });
+
+    if (!error && data.user) {
+      try {
+        await supabase.from('user_triggers').insert(
+          defaultTriggers.map((t) => ({
+            user_id: data.user?.id,
+            name: t.name,
+            category: t.category,
+            intensity: t.intensity,
+            coping_strategies: t.coping_strategies
+          }))
+        );
+      } catch (err) {
+        console.error('Error pre-populating triggers:', err);
+      }
+    }
+
     return { error };
   };
 

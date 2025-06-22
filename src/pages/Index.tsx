@@ -10,6 +10,7 @@ import CheckInStatus from '@/components/home/CheckInStatus';
 import RecoveryFocus from '@/components/home/RecoveryFocus';
 import QuickActions from '@/components/home/QuickActions';
 import RecoveryGoals from '@/components/home/RecoveryGoals';
+import DailyAccountability from '@/components/accountability/DailyAccountability';
 import { useDailyCheckIn } from '@/hooks/useDailyCheckIn';
 import SessionWarningDialog from '@/components/security/SessionWarningDialog';
 import { toast } from 'sonner';
@@ -86,6 +87,7 @@ const Index = () => {
           <CheckInStatus checkedIn={!!existingCheckin} />
           <RecoveryFocus />
           <QuickActions />
+          <DailyAccountability />
           <RecoveryGoals />
         </div>
       </Layout>

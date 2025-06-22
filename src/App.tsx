@@ -9,6 +9,7 @@ import Support from '@/pages/Support';
 import CrisisToolkit from '@/pages/CrisisToolkit';
 import Settings from '@/pages/Settings';
 import Login from '@/pages/Login';
+import ManageTriggers from '@/pages/ManageTriggers';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 const queryClient = new QueryClient();
@@ -43,6 +44,11 @@ function App() {
             <Route path="/support" element={
               <ProtectedRoute>
                 <Support />
+              </ProtectedRoute>
+            } />
+            <Route path="/triggers/manage" element={
+              <ProtectedRoute>
+                <ManageTriggers />
               </ProtectedRoute>
             } />
             <Route path="/crisis-toolkit" element={

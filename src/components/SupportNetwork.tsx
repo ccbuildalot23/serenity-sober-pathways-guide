@@ -8,6 +8,7 @@ import AddContactForm from './support/AddContactForm';
 import ContactCard from './support/ContactCard';
 import CrisisProtocolSetup from './support/CrisisProtocolSetup';
 import CheckInAccountability from './support/CheckInAccountability';
+import CrisisContactManager from './emergency/CrisisContactManager';
 
 const SupportNetwork = () => {
   const [isAdding, setIsAdding] = useState(false);
@@ -41,7 +42,6 @@ const SupportNetwork = () => {
   };
 
   if (showCrisisContacts) {
-    const CrisisContactManager = React.lazy(() => import('./emergency/CrisisContactManager'));
     return (
       <div>
         <div className="flex items-center mb-4">
@@ -53,9 +53,7 @@ const SupportNetwork = () => {
             ← Back
           </Button>
         </div>
-        <React.Suspense fallback={<div>Loading...</div>}>
-          <CrisisContactManager />
-        </React.Suspense>
+        <CrisisContactManager />
       </div>
     );
   }

@@ -320,14 +320,23 @@ const Support = () => {
             <p className="text-sm text-gray-600 mb-4">
               Connect with healthcare professionals through your support network
             </p>
-            <Button
-              onClick={handleViewSettings}
-              className="w-full"
-              variant="outline"
-            >
-              <Settings className="w-4 h-4 mr-2" />
-              Manage Professional Contacts
-            </Button>
+            <div className="grid grid-cols-1 gap-3">
+              <Button
+                onClick={() => navigate('/clinical-resources')}
+                className="w-full bg-blue-700 hover:bg-blue-800 text-white"
+              >
+                <Users className="w-4 h-4 mr-2" />
+                Find Clinical Professionals
+              </Button>
+              <Button
+                onClick={handleViewSettings}
+                variant="outline"
+                className="w-full"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Manage Professional Contacts
+              </Button>
+            </div>
           </CardContent>
         </Card>
 

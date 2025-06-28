@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -10,6 +11,7 @@ import CrisisToolkit from '@/pages/CrisisToolkit';
 import Settings from '@/pages/Settings';
 import Login from '@/pages/Login';
 import ManageTriggers from '@/pages/ManageTriggers';
+import ClinicalDirectory from '@/pages/ClinicalDirectory';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 const queryClient = new QueryClient();
@@ -54,6 +56,11 @@ function App() {
             <Route path="/crisis-toolkit" element={
               <ProtectedRoute>
                 <CrisisToolkit />
+              </ProtectedRoute>
+            } />
+            <Route path="/clinical-resources" element={
+              <ProtectedRoute>
+                <ClinicalDirectory />
               </ProtectedRoute>
             } />
             <Route path="/settings" element={

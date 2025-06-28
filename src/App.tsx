@@ -10,6 +10,7 @@ import Support from '@/pages/Support';
 import CrisisToolkit from '@/pages/CrisisToolkit';
 import Settings from '@/pages/Settings';
 import Login from '@/pages/Login';
+import Auth from '@/pages/Auth';
 import ManageTriggers from '@/pages/ManageTriggers';
 import ClinicalDirectory from '@/pages/ClinicalDirectory';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
@@ -23,6 +24,7 @@ function App() {
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/auth" element={<Auth />} />
             <Route path="/" element={
               <ProtectedRoute>
                 <Home />

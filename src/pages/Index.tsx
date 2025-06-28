@@ -11,6 +11,7 @@ import RecoveryFocus from '@/components/home/RecoveryFocus';
 import QuickActions from '@/components/home/QuickActions';
 import RecoveryGoals from '@/components/home/RecoveryGoals';
 import DailyAccountability from '@/components/accountability/DailyAccountability';
+import { PlayTheTapeButton } from '@/features/PlayTheTape';
 import { useDailyCheckIn } from '@/hooks/useDailyCheckIn';
 import SessionWarningDialog from '@/components/security/SessionWarningDialog';
 import { toast } from 'sonner';
@@ -42,6 +43,12 @@ const Index = () => {
   };
 
   const { existingCheckin } = useDailyCheckIn();
+
+  // Prepare user data for Play the Tape feature
+  const userData = {
+    sobrietyDays: stats.streak || 0,
+    relapseHistory: [] // In production, this would come from the user's profile or a dedicated table
+  };
 
   // Show error state if there's a critical error
   if (error && !loading) {
@@ -86,6 +93,15 @@ const Index = () => {
           />
           <CheckInStatus checkedIn={!!existingCheckin} />
           <RecoveryFocus />
+          
+          {/* Add Play the Tape feature to the recovery tools section */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Recovery Tools</h3>
+            <div className="flex flex-wrap gap-4">
+              <PlayTheTapeButton userData={userData} minDaysRequired={3} />
+            </div>
+          </div>
+          
           <QuickActions />
           <DailyAccountability />
           <RecoveryGoals />

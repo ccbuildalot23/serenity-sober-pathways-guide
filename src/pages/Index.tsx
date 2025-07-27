@@ -1,22 +1,48 @@
 
-import React, { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useDashboardData } from '@/hooks/useDashboardData';
-import { useDashboardKeyboardShortcuts } from '@/hooks/useDashboardKeyboardShortcuts';
-import { useDashboardSessionManager } from '@/hooks/useDashboardSessionManager';
-import Layout from '@/components/Layout';
-import WelcomeHeader from '@/components/home/WelcomeHeader';
-import CheckInStatus from '@/components/home/CheckInStatus';
-import RecoveryFocus from '@/components/home/RecoveryFocus';
-import QuickActions from '@/components/home/QuickActions';
-import RecoveryGoals from '@/components/home/RecoveryGoals';
-import DailyAccountability from '@/components/accountability/DailyAccountability';
-import { PlayTheTapeButton } from '@/features/PlayTheTape';
-import { useDailyCheckIn } from '@/hooks/useDailyCheckIn';
-import SessionWarningDialog from '@/components/security/SessionWarningDialog';
-import { toast } from 'sonner';
+// MVP REDIRECT - This page now redirects to the simplified Dashboard
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+// Commented out for MVP focus - keeping for future restoration
+// import { useAuth } from '@/contexts/AuthContext';
+// import { useDashboardData } from '@/hooks/useDashboardData';
+// import { useDashboardKeyboardShortcuts } from '@/hooks/useDashboardKeyboardShortcuts';
+// import { useDashboardSessionManager } from '@/hooks/useDashboardSessionManager';
+// import Layout from '@/components/Layout';
+// import WelcomeHeader from '@/components/home/WelcomeHeader';
+// import CheckInStatus from '@/components/home/CheckInStatus';
+// import RecoveryFocus from '@/components/home/RecoveryFocus';
+// import QuickActions from '@/components/home/QuickActions';
+// import RecoveryGoals from '@/components/home/RecoveryGoals';
+// import DailyAccountability from '@/components/accountability/DailyAccountability';
+// import { PlayTheTapeButton } from '@/features/PlayTheTape';
+// import { useDailyCheckIn } from '@/hooks/useDailyCheckIn';
+// import SessionWarningDialog from '@/components/security/SessionWarningDialog';
+// import { toast } from 'sonner';
 
 const Index = () => {
+  const navigate = useNavigate();
+
+  // MVP: This IS the dashboard now - no redirect needed
+  // Just show the MVP dashboard content directly
+
+  // Import the Dashboard component directly for MVP
+  const Dashboard = React.lazy(() => import('./Dashboard'));
+  
+  return (
+    <React.Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="text-center space-y-4">
+          <div className="w-8 h-8 animate-spin mx-auto border-2 border-blue-600 border-t-transparent rounded-full" />
+          <p className="text-gray-600 dark:text-gray-400">Loading MVP Dashboard...</p>
+        </div>
+      </div>
+    }>
+      <Dashboard />
+    </React.Suspense>
+  );
+
+  /* COMMENTED OUT FOR MVP - Full feature set preserved for future restoration
   const { user, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showProfile, setShowProfile] = useState(false);
@@ -94,7 +120,6 @@ const Index = () => {
           <CheckInStatus checkedIn={!!existingCheckin} />
           <RecoveryFocus />
           
-          {/* Add Play the Tape feature to the recovery tools section */}
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Recovery Tools</h3>
             <div className="flex flex-wrap gap-4">
@@ -108,7 +133,6 @@ const Index = () => {
         </div>
       </Layout>
 
-      {/* Session Warning Dialog */}
       <SessionWarningDialog
         open={sessionWarning}
         onExtendSession={extendSession}
@@ -116,6 +140,7 @@ const Index = () => {
       />
     </>
   );
+  */
 };
 
 export default Index;

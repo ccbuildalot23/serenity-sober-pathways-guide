@@ -3,12 +3,14 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
+import { UserRole } from '@/types/userRoles';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  requiredRole?: UserRole;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
 

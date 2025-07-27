@@ -2,18 +2,23 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
+// MVP Core Pages
 import Home from '@/pages/Home';
-import CheckIn from '@/pages/CheckIn';
-import Calendar from '@/pages/Calendar';
-import Progress from '@/pages/Progress';
-import Support from '@/pages/Support';
-import CrisisToolkit from '@/pages/CrisisToolkit';
-import Settings from '@/pages/Settings';
 import Login from '@/pages/Login';
 import Auth from '@/pages/Auth';
-import ManageTriggers from '@/pages/ManageTriggers';
-import ClinicalDirectory from '@/pages/ClinicalDirectory';
+import Dashboard from '@/pages/Dashboard';
+import ProviderDashboard from '@/pages/ProviderDashboard';
+import CheckIn from '@/pages/CheckIn';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+
+// Commented out for MVP - keeping functionality but focusing on core features
+// import Calendar from '@/pages/Calendar';
+// import Progress from '@/pages/Progress';
+// import Support from '@/pages/Support';
+// import CrisisToolkit from '@/pages/CrisisToolkit';
+// import Settings from '@/pages/Settings';
+// import ManageTriggers from '@/pages/ManageTriggers';
+// import ClinicalDirectory from '@/pages/ClinicalDirectory';
 
 const queryClient = new QueryClient();
 
@@ -23,11 +28,17 @@ function App() {
       <AuthProvider>
         <Router>
           <Routes>
+            {/* MVP Core Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/" element={
               <ProtectedRoute>
-                <Home />
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/provider" element={
+              <ProtectedRoute>
+                <ProviderDashboard />
               </ProtectedRoute>
             } />
             <Route path="/checkin" element={
@@ -35,6 +46,8 @@ function App() {
                 <CheckIn />
               </ProtectedRoute>
             } />
+            
+            {/* Commented out non-MVP routes - keeping for future use
             <Route path="/calendar" element={
               <ProtectedRoute>
                 <Calendar />
@@ -70,6 +83,7 @@ function App() {
                 <Settings />
               </ProtectedRoute>
             } />
+            */}
           </Routes>
         </Router>
       </AuthProvider>

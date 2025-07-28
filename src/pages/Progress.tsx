@@ -42,10 +42,10 @@ const Progress = () => {
         {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            Your Recovery Progress
+            Your Serenity Progress
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Track your journey and celebrate milestones
+            Track your healing journey and celebrate milestones
           </p>
         </div>
 
@@ -134,7 +134,7 @@ const Progress = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Target className="h-5 w-5" />
-              Recovery Milestones
+              Serenity Milestones
             </CardTitle>
           </CardHeader>
           <CardContent>

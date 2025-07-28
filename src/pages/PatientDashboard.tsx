@@ -40,7 +40,7 @@ const PatientDashboard = () => {
             <div>
               <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
                 <Heart className="w-8 h-8 text-primary" />
-                Recovery Dashboard
+                Serenity Dashboard
               </h1>
               <p className="mt-2 text-muted-foreground">
                 Welcome back, {profile?.full_name || 'Friend'}. Your journey matters.
@@ -61,7 +61,7 @@ const PatientDashboard = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Recovery Streak</p>
+                  <p className="text-sm font-medium text-muted-foreground">Serenity Streak</p>
                   <p className="text-3xl font-bold text-foreground">{stats.streak}</p>
                   <p className="text-xs text-muted-foreground">days strong</p>
                 </div>
@@ -180,7 +180,7 @@ const PatientDashboard = () => {
                   Mindfulness Exercises
                 </Button>
                 <Button variant="outline" size="sm" className="w-full justify-start">
-                  Crisis Resources
+                  Serenity Resources
                 </Button>
               </div>
             </CardContent>

@@ -34,6 +34,7 @@ import { Analytics } from '@/pages/Analytics';
 import { TestFeatures } from '@/pages/TestFeatures';
 import HIPAASecurityDashboard from '@/pages/HIPAASecurityDashboard';
 import NotificationManagement from '@/pages/NotificationManagement';
+import IntegrationTesting from '@/pages/IntegrationTesting';
 import Community from '@/pages/Community';
 import Moderation from '@/pages/Moderation';
 import TestDashboard from '@/pages/TestDashboard';
@@ -212,6 +213,11 @@ function App() {
             <Route path="/notification-management" element={
               <ProtectedRoute>
                 <NotificationManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/integration-testing" element={
+              <ProtectedRoute>
+                <IntegrationTesting />
               </ProtectedRoute>
             } />
             {/* Commented out non-MVP routes - keeping for future use

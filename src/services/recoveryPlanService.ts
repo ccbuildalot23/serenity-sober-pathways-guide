@@ -4,32 +4,32 @@ import { toast } from 'sonner';
 export interface RecoveryPlanTemplate {
   id: string;
   title: string;
-  description: string;
+  description: string | null;
   category: string;
   template_data: any;
-  estimated_duration_weeks: number;
-  evidence_based_source: string;
+  estimated_duration_weeks: number | null;
+  evidence_based_source: string | null;
   created_at: string;
-  is_default: boolean;
+  is_default: boolean | null;
   difficulty_level: string;
-  created_by: string;
+  created_by: string | null;
   updated_at: string;
 }
 
 export interface UserRecoveryPlan {
   id: string;
   user_id: string;
-  template_id?: string;
+  template_id: string | null;
   title: string;
-  description: string;
-  status: 'draft' | 'active' | 'completed' | 'paused';
-  start_date: string;
-  target_completion_date: string;
-  completion_percentage: number;
+  description: string | null;
+  status: string;
+  start_date: string | null;
+  target_completion_date: string | null;
+  completion_percentage: number | null;
   plan_data: any;
-  clinical_notes: string;
-  shared_with_provider: boolean;
-  shared_with_partners: any;
+  clinical_notes: string | null;
+  shared_with_provider: boolean | null;
+  shared_with_partners: any | null;
   created_at: string;
   updated_at: string;
 }
@@ -39,35 +39,37 @@ export interface RecoveryPlanGoal {
   plan_id: string;
   user_id: string;
   title: string;
-  description: string;
-  category: string;
+  description: string | null;
+  category: string | null;
   goal_type: string;
-  target_value: number;
-  current_value: number;
-  unit: string;
+  target_value: number | null;
+  current_value: number | null;
+  unit_of_measure: string | null;
   status: string;
-  due_date: string;
-  reminder_frequency: string;
-  notes: string;
-  priority_level: number;
-  completion_date: string;
-  next_reminder_date: string;
+  due_date: string | null;
+  reminder_frequency: string | null;
+  notes: string | null;
+  priority_order: number | null;
+  completion_date: string | null;
+  next_reminder_date: string | null;
+  smart_criteria: any;
   created_at: string;
+  updated_at: string;
 }
 
 export interface RecoveryMilestone {
   id: string;
   plan_id: string;
   user_id: string;
-  goal_id: string;
+  goal_id: string | null;
   title: string;
-  description: string;
+  description: string | null;
   milestone_date: string;
-  is_achieved: boolean;
-  achieved_date: string;
-  celebration_type: string;
-  celebration_data: any;
-  achievement_criteria: string;
+  is_achieved: boolean | null;
+  achieved_date: string | null;
+  celebration_type: string | null;
+  celebration_data: any | null;
+  achievement_criteria: string | null;
   created_at: string;
 }
 
@@ -111,13 +113,17 @@ export class RecoveryPlanService {
       .from('user_recovery_plans')
       .insert({
         user_id: userId,
-        ...planData,
+        title: planData.title || 'New Recovery Plan',
+        description: planData.description,
+        start_date: planData.start_date,
+        target_completion_date: planData.target_completion_date,
+        template_id: planData.template_id,
         completion_percentage: 0,
         status: 'draft',
         clinical_notes: '',
-        plan_data: {},
+        plan_data: planData.plan_data || {},
         shared_with_provider: false,
-        shared_with_partners: {}
+        shared_with_partners: null
       })
       .select()
       .single();
@@ -169,19 +175,21 @@ export class RecoveryPlanService {
     const { data, error } = await supabase
       .from('recovery_plan_goals')
       .insert({
-        ...goalData,
-        goal_type: goalData.category || 'general',
-        user_id: goalData.user_id || '',
-        target_value: goalData.target_value || 0,
+        plan_id: goalData.plan_id!,
+        user_id: goalData.user_id!,
+        title: goalData.title!,
+        description: goalData.description,
+        category: goalData.category,
+        goal_type: goalData.goal_type || 'general',
+        target_value: goalData.target_value,
         current_value: goalData.current_value || 0,
-        unit: goalData.unit || '',
+        unit_of_measure: goalData.unit_of_measure,
         status: goalData.status || 'pending',
-        due_date: goalData.due_date || goalData.target_date || '',
+        due_date: goalData.due_date,
         reminder_frequency: goalData.reminder_frequency || 'weekly',
-        notes: goalData.notes || '',
-        priority_level: goalData.priority_level || 1,
-        completion_date: goalData.completion_date || '',
-        next_reminder_date: goalData.next_reminder_date || ''
+        notes: goalData.notes,
+        priority_order: goalData.priority_order || 1,
+        smart_criteria: goalData.smart_criteria || {}
       })
       .select()
       .single();
@@ -231,15 +239,16 @@ export class RecoveryPlanService {
     const { data, error } = await supabase
       .from('recovery_milestones')
       .insert({
-        ...milestoneData,
-        milestone_date: milestoneData.milestone_date || milestoneData.target_date || '',
-        user_id: milestoneData.user_id || '',
-        goal_id: milestoneData.goal_id || '',
+        plan_id: milestoneData.plan_id!,
+        user_id: milestoneData.user_id!,
+        title: milestoneData.title!,
+        description: milestoneData.description,
+        milestone_date: milestoneData.milestone_date!,
+        goal_id: milestoneData.goal_id,
         is_achieved: false,
-        achieved_date: '',
-        celebration_type: 'notification',
-        celebration_data: {},
-        achievement_criteria: ''
+        celebration_type: milestoneData.celebration_type || 'notification',
+        celebration_data: milestoneData.celebration_data || {},
+        achievement_criteria: milestoneData.achievement_criteria
       })
       .select()
       .single();
@@ -353,11 +362,10 @@ export class RecoveryPlanService {
           goal_type: goalTemplate.category || 'general',
           target_value: goalTemplate.target_value || 1,
           current_value: 0,
-          unit: goalTemplate.unit || '',
+          unit_of_measure: goalTemplate.unit || '',
           notes: '',
-          priority_level: goalTemplate.priority === 'high' ? 3 : goalTemplate.priority === 'medium' ? 2 : 1,
-          completion_date: '',
-          next_reminder_date: ''
+          priority_order: goalTemplate.priority === 'high' ? 3 : goalTemplate.priority === 'medium' ? 2 : 1,
+          smart_criteria: {}
         });
       }
     }
@@ -368,15 +376,13 @@ export class RecoveryPlanService {
         await this.createMilestone({
           plan_id: plan.id,
           user_id: userId,
-          goal_id: '',
           title: milestoneTemplate.title,
           description: milestoneTemplate.description,
           milestone_date: milestoneTemplate.target_date || customizations.target_completion_date,
-          is_achieved: false,
-          achieved_date: '',
+          goal_id: null,
           celebration_type: 'notification',
           celebration_data: { message: milestoneTemplate.celebration_message, reward: milestoneTemplate.reward },
-          achievement_criteria: ''
+          achievement_criteria: milestoneTemplate.achievement_criteria || ''
         });
       }
     }

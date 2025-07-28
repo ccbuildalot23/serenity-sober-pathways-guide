@@ -150,7 +150,7 @@ export const RecoveryPlanBuilder: React.FC = () => {
                         <span>Progress</span>
                         <span>{plan.progress_percentage}%</span>
                       </div>
-                      <Progress value={plan.completion_percentage} className="h-2" />
+                      <Progress value={plan.completion_percentage || 0} className="h-2" />
                     </div>
                   </CardContent>
                 </Card>
@@ -265,16 +265,17 @@ export const RecoveryPlanBuilder: React.FC = () => {
                                   <div className="flex items-center justify-between">
                                     <h4 className="font-medium text-sm">{goal.title}</h4>
                                     <Badge variant={
-                                      goal.priority === 'high' ? 'destructive' :
-                                      goal.priority === 'medium' ? 'default' : 'secondary'
+                                      goal.priority_order && goal.priority_order >= 3 ? 'destructive' :
+                                      goal.priority_order && goal.priority_order >= 2 ? 'default' : 'secondary'
                                     }>
-                                      {goal.priority}
+                                      {goal.priority_order && goal.priority_order >= 3 ? 'high' :
+                                       goal.priority_order && goal.priority_order >= 2 ? 'medium' : 'low'}
                                     </Badge>
                                   </div>
                                   <p className="text-xs text-muted-foreground">{goal.description}</p>
                                   <div className="flex items-center space-x-2 text-xs text-muted-foreground">
                                     <Calendar className="h-3 w-3" />
-                                    <span>{format(new Date(goal.target_date), 'MMM d, yyyy')}</span>
+                                    <span>{goal.due_date ? format(new Date(goal.due_date), 'MMM d, yyyy') : 'No due date'}</span>
                                   </div>
                                 </div>
                               </div>
@@ -317,7 +318,7 @@ export const RecoveryPlanBuilder: React.FC = () => {
                   <div
                     key={milestone.id}
                     className={`bg-secondary/50 rounded-lg p-3 border ${
-                      milestone.completed ? 'bg-green-50 border-green-200' : ''
+                      milestone.is_achieved ? 'bg-green-50 border-green-200' : ''
                     }`}
                   >
                     <div className="flex items-start justify-between">
@@ -326,11 +327,11 @@ export const RecoveryPlanBuilder: React.FC = () => {
                         <p className="text-xs text-muted-foreground">{milestone.description}</p>
                         <div className="flex items-center space-x-2 text-xs text-muted-foreground">
                           <Calendar className="h-3 w-3" />
-                          <span>{format(new Date(milestone.target_date), 'MMM d, yyyy')}</span>
+                          <span>{format(new Date(milestone.milestone_date), 'MMM d, yyyy')}</span>
                         </div>
                       </div>
-                      <Badge variant={milestone.completed ? 'default' : 'outline'}>
-                        {milestone.completed ? 'Completed' : 'Pending'}
+                      <Badge variant={milestone.is_achieved ? 'default' : 'outline'}>
+                        {milestone.is_achieved ? 'Completed' : 'Pending'}
                       </Badge>
                     </div>
                   </div>

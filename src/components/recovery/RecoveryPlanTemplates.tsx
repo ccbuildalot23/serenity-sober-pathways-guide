@@ -20,7 +20,7 @@ export const RecoveryPlanTemplates: React.FC = () => {
   const handleUseTemplate = async (template: RecoveryPlanTemplate) => {
     setIsCreating(true);
     
-    const targetDate = addWeeks(new Date(startDate), template.duration_weeks);
+    const targetDate = addWeeks(new Date(startDate), template.estimated_duration_weeks || 12);
     
     try {
       await createPlanFromTemplate(template.id, {
@@ -88,7 +88,7 @@ export const RecoveryPlanTemplates: React.FC = () => {
                     <div className="space-y-1">
                       <CardTitle className="text-lg flex items-center gap-2">
                         {template.title}
-                        {template.evidence_based && (
+                        {template.evidence_based_source && (
                           <Badge variant="secondary" className="text-xs">
                             <Star className="h-3 w-3 mr-1" />
                             Evidence-Based
@@ -160,8 +160,8 @@ export const RecoveryPlanTemplates: React.FC = () => {
                         <div className="space-y-2">
                           <Label>Target Completion</Label>
                           <div className="text-sm text-muted-foreground">
-                            {format(addWeeks(new Date(startDate), template.duration_weeks), 'MMM d, yyyy')}
-                            <span className="ml-1">({template.duration_weeks} weeks from start)</span>
+                            {format(addWeeks(new Date(startDate), template.estimated_duration_weeks || 12), 'MMM d, yyyy')}
+                            <span className="ml-1">({template.estimated_duration_weeks || 12} weeks from start)</span>
                           </div>
                         </div>
                         

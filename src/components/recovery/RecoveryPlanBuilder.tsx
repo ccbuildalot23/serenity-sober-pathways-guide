@@ -148,7 +148,7 @@ export const RecoveryPlanBuilder: React.FC = () => {
                     <div className="mt-3">
                       <div className="flex justify-between text-xs text-muted-foreground mb-1">
                         <span>Progress</span>
-                        <span>{plan.progress_percentage}%</span>
+                        <span>{plan.completion_percentage}%</span>
                       </div>
                       <Progress value={plan.completion_percentage || 0} className="h-2" />
                     </div>

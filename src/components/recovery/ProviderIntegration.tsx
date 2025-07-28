@@ -26,7 +26,10 @@ export const ProviderIntegration: React.FC = () => {
 
     setIsSharing(true);
     try {
-      await RecoveryPlanService.shareWithProvider(selectedPlan, providerEmail, accessLevel);
+      const plan = plans.find(p => p.id === selectedPlan);
+      if (plan) {
+        await RecoveryPlanService.shareWithProvider(selectedPlan, providerEmail, accessLevel, plan.user_id);
+      }
       setProviderEmail('');
       setSelectedPlan('');
     } catch (error) {

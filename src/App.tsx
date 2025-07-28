@@ -17,6 +17,7 @@ import CheckIn from '@/pages/CheckIn';
 import PeerSupport from '@/pages/PeerSupport';
 import Motivation from '@/pages/Motivation';
 import AccountabilityPartners from '@/pages/AccountabilityPartners';
+import RecoveryPlanning from '@/pages/RecoveryPlanning';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 // Commented out for MVP - keeping functionality but focusing on core features
@@ -87,6 +88,11 @@ function App() {
             <Route path="/accountability" element={
               <ProtectedRoute>
                 <AccountabilityPartners />
+              </ProtectedRoute>
+            } />
+            <Route path="/planning" element={
+              <ProtectedRoute>
+                <RecoveryPlanning />
               </ProtectedRoute>
             } />
             

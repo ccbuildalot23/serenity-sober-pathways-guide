@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Calendar, Users, BookOpen, User, Settings, Heart } from 'lucide-react';
+import { Home, Calendar, Users, BookOpen, User, Settings, Heart, Target } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -15,11 +15,10 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onPro
   
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/' },
-    { id: 'calendar', label: 'Calendar', icon: Calendar, path: '/calendar' },
     { id: 'checkin', label: 'Check-in', icon: Heart, path: '/checkin' },
-    { id: 'support', label: 'Support', icon: Users, path: '/support' },
-    { id: 'resources', label: 'Resources', icon: BookOpen, path: '/crisis-toolkit' },
-    { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' },
+    { id: 'planning', label: 'Planning', icon: Target, path: '/planning' },
+    { id: 'support', label: 'Support', icon: Users, path: '/peer-support' },
+    { id: 'motivation', label: 'Motivation', icon: BookOpen, path: '/motivation' },
   ];
 
   const handleNavClick = (tab: any) => {

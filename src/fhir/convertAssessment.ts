@@ -2,7 +2,7 @@ import { Observation, CodeableConcept } from './index'
 
 export const assessmentToObservation = (
   userId: string,
-  assessment: 'phq2' | 'gad2' | 'cssrs',
+  assessment: 'phq2' | 'gad2' | 'cssrs' | 'phq9' | 'gad7' | 'audit',
   score: number
 ): Observation => {
   const coding: CodeableConcept = {
@@ -14,7 +14,13 @@ export const assessmentToObservation = (
             ? '44249-1'
             : assessment === 'gad2'
             ? '69729-8'
-            : '70120-5',
+            : assessment === 'cssrs'
+            ? '70120-5'
+            : assessment === 'phq9'
+            ? '44261-6'
+            : assessment === 'gad7'
+            ? '69737-5'
+            : '88037-7', // AUDIT
         display: assessment.toUpperCase()
       }
     ],

@@ -28,6 +28,7 @@ import PracticeManagement from '@/pages/PracticeManagement';
 import RoleManagement from '@/components/admin/RoleManagement';
 import CrisisIntervention from '@/pages/CrisisIntervention';
 import HIPAASecurityDashboard from '@/pages/HIPAASecurityDashboard';
+import Community from '@/pages/Community';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 // Commented out for MVP - keeping functionality but focusing on core features
@@ -145,6 +146,11 @@ function App() {
             <Route path="/hipaa-security" element={
               <ProtectedRoute>
                 <HIPAASecurityDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/community" element={
+              <ProtectedRoute>
+                <Community />
               </ProtectedRoute>
             } />
             

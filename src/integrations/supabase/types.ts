@@ -776,6 +776,249 @@ export type Database = {
           },
         ]
       }
+      peer_chat_messages: {
+        Row: {
+          created_at: string
+          id: string
+          message_text: string
+          message_type: string | null
+          read_at: string | null
+          sender_id: string
+          sender_type: string
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_text: string
+          message_type?: string | null
+          read_at?: string | null
+          sender_id: string
+          sender_type: string
+          session_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_text?: string
+          message_type?: string | null
+          read_at?: string | null
+          sender_id?: string
+          sender_type?: string
+          session_id?: string
+        }
+        Relationships: []
+      }
+      peer_chat_sessions: {
+        Row: {
+          created_at: string
+          duration_minutes: number | null
+          ended_at: string | null
+          escalated_to_crisis: boolean | null
+          escalation_reason: string | null
+          id: string
+          peer_supporter_id: string
+          priority: string
+          started_at: string | null
+          status: string
+          supporter_notes: string | null
+          updated_at: string
+          user_feedback: string | null
+          user_id: string
+          user_rating: number | null
+          wait_time_minutes: number | null
+        }
+        Insert: {
+          created_at?: string
+          duration_minutes?: number | null
+          ended_at?: string | null
+          escalated_to_crisis?: boolean | null
+          escalation_reason?: string | null
+          id?: string
+          peer_supporter_id: string
+          priority?: string
+          started_at?: string | null
+          status?: string
+          supporter_notes?: string | null
+          updated_at?: string
+          user_feedback?: string | null
+          user_id: string
+          user_rating?: number | null
+          wait_time_minutes?: number | null
+        }
+        Update: {
+          created_at?: string
+          duration_minutes?: number | null
+          ended_at?: string | null
+          escalated_to_crisis?: boolean | null
+          escalation_reason?: string | null
+          id?: string
+          peer_supporter_id?: string
+          priority?: string
+          started_at?: string | null
+          status?: string
+          supporter_notes?: string | null
+          updated_at?: string
+          user_feedback?: string | null
+          user_id?: string
+          user_rating?: number | null
+          wait_time_minutes?: number | null
+        }
+        Relationships: []
+      }
+      peer_chat_typing: {
+        Row: {
+          id: string
+          is_typing: boolean | null
+          session_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          is_typing?: boolean | null
+          session_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          is_typing?: boolean | null
+          session_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      peer_support_queue: {
+        Row: {
+          created_at: string
+          estimated_wait_minutes: number | null
+          id: string
+          issue_description: string | null
+          preferred_supporter_id: string | null
+          priority: string
+          queue_position: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          estimated_wait_minutes?: number | null
+          id?: string
+          issue_description?: string | null
+          preferred_supporter_id?: string | null
+          priority?: string
+          queue_position?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          estimated_wait_minutes?: number | null
+          id?: string
+          issue_description?: string | null
+          preferred_supporter_id?: string | null
+          priority?: string
+          queue_position?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      peer_supporters: {
+        Row: {
+          availability_schedule: Json | null
+          average_rating: number | null
+          bio: string | null
+          certifications: Json | null
+          created_at: string
+          current_chat_count: number | null
+          display_name: string
+          id: string
+          is_available: boolean | null
+          languages: Json | null
+          max_concurrent_chats: number | null
+          specialties: Json | null
+          total_chats_completed: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          availability_schedule?: Json | null
+          average_rating?: number | null
+          bio?: string | null
+          certifications?: Json | null
+          created_at?: string
+          current_chat_count?: number | null
+          display_name: string
+          id?: string
+          is_available?: boolean | null
+          languages?: Json | null
+          max_concurrent_chats?: number | null
+          specialties?: Json | null
+          total_chats_completed?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          availability_schedule?: Json | null
+          average_rating?: number | null
+          bio?: string | null
+          certifications?: Json | null
+          created_at?: string
+          current_chat_count?: number | null
+          display_name?: string
+          id?: string
+          is_available?: boolean | null
+          languages?: Json | null
+          max_concurrent_chats?: number | null
+          specialties?: Json | null
+          total_chats_completed?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      peer_video_sessions: {
+        Row: {
+          created_at: string
+          duration_minutes: number | null
+          id: string
+          meeting_link: string | null
+          peer_supporter_id: string
+          preparation_notes: string | null
+          scheduled_at: string
+          session_notes: string | null
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          meeting_link?: string | null
+          peer_supporter_id: string
+          preparation_notes?: string | null
+          scheduled_at: string
+          session_notes?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          meeting_link?: string | null
+          peer_supporter_id?: string
+          preparation_notes?: string | null
+          scheduled_at?: string
+          session_notes?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       pledge_templates: {
         Row: {
           category: string
@@ -1492,6 +1735,10 @@ export type Database = {
         Args: { user_uuid: string; badge_name_param: string }
         Returns: boolean
       }
+      cleanup_old_typing_indicators: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       generate_daily_insights: {
         Args: Record<PropertyKey, never> | { user_uuid: string }
         Returns: undefined
@@ -1519,6 +1766,10 @@ export type Database = {
           hope_rating: number
           trend_direction: string
         }[]
+      }
+      get_next_queue_user: {
+        Args: { supporter_id: string }
+        Returns: string
       }
       get_recovery_streak: {
         Args: { user_uuid: string }

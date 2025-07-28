@@ -521,6 +521,72 @@ export type Database = {
         }
         Relationships: []
       }
+      content_reactions: {
+        Row: {
+          content_id: string
+          content_type: string
+          created_at: string
+          id: string
+          reaction_type: string
+          user_id: string
+        }
+        Insert: {
+          content_id: string
+          content_type: string
+          created_at?: string
+          id?: string
+          reaction_type: string
+          user_id: string
+        }
+        Update: {
+          content_id?: string
+          content_type?: string
+          created_at?: string
+          id?: string
+          reaction_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      content_reports: {
+        Row: {
+          content_id: string
+          content_type: string
+          created_at: string
+          details: string | null
+          id: string
+          reason: string
+          reported_by: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+        }
+        Insert: {
+          content_id: string
+          content_type: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason: string
+          reported_by: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Update: {
+          content_id?: string
+          content_type?: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason?: string
+          reported_by?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       craving_logs: {
         Row: {
           checkin_id: string | null
@@ -3579,6 +3645,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_blocks: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       user_insights: {
         Row: {
           created_at: string
@@ -3675,6 +3762,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_reputation: {
+        Row: {
+          comment_karma: number
+          created_at: string
+          helpful_votes: number
+          id: string
+          post_karma: number
+          total_karma: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comment_karma?: number
+          created_at?: string
+          helpful_votes?: number
+          id?: string
+          post_karma?: number
+          total_karma?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comment_karma?: number
+          created_at?: string
+          helpful_votes?: number
+          id?: string
+          post_karma?: number
+          total_karma?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

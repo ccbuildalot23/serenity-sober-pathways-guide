@@ -99,8 +99,36 @@ export class CommunityService {
   }
 
   static async reactToPost(postId: string, reactionType: 'helpful' | 'supportive' | 'inspiring' | 'understanding'): Promise<void> {
-    // Placeholder - tables exist but types not yet regenerated
-    console.log(`Reacting to post ${postId} with ${reactionType}`);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    // Check if user already reacted
+    const { data: existingReaction } = await supabase
+      .from('content_reactions')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('content_id', postId)
+      .eq('content_type', 'post')
+      .eq('reaction_type', reactionType)
+      .single();
+
+    if (existingReaction) {
+      // Remove existing reaction
+      await supabase
+        .from('content_reactions')
+        .delete()
+        .eq('id', existingReaction.id);
+    } else {
+      // Add new reaction
+      await supabase
+        .from('content_reactions')
+        .insert({
+          user_id: user.id,
+          content_id: postId,
+          content_type: 'post',
+          reaction_type: reactionType
+        });
+    }
   }
 
   static async reportContent(
@@ -109,13 +137,36 @@ export class CommunityService {
     reason: string,
     details?: string
   ): Promise<void> {
-    // Placeholder - tables exist but types not yet regenerated
-    console.log(`Reporting ${contentType} ${contentId} for ${reason}:`, details);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { error } = await supabase
+      .from('content_reports')
+      .insert({
+        reported_by: user.id,
+        content_type: contentType,
+        content_id: contentId,
+        reason: reason,
+        details: details || null
+      });
+
+    if (error) throw error;
   }
 
   static async blockUser(blockedUserId: string): Promise<void> {
-    // Placeholder - tables exist but types not yet regenerated
-    console.log(`Blocking user ${blockedUserId}`);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { error } = await supabase
+      .from('user_blocks')
+      .insert({
+        blocker_id: user.id,
+        blocked_id: blockedUserId
+      });
+
+    if (error && !error.message.includes('duplicate')) {
+      throw error;
+    }
   }
 
   // Success Stories functions
@@ -181,8 +232,144 @@ export class CommunityService {
     storyId: string, 
     interactionType: 'like' | 'view' | 'help'
   ): Promise<void> {
-    // Placeholder - tables exist but types not yet regenerated
-    console.log(`Interacting with story ${storyId}: ${interactionType}`);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    // For view interactions, always insert to track unique views
+    if (interactionType === 'view') {
+      await supabase
+        .from('story_interactions')
+        .insert({
+          user_id: user.id,
+          story_id: storyId,
+          interaction_type: interactionType
+        });
+      return;
+    }
+
+    // For like/help interactions, toggle behavior
+    const { data: existingInteraction } = await supabase
+      .from('story_interactions')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('story_id', storyId)
+      .eq('interaction_type', interactionType)
+      .single();
+
+    if (existingInteraction) {
+      // Remove existing interaction
+      await supabase
+        .from('story_interactions')
+        .delete()
+        .eq('id', existingInteraction.id);
+    } else {
+      // Add new interaction
+      await supabase
+        .from('story_interactions')
+        .insert({
+          user_id: user.id,
+          story_id: storyId,
+          interaction_type: interactionType
+        });
+    }
+  }
+
+  // Reputation functions
+  static async getUserReputation(userId: string): Promise<{
+    total_karma: number;
+    post_karma: number;
+    comment_karma: number;
+    helpful_votes: number;
+    level: string;
+  }> {
+    const { data } = await supabase
+      .from('user_reputation')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (!data) {
+      // Create initial reputation record
+      const { data: newReputation } = await supabase
+        .from('user_reputation')
+        .insert({
+          user_id: userId,
+          total_karma: 0,
+          post_karma: 0,
+          comment_karma: 0,
+          helpful_votes: 0
+        })
+        .select()
+        .single();
+      
+      return {
+        total_karma: 0,
+        post_karma: 0,
+        comment_karma: 0,
+        helpful_votes: 0,
+        level: this.getReputationLevel(0)
+      };
+    }
+
+    return {
+      total_karma: data.total_karma,
+      post_karma: data.post_karma,
+      comment_karma: data.comment_karma,
+      helpful_votes: data.helpful_votes,
+      level: this.getReputationLevel(data.total_karma)
+    };
+  }
+
+  static async updateKarma(
+    userId: string, 
+    karmaType: 'post' | 'comment' | 'helpful',
+    amount: number
+  ): Promise<void> {
+    // Get current reputation
+    const { data: current } = await supabase
+      .from('user_reputation')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (!current) {
+      // Create initial record
+      await supabase
+        .from('user_reputation')
+        .insert({
+          user_id: userId,
+          total_karma: amount,
+          post_karma: karmaType === 'post' ? amount : 0,
+          comment_karma: karmaType === 'comment' ? amount : 0,
+          helpful_votes: karmaType === 'helpful' ? amount : 0
+        });
+    } else {
+      // Update existing record
+      const updates: any = {
+        total_karma: current.total_karma + amount
+      };
+
+      if (karmaType === 'post') {
+        updates.post_karma = current.post_karma + amount;
+      } else if (karmaType === 'comment') {
+        updates.comment_karma = current.comment_karma + amount;
+      } else if (karmaType === 'helpful') {
+        updates.helpful_votes = current.helpful_votes + amount;
+      }
+
+      await supabase
+        .from('user_reputation')
+        .update(updates)
+        .eq('user_id', userId);
+    }
+  }
+
+  private static getReputationLevel(totalKarma: number): string {
+    if (totalKarma >= 1000) return 'Guardian';
+    if (totalKarma >= 500) return 'Mentor';
+    if (totalKarma >= 100) return 'Supporter';
+    if (totalKarma >= 25) return 'Helper';
+    return 'Newcomer';
   }
 
   // Helper functions

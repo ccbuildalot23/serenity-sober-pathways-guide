@@ -189,6 +189,47 @@ export type Database = {
         }
         Relationships: []
       }
+      clinical_notes: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_confidential: boolean
+          note_type: string
+          plan_id: string
+          provider_id: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_confidential?: boolean
+          note_type: string
+          plan_id: string
+          provider_id: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_confidential?: boolean
+          note_type?: string
+          plan_id?: string
+          provider_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinical_notes_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "recovery_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       community_forums: {
         Row: {
           category: string
@@ -606,6 +647,44 @@ export type Database = {
           tags?: Json | null
         }
         Relationships: []
+      }
+      editing_sessions: {
+        Row: {
+          editing_section: string | null
+          id: string
+          is_active: boolean
+          last_activity: string
+          plan_id: string
+          session_start: string
+          user_id: string
+        }
+        Insert: {
+          editing_section?: string | null
+          id?: string
+          is_active?: boolean
+          last_activity?: string
+          plan_id: string
+          session_start?: string
+          user_id: string
+        }
+        Update: {
+          editing_section?: string | null
+          id?: string
+          is_active?: boolean
+          last_activity?: string
+          plan_id?: string
+          session_start?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "editing_sessions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "recovery_plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       emergency_contacts: {
         Row: {
@@ -1325,6 +1404,155 @@ export type Database = {
         }
         Relationships: []
       }
+      plan_collaborators: {
+        Row: {
+          collaborator_id: string
+          created_at: string
+          id: string
+          invited_by: string
+          permissions: Json
+          plan_id: string
+          role: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          collaborator_id: string
+          created_at?: string
+          id?: string
+          invited_by: string
+          permissions?: Json
+          plan_id: string
+          role: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          collaborator_id?: string
+          created_at?: string
+          id?: string
+          invited_by?: string
+          permissions?: Json
+          plan_id?: string
+          role?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_collaborators_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "recovery_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plan_comments: {
+        Row: {
+          author_id: string
+          comment_type: string
+          content: string
+          created_at: string
+          goal_id: string | null
+          id: string
+          is_resolved: boolean
+          parent_comment_id: string | null
+          plan_id: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          comment_type?: string
+          content: string
+          created_at?: string
+          goal_id?: string | null
+          id?: string
+          is_resolved?: boolean
+          parent_comment_id?: string | null
+          plan_id: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          comment_type?: string
+          content?: string
+          created_at?: string
+          goal_id?: string | null
+          id?: string
+          is_resolved?: boolean
+          parent_comment_id?: string | null
+          plan_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_comments_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "recovery_goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plan_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "plan_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plan_comments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "recovery_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plan_versions: {
+        Row: {
+          change_type: string
+          changed_by: string
+          changes_summary: string | null
+          created_at: string
+          current_data: Json | null
+          id: string
+          plan_id: string
+          previous_data: Json | null
+          version_number: number
+        }
+        Insert: {
+          change_type: string
+          changed_by: string
+          changes_summary?: string | null
+          created_at?: string
+          current_data?: Json | null
+          id?: string
+          plan_id: string
+          previous_data?: Json | null
+          version_number: number
+        }
+        Update: {
+          change_type?: string
+          changed_by?: string
+          changes_summary?: string | null
+          created_at?: string
+          current_data?: Json | null
+          id?: string
+          plan_id?: string
+          previous_data?: Json | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_versions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "recovery_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pledge_templates: {
         Row: {
           category: string
@@ -1456,9 +1684,50 @@ export type Database = {
           },
         ]
       }
+      provider_templates: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          is_shared: boolean
+          provider_id: string
+          template_data: Json
+          title: string
+          updated_at: string
+          usage_count: number | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_shared?: boolean
+          provider_id: string
+          template_data: Json
+          title: string
+          updated_at?: string
+          usage_count?: number | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_shared?: boolean
+          provider_id?: string
+          template_data?: Json
+          title?: string
+          updated_at?: string
+          usage_count?: number | null
+        }
+        Relationships: []
+      }
       recovery_goals: {
         Row: {
           accountability_partner_id: string | null
+          approved_at: string | null
+          approved_by: string | null
           category: string
           completed_at: string | null
           created_at: string
@@ -1468,6 +1737,7 @@ export type Database = {
           milestones: Json | null
           next_reminder: string | null
           pause_reason: string | null
+          plan_id: string | null
           priority: string
           progress: number | null
           reminder_frequency: string | null
@@ -1481,6 +1751,8 @@ export type Database = {
         }
         Insert: {
           accountability_partner_id?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           category: string
           completed_at?: string | null
           created_at?: string
@@ -1490,6 +1762,7 @@ export type Database = {
           milestones?: Json | null
           next_reminder?: string | null
           pause_reason?: string | null
+          plan_id?: string | null
           priority: string
           progress?: number | null
           reminder_frequency?: string | null
@@ -1503,6 +1776,8 @@ export type Database = {
         }
         Update: {
           accountability_partner_id?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           category?: string
           completed_at?: string | null
           created_at?: string
@@ -1512,6 +1787,7 @@ export type Database = {
           milestones?: Json | null
           next_reminder?: string | null
           pause_reason?: string | null
+          plan_id?: string | null
           priority?: string
           progress?: number | null
           reminder_frequency?: string | null
@@ -1523,7 +1799,15 @@ export type Database = {
           unit?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "recovery_goals_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "recovery_plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       recovery_milestones: {
         Row: {
@@ -1705,6 +1989,51 @@ export type Database = {
           id?: string
           is_default?: boolean | null
           template_data?: Json
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      recovery_plans: {
+        Row: {
+          created_at: string
+          created_by: string
+          current_version: number
+          description: string | null
+          id: string
+          is_collaborative: boolean
+          last_edited_at: string | null
+          last_edited_by: string | null
+          patient_id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          current_version?: number
+          description?: string | null
+          id?: string
+          is_collaborative?: boolean
+          last_edited_at?: string | null
+          last_edited_by?: string | null
+          patient_id: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          current_version?: number
+          description?: string | null
+          id?: string
+          is_collaborative?: boolean
+          last_edited_at?: string | null
+          last_edited_by?: string | null
+          patient_id?: string
+          status?: string
           title?: string
           updated_at?: string
         }

@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      accountability_partnerships: {
+        Row: {
+          accepted_at: string | null
+          check_in_schedule: Json
+          created_at: string
+          encrypted_agreement_hash: string | null
+          id: string
+          partner_id: string
+          partnership_agreement: Json
+          privacy_settings: Json
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          check_in_schedule?: Json
+          created_at?: string
+          encrypted_agreement_hash?: string | null
+          id?: string
+          partner_id: string
+          partnership_agreement?: Json
+          privacy_settings?: Json
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          check_in_schedule?: Json
+          created_at?: string
+          encrypted_agreement_hash?: string | null
+          id?: string
+          partner_id?: string
+          partnership_agreement?: Json
+          privacy_settings?: Json
+          requester_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -806,6 +848,91 @@ export type Database = {
           },
         ]
       }
+      partnership_checkins: {
+        Row: {
+          acknowledged_by_partner: boolean | null
+          checkin_date: string
+          created_at: string
+          encrypted_data: string
+          id: string
+          partnership_id: string
+          reminder_sent: boolean | null
+          shared_summary: Json
+          user_id: string
+        }
+        Insert: {
+          acknowledged_by_partner?: boolean | null
+          checkin_date: string
+          created_at?: string
+          encrypted_data: string
+          id?: string
+          partnership_id: string
+          reminder_sent?: boolean | null
+          shared_summary?: Json
+          user_id: string
+        }
+        Update: {
+          acknowledged_by_partner?: boolean | null
+          checkin_date?: string
+          created_at?: string
+          encrypted_data?: string
+          id?: string
+          partnership_id?: string
+          reminder_sent?: boolean | null
+          shared_summary?: Json
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partnership_checkins_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "accountability_partnerships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partnership_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean | null
+          message: string
+          notification_type: string
+          partnership_id: string
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message: string
+          notification_type: string
+          partnership_id: string
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          notification_type?: string
+          partnership_id?: string
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partnership_notifications_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "accountability_partnerships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       peer_chat_messages: {
         Row: {
           created_at: string
@@ -1539,6 +1666,36 @@ export type Database = {
           title?: string
           user_id?: string
           views_count?: number | null
+        }
+        Relationships: []
+      }
+      support_agreement_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_default: boolean | null
+          template_content: Json
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_default?: boolean | null
+          template_content: Json
+          title: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_default?: boolean | null
+          template_content?: Json
+          title?: string
         }
         Relationships: []
       }

@@ -29,6 +29,7 @@ import RoleManagement from '@/components/admin/RoleManagement';
 import CrisisIntervention from '@/pages/CrisisIntervention';
 import HIPAASecurityDashboard from '@/pages/HIPAASecurityDashboard';
 import Community from '@/pages/Community';
+import Moderation from '@/pages/Moderation';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 // Commented out for MVP - keeping functionality but focusing on core features
@@ -151,6 +152,11 @@ function App() {
             <Route path="/community" element={
               <ProtectedRoute>
                 <Community />
+              </ProtectedRoute>
+            } />
+            <Route path="/moderation" element={
+              <ProtectedRoute>
+                <Moderation />
               </ProtectedRoute>
             } />
             

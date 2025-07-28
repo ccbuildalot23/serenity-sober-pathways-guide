@@ -1302,6 +1302,57 @@ export type Database = {
           },
         ]
       }
+      moderation_queue: {
+        Row: {
+          ai_confidence: number | null
+          content_id: string
+          content_type: string
+          created_at: string
+          crisis_risk: string | null
+          flag_reason: string
+          id: string
+          priority: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          sentiment: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_confidence?: number | null
+          content_id: string
+          content_type: string
+          created_at?: string
+          crisis_risk?: string | null
+          flag_reason: string
+          id?: string
+          priority?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sentiment?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_confidence?: number | null
+          content_id?: string
+          content_type?: string
+          created_at?: string
+          crisis_risk?: string | null
+          flag_reason?: string
+          id?: string
+          priority?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sentiment?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       mood_triggers: {
         Row: {
           checkin_id: string | null

@@ -2,75 +2,106 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Serenity Sober Pathways Design System */
+/* Recovery Support Platform - Enhanced Design System */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222 84% 4.9%;
+    /* Enhanced color palette for recovery and wellness */
+    --background: 210 20% 98%;
+    --foreground: 220 9% 9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 84% 4.9%;
+    --card-foreground: 220 9% 9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 84% 4.9%;
+    --popover-foreground: 220 9% 9%;
 
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
+    /* Calming primary colors - soft blue for trust and tranquility */
+    --primary: 213 94% 68%;
+    --primary-foreground: 0 0% 100%;
+    --primary-soft: 213 94% 85%;
 
+    /* Supportive secondary colors */
     --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary-foreground: 220 9% 9%;
 
     --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 46%;
+    --muted-foreground: 220 9% 46%;
 
-    --accent: 158 64% 52%;
+    /* Healing accent - warm emerald for growth and renewal */
+    --accent: 142 76% 36%;
     --accent-foreground: 0 0% 100%;
+    --accent-soft: 142 76% 85%;
 
+    /* Gentle warning and success colors */
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 221 83% 53%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 213 94% 68%;
 
     --radius: 0.75rem;
 
-    /* Custom Serenity colors with better contrast */
-    --serenity-navy: 221 83% 53%;
-    --serenity-emerald: 158 64% 52%;
-    --serenity-light-blue: 213 97% 96%;
-    --serenity-success: 158 64% 52%;
+    /* Recovery-specific colors */
+    --hope: 213 94% 68%;
+    --growth: 142 76% 36%;
+    --calm: 200 100% 97%;
+    --strength: 266 100% 70%;
+    --support: 300 20% 95%;
+    
+    /* Gradients for visual appeal */
+    --gradient-primary: linear-gradient(135deg, hsl(213, 94%, 68%), hsl(213, 94%, 78%));
+    --gradient-healing: linear-gradient(135deg, hsl(142, 76%, 36%), hsl(142, 76%, 46%));
+    --gradient-calm: linear-gradient(135deg, hsl(200, 100%, 97%), hsl(213, 94%, 95%));
   }
 
   .dark {
-    --background: 222 84% 4.9%;
+    --background: 220 13% 9%;
     --foreground: 210 40% 98%;
 
-    --card: 222 84% 4.9%;
+    --card: 220 13% 9%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222 84% 4.9%;
+    --popover: 220 13% 9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 217 91% 60%;
-    --primary-foreground: 222 84% 4.9%;
+    --primary: 213 94% 68%;
+    --primary-foreground: 220 13% 9%;
+    --primary-soft: 213 94% 20%;
 
-    --secondary: 217 32% 17%;
+    --secondary: 220 13% 15%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217 32% 17%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 220 13% 15%;
+    --muted-foreground: 220 9% 65%;
 
-    --accent: 158 64% 52%;
-    --accent-foreground: 222 84% 4.9%;
+    --accent: 142 76% 46%;
+    --accent-foreground: 220 13% 9%;
+    --accent-soft: 142 76% 20%;
 
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217 32% 17%;
-    --input: 217 32% 17%;
-    --ring: 217 91% 60%;
+    --success: 142 76% 46%;
+    --success-foreground: 220 13% 9%;
+
+    --border: 220 13% 15%;
+    --input: 220 13% 15%;
+    --ring: 213 94% 68%;
+
+    /* Dark mode recovery colors */
+    --hope: 213 94% 68%;
+    --growth: 142 76% 46%;
+    --calm: 220 13% 12%;
+    --strength: 266 100% 70%;
+    --support: 220 13% 15%;
   }
 }
 
@@ -81,131 +112,138 @@
 
   body {
     @apply bg-background text-foreground font-sans;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  /* Typography improvements */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+    line-height: 1.2;
+  }
+
+  h1 {
+    @apply text-3xl md:text-4xl;
+  }
+
+  h2 {
+    @apply text-2xl md:text-3xl;
+  }
+
+  h3 {
+    @apply text-xl md:text-2xl;
+  }
+
+  p {
+    @apply text-muted-foreground leading-relaxed;
   }
 }
 
 @layer components {
-  /* Improved button styling for better visibility */
+  /* Enhanced component styling */
   .btn-primary {
-    @apply bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-2 focus:ring-primary focus:ring-offset-2;
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 font-medium rounded-lg px-4 py-2.5 shadow-sm hover:shadow-md;
   }
   
   .btn-secondary {
-    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-input;
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-input transition-all duration-200 font-medium rounded-lg px-4 py-2.5 shadow-sm hover:shadow;
   }
   
   .btn-outline {
-    @apply border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground;
+    @apply border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200 font-medium rounded-lg px-4 py-2.5 shadow-sm hover:shadow-md;
   }
   
-  .btn-destructive {
-    @apply bg-destructive text-destructive-foreground hover:bg-destructive/90;
+  .btn-success {
+    @apply bg-green-600 text-white hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 font-medium rounded-lg px-4 py-2.5 shadow-sm hover:shadow-md;
   }
   
-  /* Serenity specific button styles */
-  .btn-serenity-navy {
-    @apply bg-blue-700 text-white hover:bg-blue-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
-  }
-  
-  .btn-serenity-emerald {
-    @apply bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2;
-  }
-  
-  .btn-outline-navy {
-    @apply border-2 border-blue-700 text-blue-700 hover:bg-blue-700 hover:text-white;
-  }
-  
-  .btn-outline-emerald {
-    @apply border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white;
+  .btn-warning {
+    @apply bg-amber-500 text-white hover:bg-amber-600 focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 transition-all duration-200 font-medium rounded-lg px-4 py-2.5 shadow-sm hover:shadow-md;
   }
 
-  /* Shared heading style for large section titles */
-  .heading-large {
-    @apply text-2xl font-bold;
+  .btn-destructive {
+    @apply bg-destructive text-destructive-foreground hover:bg-destructive/90 focus:ring-2 focus:ring-destructive focus:ring-offset-2 transition-all duration-200 font-medium rounded-lg px-4 py-2.5 shadow-sm hover:shadow-md;
+  }
+
+  /* Recovery-themed components */
+  .card-healing {
+    @apply bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-green-200 dark:border-green-800;
+  }
+
+  .card-hope {
+    @apply bg-gradient-to-br from-blue-50 to-sky-50 dark:from-blue-950/20 dark:to-sky-950/20 border-blue-200 dark:border-blue-800;
+  }
+
+  .card-support {
+    @apply bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border-purple-200 dark:border-purple-800;
+  }
+
+  .progress-ring {
+    @apply relative inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10;
+  }
+
+  .progress-ring::before {
+    @apply absolute inset-0 rounded-full border-4 border-primary/20;
+    content: '';
+  }
+
+  .progress-ring::after {
+    @apply absolute inset-0 rounded-full border-4 border-primary border-r-transparent animate-spin;
+    content: '';
+  }
+
+  /* Input enhancements */
+  .input-enhanced {
+    @apply w-full px-4 py-3 text-base border border-input rounded-lg bg-background transition-all duration-200 focus:ring-2 focus:ring-primary focus:border-primary placeholder:text-muted-foreground;
+  }
+
+  .input-enhanced:focus {
+    @apply outline-none shadow-lg;
+  }
+
+  /* Status indicators */
+  .status-success {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400;
+  }
+
+  .status-warning {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400;
+  }
+
+  .status-info {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400;
   }
 }
 
 @layer utilities {
-  .serenity-navy {
-    color: #1d4ed8;
-  }
-  
-  .bg-serenity-navy {
-    background-color: #1d4ed8;
-  }
-  
-  .serenity-emerald {
-    color: #059669;
-  }
-  
-  .bg-serenity-emerald {
-    background-color: #059669;
-  }
-
-  .animate-gentle-pulse {
-    animation: gentle-pulse 2s ease-in-out infinite;
-  }
-
-  .animate-scale-in {
-    animation: scale-in 0.6s ease-out;
-  }
-
-  .animate-gentle-fade-in {
-    animation: gentle-fade-in 2.5s ease-out;
-  }
-
-  .animate-gentle-fade-in-delayed {
-    animation: gentle-fade-in 2.5s ease-out 0.5s both;
-  }
-
-  .animate-smooth-shake {
-    animation: smooth-shake 0.5s ease-in-out;
-  }
-
-  .animate-emergency-pulse {
-    animation: emergency-pulse 1.5s ease-in-out infinite;
-  }
-
-  .animate-celebration-glow {
-    animation: celebration-glow 2s ease-in-out infinite;
-  }
-
-  .animate-float {
-    animation: gentle-float 6s ease-in-out infinite;
-  }
-
-  .animate-soft-pulse {
-    animation: soft-pulse 4s ease-in-out infinite;
-  }
-
-  /* New calming animations */
+  /* Enhanced animations for better UX */
   .animate-fade-in {
     animation: fade-in 0.6s ease-out;
-  }
-
-  .animate-slide-up {
-    animation: slide-up 0.8s ease-out;
   }
 
   .animate-fade-in-up {
     animation: fade-in-up 0.6s ease-out;
   }
 
+  .animate-slide-up {
+    animation: slide-up 0.8s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.4s ease-out;
+  }
+
   .animate-gentle-bounce {
     animation: gentle-bounce 2s ease-in-out infinite;
   }
 
-  .animate-subtle-bounce {
-    animation: subtle-bounce 2s ease-in-out infinite;
+  .animate-pulse-gentle {
+    animation: pulse-gentle 3s ease-in-out infinite;
   }
 
-  .animate-bounce-once {
-    animation: bounce-once 0.3s ease-in-out;
-  }
-
-  .animate-pulse-subtle {
-    animation: pulse-subtle 3s ease-in-out infinite;
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
   }
 
   .animate-shimmer {
@@ -213,61 +251,82 @@
     animation: shimmer 2s linear infinite;
   }
 
-  .animation-delay-100 {
-    animation-delay: 0.1s;
-  }
-
-  .animation-delay-200 {
-    animation-delay: 0.2s;
-  }
-
-  .animation-delay-300 {
-    animation-delay: 0.3s;
-  }
-
-  /* Hover effects */
+  /* Interaction animations */
   .hover-lift {
-    transition: all 0.3s ease-out;
+    @apply transition-all duration-300 ease-out;
   }
 
   .hover-lift:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+    @apply -translate-y-1 shadow-lg;
   }
 
-  /* Slider gradient styles */
-  .slider-gradient-pink .bg-primary {
-    background: linear-gradient(to right, #fbbf24, #ec4899) !important;
+  .hover-grow {
+    @apply transition-transform duration-200 ease-out;
   }
 
-  .slider-gradient-blue .bg-primary {
-    background: linear-gradient(to right, #60a5fa, #3b82f6) !important;
+  .hover-grow:hover {
+    @apply scale-105;
   }
 
-  /* Dark mode specific fixes for sliders */
-  .dark .slider-gradient-pink .bg-primary {
-    background: linear-gradient(to right, #f59e0b, #db2777) !important;
+  /* Animation delays for staggered effects */
+  .animation-delay-100 { animation-delay: 0.1s; }
+  .animation-delay-200 { animation-delay: 0.2s; }
+  .animation-delay-300 { animation-delay: 0.3s; }
+  .animation-delay-500 { animation-delay: 0.5s; }
+
+  /* Recovery-specific utilities */
+  .gradient-healing {
+    background: linear-gradient(135deg, hsl(142, 76%, 36%), hsl(142, 76%, 46%));
   }
 
-  .dark .slider-gradient-blue .bg-primary {
-    background: linear-gradient(to right, #3b82f6, #1e40af) !important;
+  .gradient-hope {
+    background: linear-gradient(135deg, hsl(213, 94%, 68%), hsl(213, 94%, 78%));
   }
 
-  /* Range slider styles */
+  .gradient-calm {
+    background: linear-gradient(135deg, hsl(200, 100%, 97%), hsl(213, 94%, 95%));
+  }
+
+  /* Glass morphism effects */
+  .glass {
+    @apply backdrop-blur-sm bg-white/10 border border-white/20;
+  }
+
+  .glass-dark {
+    @apply backdrop-blur-sm bg-black/10 border border-black/20;
+  }
+
+  /* Focus styles for accessibility */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200;
+  }
+
+  /* Loading states */
+  .loading-shimmer {
+    background: linear-gradient(90deg, hsl(var(--muted)) 0%, hsl(var(--muted-foreground) / 0.1) 50%, hsl(var(--muted)) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+
+  /* Status colors */
+  .text-success { @apply text-green-600 dark:text-green-400; }
+  .text-warning { @apply text-amber-600 dark:text-amber-400; }
+  .text-info { @apply text-blue-600 dark:text-blue-400; }
+  .bg-success { @apply bg-green-600 dark:bg-green-500; }
+  .bg-warning { @apply bg-amber-500 dark:bg-amber-400; }
+  .bg-info { @apply bg-blue-600 dark:bg-blue-500; }
+
+  /* Range slider improvements */
   input[type='range'] {
-    @apply w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700;
+    @apply w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 transition-all duration-200;
   }
+  
   input[type='range']::-webkit-slider-runnable-track {
-    @apply h-2 rounded-lg bg-gray-200 dark:bg-gray-600;
+    @apply h-3 rounded-lg bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700;
   }
-  input[type='range']::-moz-range-track {
-    @apply h-2 rounded-lg bg-gray-200 dark:bg-gray-600;
-  }
+  
   input[type='range']::-webkit-slider-thumb {
-    @apply appearance-none w-5 h-5 rounded-full bg-primary border-2 border-white shadow dark:border-gray-950;
-  }
-  input[type='range']::-moz-range-thumb {
-    @apply appearance-none w-5 h-5 rounded-full bg-primary border-2 border-white shadow dark:border-gray-950;
+    @apply appearance-none w-6 h-6 rounded-full bg-primary border-2 border-white shadow-lg cursor-pointer hover:scale-110 transition-transform duration-200;
   }
 }
 
@@ -357,7 +416,7 @@
   }
 }
 
-/* New calming animations keyframes */
+/* Enhanced animations with better easing */
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -369,7 +428,7 @@
   }
 }
 
-@keyframes slide-up {
+@keyframes fade-in-up {
   from {
     opacity: 0;
     transform: translateY(20px);
@@ -380,14 +439,25 @@
   }
 }
 
-@keyframes fade-in-up {
+@keyframes slide-up {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
@@ -396,31 +466,30 @@
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-5px);
+    transform: translateY(-8px);
   }
 }
 
-@keyframes subtle-bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-3px);
-  }
-}
-
-@keyframes bounce-once {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
-}
-
-@keyframes pulse-subtle {
+@keyframes pulse-gentle {
   0%, 100% {
     opacity: 1;
+    transform: scale(1);
   }
   50% {
     opacity: 0.8;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg); 
+  }
+  33% { 
+    transform: translateY(-10px) rotate(1deg); 
+  }
+  66% { 
+    transform: translateY(-5px) rotate(-1deg); 
   }
 }
 

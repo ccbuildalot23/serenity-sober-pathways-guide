@@ -89,18 +89,28 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-emerald-50 dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <div className="flex flex-col lg:flex-row min-h-screen">
         {/* Left side - Auth Form */}
-        <div className="flex-1 flex items-center justify-center p-4 lg:p-8">
-          <div className="w-full max-w-md space-y-6">
+        <div className="flex-1 flex items-center justify-center p-6 lg:p-8">
+          <div className="w-full max-w-md space-y-8">
             {/* Header */}
-            <div className="text-center space-y-2">
+            <div className="text-center space-y-4 animate-fade-in">
               <div className="flex items-center justify-center space-x-4">
-                <h1 className="text-3xl font-bold text-blue-700 dark:text-blue-400">Serenity</h1>
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <Heart className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent">
+                    Recovery
+                  </h1>
+                  <p className="text-sm text-muted-foreground">Support Platform</p>
+                </div>
                 <ThemeToggle />
               </div>
-              <p className="text-gray-600 dark:text-gray-400">Your recovery companion</p>
+              <p className="text-lg text-muted-foreground">
+                Your journey to wellness starts here
+              </p>
             </div>
 
             {/* Development Mode Tools */}
@@ -220,14 +230,17 @@ const Auth = () => {
         </div>
 
         {/* Right side - Features (Desktop only) */}
-        <div className="hidden lg:flex flex-1 items-center justify-center p-8 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-slate-800 dark:to-slate-700">
-          <div className={`max-w-md space-y-6 transition-all duration-1000 ${showFeatures ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <div className="text-center space-y-2 mb-8">
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-                Start Your Recovery Journey
+        <div className="hidden lg:flex flex-1 items-center justify-center p-8 bg-gradient-to-br from-blue-100/50 to-emerald-100/50 dark:from-slate-800/50 dark:to-slate-700/50 backdrop-blur-sm">
+          <div className={`max-w-lg space-y-8 transition-all duration-1000 ${showFeatures ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <div className="text-center space-y-4 mb-12">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-emerald-600 rounded-2xl flex items-center justify-center shadow-xl mx-auto animate-float">
+                <Shield className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200">
+                Your Recovery Journey
               </h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                Track your progress, connect with support, and build lasting habits
+              <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                Evidence-based tools and compassionate support for sustainable recovery
               </p>
             </div>
 

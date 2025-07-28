@@ -25,6 +25,7 @@ import PeerSupervision from '@/pages/PeerSupervision';
 import PracticeManagement from '@/pages/PracticeManagement';
 import RoleManagement from '@/components/admin/RoleManagement';
 import CrisisIntervention from '@/pages/CrisisIntervention';
+import HIPAASecurityDashboard from '@/pages/HIPAASecurityDashboard';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 // Commented out for MVP - keeping functionality but focusing on core features
@@ -135,6 +136,11 @@ function App() {
             <Route path="/crisis-intervention" element={
               <ProtectedRoute>
                 <CrisisIntervention />
+              </ProtectedRoute>
+            } />
+            <Route path="/hipaa-security" element={
+              <ProtectedRoute>
+                <HIPAASecurityDashboard />
               </ProtectedRoute>
             } />
             

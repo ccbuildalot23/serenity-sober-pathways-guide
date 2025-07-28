@@ -21,7 +21,7 @@ export const CommunityForum: React.FC<CommunityForumProps> = ({ forumId = 'gener
   const [posts, setPosts] = useState<ForumPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'pinned'>('recent');
+  const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [reportDialog, setReportDialog] = useState<{
@@ -51,7 +51,6 @@ export const CommunityForum: React.FC<CommunityForumProps> = ({ forumId = 'gener
       setLoading(true);
       const data = await CommunityService.getForumPosts(forumId, {
         sort: sortBy,
-        tags: selectedTags,
         search: searchTerm
       });
       setPosts(data);
@@ -102,18 +101,14 @@ export const CommunityForum: React.FC<CommunityForumProps> = ({ forumId = 'gener
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-medium text-sm">{post.anonymous_name}</span>
-                {post.is_pinned && <Pin className="h-3 w-3 text-blue-500" />}
-                {post.crisis_flagged && (
-                  <Badge variant="destructive" className="text-xs">Crisis Support</Badge>
+                {post.moderation_status === 'flagged' && (
+                  <Badge variant="destructive" className="text-xs">Flagged</Badge>
                 )}
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span>{formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}</span>
                 <span>•</span>
-                <div className="flex items-center gap-1">
-                  <Eye className="h-3 w-3" />
-                  <span>{post.view_count}</span>
-                </div>
+                <span>{post.reply_count || 0} replies</span>
               </div>
             </div>
           </div>
@@ -138,15 +133,6 @@ export const CommunityForum: React.FC<CommunityForumProps> = ({ forumId = 'gener
           <p className="text-sm text-muted-foreground line-clamp-3">{post.content}</p>
         </div>
 
-        {post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {post.tags.map((tag) => (
-              <Badge key={tag} variant="secondary" className="text-xs">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )}
 
         <div className="flex items-center justify-between pt-2 border-t">
           <div className="flex gap-1">
@@ -175,7 +161,7 @@ export const CommunityForum: React.FC<CommunityForumProps> = ({ forumId = 'gener
           </div>
         </div>
 
-        {post.crisis_flagged && (
+        {post.moderation_status === 'flagged' && (
           <div className="bg-red-50 border border-red-200 rounded p-3 text-sm">
             <p className="font-medium text-red-800">Crisis Resources Available</p>
             <p className="text-red-700">
@@ -231,7 +217,6 @@ export const CommunityForum: React.FC<CommunityForumProps> = ({ forumId = 'gener
                 <SelectContent>
                   <SelectItem value="recent">Most Recent</SelectItem>
                   <SelectItem value="popular">Most Popular</SelectItem>
-                  <SelectItem value="pinned">Pinned First</SelectItem>
                 </SelectContent>
               </Select>
             </div>

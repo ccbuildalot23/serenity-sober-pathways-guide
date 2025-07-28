@@ -126,7 +126,7 @@ export class ProviderService {
       .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
 
     if (error) throw error;
-    return data?.map(item => item.providers).filter(Boolean) || [];
+    return (data?.map(item => item.providers).filter(Boolean) || []) as Provider[];
   }
 
   // Check if provider is saved

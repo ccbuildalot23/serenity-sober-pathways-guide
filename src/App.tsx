@@ -30,6 +30,8 @@ import CrisisIntervention from '@/pages/CrisisIntervention';
 import MobileCrisis from '@/pages/MobileCrisis';
 import MobileCrisisDemo from '@/components/demo/MobileCrisisDemo';
 import DataExport from '@/pages/DataExport';
+import { Analytics } from '@/pages/Analytics';
+import { TestFeatures } from '@/pages/TestFeatures';
 import HIPAASecurityDashboard from '@/pages/HIPAASecurityDashboard';
 import Community from '@/pages/Community';
 import Moderation from '@/pages/Moderation';
@@ -196,7 +198,16 @@ function App() {
                 <Progress />
               </ProtectedRoute>
             } />
-            
+            <Route path="/analytics" element={
+              <ProtectedRoute>
+                <Analytics />
+              </ProtectedRoute>
+            } />
+            <Route path="/test-features" element={
+              <ProtectedRoute>
+                <TestFeatures />
+              </ProtectedRoute>
+            } />
             {/* Commented out non-MVP routes - keeping for future use
             <Route path="/calendar" element={
               <ProtectedRoute>

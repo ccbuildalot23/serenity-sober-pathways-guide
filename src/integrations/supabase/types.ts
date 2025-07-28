@@ -1828,6 +1828,147 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_availability: {
+        Row: {
+          appointment_duration_minutes: number | null
+          created_at: string
+          day_of_week: number
+          end_time: string
+          id: string
+          is_available: boolean | null
+          provider_id: string
+          start_time: string
+        }
+        Insert: {
+          appointment_duration_minutes?: number | null
+          created_at?: string
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_available?: boolean | null
+          provider_id: string
+          start_time: string
+        }
+        Update: {
+          appointment_duration_minutes?: number | null
+          created_at?: string
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_available?: boolean | null
+          provider_id?: string
+          start_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_availability_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_connection_requests: {
+        Row: {
+          id: string
+          patient_id: string
+          provider_id: string
+          provider_response: string | null
+          request_message: string | null
+          requested_at: string
+          responded_at: string | null
+          share_crisis_events: boolean | null
+          share_daily_checkins: boolean | null
+          share_goal_progress: boolean | null
+          share_mood_data: boolean | null
+          status: string
+        }
+        Insert: {
+          id?: string
+          patient_id: string
+          provider_id: string
+          provider_response?: string | null
+          request_message?: string | null
+          requested_at?: string
+          responded_at?: string | null
+          share_crisis_events?: boolean | null
+          share_daily_checkins?: boolean | null
+          share_goal_progress?: boolean | null
+          share_mood_data?: boolean | null
+          status?: string
+        }
+        Update: {
+          id?: string
+          patient_id?: string
+          provider_id?: string
+          provider_response?: string | null
+          request_message?: string | null
+          requested_at?: string
+          responded_at?: string | null
+          share_crisis_events?: boolean | null
+          share_daily_checkins?: boolean | null
+          share_goal_progress?: boolean | null
+          share_mood_data?: boolean | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_connection_requests_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_invitations: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          invitation_message: string | null
+          invited_by: string
+          patient_email: string
+          patient_name: string | null
+          provider_id: string
+          responded_at: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invitation_message?: string | null
+          invited_by: string
+          patient_email: string
+          patient_name?: string | null
+          provider_id: string
+          responded_at?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invitation_message?: string | null
+          invited_by?: string
+          patient_email?: string
+          patient_name?: string | null
+          provider_id?: string
+          responded_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_invitations_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       provider_plan_access: {
         Row: {
           access_granted_at: string | null
@@ -1878,6 +2019,59 @@ export type Database = {
           },
         ]
       }
+      provider_reviews: {
+        Row: {
+          created_at: string
+          flagged_count: number | null
+          id: string
+          is_anonymous: boolean | null
+          is_approved: boolean | null
+          is_verified_patient: boolean | null
+          moderation_notes: string | null
+          provider_id: string
+          rating: number
+          review_text: string | null
+          reviewer_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          flagged_count?: number | null
+          id?: string
+          is_anonymous?: boolean | null
+          is_approved?: boolean | null
+          is_verified_patient?: boolean | null
+          moderation_notes?: string | null
+          provider_id: string
+          rating: number
+          review_text?: string | null
+          reviewer_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          flagged_count?: number | null
+          id?: string
+          is_anonymous?: boolean | null
+          is_approved?: boolean | null
+          is_verified_patient?: boolean | null
+          moderation_notes?: string | null
+          provider_id?: string
+          rating?: number
+          review_text?: string | null
+          reviewer_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_reviews_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       provider_templates: {
         Row: {
           category: string
@@ -1914,6 +2108,126 @@ export type Database = {
           title?: string
           updated_at?: string
           usage_count?: number | null
+        }
+        Relationships: []
+      }
+      providers: {
+        Row: {
+          accepted_payment_methods: Json | null
+          accepting_new_patients: boolean | null
+          availability_schedule: Json | null
+          average_rating: number | null
+          bio: string | null
+          booking_url: string | null
+          created_at: string
+          credentials: Json
+          current_patient_count: number | null
+          email: string | null
+          id: string
+          insurance_accepted: Json | null
+          is_remote: boolean | null
+          is_verified: boolean | null
+          languages: Json
+          license_number: string | null
+          license_state: string | null
+          location_address: string | null
+          location_city: string | null
+          location_state: string
+          max_patients: number | null
+          name: string
+          npi_number: string | null
+          phone_number: string | null
+          photo_url: string | null
+          practice_name: string | null
+          sliding_scale_available: boolean | null
+          specialties: Json
+          status: string | null
+          tags: Json | null
+          title: string
+          total_reviews: number | null
+          updated_at: string
+          user_id: string | null
+          verification_date: string | null
+          website_url: string | null
+          years_experience: number | null
+        }
+        Insert: {
+          accepted_payment_methods?: Json | null
+          accepting_new_patients?: boolean | null
+          availability_schedule?: Json | null
+          average_rating?: number | null
+          bio?: string | null
+          booking_url?: string | null
+          created_at?: string
+          credentials?: Json
+          current_patient_count?: number | null
+          email?: string | null
+          id?: string
+          insurance_accepted?: Json | null
+          is_remote?: boolean | null
+          is_verified?: boolean | null
+          languages?: Json
+          license_number?: string | null
+          license_state?: string | null
+          location_address?: string | null
+          location_city?: string | null
+          location_state: string
+          max_patients?: number | null
+          name: string
+          npi_number?: string | null
+          phone_number?: string | null
+          photo_url?: string | null
+          practice_name?: string | null
+          sliding_scale_available?: boolean | null
+          specialties?: Json
+          status?: string | null
+          tags?: Json | null
+          title: string
+          total_reviews?: number | null
+          updated_at?: string
+          user_id?: string | null
+          verification_date?: string | null
+          website_url?: string | null
+          years_experience?: number | null
+        }
+        Update: {
+          accepted_payment_methods?: Json | null
+          accepting_new_patients?: boolean | null
+          availability_schedule?: Json | null
+          average_rating?: number | null
+          bio?: string | null
+          booking_url?: string | null
+          created_at?: string
+          credentials?: Json
+          current_patient_count?: number | null
+          email?: string | null
+          id?: string
+          insurance_accepted?: Json | null
+          is_remote?: boolean | null
+          is_verified?: boolean | null
+          languages?: Json
+          license_number?: string | null
+          license_state?: string | null
+          location_address?: string | null
+          location_city?: string | null
+          location_state?: string
+          max_patients?: number | null
+          name?: string
+          npi_number?: string | null
+          phone_number?: string | null
+          photo_url?: string | null
+          practice_name?: string | null
+          sliding_scale_available?: boolean | null
+          specialties?: Json
+          status?: string | null
+          tags?: Json | null
+          title?: string
+          total_reviews?: number | null
+          updated_at?: string
+          user_id?: string | null
+          verification_date?: string | null
+          website_url?: string | null
+          years_experience?: number | null
         }
         Relationships: []
       }
@@ -2343,6 +2657,38 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      saved_providers: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          provider_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          provider_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          provider_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_providers_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       security_audit_logs: {
         Row: {

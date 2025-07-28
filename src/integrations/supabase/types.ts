@@ -127,6 +127,68 @@ export type Database = {
           },
         ]
       }
+      checkin_assessments: {
+        Row: {
+          assessment_type: string
+          checkin_id: string
+          created_at: string
+          id: string
+          responses: Json
+          scores: Json
+        }
+        Insert: {
+          assessment_type: string
+          checkin_id: string
+          created_at?: string
+          id?: string
+          responses?: Json
+          scores?: Json
+        }
+        Update: {
+          assessment_type?: string
+          checkin_id?: string
+          created_at?: string
+          id?: string
+          responses?: Json
+          scores?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkin_assessments_checkin_id_fkey"
+            columns: ["checkin_id"]
+            isOneToOne: false
+            referencedRelation: "daily_checkins"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      checkin_stats: {
+        Row: {
+          average_mood: number | null
+          last_checkin: string | null
+          streak_count: number
+          total_checkins: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          average_mood?: number | null
+          last_checkin?: string | null
+          streak_count?: number
+          total_checkins?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          average_mood?: number | null
+          last_checkin?: string | null
+          streak_count?: number
+          total_checkins?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       community_forums: {
         Row: {
           category: string
@@ -391,6 +453,7 @@ export type Database = {
         Row: {
           checkin_date: string
           completed_sections: Json | null
+          coping_strategies: Json | null
           created_at: string
           energy_rating: number | null
           gad2_q1_response: number | null
@@ -399,6 +462,7 @@ export type Database = {
           hope_rating: number | null
           id: string
           is_complete: boolean | null
+          medication_taken: boolean | null
           mood_rating: number | null
           notes: string | null
           phq2_q1_response: number | null
@@ -406,13 +470,16 @@ export type Database = {
           phq2_score: number | null
           recovery_importance: number | null
           recovery_strength: string | null
+          sleep_quality: number | null
           sobriety_confidence: number | null
           support_needed: string | null
+          triggers: Json | null
           user_id: string
         }
         Insert: {
           checkin_date: string
           completed_sections?: Json | null
+          coping_strategies?: Json | null
           created_at?: string
           energy_rating?: number | null
           gad2_q1_response?: number | null
@@ -421,6 +488,7 @@ export type Database = {
           hope_rating?: number | null
           id?: string
           is_complete?: boolean | null
+          medication_taken?: boolean | null
           mood_rating?: number | null
           notes?: string | null
           phq2_q1_response?: number | null
@@ -428,13 +496,16 @@ export type Database = {
           phq2_score?: number | null
           recovery_importance?: number | null
           recovery_strength?: string | null
+          sleep_quality?: number | null
           sobriety_confidence?: number | null
           support_needed?: string | null
+          triggers?: Json | null
           user_id: string
         }
         Update: {
           checkin_date?: string
           completed_sections?: Json | null
+          coping_strategies?: Json | null
           created_at?: string
           energy_rating?: number | null
           gad2_q1_response?: number | null
@@ -443,6 +514,7 @@ export type Database = {
           hope_rating?: number | null
           id?: string
           is_complete?: boolean | null
+          medication_taken?: boolean | null
           mood_rating?: number | null
           notes?: string | null
           phq2_q1_response?: number | null
@@ -450,8 +522,10 @@ export type Database = {
           phq2_score?: number | null
           recovery_importance?: number | null
           recovery_strength?: string | null
+          sleep_quality?: number | null
           sobriety_confidence?: number | null
           support_needed?: string | null
+          triggers?: Json | null
           user_id?: string
         }
         Relationships: [

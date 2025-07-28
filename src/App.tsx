@@ -5,6 +5,8 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
 import { SecurityInitializer } from '@/lib/securityInitializer';
 import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
+import RealtimeNotifications from '@/components/RealtimeNotifications';
+import { Toaster } from '@/components/ui/sonner';
 // MVP Core Pages
 import Home from '@/pages/Home';
 import Login from '@/pages/Login';
@@ -53,6 +55,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <RealtimeNotifications />
+        <Toaster />
         <Router>
           <Routes>
             {/* MVP Core Routes */}

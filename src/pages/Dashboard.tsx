@@ -3,28 +3,36 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserRole } from '@/types/userRoles';
-import { Bell, Shield, Users, Activity, FileText, AlertTriangle } from 'lucide-react';
+import { useDashboardData } from '@/hooks/useDashboardData';
+import { useUserRole } from '@/hooks/useUserRole';
+import { Bell, Shield, Users, Activity, FileText, AlertTriangle, TrendingUp, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { format } from 'date-fns';
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const [userRole] = useState<UserRole>('patient'); // In production, fetch from database
+  const { role: userRole, loading: roleLoading } = useUserRole();
+  const { stats, profile, loading, error } = useDashboardData();
 
-  // Mock data for MVP demonstration
-  const crisisAlerts = [
-    { id: 1, patient: 'Anonymous User', severity: 'high', time: '2 min ago' },
-    { id: 2, patient: 'Anonymous User', severity: 'medium', time: '15 min ago' }
-  ];
-
-  const recentCheckIns = [
-    { id: 1, mood: 7, date: 'Today', notes: 'Feeling better' },
-    { id: 2, mood: 5, date: 'Yesterday', notes: 'Struggled a bit' }
-  ];
-
-  const supportNetworkSize = 3;
-  const hipaaCompliantActions = 12;
+  if (loading || roleLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+          <div className="space-y-6">
+            <Skeleton className="h-32 w-full" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Skeleton className="h-64" />
+              <Skeleton className="h-64" />
+              <Skeleton className="h-64" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -34,10 +42,10 @@ const Dashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                Serenity MVP Dashboard
+                Welcome back, {profile?.full_name || user?.email?.split('@')[0]}
               </h1>
               <p className="mt-2 text-gray-600 dark:text-gray-400">
-                Role: {userRole} | HIPAA Compliant Recovery Platform
+                Role: {userRole || 'patient'} | {stats.streak} day streak | HIPAA Compliant Platform
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -57,34 +65,53 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           
           {/* Crisis Notification System - Requirement #4 */}
-          <Card className="border-red-200 bg-red-50 dark:bg-red-900/20">
+          <Card className={`${stats.crisisAlerts.total > 0 ? 'border-red-200 bg-red-50 dark:bg-red-900/20' : ''}`}>
             <CardHeader>
-              <CardTitle className="text-red-700 dark:text-red-300 flex items-center gap-2">
+              <CardTitle className={`flex items-center gap-2 ${stats.crisisAlerts.total > 0 ? 'text-red-700 dark:text-red-300' : ''}`}>
                 <AlertTriangle className="w-5 h-5" />
-                Crisis Alerts
+                Crisis Status
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {crisisAlerts.map(alert => (
-                  <div key={alert.id} className="p-3 bg-white dark:bg-gray-800 rounded-lg">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {alert.patient}
-                        </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {alert.time}
-                        </p>
-                      </div>
-                      <Badge variant={alert.severity === 'high' ? 'destructive' : 'secondary'}>
-                        {alert.severity}
-                      </Badge>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {stats.crisisAlerts.total}
                     </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Total Events</div>
                   </div>
-                ))}
-                <Button className="w-full" size="sm">
-                  View All Alerts
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                      {stats.crisisAlerts.resolved}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Resolved</div>
+                  </div>
+                </div>
+                
+                {stats.crisisAlerts.recent.length > 0 ? (
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">Recent Events</h4>
+                    {stats.crisisAlerts.recent.slice(0, 2).map((alert, index) => (
+                      <div key={index} className="p-2 bg-white dark:bg-gray-800 rounded text-sm">
+                        <div className="flex justify-between items-center">
+                          <span>{format(new Date(alert.created_at), 'MMM dd, HH:mm')}</span>
+                          <Badge variant={alert.risk_level === 'high' ? 'destructive' : 'secondary'} className="text-xs">
+                            {alert.risk_level || 'medium'}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <Shield className="w-8 h-8 mx-auto text-green-600 dark:text-green-400 mb-2" />
+                    <p className="text-sm text-gray-600 dark:text-gray-400">All clear - no recent crisis events</p>
+                  </div>
+                )}
+                
+                <Button variant="outline" className="w-full" size="sm">
+                  <a href="/crisis-intervention">Crisis Resources</a>
                 </Button>
               </div>
             </CardContent>
@@ -95,59 +122,113 @@ const Dashboard = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Activity className="w-5 h-5" />
-                Check-in Patterns
+                Recovery Progress
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {recentCheckIns.map(checkin => (
-                  <div key={checkin.id} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="font-medium">Mood: {checkin.mood}/10</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {checkin.date}
-                        </p>
-                      </div>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                      {stats.streak}
                     </div>
-                    <p className="text-sm mt-2 text-gray-700 dark:text-gray-300">
-                      {checkin.notes}
-                    </p>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Day Streak</div>
                   </div>
-                ))}
-                <Button variant="outline" className="w-full" size="sm">
-                  <a href="/checkin">Submit Check-in</a>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                      {stats.checkIns}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Check-ins</div>
+                  </div>
+                </div>
+                
+                {stats.recentCheckins.length > 0 ? (
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">Recent Check-ins</h4>
+                    {stats.recentCheckins.slice(0, 2).map((checkin, index) => (
+                      <div key={index} className="p-2 bg-gray-50 dark:bg-gray-700 rounded text-sm">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <span className="font-medium">
+                              {checkin.mood_rating ? `Mood: ${checkin.mood_rating}/10` : 'In Progress'}
+                            </span>
+                            <p className="text-xs text-gray-600 dark:text-gray-400">
+                              {format(new Date(checkin.date), 'MMM dd')}
+                            </p>
+                          </div>
+                          <Badge variant={checkin.is_complete ? 'default' : 'outline'} className="text-xs">
+                            {checkin.is_complete ? 'Complete' : 'Pending'}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-2">
+                    <TrendingUp className="w-6 h-6 mx-auto text-gray-400 mb-1" />
+                    <p className="text-sm text-gray-600 dark:text-gray-400">No recent check-ins</p>
+                  </div>
+                )}
+                
+                <Button className="w-full" size="sm">
+                  <a href="/checkin">Daily Check-in</a>
                 </Button>
               </div>
             </CardContent>
           </Card>
 
-          {/* Privacy Controls - Requirement #6 */}
+          {/* Support Network - Requirement #6 */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Shield className="w-5 h-5" />
-                Privacy & Access Controls
+                <Users className="w-5 h-5" />
+                Support Network
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Support Network Access</span>
-                  <Badge variant="secondary">{supportNetworkSize} members</Badge>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                      {stats.supportNetwork.totalMembers}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Total Members</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                      {stats.supportNetwork.activeMembers}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Active</div>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">HIPAA Actions Today</span>
-                  <Badge variant="outline">{hipaaCompliantActions}</Badge>
-                </div>
+                
+                {stats.supportNetwork.members.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">Recent Contacts</h4>
+                    {stats.supportNetwork.members.slice(0, 2).map((member, index) => (
+                      <div key={index} className="p-2 bg-gray-50 dark:bg-gray-700 rounded text-sm">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <span className="font-medium">{member.name}</span>
+                            <p className="text-xs text-gray-600 dark:text-gray-400">{member.relationship}</p>
+                          </div>
+                          <Badge variant="outline" className="text-xs">
+                            {member.is_emergency_contact ? 'Emergency' : 'Support'}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
                 <div className="space-y-2">
                   <Button variant="outline" className="w-full justify-start" size="sm">
                     <Users className="w-4 h-4 mr-2" />
-                    Manage Support Access
+                    <a href="/support">Manage Contacts</a>
                   </Button>
                   <Button variant="outline" className="w-full justify-start" size="sm">
-                    <FileText className="w-4 h-4 mr-2" />
-                    View Audit Log
+                    <Shield className="w-4 h-4 mr-2" />
+                    Privacy Settings
                   </Button>
                 </div>
               </div>

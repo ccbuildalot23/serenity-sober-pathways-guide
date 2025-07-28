@@ -2,16 +2,30 @@
 import React, { useCallback } from 'react';
 import { toast } from 'sonner';
 import { useRealtimeUpdates } from '@/hooks/useRealtimeUpdates';
-import { AlertTriangle, Heart, TrendingUp } from 'lucide-react';
+import { AlertTriangle, Heart, TrendingUp, ShieldAlert, CheckCircle } from 'lucide-react';
 
 const RealtimeNotifications: React.FC = () => {
   const handleCrisisEvent = useCallback((payload: any) => {
     const eventData = payload.new;
-    toast.error('Crisis Alert', {
-      description: `Crisis event logged at ${new Date(eventData.created_at).toLocaleTimeString()}`,
-      icon: <AlertTriangle className="w-4 h-4" />,
-      duration: 10000, // Show for 10 seconds
-    });
+    const eventTime = new Date(eventData.created_at).toLocaleTimeString();
+    
+    if (eventData.risk_level === 'high') {
+      toast.error('High Risk Crisis Alert', {
+        description: `High-risk crisis event detected at ${eventTime}`,
+        icon: <ShieldAlert className="w-4 h-4" />,
+        duration: 15000,
+        action: {
+          label: 'View Details',
+          onClick: () => console.log('Navigate to crisis details')
+        }
+      });
+    } else {
+      toast.warning('Crisis Alert', {
+        description: `Crisis event logged at ${eventTime}`,
+        icon: <AlertTriangle className="w-4 h-4" />,
+        duration: 10000,
+      });
+    }
   }, []);
 
   const handleMoodUpdate = useCallback((payload: any) => {
@@ -20,22 +34,39 @@ const RealtimeNotifications: React.FC = () => {
       const moodLevel = checkinData.mood_rating >= 7 ? 'great' : 
                        checkinData.mood_rating >= 4 ? 'okay' : 'low';
       
-      toast.success('Mood Update', {
-        description: `Mood rating updated to ${checkinData.mood_rating}/10 (${moodLevel})`,
-        icon: <Heart className="w-4 h-4" />,
-        duration: 5000,
-      });
+      const moodColor = checkinData.mood_rating >= 7 ? 'success' : 
+                       checkinData.mood_rating >= 4 ? 'info' : 'warning';
+      
+      if (checkinData.mood_rating <= 3) {
+        toast.warning('Low Mood Alert', {
+          description: `Mood rating is low (${checkinData.mood_rating}/10). Consider reaching out for support.`,
+          icon: <Heart className="w-4 h-4" />,
+          duration: 7000,
+        });
+      } else {
+        toast.success('Mood Update', {
+          description: `Mood rating: ${checkinData.mood_rating}/10 (${moodLevel})`,
+          icon: <Heart className="w-4 h-4" />,
+          duration: 4000,
+        });
+      }
     }
   }, []);
 
   const handleCheckInUpdate = useCallback((payload: any) => {
     const checkinData = payload.new;
     
-    if (payload.eventType === 'INSERT') {
-      toast.info('Daily Check-in', {
-        description: 'New daily check-in completed',
-        icon: <TrendingUp className="w-4 h-4" />,
+    if (payload.eventType === 'INSERT' && checkinData.is_complete) {
+      toast.success('Daily Check-in Complete', {
+        description: 'Daily check-in completed successfully',
+        icon: <CheckCircle className="w-4 h-4" />,
         duration: 3000,
+      });
+    } else if (payload.eventType === 'INSERT') {
+      toast.info('Check-in Started', {
+        description: 'Daily check-in in progress...',
+        icon: <TrendingUp className="w-4 h-4" />,
+        duration: 2000,
       });
     }
   }, []);

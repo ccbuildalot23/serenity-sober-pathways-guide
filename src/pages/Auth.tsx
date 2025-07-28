@@ -102,7 +102,7 @@ const Auth = () => {
                 </div>
                 <div>
                   <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent">
-                    Recovery
+                    Serenity
                   </h1>
                   <p className="text-sm text-muted-foreground">Support Platform</p>
                 </div>
@@ -237,7 +237,7 @@ const Auth = () => {
                 <Shield className="w-8 h-8 text-white" />
               </div>
               <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200">
-                Your Recovery Journey
+                Your Serenity Journey
               </h2>
               <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
                 Evidence-based tools and compassionate support for sustainable recovery

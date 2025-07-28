@@ -10,6 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SupportNetworkWidget } from '@/components/support/SupportNetworkWidget';
+import { PresenceStatusWidget } from '@/components/support/PresenceStatusWidget';
 import { format } from 'date-fns';
 
 const Dashboard = () => {
@@ -62,7 +64,7 @@ const Dashboard = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           
           {/* Crisis Notification System - Requirement #4 */}
           <Card className={`${stats.crisisAlerts.total > 0 ? 'border-red-200 bg-red-50 dark:bg-red-900/20' : ''}`}>
@@ -235,8 +237,14 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
+          {/* Support Network Widget */}
+          <SupportNetworkWidget />
+
+          {/* Presence Status Widget */}
+          <PresenceStatusWidget />
+
           {/* Care Navigation - Requirement #7 */}
-          <Card className="md:col-span-2 lg:col-span-3">
+          <Card className="md:col-span-2 lg:col-span-4">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="w-5 h-5" />

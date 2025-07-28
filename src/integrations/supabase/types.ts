@@ -2080,6 +2080,105 @@ export type Database = {
         }
         Relationships: []
       }
+      support_member_presence: {
+        Row: {
+          created_at: string
+          do_not_disturb: boolean
+          id: string
+          last_seen: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          do_not_disturb?: boolean
+          id?: string
+          last_seen?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          do_not_disturb?: boolean
+          id?: string
+          last_seen?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      support_network: {
+        Row: {
+          created_at: string
+          id: string
+          last_activity: string | null
+          patient_id: string
+          permissions: Json
+          relationship_type: string
+          status: string
+          support_member_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_activity?: string | null
+          patient_id: string
+          permissions?: Json
+          relationship_type: string
+          status?: string
+          support_member_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_activity?: string | null
+          patient_id?: string
+          permissions?: Json
+          relationship_type?: string
+          status?: string
+          support_member_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      support_notification_preferences: {
+        Row: {
+          alert_types: Json
+          contact_methods: Json
+          created_at: string
+          frequency_limits: Json
+          id: string
+          quiet_hours: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alert_types?: Json
+          contact_methods?: Json
+          created_at?: string
+          frequency_limits?: Json
+          id?: string
+          quiet_hours?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alert_types?: Json
+          contact_methods?: Json
+          created_at?: string
+          frequency_limits?: Json
+          id?: string
+          quiet_hours?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       thought_record_templates: {
         Row: {
           automatic_thought_example: string

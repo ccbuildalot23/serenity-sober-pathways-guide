@@ -1,46 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { useRecoveryPlan } from '@/hooks/useRecoveryPlan';
-import { RecoveryPlanService } from '@/services/recoveryPlanService';
+import { CollaborativePlanSharing } from './CollaborativePlanSharing';
 import { Stethoscope, Share2, Users, CheckCircle, Clock, Mail } from 'lucide-react';
-import { format } from 'date-fns';
-import { toast } from 'sonner';
 
 export const ProviderIntegration: React.FC = () => {
-  const { plans } = useRecoveryPlan();
-  const [selectedPlan, setSelectedPlan] = useState<string>('');
-  const [providerEmail, setProviderEmail] = useState('');
-  const [accessLevel, setAccessLevel] = useState<'view' | 'edit'>('view');
-  const [isSharing, setIsSharing] = useState(false);
-
-  const handleSharePlan = async () => {
-    if (!selectedPlan || !providerEmail) {
-      toast.error('Please select a plan and enter provider email');
-      return;
-    }
-
-    setIsSharing(true);
-    try {
-      const plan = plans.find(p => p.id === selectedPlan);
-      if (plan) {
-        await RecoveryPlanService.shareWithProvider(selectedPlan, providerEmail, accessLevel, plan.user_id);
-      }
-      setProviderEmail('');
-      setSelectedPlan('');
-    } catch (error) {
-      console.error('Error sharing plan:', error);
-    } finally {
-      setIsSharing(false);
-    }
-  };
-
-  const activePlans = plans.filter(p => p.status === 'active');
-
   return (
     <div className="space-y-6">
       <div className="space-y-2">
@@ -50,69 +14,8 @@ export const ProviderIntegration: React.FC = () => {
         </p>
       </div>
 
-      {/* Share Plan Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Share2 className="h-5 w-5" />
-            <span>Share Recovery Plan</span>
-          </CardTitle>
-          <CardDescription>
-            Grant your healthcare providers access to your recovery progress and goals
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="plan-select">Select Plan to Share</Label>
-              <Select value={selectedPlan} onValueChange={setSelectedPlan}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a recovery plan" />
-                </SelectTrigger>
-                <SelectContent>
-                  {activePlans.map((plan) => (
-                    <SelectItem key={plan.id} value={plan.id}>
-                      {plan.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="provider-email">Provider Email</Label>
-              <Input
-                id="provider-email"
-                type="email"
-                value={providerEmail}
-                onChange={(e) => setProviderEmail(e.target.value)}
-                placeholder="provider@clinic.com"
-              />
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="access-level">Access Level</Label>
-            <Select value={accessLevel} onValueChange={(value) => setAccessLevel(value as any)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="view">View Only - Can see plans and progress</SelectItem>
-                <SelectItem value="edit">Edit Access - Can modify plans and add notes</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <Button 
-            onClick={handleSharePlan}
-            disabled={isSharing || !selectedPlan || !providerEmail}
-            className="w-full"
-          >
-            {isSharing ? 'Sharing...' : 'Share Plan with Provider'}
-          </Button>
-        </CardContent>
-      </Card>
+      {/* Use the new collaborative plan sharing component */}
+      <CollaborativePlanSharing />
 
       {/* Integration Features */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

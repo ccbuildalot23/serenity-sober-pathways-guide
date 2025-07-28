@@ -26,7 +26,7 @@ import PracticeManagement from '@/pages/PracticeManagement';
 import RoleManagement from '@/components/admin/RoleManagement';
 import CrisisIntervention from '@/pages/CrisisIntervention';
 import HIPAASecurityDashboard from '@/pages/HIPAASecurityDashboard';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 // Commented out for MVP - keeping functionality but focusing on core features
 // import Calendar from '@/pages/Calendar';

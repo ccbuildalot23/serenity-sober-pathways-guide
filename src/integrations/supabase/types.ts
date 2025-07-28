@@ -1007,6 +1007,39 @@ export type Database = {
           },
         ]
       }
+      patient_provider_relationships: {
+        Row: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          patient_id: string
+          provider_id: string
+          relationship_type: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          patient_id: string
+          provider_id: string
+          relationship_type?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          provider_id?: string
+          relationship_type?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       peer_chat_messages: {
         Row: {
           created_at: string

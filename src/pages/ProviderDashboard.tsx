@@ -1,6 +1,6 @@
 // Clinician/Provider Dashboard - For healthcare providers managing patient recovery
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,74 +14,27 @@ import {
   FileText,
   Eye,
   DollarSign,
-  CreditCard
+  CreditCard,
+  Clock,
+  UserCheck,
+  BarChart3
 } from 'lucide-react';
-
-interface PatientCheckIn {
-  id: string;
-  patientId: string;
-  patientInitials: string;
-  moodRating: number;
-  date: string;
-  riskLevel: 'low' | 'medium' | 'high';
-  notes?: string;
-  supportNetworkAlerted?: boolean;
-}
+import { useProviderDashboard } from '@/hooks/useProviderDashboard';
+import { format, parseISO } from 'date-fns';
 
 const ProviderDashboard = () => {
-  // Mock data for MVP - in production this would come from secure API
-  const [checkInPatterns] = useState<PatientCheckIn[]>([
-    {
-      id: '1',
-      patientId: 'p001',
-      patientInitials: 'J.D.',
-      moodRating: 3,
-      date: '2024-01-27',
-      riskLevel: 'high',
-      notes: 'Struggling with cravings',
-      supportNetworkAlerted: true
-    },
-    {
-      id: '2',
-      patientId: 'p002',
-      patientInitials: 'S.M.',
-      moodRating: 7,
-      date: '2024-01-27',
-      riskLevel: 'low',
-      notes: 'Good day, feeling stable'
-    },
-    {
-      id: '3',
-      patientId: 'p001',
-      patientInitials: 'J.D.',
-      moodRating: 5,
-      date: '2024-01-26',
-      riskLevel: 'medium',
-      notes: 'Some anxiety but manageable'
-    },
-    {
-      id: '4',
-      patientId: 'p003',
-      patientInitials: 'M.R.',
-      moodRating: 8,
-      date: '2024-01-26',
-      riskLevel: 'low',
-      notes: 'Great progress this week'
-    }
-  ]);
+  const { stats, patients, appointments, loading, error, refreshData } = useProviderDashboard();
 
-  const getPatientStats = () => {
-    const totalPatients = new Set(checkInPatterns.map(c => c.patientId)).size;
-    const todayCheckins = checkInPatterns.filter(c => c.date === '2024-01-27').length;
-    const highRiskCount = checkInPatterns.filter(c => c.riskLevel === 'high' && c.date === '2024-01-27').length;
-    const avgMood = checkInPatterns
-      .filter(c => c.date === '2024-01-27')
-      .reduce((sum, c) => sum + c.moodRating, 0) / todayCheckins || 0;
-    
-    return { totalPatients, todayCheckins, highRiskCount, avgMood: Math.round(avgMood * 10) / 10 };
-  };
-
-  const stats = getPatientStats();
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading provider dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   const getRiskBadgeVariant = (level: string) => {
     switch (level) {
@@ -92,17 +45,17 @@ const ProviderDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm">
+      <div className="bg-card shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                <Activity className="w-8 h-8 text-blue-600" />
-                Clinician Dashboard
+              <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+                <Activity className="w-8 h-8 text-primary" />
+                Provider Dashboard
               </h1>
-              <p className="mt-2 text-gray-600 dark:text-gray-400">
+              <p className="mt-2 text-muted-foreground">
                 Patient Check-in Patterns & Recovery Monitoring
               </p>
             </div>
@@ -114,6 +67,9 @@ const ProviderDashboard = () => {
               <Badge variant="secondary">
                 {stats.totalPatients} Patients
               </Badge>
+              <Button onClick={refreshData} variant="outline" size="sm">
+                Refresh Data
+              </Button>
               <Button variant="outline" className="flex items-center gap-2">
                 <CreditCard className="w-4 h-4" />
                 Billing Portal
@@ -125,19 +81,22 @@ const ProviderDashboard = () => {
 
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  <p className="text-sm font-medium text-muted-foreground">
                     Today's Check-ins
                   </p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                  <p className="text-3xl font-bold text-foreground">
                     {stats.todayCheckins}
                   </p>
+                  <p className="text-xs text-muted-foreground">
+                    of {stats.totalPatients} patients
+                  </p>
                 </div>
-                <Calendar className="w-8 h-8 text-blue-600" />
+                <Calendar className="w-8 h-8 text-primary" />
               </div>
             </CardContent>
           </Card>
@@ -146,11 +105,14 @@ const ProviderDashboard = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  <p className="text-sm font-medium text-muted-foreground">
                     Average Mood
                   </p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                    {stats.avgMood}/10
+                  <p className="text-3xl font-bold text-foreground">
+                    {stats.averageMood}/10
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    today's checkins
                   </p>
                 </div>
                 <TrendingUp className="w-8 h-8 text-green-600" />
@@ -162,14 +124,17 @@ const ProviderDashboard = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    High Risk Alerts
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Crisis Alerts
                   </p>
-                  <p className="text-3xl font-bold text-red-600">
-                    {stats.highRiskCount}
+                  <p className="text-3xl font-bold text-destructive">
+                    {stats.crisisAlerts.unresolved}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {stats.crisisAlerts.highRisk} high risk
                   </p>
                 </div>
-                <AlertTriangle className="w-8 h-8 text-red-600" />
+                <AlertTriangle className="w-8 h-8 text-destructive" />
               </div>
             </CardContent>
           </Card>
@@ -178,11 +143,14 @@ const ProviderDashboard = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    Total Patients
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Active Patients
                   </p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                    {stats.totalPatients}
+                  <p className="text-3xl font-bold text-foreground">
+                    {stats.activePatients}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    total patients
                   </p>
                 </div>
                 <Users className="w-8 h-8 text-purple-600" />
@@ -191,114 +159,183 @@ const ProviderDashboard = () => {
           </Card>
         </div>
 
-        {/* Patient Check-in Patterns Table */}
+        {/* Engagement Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Weekly Engagement</p>
+                  <p className="text-2xl font-bold text-foreground">{stats.engagement.weeklyCompletionRate}%</p>
+                  <p className="text-xs text-muted-foreground">{stats.engagement.lastWeekCheckins} checkins this week</p>
+                </div>
+                <BarChart3 className="w-6 h-6 text-blue-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Monthly Engagement</p>
+                  <p className="text-2xl font-bold text-foreground">{stats.engagement.monthlyCompletionRate}%</p>
+                  <p className="text-xs text-muted-foreground">30-day completion rate</p>
+                </div>
+                <Calendar className="w-6 h-6 text-green-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Today's Appointments</p>
+                  <p className="text-2xl font-bold text-foreground">{appointments.length}</p>
+                  <p className="text-xs text-muted-foreground">scheduled sessions</p>
+                </div>
+                <Clock className="w-6 h-6 text-orange-600" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Patient Overview Table */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Activity className="w-5 h-5" />
-              Recent Patient Check-ins
+              Patient Overview ({patients.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {checkInPatterns.map((checkin) => (
-                <div key={checkin.id} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                        <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                          {checkin.patientInitials}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          Patient {checkin.patientInitials}
-                        </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {checkin.date}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Badge variant={getRiskBadgeVariant(checkin.riskLevel)}>
-                        {checkin.riskLevel} risk
-                      </Badge>
-                      {checkin.supportNetworkAlerted && (
-                        <Badge variant="outline" className="text-orange-600">
-                          Network Alerted
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                        Mood Rating
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                          <div 
-                            className={`h-2 rounded-full ${
-                              checkin.moodRating <= 3 ? 'bg-red-500' :
-                              checkin.moodRating <= 6 ? 'bg-yellow-500' : 'bg-green-500'
-                            }`}
-                            style={{ width: `${(checkin.moodRating / 10) * 100}%` }}
-                          />
+            {patients.length > 0 ? (
+              <div className="space-y-4">
+                {patients.map((patient) => (
+                  <div key={patient.id} className="p-4 border border-border rounded-lg">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                          <span className="text-sm font-medium text-primary">
+                            {patient.patient_initials}
+                          </span>
                         </div>
-                        <span className="text-sm font-medium">
-                          {checkin.moodRating}/10
-                        </span>
+                        <div>
+                          <p className="font-medium text-foreground">
+                            {patient.patient_name}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {patient.relationship_type} • Engagement: {patient.engagement_score}%
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Badge variant={getRiskBadgeVariant(patient.crisis_status.risk_level)}>
+                          {patient.crisis_status.risk_level} risk
+                        </Badge>
+                        {patient.support_network_alerted && (
+                          <Badge variant="outline" className="text-orange-600">
+                            Network Alerted
+                          </Badge>
+                        )}
                       </div>
                     </div>
                     
-                    {checkin.notes && (
+                    <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                          Notes
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Latest Check-in
                         </p>
-                        <p className="text-sm text-gray-900 dark:text-white">
-                          {checkin.notes}
-                        </p>
+                        {patient.latest_checkin ? (
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <div className="flex-1 bg-muted rounded-full h-2">
+                                <div 
+                                  className={`h-2 rounded-full ${
+                                    (patient.latest_checkin.mood_rating || 0) <= 3 ? 'bg-destructive' :
+                                    (patient.latest_checkin.mood_rating || 0) <= 6 ? 'bg-yellow-500' : 'bg-green-500'
+                                  }`}
+                                  style={{ width: `${((patient.latest_checkin.mood_rating || 0) / 10) * 100}%` }}
+                                />
+                              </div>
+                              <span className="text-sm font-medium">
+                                {patient.latest_checkin.mood_rating?.toFixed(1) || 'N/A'}/10
+                              </span>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              {format(parseISO(patient.latest_checkin.date), 'MMM d, yyyy')}
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">No check-ins yet</p>
+                        )}
                       </div>
-                    )}
-                  </div>
+                      
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Crisis Status
+                        </p>
+                        <div className="space-y-1">
+                          <p className="text-sm text-foreground">
+                            {patient.crisis_status.total_events} total events
+                          </p>
+                          {patient.crisis_status.last_crisis_date && (
+                            <p className="text-xs text-muted-foreground">
+                              Last: {format(parseISO(patient.crisis_status.last_crisis_date), 'MMM d')}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
 
-                  <div className="flex gap-2 mt-4">
-                    <Button variant="outline" size="sm">
-                      <Eye className="w-4 h-4 mr-1" />
-                      View History
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <FileText className="w-4 h-4 mr-1" />
-                      Add Note
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <DollarSign className="w-4 h-4 mr-1" />
-                      View Billing
-                    </Button>
-                    {checkin.riskLevel === 'high' && (
-                      <Button variant="destructive" size="sm">
-                        <AlertTriangle className="w-4 h-4 mr-1" />
-                        Crisis Protocol
+                    <div className="flex gap-2 mt-4">
+                      <Button variant="outline" size="sm">
+                        <Eye className="w-4 h-4 mr-1" />
+                        View History
                       </Button>
-                    )}
+                      <Button variant="outline" size="sm">
+                        <FileText className="w-4 h-4 mr-1" />
+                        Add Note
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <UserCheck className="w-4 h-4 mr-1" />
+                        Contact
+                      </Button>
+                      {patient.crisis_status.risk_level === 'high' && (
+                        <Button variant="destructive" size="sm">
+                          <AlertTriangle className="w-4 h-4 mr-1" />
+                          Crisis Protocol
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">No Patients Yet</h3>
+                <p className="text-muted-foreground mb-4">
+                  Start managing patients by establishing provider-patient relationships.
+                </p>
+                <Button>
+                  Add Patient Relationship
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
 
         {/* HIPAA Compliance Notice */}
-        <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+        <div className="mt-8 p-4 bg-primary/5 rounded-lg border border-primary/20">
           <div className="flex items-start gap-3">
-            <Shield className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+            <Shield className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-medium text-blue-900 dark:text-blue-100">
+              <h3 className="font-medium text-primary">
                 HIPAA Compliant Data Access
               </h3>
-              <p className="text-sm text-blue-800 dark:text-blue-200 mt-1">
+              <p className="text-sm text-primary/80 mt-1">
                 All patient data is displayed with privacy controls. Only authorized medical professionals 
                 can access full patient information. All views are logged for audit compliance.
               </p>

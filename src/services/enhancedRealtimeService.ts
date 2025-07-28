@@ -46,16 +46,20 @@ export class EnhancedRealtimeService {
   }
 
   private startHealthMonitoring(): void {
+    // Only start health monitoring if not already running
+    if (this.healthCheckInterval) return;
+    
     this.healthCheckInterval = setInterval(() => {
       this.checkConnectionHealth();
-    }, 10000); // Check every 10 seconds
+    }, 30000); // Check every 30 seconds (reduced frequency)
   }
 
   private checkConnectionHealth(): void {
     const now = Date.now();
     const timeSinceLastPing = now - this.lastPing;
 
-    if (timeSinceLastPing > 60000) { // No ping in 60 seconds
+    // Only trigger issues if we haven't received a ping in 2 minutes and have active channels
+    if (timeSinceLastPing > 120000 && this.channels.size > 0) {
       debugService.log('error', 'Connection unhealthy - no ping received', {
         timeSinceLastPing,
         channelCount: this.channels.size
@@ -301,7 +305,7 @@ export class EnhancedRealtimeService {
     });
 
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      debugService.log('critical', 'Max reconnection attempts reached');
+      debugService.log('critical', 'Max reconnection attempts reached', channelName);
       this.notifyUserOfConnectionIssue();
       return;
     }
@@ -370,17 +374,10 @@ export class EnhancedRealtimeService {
   }
 
   private notifyUserOfConnectionIssue(): void {
-    debugService.log('critical', 'Persistent connection issues detected');
-
-    // Show persistent notification about connection issues
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification('Connection Issue', {
-        body: 'Having trouble staying connected. Some features may be limited.',
-        icon: '/crisis-icon.png',
-        requireInteraction: true,
-        tag: 'connection-issue'
-      });
-    }
+    debugService.log('critical', 'Persistent connection issues detected', {
+      reconnectAttempts: this.reconnectAttempts,
+      maxAttempts: this.maxReconnectAttempts
+    });
 
     // Dispatch custom event for UI components to handle
     window.dispatchEvent(new CustomEvent('connection-issue', {

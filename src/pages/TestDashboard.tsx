@@ -12,7 +12,9 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { analyticsService } from '@/services/analyticsService';
+import { stableRealtimeService } from '@/services/realtime/stableRealtimeService';
 import { toast } from 'sonner';
+import TestConnectionMonitor from '@/components/TestConnectionMonitor';
 
 interface TestResult {
   name: string;
@@ -77,17 +79,30 @@ const ComprehensiveTestDashboard: React.FC = () => {
     try {
       // Test 1: Real-time Connection
       updateTestResult('Real-time Connection', 'running');
-      const channel = supabase.channel('test-channel');
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      channel.subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          updateTestResult('Real-time Connection', 'success', 'Successfully connected to real-time');
-          setRealTimeStatus('connected');
-        } else {
-          updateTestResult('Real-time Connection', 'error', `Connection status: ${status}`);
-          setRealTimeStatus('disconnected');
-        }
-      });
+      try {
+        const channel = await stableRealtimeService.createChannel('test-channel');
+        
+        await new Promise((resolve, reject) => {
+          const timeout = setTimeout(() => reject(new Error('Connection timeout')), 10000);
+          
+          channel.subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+              clearTimeout(timeout);
+              updateTestResult('Real-time Connection', 'success', 'Successfully connected to real-time');
+              setRealTimeStatus('connected');
+              resolve(status);
+            } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+              clearTimeout(timeout);
+              updateTestResult('Real-time Connection', 'error', `Connection failed: ${status}`);
+              setRealTimeStatus('disconnected');
+              reject(new Error(`Connection failed: ${status}`));
+            }
+          });
+        });
+      } catch (error: any) {
+        updateTestResult('Real-time Connection', 'error', error.message);
+        setRealTimeStatus('disconnected');
+      }
 
       // Test 2: Database Connectivity
       updateTestResult('Database Connectivity', 'running');
@@ -125,8 +140,8 @@ const ComprehensiveTestDashboard: React.FC = () => {
           const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
           stream.getTracks().forEach(track => track.stop()); // Stop immediately
           updateTestResult('Voice Recording', 'success', 'Microphone access granted');
-        } catch (error) {
-          updateTestResult('Voice Recording', 'error', 'Microphone access denied');
+        } catch (error: any) {
+          updateTestResult('Voice Recording', 'error', `Microphone access denied: ${error.message}`);
         }
       } else {
         updateTestResult('Voice Recording', 'error', 'MediaDevices API not supported');
@@ -169,12 +184,26 @@ const ComprehensiveTestDashboard: React.FC = () => {
 
       // Test 7: User Presence System
       updateTestResult('User Presence System', 'running');
-      const presenceChannel = supabase.channel('presence-test');
-      presenceChannel.on('presence', { event: 'sync' }, () => {
-        updateTestResult('User Presence System', 'success', 'Presence system active');
-      });
-      await presenceChannel.subscribe();
-      await presenceChannel.track({ user_id: user.id, online_at: new Date().toISOString() });
+      try {
+        const presenceChannel = supabase.channel('presence-test');
+        presenceChannel.on('presence', { event: 'sync' }, () => {
+          updateTestResult('User Presence System', 'success', 'Presence system active');
+        });
+        
+        await new Promise((resolve, reject) => {
+          const timeout = setTimeout(() => reject(new Error('Presence timeout')), 5000);
+          presenceChannel.subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+              clearTimeout(timeout);
+              resolve(status);
+            }
+          });
+        });
+        
+        await presenceChannel.track({ user_id: user.id, online_at: new Date().toISOString() });
+      } catch (error: any) {
+        updateTestResult('User Presence System', 'error', `Presence system failed: ${error.message}`);
+      }
 
       // Test 8: Error Handling
       updateTestResult('Error Handling', 'running');
@@ -365,6 +394,8 @@ const ComprehensiveTestDashboard: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="realtime" className="space-y-6">
+          <TestConnectionMonitor />
+          
           <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>

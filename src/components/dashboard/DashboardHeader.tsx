@@ -2,6 +2,7 @@
 import React from 'react';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { KeyboardShortcutsInfo } from './KeyboardShortcutsInfo';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 
 interface DashboardHeaderProps {
   userEmail?: string;
@@ -27,6 +28,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         </p>
       </div>
       <div className="flex items-center gap-2">
+        <NotificationBell />
         <KeyboardShortcutsInfo />
         <ThemeToggle />
       </div>

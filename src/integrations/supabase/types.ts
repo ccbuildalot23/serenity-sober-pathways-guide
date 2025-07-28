@@ -1001,6 +1001,50 @@ export type Database = {
           },
         ]
       }
+      notification_delivery_log: {
+        Row: {
+          created_at: string
+          delivered_at: string | null
+          delivery_method: string
+          delivery_status: string | null
+          error_message: string | null
+          id: string
+          notification_id: string
+          retry_count: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          delivered_at?: string | null
+          delivery_method: string
+          delivery_status?: string | null
+          error_message?: string | null
+          id?: string
+          notification_id: string
+          retry_count?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          delivered_at?: string | null
+          delivery_method?: string
+          delivery_status?: string | null
+          error_message?: string | null
+          id?: string
+          notification_id?: string
+          retry_count?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_delivery_log_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "recovery_notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       partnership_checkins: {
         Row: {
           acknowledged_by_partner: boolean | null
@@ -1872,6 +1916,117 @@ export type Database = {
           },
         ]
       }
+      recovery_notification_preferences: {
+        Row: {
+          activity_pattern_data: Json | null
+          created_at: string
+          daily_limit: number | null
+          delivery_methods: Json | null
+          goal_reminder_days_before: Json | null
+          goal_reminder_time: string | null
+          goal_reminders_enabled: boolean | null
+          id: string
+          milestone_celebrations_enabled: boolean | null
+          optimal_send_time: string | null
+          progress_encouragement_enabled: boolean | null
+          quiet_hours: Json | null
+          streak_milestones: Json | null
+          streak_notifications_enabled: boolean | null
+          updated_at: string
+          user_id: string
+          weekly_summary_day: number | null
+          weekly_summary_enabled: boolean | null
+        }
+        Insert: {
+          activity_pattern_data?: Json | null
+          created_at?: string
+          daily_limit?: number | null
+          delivery_methods?: Json | null
+          goal_reminder_days_before?: Json | null
+          goal_reminder_time?: string | null
+          goal_reminders_enabled?: boolean | null
+          id?: string
+          milestone_celebrations_enabled?: boolean | null
+          optimal_send_time?: string | null
+          progress_encouragement_enabled?: boolean | null
+          quiet_hours?: Json | null
+          streak_milestones?: Json | null
+          streak_notifications_enabled?: boolean | null
+          updated_at?: string
+          user_id: string
+          weekly_summary_day?: number | null
+          weekly_summary_enabled?: boolean | null
+        }
+        Update: {
+          activity_pattern_data?: Json | null
+          created_at?: string
+          daily_limit?: number | null
+          delivery_methods?: Json | null
+          goal_reminder_days_before?: Json | null
+          goal_reminder_time?: string | null
+          goal_reminders_enabled?: boolean | null
+          id?: string
+          milestone_celebrations_enabled?: boolean | null
+          optimal_send_time?: string | null
+          progress_encouragement_enabled?: boolean | null
+          quiet_hours?: Json | null
+          streak_milestones?: Json | null
+          streak_notifications_enabled?: boolean | null
+          updated_at?: string
+          user_id?: string
+          weekly_summary_day?: number | null
+          weekly_summary_enabled?: boolean | null
+        }
+        Relationships: []
+      }
+      recovery_notifications: {
+        Row: {
+          created_at: string
+          data: Json | null
+          delivered_at: string | null
+          delivery_methods: Json | null
+          expires_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          notification_type: string
+          priority: string | null
+          scheduled_for: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json | null
+          delivered_at?: string | null
+          delivery_methods?: Json | null
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          notification_type: string
+          priority?: string | null
+          scheduled_for?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json | null
+          delivered_at?: string | null
+          delivery_methods?: Json | null
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          notification_type?: string
+          priority?: string | null
+          scheduled_for?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       recovery_plan_goals: {
         Row: {
           category: string | null
@@ -2631,6 +2786,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_activity_patterns: {
+        Row: {
+          check_in_times: Json | null
+          created_at: string
+          engagement_score: number | null
+          id: string
+          last_calculated: string | null
+          most_active_hours: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          check_in_times?: Json | null
+          created_at?: string
+          engagement_score?: number | null
+          id?: string
+          last_calculated?: string | null
+          most_active_hours?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          check_in_times?: Json | null
+          created_at?: string
+          engagement_score?: number | null
+          id?: string
+          last_calculated?: string | null
+          most_active_hours?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_insights: {
         Row: {
           created_at: string
@@ -2788,6 +2976,10 @@ export type Database = {
         Args: Record<PropertyKey, never> | { user_uuid: string }
         Returns: Json
       }
+      calculate_optimal_notification_time: {
+        Args: { user_uuid: string }
+        Returns: string
+      }
       calculate_skill_mastery: {
         Args: { user_uuid: string; skill_category_param: string }
         Returns: string
@@ -2795,6 +2987,10 @@ export type Database = {
       check_badge_eligibility: {
         Args: { user_uuid: string; badge_name_param: string }
         Returns: boolean
+      }
+      cleanup_expired_notifications: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       cleanup_old_typing_indicators: {
         Args: Record<PropertyKey, never>

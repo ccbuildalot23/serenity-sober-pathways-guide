@@ -136,12 +136,13 @@ export class EnhancedSecurityAuditService {
     }
   }
 
-  private async getClientIP(): Promise<string> {
+  private async getClientIP(): Promise<string | null> {
     try {
-      // In a real implementation, you might use a service to get the client IP
-      return 'localhost';
+      // Return null instead of 'localhost' to avoid SQL errors
+      // In production, this should integrate with a proper IP detection service
+      return null;
     } catch {
-      return 'unknown';
+      return null;
     }
   }
 

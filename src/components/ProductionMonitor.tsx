@@ -18,10 +18,12 @@ const ProductionMonitor: React.FC<ProductionMonitorProps> = ({ children }) => {
   const [criticalErrors, setCriticalErrors] = useState(0);
   const [recoveryStatus, setRecoveryStatus] = useState(recoveryService.getStatus());
 
-  // Secret key combination to show admin panel
+  // Admin access - only in development mode for security
   useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    
     let keySequence = '';
-    const secretCode = 'admin123';
+    const secretCode = 'devadmin';
     
     const handleKeyDown = (event: KeyboardEvent) => {
       keySequence += event.key.toLowerCase();

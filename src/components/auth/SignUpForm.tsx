@@ -24,9 +24,28 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess }) => {
   const [success, setSuccess] = useState(false);
 
   const validatePassword = (password: string): string | null => {
-    if (password.length < 6) {
-      return 'Password must be at least 6 characters long';
+    if (password.length < 8) {
+      return 'Password must be at least 8 characters long';
     }
+    if (!/[A-Z]/.test(password)) {
+      return 'Password must contain at least one uppercase letter';
+    }
+    if (!/[a-z]/.test(password)) {
+      return 'Password must contain at least one lowercase letter';
+    }
+    if (!/\d/.test(password)) {
+      return 'Password must contain at least one number';
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      return 'Password must contain at least one special character';
+    }
+    
+    // Check for common passwords
+    const commonPasswords = ['password', '12345678', 'password123', 'admin', 'qwerty'];
+    if (commonPasswords.includes(password.toLowerCase())) {
+      return 'Password is too common. Please choose a stronger password';
+    }
+    
     return null;
   };
 
@@ -173,7 +192,9 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess }) => {
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-            <p className="text-xs text-gray-500">Must be at least 6 characters</p>
+            <p className="text-xs text-gray-500">
+              Must be at least 8 characters with uppercase, lowercase, number, and special character
+            </p>
           </div>
 
           <div className="space-y-2">

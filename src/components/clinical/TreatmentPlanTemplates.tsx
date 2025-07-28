@@ -104,7 +104,7 @@ const TreatmentPlanTemplates: React.FC = () => {
 
     setIsCreating(true);
     try {
-      const planData: Partial<TreatmentPlan> = {
+      const planData = {
         patient_id: patientId,
         provider_id: user!.id,
         plan_type: selectedTemplate.plan_type,
@@ -198,7 +198,7 @@ const TreatmentPlanTemplates: React.FC = () => {
                     {template.goals.slice(0, 2).map((goal) => (
                       <div key={goal.id} className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground truncate">{goal.title}</span>
-                        <Badge size="sm" variant={getPriorityColor(goal.priority)}>
+                        <Badge variant={getPriorityColor(goal.priority)}>
                           {goal.priority}
                         </Badge>
                       </div>
@@ -294,7 +294,8 @@ const TreatmentPlanTemplates: React.FC = () => {
                     )}
                   </DialogContent>
                 </Dialog>
-              </CardContent>
+              </div>
+            </CardContent>
             </Card>
         ))}
       </div>

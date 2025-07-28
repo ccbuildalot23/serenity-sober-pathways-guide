@@ -9,7 +9,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 
 const ClinicalProtocols: React.FC = () => {
   const { user } = useAuth();
-  const { userRole } = useUserRole();
+  const { role: userRole } = useUserRole();
   const [activeTab, setActiveTab] = useState('templates');
 
   // Check if user has provider access

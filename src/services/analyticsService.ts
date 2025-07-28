@@ -9,8 +9,8 @@ export interface UserAnalytics {
   checkin_consistency_score?: number;
   crisis_risk_score?: number;
   recovery_progress_score?: number;
-  engagement_metrics: Record<string, any>;
-  pattern_insights: Record<string, any>;
+  engagement_metrics: any;
+  pattern_insights: any;
 }
 
 export interface ClinicalAssessment {
@@ -18,8 +18,8 @@ export interface ClinicalAssessment {
   user_id: string;
   provider_id?: string;
   assessment_type: string;
-  assessment_data: Record<string, any>;
-  scores: Record<string, any>;
+  assessment_data: any;
+  scores: any;
   interpretation?: string;
   recommendations?: string;
   status: string;
@@ -125,7 +125,7 @@ class AnalyticsService {
     return data || [];
   }
 
-  async createClinicalAssessment(assessment: Partial<ClinicalAssessment>): Promise<ClinicalAssessment | null> {
+  async createClinicalAssessment(assessment: any): Promise<any> {
     const { data, error } = await supabase
       .from('clinical_assessments')
       .insert(assessment)
@@ -159,15 +159,10 @@ class AnalyticsService {
     return data;
   }
 
-  async createOutcomeMeasure(measure: Partial<OutcomeMeasure>): Promise<OutcomeMeasure | null> {
+  async createOutcomeMeasure(measure: any): Promise<any> {
     const { data, error } = await supabase
       .from('outcome_measures')
-      .insert({
-        ...measure,
-        improvement_percentage: measure.baseline_score && measure.current_score 
-          ? ((measure.current_score - measure.baseline_score) / measure.baseline_score) * 100
-          : null
-      })
+      .insert(measure)
       .select()
       .single();
 

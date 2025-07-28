@@ -3,12 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Sun, 
   Moon, 
-  Star, 
   Calendar, 
   Target, 
   BookOpen, 
@@ -16,11 +14,8 @@ import {
   Save, 
   RefreshCw,
   Trophy,
-  Heart,
   Flame
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import confetti from 'canvas-confetti';
 
@@ -46,153 +41,60 @@ interface DailyPledge {
 }
 
 const DailyPledges = () => {
-  const { user } = useAuth();
   const { toast } = useToast();
   
   const [currentTab, setCurrentTab] = useState<'morning' | 'evening' | 'templates'>('morning');
-  const [todaysPledge, setTodaysPledge] = useState<DailyPledge | null>(null);
-  const [templates, setTemplates] = useState<PledgeTemplate[]>([]);
-  const [currentStreak, setCurrentStreak] = useState(0);
-  const [longestStreak, setLongestStreak] = useState(0);
+  const [currentStreak, setCurrentStreak] = useState(3);
+  const [longestStreak, setLongestStreak] = useState(12);
   const [loading, setLoading] = useState(false);
   const [morningCommitment, setMorningCommitment] = useState('');
   const [eveningReflection, setEveningReflection] = useState('');
-  const [selectedTemplate, setSelectedTemplate] = useState<PledgeTemplate | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [completedMorning, setCompletedMorning] = useState(false);
+  const [completedEvening, setCompletedEvening] = useState(false);
 
-  const today = new Date().toISOString().split('T')[0];
-
-  useEffect(() => {
-    if (user?.id) {
-      loadTodaysPledge();
-      loadTemplates();
-      loadStreakData();
+  const templates = [
+    {
+      id: '1',
+      title: 'Mindful Serenity',
+      morning_prompt: 'Today, I commit to staying present and mindful in my serenity journey.',
+      evening_prompt: 'What am I most grateful for today?',
+      category: 'mindfulness',
+      is_default: true
+    },
+    {
+      id: '2', 
+      title: 'Seeking Support',
+      morning_prompt: 'I pledge to reach out for support when I need it and to be gentle with myself.',
+      evening_prompt: 'How did I honor my commitment to myself today?',
+      category: 'support',
+      is_default: true
+    },
+    {
+      id: '3',
+      title: 'Daily Progress', 
+      morning_prompt: 'Today, I choose healing and will take one positive step forward.',
+      evening_prompt: 'What challenges did I face, and how did I handle them?',
+      category: 'progress',
+      is_default: true
     }
-  }, [user?.id]);
-
-  const loadTodaysPledge = async () => {
-    if (!user?.id) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('daily_pledges')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('pledge_date', today)
-        .single();
-
-      if (data) {
-        setTodaysPledge(data);
-        setMorningCommitment(data.morning_commitment || '');
-        setEveningReflection(data.evening_reflection || '');
-      } else if (error && error.code !== 'PGRST116') {
-        console.error('Error loading pledge:', error);
-      }
-    } catch (error) {
-      console.error('Error in loadTodaysPledge:', error);
-    }
-  };
-
-  const loadTemplates = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('pledge_templates')
-        .select('*')
-        .or(`is_default.eq.true,user_id.eq.${user?.id}`)
-        .order('is_default', { ascending: false });
-
-      if (error) throw error;
-      setTemplates(data || []);
-    } catch (error) {
-      console.error('Error loading templates:', error);
-    }
-  };
-
-  const loadStreakData = async () => {
-    if (!user?.id) return;
-
-    try {
-      // Calculate current streak
-      const { data: recentPledges } = await supabase
-        .from('daily_pledges')
-        .select('pledge_date, completed_morning, completed_evening')
-        .eq('user_id', user.id)
-        .gte('pledge_date', new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
-        .order('pledge_date', { ascending: false });
-
-      if (recentPledges) {
-        let streak = 0;
-        let maxStreak = 0;
-        let tempStreak = 0;
-
-        // Calculate current streak (from most recent backwards)
-        for (const pledge of recentPledges) {
-          if (pledge.completed_morning && pledge.completed_evening) {
-            if (streak === 0) streak++;
-            else break;
-          } else {
-            break;
-          }
-        }
-
-        // Calculate longest streak
-        for (const pledge of recentPledges.reverse()) {
-          if (pledge.completed_morning && pledge.completed_evening) {
-            tempStreak++;
-            maxStreak = Math.max(maxStreak, tempStreak);
-          } else {
-            tempStreak = 0;
-          }
-        }
-
-        setCurrentStreak(streak);
-        setLongestStreak(maxStreak);
-      }
-    } catch (error) {
-      console.error('Error loading streak data:', error);
-    }
-  };
+  ];
 
   const saveMorningCommitment = async () => {
-    if (!user?.id || !morningCommitment.trim()) return;
+    if (!morningCommitment.trim()) return;
 
     setLoading(true);
     try {
-      const pledgeData: Partial<DailyPledge> = {
-        user_id: user.id,
-        pledge_date: today,
-        morning_commitment: morningCommitment,
-        completed_morning: true,
-        template_id: selectedTemplate?.id,
-      };
-
-      if (todaysPledge) {
-        const { error } = await supabase
-          .from('daily_pledges')
-          .update({
-            morning_commitment: morningCommitment,
-            completed_morning: true,
-          })
-          .eq('id', todaysPledge.id);
-
-        if (error) throw error;
-      } else {
-        const { data, error } = await supabase
-          .from('daily_pledges')
-          .insert([pledgeData])
-          .select()
-          .single();
-
-        if (error) throw error;
-        setTodaysPledge(data);
-      }
-
+      // Simulate saving
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      setCompletedMorning(true);
+      
       toast({
         title: "Morning Commitment Saved! 🌅",
         description: "Your intention for today has been set. Stay strong!",
       });
 
-      loadStreakData();
     } catch (error) {
       console.error('Error saving morning commitment:', error);
       toast({
@@ -206,32 +108,28 @@ const DailyPledges = () => {
   };
 
   const saveEveningReflection = async () => {
-    if (!user?.id || !eveningReflection.trim()) return;
+    if (!eveningReflection.trim()) return;
 
     setLoading(true);
     try {
-      if (todaysPledge) {
-        const { error } = await supabase
-          .from('daily_pledges')
-          .update({
-            evening_reflection: eveningReflection,
-            completed_evening: true,
-          })
-          .eq('id', todaysPledge.id);
-
-        if (error) throw error;
-
-        // Check if both morning and evening are now complete for celebration
-        if (todaysPledge.completed_morning) {
-          celebrateCompletion();
-        }
-      } else {
+      if (!completedMorning) {
         toast({
           title: "Complete Morning First",
           description: "Please set your morning commitment before adding evening reflection.",
           variant: "destructive",
         });
+        setLoading(false);
         return;
+      }
+
+      // Simulate saving
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      setCompletedEvening(true);
+
+      // Check if both morning and evening are now complete for celebration
+      if (completedMorning) {
+        celebrateCompletion();
       }
 
       toast({
@@ -239,7 +137,6 @@ const DailyPledges = () => {
         description: "Thank you for taking time to reflect on your day.",
       });
 
-      loadStreakData();
     } catch (error) {
       console.error('Error saving evening reflection:', error);
       toast({
@@ -266,8 +163,7 @@ const DailyPledges = () => {
     });
   };
 
-  const useTemplate = (template: PledgeTemplate) => {
-    setSelectedTemplate(template);
+  const useTemplate = (template: any) => {
     setMorningCommitment(template.morning_prompt);
     setCurrentTab('morning');
   };
@@ -334,8 +230,8 @@ const DailyPledges = () => {
               <div className="text-center">
                 <Calendar className="w-6 h-6 mx-auto text-serenity-teal mb-1" />
                 <div className="text-lg font-bold text-serenity-navy">
-                  {todaysPledge?.completed_morning && todaysPledge?.completed_evening ? '✓' : 
-                   todaysPledge?.completed_morning ? '½' : '○'}
+                  {completedMorning && completedEvening ? '✓' : 
+                   completedMorning ? '½' : '○'}
                 </div>
                 <div className="text-xs text-muted-foreground">Today</div>
               </div>
@@ -359,12 +255,12 @@ const DailyPledges = () => {
           <TabsTrigger value="morning" className="flex items-center gap-2">
             <Sun className="w-4 h-4" />
             Morning
-            {todaysPledge?.completed_morning && <Badge variant="secondary" className="ml-1 h-4 w-4 p-0 text-xs">✓</Badge>}
+            {completedMorning && <Badge variant="secondary" className="ml-1 h-4 w-4 p-0 text-xs">✓</Badge>}
           </TabsTrigger>
           <TabsTrigger value="evening" className="flex items-center gap-2">
             <Moon className="w-4 h-4" />
             Evening
-            {todaysPledge?.completed_evening && <Badge variant="secondary" className="ml-1 h-4 w-4 p-0 text-xs">✓</Badge>}
+            {completedEvening && <Badge variant="secondary" className="ml-1 h-4 w-4 p-0 text-xs">✓</Badge>}
           </TabsTrigger>
           <TabsTrigger value="templates" className="flex items-center gap-2">
             <BookOpen className="w-4 h-4" />
@@ -385,7 +281,7 @@ const DailyPledges = () => {
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
-              {!todaysPledge?.completed_morning && (
+              {!completedMorning && (
                 <div className="grid grid-cols-1 gap-2">
                   <p className="text-sm text-muted-foreground mb-2">Quick prompts to get started:</p>
                   {defaultMorningPrompts.map((prompt, index) => (
@@ -407,11 +303,11 @@ const DailyPledges = () => {
                 value={morningCommitment}
                 onChange={(e) => setMorningCommitment(e.target.value)}
                 className="min-h-32"
-                disabled={todaysPledge?.completed_morning && !isEditing}
+                disabled={completedMorning && !isEditing}
               />
 
               <div className="flex justify-between items-center">
-                {todaysPledge?.completed_morning && !isEditing ? (
+                {completedMorning && !isEditing ? (
                   <Button
                     variant="outline"
                     onClick={() => setIsEditing(true)}
@@ -427,7 +323,7 @@ const DailyPledges = () => {
                     className="bg-serenity-gold hover:bg-serenity-gold/90 text-white"
                   >
                     <Save className="w-4 h-4 mr-2" />
-                    {loading ? 'Saving...' : todaysPledge?.completed_morning ? 'Update' : 'Set Commitment'}
+                    {loading ? 'Saving...' : completedMorning ? 'Update' : 'Set Commitment'}
                   </Button>
                 )}
 
@@ -457,14 +353,14 @@ const DailyPledges = () => {
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
-              {todaysPledge?.morning_commitment && (
+              {morningCommitment && completedMorning && (
                 <div className="p-4 bg-serenity-mint/10 rounded-lg border border-serenity-mint/30">
                   <p className="text-sm text-serenity-sage font-medium mb-2">This morning you committed to:</p>
-                  <p className="text-serenity-navy italic">"{todaysPledge.morning_commitment}"</p>
+                  <p className="text-serenity-navy italic">"{morningCommitment}"</p>
                 </div>
               )}
 
-              {!todaysPledge?.completed_evening && (
+              {!completedEvening && (
                 <div className="grid grid-cols-1 gap-2">
                   <p className="text-sm text-muted-foreground mb-2">Reflection prompts:</p>
                   {defaultEveningPrompts.map((prompt, index) => (
@@ -486,11 +382,11 @@ const DailyPledges = () => {
                 value={eveningReflection}
                 onChange={(e) => setEveningReflection(e.target.value)}
                 className="min-h-32"
-                disabled={todaysPledge?.completed_evening && !isEditing}
+                disabled={completedEvening && !isEditing}
               />
 
               <div className="flex justify-between items-center">
-                {todaysPledge?.completed_evening && !isEditing ? (
+                {completedEvening && !isEditing ? (
                   <Button
                     variant="outline"
                     onClick={() => setIsEditing(true)}
@@ -502,11 +398,11 @@ const DailyPledges = () => {
                 ) : (
                   <Button
                     onClick={saveEveningReflection}
-                    disabled={loading || !eveningReflection.trim() || !todaysPledge?.completed_morning}
+                    disabled={loading || !eveningReflection.trim() || !completedMorning}
                     className="bg-serenity-sage hover:bg-serenity-sage/90 text-white"
                   >
                     <Save className="w-4 h-4 mr-2" />
-                    {loading ? 'Saving...' : todaysPledge?.completed_evening ? 'Update' : 'Save Reflection'}
+                    {loading ? 'Saving...' : completedEvening ? 'Update' : 'Save Reflection'}
                   </Button>
                 )}
 
@@ -520,7 +416,7 @@ const DailyPledges = () => {
                 )}
               </div>
 
-              {!todaysPledge?.completed_morning && (
+              {!completedMorning && (
                 <p className="text-sm text-muted-foreground text-center">
                   Complete your morning commitment first to unlock evening reflection.
                 </p>

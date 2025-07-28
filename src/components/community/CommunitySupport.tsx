@@ -16,6 +16,7 @@ import {
 import AnonymousForums from './AnonymousForums';
 import SuccessStories from './SuccessStories';
 import SponsorMatching from './SponsorMatching';
+import { CommunityChallenge } from './CommunityChallenge';
 import { useAuth } from '@/contexts/AuthContext';
 
 const CommunitySupport = () => {
@@ -74,18 +75,22 @@ const CommunitySupport = () => {
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="forums" className="flex items-center gap-2">
             <MessageSquare className="w-4 h-4" />
-            Anonymous Forums
+            Forums
           </TabsTrigger>
           <TabsTrigger value="stories" className="flex items-center gap-2">
             <Trophy className="w-4 h-4" />
-            Success Stories
+            Stories
+          </TabsTrigger>
+          <TabsTrigger value="challenges" className="flex items-center gap-2">
+            <Plus className="w-4 h-4" />
+            Challenges
           </TabsTrigger>
           <TabsTrigger value="sponsors" className="flex items-center gap-2">
             <Users className="w-4 h-4" />
-            Sponsor Matching
+            Sponsors
           </TabsTrigger>
         </TabsList>
 
@@ -95,6 +100,10 @@ const CommunitySupport = () => {
 
         <TabsContent value="stories">
           <SuccessStories />
+        </TabsContent>
+
+        <TabsContent value="challenges">
+          <CommunityChallenge />
         </TabsContent>
 
         <TabsContent value="sponsors">

@@ -44,7 +44,7 @@ export class CommunityService {
     if (!user) throw new Error('User not authenticated');
 
     // Get or create anonymous username
-    const anonymousName = await this.getAnonymousUsername(user.id);
+    const anonymousName = await this.getAnonymousUsername(user.id, postData.forum_id);
 
     // Perform basic moderation
     const moderationStatus = this.moderateContent(postData.content);
@@ -99,7 +99,7 @@ export class CommunityService {
   }
 
   static async reactToPost(postId: string, reactionType: 'helpful' | 'supportive' | 'inspiring' | 'understanding'): Promise<void> {
-    // For now, just simulate the reaction - we'll implement this when the tables are created
+    // Placeholder - tables exist but types not yet regenerated
     console.log(`Reacting to post ${postId} with ${reactionType}`);
   }
 
@@ -109,12 +109,12 @@ export class CommunityService {
     reason: string,
     details?: string
   ): Promise<void> {
-    // For now, just log the report - we'll implement this when the tables are created
+    // Placeholder - tables exist but types not yet regenerated
     console.log(`Reporting ${contentType} ${contentId} for ${reason}:`, details);
   }
 
   static async blockUser(blockedUserId: string): Promise<void> {
-    // For now, just log the block - we'll implement this when the tables are created
+    // Placeholder - tables exist but types not yet regenerated
     console.log(`Blocking user ${blockedUserId}`);
   }
 
@@ -181,13 +181,13 @@ export class CommunityService {
     storyId: string, 
     interactionType: 'like' | 'view' | 'help'
   ): Promise<void> {
-    // For now, just simulate the interaction - we'll implement this when the tables are created
+    // Placeholder - tables exist but types not yet regenerated
     console.log(`Interacting with story ${storyId}: ${interactionType}`);
   }
 
   // Helper functions
-  private static async getAnonymousUsername(userId: string): Promise<string> {
-    // Generate a simple anonymous username for now
+  private static async getAnonymousUsername(userId: string, forumId?: string): Promise<string> {
+    // Generate a simple anonymous username for now - will be replaced with DB lookup once types are updated
     const adjectives = ['Hopeful', 'Strong', 'Brave', 'Kind', 'Wise', 'Gentle', 'Peaceful'];
     const nouns = ['Warrior', 'Journey', 'Spirit', 'Heart', 'Soul', 'Friend', 'Guide'];
     

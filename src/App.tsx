@@ -29,6 +29,7 @@ import RoleManagement from '@/components/admin/RoleManagement';
 import CrisisIntervention from '@/pages/CrisisIntervention';
 import MobileCrisis from '@/pages/MobileCrisis';
 import MobileCrisisDemo from '@/components/demo/MobileCrisisDemo';
+import DataExport from '@/pages/DataExport';
 import HIPAASecurityDashboard from '@/pages/HIPAASecurityDashboard';
 import Community from '@/pages/Community';
 import Moderation from '@/pages/Moderation';
@@ -151,6 +152,11 @@ function App() {
             <Route path="/mobile-crisis" element={
               <ProtectedRoute>
                 <MobileCrisis />
+              </ProtectedRoute>
+            } />
+            <Route path="/data-export" element={
+              <ProtectedRoute>
+                <DataExport />
               </ProtectedRoute>
             } />
             <Route path="/demo/mobile-crisis" element={

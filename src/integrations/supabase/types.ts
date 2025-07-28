@@ -1059,6 +1059,105 @@ export type Database = {
         }
         Relationships: []
       }
+      data_export_logs: {
+        Row: {
+          action: string
+          details_encrypted: string | null
+          export_request_id: string
+          id: string
+          ip_address: unknown | null
+          timestamp: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          details_encrypted?: string | null
+          export_request_id: string
+          id?: string
+          ip_address?: unknown | null
+          timestamp?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          details_encrypted?: string | null
+          export_request_id?: string
+          id?: string
+          ip_address?: unknown | null
+          timestamp?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      data_export_requests: {
+        Row: {
+          admin_approval_required: boolean | null
+          approved_at: string | null
+          approved_by: string | null
+          checksum: string | null
+          completed_at: string | null
+          created_at: string
+          data_categories: Json
+          date_range_end: string | null
+          date_range_start: string | null
+          download_expires_at: string | null
+          downloaded_at: string | null
+          export_format: string
+          export_metadata: Json | null
+          file_size_bytes: number | null
+          id: string
+          request_reason: string
+          secure_download_token: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          admin_approval_required?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
+          checksum?: string | null
+          completed_at?: string | null
+          created_at?: string
+          data_categories?: Json
+          date_range_end?: string | null
+          date_range_start?: string | null
+          download_expires_at?: string | null
+          downloaded_at?: string | null
+          export_format?: string
+          export_metadata?: Json | null
+          file_size_bytes?: number | null
+          id?: string
+          request_reason: string
+          secure_download_token?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          admin_approval_required?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
+          checksum?: string | null
+          completed_at?: string | null
+          created_at?: string
+          data_categories?: Json
+          date_range_end?: string | null
+          date_range_start?: string | null
+          download_expires_at?: string | null
+          downloaded_at?: string | null
+          export_format?: string
+          export_metadata?: Json | null
+          file_size_bytes?: number | null
+          id?: string
+          request_reason?: string
+          secure_download_token?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       editing_sessions: {
         Row: {
           editing_section: string | null
@@ -4279,6 +4378,14 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
         }
         Returns: boolean
+      }
+      log_export_activity: {
+        Args: {
+          request_id: string
+          activity_action: string
+          activity_details?: Json
+        }
+        Returns: undefined
       }
       log_security_violation: {
         Args: { violation_type: string; details?: Json }

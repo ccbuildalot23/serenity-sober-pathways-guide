@@ -30,6 +30,7 @@ import CrisisIntervention from '@/pages/CrisisIntervention';
 import HIPAASecurityDashboard from '@/pages/HIPAASecurityDashboard';
 import Community from '@/pages/Community';
 import Moderation from '@/pages/Moderation';
+import TestDashboard from '@/pages/TestDashboard';
 import VoiceSupport from '@/pages/VoiceSupport';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
@@ -163,6 +164,11 @@ function App() {
             <Route path="/voice-support" element={
               <ProtectedRoute>
                 <VoiceSupport />
+              </ProtectedRoute>
+            } />
+            <Route path="/test-dashboard" element={
+              <ProtectedRoute>
+                <TestDashboard />
               </ProtectedRoute>
             } />
             <Route path="/progress" element={

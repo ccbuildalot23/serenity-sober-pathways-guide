@@ -40,6 +40,7 @@ import Moderation from '@/pages/Moderation';
 import TestDashboard from '@/pages/TestDashboard';
 import VoiceSupport from '@/pages/VoiceSupport';
 import ComplianceManagement from '@/pages/ComplianceManagement';
+import PilotReadinessAssessment from '@/pages/PilotReadinessAssessment';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 // Commented out for MVP - keeping functionality but focusing on core features
@@ -224,6 +225,11 @@ function App() {
             <Route path="/compliance-management" element={
               <ProtectedRoute>
                 <ComplianceManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/pilot-readiness" element={
+              <ProtectedRoute>
+                <PilotReadinessAssessment />
               </ProtectedRoute>
             } />
             {/* Commented out non-MVP routes - keeping for future use

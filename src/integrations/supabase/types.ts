@@ -395,6 +395,45 @@ export type Database = {
           },
         ]
       }
+      daily_pledges: {
+        Row: {
+          completed_evening: boolean | null
+          completed_morning: boolean | null
+          created_at: string
+          evening_reflection: string | null
+          id: string
+          morning_commitment: string | null
+          pledge_date: string
+          template_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_evening?: boolean | null
+          completed_morning?: boolean | null
+          created_at?: string
+          evening_reflection?: string | null
+          id?: string
+          morning_commitment?: string | null
+          pledge_date: string
+          template_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_evening?: boolean | null
+          completed_morning?: boolean | null
+          created_at?: string
+          evening_reflection?: string | null
+          id?: string
+          morning_commitment?: string | null
+          pledge_date?: string
+          template_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       emergency_contacts: {
         Row: {
           created_at: string
@@ -612,6 +651,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      pledge_templates: {
+        Row: {
+          category: string
+          created_at: string
+          evening_prompt: string
+          id: string
+          is_default: boolean | null
+          morning_prompt: string
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          evening_prompt: string
+          id?: string
+          is_default?: boolean | null
+          morning_prompt: string
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          evening_prompt?: string
+          id?: string
+          is_default?: boolean | null
+          morning_prompt?: string
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {

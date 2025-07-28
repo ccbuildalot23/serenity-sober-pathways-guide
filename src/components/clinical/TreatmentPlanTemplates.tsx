@@ -1,296 +1,303 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  FileText, 
-  Calendar, 
-  Target, 
-  Clock,
-  CheckCircle,
-  ArrowRight,
-  Download,
-  Copy
-} from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { FileText, Plus, Target, Clock, CheckCircle2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
-interface TreatmentTemplate {
+interface TreatmentPlan {
   id: string;
-  name: string;
-  description: string;
-  phases: string[];
-  duration: string;
+  patient_id: string;
+  provider_id: string;
+  plan_type: string;
+  goals: any[];
+  interventions: any[];
+  timeline_weeks: number;
+  status: string;
+  effectiveness_rating?: number;
 }
 
-interface Props {
-  templates: TreatmentTemplate[];
-}
+const treatmentTemplates = [
+  {
+    id: 'substance-abuse-basic',
+    name: 'Substance Abuse - Basic Recovery',
+    description: 'Comprehensive treatment plan for substance use disorder',
+    plan_type: 'substance_abuse',
+    timeline_weeks: 12,
+    goals: [
+      { id: 1, title: 'Achieve initial sobriety', target_weeks: 2, priority: 'high' },
+      { id: 2, title: 'Develop coping strategies', target_weeks: 4, priority: 'high' },
+      { id: 3, title: 'Build support network', target_weeks: 6, priority: 'medium' },
+      { id: 4, title: 'Prevent relapse', target_weeks: 12, priority: 'high' }
+    ],
+    interventions: [
+      { type: 'therapy', frequency: 'weekly', description: 'Individual CBT sessions' },
+      { type: 'group', frequency: 'bi-weekly', description: 'Group therapy sessions' },
+      { type: 'medication', frequency: 'as-needed', description: 'Medication-assisted treatment if appropriate' },
+      { type: 'skills', frequency: 'daily', description: 'Daily coping skills practice' }
+    ]
+  },
+  {
+    id: 'mental-health-comprehensive',
+    name: 'Mental Health - Comprehensive Care',
+    description: 'Integrated treatment for mental health conditions',
+    plan_type: 'mental_health',
+    timeline_weeks: 16,
+    goals: [
+      { id: 1, title: 'Stabilize mood symptoms', target_weeks: 4, priority: 'high' },
+      { id: 2, title: 'Improve daily functioning', target_weeks: 8, priority: 'medium' },
+      { id: 3, title: 'Enhance coping skills', target_weeks: 12, priority: 'high' },
+      { id: 4, title: 'Maintain progress', target_weeks: 16, priority: 'medium' }
+    ],
+    interventions: [
+      { type: 'therapy', frequency: 'weekly', description: 'Individual therapy (CBT/DBT)' },
+      { type: 'assessment', frequency: 'monthly', description: 'Progress assessments' },
+      { type: 'psychoeducation', frequency: 'bi-weekly', description: 'Educational sessions' },
+      { type: 'skills', frequency: 'daily', description: 'Mindfulness and coping practices' }
+    ]
+  },
+  {
+    id: 'crisis-intervention',
+    name: 'Crisis Intervention',
+    description: 'Short-term intensive support for crisis situations',
+    plan_type: 'crisis',
+    timeline_weeks: 6,
+    goals: [
+      { id: 1, title: 'Ensure immediate safety', target_weeks: 1, priority: 'critical' },
+      { id: 2, title: 'Stabilize crisis', target_weeks: 2, priority: 'high' },
+      { id: 3, title: 'Develop safety plan', target_weeks: 3, priority: 'high' },
+      { id: 4, title: 'Connect to ongoing support', target_weeks: 6, priority: 'medium' }
+    ],
+    interventions: [
+      { type: 'crisis', frequency: 'daily', description: 'Daily safety check-ins' },
+      { type: 'therapy', frequency: 'twice-weekly', description: 'Crisis counseling sessions' },
+      { type: 'support', frequency: 'as-needed', description: '24/7 crisis line access' },
+      { type: 'coordination', frequency: 'weekly', description: 'Care coordination meetings' }
+    ]
+  }
+];
 
-const TreatmentPlanTemplates: React.FC<Props> = ({ templates }) => {
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+const TreatmentPlanTemplates: React.FC = () => {
+  const { user } = useAuth();
+  const [selectedTemplate, setSelectedTemplate] = useState<typeof treatmentTemplates[0] | null>(null);
+  const [patientId, setPatientId] = useState('');
+  const [customizations, setCustomizations] = useState({
+    timeline_weeks: 12,
+    additional_goals: '',
+    additional_interventions: '',
+    notes: ''
+  });
+  const [isCreating, setIsCreating] = useState(false);
 
-  const templateDetails = {
-    'dual-diagnosis': {
-      objectives: [
-        'Achieve and maintain sobriety from substances',
-        'Stabilize mental health symptoms',
-        'Develop integrated coping strategies',
-        'Build sustainable recovery support network'
-      ],
-      interventions: [
-        'Motivational Interviewing',
-        'Cognitive Behavioral Therapy',
-        'Medication Management',
-        'Group Therapy',
-        'Family Therapy',
-        'Relapse Prevention Training'
-      ],
-      outcomes: [
-        'Reduction in substance use frequency',
-        'Improvement in mental health scores (PHQ-9, GAD-7)',
-        'Increased treatment engagement',
-        'Enhanced quality of life measures'
-      ]
-    },
-    'depression-sud': {
-      objectives: [
-        'Reduce depressive symptoms to subclinical levels',
-        'Achieve 30+ days continuous sobriety',
-        'Develop mood regulation skills',
-        'Establish medication compliance'
-      ],
-      interventions: [
-        'Antidepressant medication optimization',
-        'CBT for depression and addiction',
-        'Behavioral activation',
-        'Mindfulness-based interventions',
-        'Peer support groups',
-        'Crisis safety planning'
-      ],
-      outcomes: [
-        'PHQ-9 score reduction by 50%',
-        'Zero substance use episodes',
-        'Improved sleep quality',
-        'Return to functional activities'
-      ]
-    },
-    'anxiety-sud': {
-      objectives: [
-        'Reduce anxiety symptoms and panic episodes',
-        'Develop healthy anxiety management techniques',
-        'Eliminate substance use as coping mechanism',
-        'Build confidence in sober anxiety management'
-      ],
-      interventions: [
-        'Exposure and Response Prevention',
-        'Anxiety management training',
-        'Relaxation techniques',
-        'SMART Recovery principles',
-        'Trauma-informed care (if applicable)',
-        'Medication evaluation'
-      ],
-      outcomes: [
-        'GAD-7 score reduction by 40%',
-        'Decreased panic attack frequency',
-        'Improved anxiety tolerance',
-        'Sustained recovery engagement'
-      ]
+  const handleCreatePlan = async () => {
+    if (!selectedTemplate || !patientId) {
+      toast.error('Please select a template and enter patient ID');
+      return;
+    }
+
+    setIsCreating(true);
+    try {
+      const planData: Partial<TreatmentPlan> = {
+        patient_id: patientId,
+        provider_id: user!.id,
+        plan_type: selectedTemplate.plan_type,
+        timeline_weeks: customizations.timeline_weeks,
+        status: 'active',
+        goals: [
+          ...selectedTemplate.goals,
+          ...(customizations.additional_goals ? 
+            customizations.additional_goals.split('\n').map((goal, index) => ({
+              id: selectedTemplate.goals.length + index + 1,
+              title: goal.trim(),
+              target_weeks: customizations.timeline_weeks,
+              priority: 'medium'
+            })) : [])
+        ],
+        interventions: [
+          ...selectedTemplate.interventions,
+          ...(customizations.additional_interventions ?
+            customizations.additional_interventions.split('\n').map(intervention => ({
+              type: 'custom',
+              frequency: 'as-needed',
+              description: intervention.trim()
+            })) : [])
+        ]
+      };
+
+      const { data, error } = await supabase
+        .from('treatment_plans')
+        .insert(planData)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast.success('Treatment plan created successfully');
+      setSelectedTemplate(null);
+      setPatientId('');
+      setCustomizations({
+        timeline_weeks: 12,
+        additional_goals: '',
+        additional_interventions: '',
+        notes: ''
+      });
+
+    } catch (error) {
+      console.error('Error creating treatment plan:', error);
+      toast.error('Failed to create treatment plan');
+    } finally {
+      setIsCreating(false);
     }
   };
 
-  const handleExportPlan = (templateId: string) => {
-    // In a real implementation, this would generate a PDF or document
-    console.log('Exporting treatment plan:', templateId);
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'critical': return 'destructive';
+      case 'high': return 'secondary';
+      case 'medium': return 'default';
+      default: return 'outline';
+    }
   };
-
-  const handleCopyPlan = (templateId: string) => {
-    // In a real implementation, this would copy to clipboard or create new instance
-    console.log('Copying treatment plan template:', templateId);
-  };
-
-  if (selectedTemplate) {
-    const template = templates.find(t => t.id === selectedTemplate);
-    const details = templateDetails[selectedTemplate as keyof typeof templateDetails];
-    
-    if (!template || !details) return null;
-
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold">{template.name}</h2>
-            <p className="text-muted-foreground">{template.description}</p>
-          </div>
-          <Button 
-            variant="outline" 
-            onClick={() => setSelectedTemplate(null)}
-          >
-            Back to Templates
-          </Button>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="w-5 h-5" />
-                Treatment Objectives
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                {details.objectives.map((objective, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm">{objective}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="w-5 h-5" />
-                Treatment Timeline
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {template.phases.map((phase, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">
-                      {index + 1}
-                    </div>
-                    <span className="text-sm font-medium">{phase}</span>
-                    {index < template.phases.length - 1 && (
-                      <ArrowRight className="w-4 h-4 text-muted-foreground" />
-                    )}
-                  </div>
-                ))}
-                <div className="mt-4 p-3 bg-muted rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    <span className="text-sm font-medium">Duration: {template.duration}</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Tabs defaultValue="interventions">
-          <TabsList>
-            <TabsTrigger value="interventions">Interventions</TabsTrigger>
-            <TabsTrigger value="outcomes">Outcome Measures</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="interventions">
-            <Card>
-              <CardHeader>
-                <CardTitle>Evidence-Based Interventions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {details.interventions.map((intervention, index) => (
-                    <div key={index} className="p-3 border rounded-lg">
-                      <span className="font-medium">{intervention}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="outcomes">
-            <Card>
-              <CardHeader>
-                <CardTitle>Outcome Measurement Targets</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  {details.outcomes.map((outcome, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <Target className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm">{outcome}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-
-        <div className="flex gap-3">
-          <Button 
-            onClick={() => handleExportPlan(selectedTemplate)}
-            className="flex items-center gap-2"
-          >
-            <Download className="w-4 h-4" />
-            Export Plan
-          </Button>
-          <Button 
-            variant="outline"
-            onClick={() => handleCopyPlan(selectedTemplate)}
-            className="flex items-center gap-2"
-          >
-            <Copy className="w-4 h-4" />
-            Use Template
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Evidence-Based Treatment Plan Templates</CardTitle>
-          <p className="text-muted-foreground">
-            Structured treatment plans for co-occurring disorders based on clinical best practices
-          </p>
-        </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {templates.map((template) => (
-              <Card key={template.id} className="cursor-pointer hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-6 h-6 text-primary" />
-                    <div>
-                      <CardTitle className="text-lg">{template.name}</CardTitle>
-                      <p className="text-sm text-muted-foreground">{template.description}</p>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-sm">{template.duration}</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {template.phases.map((phase, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs">
-                          {phase}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">Treatment Plan Templates</h1>
+          <p className="text-muted-foreground">Create evidence-based treatment plans</p>
+        </div>
+      </div>
+
+      {/* Template Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {treatmentTemplates.map((template) => (
+          <Card key={template.id} className="cursor-pointer hover:shadow-md transition-shadow">
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <FileText className="h-6 w-6 text-primary" />
+                <Badge variant="outline">{template.timeline_weeks}w</Badge>
+              </div>
+              <CardTitle className="text-lg">{template.name}</CardTitle>
+              <CardDescription>{template.description}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-medium text-sm mb-2 flex items-center">
+                    <Target className="w-4 h-4 mr-1" />
+                    Goals ({template.goals.length})
+                  </h4>
+                  <div className="space-y-1">
+                    {template.goals.slice(0, 2).map((goal) => (
+                      <div key={goal.id} className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground truncate">{goal.title}</span>
+                        <Badge size="sm" variant={getPriorityColor(goal.priority)}>
+                          {goal.priority}
                         </Badge>
-                      ))}
-                    </div>
+                      </div>
+                    ))}
+                    {template.goals.length > 2 && (
+                      <p className="text-xs text-muted-foreground">
+                        +{template.goals.length - 2} more goals
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-medium text-sm mb-2 flex items-center">
+                    <CheckCircle2 className="w-4 h-4 mr-1" />
+                    Interventions ({template.interventions.length})
+                  </h4>
+                  <div className="space-y-1">
+                    {template.interventions.slice(0, 2).map((intervention, index) => (
+                      <div key={index} className="text-sm text-muted-foreground">
+                        {intervention.description}
+                      </div>
+                    ))}
+                    {template.interventions.length > 2 && (
+                      <p className="text-xs text-muted-foreground">
+                        +{template.interventions.length - 2} more interventions
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <Dialog>
+                  <DialogTrigger asChild>
                     <Button 
                       className="w-full" 
-                      onClick={() => setSelectedTemplate(template.id)}
+                      onClick={() => setSelectedTemplate(template)}
                     >
-                      View Template
+                      <Plus className="w-4 h-4 mr-2" />
+                      Use Template
                     </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Create Treatment Plan</DialogTitle>
+                      <DialogDescription>
+                        Customize the {selectedTemplate?.name} template for your patient
+                      </DialogDescription>
+                    </DialogHeader>
+                    
+                    {selectedTemplate && (
+                      <div className="space-y-6">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="patient-id">Patient ID</Label>
+                            <Input
+                              id="patient-id"
+                              value={patientId}
+                              onChange={(e) => setPatientId(e.target.value)}
+                              placeholder="Enter patient ID"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="timeline">Timeline (weeks)</Label>
+                            <Input
+                              id="timeline"
+                              type="number"
+                              value={customizations.timeline_weeks}
+                              onChange={(e) => setCustomizations(prev => ({
+                                ...prev,
+                                timeline_weeks: parseInt(e.target.value) || 12
+                              }))}
+                              min="1"
+                              max="52"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end space-x-2">
+                          <Button 
+                            variant="outline" 
+                            onClick={() => setSelectedTemplate(null)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button 
+                            onClick={handleCreatePlan}
+                            disabled={isCreating || !patientId}
+                          >
+                            {isCreating ? 'Creating...' : 'Create Plan'}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </DialogContent>
+                </Dialog>
+              </CardContent>
+            </Card>
+        ))}
+      </div>
     </div>
   );
 };

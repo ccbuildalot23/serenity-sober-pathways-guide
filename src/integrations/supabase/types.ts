@@ -453,6 +453,54 @@ export type Database = {
         }
         Relationships: []
       }
+      clinical_assessments: {
+        Row: {
+          assessment_data: Json
+          assessment_type: string
+          completed_date: string | null
+          created_at: string
+          id: string
+          interpretation: string | null
+          provider_id: string | null
+          recommendations: string | null
+          scheduled_date: string | null
+          scores: Json
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assessment_data?: Json
+          assessment_type: string
+          completed_date?: string | null
+          created_at?: string
+          id?: string
+          interpretation?: string | null
+          provider_id?: string | null
+          recommendations?: string | null
+          scheduled_date?: string | null
+          scores?: Json
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assessment_data?: Json
+          assessment_type?: string
+          completed_date?: string | null
+          created_at?: string
+          id?: string
+          interpretation?: string | null
+          provider_id?: string | null
+          recommendations?: string | null
+          scheduled_date?: string | null
+          scores?: Json
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       clinical_notes: {
         Row: {
           content: string
@@ -780,6 +828,39 @@ export type Database = {
           next_review_date?: string
           plan_encrypted?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      crisis_prediction_patterns: {
+        Row: {
+          confidence_score: number | null
+          id: string
+          is_active: boolean | null
+          last_updated: string
+          pattern_data: Json
+          pattern_type: string
+          risk_indicators: Json | null
+          user_id: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_updated?: string
+          pattern_data?: Json
+          pattern_type: string
+          risk_indicators?: Json | null
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_updated?: string
+          pattern_data?: Json
+          pattern_type?: string
+          risk_indicators?: Json | null
           user_id?: string
         }
         Relationships: []
@@ -1425,6 +1506,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      outcome_measures: {
+        Row: {
+          baseline_score: number | null
+          clinical_significance: boolean | null
+          created_at: string
+          current_score: number | null
+          id: string
+          improvement_percentage: number | null
+          measure_type: string
+          measurement_date: string
+          notes: string | null
+          provider_id: string | null
+          target_score: number | null
+          user_id: string
+        }
+        Insert: {
+          baseline_score?: number | null
+          clinical_significance?: boolean | null
+          created_at?: string
+          current_score?: number | null
+          id?: string
+          improvement_percentage?: number | null
+          measure_type: string
+          measurement_date?: string
+          notes?: string | null
+          provider_id?: string | null
+          target_score?: number | null
+          user_id: string
+        }
+        Update: {
+          baseline_score?: number | null
+          clinical_significance?: boolean | null
+          created_at?: string
+          current_score?: number | null
+          id?: string
+          improvement_percentage?: number | null
+          measure_type?: string
+          measurement_date?: string
+          notes?: string | null
+          provider_id?: string | null
+          target_score?: number | null
+          user_id?: string
+        }
+        Relationships: []
       }
       partnership_checkins: {
         Row: {
@@ -3675,6 +3801,51 @@ export type Database = {
           },
         ]
       }
+      treatment_plans: {
+        Row: {
+          created_at: string
+          effectiveness_rating: number | null
+          goals: Json | null
+          id: string
+          interventions: Json | null
+          patient_id: string
+          plan_type: string
+          provider_id: string
+          review_date: string | null
+          status: string
+          timeline_weeks: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          effectiveness_rating?: number | null
+          goals?: Json | null
+          id?: string
+          interventions?: Json | null
+          patient_id: string
+          plan_type?: string
+          provider_id: string
+          review_date?: string | null
+          status?: string
+          timeline_weeks?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          effectiveness_rating?: number | null
+          goals?: Json | null
+          id?: string
+          interventions?: Json | null
+          patient_id?: string
+          plan_type?: string
+          provider_id?: string
+          review_date?: string | null
+          status?: string
+          timeline_weeks?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_achievements: {
         Row: {
           badge_name: string
@@ -3727,6 +3898,51 @@ export type Database = {
           id?: string
           last_calculated?: string | null
           most_active_hours?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_analytics: {
+        Row: {
+          analytics_date: string
+          checkin_consistency_score: number | null
+          created_at: string
+          crisis_risk_score: number | null
+          engagement_metrics: Json | null
+          id: string
+          mood_trend_30day: number | null
+          mood_trend_7day: number | null
+          pattern_insights: Json | null
+          recovery_progress_score: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analytics_date?: string
+          checkin_consistency_score?: number | null
+          created_at?: string
+          crisis_risk_score?: number | null
+          engagement_metrics?: Json | null
+          id?: string
+          mood_trend_30day?: number | null
+          mood_trend_7day?: number | null
+          pattern_insights?: Json | null
+          recovery_progress_score?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analytics_date?: string
+          checkin_consistency_score?: number | null
+          created_at?: string
+          crisis_risk_score?: number | null
+          engagement_metrics?: Json | null
+          id?: string
+          mood_trend_30day?: number | null
+          mood_trend_7day?: number | null
+          pattern_insights?: Json | null
+          recovery_progress_score?: number | null
           updated_at?: string
           user_id?: string
         }

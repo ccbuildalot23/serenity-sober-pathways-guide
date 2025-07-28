@@ -34,8 +34,8 @@ import VoiceSupport from '@/pages/VoiceSupport';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 // Commented out for MVP - keeping functionality but focusing on core features
-// import Calendar from '@/pages/Calendar';
-// import Progress from '@/pages/Progress';
+import Calendar from '@/pages/Calendar';
+import Progress from '@/pages/Progress';
 // import Support from '@/pages/Support';
 // import CrisisToolkit from '@/pages/CrisisToolkit';
 // import Settings from '@/pages/Settings';
@@ -165,16 +165,16 @@ function App() {
                 <VoiceSupport />
               </ProtectedRoute>
             } />
+            <Route path="/progress" element={
+              <ProtectedRoute>
+                <Progress />
+              </ProtectedRoute>
+            } />
             
             {/* Commented out non-MVP routes - keeping for future use
             <Route path="/calendar" element={
               <ProtectedRoute>
                 <Calendar />
-              </ProtectedRoute>
-            } />
-            <Route path="/progress" element={
-              <ProtectedRoute>
-                <Progress />
               </ProtectedRoute>
             } />
             <Route path="/support" element={

@@ -1,359 +1,315 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  BarChart3, 
-  TrendingUp, 
-  TrendingDown,
-  Calendar,
-  Users,
-  Target,
-  Download,
-  Filter
-} from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { TrendingUp, Target, Calendar, AlertCircle } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { analyticsService, UserAnalytics, OutcomeMeasure } from '@/services/analyticsService';
+import { toast } from 'sonner';
 
-const OutcomeMeasurementDashboard = () => {
-  const [selectedTimeframe, setSelectedTimeframe] = useState('30d');
-  const [selectedCohort, setSelectedCohort] = useState('all');
+const OutcomeMeasurementDashboard: React.FC = () => {
+  const { user } = useAuth();
+  const [analytics, setAnalytics] = useState<UserAnalytics[]>([]);
+  const [outcomeMeasures, setOutcomeMeasures] = useState<OutcomeMeasure[]>([]);
+  const [crisisRisk, setCrisisRisk] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data - in production this would come from assessment results
-  const outcomeData = {
-    depression: {
-      baseline: 15.2,
-      current: 8.4,
-      improvement: 44.7,
-      trend: 'improving',
-      patients: 24
-    },
-    anxiety: {
-      baseline: 12.8,
-      current: 6.1,
-      improvement: 52.3,
-      trend: 'improving',
-      patients: 22
-    },
-    substance: {
-      baseline: 22.5,
-      current: 7.2,
-      improvement: 68.0,
-      trend: 'improving',
-      patients: 18
-    },
-    quality: {
-      baseline: 4.2,
-      current: 7.1,
-      improvement: 69.0,
-      trend: 'improving',
-      patients: 26
+  useEffect(() => {
+    if (user) {
+      loadData();
+    }
+  }, [user]);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      
+      // Generate current analytics
+      await analyticsService.generateUserAnalytics(user!.id);
+      
+      // Load analytics data
+      const analyticsData = await analyticsService.getUserAnalytics(user!.id, 30);
+      setAnalytics(analyticsData);
+      
+      // Load outcome measures
+      const measuresData = await analyticsService.getOutcomeMeasures(user!.id);
+      setOutcomeMeasures(measuresData);
+      
+      // Get crisis risk prediction
+      const riskData = await analyticsService.getCrisisRiskPrediction(user!.id);
+      setCrisisRisk(riskData);
+      
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+      toast.error('Failed to load analytics data');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const patientProgress = [
-    {
-      id: 'P001',
-      initials: 'J.D.',
-      diagnosis: 'Major Depression + AUD',
-      phq9: { baseline: 18, current: 9, change: -9 },
-      audit: { baseline: 24, current: 8, change: -16 },
-      engagement: 'High',
-      weeksInTreatment: 12
-    },
-    {
-      id: 'P002',
-      initials: 'S.M.',
-      diagnosis: 'GAD + Cannabis Use',
-      gad7: { baseline: 15, current: 6, change: -9 },
-      audit: { baseline: 12, current: 3, change: -9 },
-      engagement: 'Medium',
-      weeksInTreatment: 8
-    },
-    {
-      id: 'P003',
-      initials: 'M.R.',
-      diagnosis: 'PTSD + AUD',
-      phq9: { baseline: 16, current: 7, change: -9 },
-      audit: { baseline: 28, current: 6, change: -22 },
-      engagement: 'High',
-      weeksInTreatment: 16
-    }
-  ];
+  const latestAnalytics = analytics[0];
+  const chartData = analytics.slice().reverse().map(a => ({
+    date: new Date(a.analytics_date).toLocaleDateString(),
+    mood: a.mood_trend_7day,
+    progress: a.recovery_progress_score,
+    risk: a.crisis_risk_score
+  }));
 
-  const getTrendIcon = (trend: string) => {
-    return trend === 'improving' ? (
-      <TrendingUp className="w-4 h-4 text-green-500" />
-    ) : (
-      <TrendingDown className="w-4 h-4 text-red-500" />
+  const getRiskBadgeColor = (riskLevel: string) => {
+    switch (riskLevel) {
+      case 'high': return 'destructive';
+      case 'medium': return 'secondary';
+      case 'low': return 'default';
+      default: return 'outline';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[1, 2, 3].map(i => (
+            <Card key={i} className="animate-pulse">
+              <CardHeader className="space-y-2">
+                <div className="h-4 bg-muted rounded w-3/4"></div>
+                <div className="h-8 bg-muted rounded w-1/2"></div>
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
+      </div>
     );
-  };
-
-  const getEngagementColor = (engagement: string) => {
-    switch (engagement) {
-      case 'High': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'Medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'Low': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
-    }
-  };
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header Controls */}
-      <div className="flex items-center justify-between">
+      {/* Header */}
+      <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">Outcome Measurement Dashboard</h2>
-          <p className="text-muted-foreground">
-            Patient progress tracking and clinical outcomes analysis
-          </p>
+          <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
+          <p className="text-muted-foreground">Track your recovery progress and insights</p>
         </div>
-        <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm">
-            <Filter className="w-4 h-4 mr-2" />
-            Filter
-          </Button>
-          <Button variant="outline" size="sm">
-            <Download className="w-4 h-4 mr-2" />
-            Export Report
-          </Button>
-        </div>
+        <Button onClick={loadData} variant="outline">
+          <Calendar className="w-4 h-4 mr-2" />
+          Refresh Data
+        </Button>
       </div>
 
-      {/* Outcome Summary Cards */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Key Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium">Depression (PHQ-9)</CardTitle>
-              {getTrendIcon(outcomeData.depression.trend)}
-            </div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Recovery Progress</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              <div className="text-2xl font-bold">
-                {outcomeData.depression.current}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                Baseline: {outcomeData.depression.baseline}
-              </div>
-              <div className="flex items-center justify-between">
-                <Badge variant="secondary" className="text-green-700">
-                  {outcomeData.depression.improvement}% improvement
-                </Badge>
-                <span className="text-xs text-muted-foreground">
-                  {outcomeData.depression.patients} patients
-                </span>
-              </div>
+            <div className="text-2xl font-bold">
+              {latestAnalytics?.recovery_progress_score?.toFixed(1) || 'N/A'}%
             </div>
+            <Progress 
+              value={Math.max(0, latestAnalytics?.recovery_progress_score || 0)} 
+              className="mt-2" 
+            />
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium">Anxiety (GAD-7)</CardTitle>
-              {getTrendIcon(outcomeData.anxiety.trend)}
-            </div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Mood Trend (7d)</CardTitle>
+            <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              <div className="text-2xl font-bold">
-                {outcomeData.anxiety.current}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                Baseline: {outcomeData.anxiety.baseline}
-              </div>
-              <div className="flex items-center justify-between">
-                <Badge variant="secondary" className="text-green-700">
-                  {outcomeData.anxiety.improvement}% improvement
-                </Badge>
-                <span className="text-xs text-muted-foreground">
-                  {outcomeData.anxiety.patients} patients
-                </span>
-              </div>
+            <div className="text-2xl font-bold">
+              {latestAnalytics?.mood_trend_7day?.toFixed(1) || 'N/A'}/10
             </div>
+            <p className="text-xs text-muted-foreground">
+              30d avg: {latestAnalytics?.mood_trend_30day?.toFixed(1) || 'N/A'}
+            </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium">Substance Use (AUDIT)</CardTitle>
-              {getTrendIcon(outcomeData.substance.trend)}
-            </div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Check-in Consistency</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              <div className="text-2xl font-bold">
-                {outcomeData.substance.current}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                Baseline: {outcomeData.substance.baseline}
-              </div>
-              <div className="flex items-center justify-between">
-                <Badge variant="secondary" className="text-green-700">
-                  {outcomeData.substance.improvement}% improvement
-                </Badge>
-                <span className="text-xs text-muted-foreground">
-                  {outcomeData.substance.patients} patients
-                </span>
-              </div>
+            <div className="text-2xl font-bold">
+              {latestAnalytics?.checkin_consistency_score?.toFixed(0) || 'N/A'}%
             </div>
+            <Progress 
+              value={latestAnalytics?.checkin_consistency_score || 0} 
+              className="mt-2" 
+            />
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium">Quality of Life</CardTitle>
-              {getTrendIcon(outcomeData.quality.trend)}
-            </div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Crisis Risk</CardTitle>
+            <AlertCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              <div className="text-2xl font-bold">
-                {outcomeData.quality.current}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                Baseline: {outcomeData.quality.baseline}
-              </div>
-              <div className="flex items-center justify-between">
-                <Badge variant="secondary" className="text-green-700">
-                  {outcomeData.quality.improvement}% improvement
-                </Badge>
-                <span className="text-xs text-muted-foreground">
-                  {outcomeData.quality.patients} patients
-                </span>
-              </div>
+            <div className="flex items-center space-x-2">
+              <Badge variant={getRiskBadgeColor(crisisRisk?.risk_level)}>
+                {crisisRisk?.risk_level || 'Unknown'}
+              </Badge>
             </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              {crisisRisk?.recommendation}
+            </p>
           </CardContent>
         </Card>
       </div>
 
-      <Tabs defaultValue="individual">
-        <TabsList>
-          <TabsTrigger value="individual">Individual Progress</TabsTrigger>
-          <TabsTrigger value="cohort">Cohort Analysis</TabsTrigger>
-          <TabsTrigger value="predictive">Predictive Analytics</TabsTrigger>
-        </TabsList>
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Mood & Progress Trends</CardTitle>
+            <CardDescription>Your mood and recovery progress over time</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Line 
+                  type="monotone" 
+                  dataKey="mood" 
+                  stroke="hsl(var(--primary))" 
+                  strokeWidth={2}
+                  name="Mood (7d avg)"
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="progress" 
+                  stroke="hsl(var(--secondary))" 
+                  strokeWidth={2}
+                  name="Recovery Progress"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
 
-        <TabsContent value="individual" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Individual Patient Progress</CardTitle>
+        <Card>
+          <CardHeader>
+            <CardTitle>Risk Assessment</CardTitle>
+            <CardDescription>Crisis risk factors and patterns</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Bar 
+                  dataKey="risk" 
+                  fill="hsl(var(--destructive))" 
+                  name="Crisis Risk Score"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Insights & Recommendations */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Pattern Insights</CardTitle>
+            <CardDescription>Discovered patterns in your data</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {latestAnalytics?.pattern_insights?.best_day_of_week && (
+              <div>
+                <h4 className="font-medium">Best Day of Week</h4>
+                <p className="text-sm text-muted-foreground">
+                  {latestAnalytics.pattern_insights.best_day_of_week}
+                </p>
+              </div>
+            )}
+            
+            <div>
+              <h4 className="font-medium">Current Streak</h4>
               <p className="text-sm text-muted-foreground">
-                Track assessment scores and treatment engagement over time
+                {latestAnalytics?.engagement_metrics?.streak_days || 0} consecutive days
               </p>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {patientProgress.map((patient) => (
-                  <div key={patient.id} className="p-4 border rounded-lg">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                          <span className="text-sm font-medium">{patient.initials}</span>
-                        </div>
-                        <div>
-                          <p className="font-medium">Patient {patient.initials}</p>
-                          <p className="text-sm text-muted-foreground">{patient.diagnosis}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Badge className={getEngagementColor(patient.engagement)}>
-                          {patient.engagement} Engagement
-                        </Badge>
-                        <div className="text-right">
-                          <p className="text-sm font-medium">{patient.weeksInTreatment} weeks</p>
-                          <p className="text-xs text-muted-foreground">in treatment</p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="grid md:grid-cols-3 gap-4">
-                      {patient.phq9 && (
-                        <div className="space-y-1">
-                          <p className="text-sm font-medium">PHQ-9</p>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-muted-foreground">
-                              {patient.phq9.baseline} → {patient.phq9.current}
-                            </span>
-                            <Badge variant="secondary" className="text-green-700">
-                              {patient.phq9.change}
-                            </Badge>
-                          </div>
-                        </div>
-                      )}
-                      {patient.gad7 && (
-                        <div className="space-y-1">
-                          <p className="text-sm font-medium">GAD-7</p>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-muted-foreground">
-                              {patient.gad7.baseline} → {patient.gad7.current}
-                            </span>
-                            <Badge variant="secondary" className="text-green-700">
-                              {patient.gad7.change}
-                            </Badge>
-                          </div>
-                        </div>
-                      )}
-                      {patient.audit && (
-                        <div className="space-y-1">
-                          <p className="text-sm font-medium">AUDIT</p>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-muted-foreground">
-                              {patient.audit.baseline} → {patient.audit.current}
-                            </span>
-                            <Badge variant="secondary" className="text-green-700">
-                              {patient.audit.change}
-                            </Badge>
-                          </div>
-                        </div>
-                      )}
-                    </div>
+            </div>
+
+            <div>
+              <h4 className="font-medium">Total Check-ins</h4>
+              <p className="text-sm text-muted-foreground">
+                {latestAnalytics?.engagement_metrics?.total_checkins || 0} check-ins completed
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Risk Factors</CardTitle>
+            <CardDescription>Areas that may need attention</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {crisisRisk?.factors?.length > 0 ? (
+              <div className="space-y-2">
+                {crisisRisk.factors.map((factor: string, index: number) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <AlertCircle className="w-4 h-4 text-amber-500" />
+                    <span className="text-sm">{factor}</span>
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="cohort">
-          <Card>
-            <CardHeader>
-              <CardTitle>Cohort Analysis</CardTitle>
+            ) : (
               <p className="text-sm text-muted-foreground">
-                Compare outcomes across different patient groups and treatment modalities
+                No significant risk factors detected. Keep up the great work!
               </p>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                <BarChart3 className="w-12 h-12 mx-auto mb-4" />
-                <p>Cohort analysis charts would be displayed here</p>
-                <p className="text-sm">Showing treatment effectiveness by diagnosis, duration, and demographics</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
-        <TabsContent value="predictive">
-          <Card>
-            <CardHeader>
-              <CardTitle>Predictive Analytics</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                AI-powered insights for treatment optimization and risk prediction
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                <Target className="w-12 h-12 mx-auto mb-4" />
-                <p>Predictive models would be displayed here</p>
-                <p className="text-sm">Including dropout risk, treatment response probability, and optimal intervention timing</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      {/* Outcome Measures */}
+      {outcomeMeasures.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Outcome Measures</CardTitle>
+            <CardDescription>Clinical assessments and progress tracking</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {outcomeMeasures.slice(0, 5).map((measure) => (
+                <div key={measure.id} className="flex justify-between items-center p-4 border rounded-lg">
+                  <div>
+                    <h4 className="font-medium">{measure.measure_type}</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(measure.measurement_date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold">
+                      {measure.current_score}/{measure.target_score}
+                    </div>
+                    {measure.improvement_percentage && (
+                      <div className={`text-sm ${measure.improvement_percentage > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {measure.improvement_percentage > 0 ? '+' : ''}{measure.improvement_percentage.toFixed(1)}%
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

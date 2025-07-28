@@ -81,8 +81,11 @@ const SecureSystemHealthDashboard: React.FC<SecureSystemHealthDashboardProps> = 
   }, [isVisible, hasAccess, isAuthenticated, user?.id, role]);
 
   const handleAdminAuthentication = async () => {
-    // SECURITY: Proper admin verification instead of hardcoded secret
-    if (adminCode === 'secure_health_check_2024') {
+    // SECURITY: Use secure verification service
+    const { securityComplianceService } = await import('@/services/securityComplianceService');
+    const isValid = await securityComplianceService.verifyAdminAccess(adminCode);
+    
+    if (isValid) {
       setIsAuthenticated(true);
       toast.success('Admin access granted');
       

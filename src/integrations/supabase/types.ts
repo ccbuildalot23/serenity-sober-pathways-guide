@@ -5213,6 +5213,10 @@ export type Database = {
           rank: number
         }[]
       }
+      verify_admin_access: {
+        Args: { provided_code: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "patient" | "provider" | "support_member"

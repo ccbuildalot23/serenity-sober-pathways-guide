@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
-import { SecurityInitializer } from '@/lib/securityInitializer';
+import { EnhancedSecurityInitializer } from '@/lib/enhancedSecurityInitializer';
 import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
 import RealtimeNotifications from '@/components/RealtimeNotifications';
 import { Toaster } from '@/components/ui/sonner';
@@ -41,6 +41,7 @@ import TestDashboard from '@/pages/TestDashboard';
 import VoiceSupport from '@/pages/VoiceSupport';
 import ComplianceManagement from '@/pages/ComplianceManagement';
 import PilotReadinessAssessment from '@/pages/PilotReadinessAssessment';
+import SecurityFixesStatus from '@/pages/SecurityFixesStatus';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 // Commented out for MVP - keeping functionality but focusing on core features
@@ -58,7 +59,7 @@ function App() {
   // Initialize security on app start
   useEffect(() => {
     const initializeSecurity = async () => {
-      await SecurityInitializer.initialize();
+      await EnhancedSecurityInitializer.initialize();
       await EnhancedSecurityAuditService.logSecurityHardening();
     };
     
@@ -230,6 +231,11 @@ function App() {
             <Route path="/pilot-readiness" element={
               <ProtectedRoute>
                 <PilotReadinessAssessment />
+              </ProtectedRoute>
+            } />
+            <Route path="/security-fixes" element={
+              <ProtectedRoute>
+                <SecurityFixesStatus />
               </ProtectedRoute>
             } />
             {/* Commented out non-MVP routes - keeping for future use

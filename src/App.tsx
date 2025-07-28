@@ -33,6 +33,7 @@ import DataExport from '@/pages/DataExport';
 import { Analytics } from '@/pages/Analytics';
 import { TestFeatures } from '@/pages/TestFeatures';
 import HIPAASecurityDashboard from '@/pages/HIPAASecurityDashboard';
+import NotificationManagement from '@/pages/NotificationManagement';
 import Community from '@/pages/Community';
 import Moderation from '@/pages/Moderation';
 import TestDashboard from '@/pages/TestDashboard';
@@ -206,6 +207,11 @@ function App() {
             <Route path="/test-features" element={
               <ProtectedRoute>
                 <TestFeatures />
+              </ProtectedRoute>
+            } />
+            <Route path="/notification-management" element={
+              <ProtectedRoute>
+                <NotificationManagement />
               </ProtectedRoute>
             } />
             {/* Commented out non-MVP routes - keeping for future use

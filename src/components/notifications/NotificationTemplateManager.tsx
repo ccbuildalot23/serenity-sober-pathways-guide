@@ -468,7 +468,7 @@ export function NotificationTemplateManager() {
                 <div className="space-y-3">
                   <Label>Available Variables</Label>
                   <p className="text-sm text-muted-foreground">
-                    Select variables to include in your template. Use them in your content with {{variable_name}}
+                    Select variables to include in your template. Use them in your content with {`{{variable_name}}`}
                   </p>
                     <div className="flex flex-wrap gap-2">
                       {availableVariables.map((variable) => (

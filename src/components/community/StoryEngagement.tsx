@@ -27,8 +27,8 @@ import { ReportDialog } from './ReportDialog';
 interface Comment {
   id: string;
   content: string;
-  author_name: string;
-  is_anonymous: boolean;
+  anonymous_name: string;
+  is_anonymous?: boolean;
   created_at: string;
   user_id: string;
 }
@@ -83,7 +83,18 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setComments(data || []);
+      
+      // Transform data to match Comment interface
+      const transformedComments = (data || []).map(reply => ({
+        id: reply.id,
+        content: reply.content,
+        anonymous_name: reply.anonymous_name,
+        is_anonymous: true,
+        created_at: reply.created_at,
+        user_id: reply.user_id
+      }));
+      
+      setComments(transformedComments);
     } catch (error) {
       console.error('Error loading comments:', error);
     }
@@ -101,17 +112,18 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
 
     try {
       const { data: existing } = await supabase
-        .from('story_interactions')
+        .from('content_reactions')
         .select('id')
         .eq('user_id', user.id)
-        .eq('story_id', storyId)
-        .eq('interaction_type', 'like')
-        .single();
+        .eq('content_id', storyId)
+        .eq('reaction_type', 'like')
+        .eq('content_type', 'story')
+        .maybeSingle();
 
       if (existing) {
         // Unlike
         await supabase
-          .from('story_interactions')
+          .from('content_reactions')
           .delete()
           .eq('id', existing.id);
         
@@ -120,11 +132,12 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
       } else {
         // Like
         await supabase
-          .from('story_interactions')
+          .from('content_reactions')
           .insert({
             user_id: user.id,
-            story_id: storyId,
-            interaction_type: 'like'
+            content_id: storyId,
+            reaction_type: 'like',
+            content_type: 'story'
           });
         
         setLocalLikesCount(prev => prev + 1);
@@ -152,17 +165,18 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
 
     try {
       const { data: existing } = await supabase
-        .from('story_interactions')
+        .from('content_reactions')
         .select('id')
         .eq('user_id', user.id)
-        .eq('story_id', storyId)
-        .eq('interaction_type', 'help')
-        .single();
+        .eq('content_id', storyId)
+        .eq('reaction_type', 'help')
+        .eq('content_type', 'story')
+        .maybeSingle();
 
       if (existing) {
         // Remove help
         await supabase
-          .from('story_interactions')
+          .from('content_reactions')
           .delete()
           .eq('id', existing.id);
         
@@ -171,11 +185,12 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
       } else {
         // Add help
         await supabase
-          .from('story_interactions')
+          .from('content_reactions')
           .insert({
             user_id: user.id,
-            story_id: storyId,
-            interaction_type: 'help'
+            content_id: storyId,
+            reaction_type: 'help',
+            content_type: 'story'
           });
         
         setLocalHelpsCount(prev => prev + 1);
@@ -409,7 +424,7 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-sm">
-                          {comment.is_anonymous ? comment.author_name : 'Community Member'}
+                          {comment.anonymous_name || 'Community Member'}
                         </span>
                         <Badge variant="outline" className="text-xs">
                           <Users className="w-3 h-3 mr-1" />

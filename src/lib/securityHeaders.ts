@@ -7,17 +7,20 @@ export class SecurityHeaders {
     // Generate a unique nonce for this session
     const nonce = crypto.randomUUID();
     
-    // Simplified Content Security Policy that won't block the UI
+    // Enhanced Content Security Policy for better security
     const cspDirectives = [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // More permissive for development
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      `script-src 'self' 'nonce-${nonce}'`, // Remove unsafe-inline and unsafe-eval
+      `style-src 'self' 'nonce-${nonce}' https://fonts.googleapis.com`,
       "font-src 'self' https://fonts.gstatic.com data:",
       "img-src 'self' data: blob: https:",
       "connect-src 'self' https://tqyiqstpvwztvofrxpuf.supabase.co wss://tqyiqstpvwztvofrxpuf.supabase.co",
       "frame-src 'none'",
       "object-src 'none'",
-      "base-uri 'self'"
+      "base-uri 'self'",
+      "form-action 'self'",
+      "frame-ancestors 'none'",
+      "upgrade-insecure-requests"
     ].join('; ');
 
     this.setMetaTag('Content-Security-Policy', cspDirectives);

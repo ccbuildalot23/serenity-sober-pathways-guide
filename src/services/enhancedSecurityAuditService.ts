@@ -118,15 +118,17 @@ export class EnhancedSecurityAuditService {
     this.eventQueue = [];
 
     try {
-      // In a real implementation, you would insert these into a security_audit_logs table
-      console.log('Security events logged:', eventsToFlush);
+      // Insert security events into the security_audit_logs table
+      const { error } = await supabase
+        .from('security_audit_logs')
+        .insert(eventsToFlush);
       
-      // Example of how you might insert into Supabase
-      // const { error } = await supabase
-      //   .from('security_audit_logs')
-      //   .insert(eventsToFlush);
-      
-      // if (error) throw error;
+      if (error) {
+        console.error('Failed to insert security audit logs:', error);
+        throw error;
+      }
+
+      console.log(`Successfully logged ${eventsToFlush.length} security events`);
     } catch (error) {
       console.error('Failed to flush security events:', error);
       // Re-queue events on failure

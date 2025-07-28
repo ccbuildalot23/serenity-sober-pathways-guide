@@ -26,11 +26,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
     );
   }
 
-  // For now, let's allow access without authentication to test the app
-  // You can re-enable this redirect later once everything is working
-  // if (!user) {
-  //   return <Navigate to="/login" state={{ from: location }} replace />;
-  // }
+  // Redirect to auth page if not authenticated
+  if (!user) {
+    return <Navigate to="/auth" state={{ from: location }} replace />;
+  }
 
   return <>{children}</>;
 };

@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserRole } from '@/types/userRoles';
+import { supabase } from '@/integrations/supabase/client';
+import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
 
 export const useUserRole = () => {
   const { user } = useAuth();
@@ -14,22 +16,33 @@ export const useUserRole = () => {
       setLoading(true);
       
       try {
-        // MVP: Simple role determination based on email domain
-        // In production, this would query the database
-        if (user?.email) {
-          if (user.email.includes('@provider.') || user.email.includes('@clinic.') || user.email.includes('@hospital.')) {
-            setRole('provider');
-          } else if (user.email.includes('@support.') || user.email.includes('@family.')) {
-            setRole('support_member');
+        if (user?.id) {
+          // Query the database for the user's role using the secure function
+          const { data, error } = await supabase.rpc('get_current_user_role');
+          
+          if (error) {
+            console.error('Error fetching user role:', error);
+            await EnhancedSecurityAuditService.logSecurityViolation('ROLE_FETCH_FAILED', {
+              error: error.message,
+              user_id: user.id
+            });
+            setRole('patient'); // Safe default
+          } else if (data) {
+            setRole(data as UserRole);
+            await EnhancedSecurityAuditService.logDataAccessEvent('user_roles', 'SELECT', 1);
           } else {
+            // No role found, default to patient
             setRole('patient');
           }
         } else {
-          // Default to patient for MVP
           setRole('patient');
         }
       } catch (error) {
         console.error('Error determining user role:', error);
+        await EnhancedSecurityAuditService.logSecurityViolation('ROLE_DETERMINATION_FAILED', {
+          error: error.message,
+          user_id: user?.id
+        });
         setRole('patient'); // Safe default
       } finally {
         setLoading(false);
@@ -43,11 +56,28 @@ export const useUserRole = () => {
     }
   }, [user]);
 
-  const switchRole = (newRole: UserRole) => {
-    // MVP: Allow role switching for testing
-    // In production, this would require proper authorization
-    setRole(newRole);
-    localStorage.setItem('mvp_user_role', newRole);
+  const switchRole = async (newRole: UserRole) => {
+    // SECURITY: Role switching should only be allowed for authorized users
+    // This is disabled in production for security
+    if (import.meta.env.DEV) {
+      setRole(newRole);
+      localStorage.setItem('mvp_user_role', newRole);
+      
+      if (user) {
+        await EnhancedSecurityAuditService.logSecurityEvent({
+          action: 'ROLE_SWITCH_ATTEMPTED',
+          severity: 'medium',
+          details: {
+            from_role: role,
+            to_role: newRole,
+            user_id: user.id,
+            environment: 'development'
+          }
+        });
+      }
+    } else {
+      console.warn('Role switching is disabled in production for security');
+    }
   };
 
   return {

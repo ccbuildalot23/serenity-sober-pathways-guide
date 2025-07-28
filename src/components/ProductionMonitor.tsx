@@ -18,21 +18,32 @@ const ProductionMonitor: React.FC<ProductionMonitorProps> = ({ children }) => {
   const [criticalErrors, setCriticalErrors] = useState(0);
   const [recoveryStatus, setRecoveryStatus] = useState(recoveryService.getStatus());
 
-  // Admin access - only in development mode for security
+  // Secure admin access - only available in development mode
   useEffect(() => {
     if (!import.meta.env.DEV) return;
     
+    // Use a more secure random secret that changes per session
+    const sessionSecret = sessionStorage.getItem('dev_admin_secret') || 
+      Math.random().toString(36).substring(2, 15);
+    
+    if (!sessionStorage.getItem('dev_admin_secret')) {
+      sessionStorage.setItem('dev_admin_secret', sessionSecret);
+      console.log('🔧 Dev Admin Access:', sessionSecret);
+    }
+    
     let keySequence = '';
-    const secretCode = 'devadmin';
     
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Only accept alphanumeric characters
+      if (!/^[a-z0-9]$/.test(event.key.toLowerCase())) return;
+      
       keySequence += event.key.toLowerCase();
       
-      if (keySequence.length > secretCode.length) {
-        keySequence = keySequence.slice(-secretCode.length);
+      if (keySequence.length > sessionSecret.length) {
+        keySequence = keySequence.slice(-sessionSecret.length);
       }
       
-      if (keySequence === secretCode) {
+      if (keySequence === sessionSecret) {
         setShowHealthDashboard(true);
         keySequence = '';
       }

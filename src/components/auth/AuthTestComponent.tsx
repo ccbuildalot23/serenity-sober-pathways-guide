@@ -12,8 +12,8 @@ import { Loader2, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 
 export const AuthTestComponent: React.FC = () => {
   const { user, session, loading, signIn } = useAuth();
-  const [testEmail, setTestEmail] = useState('test@example.com');
-  const [testPassword, setTestPassword] = useState('Test123!@#');
+  const [testEmail, setTestEmail] = useState('');
+  const [testPassword, setTestPassword] = useState('');
   const [testResults, setTestResults] = useState<string[]>([]);
   const [isTesting, setIsTesting] = useState(false);
   const [supabaseSession, setSupabaseSession] = useState<any>(null);

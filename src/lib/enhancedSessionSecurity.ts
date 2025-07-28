@@ -17,7 +17,7 @@ export class EnhancedSessionSecurity {
       screen.width + 'x' + screen.height,
       new Date().getTimezoneOffset().toString(),
       navigator.hardwareConcurrency?.toString() || '0',
-      navigator.deviceMemory?.toString() || '0'
+      (navigator as any).deviceMemory?.toString() || '0'
     ];
 
     // Create hash of components

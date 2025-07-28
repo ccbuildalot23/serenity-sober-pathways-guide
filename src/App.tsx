@@ -20,6 +20,7 @@ import AccountabilityPartners from '@/pages/AccountabilityPartners';
 import RecoveryPlanning from '@/pages/RecoveryPlanning';
 import RelapsePreventionPage from '@/pages/RelapsePrevention';
 import ClinicalProtocols from '@/pages/ClinicalProtocols';
+import RegulatoryCompliance from '@/pages/RegulatoryCompliance';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 // Commented out for MVP - keeping functionality but focusing on core features
@@ -105,6 +106,11 @@ function App() {
             <Route path="/clinical-protocols" element={
               <ProtectedRoute>
                 <ClinicalProtocols />
+              </ProtectedRoute>
+            } />
+            <Route path="/regulatory-compliance" element={
+              <ProtectedRoute>
+                <RegulatoryCompliance />
               </ProtectedRoute>
             } />
             

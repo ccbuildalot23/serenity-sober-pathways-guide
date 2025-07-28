@@ -3,6 +3,8 @@ export interface CheckinResponses {
   mood: number | null;
   energy: number | null;
   hope: number | null;
+  sleep_quality?: number | null;
+  medication_taken?: boolean;
   sobriety_confidence: number | null;
   recovery_importance: number | null;
   recovery_strength: string | null;
@@ -14,6 +16,7 @@ export interface CheckinResponses {
   notes?: string;
   mood_triggers?: string[];
   gratitude_entries?: string[];
+  coping_strategies?: string[];
 }
 
 export interface CheckinDraft {

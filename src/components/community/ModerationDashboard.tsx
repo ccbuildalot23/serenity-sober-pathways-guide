@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertTriangle, Clock, CheckCircle, XCircle, User } from 'lucide-react';
+import { AlertTriangle, Clock, CheckCircle, XCircle, User, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ModerationItem {
@@ -33,6 +33,27 @@ const ModerationDashboard: React.FC = () => {
   useEffect(() => {
     if (user) {
       loadModerationItems();
+      
+      // Set up real-time subscription for moderation queue updates
+      const channel = supabase
+        .channel('moderation-updates')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'moderation_queue'
+          },
+          (payload) => {
+            console.log('Moderation queue update:', payload);
+            loadModerationItems(); // Reload data when changes occur
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user, activeTab]);
 
@@ -156,6 +177,15 @@ const ModerationDashboard: React.FC = () => {
           <h1 className="text-2xl font-bold">Content Moderation</h1>
           <p className="text-muted-foreground">AI-powered content moderation dashboard</p>
         </div>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={loadModerationItems}
+          disabled={loading}
+        >
+          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>

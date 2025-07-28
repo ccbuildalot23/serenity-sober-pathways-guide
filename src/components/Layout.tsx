@@ -1,6 +1,8 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Calendar, Users, BookOpen, User, Settings, Heart, Target, Shield, MessageCircle } from 'lucide-react';
+import RealtimeNotificationBell from '@/components/realtime/RealtimeNotificationBell';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -12,6 +14,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onProfileClick }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/' },
@@ -33,14 +36,17 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onPro
       <header className="bg-white dark:bg-slate-800 shadow-sm border-b border-gray-200 dark:border-slate-700">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
           <h1 className="text-xl font-bold text-blue-700 dark:text-blue-400">Serenity</h1>
-          {onProfileClick && (
-            <button
-              onClick={onProfileClick}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
-            >
-              <User className="h-6 w-6 text-gray-600 dark:text-gray-400" />
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {user && <RealtimeNotificationBell />}
+            {onProfileClick && (
+              <button
+                onClick={onProfileClick}
+                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+              >
+                <User className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+              </button>
+            )}
+          </div>
         </div>
       </header>
 

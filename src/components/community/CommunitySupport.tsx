@@ -17,6 +17,7 @@ import AnonymousForums from './AnonymousForums';
 import SuccessStories from './SuccessStories';
 import SponsorMatching from './SponsorMatching';
 import { CommunityChallenge } from './CommunityChallenge';
+import OnlineUsersIndicator from '@/components/realtime/OnlineUsersIndicator';
 import { useAuth } from '@/contexts/AuthContext';
 
 const CommunitySupport = () => {
@@ -29,10 +30,15 @@ const CommunitySupport = () => {
       <Card className="bg-gradient-to-r from-serenity-mint/20 to-serenity-sage/20 border-serenity-sage/30">
         <CardContent className="p-6">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-serenity-navy mb-2">Community Support</h2>
-            <p className="text-serenity-sage mb-4">
-              Connect anonymously with others on similar journeys in a safe, moderated space
-            </p>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-serenity-navy mb-2">Community Support</h2>
+                <p className="text-serenity-sage">
+                  Connect anonymously with others on similar journeys in a safe, moderated space
+                </p>
+              </div>
+              <OnlineUsersIndicator showDetails={false} />
+            </div>
             
             <div className="grid grid-cols-3 gap-4 max-w-md mx-auto">
               <div className="text-center">

@@ -1299,6 +1299,56 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_plan_access: {
+        Row: {
+          access_granted_at: string | null
+          access_level: string
+          created_at: string
+          expiry_date: string | null
+          id: string
+          invitation_sent_at: string | null
+          last_accessed_at: string | null
+          plan_id: string
+          provider_email: string
+          provider_name: string | null
+          user_id: string
+        }
+        Insert: {
+          access_granted_at?: string | null
+          access_level?: string
+          created_at?: string
+          expiry_date?: string | null
+          id?: string
+          invitation_sent_at?: string | null
+          last_accessed_at?: string | null
+          plan_id: string
+          provider_email: string
+          provider_name?: string | null
+          user_id: string
+        }
+        Update: {
+          access_granted_at?: string | null
+          access_level?: string
+          created_at?: string
+          expiry_date?: string | null
+          id?: string
+          invitation_sent_at?: string | null
+          last_accessed_at?: string | null
+          plan_id?: string
+          provider_email?: string
+          provider_name?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_plan_access_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "user_recovery_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       recovery_goals: {
         Row: {
           accountability_partner_id: string | null
@@ -1365,6 +1415,191 @@ export type Database = {
           title?: string
           unit?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      recovery_milestones: {
+        Row: {
+          achieved_date: string | null
+          achievement_criteria: string | null
+          celebration_data: Json | null
+          celebration_type: string | null
+          created_at: string
+          description: string | null
+          goal_id: string | null
+          id: string
+          is_achieved: boolean | null
+          milestone_date: string
+          plan_id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          achieved_date?: string | null
+          achievement_criteria?: string | null
+          celebration_data?: Json | null
+          celebration_type?: string | null
+          created_at?: string
+          description?: string | null
+          goal_id?: string | null
+          id?: string
+          is_achieved?: boolean | null
+          milestone_date: string
+          plan_id: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          achieved_date?: string | null
+          achievement_criteria?: string | null
+          celebration_data?: Json | null
+          celebration_type?: string | null
+          created_at?: string
+          description?: string | null
+          goal_id?: string | null
+          id?: string
+          is_achieved?: boolean | null
+          milestone_date?: string
+          plan_id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recovery_milestones_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "recovery_plan_goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recovery_milestones_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "user_recovery_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recovery_plan_goals: {
+        Row: {
+          category: string | null
+          completion_date: string | null
+          created_at: string
+          current_value: number | null
+          description: string | null
+          due_date: string | null
+          goal_type: string
+          id: string
+          next_reminder_date: string | null
+          notes: string | null
+          plan_id: string
+          priority_order: number | null
+          reminder_frequency: string | null
+          smart_criteria: Json
+          status: string
+          target_value: number | null
+          title: string
+          unit_of_measure: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          completion_date?: string | null
+          created_at?: string
+          current_value?: number | null
+          description?: string | null
+          due_date?: string | null
+          goal_type: string
+          id?: string
+          next_reminder_date?: string | null
+          notes?: string | null
+          plan_id: string
+          priority_order?: number | null
+          reminder_frequency?: string | null
+          smart_criteria?: Json
+          status?: string
+          target_value?: number | null
+          title: string
+          unit_of_measure?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          completion_date?: string | null
+          created_at?: string
+          current_value?: number | null
+          description?: string | null
+          due_date?: string | null
+          goal_type?: string
+          id?: string
+          next_reminder_date?: string | null
+          notes?: string | null
+          plan_id?: string
+          priority_order?: number | null
+          reminder_frequency?: string | null
+          smart_criteria?: Json
+          status?: string
+          target_value?: number | null
+          title?: string
+          unit_of_measure?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recovery_plan_goals_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "user_recovery_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recovery_plan_templates: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          difficulty_level: string
+          estimated_duration_weeks: number | null
+          evidence_based_source: string | null
+          id: string
+          is_default: boolean | null
+          template_data: Json
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          difficulty_level?: string
+          estimated_duration_weeks?: number | null
+          evidence_based_source?: string | null
+          id?: string
+          is_default?: boolean | null
+          template_data?: Json
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          difficulty_level?: string
+          estimated_duration_weeks?: number | null
+          evidence_based_source?: string | null
+          id?: string
+          is_default?: boolean | null
+          template_data?: Json
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1892,6 +2127,68 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_recovery_plans: {
+        Row: {
+          clinical_notes: string | null
+          completion_percentage: number | null
+          created_at: string
+          description: string | null
+          id: string
+          plan_data: Json
+          shared_with_partners: Json | null
+          shared_with_provider: boolean | null
+          start_date: string | null
+          status: string
+          target_completion_date: string | null
+          template_id: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          clinical_notes?: string | null
+          completion_percentage?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          plan_data?: Json
+          shared_with_partners?: Json | null
+          shared_with_provider?: boolean | null
+          start_date?: string | null
+          status?: string
+          target_completion_date?: string | null
+          template_id?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          clinical_notes?: string | null
+          completion_percentage?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          plan_data?: Json
+          shared_with_partners?: Json | null
+          shared_with_provider?: boolean | null
+          start_date?: string | null
+          status?: string
+          target_completion_date?: string | null
+          template_id?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_recovery_plans_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "recovery_plan_templates"
             referencedColumns: ["id"]
           },
         ]

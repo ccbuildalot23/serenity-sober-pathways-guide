@@ -220,6 +220,11 @@ function App() {
                 <IntegrationTesting />
               </ProtectedRoute>
             } />
+            <Route path="/compliance-management" element={
+              <ProtectedRoute>
+                <ComplianceManagement />
+              </ProtectedRoute>
+            } />
             {/* Commented out non-MVP routes - keeping for future use
             <Route path="/calendar" element={
               <ProtectedRoute>

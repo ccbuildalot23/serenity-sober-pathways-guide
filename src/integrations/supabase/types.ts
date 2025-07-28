@@ -311,6 +311,57 @@ export type Database = {
         }
         Relationships: []
       }
+      backup_verification_logs: {
+        Row: {
+          backup_date: string
+          backup_size_bytes: number | null
+          backup_type: string
+          created_at: string
+          error_details: Json | null
+          geographic_redundancy_verified: boolean | null
+          id: string
+          integrity_check_passed: boolean | null
+          next_verification_date: string | null
+          recovery_test_passed: boolean | null
+          verification_completed_at: string | null
+          verification_metrics: Json | null
+          verification_started_at: string
+          verification_status: string
+        }
+        Insert: {
+          backup_date: string
+          backup_size_bytes?: number | null
+          backup_type: string
+          created_at?: string
+          error_details?: Json | null
+          geographic_redundancy_verified?: boolean | null
+          id?: string
+          integrity_check_passed?: boolean | null
+          next_verification_date?: string | null
+          recovery_test_passed?: boolean | null
+          verification_completed_at?: string | null
+          verification_metrics?: Json | null
+          verification_started_at?: string
+          verification_status?: string
+        }
+        Update: {
+          backup_date?: string
+          backup_size_bytes?: number | null
+          backup_type?: string
+          created_at?: string
+          error_details?: Json | null
+          geographic_redundancy_verified?: boolean | null
+          id?: string
+          integrity_check_passed?: boolean | null
+          next_verification_date?: string | null
+          recovery_test_passed?: boolean | null
+          verification_completed_at?: string | null
+          verification_metrics?: Json | null
+          verification_started_at?: string
+          verification_status?: string
+        }
+        Relationships: []
+      }
       calendar_integrations: {
         Row: {
           access_token_encrypted: string | null
@@ -566,6 +617,153 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           title?: string
+        }
+        Relationships: []
+      }
+      compliance_audit_trails: {
+        Row: {
+          action_description: string
+          action_type: string
+          compliance_score_after: number | null
+          compliance_score_before: number | null
+          evidence_data: Json | null
+          id: string
+          metadata: Json | null
+          performed_by: string
+          requirement_id: string
+          timestamp: string
+        }
+        Insert: {
+          action_description: string
+          action_type: string
+          compliance_score_after?: number | null
+          compliance_score_before?: number | null
+          evidence_data?: Json | null
+          id?: string
+          metadata?: Json | null
+          performed_by: string
+          requirement_id: string
+          timestamp?: string
+        }
+        Update: {
+          action_description?: string
+          action_type?: string
+          compliance_score_after?: number | null
+          compliance_score_before?: number | null
+          evidence_data?: Json | null
+          id?: string
+          metadata?: Json | null
+          performed_by?: string
+          requirement_id?: string
+          timestamp?: string
+        }
+        Relationships: []
+      }
+      compliance_reports: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          critical_gaps: number | null
+          framework_scores: Json
+          generated_at: string
+          generated_by: string
+          high_priority_gaps: number | null
+          id: string
+          overall_compliance_score: number
+          report_data: Json
+          report_type: string
+          reporting_period_end: string
+          reporting_period_start: string
+          status: string
+          upcoming_deadlines: number | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          critical_gaps?: number | null
+          framework_scores?: Json
+          generated_at?: string
+          generated_by: string
+          high_priority_gaps?: number | null
+          id?: string
+          overall_compliance_score: number
+          report_data?: Json
+          report_type: string
+          reporting_period_end: string
+          reporting_period_start: string
+          status?: string
+          upcoming_deadlines?: number | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          critical_gaps?: number | null
+          framework_scores?: Json
+          generated_at?: string
+          generated_by?: string
+          high_priority_gaps?: number | null
+          id?: string
+          overall_compliance_score?: number
+          report_data?: Json
+          report_type?: string
+          reporting_period_end?: string
+          reporting_period_start?: string
+          status?: string
+          upcoming_deadlines?: number | null
+        }
+        Relationships: []
+      }
+      compliance_requirements: {
+        Row: {
+          assigned_to: string | null
+          category: string
+          compliance_status: string
+          created_at: string
+          description: string
+          due_date: string | null
+          evidence_required: string | null
+          id: string
+          implementation_notes: string | null
+          last_reviewed_at: string | null
+          next_review_date: string | null
+          priority_level: string
+          regulation_framework: string
+          requirement_name: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          category: string
+          compliance_status?: string
+          created_at?: string
+          description: string
+          due_date?: string | null
+          evidence_required?: string | null
+          id?: string
+          implementation_notes?: string | null
+          last_reviewed_at?: string | null
+          next_review_date?: string | null
+          priority_level?: string
+          regulation_framework: string
+          requirement_name: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          category?: string
+          compliance_status?: string
+          created_at?: string
+          description?: string
+          due_date?: string | null
+          evidence_required?: string | null
+          id?: string
+          implementation_notes?: string | null
+          last_reviewed_at?: string | null
+          next_review_date?: string | null
+          priority_level?: string
+          regulation_framework?: string
+          requirement_name?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1158,6 +1356,99 @@ export type Database = {
         }
         Relationships: []
       }
+      data_retention_policies: {
+        Row: {
+          auto_delete_enabled: boolean
+          created_at: string
+          created_by: string
+          data_type: string
+          deletion_method: string
+          id: string
+          is_active: boolean
+          jurisdiction: string
+          legal_hold_exempt: boolean
+          notification_days_before: number
+          policy_name: string
+          retention_period_days: number
+          updated_at: string
+        }
+        Insert: {
+          auto_delete_enabled?: boolean
+          created_at?: string
+          created_by: string
+          data_type: string
+          deletion_method?: string
+          id?: string
+          is_active?: boolean
+          jurisdiction?: string
+          legal_hold_exempt?: boolean
+          notification_days_before?: number
+          policy_name: string
+          retention_period_days: number
+          updated_at?: string
+        }
+        Update: {
+          auto_delete_enabled?: boolean
+          created_at?: string
+          created_by?: string
+          data_type?: string
+          deletion_method?: string
+          id?: string
+          is_active?: boolean
+          jurisdiction?: string
+          legal_hold_exempt?: boolean
+          notification_days_before?: number
+          policy_name?: string
+          retention_period_days?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      data_retention_schedules: {
+        Row: {
+          created_at: string
+          created_date: string
+          data_id: string
+          data_type: string
+          deletion_completed_at: string | null
+          deletion_status: string
+          id: string
+          legal_hold_applied: boolean
+          notification_sent_date: string | null
+          retention_policy_id: string
+          scheduled_deletion_date: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_date: string
+          data_id: string
+          data_type: string
+          deletion_completed_at?: string | null
+          deletion_status?: string
+          id?: string
+          legal_hold_applied?: boolean
+          notification_sent_date?: string | null
+          retention_policy_id: string
+          scheduled_deletion_date: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_date?: string
+          data_id?: string
+          data_type?: string
+          deletion_completed_at?: string | null
+          deletion_status?: string
+          id?: string
+          legal_hold_applied?: boolean
+          notification_sent_date?: string | null
+          retention_policy_id?: string
+          scheduled_deletion_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       editing_sessions: {
         Row: {
           editing_section: string | null
@@ -1481,6 +1772,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      incident_responses: {
+        Row: {
+          affected_systems: Json | null
+          affected_users_count: number | null
+          breach_confirmed: boolean | null
+          containment_actions: Json | null
+          created_at: string
+          data_types_affected: Json | null
+          detected_at: string
+          detected_by: string | null
+          detection_method: string
+          id: string
+          incident_description: string
+          incident_type: string
+          lessons_learned: string | null
+          notification_deadline: string | null
+          regulatory_notification_required: boolean | null
+          resolution_actions: Json | null
+          resolved_at: string | null
+          severity_level: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          affected_systems?: Json | null
+          affected_users_count?: number | null
+          breach_confirmed?: boolean | null
+          containment_actions?: Json | null
+          created_at?: string
+          data_types_affected?: Json | null
+          detected_at?: string
+          detected_by?: string | null
+          detection_method: string
+          id?: string
+          incident_description: string
+          incident_type: string
+          lessons_learned?: string | null
+          notification_deadline?: string | null
+          regulatory_notification_required?: boolean | null
+          resolution_actions?: Json | null
+          resolved_at?: string | null
+          severity_level: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          affected_systems?: Json | null
+          affected_users_count?: number | null
+          breach_confirmed?: boolean | null
+          containment_actions?: Json | null
+          created_at?: string
+          data_types_affected?: Json | null
+          detected_at?: string
+          detected_by?: string | null
+          detection_method?: string
+          id?: string
+          incident_description?: string
+          incident_type?: string
+          lessons_learned?: string | null
+          notification_deadline?: string | null
+          regulatory_notification_required?: boolean | null
+          resolution_actions?: Json | null
+          resolved_at?: string | null
+          severity_level?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       moderation_queue: {
         Row: {
@@ -3220,6 +3580,54 @@ export type Database = {
         }
         Relationships: []
       }
+      recovery_drill_schedules: {
+        Row: {
+          actual_recovery_time_minutes: number | null
+          completed_at: string | null
+          conducted_by: string | null
+          created_at: string
+          drill_name: string
+          drill_type: string
+          id: string
+          next_drill_date: string | null
+          results: Json | null
+          scheduled_date: string
+          status: string
+          success_criteria: Json
+          target_recovery_time_minutes: number
+        }
+        Insert: {
+          actual_recovery_time_minutes?: number | null
+          completed_at?: string | null
+          conducted_by?: string | null
+          created_at?: string
+          drill_name: string
+          drill_type: string
+          id?: string
+          next_drill_date?: string | null
+          results?: Json | null
+          scheduled_date: string
+          status?: string
+          success_criteria?: Json
+          target_recovery_time_minutes: number
+        }
+        Update: {
+          actual_recovery_time_minutes?: number | null
+          completed_at?: string | null
+          conducted_by?: string | null
+          created_at?: string
+          drill_name?: string
+          drill_type?: string
+          id?: string
+          next_drill_date?: string | null
+          results?: Json | null
+          scheduled_date?: string
+          status?: string
+          success_criteria?: Json
+          target_recovery_time_minutes?: number
+        }
+        Relationships: []
+      }
       recovery_goals: {
         Row: {
           accountability_partner_id: string | null
@@ -3644,6 +4052,51 @@ export type Database = {
           status?: string
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      regulatory_notifications: {
+        Row: {
+          confirmation_received: boolean | null
+          created_at: string
+          deadline: string
+          id: string
+          incident_id: string
+          jurisdiction: string
+          notification_content: string | null
+          notification_type: string
+          reference_number: string | null
+          regulator_name: string
+          status: string
+          submitted_at: string | null
+        }
+        Insert: {
+          confirmation_received?: boolean | null
+          created_at?: string
+          deadline: string
+          id?: string
+          incident_id: string
+          jurisdiction: string
+          notification_content?: string | null
+          notification_type: string
+          reference_number?: string | null
+          regulator_name: string
+          status?: string
+          submitted_at?: string | null
+        }
+        Update: {
+          confirmation_received?: boolean | null
+          created_at?: string
+          deadline?: string
+          id?: string
+          incident_id?: string
+          jurisdiction?: string
+          notification_content?: string | null
+          notification_type?: string
+          reference_number?: string | null
+          regulator_name?: string
+          status?: string
+          submitted_at?: string | null
         }
         Relationships: []
       }

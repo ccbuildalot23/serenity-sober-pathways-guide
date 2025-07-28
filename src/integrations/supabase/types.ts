@@ -85,6 +85,33 @@ export type Database = {
           },
         ]
       }
+      community_forums: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          title: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          title: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          title?: string
+        }
+        Relationships: []
+      }
       craving_logs: {
         Row: {
           checkin_id: string | null
@@ -517,6 +544,103 @@ export type Database = {
         }
         Relationships: []
       }
+      forum_posts: {
+        Row: {
+          anonymous_name: string
+          content: string
+          created_at: string
+          flagged_count: number | null
+          forum_id: string
+          id: string
+          is_moderated: boolean | null
+          last_activity: string | null
+          moderation_status: string | null
+          reply_count: number | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          anonymous_name: string
+          content: string
+          created_at?: string
+          flagged_count?: number | null
+          forum_id: string
+          id?: string
+          is_moderated?: boolean | null
+          last_activity?: string | null
+          moderation_status?: string | null
+          reply_count?: number | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          anonymous_name?: string
+          content?: string
+          created_at?: string
+          flagged_count?: number | null
+          forum_id?: string
+          id?: string
+          is_moderated?: boolean | null
+          last_activity?: string | null
+          moderation_status?: string | null
+          reply_count?: number | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_posts_forum_id_fkey"
+            columns: ["forum_id"]
+            isOneToOne: false
+            referencedRelation: "community_forums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      forum_replies: {
+        Row: {
+          anonymous_name: string
+          content: string
+          created_at: string
+          flagged_count: number | null
+          id: string
+          is_moderated: boolean | null
+          moderation_status: string | null
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          anonymous_name: string
+          content: string
+          created_at?: string
+          flagged_count?: number | null
+          id?: string
+          is_moderated?: boolean | null
+          moderation_status?: string | null
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          anonymous_name?: string
+          content?: string
+          created_at?: string
+          flagged_count?: number | null
+          id?: string
+          is_moderated?: boolean | null
+          moderation_status?: string | null
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_replies_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "forum_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       goal_progress: {
         Row: {
           confidence_rating: number | null
@@ -932,6 +1056,176 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sponsor_matches: {
+        Row: {
+          contact_initiated_at: string | null
+          created_at: string
+          id: string
+          match_score: number | null
+          matched_criteria: Json | null
+          sponsee_user_id: string
+          sponsor_user_id: string
+          status: string | null
+        }
+        Insert: {
+          contact_initiated_at?: string | null
+          created_at?: string
+          id?: string
+          match_score?: number | null
+          matched_criteria?: Json | null
+          sponsee_user_id: string
+          sponsor_user_id: string
+          status?: string | null
+        }
+        Update: {
+          contact_initiated_at?: string | null
+          created_at?: string
+          id?: string
+          match_score?: number | null
+          matched_criteria?: Json | null
+          sponsee_user_id?: string
+          sponsor_user_id?: string
+          status?: string | null
+        }
+        Relationships: []
+      }
+      sponsor_profiles: {
+        Row: {
+          bio: string | null
+          communication_style: string | null
+          created_at: string
+          current_sponsees: number | null
+          display_name: string
+          id: string
+          is_available: boolean | null
+          location_general: string | null
+          max_sponsees: number | null
+          meeting_preference: string | null
+          program_type: string
+          recovery_approach: string | null
+          updated_at: string
+          user_id: string
+          years_sober: number
+        }
+        Insert: {
+          bio?: string | null
+          communication_style?: string | null
+          created_at?: string
+          current_sponsees?: number | null
+          display_name: string
+          id?: string
+          is_available?: boolean | null
+          location_general?: string | null
+          max_sponsees?: number | null
+          meeting_preference?: string | null
+          program_type: string
+          recovery_approach?: string | null
+          updated_at?: string
+          user_id: string
+          years_sober: number
+        }
+        Update: {
+          bio?: string | null
+          communication_style?: string | null
+          created_at?: string
+          current_sponsees?: number | null
+          display_name?: string
+          id?: string
+          is_available?: boolean | null
+          location_general?: string | null
+          max_sponsees?: number | null
+          meeting_preference?: string | null
+          program_type?: string
+          recovery_approach?: string | null
+          updated_at?: string
+          user_id?: string
+          years_sober?: number
+        }
+        Relationships: []
+      }
+      story_interactions: {
+        Row: {
+          created_at: string
+          id: string
+          interaction_type: string
+          story_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          interaction_type: string
+          story_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          interaction_type?: string
+          story_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_interactions_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "success_stories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      success_stories: {
+        Row: {
+          anonymous_name: string | null
+          content: string
+          created_at: string
+          id: string
+          is_anonymous: boolean | null
+          is_featured: boolean | null
+          is_moderated: boolean | null
+          likes_count: number | null
+          moderation_status: string | null
+          recovery_duration_days: number | null
+          story_category: string
+          title: string
+          user_id: string
+          views_count: number | null
+        }
+        Insert: {
+          anonymous_name?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean | null
+          is_featured?: boolean | null
+          is_moderated?: boolean | null
+          likes_count?: number | null
+          moderation_status?: string | null
+          recovery_duration_days?: number | null
+          story_category: string
+          title: string
+          user_id: string
+          views_count?: number | null
+        }
+        Update: {
+          anonymous_name?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean | null
+          is_featured?: boolean | null
+          is_moderated?: boolean | null
+          likes_count?: number | null
+          moderation_status?: string | null
+          recovery_duration_days?: number | null
+          story_category?: string
+          title?: string
+          user_id?: string
+          views_count?: number | null
+        }
+        Relationships: []
       }
       support_contacts: {
         Row: {

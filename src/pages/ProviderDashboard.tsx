@@ -1,4 +1,4 @@
-// MVP Provider Dashboard - Requirement #5: Simple provider dashboard showing patient check-in patterns
+// Clinician/Provider Dashboard - For healthcare providers managing patient recovery
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +12,9 @@ import {
   Shield,
   Calendar,
   FileText,
-  Eye
+  Eye,
+  DollarSign,
+  CreditCard
 } from 'lucide-react';
 
 interface PatientCheckIn {
@@ -96,8 +98,9 @@ const ProviderDashboard = () => {
         <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                Provider Dashboard
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                <Activity className="w-8 h-8 text-blue-600" />
+                Clinician Dashboard
               </h1>
               <p className="mt-2 text-gray-600 dark:text-gray-400">
                 Patient Check-in Patterns & Recovery Monitoring
@@ -111,6 +114,10 @@ const ProviderDashboard = () => {
               <Badge variant="secondary">
                 {stats.totalPatients} Patients
               </Badge>
+              <Button variant="outline" className="flex items-center gap-2">
+                <CreditCard className="w-4 h-4" />
+                Billing Portal
+              </Button>
             </div>
           </div>
         </div>
@@ -265,6 +272,10 @@ const ProviderDashboard = () => {
                     <Button variant="outline" size="sm">
                       <FileText className="w-4 h-4 mr-1" />
                       Add Note
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <DollarSign className="w-4 h-4 mr-1" />
+                      View Billing
                     </Button>
                     {checkin.riskLevel === 'high' && (
                       <Button variant="destructive" size="sm">

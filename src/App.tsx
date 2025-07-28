@@ -6,7 +6,9 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import Home from '@/pages/Home';
 import Login from '@/pages/Login';
 import Auth from '@/pages/Auth';
-import Dashboard from '@/pages/Dashboard';
+import DashboardRouter from '@/components/DashboardRouter';
+import PatientDashboard from '@/pages/PatientDashboard';
+import SupportDashboard from '@/pages/SupportDashboard';
 import ProviderDashboard from '@/pages/ProviderDashboard';
 import CheckIn from '@/pages/CheckIn';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
@@ -33,7 +35,17 @@ function App() {
             <Route path="/auth" element={<Auth />} />
             <Route path="/" element={
               <ProtectedRoute>
-                <Dashboard />
+                <DashboardRouter />
+              </ProtectedRoute>
+            } />
+            <Route path="/patient" element={
+              <ProtectedRoute>
+                <PatientDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/support" element={
+              <ProtectedRoute>
+                <SupportDashboard />
               </ProtectedRoute>
             } />
             <Route path="/provider" element={

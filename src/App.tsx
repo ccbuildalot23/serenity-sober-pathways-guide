@@ -39,6 +39,7 @@ import Community from '@/pages/Community';
 import Moderation from '@/pages/Moderation';
 import TestDashboard from '@/pages/TestDashboard';
 import VoiceSupport from '@/pages/VoiceSupport';
+import ComplianceManagement from '@/pages/ComplianceManagement';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 // Commented out for MVP - keeping functionality but focusing on core features

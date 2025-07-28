@@ -1166,35 +1166,70 @@ export type Database = {
       peer_chat_messages: {
         Row: {
           created_at: string
+          deleted_at: string | null
+          delivered_at: string | null
+          edited_at: string | null
+          file_size: number | null
+          file_type: string | null
+          file_url: string | null
           id: string
           message_text: string
           message_type: string | null
+          reactions: Json | null
           read_at: string | null
+          reply_to_message_id: string | null
+          search_vector: unknown | null
           sender_id: string
           sender_type: string
           session_id: string
         }
         Insert: {
           created_at?: string
+          deleted_at?: string | null
+          delivered_at?: string | null
+          edited_at?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string | null
           id?: string
           message_text: string
           message_type?: string | null
+          reactions?: Json | null
           read_at?: string | null
+          reply_to_message_id?: string | null
+          search_vector?: unknown | null
           sender_id: string
           sender_type: string
           session_id: string
         }
         Update: {
           created_at?: string
+          deleted_at?: string | null
+          delivered_at?: string | null
+          edited_at?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string | null
           id?: string
           message_text?: string
           message_type?: string | null
+          reactions?: Json | null
           read_at?: string | null
+          reply_to_message_id?: string | null
+          search_vector?: unknown | null
           sender_id?: string
           sender_type?: string
           session_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "peer_chat_messages_reply_to_message_id_fkey"
+            columns: ["reply_to_message_id"]
+            isOneToOne: false
+            referencedRelation: "peer_chat_messages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       peer_chat_sessions: {
         Row: {
@@ -1277,6 +1312,79 @@ export type Database = {
         }
         Relationships: []
       }
+      peer_message_audit: {
+        Row: {
+          action: string
+          id: string
+          message_id: string
+          metadata: Json | null
+          new_content: string | null
+          old_content: string | null
+          timestamp: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          id?: string
+          message_id: string
+          metadata?: Json | null
+          new_content?: string | null
+          old_content?: string | null
+          timestamp?: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          id?: string
+          message_id?: string
+          metadata?: Json | null
+          new_content?: string | null
+          old_content?: string | null
+          timestamp?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "peer_message_audit_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "peer_chat_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      peer_message_bookmarks: {
+        Row: {
+          created_at: string
+          id: string
+          message_id: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_id: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_id?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "peer_message_bookmarks_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "peer_chat_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       peer_support_queue: {
         Row: {
           callback_phone: string | null
@@ -1322,6 +1430,33 @@ export type Database = {
           scheduled_time?: string | null
           user_id?: string
           wait_started_at?: string | null
+        }
+        Relationships: []
+      }
+      peer_supporter_presence: {
+        Row: {
+          custom_message: string | null
+          id: string
+          last_seen: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          custom_message?: string | null
+          id?: string
+          last_seen?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          custom_message?: string | null
+          id?: string
+          last_seen?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -3065,6 +3200,20 @@ export type Database = {
       notify_partner: {
         Args: { partner_id: string; notification_type: string; data: Json }
         Returns: undefined
+      }
+      search_peer_messages: {
+        Args: {
+          session_id_param: string
+          search_query: string
+          user_id_param: string
+        }
+        Returns: {
+          id: string
+          message_text: string
+          sender_type: string
+          created_at: string
+          rank: number
+        }[]
       }
     }
     Enums: {

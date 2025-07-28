@@ -1279,34 +1279,49 @@ export type Database = {
       }
       peer_support_queue: {
         Row: {
+          callback_phone: string | null
+          callback_requested: boolean | null
           created_at: string
           estimated_wait_minutes: number | null
           id: string
           issue_description: string | null
+          last_position_update: string | null
           preferred_supporter_id: string | null
           priority: string
           queue_position: number | null
+          scheduled_time: string | null
           user_id: string
+          wait_started_at: string | null
         }
         Insert: {
+          callback_phone?: string | null
+          callback_requested?: boolean | null
           created_at?: string
           estimated_wait_minutes?: number | null
           id?: string
           issue_description?: string | null
+          last_position_update?: string | null
           preferred_supporter_id?: string | null
           priority?: string
           queue_position?: number | null
+          scheduled_time?: string | null
           user_id: string
+          wait_started_at?: string | null
         }
         Update: {
+          callback_phone?: string | null
+          callback_requested?: boolean | null
           created_at?: string
           estimated_wait_minutes?: number | null
           id?: string
           issue_description?: string | null
+          last_position_update?: string | null
           preferred_supporter_id?: string | null
           priority?: string
           queue_position?: number | null
+          scheduled_time?: string | null
           user_id?: string
+          wait_started_at?: string | null
         }
         Relationships: []
       }
@@ -2979,6 +2994,10 @@ export type Database = {
       calculate_optimal_notification_time: {
         Args: { user_uuid: string }
         Returns: string
+      }
+      calculate_queue_wait_time: {
+        Args: { priority_level: string }
+        Returns: number
       }
       calculate_skill_mastery: {
         Args: { user_uuid: string; skill_category_param: string }

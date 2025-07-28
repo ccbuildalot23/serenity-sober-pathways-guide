@@ -5,11 +5,12 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { 
   Users, Clock, Star, MessageSquare, AlertTriangle, 
-  CheckCircle, UserCheck, Settings
+  CheckCircle, UserCheck, Settings, BarChart3
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import SupporterPerformanceDashboard from './SupporterPerformanceDashboard';
 
 interface QueueUser {
   id: string;
@@ -46,6 +47,7 @@ const SupporterDashboard = () => {
     is_available: false
   });
   const [loading, setLoading] = useState(false);
+  const [showPerformance, setShowPerformance] = useState(false);
 
   // Load supporter profile and stats
   const loadSupporterData = async () => {
@@ -189,6 +191,10 @@ const SupporterDashboard = () => {
     }
   };
 
+  if (showPerformance) {
+    return <SupporterPerformanceDashboard />;
+  }
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto p-4">
       <div className="flex justify-between items-center">
@@ -205,6 +211,14 @@ const SupporterDashboard = () => {
           <Badge variant={isAvailable ? "default" : "secondary"}>
             {isAvailable ? 'Online' : 'Offline'}
           </Badge>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowPerformance(true)}
+          >
+            <BarChart3 className="w-4 h-4 mr-1" />
+            Performance
+          </Button>
         </div>
       </div>
 

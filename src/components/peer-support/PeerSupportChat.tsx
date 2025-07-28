@@ -6,8 +6,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { 
   MessageSquare, Send, Phone, AlertTriangle, Star, Clock,
-  UserCheck, Users, Loader2, ThumbsUp, Calendar
+  UserCheck, Users, Loader2, ThumbsUp, Calendar, Video
 } from 'lucide-react';
+import VideoCallInterface from './VideoCallInterface';
+import EnhancedQueueManagement from './EnhancedQueueManagement';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -48,6 +50,7 @@ interface QueueStatus {
 const PeerSupportChat = () => {
   const { user } = useAuth();
   const [view, setView] = useState<'main' | 'queue' | 'chat' | 'rating' | 'video'>('main');
+  const [videoSession, setVideoSession] = useState<any>(null);
   const [currentSession, setCurrentSession] = useState<ChatSession | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -297,41 +300,7 @@ const PeerSupportChat = () => {
   };
 
   if (view === 'queue') {
-    return (
-      <Card className="max-w-md mx-auto">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="w-5 h-5 text-blue-600" />
-            In Support Queue
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="text-center">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-            <p className="text-lg font-medium">Connecting you with a peer supporter...</p>
-          </div>
-          
-          {queueStatus && (
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <p className="text-sm text-blue-800">
-                Position in queue: <span className="font-bold">{queueStatus.queue_position}</span>
-              </p>
-              <p className="text-sm text-blue-800">
-                Estimated wait: <span className="font-bold">{queueStatus.estimated_wait_minutes} minutes</span>
-              </p>
-            </div>
-          )}
-
-          <Button 
-            variant="outline" 
-            className="w-full"
-            onClick={() => setView('main')}
-          >
-            Leave Queue
-          </Button>
-        </CardContent>
-      </Card>
-    );
+    return <EnhancedQueueManagement />;
   }
 
   if (view === 'chat' && currentSession) {
@@ -354,6 +323,14 @@ const PeerSupportChat = () => {
                 </div>
               </div>
               <div className="flex gap-2">
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => setView('video')}
+                >
+                  <Video className="w-4 h-4 mr-1" />
+                  Video
+                </Button>
                 <Button 
                   size="sm" 
                   variant="destructive"

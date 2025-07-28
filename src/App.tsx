@@ -24,6 +24,7 @@ import RegulatoryCompliance from '@/pages/RegulatoryCompliance';
 import PeerSupervision from '@/pages/PeerSupervision';
 import PracticeManagement from '@/pages/PracticeManagement';
 import RoleManagement from '@/components/admin/RoleManagement';
+import CrisisIntervention from '@/pages/CrisisIntervention';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 // Commented out for MVP - keeping functionality but focusing on core features
@@ -129,6 +130,11 @@ function App() {
             <Route path="/role-management" element={
               <ProtectedRoute>
                 <RoleManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/crisis-intervention" element={
+              <ProtectedRoute>
+                <CrisisIntervention />
               </ProtectedRoute>
             } />
             

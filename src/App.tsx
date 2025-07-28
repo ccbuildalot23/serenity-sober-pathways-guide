@@ -18,6 +18,7 @@ import PeerSupport from '@/pages/PeerSupport';
 import Motivation from '@/pages/Motivation';
 import AccountabilityPartners from '@/pages/AccountabilityPartners';
 import RecoveryPlanning from '@/pages/RecoveryPlanning';
+import RelapsePreventionPage from '@/pages/RelapsePrevention';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 // Commented out for MVP - keeping functionality but focusing on core features
@@ -93,6 +94,11 @@ function App() {
             <Route path="/planning" element={
               <ProtectedRoute>
                 <RecoveryPlanning />
+              </ProtectedRoute>
+            } />
+            <Route path="/relapse-prevention" element={
+              <ProtectedRoute>
+                <RelapsePreventionPage />
               </ProtectedRoute>
             } />
             

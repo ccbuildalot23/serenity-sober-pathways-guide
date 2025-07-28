@@ -56,6 +56,228 @@ export type Database = {
         }
         Relationships: []
       }
+      appointment_change_requests: {
+        Row: {
+          appointment_id: string
+          created_at: string
+          id: string
+          new_end_time: string | null
+          new_start_time: string | null
+          provider_response: string | null
+          reason: string | null
+          request_type: string
+          requested_by: string
+          responded_at: string | null
+          status: string
+        }
+        Insert: {
+          appointment_id: string
+          created_at?: string
+          id?: string
+          new_end_time?: string | null
+          new_start_time?: string | null
+          provider_response?: string | null
+          reason?: string | null
+          request_type: string
+          requested_by: string
+          responded_at?: string | null
+          status?: string
+        }
+        Update: {
+          appointment_id?: string
+          created_at?: string
+          id?: string
+          new_end_time?: string | null
+          new_start_time?: string | null
+          provider_response?: string | null
+          reason?: string | null
+          request_type?: string
+          requested_by?: string
+          responded_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      appointment_reminders: {
+        Row: {
+          appointment_id: string
+          created_at: string
+          error_message: string | null
+          id: string
+          message_content: string | null
+          reminder_method: string
+          reminder_type: string
+          scheduled_for: string
+          sent_at: string | null
+          status: string
+        }
+        Insert: {
+          appointment_id: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          message_content?: string | null
+          reminder_method: string
+          reminder_type: string
+          scheduled_for: string
+          sent_at?: string | null
+          status?: string
+        }
+        Update: {
+          appointment_id?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          message_content?: string | null
+          reminder_method?: string
+          reminder_type?: string
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      appointment_waitlist: {
+        Row: {
+          appointment_type: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          notes: string | null
+          notified_at: string | null
+          patient_id: string
+          preferred_date: string | null
+          preferred_time_end: string | null
+          preferred_time_start: string | null
+          priority_level: number | null
+          provider_id: string
+          status: string
+        }
+        Insert: {
+          appointment_type?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          notes?: string | null
+          notified_at?: string | null
+          patient_id: string
+          preferred_date?: string | null
+          preferred_time_end?: string | null
+          preferred_time_start?: string | null
+          priority_level?: number | null
+          provider_id: string
+          status?: string
+        }
+        Update: {
+          appointment_type?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          notes?: string | null
+          notified_at?: string | null
+          patient_id?: string
+          preferred_date?: string | null
+          preferred_time_end?: string | null
+          preferred_time_start?: string | null
+          priority_level?: number | null
+          provider_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      appointments: {
+        Row: {
+          appointment_type: string
+          base_fee: number | null
+          booking_notes: string | null
+          cancelled_at: string | null
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          duration_minutes: number
+          end_time: string
+          id: string
+          is_recurring: boolean | null
+          late_cancellation_fee: number | null
+          location_details: Json | null
+          location_type: string
+          no_show_fee: number | null
+          parent_appointment_id: string | null
+          patient_id: string
+          pre_appointment_forms: Json | null
+          provider_id: string
+          provider_notes: string | null
+          recurrence_pattern: Json | null
+          session_notes: string | null
+          start_time: string
+          status: string
+          title: string | null
+          updated_at: string
+          video_link: string | null
+          waiting_room_enabled: boolean | null
+        }
+        Insert: {
+          appointment_type?: string
+          base_fee?: number | null
+          booking_notes?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          end_time: string
+          id?: string
+          is_recurring?: boolean | null
+          late_cancellation_fee?: number | null
+          location_details?: Json | null
+          location_type?: string
+          no_show_fee?: number | null
+          parent_appointment_id?: string | null
+          patient_id: string
+          pre_appointment_forms?: Json | null
+          provider_id: string
+          provider_notes?: string | null
+          recurrence_pattern?: Json | null
+          session_notes?: string | null
+          start_time: string
+          status?: string
+          title?: string | null
+          updated_at?: string
+          video_link?: string | null
+          waiting_room_enabled?: boolean | null
+        }
+        Update: {
+          appointment_type?: string
+          base_fee?: number | null
+          booking_notes?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          end_time?: string
+          id?: string
+          is_recurring?: boolean | null
+          late_cancellation_fee?: number | null
+          location_details?: Json | null
+          location_type?: string
+          no_show_fee?: number | null
+          parent_appointment_id?: string | null
+          patient_id?: string
+          pre_appointment_forms?: Json | null
+          provider_id?: string
+          provider_notes?: string | null
+          recurrence_pattern?: Json | null
+          session_notes?: string | null
+          start_time?: string
+          status?: string
+          title?: string | null
+          updated_at?: string
+          video_link?: string | null
+          waiting_room_enabled?: boolean | null
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -85,6 +307,48 @@ export type Database = {
           session_id?: string | null
           timestamp?: string
           user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      calendar_integrations: {
+        Row: {
+          access_token_encrypted: string | null
+          calendar_id: string | null
+          created_at: string
+          id: string
+          integration_type: string
+          last_sync_at: string | null
+          refresh_token_encrypted: string | null
+          sync_enabled: boolean | null
+          sync_settings: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token_encrypted?: string | null
+          calendar_id?: string | null
+          created_at?: string
+          id?: string
+          integration_type: string
+          last_sync_at?: string | null
+          refresh_token_encrypted?: string | null
+          sync_enabled?: boolean | null
+          sync_settings?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token_encrypted?: string | null
+          calendar_id?: string | null
+          created_at?: string
+          id?: string
+          integration_type?: string
+          last_sync_at?: string | null
+          refresh_token_encrypted?: string | null
+          sync_enabled?: boolean | null
+          sync_settings?: Json | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -3484,6 +3748,15 @@ export type Database = {
         Args: { user_uuid: string; skill_category_param: string }
         Returns: string
       }
+      check_appointment_conflicts: {
+        Args: {
+          p_provider_id: string
+          p_start_time: string
+          p_end_time: string
+          p_exclude_appointment_id?: string
+        }
+        Returns: boolean
+      }
       check_badge_eligibility: {
         Args: { user_uuid: string; badge_name_param: string }
         Returns: boolean
@@ -3499,6 +3772,18 @@ export type Database = {
       generate_daily_insights: {
         Args: Record<PropertyKey, never> | { user_uuid: string }
         Returns: undefined
+      }
+      get_available_slots: {
+        Args: {
+          p_provider_id: string
+          p_date: string
+          p_duration_minutes?: number
+        }
+        Returns: {
+          slot_start: string
+          slot_end: string
+          is_available: boolean
+        }[]
       }
       get_current_user_role: {
         Args: Record<PropertyKey, never>

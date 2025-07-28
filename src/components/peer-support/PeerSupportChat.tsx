@@ -6,19 +6,33 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { 
   MessageSquare, Send, Phone, AlertTriangle, Star, Clock,
-  UserCheck, Users, Loader2, ThumbsUp, Calendar, Video
+  UserCheck, Users, Loader2, ThumbsUp, Calendar, Video,
+  Paperclip, Smile
 } from 'lucide-react';
 import VideoCallInterface from './VideoCallInterface';
 import EnhancedQueueManagement from './EnhancedQueueManagement';
+import { EnhancedMessage } from './EnhancedMessage';
+import { MessageSearch } from './MessageSearch';
+import { TypingIndicator } from './TypingIndicator';
+import { PresenceIndicator } from './PresenceIndicator';
+import { useRealtimePeerChat } from '@/hooks/useRealtimePeerChat';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
-interface ChatMessage {
+interface EnhancedChatMessage {
   id: string;
   message_text: string;
   sender_type: string;
+  sender_id: string;
   created_at: string;
+  edited_at?: string;
+  deleted_at?: string;
+  reply_to_message_id?: string;
+  reactions?: Record<string, string[]>;
+  file_url?: string;
+  file_type?: string;
+  delivered_at?: string;
   read_at?: string;
 }
 
@@ -52,14 +66,44 @@ const PeerSupportChat = () => {
   const [view, setView] = useState<'main' | 'queue' | 'chat' | 'rating' | 'video'>('main');
   const [videoSession, setVideoSession] = useState<any>(null);
   const [currentSession, setCurrentSession] = useState<ChatSession | null>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<EnhancedChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [queueStatus, setQueueStatus] = useState<QueueStatus | null>(null);
-  const [typingIndicator, setTypingIndicator] = useState(false);
   const [loading, setLoading] = useState(false);
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
+  const [replyToMessage, setReplyToMessage] = useState<EnhancedChatMessage | null>(null);
+  const [fileUpload, setFileUpload] = useState<File | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Real-time chat hook
+  const {
+    isConnected,
+    typingUsers,
+    presenceData,
+    sendMessage: sendRealtimeMessage,
+    editMessage,
+    deleteMessage,
+    addReaction,
+    removeReaction,
+    bookmarkMessage,
+    markMessageAsRead,
+    updateTypingStatus,
+    updatePresence
+  } = useRealtimePeerChat({
+    sessionId: currentSession?.id || null,
+    onMessageReceived: (message) => {
+      setMessages(prev => [...prev, message]);
+      // Mark as read if not from current user
+      if (message.sender_id !== user?.id) {
+        markMessageAsRead(message.id);
+      }
+    },
+    onTypingUpdate: (users) => {
+      console.log('Typing users:', users);
+    }
+  });
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -153,23 +197,34 @@ const PeerSupportChat = () => {
     return () => clearInterval(interval);
   };
 
-  // Send message
+  // Send message with enhanced features
   const sendMessage = async () => {
-    if (!newMessage.trim() || !currentSession) return;
+    if (!newMessage.trim() && !fileUpload) return;
 
     try {
-      const { error } = await supabase
-        .from('peer_chat_messages')
-        .insert({
-          session_id: currentSession.id,
-          sender_id: user!.id,
-          sender_type: 'user',
-          message_text: newMessage.trim()
-        });
+      let fileData;
+      if (fileUpload) {
+        // In a real app, you'd upload to storage first
+        fileData = {
+          url: URL.createObjectURL(fileUpload),
+          type: fileUpload.type,
+          size: fileUpload.size
+        };
+      }
 
-      if (error) throw error;
+      await sendRealtimeMessage(
+        newMessage.trim() || `Shared ${fileUpload?.name}`,
+        fileUpload ? 'file' : 'text',
+        replyToMessage?.id,
+        fileData
+      );
 
       setNewMessage('');
+      setReplyToMessage(null);
+      setFileUpload(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     } catch (error: any) {
       toast.error(`Failed to send message: ${error.message}`);
     }
@@ -185,7 +240,7 @@ const PeerSupportChat = () => {
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setMessages((data || []) as ChatMessage[]);
+      setMessages((data || []) as EnhancedChatMessage[]);
     } catch (error: any) {
       toast.error(`Failed to load messages: ${error.message}`);
     }
@@ -208,7 +263,12 @@ const PeerSupportChat = () => {
           filter: `session_id=eq.${currentSession.id}`
         },
         (payload) => {
-          setMessages(prev => [...prev, payload.new as ChatMessage]);
+          const newMessage = payload.new as EnhancedChatMessage;
+          setMessages(prev => {
+            // Avoid duplicates from real-time hook
+            if (prev.some(m => m.id === newMessage.id)) return prev;
+            return [...prev, newMessage];
+          });
         }
       )
       .subscribe();
@@ -311,8 +371,18 @@ const PeerSupportChat = () => {
             <div className="flex justify-between items-center">
               <div>
                 <CardTitle className="flex items-center gap-2">
+                  <PresenceIndicator 
+                    status="online" 
+                    size="sm"
+                  />
                   <UserCheck className="w-5 h-5 text-green-600" />
                   {currentSession.supporter?.display_name || 'Peer Supporter'}
+                  <Badge 
+                    variant="secondary" 
+                    className={`text-xs ${isConnected ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
+                  >
+                    {isConnected ? 'Connected' : 'Connecting...'}
+                  </Badge>
                 </CardTitle>
                 <div className="flex gap-2 mt-1">
                   {currentSession.supporter?.specialties?.map((specialty) => (
@@ -323,6 +393,7 @@ const PeerSupportChat = () => {
                 </div>
               </div>
               <div className="flex gap-2">
+                <MessageSearch sessionId={currentSession.id} />
                 <Button 
                   size="sm" 
                   variant="outline"
@@ -351,50 +422,142 @@ const PeerSupportChat = () => {
           </CardHeader>
 
           <CardContent className="flex-1 flex flex-col p-4">
-            <div className="flex-1 overflow-y-auto space-y-3 mb-4">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.sender_type === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[70%] p-3 rounded-lg ${
-                      message.sender_type === 'user'
-                        ? 'bg-blue-600 text-white ml-4'
-                        : 'bg-gray-100 text-gray-900 mr-4'
-                    }`}
-                  >
-                    <p className="text-sm">{message.message_text}</p>
-                    <p className="text-xs opacity-70 mt-1">
-                      {new Date(message.created_at).toLocaleTimeString()}
+            {/* Reply indicator */}
+            {replyToMessage && (
+              <div className="mb-3 p-2 bg-blue-50 border-l-4 border-blue-500 rounded">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <p className="text-xs text-blue-600 font-medium mb-1">
+                      Replying to {replyToMessage.sender_type}
+                    </p>
+                    <p className="text-sm text-blue-700 truncate">
+                      {replyToMessage.message_text}
                     </p>
                   </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setReplyToMessage(null)}
+                    className="ml-2 h-6 w-6 p-0"
+                  >
+                    ×
+                  </Button>
                 </div>
-              ))}
+              </div>
+            )}
+
+            <div className="flex-1 overflow-y-auto space-y-1 mb-4">
+              {messages.map((message) => {
+                const replyTo = message.reply_to_message_id 
+                  ? messages.find(m => m.id === message.reply_to_message_id)
+                  : undefined;
+
+                return (
+                  <EnhancedMessage
+                    key={message.id}
+                    message={message}
+                    currentUserId={user?.id || ''}
+                    isOwn={message.sender_id === user?.id}
+                    onEdit={editMessage}
+                    onDelete={deleteMessage}
+                    onReply={(messageId) => {
+                      const msg = messages.find(m => m.id === messageId);
+                      if (msg) setReplyToMessage(msg);
+                    }}
+                    onReaction={(messageId, emoji) => {
+                      // Check if user already reacted
+                      const msg = messages.find(m => m.id === messageId);
+                      const hasReacted = msg?.reactions?.[emoji]?.includes(user?.id || '');
+                      
+                      if (hasReacted) {
+                        removeReaction(messageId, emoji);
+                      } else {
+                        addReaction(messageId, emoji);
+                      }
+                    }}
+                    onBookmark={bookmarkMessage}
+                    replyToMessage={replyTo}
+                  />
+                );
+              })}
               
-              {typingIndicator && (
-                <div className="flex justify-start">
-                  <div className="bg-gray-100 p-3 rounded-lg mr-4">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></div>
-                    </div>
-                  </div>
-                </div>
-              )}
+              <TypingIndicator 
+                typingUsers={typingUsers} 
+                className="px-4"
+              />
+              
               <div ref={messagesEndRef} />
             </div>
 
+            {/* File upload preview */}
+            {fileUpload && (
+              <div className="mb-2 p-2 bg-gray-50 rounded border flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Paperclip className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm text-gray-700 truncate">
+                    {fileUpload.name}
+                  </span>
+                  <Badge variant="secondary" className="text-xs">
+                    {(fileUpload.size / 1024 / 1024).toFixed(1)}MB
+                  </Badge>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => {
+                    setFileUpload(null);
+                    if (fileInputRef.current) fileInputRef.current.value = '';
+                  }}
+                >
+                  ×
+                </Button>
+              </div>
+            )}
+
             <div className="flex gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept="image/*,.pdf,.doc,.docx,.txt"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) setFileUpload(file);
+                }}
+              />
+              
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                className="px-2"
+              >
+                <Paperclip className="w-4 h-4" />
+              </Button>
+
               <Input
                 value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
+                onChange={(e) => {
+                  setNewMessage(e.target.value);
+                  // Update typing status
+                  if (e.target.value.trim()) {
+                    updateTypingStatus(true);
+                  } else {
+                    updateTypingStatus(false);
+                  }
+                }}
                 placeholder="Type your message..."
-                onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
+                onBlur={() => updateTypingStatus(false)}
                 className="flex-1"
               />
-              <Button onClick={sendMessage} disabled={!newMessage.trim()}>
+              
+              <Button onClick={sendMessage} disabled={!newMessage.trim() && !fileUpload}>
                 <Send className="w-4 h-4" />
               </Button>
             </div>

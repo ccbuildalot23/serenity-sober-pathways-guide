@@ -461,6 +461,36 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_quotes: {
+        Row: {
+          author: string | null
+          category: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          quote_text: string
+          tags: Json | null
+        }
+        Insert: {
+          author?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          quote_text: string
+          tags?: Json | null
+        }
+        Update: {
+          author?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          quote_text?: string
+          tags?: Json | null
+        }
+        Relationships: []
+      }
       emergency_contacts: {
         Row: {
           created_at: string
@@ -1014,6 +1044,48 @@ export type Database = {
           scheduled_at?: string
           session_notes?: string | null
           status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      personal_motivations: {
+        Row: {
+          content: string
+          content_type: string
+          created_at: string
+          id: string
+          image_url: string | null
+          is_favorite: boolean | null
+          source: string | null
+          tags: Json | null
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          content_type: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_favorite?: boolean | null
+          source?: string | null
+          tags?: Json | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          content_type?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_favorite?: boolean | null
+          source?: string | null
+          tags?: Json | null
+          title?: string | null
           updated_at?: string
           user_id?: string
         }

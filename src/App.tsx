@@ -15,6 +15,7 @@ import SupportDashboard from '@/pages/SupportDashboard';
 import ProviderDashboard from '@/pages/ProviderDashboard';
 import CheckIn from '@/pages/CheckIn';
 import PeerSupport from '@/pages/PeerSupport';
+import Motivation from '@/pages/Motivation';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 // Commented out for MVP - keeping functionality but focusing on core features
@@ -75,6 +76,11 @@ function App() {
             <Route path="/peer-support" element={
               <ProtectedRoute>
                 <PeerSupport />
+              </ProtectedRoute>
+            } />
+            <Route path="/motivation" element={
+              <ProtectedRoute>
+                <Motivation />
               </ProtectedRoute>
             } />
             

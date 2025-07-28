@@ -14,8 +14,13 @@ import {
   Users, 
   BookOpen,
   CheckCircle,
-  AlertTriangle
+  AlertTriangle,
+  Clock,
+  Activity,
+  UserCheck,
+  PhoneCall
 } from 'lucide-react';
+import { format, parseISO } from 'date-fns';
 
 const PatientDashboard = () => {
   const { stats, profile, loading } = useDashboardData();
@@ -56,7 +61,7 @@ const PatientDashboard = () => {
 
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -74,11 +79,26 @@ const PatientDashboard = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Check-ins</p>
+                  <p className="text-sm font-medium text-muted-foreground">Total Check-ins</p>
                   <p className="text-3xl font-bold text-foreground">{stats.checkIns}</p>
                   <p className="text-xs text-muted-foreground">completed</p>
                 </div>
                 <CheckCircle className="w-8 h-8 text-blue-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Support Network</p>
+                  <p className="text-3xl font-bold text-foreground">{stats.supportNetwork.totalMembers}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {stats.supportNetwork.activeMembers} active this month
+                  </p>
+                </div>
+                <Users className="w-8 h-8 text-purple-600" />
               </div>
             </CardContent>
           </Card>
@@ -93,7 +113,83 @@ const PatientDashboard = () => {
                   </p>
                   <p className="text-xs text-muted-foreground">goals achieved</p>
                 </div>
-                <Calendar className="w-8 h-8 text-purple-600" />
+                <Calendar className="w-8 h-8 text-orange-600" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Recent Activity Overview */}
+        <div className="grid md:grid-cols-2 gap-6 mb-8">
+          {/* Recent Check-ins */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="w-5 h-5" />
+                Recent Check-ins (Last 7 Days)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {stats.recentCheckins.length > 0 ? (
+                <div className="space-y-3">
+                  {stats.recentCheckins.slice(0, 5).map((checkin, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium">
+                          {format(parseISO(checkin.date), 'MMM d')}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Mood: {checkin.mood_rating?.toFixed(1) || 'N/A'}/10
+                        </p>
+                      </div>
+                      <Badge variant={checkin.is_complete ? "default" : "secondary"}>
+                        {checkin.is_complete ? "Complete" : "Incomplete"}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-center py-4">
+                  No recent check-ins found
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Crisis Status */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="w-5 w-5" />
+                Safety Status
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Crisis Events</span>
+                  <Badge variant={stats.crisisAlerts.total === 0 ? "default" : "destructive"}>
+                    {stats.crisisAlerts.total} total
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Resolved Events</span>
+                  <Badge variant="secondary">
+                    {stats.crisisAlerts.resolved} resolved
+                  </Badge>
+                </div>
+                {stats.crisisAlerts.recent.length > 0 && (
+                  <div className="pt-2 border-t">
+                    <p className="text-xs text-muted-foreground mb-2">Recent Events:</p>
+                    {stats.crisisAlerts.recent.map((alert) => (
+                      <div key={alert.id} className="text-xs mb-1">
+                        {format(parseISO(alert.created_at), 'MMM d')} - 
+                        Risk: {alert.risk_level || 'Unknown'}
+                        {alert.crisis_resolved && <span className="text-green-600 ml-1">✓</span>}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -124,46 +220,97 @@ const PatientDashboard = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="w-5 h-5" />
-                Support Network
+                Support Network ({stats.supportNetwork.totalMembers})
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground mb-4">
-                Manage your support circle and privacy settings.
-              </p>
-              <Button variant="outline" className="w-full">
-                Manage Support Network
-              </Button>
+              {stats.supportNetwork.members.length > 0 ? (
+                <div className="space-y-3">
+                  {stats.supportNetwork.members.slice(0, 3).map((member) => (
+                    <div key={member.id} className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium">{member.name}</p>
+                        <p className="text-xs text-muted-foreground">{member.relationship}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {member.is_emergency_contact && (
+                          <Badge variant="destructive" className="text-xs">Emergency</Badge>
+                        )}
+                        {member.last_contacted && (
+                          <UserCheck className="w-4 h-4 text-green-500" />
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  <Link to="/support">
+                    <Button variant="outline" className="w-full mt-3">
+                      Manage Support Network
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <div>
+                  <p className="text-muted-foreground mb-4">
+                    No support network members added yet.
+                  </p>
+                  <Link to="/support">
+                    <Button className="w-full">
+                      Add Support Members
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Privacy & Resources */}
-        <div className="grid md:grid-cols-2 gap-6">
+        {/* Upcoming Appointments & Resources */}
+        <div className="grid md:grid-cols-2 gap-6 mb-8">
+          {/* Appointments Section */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Shield className="w-5 h-5" />
-                Privacy Controls
+                <Clock className="w-5 h-5" />
+                Upcoming Appointments
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Data Sharing</span>
-                  <Badge variant="secondary">Limited</Badge>
+              {stats.upcomingAppointments.length > 0 ? (
+                <div className="space-y-3">
+                  {stats.upcomingAppointments.map((appointment) => (
+                    <div key={appointment.id} className="border rounded-lg p-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium">{appointment.title}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {format(parseISO(appointment.scheduled_at), 'MMM d, h:mm a')}
+                          </p>
+                          {appointment.provider_name && (
+                            <p className="text-xs text-muted-foreground">
+                              with {appointment.provider_name}
+                            </p>
+                          )}
+                        </div>
+                        <Badge variant="outline">
+                          {appointment.type || 'Appointment'}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Support Access</span>
-                  <Badge variant="outline">Controlled</Badge>
+              ) : (
+                <div className="text-center py-6">
+                  <Calendar className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground">No upcoming appointments</p>
+                  <Button variant="outline" size="sm" className="mt-2">
+                    Schedule Appointment
+                  </Button>
                 </div>
-                <Button variant="outline" size="sm" className="w-full">
-                  Manage Privacy Settings
-                </Button>
-              </div>
+              )}
             </CardContent>
           </Card>
 
+          {/* Recovery Resources */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -173,15 +320,68 @@ const PatientDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
+                <Link to="/checkin/history">
+                  <Button variant="outline" size="sm" className="w-full justify-start">
+                    📊 View Check-in History
+                  </Button>
+                </Link>
                 <Button variant="outline" size="sm" className="w-full justify-start">
-                  CBT Skills Library
+                  🧠 CBT Skills Library
                 </Button>
                 <Button variant="outline" size="sm" className="w-full justify-start">
-                  Mindfulness Exercises
+                  🧘 Mindfulness Exercises
                 </Button>
                 <Button variant="outline" size="sm" className="w-full justify-start">
-                  Serenity Resources
+                  📚 Serenity Resources
                 </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Privacy Controls */}
+        <div className="grid md:grid-cols-1 gap-6 mb-8">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="w-5 h-5" />
+                Privacy & Safety Controls
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Crisis Alerts</span>
+                    <Badge variant={profile?.enable_crisis_alerts ? "default" : "secondary"}>
+                      {profile?.enable_crisis_alerts ? "Enabled" : "Disabled"}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Support Access</span>
+                    <Badge variant="outline">Controlled</Badge>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Data Sharing</span>
+                    <Badge variant="secondary">Limited</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Recovery Date</span>
+                    <span className="text-xs text-muted-foreground">
+                      {profile?.recovery_start_date ? 
+                        format(parseISO(profile.recovery_start_date), 'MMM yyyy') : 
+                        'Not set'
+                      }
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <Button variant="outline" size="sm" className="w-full">
+                    Manage Privacy Settings
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

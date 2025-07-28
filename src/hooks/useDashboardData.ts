@@ -1,25 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { dashboardDataService } from '@/services/dashboardDataService';
+import { dashboardDataService, DashboardStats, UserProfile } from '@/services/dashboardDataService';
 import { toast } from 'sonner';
-
-interface DashboardStats {
-  streak: number;
-  checkIns: number;
-  goals: { completed: number; total: number };
-}
-
-interface UserProfile {
-  full_name?: string;
-  email?: string;
-}
 
 export const useDashboardData = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     streak: 0,
     checkIns: 0,
-    goals: { completed: 0, total: 0 }
+    goals: { completed: 0, total: 0 },
+    recentCheckins: [],
+    crisisAlerts: { total: 0, resolved: 0, recent: [] },
+    supportNetwork: { totalMembers: 0, activeMembers: 0, members: [] },
+    upcomingAppointments: []
   });
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,7 +44,11 @@ export const useDashboardData = () => {
       setStats({
         streak: 0,
         checkIns: 0,
-        goals: { completed: 0, total: 0 }
+        goals: { completed: 0, total: 0 },
+        recentCheckins: [],
+        crisisAlerts: { total: 0, resolved: 0, recent: [] },
+        supportNetwork: { totalMembers: 0, activeMembers: 0, members: [] },
+        upcomingAppointments: []
       });
     } finally {
       setLoading(false);

@@ -27,6 +27,8 @@ import PeerSupervision from '@/pages/PeerSupervision';
 import PracticeManagement from '@/pages/PracticeManagement';
 import RoleManagement from '@/components/admin/RoleManagement';
 import CrisisIntervention from '@/pages/CrisisIntervention';
+import MobileCrisis from '@/pages/MobileCrisis';
+import MobileCrisisDemo from '@/components/demo/MobileCrisisDemo';
 import HIPAASecurityDashboard from '@/pages/HIPAASecurityDashboard';
 import Community from '@/pages/Community';
 import Moderation from '@/pages/Moderation';
@@ -144,6 +146,18 @@ function App() {
             <Route path="/crisis-intervention" element={
               <ProtectedRoute>
                 <CrisisIntervention />
+              </ProtectedRoute>
+            } />
+            <Route path="/mobile-crisis" element={
+              <ProtectedRoute>
+                <MobileCrisis />
+              </ProtectedRoute>
+            } />
+            <Route path="/demo/mobile-crisis" element={
+              <ProtectedRoute>
+                <div className="min-h-screen bg-background">
+                  <MobileCrisisDemo />
+                </div>
               </ProtectedRoute>
             } />
             <Route path="/hipaa-security" element={

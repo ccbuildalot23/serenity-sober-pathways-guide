@@ -1562,6 +1562,153 @@ export type Database = {
           },
         ]
       }
+      notification_ab_tests: {
+        Row: {
+          channel: string
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          notification_type: string
+          start_date: string
+          success_metric: string | null
+          traffic_split: number | null
+          variant_a_template_id: string | null
+          variant_b_template_id: string | null
+        }
+        Insert: {
+          channel: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          notification_type: string
+          start_date?: string
+          success_metric?: string | null
+          traffic_split?: number | null
+          variant_a_template_id?: string | null
+          variant_b_template_id?: string | null
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          notification_type?: string
+          start_date?: string
+          success_metric?: string | null
+          traffic_split?: number | null
+          variant_a_template_id?: string | null
+          variant_b_template_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_ab_tests_variant_a_template_id_fkey"
+            columns: ["variant_a_template_id"]
+            isOneToOne: false
+            referencedRelation: "notification_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_ab_tests_variant_b_template_id_fkey"
+            columns: ["variant_b_template_id"]
+            isOneToOne: false
+            referencedRelation: "notification_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_analytics: {
+        Row: {
+          channel: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          notification_id: string | null
+          template_id: string | null
+          timestamp: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          channel: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          notification_id?: string | null
+          template_id?: string | null
+          timestamp?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          notification_id?: string | null
+          template_id?: string | null
+          timestamp?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_analytics_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notification_queue"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_analytics_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "notification_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_batches: {
+        Row: {
+          batch_type: string
+          created_at: string
+          id: string
+          notification_count: number | null
+          scheduled_for: string
+          sent_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          batch_type: string
+          created_at?: string
+          id?: string
+          notification_count?: number | null
+          scheduled_for: string
+          sent_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          batch_type?: string
+          created_at?: string
+          id?: string
+          notification_count?: number | null
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notification_delivery_log: {
         Row: {
           created_at: string
@@ -1605,6 +1752,206 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notification_preferences: {
+        Row: {
+          appointment_channels: Json | null
+          batch_delay_minutes: number | null
+          batch_similar_notifications: boolean | null
+          check_in_channels: Json | null
+          community_channels: Json | null
+          created_at: string
+          crisis_channels: Json | null
+          emergency_override: boolean | null
+          global_unsubscribe: boolean | null
+          goal_deadline_channels: Json | null
+          id: string
+          language_preference: string | null
+          max_daily_notifications: number | null
+          max_hourly_notifications: number | null
+          optimal_delivery_enabled: boolean | null
+          provider_channels: Json | null
+          quiet_hours_enabled: boolean | null
+          quiet_hours_end: string | null
+          quiet_hours_start: string | null
+          quiet_hours_timezone: string | null
+          system_channels: Json | null
+          unsubscribe_token: string | null
+          unsubscribed_types: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          appointment_channels?: Json | null
+          batch_delay_minutes?: number | null
+          batch_similar_notifications?: boolean | null
+          check_in_channels?: Json | null
+          community_channels?: Json | null
+          created_at?: string
+          crisis_channels?: Json | null
+          emergency_override?: boolean | null
+          global_unsubscribe?: boolean | null
+          goal_deadline_channels?: Json | null
+          id?: string
+          language_preference?: string | null
+          max_daily_notifications?: number | null
+          max_hourly_notifications?: number | null
+          optimal_delivery_enabled?: boolean | null
+          provider_channels?: Json | null
+          quiet_hours_enabled?: boolean | null
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          quiet_hours_timezone?: string | null
+          system_channels?: Json | null
+          unsubscribe_token?: string | null
+          unsubscribed_types?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          appointment_channels?: Json | null
+          batch_delay_minutes?: number | null
+          batch_similar_notifications?: boolean | null
+          check_in_channels?: Json | null
+          community_channels?: Json | null
+          created_at?: string
+          crisis_channels?: Json | null
+          emergency_override?: boolean | null
+          global_unsubscribe?: boolean | null
+          goal_deadline_channels?: Json | null
+          id?: string
+          language_preference?: string | null
+          max_daily_notifications?: number | null
+          max_hourly_notifications?: number | null
+          optimal_delivery_enabled?: boolean | null
+          provider_channels?: Json | null
+          quiet_hours_enabled?: boolean | null
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          quiet_hours_timezone?: string | null
+          system_channels?: Json | null
+          unsubscribe_token?: string | null
+          unsubscribed_types?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notification_queue: {
+        Row: {
+          body: string
+          channel: string
+          clicked_at: string | null
+          created_at: string
+          delivered_at: string | null
+          error_message: string | null
+          id: string
+          max_retries: number | null
+          opened_at: string | null
+          priority: number | null
+          recipient_address: string | null
+          retry_count: number | null
+          scheduled_for: string
+          sent_at: string | null
+          status: string
+          subject: string | null
+          template_id: string | null
+          user_id: string
+          variables: Json | null
+        }
+        Insert: {
+          body: string
+          channel: string
+          clicked_at?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          error_message?: string | null
+          id?: string
+          max_retries?: number | null
+          opened_at?: string | null
+          priority?: number | null
+          recipient_address?: string | null
+          retry_count?: number | null
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string | null
+          template_id?: string | null
+          user_id: string
+          variables?: Json | null
+        }
+        Update: {
+          body?: string
+          channel?: string
+          clicked_at?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          error_message?: string | null
+          id?: string
+          max_retries?: number | null
+          opened_at?: string | null
+          priority?: number | null
+          recipient_address?: string | null
+          retry_count?: number | null
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string | null
+          template_id?: string | null
+          user_id?: string
+          variables?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_queue_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "notification_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_templates: {
+        Row: {
+          body_template: string
+          channel: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          language_code: string | null
+          name: string
+          subject_template: string | null
+          type: string
+          updated_at: string
+          variables: Json | null
+        }
+        Insert: {
+          body_template: string
+          channel: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          language_code?: string | null
+          name: string
+          subject_template?: string | null
+          type: string
+          updated_at?: string
+          variables?: Json | null
+        }
+        Update: {
+          body_template?: string
+          channel?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          language_code?: string | null
+          name?: string
+          subject_template?: string | null
+          type?: string
+          updated_at?: string
+          variables?: Json | null
+        }
+        Relationships: []
       }
       outcome_measures: {
         Row: {

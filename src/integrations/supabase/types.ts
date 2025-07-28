@@ -5116,6 +5116,10 @@ export type Database = {
         Args: { user_uuid: string; badge_name_param: string }
         Returns: boolean
       }
+      cleanup_audit_logs: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       cleanup_expired_notifications: {
         Args: Record<PropertyKey, never>
         Returns: undefined

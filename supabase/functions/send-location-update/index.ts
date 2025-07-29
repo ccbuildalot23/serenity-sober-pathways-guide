@@ -43,10 +43,35 @@ serve(async (req) => {
       throw new Error('Unauthorized')
     }
 
-    const { contactIds, userLocation, customMessage }: LocationUpdateRequest = await req.json()
+    // SECURITY FIX: Input validation and sanitization
+    const requestBody = await req.json()
+    const { contactIds, userLocation, customMessage }: LocationUpdateRequest = requestBody
 
+    // Validate location data
     if (!userLocation || !userLocation.latitude || !userLocation.longitude) {
       throw new Error('Location data is required')
+    }
+
+    if (typeof userLocation.latitude !== 'number' || typeof userLocation.longitude !== 'number') {
+      throw new Error('Invalid location coordinates')
+    }
+
+    if (Math.abs(userLocation.latitude) > 90 || Math.abs(userLocation.longitude) > 180) {
+      throw new Error('Invalid location coordinates range')
+    }
+
+    // Validate custom message
+    if (customMessage && typeof customMessage !== 'string') {
+      throw new Error('Invalid message format')
+    }
+    
+    if (customMessage && customMessage.length > 1000) {
+      throw new Error('Message too long (max 1000 characters)')
+    }
+
+    // Validate contact IDs
+    if (contactIds && (!Array.isArray(contactIds) || contactIds.length > 10)) {
+      throw new Error('Invalid contact IDs (max 10 contacts)')
     }
 
     // Get user's emergency contacts

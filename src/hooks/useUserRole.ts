@@ -56,27 +56,23 @@ export const useUserRole = () => {
     }
   }, [user]);
 
+  // SECURITY FIX: Remove client-side role switching capability entirely
+  // Role changes must be handled server-side by administrators only
   const switchRole = async (newRole: UserRole) => {
-    // SECURITY: Role switching should only be allowed for authorized users
-    // This is disabled in production for security
-    if (import.meta.env.DEV) {
-      setRole(newRole);
-      localStorage.setItem('mvp_user_role', newRole);
-      
-      if (user) {
-        await EnhancedSecurityAuditService.logSecurityEvent({
-          action: 'ROLE_SWITCH_ATTEMPTED',
-          severity: 'medium',
-          details: {
-            from_role: role,
-            to_role: newRole,
-            user_id: user.id,
-            environment: 'development'
-          }
-        });
-      }
-    } else {
-      console.warn('Role switching is disabled in production for security');
+    console.warn('Client-side role switching has been permanently disabled for security. Role changes must be handled by administrators.');
+    
+    if (user) {
+      await EnhancedSecurityAuditService.logSecurityEvent({
+        action: 'UNAUTHORIZED_ROLE_SWITCH_ATTEMPT',
+        severity: 'high',
+        details: {
+          attempted_role: newRole,
+          current_role: role,
+          user_id: user.id,
+          security_violation: true,
+          timestamp: new Date().toISOString()
+        }
+      });
     }
   };
 

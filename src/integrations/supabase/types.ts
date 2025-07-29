@@ -5146,6 +5146,10 @@ export type Database = {
         Args: { user_uuid: string; badge_name_param: string }
         Returns: boolean
       }
+      check_crisis_alert_rate_limit: {
+        Args: { user_uuid: string }
+        Returns: boolean
+      }
       cleanup_audit_logs: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -5213,6 +5217,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      log_admin_access: {
+        Args: { action_type: string; details?: Json }
+        Returns: undefined
+      }
       log_export_activity: {
         Args: {
           request_id: string
@@ -5243,8 +5251,8 @@ export type Database = {
           rank: number
         }[]
       }
-      verify_admin_access: {
-        Args: { provided_code: string }
+      verify_admin_role: {
+        Args: Record<PropertyKey, never>
         Returns: boolean
       }
     }

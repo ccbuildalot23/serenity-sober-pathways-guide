@@ -81,9 +81,9 @@ const SecureSystemHealthDashboard: React.FC<SecureSystemHealthDashboardProps> = 
   }, [isVisible, hasAccess, isAuthenticated, user?.id, role]);
 
   const handleAdminAuthentication = async () => {
-    // SECURITY: Use secure verification service
+    // SECURITY FIX: Use role-based verification instead of hardcoded admin code
     const { securityComplianceService } = await import('@/services/securityComplianceService');
-    const isValid = await securityComplianceService.verifyAdminAccess(adminCode);
+    const isValid = await securityComplianceService.verifyAdminAccess();
     
     if (isValid) {
       setIsAuthenticated(true);

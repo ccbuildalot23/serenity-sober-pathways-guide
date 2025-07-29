@@ -18,27 +18,46 @@ export class SecurityComplianceService {
   }
 
   /**
-   * Verify admin access using secure method
+   * SECURITY FIX: Replace hardcoded admin verification with role-based access
    */
-  async verifyAdminAccess(providedCode: string): Promise<boolean> {
+  async verifyAdminAccess(): Promise<boolean> {
     try {
-      // Use direct query since RPC function may not be available in types yet
-      const { data, error } = await supabase
-        .from('audit_logs')
-        .select('id')
-        .limit(1);
-
+      // Use the new secure admin verification function
+      const { data, error } = await supabase.rpc('verify_admin_role');
+      
       if (error) {
-        console.error('Database connection error:', error);
+        console.error('Admin verification error:', error);
+        await this.logSecurityViolation('ADMIN_VERIFICATION_FAILED', { error: error.message });
         return false;
       }
 
-      // For now, use the same validation logic as before
-      // This should be replaced with proper environment variable checking
-      return providedCode === 'secure_health_check_2024';
+      // Log admin access attempt
+      if (data) {
+        await supabase.rpc('log_admin_access', {
+          action_type: 'ADMIN_VERIFICATION_SUCCESS',
+          details: { timestamp: new Date().toISOString() }
+        });
+      }
+
+      return Boolean(data);
     } catch (error) {
       console.error('Admin verification failed:', error);
+      await this.logSecurityViolation('ADMIN_VERIFICATION_EXCEPTION', { error: error.message });
       return false;
+    }
+  }
+
+  /**
+   * Log security violations for audit purposes
+   */
+  private async logSecurityViolation(violationType: string, details: Record<string, any>) {
+    try {
+      await supabase.rpc('log_security_violation', {
+        violation_type: violationType,
+        details: details
+      });
+    } catch (error) {
+      console.error('Failed to log security violation:', error);
     }
   }
 

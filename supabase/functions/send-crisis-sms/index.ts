@@ -44,30 +44,45 @@ serve(async (req) => {
       throw new Error('Unauthorized')
     }
 
-    // Check rate limiting (prevent accidental multiple sends)
-    const { data: recentAlert, error: alertCheckError } = await supabaseClient
-      .from('crisis_alerts')
-      .select('alert_time')
-      .eq('user_id', user.id)
-      .order('alert_time', { ascending: false })
-      .limit(1)
-      .maybeSingle()
+    // SECURITY FIX: Enhanced rate limiting using database function
+    const { data: rateLimitOk, error: rateLimitError } = await supabaseClient
+      .rpc('check_crisis_alert_rate_limit', { user_uuid: user.id })
 
-    if (alertCheckError) {
-      console.warn('Failed to check recent alerts:', alertCheckError)
+    if (rateLimitError) {
+      console.error('Rate limit check failed:', rateLimitError)
+      throw new Error('Security check failed. Please try again.')
     }
 
-    if (recentAlert) {
-      const timeSinceLastAlert = Date.now() - new Date(recentAlert.alert_time).getTime()
-      const fiveMinutesInMs = 5 * 60 * 1000
-      
-      if (timeSinceLastAlert < fiveMinutesInMs) {
-        const waitTimeMinutes = Math.ceil((fiveMinutesInMs - timeSinceLastAlert) / (60 * 1000))
-        throw new Error(`Please wait ${waitTimeMinutes} minute(s) between crisis alerts for your safety`)
+    if (!rateLimitOk) {
+      console.warn(`Rate limit exceeded for user ${user.id}`)
+      throw new Error('Crisis alert rate limit exceeded. Please wait 5 minutes between alerts for your safety.')
+    }
+
+    // SECURITY FIX: Input validation and sanitization
+    const requestBody = await req.json()
+    const { contactIds, customMessage, includeLocation, userLocation }: CrisisRequest = requestBody
+
+    // Validate input parameters
+    if (customMessage && typeof customMessage !== 'string') {
+      throw new Error('Invalid message format')
+    }
+    
+    if (customMessage && customMessage.length > 1000) {
+      throw new Error('Message too long (max 1000 characters)')
+    }
+
+    if (contactIds && (!Array.isArray(contactIds) || contactIds.length > 10)) {
+      throw new Error('Invalid contact IDs (max 10 contacts)')
+    }
+
+    if (userLocation) {
+      if (typeof userLocation.latitude !== 'number' || typeof userLocation.longitude !== 'number') {
+        throw new Error('Invalid location coordinates')
+      }
+      if (Math.abs(userLocation.latitude) > 90 || Math.abs(userLocation.longitude) > 180) {
+        throw new Error('Invalid location coordinates range')
       }
     }
-
-    const { contactIds, customMessage, includeLocation, userLocation }: CrisisRequest = await req.json()
 
     // Get user's emergency contacts
     let contactsQuery = supabaseClient

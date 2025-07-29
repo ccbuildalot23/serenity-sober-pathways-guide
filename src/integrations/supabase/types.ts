@@ -890,6 +890,36 @@ export type Database = {
           },
         ]
       }
+      crisis_alerts: {
+        Row: {
+          alert_time: string
+          contacts_notified: number | null
+          id: string
+          location_shared: boolean | null
+          message_sent: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          alert_time?: string
+          contacts_notified?: number | null
+          id?: string
+          location_shared?: boolean | null
+          message_sent?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          alert_time?: string
+          contacts_notified?: number | null
+          id?: string
+          location_shared?: boolean | null
+          message_sent?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       crisis_contacts: {
         Row: {
           created_at: string

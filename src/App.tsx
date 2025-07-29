@@ -42,6 +42,7 @@ import VoiceSupport from '@/pages/VoiceSupport';
 import ComplianceManagement from '@/pages/ComplianceManagement';
 import PilotReadinessAssessment from '@/pages/PilotReadinessAssessment';
 import SecurityFixesStatus from '@/pages/SecurityFixesStatus';
+import CrisisSupport from '@/pages/CrisisSupport';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 // Commented out for MVP - keeping functionality but focusing on core features
@@ -236,6 +237,11 @@ function App() {
             <Route path="/security-fixes" element={
               <ProtectedRoute>
                 <SecurityFixesStatus />
+              </ProtectedRoute>
+            } />
+            <Route path="/crisis-support" element={
+              <ProtectedRoute>
+                <CrisisSupport />
               </ProtectedRoute>
             } />
             {/* Commented out non-MVP routes - keeping for future use

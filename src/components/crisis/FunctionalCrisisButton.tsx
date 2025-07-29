@@ -15,15 +15,33 @@ const FunctionalCrisisButton: React.FC = () => {
   const [customMessage, setCustomMessage] = useState('');
   const [includeLocation, setIncludeLocation] = useState(true);
   const [isPressed, setIsPressed] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [currentTextIndex, setCurrentTextIndex] = useState(0);
   
   const { contacts, loading } = useEmergencyContacts();
   const { sendCrisisSMS, sendLocationUpdate, sending } = useCrisisSMS();
 
-  const handleCrisisActivation = async () => {
-    if (contacts.length === 0) {
-      return;
-    }
+  const motivationalTexts = [
+    "Reach Out",
+    "Get Support", 
+    "They want to support you",
+    "Connect Now",
+    "Asking for help is how we stay clean",
+    "Your network wants to hear from you",
+    "327 people used this button and stayed clean today"
+  ];
 
+  // Rotate text every 3 seconds
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTextIndex((prev) => (prev + 1) % motivationalTexts.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleCrisisActivation = async () => {
+    if (sending || contacts.length === 0) return; // Prevent double-clicks
+    
     setIsPressed(true);
     
     // Haptic feedback
@@ -36,6 +54,15 @@ const FunctionalCrisisButton: React.FC = () => {
         customMessage: customMessage.trim() || undefined,
         includeLocation,
       });
+      setSent(true);
+      // Immediately ask about location sharing if not already included
+      if (!includeLocation) {
+        setTimeout(() => {
+          if (confirm("Would you like to share your location with your contacts?")) {
+            handleLocationUpdate();
+          }
+        }, 1000);
+      }
     } catch (error) {
       // Error handling is done in the hook
     }
@@ -105,25 +132,48 @@ const FunctionalCrisisButton: React.FC = () => {
                   onClick={handleCrisisActivation}
                   disabled={sending}
                   className={`
-                    w-full h-16 text-lg font-bold
-                    bg-red-600 hover:bg-red-700 text-white
-                    border-2 border-red-500
-                    transition-all duration-200
-                    ${isPressed ? 'scale-95 bg-red-800' : ''}
+                    relative w-full min-h-16 text-lg font-bold overflow-hidden
+                    bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-500
+                    hover:from-yellow-500 hover:via-orange-500 hover:to-yellow-600
+                    text-black border-2 border-orange-400
+                    transition-all duration-500 ease-in-out
+                    ${isPressed ? 'scale-95' : ''}
                     ${sending ? 'animate-pulse' : ''}
+                    ${motivationalTexts[currentTextIndex].length > 20 ? 'h-20 px-3' : 'h-16 px-6'}
+                    shadow-lg hover:shadow-xl
                   `}
+                  style={{
+                    background: sending ? undefined : `
+                      linear-gradient(45deg, #fbbf24, #f97316, #fbbf24),
+                      radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.3) 20%, transparent 21%),
+                      radial-gradient(circle at 80% 50%, rgba(255, 255, 255, 0.3) 20%, transparent 21%)
+                    `
+                  }}
                 >
-                  {sending ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Sending Alert...
+                  <div className="absolute inset-0 opacity-20">
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-6xl">
+                      😊
                     </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <AlertTriangle className="w-6 h-6" />
-                      Send Crisis Alert
-                    </div>
-                  )}
+                  </div>
+                  
+                  <div className="relative z-10">
+                    {sending ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                        Sending Support...
+                      </div>
+                    ) : sent ? (
+                      <div className="flex items-center justify-center gap-2 text-green-800">
+                        ✓ Support Sent!
+                      </div>
+                    ) : (
+                      <div className="text-center transition-all duration-500 ease-in-out">
+                        <div className="font-bold animate-pulse">
+                          {motivationalTexts[currentTextIndex]}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </Button>
 
                 <p className="text-xs text-red-600 dark:text-red-400">

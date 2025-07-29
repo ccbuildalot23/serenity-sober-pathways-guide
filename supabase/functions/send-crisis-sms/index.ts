@@ -11,6 +11,7 @@ interface CrisisRequest {
   customMessage?: string
   includeLocation?: boolean
   isTestMessage?: boolean
+  supportLevel?: string
   userLocation?: {
     latitude: number
     longitude: number

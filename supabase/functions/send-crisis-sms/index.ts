@@ -44,6 +44,29 @@ serve(async (req) => {
       throw new Error('Unauthorized')
     }
 
+    // Check rate limiting (prevent accidental multiple sends)
+    const { data: recentAlert, error: alertCheckError } = await supabaseClient
+      .from('crisis_alerts')
+      .select('alert_time')
+      .eq('user_id', user.id)
+      .order('alert_time', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (alertCheckError) {
+      console.warn('Failed to check recent alerts:', alertCheckError)
+    }
+
+    if (recentAlert) {
+      const timeSinceLastAlert = Date.now() - new Date(recentAlert.alert_time).getTime()
+      const fiveMinutesInMs = 5 * 60 * 1000
+      
+      if (timeSinceLastAlert < fiveMinutesInMs) {
+        const waitTimeMinutes = Math.ceil((fiveMinutesInMs - timeSinceLastAlert) / (60 * 1000))
+        throw new Error(`Please wait ${waitTimeMinutes} minute(s) between crisis alerts for your safety`)
+      }
+    }
+
     const { contactIds, customMessage, includeLocation, userLocation }: CrisisRequest = await req.json()
 
     // Get user's emergency contacts

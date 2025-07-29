@@ -105,8 +105,65 @@ export const useCrisisSMS = () => {
     }
   };
 
+  const sendLocationUpdate = async (customMessage?: string) => {
+    setSending(true);
+    
+    try {
+      const userLocation = await getCurrentLocation();
+
+      const { data, error } = await supabase.functions.invoke('send-location-update', {
+        body: {
+          userLocation,
+          customMessage,
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.success) {
+        toast.success(
+          `Location update sent to ${data.sentCount} contact${data.sentCount !== 1 ? 's' : ''}`,
+          {
+            description: 'Your current location has been shared.',
+            duration: 5000,
+          }
+        );
+      } else {
+        throw new Error(data.error || 'Failed to send location update');
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Location update error:', error);
+      
+      if (error.message?.includes('Location data is required')) {
+        toast.error('Location access required', {
+          description: 'Please allow location access to share your current position.',
+          duration: 6000,
+        });
+      } else if (error.message?.includes('No emergency contacts found')) {
+        toast.error('No emergency contacts found', {
+          description: 'Please add emergency contacts before sharing location.',
+          duration: 6000,
+        });
+      } else {
+        toast.error('Failed to send location update', {
+          description: 'Please try again.',
+          duration: 6000,
+        });
+      }
+      
+      throw error;
+    } finally {
+      setSending(false);
+    }
+  };
+
   return {
     sendCrisisSMS,
+    sendLocationUpdate,
     sending,
   };
 };

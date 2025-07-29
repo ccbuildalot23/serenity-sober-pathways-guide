@@ -17,7 +17,7 @@ const FunctionalCrisisButton: React.FC = () => {
   const [isPressed, setIsPressed] = useState(false);
   
   const { contacts, loading } = useEmergencyContacts();
-  const { sendCrisisSMS, sending } = useCrisisSMS();
+  const { sendCrisisSMS, sendLocationUpdate, sending } = useCrisisSMS();
 
   const handleCrisisActivation = async () => {
     if (contacts.length === 0) {
@@ -50,6 +50,14 @@ const FunctionalCrisisButton: React.FC = () => {
 
   const call988 = () => {
     window.open('tel:988', '_self');
+  };
+
+  const handleLocationUpdate = async () => {
+    try {
+      await sendLocationUpdate();
+    } catch (error) {
+      // Error handling is done in the hook
+    }
   };
 
   if (loading) {
@@ -181,6 +189,16 @@ const FunctionalCrisisButton: React.FC = () => {
                       Include my location
                     </Label>
                   </div>
+
+                  <Button
+                    onClick={handleLocationUpdate}
+                    disabled={sending}
+                    variant="outline"
+                    className="w-full text-red-700 border-red-300 hover:bg-red-100"
+                  >
+                    <MapPin className="w-4 h-4 mr-2" />
+                    Send Location Update
+                  </Button>
                 </div>
               )}
             </>

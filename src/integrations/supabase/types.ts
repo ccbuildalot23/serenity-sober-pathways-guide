@@ -1803,6 +1803,39 @@ export type Database = {
           },
         ]
       }
+      helper_availability: {
+        Row: {
+          availability_hours: Json | null
+          created_at: string | null
+          helped_count: number | null
+          is_available: boolean | null
+          last_helped: string | null
+          notification_preferences: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          availability_hours?: Json | null
+          created_at?: string | null
+          helped_count?: number | null
+          is_available?: boolean | null
+          last_helped?: string | null
+          notification_preferences?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          availability_hours?: Json | null
+          created_at?: string | null
+          helped_count?: number | null
+          is_available?: boolean | null
+          last_helped?: string | null
+          notification_preferences?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       incident_responses: {
         Row: {
           affected_systems: Json | null
@@ -1869,6 +1902,42 @@ export type Database = {
           severity_level?: string
           status?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      message_templates: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_default: boolean | null
+          message_text: string
+          template_category: string
+          template_name: string
+          updated_at: string | null
+          usage_count: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          message_text: string
+          template_category: string
+          template_name: string
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          message_text?: string
+          template_category?: string
+          template_name?: string
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -3120,6 +3189,68 @@ export type Database = {
           morning_prompt?: string
           title?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      positive_reinforcements: {
+        Row: {
+          acknowledged: boolean | null
+          delivered_at: string | null
+          id: string
+          message: string
+          reinforcement_type: string
+          support_request_id: string | null
+          user_id: string
+        }
+        Insert: {
+          acknowledged?: boolean | null
+          delivered_at?: string | null
+          id?: string
+          message: string
+          reinforcement_type: string
+          support_request_id?: string | null
+          user_id: string
+        }
+        Update: {
+          acknowledged?: boolean | null
+          delivered_at?: string | null
+          id?: string
+          message?: string
+          reinforcement_type?: string
+          support_request_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "positive_reinforcements_support_request_id_fkey"
+            columns: ["support_request_id"]
+            isOneToOne: false
+            referencedRelation: "support_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      practice_sessions: {
+        Row: {
+          completed_at: string | null
+          id: string
+          session_type: string
+          streak_count: number | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          id?: string
+          session_type: string
+          streak_count?: number | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          id?: string
+          session_type?: string
+          streak_count?: number | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -4631,6 +4762,117 @@ export type Database = {
         }
         Relationships: []
       }
+      support_privacy_settings: {
+        Row: {
+          auto_delete_history_hours: number | null
+          created_at: string | null
+          escalation_delay_minutes: number | null
+          incognito_mode: boolean | null
+          pause_alerts_until: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          auto_delete_history_hours?: number | null
+          created_at?: string | null
+          escalation_delay_minutes?: number | null
+          incognito_mode?: boolean | null
+          pause_alerts_until?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          auto_delete_history_hours?: number | null
+          created_at?: string | null
+          escalation_delay_minutes?: number | null
+          incognito_mode?: boolean | null
+          pause_alerts_until?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      support_requests: {
+        Row: {
+          anonymous_send: boolean | null
+          contacts_notified: number | null
+          created_at: string | null
+          deleted_at: string | null
+          id: string
+          message_sent: string
+          request_type: Database["public"]["Enums"]["support_request_type"]
+          responded_at: string | null
+          response_count: number | null
+          sponsor_only: boolean | null
+          user_id: string
+        }
+        Insert: {
+          anonymous_send?: boolean | null
+          contacts_notified?: number | null
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: string
+          message_sent: string
+          request_type: Database["public"]["Enums"]["support_request_type"]
+          responded_at?: string | null
+          response_count?: number | null
+          sponsor_only?: boolean | null
+          user_id: string
+        }
+        Update: {
+          anonymous_send?: boolean | null
+          contacts_notified?: number | null
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: string
+          message_sent?: string
+          request_type?: Database["public"]["Enums"]["support_request_type"]
+          responded_at?: string | null
+          response_count?: number | null
+          sponsor_only?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      support_stats: {
+        Row: {
+          average_response_minutes: number | null
+          connection_requests: number | null
+          crisis_requests: number | null
+          date: string
+          peak_hour: number | null
+          practice_requests: number | null
+          total_helpers_available: number | null
+          total_requests: number | null
+          tough_day_requests: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          average_response_minutes?: number | null
+          connection_requests?: number | null
+          crisis_requests?: number | null
+          date?: string
+          peak_hour?: number | null
+          practice_requests?: number | null
+          total_helpers_available?: number | null
+          total_requests?: number | null
+          tough_day_requests?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          average_response_minutes?: number | null
+          connection_requests?: number | null
+          crisis_requests?: number | null
+          date?: string
+          peak_hour?: number | null
+          practice_requests?: number | null
+          total_helpers_available?: number | null
+          total_requests?: number | null
+          tough_day_requests?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       thought_record_templates: {
         Row: {
           automatic_thought_example: string
@@ -5158,6 +5400,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      cleanup_old_support_requests: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       cleanup_old_typing_indicators: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -5258,6 +5504,13 @@ export type Database = {
     }
     Enums: {
       app_role: "patient" | "provider" | "support_member"
+      support_request_type:
+        | "connection"
+        | "tough_day"
+        | "crisis"
+        | "check_in"
+        | "practice"
+        | "wellness_check"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -5386,6 +5639,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["patient", "provider", "support_member"],
+      support_request_type: [
+        "connection",
+        "tough_day",
+        "crisis",
+        "check_in",
+        "practice",
+        "wellness_check",
+      ],
     },
   },
 } as const

@@ -10,6 +10,7 @@ interface CrisisRequest {
   contactIds?: string[]
   customMessage?: string
   includeLocation?: boolean
+  isTestMessage?: boolean
   userLocation?: {
     latitude: number
     longitude: number
@@ -44,7 +45,11 @@ serve(async (req) => {
       throw new Error('Unauthorized')
     }
 
+    // Parse request body first to check for test messages
+    const requestBody = await req.json()
+    
     // SECURITY FIX: Enhanced rate limiting using database function
+    // Skip rate limiting for test messages to allow testing
     const { data: rateLimitOk, error: rateLimitError } = await supabaseClient
       .rpc('check_crisis_alert_rate_limit', { user_uuid: user.id })
 
@@ -55,12 +60,15 @@ serve(async (req) => {
 
     if (!rateLimitOk) {
       console.warn(`Rate limit exceeded for user ${user.id}`)
-      throw new Error('Crisis alert rate limit exceeded. Please wait 5 minutes between alerts for your safety.')
+      // For test messages, show a warning but allow to proceed
+      const { isTestMessage } = requestBody
+      if (!isTestMessage) {
+        throw new Error('Crisis alert rate limit exceeded. Please wait 5 minutes between alerts for your safety.')
+      }
     }
 
     // SECURITY FIX: Input validation and sanitization
-    const requestBody = await req.json()
-    const { contactIds, customMessage, includeLocation, userLocation }: CrisisRequest = requestBody
+    const { contactIds, customMessage, includeLocation, userLocation, isTestMessage }: CrisisRequest = requestBody
 
     // Validate input parameters
     if (customMessage && typeof customMessage !== 'string') {
@@ -107,7 +115,16 @@ serve(async (req) => {
 
     // Prepare SMS message
     const userEmail = user.email || 'Unknown user'
-    let message = customMessage || `🚨 CRISIS ALERT 🚨\n\n${userEmail} has activated their crisis support button and needs immediate help.\n\nPlease reach out to them as soon as possible.\n\nThis is an automated emergency message.`
+    let message: string
+    
+    if (isTestMessage && customMessage) {
+      // Use the test message as provided
+      message = customMessage
+    } else if (customMessage) {
+      message = customMessage
+    } else {
+      message = `🚨 CRISIS ALERT 🚨\n\n${userEmail} has activated their crisis support button and needs immediate help.\n\nPlease reach out to them as soon as possible.\n\nThis is an automated emergency message.`
+    }
 
     if (includeLocation && userLocation) {
       message += `\n\nLocation: https://maps.google.com/maps?q=${userLocation.latitude},${userLocation.longitude}`
@@ -174,19 +191,23 @@ serve(async (req) => {
       }
     }
 
-    // Log the crisis alert
-    const { error: logError } = await supabaseClient
-      .from('crisis_alerts')
-      .insert({
-        user_id: user.id,
-        contacts_notified: sentCount,
-        location_shared: includeLocation || false,
-        message_sent: message,
-        status: sentCount > 0 ? 'sent' : 'failed'
-      })
+    // Log the crisis alert (don't log test messages as real alerts)
+    if (!isTestMessage) {
+      const { error: logError } = await supabaseClient
+        .from('crisis_alerts')
+        .insert({
+          user_id: user.id,
+          contacts_notified: sentCount,
+          location_shared: includeLocation || false,
+          message_sent: message,
+          status: sentCount > 0 ? 'sent' : 'failed'
+        })
 
-    if (logError) {
-      console.error('Failed to log crisis alert:', logError)
+      if (logError) {
+        console.error('Failed to log crisis alert:', logError)
+      }
+    } else {
+      console.log(`Test message sent to ${sentCount} contacts for user ${user.id}`)
     }
 
     return new Response(

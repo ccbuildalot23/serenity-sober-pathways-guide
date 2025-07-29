@@ -20,6 +20,14 @@ export const TestCrisisPage: React.FC = () => {
           <p className="text-muted-foreground">
             Complete testing, verification, and setup for your life-saving crisis support system
           </p>
+          <div className="flex gap-2 justify-center">
+            <Button asChild variant="outline">
+              <a href="/comprehensive-support">Live Support System</a>
+            </Button>
+            <Button asChild variant="outline">
+              <a href="/">Back to Dashboard</a>
+            </Button>
+          </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

@@ -43,6 +43,8 @@ import ComplianceManagement from '@/pages/ComplianceManagement';
 import PilotReadinessAssessment from '@/pages/PilotReadinessAssessment';
 import SecurityFixesStatus from '@/pages/SecurityFixesStatus';
 import CrisisSupport from '@/pages/CrisisSupport';
+import { ComprehensiveSupportPage } from '@/pages/ComprehensiveSupportPage';
+import { TestCrisisPage } from '@/pages/TestCrisisPage';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 // Commented out for MVP - keeping functionality but focusing on core features
@@ -242,6 +244,16 @@ function App() {
             <Route path="/crisis-support" element={
               <ProtectedRoute>
                 <CrisisSupport />
+              </ProtectedRoute>
+            } />
+            <Route path="/comprehensive-support" element={
+              <ProtectedRoute>
+                <ComprehensiveSupportPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/test-crisis" element={
+              <ProtectedRoute>
+                <TestCrisisPage />
               </ProtectedRoute>
             } />
             {/* Commented out non-MVP routes - keeping for future use

@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { UserRole } from '@/types/userRoles';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useUserRole } from '@/hooks/useUserRole';
-import { Bell, Shield, Users, Activity, FileText, AlertTriangle, TrendingUp, Clock } from 'lucide-react';
+import { Bell, Shield, Users, Activity, FileText, AlertTriangle, TrendingUp, Clock, TestTube } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -112,9 +112,23 @@ const Dashboard = () => {
                   </div>
                 )}
                 
-                <Button variant="outline" className="w-full" size="sm">
-                  <a href="/crisis-intervention">Crisis Resources</a>
-                </Button>
+                <div className="space-y-2">
+                  <Button variant="outline" className="w-full" size="sm">
+                    <a href="/crisis-intervention">Crisis Resources</a>
+                  </Button>
+                  <Button className="w-full bg-green-600 hover:bg-green-700 text-white" size="sm">
+                    <a href="/comprehensive-support" className="flex items-center">
+                      <Activity className="w-4 h-4 mr-2" />
+                      Support System
+                    </a>
+                  </Button>
+                  <Button variant="secondary" className="w-full" size="sm">
+                    <a href="/test-crisis" className="flex items-center">
+                      <TestTube className="w-4 h-4 mr-2" />
+                      Test System
+                    </a>
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

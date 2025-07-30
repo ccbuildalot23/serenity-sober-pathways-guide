@@ -8,7 +8,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { SecurityHeaders } from '@/lib/securityHeaders';
 import { SecureMonitoring } from '@/lib/secureMonitoring';
 
-export const SignInForm = () => {
+interface SignInFormProps {
+  userType?: string;
+}
+
+export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);

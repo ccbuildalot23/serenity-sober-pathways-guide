@@ -6,17 +6,30 @@ import { Button } from '@/components/ui/button';
 
 interface AuthFormProps {
   initialMode?: 'signin' | 'signup';
+  userType?: string;
 }
 
-export const AuthForm: React.FC<AuthFormProps> = ({ initialMode = 'signin' }) => {
+export const AuthForm: React.FC<AuthFormProps> = ({ initialMode = 'signin', userType }) => {
   const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
 
   return (
     <div className="space-y-6">
+      {userType && (
+        <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+          <p className="text-sm text-blue-700 dark:text-blue-300">
+            You've selected: <strong>
+              {userType === 'recovery' && 'Person in Recovery'}
+              {userType === 'provider' && 'Healthcare Provider'}
+              {userType === 'supporter' && 'Personal Supporter'}
+            </strong>
+          </p>
+        </div>
+      )}
+      
       {mode === 'signin' ? (
-        <SignInForm />
+        <SignInForm userType={userType} />
       ) : (
-        <SignUpForm onSuccess={() => setMode('signin')} />
+        <SignUpForm onSuccess={() => setMode('signin')} userType={userType} />
       )}
 
       <div className="text-center">

@@ -10,9 +10,10 @@ import { Loader2, Mail, Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
 
 interface SignUpFormProps {
   onSuccess?: () => void;
+  userType?: string;
 }
 
-export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess }) => {
+export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) => {
   const { signUp } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

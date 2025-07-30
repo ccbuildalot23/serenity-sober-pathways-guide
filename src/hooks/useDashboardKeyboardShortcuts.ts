@@ -16,7 +16,7 @@ export const useDashboardKeyboardShortcuts = () => {
             break;
           case 't':
             e.preventDefault();
-            window.location.href = '/crisis-toolkit';
+            window.location.href = '/crisis-support';
             break;
           case 's':
             e.preventDefault();

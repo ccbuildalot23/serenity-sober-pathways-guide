@@ -82,7 +82,7 @@ const DailyCheckIn = () => {
         description: "Your support network has been notified",
         action: {
           label: "View Tools",
-          onClick: () => window.location.href = '/crisis-toolkit'
+          onClick: () => window.location.href = '/crisis-support'
         }
       });
     }

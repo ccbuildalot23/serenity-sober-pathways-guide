@@ -83,7 +83,7 @@ const RelapsePreventionPage: React.FC = () => {
       {/* Predictive Crisis Alert */}
       <PredictiveCrisisAlert 
         patterns={patterns}
-        onCrisisDetected={() => navigate('/crisis-toolkit')}
+        onCrisisDetected={() => navigate('/crisis-support')}
         onShowInterventions={() => setActiveSection('coping')}
       />
       
@@ -150,7 +150,7 @@ const RelapsePreventionPage: React.FC = () => {
           </CardContent>
         </Card>
         
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/crisis-toolkit')}>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/crisis-support')}>
           <CardContent className="p-4 text-center">
             <Phone className="w-8 h-8 mx-auto mb-2 text-red-500" />
             <h3 className="font-medium">Crisis Support</h3>
@@ -245,7 +245,7 @@ const RelapsePreventionPage: React.FC = () => {
           
           <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
             <h4 className="font-medium text-green-800 mb-2">Immediate Coping Tools</h4>
-            <Button variant="outline" onClick={() => navigate('/crisis-toolkit')}>
+            <Button variant="outline" onClick={() => navigate('/crisis-support')}>
               <Heart className="w-4 h-4 mr-2" />
               Access Crisis Toolkit
             </Button>

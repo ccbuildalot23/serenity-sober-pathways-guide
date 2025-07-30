@@ -29,7 +29,7 @@ export const PredictiveCrisisAlert: React.FC<PredictiveCrisisAlertProps> = ({
     voiceActivationService.startListening({
       onCrisisDetected: () => {
         onCrisisDetected();
-        navigate('/crisis-toolkit');
+        navigate('/crisis-support');
       },
       onError: (error) => {
         console.error('Voice activation failed:', error);

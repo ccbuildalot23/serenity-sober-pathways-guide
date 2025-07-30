@@ -58,7 +58,7 @@ export const CrisisIntegrationWrapper: React.FC<CrisisIntegrationWrapperProps> =
       // Ctrl/Cmd + E for emergency
       if ((event.ctrlKey || event.metaKey) && event.key === 'e') {
         event.preventDefault();
-        navigate('/crisis-toolkit');
+        navigate('/crisis-support');
       }
 
       // Ctrl/Cmd + A for accessibility settings

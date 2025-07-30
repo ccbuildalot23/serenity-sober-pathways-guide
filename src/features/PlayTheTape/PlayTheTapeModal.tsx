@@ -36,8 +36,8 @@ export const PlayTheTapeModal: React.FC<PlayTheTapeModalProps> = ({
   };
   
   const handleGoToGrounding = () => {
-    // Navigate to crisis toolkit which has grounding exercises
-    window.location.href = '/crisis-toolkit';
+    // Navigate to crisis support which has grounding exercises
+    window.location.href = '/crisis-support';
     onClose();
   };
   

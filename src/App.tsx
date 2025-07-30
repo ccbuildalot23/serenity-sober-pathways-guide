@@ -283,38 +283,25 @@ function App() {
                     <SecurityAudit />
                   </ProtectedRoute>
                 } />
-                {/* Commented out non-MVP routes - keeping for future use
+                {/* Critical routes that are being navigated to */}
                 <Route path="/calendar" element={
                   <ProtectedRoute>
                     <Calendar />
                   </ProtectedRoute>
                 } />
-                <Route path="/support" element={
-                  <ProtectedRoute>
-                    <Support />
-                  </ProtectedRoute>
-                } />
-                <Route path="/triggers/manage" element={
-                  <ProtectedRoute>
-                    <ManageTriggers />
-                  </ProtectedRoute>
-                } />
                 <Route path="/crisis-toolkit" element={
                   <ProtectedRoute>
-                    <CrisisToolkit />
-                  </ProtectedRoute>
-                } />
-                <Route path="/clinical-resources" element={
-                  <ProtectedRoute>
-                    <ClinicalDirectory />
+                    <CrisisSupport />
                   </ProtectedRoute>
                 } />
                 <Route path="/settings" element={
                   <ProtectedRoute>
-                    <Settings />
+                    <div className="p-4 max-w-4xl mx-auto">
+                      <h1 className="text-2xl font-bold mb-4">Settings</h1>
+                      <p className="text-muted-foreground">Settings page coming soon...</p>
+                    </div>
                   </ProtectedRoute>
                 } />
-                */}
               </Routes>
             </SessionTimeoutManager>
           </Router>

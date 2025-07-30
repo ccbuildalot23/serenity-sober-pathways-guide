@@ -14,7 +14,7 @@ export const useCheckInHandlers = () => {
       duration: 10000,
       action: {
         label: "Crisis Tools",
-        onClick: () => navigate('/crisis-toolkit')
+        onClick: () => navigate('/crisis-support')
       }
     });
   };
@@ -38,7 +38,7 @@ export const useCheckInHandlers = () => {
         duration: 8000,
         action: {
           label: "Use Now",
-          onClick: () => navigate('/crisis-toolkit')
+          onClick: () => navigate('/crisis-support')
         }
       });
     } else {
@@ -46,7 +46,7 @@ export const useCheckInHandlers = () => {
         description: "Complete a few crisis resolutions to see personalized recommendations",
         action: {
           label: "Learn More",
-          onClick: () => navigate('/crisis-toolkit')
+          onClick: () => navigate('/crisis-support')
         }
       });
     }

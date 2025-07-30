@@ -1,453 +1,356 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { AlertTriangle, MessageSquare, MapPin, Clock, User, Phone, CheckCircle, Heart, Shield, Activity, TrendingUp } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { 
+  Heart, 
+  Shield, 
+  Users, 
+  Bell,
+  MessageCircle,
+  MapPin,
+  Send,
+  Clock,
+  AlertTriangle
+} from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 
-interface Alert {
+// Simple messaging interface for supporters
+interface SupportMessage {
   id: string;
-  contactName: string;
+  sender_name: string;
   message: string;
-  location?: string;
-  timestamp: Date;
-  acknowledged: boolean;
-  urgency: 'high' | 'medium' | 'low';
-  type: 'crisis' | 'check-in' | 'milestone';
-  responseTime?: number;
+  timestamp: string;
+  isFromPatient: boolean;
+  read: boolean;
 }
 
-interface QuickResponse {
+interface LocationShare {
   id: string;
-  text: string;
-  emoji: string;
+  patient_name: string;
+  address: string;
+  timestamp: string;
+  isEmergency: boolean;
 }
-
-const quickResponses: QuickResponse[] = [
-  { id: '1', text: "I'm here for you", emoji: '💙' },
-  { id: '2', text: "You've got this!", emoji: '💪' },
-  { id: '3', text: "Calling you now", emoji: '📞' },
-  { id: '4', text: "On my way", emoji: '🚗' },
-  { id: '5', text: "Stay strong", emoji: '🌟' },
-  { id: '6', text: "I believe in you", emoji: '🤗' }
-];
 
 const SupporterDashboard = () => {
-  const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [filter, setFilter] = useState<'all' | 'unread' | 'crisis'>('all');
-  const [responseMessage, setResponseMessage] = useState('');
-  const [selectedAlert, setSelectedAlert] = useState<string | null>(null);
-  const [stats, setStats] = useState({
-    totalAlerts: 0,
-    responseRate: 0,
-    avgResponseTime: 0,
-    supportStreak: 0
-  });
-
-  useEffect(() => {
-    // Load mock alerts
-    loadAlerts();
-    calculateStats();
-    
-    // Simulate real-time updates
-    const interval = setInterval(() => {
-      loadAlerts();
-    }, 10000);
-    
-    return () => clearInterval(interval);
-  }, []);
-
-  const loadAlerts = () => {
-    // Mock data - in production, this would fetch from your backend
-    const mockAlerts: Alert[] = [
-      {
-        id: '1',
-        contactName: 'John D.',
-        message: '🚨 URGENT: Having strong cravings right now. Really need support.',
-        location: 'https://maps.google.com/?q=37.7749,-122.4194',
-        timestamp: new Date(Date.now() - 5 * 60000),
-        acknowledged: false,
-        urgency: 'high',
-        type: 'crisis'
-      },
-      {
-        id: '2',
-        contactName: 'Sarah M.',
-        message: 'Just wanted to check in. Today marks 30 days clean! 🎉',
-        timestamp: new Date(Date.now() - 2 * 60 * 60000),
-        acknowledged: true,
-        urgency: 'low',
-        type: 'milestone',
-        responseTime: 15
-      },
-      {
-        id: '3',
-        contactName: 'Mike R.',
-        message: 'Feeling a bit down today. Could use some encouragement.',
-        timestamp: new Date(Date.now() - 30 * 60000),
-        acknowledged: false,
-        urgency: 'medium',
-        type: 'check-in'
-      }
-    ];
-    
-    setAlerts(mockAlerts);
-  };
-
-  const calculateStats = () => {
-    setStats({
-      totalAlerts: 24,
-      responseRate: 92,
-      avgResponseTime: 8,
-      supportStreak: 15
-    });
-  };
-
-  const getFilteredAlerts = () => {
-    switch (filter) {
-      case 'unread':
-        return alerts.filter(a => !a.acknowledged);
-      case 'crisis':
-        return alerts.filter(a => a.type === 'crisis');
-      default:
-        return alerts;
+  const { user } = useAuth();
+  const [messages, setMessages] = useState<SupportMessage[]>([
+    {
+      id: '1',
+      sender_name: 'Recovery Partner',
+      message: 'Hi, I wanted to share my location with you for safety.',
+      timestamp: new Date(Date.now() - 60000).toISOString(),
+      isFromPatient: true,
+      read: false
+    },
+    {
+      id: '2',
+      sender_name: 'Recovery Partner',
+      message: 'I completed my daily check-in today!',
+      timestamp: new Date(Date.now() - 3600000).toISOString(),
+      isFromPatient: true,
+      read: true
     }
-  };
+  ]);
 
-  const getUrgencyColor = (urgency: string) => {
-    switch (urgency) {
-      case 'high': return 'bg-red-100 border-red-500 text-red-800 dark:bg-red-900/30 dark:border-red-400 dark:text-red-300';
-      case 'medium': return 'bg-orange-100 border-orange-500 text-orange-800 dark:bg-orange-900/30 dark:border-orange-400 dark:text-orange-300';
-      case 'low': return 'bg-green-100 border-green-500 text-green-800 dark:bg-green-900/30 dark:border-green-400 dark:text-green-300';
-      default: return 'bg-gray-100 border-gray-500 text-gray-800 dark:bg-gray-900/30 dark:border-gray-400 dark:text-gray-300';
+  const [locationShares] = useState<LocationShare[]>([
+    {
+      id: '1',
+      patient_name: 'Recovery Partner',
+      address: '123 Recovery St, New York, NY',
+      timestamp: new Date(Date.now() - 300000).toISOString(),
+      isEmergency: false
     }
+  ]);
+
+  const [newMessage, setNewMessage] = useState('');
+  const [selectedPatientId] = useState('patient-1');
+
+  const unreadCount = messages.filter(msg => !msg.read && msg.isFromPatient).length;
+
+  const handleSendMessage = () => {
+    if (!newMessage.trim()) return;
+    
+    const message: SupportMessage = {
+      id: Date.now().toString(),
+      sender_name: 'You',
+      message: newMessage,
+      timestamp: new Date().toISOString(),
+      isFromPatient: false,
+      read: true
+    };
+
+    setMessages(prev => [message, ...prev]);
+    setNewMessage('');
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'crisis': return <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />;
-      case 'milestone': return <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />;
-      default: return <MessageSquare className="w-5 h-5 text-blue-600 dark:text-blue-400" />;
-    }
-  };
-
-  const formatTimeAgo = (timestamp: Date) => {
-    const now = new Date();
-    const diffMs = now.getTime() - timestamp.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
-
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    return `${diffDays}d ago`;
-  };
-
-  const handleAcknowledge = (alertId: string) => {
-    setAlerts(prev => prev.map(alert => 
-      alert.id === alertId 
-        ? { ...alert, acknowledged: true, responseTime: Math.floor(Math.random() * 10) + 1 }
-        : alert
+  const handleMarkAsRead = (messageId: string) => {
+    setMessages(prev => prev.map(msg => 
+      msg.id === messageId ? { ...msg, read: true } : msg
     ));
   };
 
-  const handleQuickResponse = (alertId: string, response: QuickResponse) => {
-    setResponseMessage(response.text);
-    handleSendResponse(alertId, response.text + ' ' + response.emoji);
-  };
-
-  const handleSendResponse = (alertId: string, message: string) => {
-    console.log(`Sending response to alert ${alertId}: ${message}`);
-    handleAcknowledge(alertId);
-    setResponseMessage('');
-    setSelectedAlert(null);
-    
-    // Show success toast (you'd use your toast system here)
-    alert(`Response sent: "${message}"`);
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 animate-fade-in">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="bg-card shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+                <Heart className="w-8 h-8 text-primary" />
                 Supporter Dashboard
               </h1>
-              <p className="text-gray-600 dark:text-gray-300 mt-1">Help your recovery partners stay strong</p>
+              <p className="mt-2 text-muted-foreground">
+                Supporting your loved one's recovery journey with real-time communication.
+              </p>
             </div>
-            <Badge variant="outline" className="text-lg px-4 py-2 dark:border-gray-600 dark:text-gray-300">
-              <Activity className="w-5 h-5 mr-2" />
-              {alerts.filter(a => !a.acknowledged).length} Active Alerts
-            </Badge>
+            <div className="flex items-center gap-3">
+              <Badge variant="outline" className="flex items-center gap-1">
+                <Bell className="w-3 h-3" />
+                {unreadCount} Unread
+              </Badge>
+              <Badge variant="secondary">
+                Support Member
+              </Badge>
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white animate-slide-up hover-lift">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center">
-                <Shield className="w-5 h-5 mr-2" />
-                Total Alerts
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold">{stats.totalAlerts}</p>
-              <p className="text-blue-100 text-sm">This month</p>
+      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Messages</p>
+                  <p className="text-3xl font-bold text-foreground">{messages.length}</p>
+                </div>
+                <MessageCircle className="w-8 h-8 text-blue-600" />
+              </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white animate-slide-up hover-lift" style={{ animationDelay: '100ms' }}>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center">
-                <CheckCircle className="w-5 h-5 mr-2" />
-                Response Rate
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold">{stats.responseRate}%</p>
-              <p className="text-green-100 text-sm">Keep it up!</p>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Unread</p>
+                  <p className="text-3xl font-bold text-foreground">{unreadCount}</p>
+                </div>
+                <Bell className="w-8 h-8 text-orange-600" />
+              </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white animate-slide-up hover-lift" style={{ animationDelay: '200ms' }}>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center">
-                <Clock className="w-5 h-5 mr-2" />
-                Avg Response
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold">{stats.avgResponseTime}m</p>
-              <p className="text-purple-100 text-sm">Great timing!</p>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Locations</p>
+                  <p className="text-3xl font-bold text-foreground">{locationShares.length}</p>
+                </div>
+                <MapPin className="w-8 h-8 text-green-600" />
+              </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white animate-slide-up hover-lift" style={{ animationDelay: '300ms' }}>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center">
-                <Heart className="w-5 h-5 mr-2" />
-                Support Streak
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold">{stats.supportStreak}</p>
-              <p className="text-orange-100 text-sm">Days active</p>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Status</p>
+                  <p className="text-lg font-bold text-green-600">Connected</p>
+                </div>
+                <Users className="w-8 h-8 text-purple-600" />
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-2 flex space-x-2 animate-fade-in">
-          <Button
-            onClick={() => setFilter('all')}
-            variant={filter === 'all' ? 'default' : 'ghost'}
-            className="flex-1"
-          >
-            All Alerts
-          </Button>
-          <Button
-            onClick={() => setFilter('unread')}
-            variant={filter === 'unread' ? 'default' : 'ghost'}
-            className="flex-1"
-          >
-            Unread ({alerts.filter(a => !a.acknowledged).length})
-          </Button>
-          <Button
-            onClick={() => setFilter('crisis')}
-            variant={filter === 'crisis' ? 'default' : 'ghost'}
-            className="flex-1"
-          >
-            Crisis Only
-          </Button>
-        </div>
-
-        {/* Alerts List */}
-        <div className="space-y-4">
-          {getFilteredAlerts().length === 0 ? (
-            <Card className="text-center py-12 dark:bg-gray-800 animate-fade-in">
-              <CardContent>
-                <AlertTriangle className="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-2">No alerts to show</h3>
-                <p className="text-gray-500 dark:text-gray-400">
-                  {filter === 'unread' ? 'All alerts have been acknowledged!' : 'No alerts in this category yet.'}
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            getFilteredAlerts().map((alert, index) => (
-              <Card 
-                key={alert.id} 
-                className={`border-l-4 ${
-                  alert.urgency === 'high' ? 'border-l-red-500' :
-                  alert.urgency === 'medium' ? 'border-l-orange-500' :
-                  'border-l-green-500'
-                } ${alert.acknowledged ? 'opacity-75' : ''} hover:shadow-lg transition-shadow dark:bg-gray-800 animate-fade-in hover-lift`}
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-3">
-                      {getTypeIcon(alert.type)}
-                      <div>
-                        <h3 className="font-semibold text-gray-800 dark:text-gray-100">{alert.contactName}</h3>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <Badge className={`text-xs ${getUrgencyColor(alert.urgency)}`}>
-                            {alert.urgency.toUpperCase()}
-                          </Badge>
-                          <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
-                            <Clock className="w-3 h-3 mr-1" />
-                            {formatTimeAgo(alert.timestamp)}
-                          </span>
-                          {alert.responseTime && (
-                            <span className="text-xs text-green-600 dark:text-green-400 flex items-center">
-                              <CheckCircle className="w-3 h-3 mr-1" />
-                              Responded in {alert.responseTime}m
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardHeader>
-                
-                <CardContent className="space-y-4">
-                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                    <p className="text-gray-800 dark:text-gray-100 whitespace-pre-wrap">{alert.message}</p>
-                  </div>
-                  
-                  {alert.location && (
-                    <Button 
-                      variant="outline"
-                      className="w-full justify-start text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950/20"
-                      onClick={() => window.open(alert.location, '_blank')}
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Messages */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageCircle className="w-5 h-5" />
+                Recent Messages
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {/* Messages List */}
+                <div className="h-96 overflow-y-auto space-y-3 border rounded-lg p-4">
+                  {messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`p-3 rounded-lg max-w-[80%] cursor-pointer ${
+                        !message.isFromPatient
+                          ? 'ml-auto bg-primary text-primary-foreground'
+                          : 'bg-muted'
+                      }`}
+                      onClick={() => !message.read && handleMarkAsRead(message.id)}
                     >
-                      <MapPin className="w-4 h-4 mr-2" />
-                      View Location on Map
-                    </Button>
-                  )}
-                  
-                  {!alert.acknowledged ? (
-                    <>
-                      {/* Quick Responses */}
-                      <div className="grid grid-cols-3 gap-2">
-                        {quickResponses.slice(0, 3).map(response => (
-                          <Button
-                            key={response.id}
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleQuickResponse(alert.id, response)}
-                            className="text-xs hover:scale-105 transition-transform"
-                          >
-                            {response.emoji} {response.text}
-                          </Button>
-                        ))}
-                      </div>
-                      
-                      {/* Custom Response */}
-                      {selectedAlert === alert.id ? (
-                        <div className="space-y-2">
-                          <Input
-                            placeholder="Type your message..."
-                            value={responseMessage}
-                            onChange={(e) => setResponseMessage(e.target.value)}
-                            onKeyPress={(e) => {
-                              if (e.key === 'Enter' && responseMessage.trim()) {
-                                handleSendResponse(alert.id, responseMessage);
-                              }
-                            }}
-                            className="dark:bg-gray-700 dark:border-gray-600"
-                          />
-                          <div className="flex space-x-2">
-                            <Button 
-                              onClick={() => handleSendResponse(alert.id, responseMessage)}
-                              disabled={!responseMessage.trim()}
-                              className="flex-1 bg-blue-600 hover:bg-blue-700"
-                            >
-                              Send Response
-                            </Button>
-                            <Button 
-                              onClick={() => {
-                                setSelectedAlert(null);
-                                setResponseMessage('');
-                              }}
-                              variant="outline"
-                            >
-                              Cancel
-                            </Button>
+                      <div className="flex items-start gap-2">
+                        <MessageCircle className="w-4 h-4 mt-1" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{message.sender_name}</p>
+                          <p className="text-sm mt-1">{message.message}</p>
+                          <div className="flex items-center justify-between mt-2">
+                            <span className="text-xs opacity-70">
+                              {formatDistanceToNow(new Date(message.timestamp), { addSuffix: true })}
+                            </span>
+                            {!message.read && message.isFromPatient && (
+                              <Badge variant="destructive" className="text-xs">
+                                New
+                              </Badge>
+                            )}
                           </div>
                         </div>
-                      ) : (
-                        <div className="flex space-x-2">
-                          <Button 
-                            onClick={() => handleAcknowledge(alert.id)}
-                            className="flex-1 bg-green-600 hover:bg-green-700"
-                          >
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            Acknowledge
-                          </Button>
-                          <Button 
-                            onClick={() => setSelectedAlert(alert.id)}
-                            variant="outline"
-                            className="flex-1"
-                          >
-                            <MessageSquare className="w-4 h-4 mr-2" />
-                            Custom Response
-                          </Button>
-                          {alert.urgency === 'high' && (
-                            <Button 
-                              onClick={() => window.open(`tel:${alert.contactName}`)}
-                              className="bg-red-600 hover:bg-red-700 animate-gentle-pulse"
-                            >
-                              <Phone className="w-4 h-4" />
-                            </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Message Input */}
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Type your message..."
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                  />
+                  <Button onClick={handleSendMessage} disabled={!newMessage.trim()}>
+                    <Send className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Location Shares */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="w-5 h-5" />
+                Shared Locations
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {locationShares.map((location) => (
+                  <div key={location.id} className="p-4 border rounded-lg">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <MapPin className="w-4 h-4 text-blue-600" />
+                          <span className="font-medium">{location.patient_name}</span>
+                          {location.isEmergency && (
+                            <Badge variant="destructive" className="text-xs">
+                              Emergency
+                            </Badge>
                           )}
                         </div>
-                      )}
-                    </>
-                  ) : (
-                    <div className="flex items-center justify-center p-3 bg-green-50 dark:bg-green-900/30 rounded-lg">
-                      <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mr-2" />
-                      <span className="text-green-700 dark:text-green-300 font-medium">Alert Acknowledged</span>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          {location.address}
+                        </p>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Clock className="w-3 h-3" />
+                          {formatDistanceToNow(new Date(location.timestamp), { addSuffix: true })}
+                        </div>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        View on Map
+                      </Button>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))
-          )}
+                  </div>
+                ))}
+                {locationShares.length === 0 && (
+                  <p className="text-muted-foreground text-center py-8">
+                    No locations shared yet
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Quick Actions */}
-        <Card className="bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 animate-fade-in">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center">
-              <Heart className="w-5 h-5 mr-2 text-pink-600 dark:text-pink-400 animate-pulse-subtle" />
-              Encourage Your Recovery Partners
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-gray-700 dark:text-gray-300 text-sm">
-              Send a supportive message to all your recovery partners:
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              {quickResponses.map(response => (
-                <Button
-                  key={response.id}
-                  variant="outline"
-                  className="justify-start bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-105 transition-all"
-                  onClick={() => alert(`Sending to all: "${response.text} ${response.emoji}"`)}
-                >
-                  {response.emoji} {response.text}
+        {/* Support Actions */}
+        <div className="grid md:grid-cols-2 gap-6 mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Heart className="w-5 h-5" />
+                Quick Actions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <Button className="w-full" variant="outline">
+                  Send Encouragement
                 </Button>
-              ))}
+                <Button className="w-full" variant="outline">
+                  Request Check-in
+                </Button>
+                <Button className="w-full" variant="outline">
+                  Emergency Contact
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="w-5 h-5" />
+                Safety Features
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm font-medium">Location Sharing Active</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    You can see their location when shared
+                  </p>
+                </div>
+                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Bell className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-medium">Emergency Alerts Enabled</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    You'll be notified of any emergency situations
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Crisis Support */}
+        <div className="mt-6 p-4 bg-destructive/10 rounded-lg border border-destructive/20">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-medium text-destructive">
+                Crisis Support Information
+              </h3>
+              <p className="text-sm text-destructive/80 mt-1">
+                If you're concerned about immediate safety: 988 Suicide & Crisis Lifeline or 
+                contact local emergency services. Remember, your support matters.
+              </p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

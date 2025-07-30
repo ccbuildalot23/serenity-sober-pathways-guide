@@ -5,6 +5,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 import PatientDashboard from '@/pages/PatientDashboard';
 import SupportDashboard from '@/pages/SupportDashboard';
 import ProviderDashboard from '@/pages/ProviderDashboard';
+import SupporterDashboard from '@/components/supporter/SupporterDashboard';
 
 const DashboardRouter = () => {
   const { role, loading } = useUserRole();
@@ -24,7 +25,7 @@ const DashboardRouter = () => {
     case 'patient':
       return <PatientDashboard />;
     case 'support_member':
-      return <SupportDashboard />;
+      return <SupporterDashboard />;
     case 'provider':
       return <ProviderDashboard />;
     default:

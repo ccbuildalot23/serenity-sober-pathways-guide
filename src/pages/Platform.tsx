@@ -153,6 +153,9 @@ const Platform = () => {
               </div>
               <h4 className="font-semibold text-foreground mb-2">Support Network</h4>
               <p className="text-sm text-muted-foreground">Family and supporter educational resources</p>
+              <Button className="w-full mt-4" variant="outline" asChild>
+                <Link to="/supporter-signup">Supporter Login</Link>
+              </Button>
             </div>
           </div>
         </div>

@@ -1905,6 +1905,42 @@ export type Database = {
         }
         Relationships: []
       }
+      location_shares: {
+        Row: {
+          address: string | null
+          expires_at: string | null
+          id: string
+          is_emergency: boolean
+          latitude: number
+          longitude: number
+          patient_id: string
+          shared_at: string
+          shared_with_supporter_id: string
+        }
+        Insert: {
+          address?: string | null
+          expires_at?: string | null
+          id?: string
+          is_emergency?: boolean
+          latitude: number
+          longitude: number
+          patient_id: string
+          shared_at?: string
+          shared_with_supporter_id: string
+        }
+        Update: {
+          address?: string | null
+          expires_at?: string | null
+          id?: string
+          is_emergency?: boolean
+          latitude?: number
+          longitude?: number
+          patient_id?: string
+          shared_at?: string
+          shared_with_supporter_id?: string
+        }
+        Relationships: []
+      }
       message_templates: {
         Row: {
           created_at: string | null
@@ -4690,6 +4726,39 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      support_messages: {
+        Row: {
+          created_at: string
+          id: string
+          location_data: Json | null
+          message: string
+          message_type: string
+          read_at: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location_data?: Json | null
+          message: string
+          message_type?: string
+          read_at?: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location_data?: Json | null
+          message?: string
+          message_type?: string
+          read_at?: string | null
+          recipient_id?: string
+          sender_id?: string
         }
         Relationships: []
       }

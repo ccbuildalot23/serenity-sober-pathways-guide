@@ -50,6 +50,9 @@ const HomePage = () => {
           <Button size="lg" variant="outline" asChild>
             <Link to="/auth">For Individuals & Families</Link>
           </Button>
+          <Button size="lg" variant="ghost" asChild>
+            <Link to="/supporter-signup">For Supporters</Link>
+          </Button>
         </div>
       </section>
 

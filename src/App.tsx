@@ -56,7 +56,7 @@ import CrisisSupport from '@/pages/CrisisSupport';
 import { ComprehensiveSupportPage } from '@/pages/ComprehensiveSupportPage';
 import { TestCrisisPage } from '@/pages/TestCrisisPage';
 import SecurityAudit from '@/pages/SecurityAudit';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 // Commented out for MVP - keeping functionality but focusing on core features
 import Calendar from '@/pages/Calendar';

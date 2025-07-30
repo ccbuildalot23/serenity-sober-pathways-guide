@@ -84,10 +84,10 @@ function App() {
     <HealthcareErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <SessionTimeoutManager>
-            <RealtimeNotifications />
-            <Toaster />
-            <Router>
+          <RealtimeNotifications />
+          <Toaster />
+          <Router>
+            <SessionTimeoutManager>
               <Routes>
                 {/* Public Landing Pages */}
                 <Route path="/" element={<HomePage />} />
@@ -316,8 +316,8 @@ function App() {
                 } />
                 */}
               </Routes>
-            </Router>
-          </SessionTimeoutManager>
+            </SessionTimeoutManager>
+          </Router>
         </AuthProvider>
       </QueryClientProvider>
     </HealthcareErrorBoundary>

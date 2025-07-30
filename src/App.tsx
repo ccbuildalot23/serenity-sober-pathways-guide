@@ -13,6 +13,7 @@ import Platform from '@/pages/Platform';
 import Providers from '@/pages/Providers';
 import Pilot from '@/pages/Pilot';
 import Contact from '@/pages/Contact';
+import ProviderSignup from '@/pages/ProviderSignup';
 // MVP Core Pages
 import Home from '@/pages/Home';
 import Login from '@/pages/Login';
@@ -89,6 +90,7 @@ function App() {
             <Route path="/providers" element={<Providers />} />
             <Route path="/pilot" element={<Pilot />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/provider-signup" element={<ProviderSignup />} />
             
             {/* Auth and Dashboard Routes */}
             <Route path="/login" element={<Login />} />

@@ -51,7 +51,7 @@ const Pilot = () => {
               Get Involved
             </Link>
             <Button variant="outline" asChild>
-              <Link to="/auth">Provider Login</Link>
+              <Link to="/provider-signup">Provider Access</Link>
             </Button>
           </div>
         </div>

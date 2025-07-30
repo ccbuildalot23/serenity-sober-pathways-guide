@@ -18,6 +18,9 @@ const Auth = () => {
   const [debugInfo, setDebugInfo] = useState<any>({});
   const [selectedUserType, setSelectedUserType] = useState<string>('');
 
+  // Test log to verify page loads
+  console.log('🎯 Auth page loaded successfully with new three-user-type design');
+
   // Check URL params for debug mode
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -289,7 +292,13 @@ const Auth = () => {
               {/* User Type Selection Cards */}
               <div className="grid md:grid-cols-3 gap-6">
                 {/* Person in Recovery Card */}
-                <Card className="group border-0 shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-emerald-200 dark:hover:border-emerald-800 cursor-pointer bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20">
+                <Card 
+                  className="group border-0 shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-emerald-200 dark:hover:border-emerald-800 cursor-pointer bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20"
+                  onClick={() => {
+                    setSelectedUserType('recovery');
+                    console.log('✅ Recovery card clicked - user type set to: recovery');
+                  }}
+                >
                   <CardHeader className="text-center pb-4">
                     <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg mx-auto mb-4 group-hover:scale-110 transition-transform">
                       <Shield className="w-8 h-8 text-white" />
@@ -327,7 +336,13 @@ const Auth = () => {
                 </Card>
 
                 {/* Healthcare Provider Card */}
-                <Card className="group border-0 shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-blue-200 dark:hover:border-blue-800 cursor-pointer bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
+                <Card 
+                  className="group border-0 shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-blue-200 dark:hover:border-blue-800 cursor-pointer bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20"
+                  onClick={() => {
+                    setSelectedUserType('provider');
+                    console.log('✅ Provider card clicked - user type set to: provider');
+                  }}
+                >
                   <CardHeader className="text-center pb-4">
                     <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg mx-auto mb-4 group-hover:scale-110 transition-transform">
                       <Stethoscope className="w-8 h-8 text-white" />
@@ -365,7 +380,13 @@ const Auth = () => {
                 </Card>
 
                 {/* Personal Supporter Card */}
-                <Card className="group border-0 shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-purple-200 dark:hover:border-purple-800 cursor-pointer bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
+                <Card 
+                  className="group border-0 shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-purple-200 dark:hover:border-purple-800 cursor-pointer bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20"
+                  onClick={() => {
+                    setSelectedUserType('supporter');
+                    console.log('✅ Supporter card clicked - user type set to: supporter');
+                  }}
+                >
                   <CardHeader className="text-center pb-4">
                     <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg mx-auto mb-4 group-hover:scale-110 transition-transform">
                       <HandHeart className="w-8 h-8 text-white" />

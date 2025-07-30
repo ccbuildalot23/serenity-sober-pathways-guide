@@ -281,6 +281,7 @@ export type Database = {
       audit_logs: {
         Row: {
           action: string
+          created_at: string | null
           details_encrypted: string | null
           id: string
           ip_address: unknown | null
@@ -291,6 +292,7 @@ export type Database = {
         }
         Insert: {
           action: string
+          created_at?: string | null
           details_encrypted?: string | null
           id?: string
           ip_address?: unknown | null
@@ -301,6 +303,7 @@ export type Database = {
         }
         Update: {
           action?: string
+          created_at?: string | null
           details_encrypted?: string | null
           id?: string
           ip_address?: unknown | null
@@ -1101,6 +1104,7 @@ export type Database = {
           effectiveness_rating: number | null
           id: string
           interventions_used: Json | null
+          provider_id: string | null
           resolution_time: string
           safety_confirmed: boolean | null
           user_id: string
@@ -1112,6 +1116,7 @@ export type Database = {
           effectiveness_rating?: number | null
           id?: string
           interventions_used?: Json | null
+          provider_id?: string | null
           resolution_time: string
           safety_confirmed?: boolean | null
           user_id: string
@@ -1123,6 +1128,7 @@ export type Database = {
           effectiveness_rating?: number | null
           id?: string
           interventions_used?: Json | null
+          provider_id?: string | null
           resolution_time?: string
           safety_confirmed?: boolean | null
           user_id?: string
@@ -1386,6 +1392,33 @@ export type Database = {
         }
         Relationships: []
       }
+      data_retention_log: {
+        Row: {
+          deleted_at: string | null
+          deleted_by: string | null
+          deletion_criteria: Json | null
+          id: string
+          records_deleted: number
+          table_name: string
+        }
+        Insert: {
+          deleted_at?: string | null
+          deleted_by?: string | null
+          deletion_criteria?: Json | null
+          id?: string
+          records_deleted: number
+          table_name: string
+        }
+        Update: {
+          deleted_at?: string | null
+          deleted_by?: string | null
+          deletion_criteria?: Json | null
+          id?: string
+          records_deleted?: number
+          table_name?: string
+        }
+        Relationships: []
+      }
       data_retention_policies: {
         Row: {
           auto_delete_enabled: boolean
@@ -1566,6 +1599,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      error_logs: {
+        Row: {
+          app_version: string | null
+          component_stack: string | null
+          error_message: string
+          error_stack: string | null
+          id: string
+          resolved: boolean | null
+          timestamp: string | null
+          url: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          app_version?: string | null
+          component_stack?: string | null
+          error_message: string
+          error_stack?: string | null
+          id?: string
+          resolved?: boolean | null
+          timestamp?: string | null
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          app_version?: string | null
+          component_stack?: string | null
+          error_message?: string
+          error_stack?: string | null
+          id?: string
+          resolved?: boolean | null
+          timestamp?: string | null
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       follow_up_tasks: {
         Row: {
@@ -3478,6 +3550,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      provider_patient_assignments: {
+        Row: {
+          assigned_at: string | null
+          assignment_type: string | null
+          created_at: string | null
+          id: string
+          notes: string | null
+          patient_id: string | null
+          provider_id: string | null
+          status: string | null
+        }
+        Insert: {
+          assigned_at?: string | null
+          assignment_type?: string | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          patient_id?: string | null
+          provider_id?: string | null
+          status?: string | null
+        }
+        Update: {
+          assigned_at?: string | null
+          assignment_type?: string | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          patient_id?: string | null
+          provider_id?: string | null
+          status?: string | null
+        }
+        Relationships: []
       }
       provider_plan_access: {
         Row: {
@@ -5459,6 +5564,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_sessions: {
+        Row: {
+          created_at: string | null
+          expires_at: string
+          id: string
+          ip_address: string | null
+          is_active: boolean | null
+          last_activity: string | null
+          session_token: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          ip_address?: string | null
+          is_active?: boolean | null
+          last_activity?: string | null
+          session_token: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          is_active?: boolean | null
+          last_activity?: string | null
+          session_token?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_skill_preferences: {
         Row: {
           completed_assessment: boolean | null
@@ -5611,6 +5752,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      log_security_event_enhanced: {
+        Args: { event_type: string; event_data?: Json; risk_level?: string }
+        Returns: undefined
+      }
       log_security_violation: {
         Args: { violation_type: string; details?: Json }
         Returns: undefined
@@ -5632,6 +5777,10 @@ export type Database = {
           created_at: string
           rank: number
         }[]
+      }
+      validate_security_configuration: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       validate_user_permissions: {
         Args: Record<PropertyKey, never>

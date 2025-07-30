@@ -7,6 +7,12 @@ import { EnhancedSecurityInitializer } from '@/lib/enhancedSecurityInitializer';
 import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
 import RealtimeNotifications from '@/components/RealtimeNotifications';
 import { Toaster } from '@/components/ui/sonner';
+// New Landing Pages
+import HomePage from '@/pages/HomePage';
+import Platform from '@/pages/Platform';
+import Providers from '@/pages/Providers';
+import Pilot from '@/pages/Pilot';
+import Contact from '@/pages/Contact';
 // MVP Core Pages
 import Home from '@/pages/Home';
 import Login from '@/pages/Login';
@@ -77,10 +83,17 @@ function App() {
         <Toaster />
         <Router>
           <Routes>
-            {/* MVP Core Routes */}
+            {/* Public Landing Pages */}
+            <Route path="/" element={<HomePage />} />
+            <Route path="/platform" element={<Platform />} />
+            <Route path="/providers" element={<Providers />} />
+            <Route path="/pilot" element={<Pilot />} />
+            <Route path="/contact" element={<Contact />} />
+            
+            {/* Auth and Dashboard Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/" element={
+            <Route path="/dashboard" element={
               <ProtectedRoute>
                 <DashboardRouter />
               </ProtectedRoute>

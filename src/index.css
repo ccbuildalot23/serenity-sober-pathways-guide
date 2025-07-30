@@ -6,32 +6,30 @@
 
 @layer base {
   :root {
-    /* Enhanced color palette for recovery and wellness */
-    --background: 210 20% 98%;
-    --foreground: 220 9% 9%;
+    /* Professional healthcare colors */
+    --background: 0 0% 100%;
+    --foreground: 213 31% 14%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 9% 9%;
+    --card-foreground: 213 31% 14%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 9% 9%;
+    --popover-foreground: 213 31% 14%;
 
-    /* Calming primary colors - soft blue for trust and tranquility */
-    --primary: 213 94% 68%;
+    /* Healthcare blue primary */
+    --primary: 213 100% 35%;
     --primary-foreground: 0 0% 100%;
-    --primary-soft: 213 94% 85%;
 
-    /* Supportive secondary colors */
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 220 9% 9%;
+    /* Calming teal secondary */
+    --secondary: 191 73% 40%;
+    --secondary-foreground: 0 0% 100%;
 
     --muted: 210 40% 96%;
-    --muted-foreground: 220 9% 46%;
+    --muted-foreground: 200 14% 46%;
 
-    /* Healing accent - warm emerald for growth and renewal */
-    --accent: 142 76% 36%;
+    /* Success green accent */
+    --accent: 145 63% 42%;
     --accent-foreground: 0 0% 100%;
-    --accent-soft: 142 76% 85%;
 
     /* Gentle warning and success colors */
     --destructive: 0 84% 60%;

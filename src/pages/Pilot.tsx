@@ -377,8 +377,8 @@ const Pilot = () => {
                 <Button type="submit" className="flex-1">
                   Submit Application
                 </Button>
-                <Button type="button" variant="outline" className="flex-1">
-                  Schedule a Demo First
+                <Button type="button" variant="outline" className="flex-1" asChild>
+                  <Link to="/contact">Schedule a Demo First</Link>
                 </Button>
               </div>
             </form>

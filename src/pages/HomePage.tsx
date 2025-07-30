@@ -48,7 +48,7 @@ const HomePage = () => {
             <Link to="/providers">For Healthcare Providers</Link>
           </Button>
           <Button size="lg" variant="outline" asChild>
-            <Link to="/platform">For Individuals & Families</Link>
+            <Link to="/auth">For Individuals & Families</Link>
           </Button>
         </div>
       </section>

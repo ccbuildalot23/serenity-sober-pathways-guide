@@ -143,6 +143,9 @@ const Platform = () => {
               </div>
               <h4 className="font-semibold text-foreground mb-2">Patient Portal</h4>
               <p className="text-sm text-muted-foreground">Daily check-ins and anonymous crisis support</p>
+              <Button className="w-full mt-4" asChild>
+                <Link to="/auth">Access Patient Portal</Link>
+              </Button>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">

@@ -83,7 +83,12 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
     setIsLoading(true);
 
     try {
-      const { error } = await signUp(email, password);
+      // Include user type in metadata for role assignment
+      const { error } = await signUp(email, password, {
+        data: {
+          userType: userType || 'patient'
+        }
+      });
       
       if (error) {
         // Handle specific Supabase errors

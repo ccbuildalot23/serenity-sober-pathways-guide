@@ -7,6 +7,8 @@ import { EnhancedSecurityInitializer } from '@/lib/enhancedSecurityInitializer';
 import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
 import RealtimeNotifications from '@/components/RealtimeNotifications';
 import { Toaster } from '@/components/ui/sonner';
+import { HealthcareErrorBoundary } from '@/components/HealthcareErrorBoundary';
+import { SessionTimeoutManager } from '@/components/SessionTimeoutManager';
 // New Landing Pages
 import HomePage from '@/pages/HomePage';
 import Platform from '@/pages/Platform';
@@ -79,242 +81,246 @@ function App() {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <RealtimeNotifications />
-        <Toaster />
-        <Router>
-          <Routes>
-            {/* Public Landing Pages */}
-            <Route path="/" element={<HomePage />} />
-            <Route path="/platform" element={<Platform />} />
-            <Route path="/providers" element={<Providers />} />
-            <Route path="/pilot" element={<Pilot />} />
-            <Route path="/contact" element={<Contact />} />
-        <Route path="/provider-signup" element={<ProviderSignup />} />
-        <Route path="/supporter-signup" element={<SupporterSignup />} />
-            
-            {/* Auth and Dashboard Routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <DashboardRouter />
-              </ProtectedRoute>
-            } />
-            <Route path="/patient" element={
-              <ProtectedRoute>
-                <PatientDashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/support" element={
-              <ProtectedRoute>
-                <SupportDashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/provider" element={
-              <ProtectedRoute>
-                <ProviderDashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/checkin" element={
-              <ProtectedRoute>
-                <CheckIn />
-              </ProtectedRoute>
-            } />
-            <Route path="/peer-support" element={
-              <ProtectedRoute>
-                <PeerSupport />
-              </ProtectedRoute>
-            } />
-            <Route path="/motivation" element={
-              <ProtectedRoute>
-                <Motivation />
-              </ProtectedRoute>
-            } />
-            <Route path="/accountability" element={
-              <ProtectedRoute>
-                <AccountabilityPartners />
-              </ProtectedRoute>
-            } />
-            <Route path="/planning" element={
-              <ProtectedRoute>
-                <RecoveryPlanning />
-              </ProtectedRoute>
-            } />
-            <Route path="/relapse-prevention" element={
-              <ProtectedRoute>
-                <RelapsePreventionPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/clinical-protocols" element={
-              <ProtectedRoute>
-                <ClinicalProtocols />
-              </ProtectedRoute>
-            } />
-            <Route path="/regulatory-compliance" element={
-              <ProtectedRoute>
-                <RegulatoryCompliance />
-              </ProtectedRoute>
-            } />
-            <Route path="/peer-supervision" element={
-              <ProtectedRoute>
-                <PeerSupervision />
-              </ProtectedRoute>
-            } />
-            <Route path="/practice-management" element={
-              <ProtectedRoute>
-                <PracticeManagement />
-              </ProtectedRoute>
-            } />
-            <Route path="/role-management" element={
-              <ProtectedRoute>
-                <RoleManagement />
-              </ProtectedRoute>
-            } />
-            <Route path="/crisis-intervention" element={
-              <ProtectedRoute>
-                <CrisisIntervention />
-              </ProtectedRoute>
-            } />
-            <Route path="/mobile-crisis" element={
-              <ProtectedRoute>
-                <MobileCrisis />
-              </ProtectedRoute>
-            } />
-            <Route path="/data-export" element={
-              <ProtectedRoute>
-                <DataExport />
-              </ProtectedRoute>
-            } />
-            <Route path="/demo/mobile-crisis" element={
-              <ProtectedRoute>
-                <div className="min-h-screen bg-background">
-                  <MobileCrisisDemo />
-                </div>
-              </ProtectedRoute>
-            } />
-            <Route path="/hipaa-security" element={
-              <ProtectedRoute>
-                <HIPAASecurityDashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/community" element={
-              <ProtectedRoute>
-                <Community />
-              </ProtectedRoute>
-            } />
-            <Route path="/moderation" element={
-              <ProtectedRoute>
-                <Moderation />
-              </ProtectedRoute>
-            } />
-            <Route path="/voice-support" element={
-              <ProtectedRoute>
-                <VoiceSupport />
-              </ProtectedRoute>
-            } />
-            <Route path="/test-dashboard" element={
-              <ProtectedRoute>
-                <TestDashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/progress" element={
-              <ProtectedRoute>
-                <Progress />
-              </ProtectedRoute>
-            } />
-            <Route path="/analytics" element={
-              <ProtectedRoute>
-                <Analytics />
-              </ProtectedRoute>
-            } />
-            <Route path="/test-features" element={
-              <ProtectedRoute>
-                <TestFeatures />
-              </ProtectedRoute>
-            } />
-            <Route path="/notification-management" element={
-              <ProtectedRoute>
-                <NotificationManagement />
-              </ProtectedRoute>
-            } />
-            <Route path="/integration-testing" element={
-              <ProtectedRoute>
-                <IntegrationTesting />
-              </ProtectedRoute>
-            } />
-            <Route path="/compliance-management" element={
-              <ProtectedRoute>
-                <ComplianceManagement />
-              </ProtectedRoute>
-            } />
-            <Route path="/pilot-readiness" element={
-              <ProtectedRoute>
-                <PilotReadinessAssessment />
-              </ProtectedRoute>
-            } />
-            <Route path="/security-fixes" element={
-              <ProtectedRoute>
-                <SecurityFixesStatus />
-              </ProtectedRoute>
-            } />
-            <Route path="/crisis-support" element={
-              <ProtectedRoute>
-                <CrisisSupport />
-              </ProtectedRoute>
-            } />
-            <Route path="/comprehensive-support" element={
-              <ProtectedRoute>
-                <ComprehensiveSupportPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/test-crisis" element={
-              <ProtectedRoute>
-                <TestCrisisPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/security-audit" element={
-              <ProtectedRoute>
-                <SecurityAudit />
-              </ProtectedRoute>
-            } />
-            {/* Commented out non-MVP routes - keeping for future use
-            <Route path="/calendar" element={
-              <ProtectedRoute>
-                <Calendar />
-              </ProtectedRoute>
-            } />
-            <Route path="/support" element={
-              <ProtectedRoute>
-                <Support />
-              </ProtectedRoute>
-            } />
-            <Route path="/triggers/manage" element={
-              <ProtectedRoute>
-                <ManageTriggers />
-              </ProtectedRoute>
-            } />
-            <Route path="/crisis-toolkit" element={
-              <ProtectedRoute>
-                <CrisisToolkit />
-              </ProtectedRoute>
-            } />
-            <Route path="/clinical-resources" element={
-              <ProtectedRoute>
-                <ClinicalDirectory />
-              </ProtectedRoute>
-            } />
-            <Route path="/settings" element={
-              <ProtectedRoute>
-                <Settings />
-              </ProtectedRoute>
-            } />
-            */}
-          </Routes>
-        </Router>
-      </AuthProvider>
-    </QueryClientProvider>
+    <HealthcareErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <SessionTimeoutManager>
+            <RealtimeNotifications />
+            <Toaster />
+            <Router>
+              <Routes>
+                {/* Public Landing Pages */}
+                <Route path="/" element={<HomePage />} />
+                <Route path="/platform" element={<Platform />} />
+                <Route path="/providers" element={<Providers />} />
+                <Route path="/pilot" element={<Pilot />} />
+                <Route path="/contact" element={<Contact />} />
+            <Route path="/provider-signup" element={<ProviderSignup />} />
+            <Route path="/supporter-signup" element={<SupporterSignup />} />
+                
+                {/* Auth and Dashboard Routes */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <DashboardRouter />
+                  </ProtectedRoute>
+                } />
+                <Route path="/patient" element={
+                  <ProtectedRoute>
+                    <PatientDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/support" element={
+                  <ProtectedRoute>
+                    <SupportDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/provider" element={
+                  <ProtectedRoute>
+                    <ProviderDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/checkin" element={
+                  <ProtectedRoute>
+                    <CheckIn />
+                  </ProtectedRoute>
+                } />
+                <Route path="/peer-support" element={
+                  <ProtectedRoute>
+                    <PeerSupport />
+                  </ProtectedRoute>
+                } />
+                <Route path="/motivation" element={
+                  <ProtectedRoute>
+                    <Motivation />
+                  </ProtectedRoute>
+                } />
+                <Route path="/accountability" element={
+                  <ProtectedRoute>
+                    <AccountabilityPartners />
+                  </ProtectedRoute>
+                } />
+                <Route path="/planning" element={
+                  <ProtectedRoute>
+                    <RecoveryPlanning />
+                  </ProtectedRoute>
+                } />
+                <Route path="/relapse-prevention" element={
+                  <ProtectedRoute>
+                    <RelapsePreventionPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/clinical-protocols" element={
+                  <ProtectedRoute>
+                    <ClinicalProtocols />
+                  </ProtectedRoute>
+                } />
+                <Route path="/regulatory-compliance" element={
+                  <ProtectedRoute>
+                    <RegulatoryCompliance />
+                  </ProtectedRoute>
+                } />
+                <Route path="/peer-supervision" element={
+                  <ProtectedRoute>
+                    <PeerSupervision />
+                  </ProtectedRoute>
+                } />
+                <Route path="/practice-management" element={
+                  <ProtectedRoute>
+                    <PracticeManagement />
+                  </ProtectedRoute>
+                } />
+                <Route path="/role-management" element={
+                  <ProtectedRoute>
+                    <RoleManagement />
+                  </ProtectedRoute>
+                } />
+                <Route path="/crisis-intervention" element={
+                  <ProtectedRoute>
+                    <CrisisIntervention />
+                  </ProtectedRoute>
+                } />
+                <Route path="/mobile-crisis" element={
+                  <ProtectedRoute>
+                    <MobileCrisis />
+                  </ProtectedRoute>
+                } />
+                <Route path="/data-export" element={
+                  <ProtectedRoute>
+                    <DataExport />
+                  </ProtectedRoute>
+                } />
+                <Route path="/demo/mobile-crisis" element={
+                  <ProtectedRoute>
+                    <div className="min-h-screen bg-background">
+                      <MobileCrisisDemo />
+                    </div>
+                  </ProtectedRoute>
+                } />
+                <Route path="/hipaa-security" element={
+                  <ProtectedRoute>
+                    <HIPAASecurityDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/community" element={
+                  <ProtectedRoute>
+                    <Community />
+                  </ProtectedRoute>
+                } />
+                <Route path="/moderation" element={
+                  <ProtectedRoute>
+                    <Moderation />
+                  </ProtectedRoute>
+                } />
+                <Route path="/voice-support" element={
+                  <ProtectedRoute>
+                    <VoiceSupport />
+                  </ProtectedRoute>
+                } />
+                <Route path="/test-dashboard" element={
+                  <ProtectedRoute>
+                    <TestDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/progress" element={
+                  <ProtectedRoute>
+                    <Progress />
+                  </ProtectedRoute>
+                } />
+                <Route path="/analytics" element={
+                  <ProtectedRoute>
+                    <Analytics />
+                  </ProtectedRoute>
+                } />
+                <Route path="/test-features" element={
+                  <ProtectedRoute>
+                    <TestFeatures />
+                  </ProtectedRoute>
+                } />
+                <Route path="/notification-management" element={
+                  <ProtectedRoute>
+                    <NotificationManagement />
+                  </ProtectedRoute>
+                } />
+                <Route path="/integration-testing" element={
+                  <ProtectedRoute>
+                    <IntegrationTesting />
+                  </ProtectedRoute>
+                } />
+                <Route path="/compliance-management" element={
+                  <ProtectedRoute>
+                    <ComplianceManagement />
+                  </ProtectedRoute>
+                } />
+                <Route path="/pilot-readiness" element={
+                  <ProtectedRoute>
+                    <PilotReadinessAssessment />
+                  </ProtectedRoute>
+                } />
+                <Route path="/security-fixes" element={
+                  <ProtectedRoute>
+                    <SecurityFixesStatus />
+                  </ProtectedRoute>
+                } />
+                <Route path="/crisis-support" element={
+                  <ProtectedRoute>
+                    <CrisisSupport />
+                  </ProtectedRoute>
+                } />
+                <Route path="/comprehensive-support" element={
+                  <ProtectedRoute>
+                    <ComprehensiveSupportPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/test-crisis" element={
+                  <ProtectedRoute>
+                    <TestCrisisPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/security-audit" element={
+                  <ProtectedRoute>
+                    <SecurityAudit />
+                  </ProtectedRoute>
+                } />
+                {/* Commented out non-MVP routes - keeping for future use
+                <Route path="/calendar" element={
+                  <ProtectedRoute>
+                    <Calendar />
+                  </ProtectedRoute>
+                } />
+                <Route path="/support" element={
+                  <ProtectedRoute>
+                    <Support />
+                  </ProtectedRoute>
+                } />
+                <Route path="/triggers/manage" element={
+                  <ProtectedRoute>
+                    <ManageTriggers />
+                  </ProtectedRoute>
+                } />
+                <Route path="/crisis-toolkit" element={
+                  <ProtectedRoute>
+                    <CrisisToolkit />
+                  </ProtectedRoute>
+                } />
+                <Route path="/clinical-resources" element={
+                  <ProtectedRoute>
+                    <ClinicalDirectory />
+                  </ProtectedRoute>
+                } />
+                <Route path="/settings" element={
+                  <ProtectedRoute>
+                    <Settings />
+                  </ProtectedRoute>
+                } />
+                */}
+              </Routes>
+            </Router>
+          </SessionTimeoutManager>
+        </AuthProvider>
+      </QueryClientProvider>
+    </HealthcareErrorBoundary>
   );
 }
 

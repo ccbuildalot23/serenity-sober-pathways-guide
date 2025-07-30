@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, TrendingUp, Heart, Stethoscope, Hospital, BarChart3 } from "lucide-react";
+import { Shield, TrendingUp, Heart, Stethoscope, Hospital, BarChart3, ArrowRight, CircleDollarSign, Users, FlaskConical, Lightbulb } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const HomePage = () => {
@@ -120,6 +120,192 @@ const HomePage = () => {
               </p>
             </CardContent>
           </Card>
+        </div>
+      </section>
+
+      {/* Giving Back Section */}
+      <section className="bg-gradient-to-br from-primary/5 to-secondary/5 py-20">
+        <div className="container mx-auto px-4">
+          {/* Hero Statement */}
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center space-x-2 bg-primary/10 rounded-full px-6 py-2 mb-6">
+              <CircleDollarSign className="w-5 h-5 text-primary" />
+              <span className="text-sm font-medium text-primary">5% Pledge</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+              Every Subscription Funds Breakthrough Research
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-4xl mx-auto mb-4">
+              When providers choose Serenity, they're not just transforming their practice — they're investing in the science that will save lives tomorrow.
+            </p>
+            <p className="text-lg font-medium text-primary">
+              5% of our profits fund the future of recovery. Written into our charter since day one.
+            </p>
+          </div>
+
+          {/* The Why */}
+          <div className="bg-background/80 backdrop-blur-sm rounded-2xl p-8 mb-12 border border-border shadow-lg">
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold text-foreground mb-4">Why We Give Back</h3>
+              <p className="text-lg text-muted-foreground italic">
+                "Recovery taught us that healing happens in community. Commercial success without giving back is just profit without purpose."
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div>
+                <h4 className="font-semibold text-foreground mb-3">Our Foundation</h4>
+                <ul className="space-y-2 text-muted-foreground">
+                  <li>• Recovery gave us a second chance at life</li>
+                  <li>• We build technology from lived experience</li>
+                  <li>• Every feature comes from real recovery insights</li>
+                  <li>• Success means lifting others behind us</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold text-foreground mb-3">Our Mission</h4>
+                <ul className="space-y-2 text-muted-foreground">
+                  <li>• We measure success in lives transformed, not just revenue</li>
+                  <li>• Built by people in recovery, for people seeking recovery</li>
+                  <li>• This is how healthcare companies should operate</li>
+                  <li>• Every dollar earned is a vote for evidence-based recovery</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Impact Metrics */}
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            <Card className="text-center border-0 shadow-lg bg-background/90 backdrop-blur-sm">
+              <CardHeader>
+                <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <CircleDollarSign className="w-8 h-8 text-white" />
+                </div>
+                <CardTitle className="text-primary">Impact Today</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-foreground mb-2">$0</p>
+                <p className="text-muted-foreground">Donated to date</p>
+                <p className="text-sm text-muted-foreground mt-2">Ready for Year 2 growth</p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center border-0 shadow-lg bg-background/90 backdrop-blur-sm">
+              <CardHeader>
+                <div className="w-16 h-16 bg-secondary rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <TrendingUp className="w-8 h-8 text-white" />
+                </div>
+                <CardTitle className="text-secondary">By 2030</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-foreground mb-2">$1M+</p>
+                <p className="text-muted-foreground">Annual research funding</p>
+                <p className="text-sm text-muted-foreground mt-2">Projected annual giving</p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center border-0 shadow-lg bg-background/90 backdrop-blur-sm">
+              <CardHeader>
+                <div className="w-16 h-16 bg-accent rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <Users className="w-8 h-8 text-white" />
+                </div>
+                <CardTitle className="text-accent">Future Impact</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-foreground mb-2">20+</p>
+                <p className="text-muted-foreground">Researchers funded</p>
+                <p className="text-sm text-muted-foreground mt-2">100+ studies, countless breakthroughs</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Recipients */}
+          <div className="bg-background/80 backdrop-blur-sm rounded-2xl p-8 mb-12 border border-border shadow-lg">
+            <h3 className="text-2xl font-bold text-foreground text-center mb-8">Where Your Subscription Goes</h3>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <FlaskConical className="w-6 h-6 text-white" />
+                </div>
+                <h4 className="font-semibold text-foreground mb-2">40%</h4>
+                <p className="text-sm text-muted-foreground">National Institute on Drug Abuse</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-secondary rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <Hospital className="w-6 h-6 text-white" />
+                </div>
+                <h4 className="font-semibold text-foreground mb-2">30%</h4>
+                <p className="text-sm text-muted-foreground">Recovery Research Institute at Mass General</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-accent rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <Lightbulb className="w-6 h-6 text-white" />
+                </div>
+                <h4 className="font-semibold text-foreground mb-2">20%</h4>
+                <p className="text-sm text-muted-foreground">Addiction Policy Forum Innovation Grants</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-primary/80 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <Heart className="w-6 h-6 text-white" />
+                </div>
+                <h4 className="font-semibold text-foreground mb-2">10%</h4>
+                <p className="text-sm text-muted-foreground">Serenity Community Innovation Award</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Circular Flow Diagram */}
+          <div className="bg-background/80 backdrop-blur-sm rounded-2xl p-8 mb-12 border border-border shadow-lg">
+            <h3 className="text-2xl font-bold text-foreground text-center mb-8">The Circle of Innovation</h3>
+            <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8">
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-3">
+                  <Stethoscope className="w-8 h-8 text-white" />
+                </div>
+                <p className="text-sm font-medium text-center">Providers</p>
+              </div>
+              <ArrowRight className="w-6 h-6 text-muted-foreground rotate-90 md:rotate-0" />
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mb-3">
+                  <Heart className="w-8 h-8 text-white" />
+                </div>
+                <p className="text-sm font-medium text-center">Serenity</p>
+              </div>
+              <ArrowRight className="w-6 h-6 text-muted-foreground rotate-90 md:rotate-0" />
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mb-3">
+                  <FlaskConical className="w-8 h-8 text-white" />
+                </div>
+                <p className="text-sm font-medium text-center">Research</p>
+              </div>
+              <ArrowRight className="w-6 h-6 text-muted-foreground rotate-90 md:rotate-0" />
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 bg-primary/80 rounded-full flex items-center justify-center mb-3">
+                  <Lightbulb className="w-8 h-8 text-white" />
+                </div>
+                <p className="text-sm font-medium text-center">Breakthroughs</p>
+              </div>
+              <ArrowRight className="w-6 h-6 text-muted-foreground rotate-90 md:rotate-0" />
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 bg-secondary/80 rounded-full flex items-center justify-center mb-3">
+                  <Hospital className="w-8 h-8 text-white" />
+                </div>
+                <p className="text-sm font-medium text-center">Better Treatment</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Call to Action */}
+          <div className="text-center">
+            <h3 className="text-2xl font-bold text-foreground mb-4">
+              Join Providers Who Believe Success Means Giving Back
+            </h3>
+            <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
+              Your subscription directly funds the next treatment breakthrough. Together, we're building an evidence base that works.
+            </p>
+            <Button size="lg" asChild className="hover:scale-105 transition-transform">
+              <Link to="/providers">Start Free Trial</Link>
+            </Button>
+          </div>
         </div>
       </section>
 

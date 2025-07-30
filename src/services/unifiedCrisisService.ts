@@ -1,5 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { CrisisDataValidator } from '@/lib/crisisDataValidator';
+import type { CrisisResolution, CheckInResponse, FollowUpTask } from '@/types/crisisData';
+import { transformCrisisResolution, transformCheckInResponse, transformFollowUpTask } from '@/utils/crisisDataUtils';
 
 export class UnifiedCrisisService {
   private static syncQueue: Map<string, any> = new Map();
@@ -74,12 +76,86 @@ export class UnifiedCrisisService {
   }
 
   /**
-   * Save crisis resolution with encryption
+   * Load crisis resolutions for a user
+   */
+  static async loadCrisisResolutions(userId: string): Promise<CrisisResolution[]> {
+    const { data, error } = await supabase
+      .from('crisis_resolutions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return (data || []).map(transformCrisisResolution);
+  }
+
+  /**
+   * Load check-in responses for a user
+   */
+  static async loadCheckInResponses(userId: string): Promise<CheckInResponse[]> {
+    const { data, error } = await supabase
+      .from('check_in_responses')
+      .select('*')
+      .eq('user_id', userId)
+      .order('timestamp', { ascending: false });
+
+    if (error) throw error;
+    return (data || []).map(transformCheckInResponse);
+  }
+
+  /**
+   * Load follow-up tasks for a user
+   */
+  static async loadFollowUpTasks(userId: string): Promise<FollowUpTask[]> {
+    const { data, error } = await supabase
+      .from('follow_up_tasks')
+      .select('*')
+      .eq('user_id', userId)
+      .order('scheduled_for', { ascending: true });
+
+    if (error) throw error;
+    return (data || []).map(transformFollowUpTask);
+  }
+
+  /**
+   * Save crisis resolution with encryption - Legacy API compatibility
    */
   static async saveCrisisResolution(
     userId: string, 
+    resolution: Omit<CrisisResolution, 'id' | 'user_id'>
+  ): Promise<CrisisResolution>;
+  static async saveCrisisResolution(
+    userId: string, 
     resolution: any
-  ): Promise<{ success: boolean; id?: string; error?: string }> {
+  ): Promise<{ success: boolean; id?: string; error?: string }>;
+  static async saveCrisisResolution(
+    userId: string, 
+    resolution: Omit<CrisisResolution, 'id' | 'user_id'> | any
+  ): Promise<CrisisResolution | { success: boolean; id?: string; error?: string }> {
+    // Check if this is a legacy call (has crisis_start_time, resolution_time, etc.)
+    const isLegacyCall = resolution.crisis_start_time && resolution.resolution_time;
+    
+    if (isLegacyCall) {
+      // Legacy behavior - return CrisisResolution
+      const { data, error } = await supabase
+        .from('crisis_resolutions')
+        .insert({
+          user_id: userId,
+          crisis_start_time: resolution.crisis_start_time.toISOString(),
+          resolution_time: resolution.resolution_time.toISOString(),
+          interventions_used: resolution.interventions_used,
+          effectiveness_rating: resolution.effectiveness_rating,
+          additional_notes: resolution.additional_notes,
+          safety_confirmed: resolution.safety_confirmed
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return transformCrisisResolution(data);
+    }
+
+    // New behavior with encryption and validation
     try {
       // Validate input
       const validation = CrisisDataValidator.validateCrisisIntervention(resolution);
@@ -233,6 +309,65 @@ export class UnifiedCrisisService {
     } catch (error) {
       console.error('LocalStorage save failed:', error);
     }
+  }
+
+  /**
+   * Save check-in response
+   */
+  static async saveCheckInResponse(userId: string, response: Omit<CheckInResponse, 'id' | 'user_id'>): Promise<CheckInResponse> {
+    const { data, error } = await supabase
+      .from('check_in_responses')
+      .insert({
+        user_id: userId,
+        task_id: response.task_id,
+        mood_rating: response.mood_rating,
+        notes: response.notes,
+        needs_support: response.needs_support,
+        timestamp: response.timestamp.toISOString()
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return transformCheckInResponse(data);
+  }
+
+  /**
+   * Save follow-up task
+   */
+  static async saveFollowUpTask(userId: string, task: Omit<FollowUpTask, 'id' | 'user_id'>): Promise<FollowUpTask> {
+    const { data, error } = await supabase
+      .from('follow_up_tasks')
+      .insert({
+        user_id: userId,
+        task_type: task.task_type,
+        scheduled_for: task.scheduled_for.toISOString(),
+        completed: task.completed,
+        crisis_event_id: task.crisis_event_id
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return transformFollowUpTask(data);
+  }
+
+  /**
+   * Update follow-up task
+   */
+  static async updateFollowUpTask(userId: string, taskId: string, updates: Partial<FollowUpTask>): Promise<void> {
+    const updateData: any = {};
+    if (updates.completed !== undefined) updateData.completed = updates.completed;
+    if (updates.scheduled_for) updateData.scheduled_for = updates.scheduled_for.toISOString();
+    if (updates.completed) updateData.completed_at = new Date().toISOString();
+
+    const { error } = await supabase
+      .from('follow_up_tasks')
+      .update(updateData)
+      .eq('id', taskId)
+      .eq('user_id', userId);
+
+    if (error) throw error;
   }
 
   static async clearLocalData(): Promise<void> {

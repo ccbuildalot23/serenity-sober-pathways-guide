@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { offlineStorage } from '@/services/offlineStorageService';
-import { CrisisDataService } from '@/services/crisisDataService';
+import UnifiedCrisisService from '@/services/unifiedCrisisService';
 import { CrisisSyncService } from '@/services/crisisSyncService';
 import { generateUUID } from '@/utils/crisisDataUtils';
 import type { CrisisResolution, CheckInResponse, FollowUpTask } from '@/types/crisisData';
@@ -57,9 +57,9 @@ export const useOfflineCrisisData = () => {
 
     try {
       const [resolutions, responses, tasks] = await Promise.all([
-        CrisisDataService.loadCrisisResolutions(user.id),
-        CrisisDataService.loadCheckInResponses(user.id),
-        CrisisDataService.loadFollowUpTasks(user.id)
+        UnifiedCrisisService.loadCrisisResolutions(user.id),
+        UnifiedCrisisService.loadCheckInResponses(user.id),
+        UnifiedCrisisService.loadFollowUpTasks(user.id)
       ]);
 
       setCrisisResolutions(resolutions);
@@ -109,7 +109,7 @@ export const useOfflineCrisisData = () => {
       let newResolution: CrisisResolution;
 
       if (isOnline) {
-        newResolution = await CrisisDataService.saveCrisisResolution(user.id, resolution);
+        newResolution = await UnifiedCrisisService.saveCrisisResolution(user.id, resolution);
       } else {
         newResolution = {
           ...resolution,
@@ -137,7 +137,7 @@ export const useOfflineCrisisData = () => {
       let newResponse: CheckInResponse;
 
       if (isOnline) {
-        newResponse = await CrisisDataService.saveCheckInResponse(user.id, response);
+        newResponse = await UnifiedCrisisService.saveCheckInResponse(user.id, response);
       } else {
         newResponse = {
           ...response,
@@ -165,7 +165,7 @@ export const useOfflineCrisisData = () => {
       let newTask: FollowUpTask;
 
       if (isOnline) {
-        newTask = await CrisisDataService.saveFollowUpTask(user.id, task);
+        newTask = await UnifiedCrisisService.saveFollowUpTask(user.id, task);
       } else {
         newTask = {
           ...task,
@@ -193,7 +193,7 @@ export const useOfflineCrisisData = () => {
 
     try {
       if (isOnline) {
-        await CrisisDataService.updateFollowUpTask(user.id, taskId, updates);
+        await UnifiedCrisisService.updateFollowUpTask(user.id, taskId, updates);
       } else {
         offlineStorage.queueForSync({
           type: 'update_follow_up_task',

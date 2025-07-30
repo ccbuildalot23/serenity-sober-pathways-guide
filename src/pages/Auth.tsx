@@ -51,10 +51,10 @@ const Auth = () => {
       // Clear any error states
       localStorage.removeItem('auth_error');
       
-      // Use React Router navigation instead of window.location
+      // Use React Router navigation to dashboard instead of home
       setTimeout(() => {
-        console.log('Redirecting to home page...');
-        navigate('/');
+        console.log('Redirecting to dashboard...');
+        navigate('/dashboard');
       }, 1000);
     }
   }, [user, authLoading, isRedirecting, navigate]);

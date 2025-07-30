@@ -128,6 +128,12 @@ const Dashboard = () => {
                       Test System
                     </a>
                   </Button>
+                  <Button variant="outline" className="w-full" size="sm">
+                    <a href="/security-audit" className="flex items-center">
+                      <Shield className="w-4 h-4 mr-2" />
+                      Security Audit
+                    </a>
+                  </Button>
                 </div>
               </div>
             </CardContent>

@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useProviderDashboard } from '@/hooks/useProviderDashboard';
 import { format, parseISO } from 'date-fns';
+import { ProviderRegistrationApproval } from '@/components/provider/ProviderRegistrationApproval';
 
 const ProviderDashboard = () => {
   const { stats, patients, appointments, loading, error, refreshData } = useProviderDashboard();
@@ -69,6 +70,14 @@ const ProviderDashboard = () => {
               </Badge>
               <Button onClick={refreshData} variant="outline" size="sm">
                 Refresh Data
+              </Button>
+              <Button 
+                onClick={() => window.open('/platform/provider-approvals', '_blank')}
+                variant="outline" 
+                className="flex items-center gap-2"
+              >
+                <UserCheck className="w-4 h-4" />
+                Registration Approvals
               </Button>
               <Button variant="outline" className="flex items-center gap-2">
                 <CreditCard className="w-4 h-4" />
@@ -199,6 +208,11 @@ const ProviderDashboard = () => {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Provider Registration Approvals */}
+        <div className="mb-8">
+          <ProviderRegistrationApproval />
         </div>
 
         {/* Patient Overview Table */}

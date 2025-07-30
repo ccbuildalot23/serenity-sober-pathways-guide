@@ -3529,6 +3529,69 @@ export type Database = {
           },
         ]
       }
+      provider_registration_requests: {
+        Row: {
+          admin_approval_status: string
+          approval_notes: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          license_number: string | null
+          license_state: string | null
+          license_verification_status: string
+          phone_number: string | null
+          practice_address: string | null
+          practice_name: string | null
+          requested_at: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          updated_at: string
+          user_id: string
+          verification_documents: Json | null
+        }
+        Insert: {
+          admin_approval_status?: string
+          approval_notes?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          license_number?: string | null
+          license_state?: string | null
+          license_verification_status?: string
+          phone_number?: string | null
+          practice_address?: string | null
+          practice_name?: string | null
+          requested_at?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          updated_at?: string
+          user_id: string
+          verification_documents?: Json | null
+        }
+        Update: {
+          admin_approval_status?: string
+          approval_notes?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          license_number?: string | null
+          license_state?: string | null
+          license_verification_status?: string
+          phone_number?: string | null
+          practice_address?: string | null
+          practice_name?: string | null
+          requested_at?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          updated_at?: string
+          user_id?: string
+          verification_documents?: Json | null
+        }
+        Relationships: []
+      }
       provider_reviews: {
         Row: {
           created_at: string
@@ -5432,6 +5495,10 @@ export type Database = {
         Args: Record<PropertyKey, never> | { user_uuid: string }
         Returns: Json
       }
+      approve_provider_registration: {
+        Args: { request_id: string; approval_notes?: string }
+        Returns: undefined
+      }
       calculate_optimal_notification_time: {
         Args: { user_uuid: string }
         Returns: string
@@ -5565,6 +5632,10 @@ export type Database = {
           created_at: string
           rank: number
         }[]
+      }
+      validate_user_permissions: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       verify_admin_role: {
         Args: Record<PropertyKey, never>

@@ -3,8 +3,12 @@ import { Badge } from "@/components/ui/badge";
 import { Shield, Stethoscope, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AuthForm } from "@/components/auth/AuthForm";
+import { ProviderRegistrationForm } from "@/components/auth/ProviderRegistrationForm";
+import { useAuth } from "@/contexts/AuthContext";
 
 const ProviderSignup = () => {
+  const { user } = useAuth();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-primary/5">
       {/* Navigation */}
@@ -126,19 +130,32 @@ const ProviderSignup = () => {
                   </p>
                 </CardHeader>
                 <CardContent>
-                  <AuthForm 
-                    initialMode="signup"
-                    userType="provider"
-                  />
-                  
-                  <div className="mt-6 text-center">
-                    <p className="text-sm text-muted-foreground">
-                      Already have a provider account?{' '}
-                      <Link to="/auth" className="text-primary hover:text-primary/80 font-medium">
-                        Sign in here
-                      </Link>
-                    </p>
-                  </div>
+                  {!user ? (
+                    <>
+                      <AuthForm 
+                        initialMode="signup"
+                        userType="provider"
+                      />
+                      
+                      <div className="mt-6 text-center">
+                        <p className="text-sm text-muted-foreground">
+                          First create your account, then submit your provider registration request.
+                        </p>
+                        <p className="text-sm text-muted-foreground mt-2">
+                          Already have an account?{' '}
+                          <Link to="/auth" className="text-primary hover:text-primary/80 font-medium">
+                            Sign in here
+                          </Link>
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <ProviderRegistrationForm 
+                      onSuccess={() => {
+                        window.location.href = '/platform';
+                      }}
+                    />
+                  )}
                 </CardContent>
               </Card>
 

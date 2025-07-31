@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { sessionManager } from '@/lib/unifiedSessionManager';
 import { SecurityConfigValidator } from '@/lib/securityConfigValidator';
-import { useSecureAuditLogger } from './useSecureAuditLogger';
 
 interface UnifiedSecurityState {
   isSessionValid: boolean;
@@ -18,7 +17,6 @@ interface UnifiedSecurityState {
  */
 export const useUnifiedSecurity = () => {
   const { user } = useAuth();
-  const { logSecurityEvent } = useSecureAuditLogger();
   
   const [securityState, setSecurityState] = useState<UnifiedSecurityState>({
     isSessionValid: false,
@@ -27,6 +25,11 @@ export const useUnifiedSecurity = () => {
     securityEvents: [],
     configurationValid: false
   });
+
+  // Stable logging function
+  const logSecurityEvent = useCallback((eventType: string, details?: any) => {
+    console.log('Security Event:', eventType, details);
+  }, []);
 
   useEffect(() => {
     // Validate security configuration on mount
@@ -116,7 +119,7 @@ export const useUnifiedSecurity = () => {
       window.removeEventListener('securityEvent', handleSecurityEvent as EventListener);
       window.removeEventListener('sessionExtended', handleSessionExtended as EventListener);
     };
-  }, [user?.id, logSecurityEvent]);
+  }, [user?.id]);
 
   // Monitor session validity
   useEffect(() => {

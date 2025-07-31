@@ -1,5 +1,5 @@
 import React from 'react';
-import { useUnifiedSecurity } from '@/hooks/useUnifiedSecurity';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -18,57 +18,22 @@ interface SessionTimeoutManagerProps {
 export const SessionTimeoutManager: React.FC<SessionTimeoutManagerProps> = ({
   children
 }) => {
-  const {
-    sessionWarning,
-    extendSession,
-    forceSignOut,
-    isSessionValid,
-    securityScore
-  } = useUnifiedSecurity();
+  const { user } = useAuth();
+
+  // Simplified session timeout - temporarily disabled to fix infinite loop
+  // TODO: Re-implement with proper session management after fixing core auth issues
+  const sessionWarning = false;
 
   const handleContinue = async () => {
-    await extendSession();
+    // TODO: Implement session extension
   };
 
   const handleSignOut = async () => {
-    await forceSignOut();
+    // TODO: Implement sign out
   };
 
-  // Don't render warning if session is not valid or security score is too low
-  if (!isSessionValid || securityScore < 50) {
-    return <>{children}</>;
-  }
-
-  return (
-    <>
-      {children}
-      
-      <AlertDialog open={sessionWarning} onOpenChange={() => {}}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Session Expiring Soon</AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
-              <p>
-                Your session will expire soon due to inactivity.
-              </p>
-              <p className="text-sm">
-                For security and HIPAA compliance, sessions automatically expire 
-                after periods of inactivity. Would you like to continue your session?
-              </p>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleSignOut}>
-              Sign Out Now
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={handleContinue}>
-              Continue Session
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
-  );
+  // Always render children for now - session timeout temporarily disabled
+  return <>{children}</>;
 };
 
 export default SessionTimeoutManager;

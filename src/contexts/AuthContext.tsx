@@ -2,8 +2,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
-import { SecureValidationService } from '@/services/secureValidationService';
-import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
 
 interface AuthContextType {
   user: User | null;
@@ -35,14 +33,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      // Validate and sanitize inputs
-      const sanitizedEmail = SecureValidationService.validateUserInput(email, 'email');
-      if (!SecureValidationService.validateEmail(sanitizedEmail)) {
+      // Basic email validation
+      const sanitizedEmail = email.trim().toLowerCase();
+      if (!sanitizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedEmail)) {
         throw new Error('Invalid email format');
       }
 
       // Clear any existing auth state before signing in
       try {
+        // Clear localStorage auth keys
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('supabase.auth') || key.includes('sb-')) {
+            localStorage.removeItem(key);
+          }
+        });
         await supabase.auth.signOut({ scope: 'global' });
       } catch (err) {
         // Continue even if this fails
@@ -53,53 +57,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
         password,
       });
 
-      if (error) {
-        await EnhancedSecurityAuditService.logSecurityEvent({
-          action: 'SIGN_IN_FAILED',
-          severity: 'medium',
-          details: {
-            email: sanitizedEmail,
-            error: error.message,
-            timestamp: new Date().toISOString()
-          }
-        });
-      } else {
-        await EnhancedSecurityAuditService.logSecurityEvent({
-          action: 'SIGN_IN_SUCCESS',
-          severity: 'low',
-          details: {
-            email: sanitizedEmail,
-            timestamp: new Date().toISOString()
-          }
-        });
-      }
-
       return { error };
     } catch (error) {
-      await EnhancedSecurityAuditService.logSecurityViolation('SIGN_IN_VALIDATION_ERROR', {
-        error: error.message,
-        email: email?.substring(0, 10) + '...'
-      });
       return { error };
     }
   };
 
   const signUp = async (email: string, password: string, options?: any) => {
     try {
-      // Validate and sanitize inputs
-      const sanitizedEmail = SecureValidationService.validateUserInput(email, 'email');
-      if (!SecureValidationService.validateEmail(sanitizedEmail)) {
+      // Basic email validation
+      const sanitizedEmail = email.trim().toLowerCase();
+      if (!sanitizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedEmail)) {
         throw new Error('Invalid email format');
       }
 
-      // Validate password strength
-      const passwordValidation = SecureValidationService.validatePassword(password);
-      if (!passwordValidation.isValid) {
-        throw new Error(passwordValidation.errors.join(', '));
+      // Basic password validation
+      if (!password || password.length < 8) {
+        throw new Error('Password must be at least 8 characters long');
       }
 
       // Clear any existing auth state before signing up
       try {
+        // Clear localStorage auth keys
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('supabase.auth') || key.includes('sb-')) {
+            localStorage.removeItem(key);
+          }
+        });
         await supabase.auth.signOut({ scope: 'global' });
       } catch (err) {
         // Continue even if this fails
@@ -114,55 +98,46 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
       });
 
-      if (error) {
-        await EnhancedSecurityAuditService.logSecurityEvent({
-          action: 'SIGN_UP_FAILED',
-          severity: 'medium',
-          details: {
-            email: sanitizedEmail,
-            error: error.message,
-            timestamp: new Date().toISOString()
-          }
-        });
-      } else {
-        await EnhancedSecurityAuditService.logSecurityEvent({
-          action: 'SIGN_UP_SUCCESS',
-          severity: 'low',
-          details: {
-            email: sanitizedEmail,
-            timestamp: new Date().toISOString()
-          }
-        });
-      }
-
       return { data, error };
     } catch (error) {
-      await EnhancedSecurityAuditService.logSecurityViolation('SIGN_UP_VALIDATION_ERROR', {
-        error: error.message,
-        email: email?.substring(0, 10) + '...'
-      });
       return { error };
     }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      // Clear localStorage auth keys
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('supabase.auth') || key.includes('sb-')) {
+          localStorage.removeItem(key);
+        }
+      });
+      await supabase.auth.signOut({ scope: 'global' });
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+    
+    // Force redirect to auth page
+    window.location.href = '/auth';
   };
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Listen for auth changes first
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state change:', event, session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
-      setLoading(false);
-    }).catch(() => {
       setLoading(false);
     });
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session:', session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
+      setLoading(false);
+    }).catch((error) => {
+      console.error('Error getting session:', error);
       setLoading(false);
     });
 

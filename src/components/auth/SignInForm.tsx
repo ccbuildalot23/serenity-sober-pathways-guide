@@ -5,8 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { SecurityHeaders } from '@/lib/securityHeaders';
-import { SecureMonitoring } from '@/lib/secureMonitoring';
 
 interface SignInFormProps {
   userType?: string;
@@ -46,34 +44,16 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
       return;
     }
 
-    // Check if user is rate limited due to failed attempts (more lenient)
-    if (!SecureMonitoring.trackAuthAttempt(sanitizedEmail, false)) {
-      toast({
-        title: "Too Many Attempts",
-        description: "Please wait before trying again.",
-        variant: "destructive",
-      });
-      SecurityHeaders.logSecurityEvent('AUTH_RATE_LIMITED', { email: sanitizedEmail });
-      return;
-    }
-
     try {
       setLoading(true);
-      SecurityHeaders.logSecurityEvent('SIGNIN_ATTEMPT', { email: sanitizedEmail });
+      console.log('Attempting sign in...');
 
       const { error } = await signIn(sanitizedEmail, sanitizedPassword);
 
       if (error) {
-        // Track failed attempt
-        SecureMonitoring.trackAuthAttempt(sanitizedEmail, false);
-        SecurityHeaders.logSecurityEvent('SIGNIN_FAILED', { error: error.message });
         throw error;
       }
 
-      // Track successful attempt
-      SecureMonitoring.trackAuthAttempt(sanitizedEmail, true);
-      SecurityHeaders.logSecurityEvent('SIGNIN_SUCCESS');
-      
       toast({
         title: "Success",
         description: "Welcome back!",

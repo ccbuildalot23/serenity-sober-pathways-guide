@@ -134,6 +134,8 @@ const CrisisInterventionSystem: React.FC = () => {
               </div>
             </div>
           </Button>
+        </div>
+
         {/* Immediate Relief Tools */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Text Your Sponsor */}
@@ -281,6 +283,6 @@ const CrisisInterventionSystem: React.FC = () => {
       </div>
     </div>
   );
-};
+}
 
 export default CrisisInterventionSystem;

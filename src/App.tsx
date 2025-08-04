@@ -56,6 +56,7 @@ import CrisisSupport from '@/pages/CrisisSupport';
 import { ComprehensiveSupportPage } from '@/pages/ComprehensiveSupportPage';
 import { TestCrisisPage } from '@/pages/TestCrisisPage';
 import SecurityAudit from '@/pages/SecurityAudit';
+import TestSupportDashboard from '@/pages/TestSupportDashboard';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 // Commented out for MVP - keeping functionality but focusing on core features
@@ -276,6 +277,11 @@ function App() {
                 <Route path="/test-crisis" element={
                   <ProtectedRoute>
                     <TestCrisisPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/test-support" element={
+                  <ProtectedRoute>
+                    <TestSupportDashboard />
                   </ProtectedRoute>
                 } />
                 <Route path="/security-audit" element={

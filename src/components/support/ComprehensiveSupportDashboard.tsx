@@ -443,6 +443,7 @@ export const ComprehensiveSupportDashboard: React.FC = () => {
               </Button>
               
               <Button 
+                onClick={() => toast.info('Wellness scheduling coming soon! For now, set a personal reminder.')}
                 variant="outline"
                 className="h-12 border-blue-300 text-blue-700 hover:bg-blue-100"
               >

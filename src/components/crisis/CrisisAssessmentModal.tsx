@@ -1,191 +1,162 @@
+// Hope Check-In - We're here to help, not judge
+// Simple questions to understand how to best support you right now
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import { AlertTriangle, Phone, Clock } from 'lucide-react';
+import { Heart, Phone, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
-interface CrisisAssessmentModalProps {
+interface HopeCheckInModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAssessmentComplete: (riskLevel: 'low' | 'moderate' | 'high' | 'severe') => void;
+  onCheckInComplete: (needLevel: 'reaching_out' | 'needing_support' | 'needing_help_now' | 'emergency') => void;
 }
 
-// Columbia Suicide Severity Rating Scale (C-SSRS) questions
-const assessmentQuestions = [
+// Compassionate questions focused on getting help, not assessment
+const checkInQuestions = [
   {
-    id: 'ideation',
-    question: 'In the past 24 hours, have you had thoughts about wanting to hurt yourself or end your life?',
+    id: 'how_are_you',
+    question: "First, we're so glad you're here. How are you feeling right now?",
     options: [
-      { value: '0', label: 'No', points: 0 },
-      { value: '1', label: 'Sometimes', points: 2 },
-      { value: '2', label: 'Often', points: 4 },
-      { value: '3', label: 'Almost constantly', points: 6 }
+      { value: 'struggling', label: "I'm really struggling", emoji: "💙" },
+      { value: 'scared', label: "I'm scared", emoji: "🫂" },
+      { value: 'numb', label: "I feel numb", emoji: "🤍" },
+      { value: 'overwhelmed', label: "Everything feels too much", emoji: "💜" }
     ]
   },
   {
-    id: 'plan',
-    question: 'Do you have a specific plan for how you would hurt yourself?',
+    id: 'what_helps',
+    question: "What usually helps you feel a little safer?",
     options: [
-      { value: '0', label: 'No plan', points: 0 },
-      { value: '1', label: 'Vague plan', points: 3 },
-      { value: '2', label: 'Specific plan', points: 6 }
+      { value: 'talk', label: "Talking to someone who gets it", emoji: "💬" },
+      { value: 'breathe', label: "Breathing exercises", emoji: "🌊" },
+      { value: 'distract', label: "Distracting myself", emoji: "🎯" },
+      { value: 'unsure', label: "I don't know right now", emoji: "❓" }
     ]
   },
   {
-    id: 'intent',
-    question: 'How likely are you to act on these thoughts in the next 24 hours?',
+    id: 'support_now',
+    question: "What kind of support would help most right now?",
     options: [
-      { value: '0', label: 'Not at all likely', points: 0 },
-      { value: '1', label: 'Somewhat likely', points: 4 },
-      { value: '2', label: 'Very likely', points: 8 }
+      { value: 'listen', label: "Someone to listen", level: 'needing_support' },
+      { value: 'tools', label: "Coping tools", level: 'reaching_out' },
+      { value: 'crisis', label: "Crisis support", level: 'needing_help_now' },
+      { value: 'immediate', label: "I need help immediately", level: 'emergency' }
     ]
   }
 ];
 
-const CrisisAssessmentModal: React.FC<CrisisAssessmentModalProps> = ({
+const HopeCheckInModal: React.FC<HopeCheckInModalProps> = ({
   isOpen,
   onClose,
-  onAssessmentComplete
+  onCheckInComplete
 }) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [totalScore, setTotalScore] = useState(0);
 
   const handleAnswerSelect = (questionId: string, value: string) => {
     setAnswers(prev => ({ ...prev, [questionId]: value }));
+    
+    // Auto-advance for better flow
+    setTimeout(() => {
+      if (currentQuestion < checkInQuestions.length - 1) {
+        setCurrentQuestion(prev => prev + 1);
+      } else {
+        // Determine support level from final answer
+        const finalAnswer = checkInQuestions[2].options.find(opt => opt.value === value);
+        const needLevel = (finalAnswer as any)?.level || 'needing_support';
+        onCheckInComplete(needLevel);
+      }
+    }, 500);
   };
 
-  const handleNext = () => {
-    if (currentQuestion < assessmentQuestions.length - 1) {
-      setCurrentQuestion(prev => prev + 1);
-    } else {
-      // Calculate final score and determine risk level
-      let score = 0;
-      Object.entries(answers).forEach(([questionId, value]) => {
-        const question = assessmentQuestions.find(q => q.id === questionId);
-        const option = question?.options.find(opt => opt.value === value);
-        if (option) score += option.points;
-      });
-
-      setTotalScore(score);
-      
-      let riskLevel: 'low' | 'moderate' | 'high' | 'severe';
-      if (score <= 2) riskLevel = 'low';
-      else if (score <= 6) riskLevel = 'moderate';
-      else if (score <= 12) riskLevel = 'high';
-      else riskLevel = 'severe';
-
-      onAssessmentComplete(riskLevel);
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion(prev => prev - 1);
-    }
-  };
-
-  const currentQ = assessmentQuestions[currentQuestion];
-  const currentAnswer = answers[currentQ.id];
-  const canProceed = !!currentAnswer;
-
+  const currentQ = checkInQuestions[currentQuestion];
+  
   // Emergency hotline quick access
-  const callEmergency = () => {
-    window.open('tel:988', '_self');
+  const call988 = () => {
+    window.location.href = 'tel:988';
+    toast.success("Calling 988", {
+      description: "You're being so brave right now",
+      duration: 3000
+    });
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md mx-auto">
+      <DialogContent className="max-w-md mx-auto bg-gray-900 text-white border-gray-800">
         <DialogHeader>
-          <DialogTitle className="flex items-center text-red-600">
-            <AlertTriangle className="w-5 h-5 mr-2" />
-            Crisis Safety Assessment
+          <DialogTitle className="flex items-center text-xl">
+            <Heart className="w-5 h-5 mr-2 text-red-500" />
+            Let's Check In Together
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Emergency Contact Banner */}
-          <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+          {/* Always-visible 988 button */}
+          <div className="bg-red-900/20 border border-red-800 rounded-xl p-4">
             <div className="flex items-center justify-between">
-              <div className="text-sm text-red-800">
-                <strong>Emergency Help Available 24/7</strong>
+              <div className="text-sm">
+                <strong className="text-red-400">Need immediate help?</strong>
+                <p className="text-xs text-gray-400 mt-1">988 is always here</p>
               </div>
               <Button
-                onClick={callEmergency}
-                size="sm"
-                className="bg-red-600 hover:bg-red-700 text-xs px-3 py-1"
+                onClick={call988}
+                size="lg"
+                className="bg-red-600 hover:bg-red-700 text-white px-6"
               >
-                <Phone className="w-3 h-3 mr-1" />
+                <Phone className="w-4 h-4 mr-2" />
                 Call 988
               </Button>
             </div>
           </div>
 
-          {/* Progress indicator */}
-          <div className="flex items-center space-x-2">
-            <Clock className="w-4 h-4 text-gray-500" />
-            <span className="text-sm text-gray-600">
-              Question {currentQuestion + 1} of {assessmentQuestions.length}
-            </span>
-            <div className="flex-1 bg-gray-200 rounded-full h-2 ml-2">
-              <div 
-                className="bg-red-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${((currentQuestion + 1) / assessmentQuestions.length) * 100}%` }}
+          {/* Progress dots */}
+          <div className="flex justify-center space-x-2">
+            {checkInQuestions.map((_, index) => (
+              <div
+                key={index}
+                className={`h-2 w-2 rounded-full transition-all duration-300 ${
+                  index <= currentQuestion ? 'bg-purple-500' : 'bg-gray-700'
+                }`}
               />
-            </div>
+            ))}
           </div>
 
           {/* Question */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">
+            <h3 className="text-lg font-medium flex items-center">
+              <Sparkles className="w-4 h-4 mr-2 text-purple-400" />
               {currentQ.question}
             </h3>
 
-            <RadioGroup 
-              value={currentAnswer || ''} 
-              onValueChange={(value) => handleAnswerSelect(currentQ.id, value)}
-              className="space-y-3"
-            >
+            <div className="grid gap-3">
               {currentQ.options.map((option) => (
-                <div key={option.value} className="flex items-center space-x-2">
-                  <RadioGroupItem value={option.value} id={option.value} />
-                  <Label 
-                    htmlFor={option.value}
-                    className="text-sm font-medium cursor-pointer"
-                  >
-                    {option.label}
-                  </Label>
-                </div>
+                <Button
+                  key={option.value}
+                  onClick={() => handleAnswerSelect(currentQ.id, option.value)}
+                  variant="outline"
+                  className="h-auto py-4 px-4 justify-start text-left border-gray-700 hover:bg-gray-800 hover:border-purple-600 transition-all"
+                >
+                  <span className="mr-3 text-xl">
+                    {'emoji' in option ? option.emoji : '💜'}
+                  </span>
+                  <span className="text-sm">{option.label}</span>
+                </Button>
               ))}
-            </RadioGroup>
+            </div>
           </div>
 
-          {/* Navigation */}
-          <div className="flex justify-between space-x-3">
-            <Button
-              onClick={handlePrevious}
-              variant="outline"
-              disabled={currentQuestion === 0}
-              className="flex-1"
-            >
-              Previous
-            </Button>
-            <Button
-              onClick={handleNext}
-              disabled={!canProceed}
-              className="flex-1 bg-red-600 hover:bg-red-700"
-            >
-              {currentQuestion === assessmentQuestions.length - 1 ? 'Complete Assessment' : 'Next'}
-            </Button>
-          </div>
+          {/* Encouraging message */}
+          <p className="text-xs text-center text-gray-400">
+            There's no wrong answer. We're just here to help.
+          </p>
         </div>
       </DialogContent>
     </Dialog>
   );
 };
 
-export default CrisisAssessmentModal;
+// Backward compatibility
+export default HopeCheckInModal;
+export { HopeCheckInModal as CrisisAssessmentModal };

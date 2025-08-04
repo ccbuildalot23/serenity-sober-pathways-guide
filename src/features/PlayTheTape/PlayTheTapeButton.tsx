@@ -1,52 +1,64 @@
+// Play the Tape - See where using leads, choose recovery instead
+// A powerful tool when cravings hit hard
 
 import React, { useState } from 'react';
-import { FileText } from 'lucide-react';
+import { FileVideo, Heart } from 'lucide-react';
 import { UserData } from './types';
 import { PlayTheTapeModal } from './PlayTheTapeModal';
+import { Button } from '@/components/ui/button';
 
 interface PlayTheTapeButtonProps {
   userData: UserData;
   minDaysRequired?: number;
+  variant?: 'default' | 'crisis';
 }
 
 export const PlayTheTapeButton: React.FC<PlayTheTapeButtonProps> = ({ 
   userData, 
-  minDaysRequired = 3 
+  minDaysRequired = 0, // Make it available immediately for crisis
+  variant = 'default'
 }) => {
   const [showModal, setShowModal] = useState(false);
   
-  // Safety check: Don't show feature too early in recovery
-  if (userData.sobrietyDays < minDaysRequired) {
-    return null;
-  }
-  
-  // Safety check: Cooldown period (24 hours)
-  const lastUsed = localStorage.getItem('lastPlayTapeUse');
-  if (lastUsed) {
-    const hoursSince = (Date.now() - new Date(lastUsed).getTime()) / (1000 * 60 * 60);
-    if (hoursSince < 24) {
-      return null;
+  // No safety restrictions in crisis mode
+  if (variant === 'default') {
+    // Optional cooldown for non-crisis use
+    const lastUsed = localStorage.getItem('lastPlayTapeUse');
+    if (lastUsed) {
+      const hoursSince = (Date.now() - new Date(lastUsed).getTime()) / (1000 * 60 * 60);
+      if (hoursSince < 1) { // Reduced from 24 hours to 1 hour
+        return null;
+      }
     }
   }
   
-  // Safety check: Night time consideration
-  const hour = new Date().getHours();
-  const isNightTime = hour >= 22 || hour <= 6;
-  
   return (
     <>
-      <button
+      <Button
         onClick={() => setShowModal(true)}
-        className="group relative px-6 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-        aria-label="Play the tape all the way through - mental exercise for relapse prevention"
-        title={isNightTime ? "Consider using grounding exercises instead during nighttime" : undefined}
+        variant={variant === 'crisis' ? 'destructive' : 'outline'}
+        size="lg"
+        className={
+          variant === 'crisis' 
+            ? 'w-full h-16 bg-orange-600 hover:bg-orange-700 text-white font-bold'
+            : 'w-full border-purple-700 text-purple-300 hover:bg-purple-900'
+        }
+        aria-label="Play the tape through - see where using leads"
       >
-        <div className="flex items-center gap-3">
-          <FileText className="w-5 h-5" />
-          <span className="font-medium">Play the Tape All the Way Through</span>
+        <div className="flex items-center justify-center gap-3">
+          {variant === 'crisis' ? (
+            <>
+              <Heart className="w-6 h-6" />
+              <span>Fighting a Craving? Play the Tape</span>
+            </>
+          ) : (
+            <>
+              <FileVideo className="w-5 h-5" />
+              <span>Play the Tape Forward</span>
+            </>
+          )}
         </div>
-        <div className="absolute inset-0 rounded-lg bg-blue-200 opacity-0 group-hover:opacity-20 transition-opacity" />
-      </button>
+      </Button>
       
       {showModal && (
         <PlayTheTapeModal 

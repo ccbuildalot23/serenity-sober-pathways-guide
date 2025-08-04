@@ -174,10 +174,14 @@ const SupportDashboard = () => {
                 <p className="text-muted-foreground text-sm">
                   Send supportive messages while respecting privacy boundaries.
                 </p>
-                <Button className="w-full">
+                <Button 
+                  onClick={() => alert('Encouragement feature coming soon! Your support means everything.')}
+                  className="w-full">
                   Send Encouragement
                 </Button>
-                <Button variant="outline" className="w-full">
+                <Button 
+                  onClick={() => alert('Check-in scheduling coming soon!')}
+                  variant="outline" className="w-full">
                   Schedule Check-in
                 </Button>
               </div>
@@ -196,10 +200,14 @@ const SupportDashboard = () => {
                 <p className="text-muted-foreground text-sm">
                   View general progress milestones and achievements.
                 </p>
-                <Button variant="outline" className="w-full">
+                <Button 
+                  onClick={() => alert('Milestone viewing coming soon!')}
+                  variant="outline" className="w-full">
                   View Milestones
                 </Button>
-                <Button variant="outline" className="w-full">
+                <Button 
+                  onClick={() => window.open('https://www.samhsa.gov/find-help', '_blank')}
+                  variant="outline" className="w-full">
                   Recovery Resources
                 </Button>
               </div>
@@ -222,21 +230,27 @@ const SupportDashboard = () => {
                 <p className="text-sm text-muted-foreground">
                   Learn how to best support recovery
                 </p>
-                <Button variant="outline" size="sm">Learn More</Button>
+                <Button 
+                  onClick={() => window.open('https://www.samhsa.gov/families', '_blank')}
+                  variant="outline" size="sm">Learn More</Button>
               </div>
               <div className="space-y-2">
                 <h4 className="font-medium">Support Groups</h4>
                 <p className="text-sm text-muted-foreground">
                   Connect with other support network members
                 </p>
-                <Button variant="outline" size="sm">Find Groups</Button>
+                <Button 
+                  onClick={() => window.open('https://al-anon.org/al-anon-meetings/', '_blank')}
+                  variant="outline" size="sm">Find Groups</Button>
               </div>
               <div className="space-y-2">
                 <h4 className="font-medium">Professional Guidance</h4>
                 <p className="text-sm text-muted-foreground">
                   Access to licensed counselors and resources
                 </p>
-                <Button variant="outline" size="sm">Get Help</Button>
+                <Button 
+                  onClick={() => window.open('https://www.psychologytoday.com/us/therapists', '_blank')}
+                  variant="outline" size="sm">Get Help</Button>
               </div>
             </div>
           </CardContent>

@@ -1,9 +1,13 @@
+// Support Network Hook - Your lifelines when you need them
+// These are the people who love you and want to help
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCompassionateError } from './useCompassionateError';
+import { toast } from 'sonner';
 
-// Use the existing crisis_contacts table instead
-export interface EmergencyContact {
+export interface SupportPerson {
   id: string;
   user_id: string;
   name: string;
@@ -19,137 +23,221 @@ export interface EmergencyContact {
   notification_preferences?: any;
 }
 
-export const useEmergencyContacts = () => {
-  const [contacts, setContacts] = useState<EmergencyContact[]>([]);
+// Backward compatibility
+export type EmergencyContact = SupportPerson;
+
+export const useSupportNetwork = () => {
+  const [supportPeople, setSupportPeople] = useState<SupportPerson[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const { user } = useAuth();
+  const { withCompassion, handleError } = useCompassionateError();
 
-  const loadContacts = async () => {
+  const loadSupportNetwork = async () => {
     if (!user) {
-      setContacts([]);
+      setSupportPeople([]);
       setLoading(false);
       return;
     }
 
-    try {
-      const { data, error } = await supabase
-        .from('crisis_contacts')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('priority_order', { ascending: true });
+    const result = await withCompassion(
+      async () => {
+        const { data, error } = await supabase
+          .from('crisis_contacts')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('priority_order', { ascending: true });
 
-      if (error) throw error;
-      setContacts(data?.map(contact => ({
+        if (error) throw error;
+        return data || [];
+      },
+      {
+        action: 'load support network',
+        isRecoverable: true,
+        retry: loadSupportNetwork
+      }
+    );
+
+    if (result) {
+      setSupportPeople(result.map(contact => ({
         ...contact,
         phone_number: contact.phone_number || '',
         relationship: contact.relationship || ''
-      })) || []);
-    } catch (error) {
-      console.error('Error loading emergency contacts:', error);
-    } finally {
-      setLoading(false);
+      })));
     }
+    
+    setLoading(false);
   };
 
-  const addContact = async (contactData: {
+  const addSupportPerson = async (personData: {
     name: string;
     phone_number: string;
     relationship?: string;
     priority_order: number;
   }) => {
-    if (!user) return;
+    if (!user) {
+      toast.error("Please sign in first", {
+        description: "We need to know who you are to save your support network"
+      });
+      return;
+    }
 
     setSaving(true);
-    try {
-      const { data, error } = await supabase
-        .from('crisis_contacts')
-        .insert({
-          user_id: user.id,
-          name: contactData.name,
-          phone_number: contactData.phone_number,
-          relationship: contactData.relationship || '',
-          priority_order: contactData.priority_order,
-          is_emergency_contact: true,
-        })
-        .select()
-        .single();
+    
+    const result = await withCompassion(
+      async () => {
+        const { data, error } = await supabase
+          .from('crisis_contacts')
+          .insert({
+            user_id: user.id,
+            name: personData.name,
+            phone_number: personData.phone_number,
+            relationship: personData.relationship || '',
+            priority_order: personData.priority_order,
+            is_emergency_contact: true,
+          })
+          .select()
+          .single();
 
-      if (error) throw error;
-      if (data) {
-        const newContact = {
-          ...data,
-          phone_number: data.phone_number || '',
-          relationship: data.relationship || ''
-        };
-        setContacts(prev => [...prev, newContact]);
-        return newContact;
+        if (error) throw error;
+        return data;
+      },
+      {
+        action: 'add support person',
+        isRecoverable: true,
+        retry: () => addSupportPerson(personData)
       }
-    } catch (error) {
-      console.error('Error adding emergency contact:', error);
-      throw error;
-    } finally {
-      setSaving(false);
+    );
+
+    if (result) {
+      const newPerson = {
+        ...result,
+        phone_number: result.phone_number || '',
+        relationship: result.relationship || ''
+      };
+      setSupportPeople(prev => [...prev, newPerson]);
+      
+      toast.success(`${personData.name} added to your support network`, {
+        description: "They're ready to help when you need them",
+        duration: 3000
+      });
+      
+      return newPerson;
     }
+    
+    setSaving(false);
   };
 
-  const updateContact = async (id: string, updates: Partial<EmergencyContact>) => {
+  const updateSupportPerson = async (id: string, updates: Partial<SupportPerson>) => {
     setSaving(true);
-    try {
-      const { data, error } = await supabase
-        .from('crisis_contacts')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
+    
+    const result = await withCompassion(
+      async () => {
+        const { data, error } = await supabase
+          .from('crisis_contacts')
+          .update(updates)
+          .eq('id', id)
+          .select()
+          .single();
 
-      if (error) throw error;
-      if (data) {
-        const updatedContact = {
-          ...data,
-          phone_number: data.phone_number || '',
-          relationship: data.relationship || ''
-        };
-        setContacts(prev => prev.map(c => c.id === id ? updatedContact : c));
-        return updatedContact;
+        if (error) throw error;
+        return data;
+      },
+      {
+        action: 'update support person',
+        isRecoverable: true,
+        retry: () => updateSupportPerson(id, updates)
       }
-    } catch (error) {
-      console.error('Error updating emergency contact:', error);
-      throw error;
-    } finally {
-      setSaving(false);
+    );
+
+    if (result) {
+      const updatedPerson = {
+        ...result,
+        phone_number: result.phone_number || '',
+        relationship: result.relationship || ''
+      };
+      setSupportPeople(prev => prev.map(p => p.id === id ? updatedPerson : p));
+      
+      toast.success("Updated successfully", {
+        description: "Your support network is up to date",
+        duration: 2000
+      });
+      
+      return updatedPerson;
     }
+    
+    setSaving(false);
   };
 
-  const deleteContact = async (id: string) => {
+  const removeSupportPerson = async (id: string) => {
+    // Find the person first for the confirmation message
+    const person = supportPeople.find(p => p.id === id);
+    
     setSaving(true);
-    try {
-      const { error } = await supabase
-        .from('crisis_contacts')
-        .delete()
-        .eq('id', id);
+    
+    const success = await withCompassion(
+      async () => {
+        const { error } = await supabase
+          .from('crisis_contacts')
+          .delete()
+          .eq('id', id);
 
-      if (error) throw error;
-      setContacts(prev => prev.filter(c => c.id !== id));
-    } catch (error) {
-      console.error('Error deleting emergency contact:', error);
-      throw error;
-    } finally {
-      setSaving(false);
+        if (error) throw error;
+        return true;
+      },
+      {
+        action: 'remove support person',
+        isRecoverable: false
+      }
+    );
+
+    if (success) {
+      setSupportPeople(prev => prev.filter(p => p.id !== id));
+      
+      toast.info(`${person?.name || 'Contact'} removed`, {
+        description: "You can always add them back later",
+        duration: 3000
+      });
+    }
+    
+    setSaving(false);
+  };
+
+  // Quick dial function for emergencies
+  const quickDial = (person: SupportPerson) => {
+    if (person.phone_number) {
+      window.location.href = `tel:${person.phone_number}`;
+      
+      // Track that they reached out
+      toast.success("Calling for support", {
+        description: "You're doing the right thing by reaching out",
+        duration: 3000
+      });
     }
   };
 
   useEffect(() => {
-    loadContacts();
+    loadSupportNetwork();
   }, [user]);
 
   return {
-    contacts,
+    supportPeople,
     loading,
     saving,
-    addContact,
-    updateContact,
-    deleteContact,
-    refetch: loadContacts,
+    addSupportPerson,
+    updateSupportPerson,
+    removeSupportPerson,
+    quickDial,
+    refresh: loadSupportNetwork,
+    hasSupport: supportPeople.length > 0,
+    // Backward compatibility
+    contacts: supportPeople,
+    addContact: addSupportPerson,
+    updateContact: updateSupportPerson,
+    deleteContact: removeSupportPerson,
+    refetch: loadSupportNetwork
   };
 };
+
+// Backward compatibility
+export const useEmergencyContacts = useSupportNetwork;

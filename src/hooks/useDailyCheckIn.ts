@@ -1,170 +1,115 @@
+// Simple Daily Check-in - Just "How are you today?"
+// Complex assessments are removed for MVP - focus on connection not data
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { CheckinResponses } from '@/types/dailyCheckIn';
-import { checkinStorage } from '@/utils/checkinStorage';
-import { checkinValidation } from '@/utils/checkinValidation';
-import { checkinSubmissionService } from '@/services/checkinSubmissionService';
-import { checkinDataService } from '@/services/checkinDataService';
+import { simpleCheckin, MoodToday } from '@/services/simpleCheckinService';
+import { victoryTracker } from '@/services/victoryTrackerService';
+import { hopeMessenger } from '@/services/hopeMessengerService';
+import { toast } from 'sonner';
 
 export const useDailyCheckIn = () => {
   const { user } = useAuth();
-  const [today, setToday] = useState('');
-  const [responses, setResponses] = useState<CheckinResponses>({
-    mood: null,
-    energy: null,
-    hope: null,
-    sobriety_confidence: null,
-    recovery_importance: null,
-    recovery_strength: null,
-    support_needed: false,
-    phq2_q1: null,
-    phq2_q2: null,
-    gad2_q1: null,
-    gad2_q2: null,
-    notes: '',
-    mood_triggers: [],
-    gratitude_entries: []
-  });
-  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
+  const [mood, setMood] = useState<MoodToday | null>(null);
+  const [gratitude, setGratitude] = useState('');
+  const [todaysVictory, setTodaysVictory] = useState('');
+  const [needsSupport, setNeedsSupport] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [existingCheckin, setExistingCheckin] = useState<any>(null);
-  const [lastSubmissionError, setLastSubmissionError] = useState<string | null>(null);
+  const [hasCheckedIn, setHasCheckedIn] = useState(false);
 
   useEffect(() => {
-    const todayDate = new Date().toISOString().slice(0, 10);
-    setToday(todayDate);
-    loadExistingCheckin(todayDate);
-    loadDraftResponses(todayDate);
+    checkTodaysStatus();
   }, [user]);
 
-  // Auto-save draft responses whenever they change
-  useEffect(() => {
-    if (today && !existingCheckin) {
-      setIsSaving(true);
-      const timeoutId = setTimeout(() => {
-        checkinStorage.saveDraft(today, responses, completedSections);
-        setIsSaving(false);
-      }, 500); // Add a small delay to debounce rapid changes
-
-      return () => {
-        clearTimeout(timeoutId);
-        setIsSaving(false);
-      };
-    }
-  }, [responses, today, existingCheckin, completedSections]);
-
-  const loadExistingCheckin = async (checkinDate: string) => {
+  const checkTodaysStatus = async () => {
     if (!user) return;
-
-    const result = await checkinDataService.loadExistingCheckin(user.id, checkinDate);
     
-    if (result.existingCheckin) {
-      setExistingCheckin(result.existingCheckin);
-      if (result.responses) {
-        setResponses(result.responses);
-      }
-      // Fix the type casting issue here
-      setCompletedSections(new Set(Array.from(result.completedSections).map(String)));
-      // Clear draft if check-in is complete
-      checkinStorage.clearDraft(checkinDate);
+    const todaysCheckin = await simpleCheckin.getTodaysCheckin();
+    if (todaysCheckin) {
+      setMood(todaysCheckin.mood);
+      setHasCheckedIn(true);
     }
   };
 
-  const loadDraftResponses = (checkinDate: string) => {
-    if (existingCheckin) return;
+  const submitCheckIn = async () => {
+    if (!user || !mood || isSubmitting) return;
     
-    const draft = checkinStorage.loadDraft(checkinDate);
-    if (draft) {
-      setResponses(prev => ({ ...prev, ...draft.responses }));
-      setCompletedSections(new Set(draft.completedSections || []));
-    }
-  };
-
-  const markSectionComplete = (section: string) => {
-    console.log('Marking section complete:', section, 'Current responses:', responses);
-    setCompletedSections(prev => {
-      const newSet = new Set(prev);
-      
-      if (checkinValidation.validateSectionCompletion(section, responses)) {
-        newSet.add(section);
-        console.log(`${section} section completed`);
-      }
-      
-      console.log('Updated completed sections:', Array.from(newSet));
-      return newSet;
-    });
-  };
-
-  const canComplete = () => {
-    const isComplete = checkinValidation.canComplete(completedSections);
-    console.log('Can complete check:', isComplete, 'Completed sections:', Array.from(completedSections));
-    return isComplete;
-  };
-
-  const validateCompletion = () => {
-    return checkinValidation.validateCompletion(completedSections);
-  };
-
-  const handleComplete = async (isRetry: boolean = false) => {
-    console.log('Starting check-in completion...', { canComplete: canComplete(), user: !!user });
+    setIsSubmitting(true);
     
-    if (!user) {
-      checkinSubmissionService.showErrorMessage('You must be logged in to complete a check-in', () => {});
-      return false;
-    }
-    
-    if (!canComplete()) {
-      validateCompletion();
-      return false;
-    }
-
     try {
-      setIsSubmitting(true);
-      setLastSubmissionError(null);
+      // Submit mood
+      await simpleCheckin.checkIn(mood);
       
-      console.log('Submitting check-in data:', responses);
+      // Track victory if they shared one
+      if (todaysVictory.trim()) {
+        await victoryTracker.trackDailyVictory(todaysVictory);
+      }
       
-      const checkinData = checkinSubmissionService.prepareCheckinData(user.id, today, responses);
-      await checkinSubmissionService.submitCheckin(checkinData, responses);
-
-      // Mark as completed
-      setExistingCheckin(checkinData);
-      setCompletedSections(new Set(['mood', 'wellness', 'assessments']));
+      // Track gratitude as a victory too
+      if (gratitude.trim()) {
+        await victoryTracker.trackVictory({
+          type: 'gratitude',
+          description: gratitude
+        });
+      }
       
-      // Save to localStorage as backup
-      checkinStorage.saveCompleted(today, checkinData);
+      // Send appropriate encouragement
+      if (mood === 'struggling' || needsSupport) {
+        hopeMessenger.sendHope('struggling');
+        toast.info("You're not alone", {
+          description: "Check out the support page for immediate help",
+          duration: 5000
+        });
+      } else if (mood === 'good') {
+        hopeMessenger.sendHope('victory');
+      }
       
-      // Clear draft
-      checkinStorage.clearDraft(today);
+      setHasCheckedIn(true);
       
-      checkinSubmissionService.showSuccessMessage();
-      return true;
+      // Show success with recovery language
+      const messages = {
+        struggling: "Thank you for being honest. That takes courage.",
+        managing: "One day at a time. You're doing it.",
+        good: "Beautiful! Your strength inspires others."
+      };
+      
+      toast.success(messages[mood], { duration: 4000 });
+      
+      // Navigate based on need
+      if (mood === 'struggling' || needsSupport) {
+        setTimeout(() => {
+          window.location.href = '/crisis-intervention';
+        }, 2000);
+      }
       
     } catch (error) {
-      console.error('Error completing check-in:', error);
-      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
-      setLastSubmissionError(errorMessage);
-      
-      checkinSubmissionService.showErrorMessage(errorMessage, () => handleComplete(true));
-      return false;
+      console.error('Check-in error:', error);
+      toast.error("Couldn't save your check-in. That's okay, you're still doing great.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const reset = () => {
+    setMood(null);
+    setGratitude('');
+    setTodaysVictory('');
+    setNeedsSupport(false);
+  };
+
   return {
-    responses,
-    setResponses,
-    completedSections,
-    markSectionComplete,
-    canComplete,
-    validateCompletion,
-    handleComplete,
+    mood,
+    setMood,
+    gratitude,
+    setGratitude,
+    todaysVictory,
+    setTodaysVictory,
+    needsSupport,
+    setNeedsSupport,
     isSubmitting,
-    isSaving,
-    existingCheckin,
-    lastSubmissionError
+    hasCheckedIn,
+    submitCheckIn,
+    reset,
+    canSubmit: mood !== null
   };
 };

@@ -38,20 +38,21 @@ const HomePage = () => {
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-16 text-center">
         <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-          Transforming Recovery Support Through Clinical Innovation
+          You're Not Alone. Help is Here Right Now.
         </h1>
         <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-          Evidence-based platform enabling providers to expand care while supporting sustained recovery
+          24/7 crisis support and recovery tools. No shame, no judgment. Just real help when you need it most.
         </p>
+        {/* CRISIS-FIRST HERO BUTTONS */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button size="lg" asChild>
-            <Link to="/providers">For Healthcare Providers</Link>
+          <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white text-lg py-6 px-8" asChild>
+            <Link to="/contact">I Need Help Right Now</Link>
           </Button>
           <Button size="lg" variant="outline" asChild>
-            <Link to="/auth">For Individuals & Families</Link>
+            <Link to="/auth">Start My Recovery Journey</Link>
           </Button>
           <Button size="lg" variant="ghost" asChild>
-            <Link to="/supporter-signup">For Supporters</Link>
+            <Link to="/providers">For Healthcare Providers</Link>
           </Button>
         </div>
       </section>

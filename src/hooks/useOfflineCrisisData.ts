@@ -7,7 +7,8 @@ import { CrisisSyncService } from '@/services/crisisSyncService';
 import { generateUUID } from '@/utils/crisisDataUtils';
 import type { CrisisResolution, CheckInResponse, FollowUpTask } from '@/types/crisisData';
 
-export const useOfflineCrisisData = () => {
+// Recovery-first offline support - works when they need it most
+export const useOfflineSupport = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [crisisResolutions, setCrisisResolutions] = useState<CrisisResolution[]>([]);
   const [checkInResponses, setCheckInResponses] = useState<CheckInResponse[]>([]);
@@ -102,31 +103,31 @@ export const useOfflineCrisisData = () => {
     }
   };
 
-  const saveCrisisResolution = async (resolution: Omit<CrisisResolution, 'id' | 'user_id'>) => {
+  const saveHelpMoment = async (resolution: Omit<CrisisResolution, 'id' | 'user_id'>) => {
     if (!user) return;
 
     try {
-      let newResolution: CrisisResolution;
+      let newMoment: CrisisResolution;
 
       if (isOnline) {
-        newResolution = await UnifiedCrisisService.saveCrisisResolution(user.id, resolution);
+        newMoment = await UnifiedCrisisService.saveCrisisResolution(user.id, resolution);
       } else {
-        newResolution = {
+        newMoment = {
           ...resolution,
           user_id: user.id,
           id: generateUUID()
         };
-        await offlineStorage.saveData('crisisResolutions', newResolution);
+        await offlineStorage.saveData('crisisResolutions', newMoment);
         offlineStorage.queueForSync({
           type: 'crisis_resolution',
-          data: newResolution
+          data: newMoment
         });
       }
 
-      setCrisisResolutions(prev => [newResolution, ...prev]);
-      offlineStorage.saveToLocalStorage('crisisResolutions', [newResolution, ...crisisResolutions]);
+      setCrisisResolutions(prev => [newMoment, ...prev]);
+      offlineStorage.saveToLocalStorage('crisisResolutions', [newMoment, ...crisisResolutions]);
     } catch (error) {
-      console.error('Failed to save crisis resolution:', error);
+      console.error('Failed to save help moment:', error);
     }
   };
 
@@ -158,37 +159,37 @@ export const useOfflineCrisisData = () => {
     }
   };
 
-  const saveFollowUpTask = async (task: Omit<FollowUpTask, 'id' | 'user_id'>) => {
+  const saveNextStep = async (task: Omit<FollowUpTask, 'id' | 'user_id'>) => {
     if (!user) return;
 
     try {
-      let newTask: FollowUpTask;
+      let newStep: FollowUpTask;
 
       if (isOnline) {
-        newTask = await UnifiedCrisisService.saveFollowUpTask(user.id, task);
+        newStep = await UnifiedCrisisService.saveFollowUpTask(user.id, task);
       } else {
-        newTask = {
+        newStep = {
           ...task,
           user_id: user.id,
           id: generateUUID()
         };
-        await offlineStorage.saveData('followUpTasks', newTask);
+        await offlineStorage.saveData('followUpTasks', newStep);
         offlineStorage.queueForSync({
           type: 'follow_up_task',
-          data: newTask
+          data: newStep
         });
       }
 
-      setFollowUpTasks(prev => [...prev, newTask].sort((a, b) => 
+      setFollowUpTasks(prev => [...prev, newStep].sort((a, b) => 
         a.scheduled_for.getTime() - b.scheduled_for.getTime()
       ));
-      offlineStorage.saveToLocalStorage('followUpTasks', [...followUpTasks, newTask]);
+      offlineStorage.saveToLocalStorage('followUpTasks', [...followUpTasks, newStep]);
     } catch (error) {
-      console.error('Failed to save follow-up task:', error);
+      console.error('Failed to save next step:', error);
     }
   };
 
-  const updateFollowUpTask = async (taskId: string, updates: Partial<FollowUpTask>) => {
+  const updateNextStep = async (taskId: string, updates: Partial<FollowUpTask>) => {
     if (!user) return;
 
     try {
@@ -201,14 +202,14 @@ export const useOfflineCrisisData = () => {
         });
       }
 
-      const updatedTasks = followUpTasks.map(task =>
+      const updatedSteps = followUpTasks.map(task =>
         task.id === taskId ? { ...task, ...updates } : task
       );
       
-      setFollowUpTasks(updatedTasks);
-      offlineStorage.saveToLocalStorage('followUpTasks', updatedTasks);
+      setFollowUpTasks(updatedSteps);
+      offlineStorage.saveToLocalStorage('followUpTasks', updatedSteps);
     } catch (error) {
-      console.error('Failed to update follow-up task:', error);
+      console.error('Failed to update next step:', error);
     }
   };
 
@@ -217,7 +218,7 @@ export const useOfflineCrisisData = () => {
     
     try {
       await CrisisSyncService.syncWithServer(user.id);
-      console.log('Synced offline crisis data with server');
+      console.log('Synced offline support data with server');
       
       // Reload data from server after sync
       await loadFromDatabase();
@@ -229,14 +230,17 @@ export const useOfflineCrisisData = () => {
   return {
     isOnline,
     isLoading,
-    crisisResolutions,
+    helpMoments: crisisResolutions,
     checkInResponses,
-    followUpTasks,
-    saveCrisisResolution,
+    nextSteps: followUpTasks,
+    saveHelpMoment,
     saveCheckInResponse,
-    saveFollowUpTask,
-    updateFollowUpTask,
+    saveNextStep,
+    updateNextStep,
     syncWithServer,
     loadOfflineData: loadData
   };
 };
+
+// Backward compatibility
+export const useOfflineCrisisData = useOfflineSupport;

@@ -1,49 +1,60 @@
 
-interface PanicModeState {
-  isInCooldown: boolean;
-  lastPanicTime: number | null;
-  cooldownDuration: number; // in milliseconds
+// Emergency Support Service - You're never alone in this
+
+interface EmergencySupportState {
+  isProcessing: boolean;
+  lastReachOutTime: number | null;
+  supportInterval: number; // Time between emergency requests to prevent accidental duplicates
 }
 
-class PanicModeService {
-  private state: PanicModeState = {
-    isInCooldown: false,
-    lastPanicTime: null,
-    cooldownDuration: 30000 // 30 seconds
+class EmergencySupportService {
+  private state: EmergencySupportState = {
+    isProcessing: false,
+    lastReachOutTime: null,
+    supportInterval: 30000 // 30 seconds - prevents accidental double-taps
   };
 
-  canTriggerPanic(): boolean {
-    if (!this.state.lastPanicTime) return true;
+  canReachOut(): boolean {
+    if (!this.state.lastReachOutTime) return true;
     
-    const timeSinceLastPanic = Date.now() - this.state.lastPanicTime;
-    return timeSinceLastPanic >= this.state.cooldownDuration;
+    const timeSinceLastReachOut = Date.now() - this.state.lastReachOutTime;
+    return timeSinceLastReachOut >= this.state.supportInterval;
   }
 
-  triggerPanic(): { success: boolean; cooldownRemaining?: number } {
-    if (!this.canTriggerPanic()) {
-      const cooldownRemaining = this.state.cooldownDuration - (Date.now() - this.state.lastPanicTime!);
-      return { success: false, cooldownRemaining };
+  reachOutForHelp(): { success: boolean; waitTime?: number; message?: string } {
+    if (!this.canReachOut()) {
+      const waitTime = this.state.supportInterval - (Date.now() - this.state.lastReachOutTime!);
+      return { 
+        success: false, 
+        waitTime,
+        message: "We're still processing your last request. Help is on the way." 
+      };
     }
 
-    this.state.lastPanicTime = Date.now();
-    this.state.isInCooldown = true;
+    this.state.lastReachOutTime = Date.now();
+    this.state.isProcessing = true;
 
-    // Start cooldown timer
+    // Reset processing state after interval
     setTimeout(() => {
-      this.state.isInCooldown = false;
-    }, this.state.cooldownDuration);
+      this.state.isProcessing = false;
+    }, this.state.supportInterval);
 
-    return { success: true };
+    return { 
+      success: true,
+      message: "You're so brave for reaching out. Connecting you to support now."
+    };
   }
 
-  getCooldownRemaining(): number {
-    if (!this.state.lastPanicTime || !this.state.isInCooldown) return 0;
-    return Math.max(0, this.state.cooldownDuration - (Date.now() - this.state.lastPanicTime));
+  getWaitTime(): number {
+    if (!this.state.lastReachOutTime || !this.state.isProcessing) return 0;
+    return Math.max(0, this.state.supportInterval - (Date.now() - this.state.lastReachOutTime));
   }
 
-  isInCooldown(): boolean {
-    return this.state.isInCooldown && this.getCooldownRemaining() > 0;
+  isProcessingRequest(): boolean {
+    return this.state.isProcessing && this.getWaitTime() > 0;
   }
 }
 
-export const panicModeService = new PanicModeService();
+export const emergencySupportService = new EmergencySupportService();
+// For backwards compatibility
+export const panicModeService = emergencySupportService;

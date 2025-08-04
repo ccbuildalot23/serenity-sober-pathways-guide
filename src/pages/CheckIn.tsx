@@ -1,405 +1,306 @@
 
 import React, { useState, useEffect } from 'react';
-import Layout from '@/components/Layout';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, ArrowLeft, Heart, TrendingUp, Calendar, CheckCircle, Loader2 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { useNavigate } from 'react-router-dom';
+import { Phone, Heart, Users, Wind, Sparkles, ArrowLeft } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 const CheckIn = () => {
   const navigate = useNavigate();
-  const [currentSection, setCurrentSection] = useState('mood');
-  const [responses, setResponses] = useState({
-    mood: null,
-    energy: null,
-    hope: null,
-    sobriety_confidence: null,
-    recovery_importance: null,
-    recovery_strength: null,
-    support_needed: false,
-    phq2_q1: null,
-    phq2_q2: null,
-    gad2_q1: null,
-    gad2_q2: null,
-  });
-  const [completedSections, setCompletedSections] = useState(new Set());
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const { user } = useAuth();
+  const [mood, setMood] = useState<'struggling' | 'managing' | 'good' | null>(null);
+  const [showSupport, setShowSupport] = useState(false);
+  const [showEncouragement, setShowEncouragement] = useState(false);
+  const [showShareHope, setShowShareHope] = useState(false);
+  const [savedReason, setSavedReason] = useState('');
+  const [breathingActive, setBreathingActive] = useState(false);
+  const [breathCount, setBreathCount] = useState(0);
 
-  const sections = ['mood', 'wellness', 'assessments'];
-  const progressPercentage = (completedSections.size / sections.length) * 100;
+  useEffect(() => {
+    // Load saved "Why I Got Clean" reason
+    const reason = localStorage.getItem('why_i_got_clean');
+    if (reason) setSavedReason(reason);
+  }, []);
 
-  const canComplete = () => {
-    return completedSections.size === sections.length;
-  };
-
-  const handleSubmit = () => {
-    if (!canComplete()) {
-      alert('Please complete all sections before submitting');
-      return;
+  // Breathing timer
+  useEffect(() => {
+    if (breathingActive) {
+      const interval = setInterval(() => {
+        setBreathCount(prev => {
+          if (prev >= 60) {
+            setBreathingActive(false);
+            return 0;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+      return () => clearInterval(interval);
     }
+  }, [breathingActive]);
+
+  const handleMoodSelect = async (selectedMood: 'struggling' | 'managing' | 'good') => {
+    setMood(selectedMood);
     
-    setIsSubmitting(true);
-    // Simulate submission
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setShowSuccess(true);
-      setTimeout(() => {
-        navigate('/');
-      }, 2000);
-    }, 1000);
+    // Save check-in
+    try {
+      await supabase.from('check_ins').insert({
+        user_id: user?.id,
+        mood: selectedMood,
+        date: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error saving check-in:', error);
+    }
+
+    // Show appropriate response
+    if (selectedMood === 'struggling') {
+      setShowSupport(true);
+    } else if (selectedMood === 'managing') {
+      setShowEncouragement(true);
+    } else {
+      setShowShareHope(true);
+    }
   };
 
-  const markSectionComplete = (section) => {
-    setCompletedSections(prev => new Set([...prev, section]));
+  const callSomeone = () => {
+    const savedNumber = localStorage.getItem('support_person_number');
+    if (savedNumber) {
+      window.location.href = `tel:${savedNumber}`;
+    } else {
+      const number = prompt("Enter a support person's number (we'll save it for next time):");
+      if (number) {
+        localStorage.setItem('support_person_number', number);
+        window.location.href = `tel:${number}`;
+      }
+    }
   };
 
-  if (showSuccess) {
-    return (
-      <Layout activeTab="checkin" onTabChange={() => {}}>
-        <div className="p-4 space-y-6 max-w-2xl mx-auto">
-          <div className="text-center space-y-4">
-            <div className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center">
-              <CheckCircle className="w-10 h-10 text-green-600" />
-            </div>
-            <h1 className="text-3xl font-bold text-green-800">Great Job!</h1>
-            <p className="text-green-700 text-lg">
-              Your check-in has been saved. Keep up the amazing work on your recovery journey!
-            </p>
-            <div className="flex items-center justify-center space-x-2 text-gray-600">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Redirecting to dashboard...</span>
-            </div>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
+  const saveWhyIGotClean = () => {
+    const reason = prompt("Why did you get clean? (We'll show this when you need it most):", savedReason);
+    if (reason) {
+      localStorage.setItem('why_i_got_clean', reason);
+      setSavedReason(reason);
+      alert("Saved! We'll remind you of this when things get tough.");
+    }
+  };
 
   return (
-    <Layout activeTab="checkin" onTabChange={() => {}}>
-      <div className="p-4 space-y-6 max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <Button
-            onClick={() => navigate('/')}
-            variant="ghost"
-            size="sm"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-        </div>
+    <div className="min-h-screen bg-gray-900 text-white">
+      <div className="max-w-2xl mx-auto px-4 py-8 space-y-8">
+        {/* Back Button */}
+        <Button
+          onClick={() => navigate('/')}
+          variant="ghost"
+          className="text-gray-400 hover:text-white"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back
+        </Button>
 
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl font-bold text-[#1E3A8A]">Daily Check-In</h1>
-          <p className="text-gray-600">Take a moment to reflect on your day</p>
-          <p className="text-sm text-gray-500">
-            {new Date().toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
-          </p>
-        </div>
-
-        {/* Progress Bar */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Progress</span>
-                <span className="text-sm text-gray-500">{completedSections.size}/{sections.length} sections</span>
-              </div>
-              <Progress value={progressPercentage} className="h-2" />
-              <div className="grid grid-cols-3 gap-2 text-xs">
-                <div className={`text-center p-2 rounded ${completedSections.has('mood') ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                  {completedSections.has('mood') ? '✓' : '○'} Mood
-                </div>
-                <div className={`text-center p-2 rounded ${completedSections.has('wellness') ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                  {completedSections.has('wellness') ? '✓' : '○'} Wellness
-                </div>
-                <div className={`text-center p-2 rounded ${completedSections.has('assessments') ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                  {completedSections.has('assessments') ? '✓' : '○'} Assessments
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Mood Section */}
-        <Card className={completedSections.has('mood') ? 'border-green-200 bg-green-50' : ''}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Heart className="w-5 h-5 text-pink-500" />
-              Mood Check
-              {completedSections.has('mood') && <CheckCircle className="w-4 h-4 text-green-600" />}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+        {/* Main Question */}
+        {!mood && (
+          <div className="text-center space-y-8">
             <div className="space-y-4">
-              <p className="text-sm text-gray-600">How are you feeling today?</p>
-              <div className="grid grid-cols-5 gap-2">
-                {[1, 2, 3, 4, 5].map((rating) => (
-                  <button
-                    key={rating}
-                    onClick={() => {
-                      setResponses(prev => ({ ...prev, mood: rating }));
-                      markSectionComplete('mood');
-                    }}
-                    className={`p-3 text-center rounded-lg border transition-colors ${
-                      responses.mood === rating
-                        ? 'bg-blue-100 border-blue-500 text-blue-700'
-                        : 'bg-white border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="text-2xl mb-1">
-                      {rating === 1 ? '😢' : rating === 2 ? '😕' : rating === 3 ? '😐' : rating === 4 ? '😊' : '😄'}
-                    </div>
-                    <div className="text-xs">{rating}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Wellness Section */}
-        <Card className={completedSections.has('wellness') ? 'border-green-200 bg-green-50' : ''}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-blue-500" />
-              Wellness Check
-              {completedSections.has('wellness') && <CheckCircle className="w-4 h-4 text-green-600" />}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Energy Level (1-10)</label>
-                <input
-                  type="range"
-                  min="1"
-                  max="10"
-                  value={responses.energy || 5}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value);
-                    setResponses(prev => ({ ...prev, energy: value }));
-                    if (responses.hope && responses.sobriety_confidence) {
-                      markSectionComplete('wellness');
-                    }
-                  }}
-                  className="w-full"
-                />
-                <div className="text-center text-sm text-gray-600">{responses.energy || 5}</div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">Hope Level (1-10)</label>
-                <input
-                  type="range"
-                  min="1"
-                  max="10"
-                  value={responses.hope || 5}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value);
-                    setResponses(prev => ({ ...prev, hope: value }));
-                    if (responses.energy && responses.sobriety_confidence) {
-                      markSectionComplete('wellness');
-                    }
-                  }}
-                  className="w-full"
-                />
-                <div className="text-center text-sm text-gray-600">{responses.hope || 5}</div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">Sobriety Confidence (1-10)</label>
-                <input
-                  type="range"
-                  min="1"
-                  max="10"
-                  value={responses.sobriety_confidence || 5}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value);
-                    setResponses(prev => ({ ...prev, sobriety_confidence: value }));
-                    if (responses.energy && responses.hope) {
-                      markSectionComplete('wellness');
-                    }
-                  }}
-                  className="w-full"
-                />
-                <div className="text-center text-sm text-gray-600">{responses.sobriety_confidence || 5}</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Assessments Section */}
-        <Card className={completedSections.has('assessments') ? 'border-green-200 bg-green-50' : ''}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-purple-500" />
-              Mental Health Screening
-              {completedSections.has('assessments') && <CheckCircle className="w-4 h-4 text-green-600" />}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm font-medium mb-2">Over the last 2 weeks, how often have you felt down, depressed, or hopeless?</p>
-                <div className="space-y-2">
-                  {[
-                    { value: 0, label: 'Not at all' },
-                    { value: 1, label: 'Several days' },
-                    { value: 2, label: 'More than half the days' },
-                    { value: 3, label: 'Nearly every day' }
-                  ].map((option) => (
-                    <label key={option.value} className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        name="phq2_q1"
-                        value={option.value}
-                        checked={responses.phq2_q1 === option.value}
-                        onChange={() => {
-                          setResponses(prev => ({ ...prev, phq2_q1: option.value }));
-                          if (responses.phq2_q2 !== null && responses.gad2_q1 !== null && responses.gad2_q2 !== null) {
-                            markSectionComplete('assessments');
-                          }
-                        }}
-                      />
-                      <span className="text-sm">{option.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <p className="text-sm font-medium mb-2">Over the last 2 weeks, how often have you felt nervous, anxious, or on edge?</p>
-                <div className="space-y-2">
-                  {[
-                    { value: 0, label: 'Not at all' },
-                    { value: 1, label: 'Several days' },
-                    { value: 2, label: 'More than half the days' },
-                    { value: 3, label: 'Nearly every day' }
-                  ].map((option) => (
-                    <label key={option.value} className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        name="gad2_q1"
-                        value={option.value}
-                        checked={responses.gad2_q1 === option.value}
-                        onChange={() => {
-                          setResponses(prev => ({ ...prev, gad2_q1: option.value }));
-                          if (responses.phq2_q1 !== null && responses.phq2_q2 !== null && responses.gad2_q2 !== null) {
-                            markSectionComplete('assessments');
-                          }
-                        }}
-                      />
-                      <span className="text-sm">{option.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Add the other two questions for completeness */}
-              <div>
-                <p className="text-sm font-medium mb-2">Little interest or pleasure in doing things?</p>
-                <div className="space-y-2">
-                  {[
-                    { value: 0, label: 'Not at all' },
-                    { value: 1, label: 'Several days' },
-                    { value: 2, label: 'More than half the days' },
-                    { value: 3, label: 'Nearly every day' }
-                  ].map((option) => (
-                    <label key={option.value} className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        name="phq2_q2"
-                        value={option.value}
-                        checked={responses.phq2_q2 === option.value}
-                        onChange={() => {
-                          setResponses(prev => ({ ...prev, phq2_q2: option.value }));
-                          if (responses.phq2_q1 !== null && responses.gad2_q1 !== null && responses.gad2_q2 !== null) {
-                            markSectionComplete('assessments');
-                          }
-                        }}
-                      />
-                      <span className="text-sm">{option.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <p className="text-sm font-medium mb-2">Not being able to stop or control worrying?</p>
-                <div className="space-y-2">
-                  {[
-                    { value: 0, label: 'Not at all' },
-                    { value: 1, label: 'Several days' },
-                    { value: 2, label: 'More than half the days' },
-                    { value: 3, label: 'Nearly every day' }
-                  ].map((option) => (
-                    <label key={option.value} className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        name="gad2_q2"
-                        value={option.value}
-                        checked={responses.gad2_q2 === option.value}
-                        onChange={() => {
-                          setResponses(prev => ({ ...prev, gad2_q2: option.value }));
-                          if (responses.phq2_q1 !== null && responses.phq2_q2 !== null && responses.gad2_q1 !== null) {
-                            markSectionComplete('assessments');
-                          }
-                        }}
-                      />
-                      <span className="text-sm">{option.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Completion Section */}
-        <Card className={canComplete() ? 'border-green-200 bg-green-50' : 'border-gray-200'}>
-          <CardContent className="p-6">
-            <Button
-              onClick={handleSubmit}
-              disabled={!canComplete() || isSubmitting}
-              className={`w-full py-3 text-lg transition-all ${
-                canComplete() 
-                  ? 'bg-green-600 hover:bg-green-700' 
-                  : 'bg-gray-400 cursor-not-allowed'
-              }`}
-              size="lg"
-            >
-              {isSubmitting ? (
-                <div className="flex items-center justify-center space-x-2">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Completing...</span>
-                </div>
-              ) : (
-                <>
-                  <CheckCircle className="w-5 h-5 mr-2" />
-                  Complete Check-In
-                </>
-              )}
-            </Button>
-            
-            {canComplete() && (
-              <p className="text-center text-sm text-green-700 mt-2">
-                Great job! You're ready to complete today's check-in.
+              <h1 className="text-4xl font-bold">How Are You Today?</h1>
+              <p className="text-xl text-gray-300">
+                {new Date().toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
               </p>
-            )}
-          </CardContent>
-        </Card>
+            </div>
+
+            {/* Three Mood Buttons */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Button
+                onClick={() => handleMoodSelect('struggling')}
+                className="h-32 bg-red-600 hover:bg-red-700 text-white rounded-2xl shadow-xl transform hover:scale-105 transition-all"
+              >
+                <div className="flex flex-col items-center gap-3">
+                  <span className="text-4xl">😔</span>
+                  <span className="text-2xl font-bold">Struggling</span>
+                </div>
+              </Button>
+
+              <Button
+                onClick={() => handleMoodSelect('managing')}
+                className="h-32 bg-yellow-600 hover:bg-yellow-700 text-white rounded-2xl shadow-xl transform hover:scale-105 transition-all"
+              >
+                <div className="flex flex-col items-center gap-3">
+                  <span className="text-4xl">😐</span>
+                  <span className="text-2xl font-bold">Managing</span>
+                </div>
+              </Button>
+
+              <Button
+                onClick={() => handleMoodSelect('good')}
+                className="h-32 bg-green-600 hover:bg-green-700 text-white rounded-2xl shadow-xl transform hover:scale-105 transition-all"
+              >
+                <div className="flex flex-col items-center gap-3">
+                  <span className="text-4xl">😊</span>
+                  <span className="text-2xl font-bold">Good</span>
+                </div>
+              </Button>
+            </div>
+
+            <p className="text-gray-400">Just pick one. No judgment here.</p>
+          </div>
+        )}
+
+        {/* Struggling Response */}
+        {showSupport && (
+          <div className="space-y-8 animate-fade-in">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold">You're Brave for Being Here</h2>
+              <p className="text-xl text-gray-300">
+                It takes real courage to admit when we're struggling. You just took the first step.
+              </p>
+            </div>
+
+            {/* Immediate Actions */}
+            <div className="grid grid-cols-1 gap-4">
+              <Button
+                onClick={callSomeone}
+                className="h-20 bg-green-600 hover:bg-green-700 text-white rounded-xl"
+              >
+                <Phone className="w-6 h-6 mr-3" />
+                <span className="text-xl">Call Someone Now</span>
+              </Button>
+
+              {!breathingActive ? (
+                <Button
+                  onClick={() => setBreathingActive(true)}
+                  className="h-20 bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
+                >
+                  <Wind className="w-6 h-6 mr-3" />
+                  <span className="text-xl">60-Second Breathing</span>
+                </Button>
+              ) : (
+                <div className="bg-blue-900/30 rounded-xl p-6 text-center">
+                  <div className="text-3xl font-bold text-blue-400 mb-2">
+                    {breathCount <= 4 ? "Breathe In" : 
+                     breathCount <= 8 ? "Hold" : 
+                     breathCount <= 12 ? "Breathe Out" : 
+                     "Repeat..."}
+                  </div>
+                  <div className="text-lg text-gray-300">{60 - breathCount}s left</div>
+                </div>
+              )}
+
+              <Button
+                onClick={() => {
+                  if (savedReason) {
+                    alert(`Remember why you got clean:\n\n"${savedReason}"\n\nYou've come too far to give up now.`);
+                  } else {
+                    saveWhyIGotClean();
+                  }
+                }}
+                className="h-20 bg-purple-600 hover:bg-purple-700 text-white rounded-xl"
+              >
+                <Heart className="w-6 h-6 mr-3" />
+                <span className="text-xl">Why I Got Clean</span>
+              </Button>
+            </div>
+
+            <div className="text-center space-y-4">
+              <p className="text-gray-400">You've survived 100% of your worst days.</p>
+              <Button
+                onClick={() => navigate('/crisis-intervention')}
+                variant="outline"
+                className="border-red-600 text-red-400 hover:bg-red-900/20"
+              >
+                I Need More Help
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Managing Response */}
+        {showEncouragement && (
+          <div className="space-y-8 animate-fade-in">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold">You're Doing The Work</h2>
+              <p className="text-xl text-gray-300">
+                Managing is winning. Every minute clean is a victory.
+              </p>
+              <div className="bg-yellow-900/30 rounded-xl p-6">
+                <p className="text-lg italic">
+                  "Progress, not perfection."
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              <Button
+                onClick={() => navigate('/crisis-toolkit')}
+                className="h-16 bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
+              >
+                <span className="text-lg">Practice a Grounding Tool</span>
+              </Button>
+              <Button
+                onClick={() => navigate('/support')}
+                className="h-16 bg-purple-600 hover:bg-purple-700 text-white rounded-xl"
+              >
+                <Users className="w-5 h-5 mr-2" />
+                <span className="text-lg">Connect with Peers</span>
+              </Button>
+            </div>
+
+            <div className="text-center">
+              <Button
+                onClick={() => navigate('/')}
+                variant="outline"
+                className="border-gray-600 text-gray-300"
+              >
+                Back to Home
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Good Response */}
+        {showShareHope && (
+          <div className="space-y-8 animate-fade-in">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold">That's Beautiful!</h2>
+              <p className="text-xl text-gray-300">
+                Your strength today could save someone's life tomorrow.
+              </p>
+              <div className="inline-flex items-center gap-2 bg-green-900/30 text-green-400 px-6 py-3 rounded-full">
+                <Sparkles className="w-5 h-5" />
+                <span className="font-semibold">You're an inspiration</span>
+              </div>
+            </div>
+
+            <div className="bg-gray-800 rounded-xl p-6 text-center">
+              <p className="text-lg mb-4">
+                Someone out there is struggling and needs to hear your story.
+              </p>
+              <Button
+                onClick={() => navigate('/support')}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <Heart className="w-5 h-5 mr-2" />
+                Share Hope with Others
+              </Button>
+            </div>
+
+            <div className="text-center space-y-4">
+              <p className="text-gray-400">Keep doing what you're doing. It's working.</p>
+              <Button
+                onClick={() => navigate('/')}
+                variant="outline"
+                className="border-gray-600 text-gray-300"
+              >
+                Back to Home
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
-    </Layout>
+    </div>
   );
 };
 

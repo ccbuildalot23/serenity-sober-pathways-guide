@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, Heart, Brain, TrendingUp, CheckCircle, Flame, Target, BarChart } from 'lucide-react';
 import { useRealtimeUpdates } from '@/hooks/useRealtimeUpdates';
-import { useDailyCheckIn } from '@/hooks/useDailyCheckIn';
+import { useEnhancedDailyCheckIn } from '@/hooks/useEnhancedDailyCheckIn';
 import { useCheckInHandlers } from '@/hooks/useCheckInHandlers';
 import { useAuth } from '@/contexts/AuthContext';
 import { enhancedCheckinService, CheckinStats } from '@/services/enhancedCheckinService';
@@ -33,8 +33,10 @@ const DailyCheckIn = () => {
     markSectionComplete,
     canComplete,
     handleComplete,
-    isSubmitting
-  } = useDailyCheckIn();
+    isSubmitting,
+    hasCheckedInToday,
+    loading: checkinLoading
+  } = useEnhancedDailyCheckIn();
 
   const { handleCrisisDetected, handleShowInterventions } = useCheckInHandlers();
 
@@ -89,64 +91,17 @@ const DailyCheckIn = () => {
   });
 
   const handleCompleteCheckIn = async () => {
-    if (!user) return;
-
-    try {
-      const today = new Date().toISOString().split('T')[0];
+    await handleComplete();
+    
+    // Show celebration and reload stats after successful completion
+    if (!isSubmitting) {
+      await loadStats();
+      setShowCelebration(true);
       
-      const checkinData = {
-        user_id: user.id,
-        checkin_date: today,
-        mood_rating: responses.mood,
-        energy_rating: responses.energy,
-        hope_rating: responses.hope,
-        sleep_quality: responses.sleep_quality,
-        medication_taken: responses.medication_taken || false,
-        sobriety_confidence: responses.sobriety_confidence,
-        recovery_importance: responses.recovery_importance,
-        recovery_strength: responses.recovery_strength,
-        support_needed: responses.support_needed ? 'yes' : 'no',
-        triggers: responses.mood_triggers || [],
-        coping_strategies: responses.coping_strategies || [],
-        notes: responses.notes,
-        is_complete: true
-      };
-
-      const assessments = [];
-      
-      // Add PHQ-2 assessment if completed
-      if (responses.phq2_q1 !== null && responses.phq2_q2 !== null) {
-        assessments.push({
-          assessment_type: 'PHQ-2',
-          scores: { total: (responses.phq2_q1 + responses.phq2_q2) },
-          responses: { q1: responses.phq2_q1, q2: responses.phq2_q2 }
-        });
+      // Show streak message if there's one
+      if (streakMessage) {
+        toast.success(streakMessage, { duration: 5000 });
       }
-
-      // Add GAD-2 assessment if completed
-      if (responses.gad2_q1 !== null && responses.gad2_q2 !== null) {
-        assessments.push({
-          assessment_type: 'GAD-2',
-          scores: { total: (responses.gad2_q1 + responses.gad2_q2) },
-          responses: { q1: responses.gad2_q1, q2: responses.gad2_q2 }
-        });
-      }
-
-      const result = await enhancedCheckinService.saveCheckin(checkinData, assessments);
-      
-      if (result.success) {
-        // Reload stats after successful save
-        await loadStats();
-        setShowCelebration(true);
-        
-        // Show streak message if there's one
-        if (streakMessage) {
-          toast.success(streakMessage, { duration: 5000 });
-        }
-      }
-    } catch (error) {
-      console.error('Error completing check-in:', error);
-      toast.error('Failed to complete check-in. Please try again.');
     }
   };
 
@@ -158,6 +113,45 @@ const DailyCheckIn = () => {
   const handleCloseCelebration = () => {
     setShowCelebration(false);
   };
+
+  // Show loading state
+  if (loading || checkinLoading) {
+    return (
+      <Card className="w-full max-w-4xl mx-auto">
+        <CardContent className="p-8 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading your check-in...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Show "already checked in" state
+  if (hasCheckedInToday) {
+    return (
+      <Card className="w-full max-w-4xl mx-auto">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-green-600 flex items-center gap-2">
+            <CheckCircle className="w-6 h-6" />
+            Check-In Complete!
+          </CardTitle>
+          <p className="text-gray-600">You've already completed your check-in for today. Great job!</p>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center space-y-4">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <p className="text-green-800">
+                Thank you for staying connected with your recovery journey today.
+              </p>
+            </div>
+            <p className="text-gray-600">
+              Come back tomorrow for your next check-in.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <>

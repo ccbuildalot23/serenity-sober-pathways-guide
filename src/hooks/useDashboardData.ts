@@ -2,76 +2,106 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { dashboardDataService, DashboardStats, UserProfile } from '@/services/dashboardDataService';
 import { toast } from 'sonner';
+import { victoryTracker } from '@/services/victoryTrackerService';
+import { hopeMessenger } from '@/services/hopeMessengerService';
 
-export const useDashboardData = () => {
+// Victory-focused dashboard - celebrate every win
+export const useVictoryDashboard = () => {
   const { user } = useAuth();
-  const [stats, setStats] = useState<DashboardStats>({
-    streak: 0,
-    checkIns: 0,
-    goals: { completed: 0, total: 0 },
-    recentCheckins: [],
-    crisisAlerts: { total: 0, resolved: 0, recent: [] },
-    supportNetwork: { totalMembers: 0, activeMembers: 0, members: [] },
-    upcomingAppointments: []
+  const [victories, setVictories] = useState({
+    cleanDays: 0,
+    dailyWins: 0,
+    momentsOfStrength: [],
+    recentVictories: [],
+    supportGiven: 0,
+    supportReceived: 0,
+    toolsUsed: [],
+    nextMilestone: { days: 0, message: '' }
   });
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [encouragement, setEncouragement] = useState('');
 
-  const fetchData = useCallback(async () => {
+  const fetchVictories = useCallback(async () => {
     if (!user?.id) {
       setLoading(false);
       return;
     }
 
-    console.log('Fetching dashboard data for user:', user.id);
+    console.log('Loading your victories:', user.id);
     
     try {
-      const [statsData, profileData] = await Promise.all([
-        dashboardDataService.getUserStats(user.id),
-        dashboardDataService.getUserProfile(user.id)
-      ]);
+      // Get clean days from localStorage
+      const cleanDays = parseInt(localStorage.getItem('clean_days') || '0');
+      const dailyWins = await victoryTracker.getTodaysVictories();
+      const recentVictories = await victoryTracker.getRecentVictories(7);
       
-      console.log('Dashboard data fetched:', { statsData, profileData });
-      setStats(statsData);
-      setProfile(profileData);
-      setError(null);
-    } catch (err) {
-      console.error('Error fetching dashboard data:', err);
-      setError('Failed to load dashboard data');
+      // Calculate next milestone
+      const nextMilestone = victoryTracker.getNextMilestone(cleanDays);
       
-      // Set default values to prevent blank screen
-      setStats({
-        streak: 0,
-        checkIns: 0,
-        goals: { completed: 0, total: 0 },
-        recentCheckins: [],
-        crisisAlerts: { total: 0, resolved: 0, recent: [] },
-        supportNetwork: { totalMembers: 0, activeMembers: 0, members: [] },
-        upcomingAppointments: []
+      // Get user profile
+      const profileData = await dashboardDataService.getUserProfile(user.id);
+      
+      setVictories({
+        cleanDays,
+        dailyWins: dailyWins.length,
+        momentsOfStrength: recentVictories.filter(v => v.type === 'strength'),
+        recentVictories,
+        supportGiven: recentVictories.filter(v => v.type === 'helped_someone').length,
+        supportReceived: recentVictories.filter(v => v.type === 'asked_for_help').length,
+        toolsUsed: [...new Set(recentVictories.map(v => v.tool).filter(Boolean))],
+        nextMilestone
       });
+      
+      setProfile(profileData);
+      
+      // Get personalized encouragement
+      const message = await hopeMessenger.getPersonalizedMessage(cleanDays > 0 ? 'victory' : 'struggling');
+      setEncouragement(message);
+      
+    } catch (err) {
+      console.error('Error loading victories:', err);
+      
+      // Set default victories to show something positive
+      const cleanDays = parseInt(localStorage.getItem('clean_days') || '0');
+      setVictories({
+        cleanDays,
+        dailyWins: 0,
+        momentsOfStrength: [],
+        recentVictories: [],
+        supportGiven: 0,
+        supportReceived: 0,
+        toolsUsed: [],
+        nextMilestone: victoryTracker.getNextMilestone(cleanDays)
+      });
+      
+      setEncouragement("You're here. That's a victory.");
     } finally {
       setLoading(false);
     }
   }, [user?.id]);
 
-  const refreshStats = useCallback(() => {
+  const refreshVictories = useCallback(() => {
     if (user?.id) {
-      console.log('Refreshing dashboard stats');
+      console.log('Refreshing victories');
       setLoading(true);
-      fetchData();
+      fetchVictories();
     }
-  }, [user?.id, fetchData]);
+  }, [user?.id, fetchVictories]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    fetchVictories();
+  }, [fetchVictories]);
 
   return {
-    stats,
+    victories,
     profile,
     loading,
-    error,
-    refreshStats
+    encouragement,
+    refreshVictories,
+    streakMessage: victoryTracker.getStreakMessage(victories.cleanDays)
   };
 };
+
+// Backward compatibility
+export const useDashboardData = useVictoryDashboard;

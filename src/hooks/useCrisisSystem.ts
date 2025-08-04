@@ -1,31 +1,30 @@
 
 import { useState, useEffect, useCallback } from 'react';
-// DEDUPLICATION: Unified crisis hooks with EnhancedCrisisSystem
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { voiceActivationService } from '@/services/voiceActivationService';
-import { escalateCrisis } from '@/services/crisisEscalationService';
+import { connectToSupport } from '@/services/crisisEscalationService';
 import { useSecureAuditLogger } from '@/hooks/useSecureAuditLogger';
 
-type RiskLevel = 'low' | 'moderate' | 'high' | 'severe';
+type NeedLevel = 'reaching_out' | 'needing_support' | 'needing_help_now' | 'emergency';
 
-interface CrisisEvent {
+interface ReachingOutMoment {
   id: string;
   timestamp: Date;
-  riskLevel: RiskLevel;
-  interventionsUsed: string[];
-  safetyConfirmed: boolean;
+  needLevel: NeedLevel;
+  toolsUsed: string[];
+  feelingSafer: boolean;
   location?: { lat: number; lng: number; };
 }
 
-export const useCrisisSystem = () => {
-  const [showAssessment, setShowAssessment] = useState(false);
-  const [showResponse, setShowResponse] = useState(false);
-  const [showResources, setShowResources] = useState(false);
-  const [showContacts, setShowContacts] = useState(false);
-  const [showFollowUp, setShowFollowUp] = useState(false);
-  const [riskLevel, setRiskLevel] = useState<RiskLevel | null>(null);
-  const [currentCrisisEvent, setCurrentCrisisEvent] = useState<CrisisEvent | null>(null);
+export const useHelpNowSystem = () => {
+  const [showCheckIn, setShowCheckIn] = useState(false);
+  const [showSupport, setShowSupport] = useState(false);
+  const [showTools, setShowTools] = useState(false);
+  const [showConnections, setShowConnections] = useState(false);
+  const [showNextSteps, setShowNextSteps] = useState(false);
+  const [needLevel, setNeedLevel] = useState<NeedLevel | null>(null);
+  const [currentMoment, setCurrentMoment] = useState<ReachingOutMoment | null>(null);
   const [voiceListening, setVoiceListening] = useState(false);
   const [hasLocationPermission, setHasLocationPermission] = useState(false);
   const { user } = useAuth();
@@ -35,7 +34,7 @@ export const useCrisisSystem = () => {
     // Initialize voice activation if supported
     if (voiceActivationService.isSupported()) {
       const success = voiceActivationService.startListening({
-        onCrisisDetected: handleVoiceActivatedCrisis,
+        onCrisisDetected: handleVoiceActivatedHelp,
         onError: (error) => {
           console.error('Voice activation error:', error);
           setVoiceListening(false);
@@ -69,10 +68,10 @@ export const useCrisisSystem = () => {
     }
   };
 
-  const handleVoiceActivatedCrisis = useCallback(() => {
-    console.log('Voice-activated crisis detected');
-    toast.info('Voice Crisis Activation', {
-      description: 'Crisis support activated by voice command',
+  const handleVoiceActivatedHelp = useCallback(() => {
+    console.log('Voice-activated help request detected');
+    toast.info('We Heard You', {
+      description: 'Getting help right away',
       duration: 2000,
     });
     
@@ -81,133 +80,150 @@ export const useCrisisSystem = () => {
       navigator.vibrate([200, 100, 200]);
     }
     
-    handleCrisisActivated();
+    handleHelpActivated();
   }, []);
 
-  const handleCrisisActivated = useCallback(() => {
-    console.log('Crisis button activated - starting assessment');
-    setShowAssessment(true);
-    log('crisis_activated');
+  const handleHelpActivated = useCallback(() => {
+    console.log('Help button activated - checking in');
+    setShowCheckIn(true);
+    log('help_requested');
     
-    // Create crisis event
-    const crisisEvent: CrisisEvent = {
+    // Create moment of reaching out
+    const moment: ReachingOutMoment = {
       id: Date.now().toString(),
       timestamp: new Date(),
-      riskLevel: 'low', // Will be updated after assessment
-      interventionsUsed: [],
-      safetyConfirmed: false
+      needLevel: 'reaching_out',
+      toolsUsed: [],
+      feelingSafer: false
     };
 
     // Get location if permission granted
     if (hasLocationPermission && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          crisisEvent.location = {
+          moment.location = {
             lat: position.coords.latitude,
             lng: position.coords.longitude
           };
-          setCurrentCrisisEvent(crisisEvent);
+          setCurrentMoment(moment);
         },
         (error) => {
           console.log('Location access failed:', error);
-          setCurrentCrisisEvent(crisisEvent);
+          setCurrentMoment(moment);
         }
       );
     } else {
-      setCurrentCrisisEvent(crisisEvent);
+      setCurrentMoment(moment);
     }
 
-    // Log crisis event activation
-    toast.info('Crisis Support Activated', {
-      description: 'Starting safety assessment...',
+    // Supportive message
+    toast.info("You're Being So Brave", {
+      description: "Let's find what helps you right now",
       duration: 2000,
     });
   }, [hasLocationPermission, log]);
 
-  const handleAssessmentComplete = useCallback((level: RiskLevel) => {
-    console.log('Assessment completed with risk level:', level);
-    setRiskLevel(level);
-    setShowAssessment(false);
-    setShowResponse(true);
-    log('crisis_assessment_complete', { level });
-    if (level === 'severe' || level === 'high') {
-      escalateCrisis(level);
+  const handleCheckInComplete = useCallback((level: NeedLevel) => {
+    console.log('Check-in completed with need level:', level);
+    setNeedLevel(level);
+    setShowCheckIn(false);
+    setShowSupport(true);
+    log('checkin_complete', { level });
+    if (level === 'emergency' || level === 'needing_help_now') {
+      connectToSupport('immediate');
     }
 
-    // Update crisis event
-    if (currentCrisisEvent) {
-      const updatedEvent = { ...currentCrisisEvent, riskLevel: level };
-      setCurrentCrisisEvent(updatedEvent);
+    // Update moment
+    if (currentMoment) {
+      const updatedMoment = { ...currentMoment, needLevel: level };
+      setCurrentMoment(updatedMoment);
       
-      // Save crisis event to localStorage for follow-up
-      const savedEvents = JSON.parse(localStorage.getItem('crisisEvents') || '[]');
-      savedEvents.push(updatedEvent);
-      localStorage.setItem('crisisEvents', JSON.stringify(savedEvents));
+      // Save moment to localStorage for follow-up
+      const savedMoments = JSON.parse(localStorage.getItem('supportMoments') || '[]');
+      savedMoments.push(updatedMoment);
+      localStorage.setItem('supportMoments', JSON.stringify(savedMoments));
     }
 
-    // Log the assessment completion
-    toast.success('Assessment Complete', {
-      description: `Risk level determined: ${level}`,
+    // Supportive message
+    const messages = {
+      reaching_out: "You're taking care of yourself",
+      needing_support: "Let's get you connected",
+      needing_help_now: "Help is coming right now",
+      emergency: "Connecting you immediately"
+    };
+    
+    toast.success('Thank You for Sharing', {
+      description: messages[level],
       duration: 3000,
     });
-  }, [currentCrisisEvent, log]);
+  }, [currentMoment, log]);
 
-  const handleResponseComplete = useCallback(() => {
-    setShowResponse(false);
-    log('crisis_response_complete');
+  const handleSupportComplete = useCallback(() => {
+    setShowSupport(false);
+    log('support_session_complete');
     
-    if (currentCrisisEvent) {
-      // Mark safety as confirmed
-      const updatedEvent = { ...currentCrisisEvent, safetyConfirmed: true };
-      setCurrentCrisisEvent(updatedEvent);
+    if (currentMoment) {
+      // Mark as feeling safer
+      const updatedMoment = { ...currentMoment, feelingSafer: true };
+      setCurrentMoment(updatedMoment);
       
-      // Show follow-up scheduler
-      setShowFollowUp(true);
+      // Show next steps
+      setShowNextSteps(true);
     }
 
-    setRiskLevel(null);
+    setNeedLevel(null);
     
-    toast.success('Crisis intervention protocol completed', {
-      description: 'You are not alone. Help is available.',
+    toast.success("You Did It", {
+      description: "You reached out and that takes real strength",
       duration: 5000,
     });
-  }, [currentCrisisEvent, log]);
+  }, [currentMoment, log]);
 
-  const handleInterventionComplete = (toolName: string) => {
-    if (currentCrisisEvent) {
-      const updatedEvent = {
-        ...currentCrisisEvent,
-        interventionsUsed: [...currentCrisisEvent.interventionsUsed, toolName]
+  const handleToolUsed = (toolName: string) => {
+    if (currentMoment) {
+      const updatedMoment = {
+        ...currentMoment,
+        toolsUsed: [...currentMoment.toolsUsed, toolName]
       };
-      setCurrentCrisisEvent(updatedEvent);
+      setCurrentMoment(updatedMoment);
     }
 
-    log('intervention_used', { toolName });
+    log('tool_used', { toolName });
     
-    toast.success(`${toolName} completed`, {
-      description: 'Great job using coping strategies!',
+    const messages = [
+      "You're using your tools",
+      "That's exactly right",
+      "Keep going, you're doing great",
+      "One moment at a time"
+    ];
+    
+    toast.success(messages[Math.floor(Math.random() * messages.length)], {
+      description: `${toolName} is helping`,
       duration: 3000,
     });
   };
 
   return {
-    showAssessment,
-    showResponse,
-    showResources,
-    showContacts,
-    showFollowUp,
-    riskLevel,
-    currentCrisisEvent,
+    showCheckIn,
+    showSupport,
+    showTools,
+    showConnections,
+    showNextSteps,
+    needLevel,
+    currentMoment,
     voiceListening,
     hasLocationPermission,
-    setShowAssessment,
-    setShowResponse,
-    setShowResources,
-    setShowContacts,
-    setShowFollowUp,
-    handleCrisisActivated,
-    handleAssessmentComplete,
-    handleResponseComplete,
-    handleInterventionComplete
+    setShowCheckIn,
+    setShowSupport,
+    setShowTools,
+    setShowConnections,
+    setShowNextSteps,
+    handleHelpActivated,
+    handleCheckInComplete,
+    handleSupportComplete,
+    handleToolUsed
   };
 };
+
+// Backward compatibility
+export const useCrisisSystem = useHelpNowSystem;

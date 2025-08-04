@@ -12,6 +12,14 @@ const Dashboard = () => {
   const { stats, profile, loading } = useDashboardData();
   const navigate = useNavigate();
 
+  // Debug logging
+  console.log('Dashboard - Current user:', { 
+    id: user?.id, 
+    email: user?.email,
+    metadata: user?.user_metadata 
+  });
+  console.log('Dashboard - Data:', { stats, profile, loading });
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">

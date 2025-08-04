@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SignInFormProps {
   userType?: string;
@@ -54,6 +55,30 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
         throw error;
       }
 
+      // Verify user has a role assigned
+      console.log('Sign in successful, verifying user role...');
+      
+      // Small delay to ensure auth state is updated
+      setTimeout(async () => {
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        if (currentUser) {
+          // Check if user has a role
+          const { data: roleData, error: roleError } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', currentUser.id)
+            .single();
+          
+          if (roleError && roleError.code === 'PGRST116') {
+            // No role found, auto-assign patient role
+            console.log('No role found, auto-assigning patient role');
+            await supabase
+              .from('user_roles')
+              .insert({ user_id: currentUser.id, role: 'patient' });
+          }
+        }
+      }, 500);
+      
       toast({
         title: "Success",
         description: "Welcome back!",

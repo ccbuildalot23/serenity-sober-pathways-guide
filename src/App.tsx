@@ -58,6 +58,7 @@ import { TestCrisisPage } from '@/pages/TestCrisisPage';
 import SecurityAudit from '@/pages/SecurityAudit';
 import TestSupportDashboard from '@/pages/TestSupportDashboard';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { PatientDashboardTest } from '@/test/PatientDashboardTest';
 
 // Commented out for MVP - keeping functionality but focusing on core features
 import Calendar from '@/pages/Calendar';
@@ -222,6 +223,11 @@ function App() {
                 <Route path="/test-dashboard" element={
                   <ProtectedRoute>
                     <TestDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/patient-dashboard-test" element={
+                  <ProtectedRoute>
+                    <PatientDashboardTest />
                   </ProtectedRoute>
                 } />
                 <Route path="/progress" element={

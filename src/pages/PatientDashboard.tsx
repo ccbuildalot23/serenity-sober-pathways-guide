@@ -25,6 +25,11 @@ import { format, parseISO } from 'date-fns';
 const PatientDashboard = () => {
   const { stats, profile, loading } = useDashboardData();
 
+  // Debug logging
+  console.log('PatientDashboard - Loading:', loading);
+  console.log('PatientDashboard - Stats:', stats);
+  console.log('PatientDashboard - Profile:', profile);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">

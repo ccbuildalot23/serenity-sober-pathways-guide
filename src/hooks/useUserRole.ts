@@ -22,16 +22,66 @@ export const useUserRole = () => {
           
           if (error) {
             console.error('Error fetching user role:', error);
-            await EnhancedSecurityAuditService.logSecurityViolation('ROLE_FETCH_FAILED', {
-              error: error.message,
-              user_id: user.id
-            });
-            setRole('patient'); // Safe default
+            
+            // Check if it's a missing function error
+            if (error.message?.includes('function') || error.code === '42883') {
+              console.warn('Database function get_current_user_role not found, attempting direct query');
+              
+              // Try direct query as fallback
+              const { data: roleData, error: roleError } = await supabase
+                .from('user_roles')
+                .select('role')
+                .eq('user_id', user.id)
+                .single();
+              
+              if (roleError && roleError.code !== 'PGRST116') {
+                console.error('Direct role query failed:', roleError);
+                // Try to auto-assign patient role
+                const { error: insertError } = await supabase
+                  .from('user_roles')
+                  .insert({ user_id: user.id, role: 'patient' });
+                
+                if (!insertError) {
+                  console.log('Auto-assigned patient role to user');
+                  setRole('patient');
+                } else {
+                  console.error('Failed to auto-assign role:', insertError);
+                  setRole('patient'); // Still default to patient
+                }
+              } else if (roleData) {
+                setRole(roleData.role as UserRole);
+              } else {
+                // No role found, auto-assign patient
+                const { error: insertError } = await supabase
+                  .from('user_roles')
+                  .insert({ user_id: user.id, role: 'patient' });
+                
+                if (!insertError) {
+                  console.log('Auto-assigned patient role to user');
+                }
+                setRole('patient');
+              }
+            } else {
+              // Other errors, log and default to patient
+              await EnhancedSecurityAuditService.logSecurityViolation('ROLE_FETCH_FAILED', {
+                error: error.message,
+                user_id: user.id
+              });
+              setRole('patient');
+            }
           } else if (data) {
             setRole(data as UserRole);
             await EnhancedSecurityAuditService.logDataAccessEvent('user_roles', 'SELECT', 1);
           } else {
-            // No role found, default to patient
+            // No role found, auto-assign patient
+            console.log('No role found for user, auto-assigning patient role');
+            const { error: insertError } = await supabase
+              .from('user_roles')
+              .insert({ user_id: user.id, role: 'patient' });
+            
+            if (!insertError) {
+              console.log('Auto-assigned patient role to user');
+            }
             setRole('patient');
           }
         } else {

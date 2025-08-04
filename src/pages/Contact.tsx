@@ -34,9 +34,12 @@ const Contact = () => {
           </Button>
           
           <div className="text-center space-y-4">
-            <h1 className="text-4xl font-bold">24/7 Help Lines</h1>
+            <h1 className="text-4xl font-bold">You're Going To Be Okay</h1>
             <p className="text-xl text-gray-300">
-              Real people who understand. Available right now.
+              Real people who care. They're waiting for your call right now.
+            </p>
+            <p className="text-lg text-green-400 font-medium">
+              ✓ You matter. ✓ This feeling will pass. ✓ Help is one tap away.
             </p>
           </div>
         </div>
@@ -238,14 +241,24 @@ const Contact = () => {
           </div>
         </div>
 
-        {/* Footer Message */}
+        {/* Hope-Centered Footer Message */}
         <div className="mt-12 text-center space-y-4 text-gray-400">
-          <p className="text-lg">
-            You're not bothering them. That's what they're there for.
-          </p>
-          <p>
-            Reaching out is the hardest part. You're worth the call.
-          </p>
+          <div className="bg-green-900/20 border border-green-800/50 rounded-xl p-6 mb-8">
+            <p className="text-lg text-green-300 font-medium mb-2">
+              You took the hardest step by coming here.
+            </p>
+            <p className="text-gray-300">
+              Every person who answers these phones chose this work because they believe in you. They're hoping you'll call.
+            </p>
+          </div>
+          <div className="bg-blue-900/20 border border-blue-800/50 rounded-xl p-6">
+            <p className="text-lg text-blue-300 font-medium mb-2">
+              Your Recovery Journey Starts With One Call
+            </p>
+            <p className="text-gray-300">
+              Recovery isn't about being perfect. It's about showing up for yourself, especially on the hard days.
+            </p>
+          </div>
           <div className="mt-8 pt-8 border-t border-gray-800">
             <p className="text-sm">
               If you or someone you know is in immediate danger, call 911.

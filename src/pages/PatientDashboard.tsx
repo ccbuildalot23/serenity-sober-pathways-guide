@@ -66,9 +66,9 @@ const PatientDashboard = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Serenity Streak</p>
+                  <p className="text-sm font-medium text-muted-foreground">Hope Journey</p>
                   <p className="text-3xl font-bold text-foreground">{stats.streak}</p>
-                  <p className="text-xs text-muted-foreground">days strong</p>
+                  <p className="text-xs text-muted-foreground">days of courage</p>
                 </div>
                 <TrendingUp className="w-8 h-8 text-emerald-600" />
               </div>
@@ -354,7 +354,7 @@ const PatientDashboard = () => {
                   <div className="flex justify-between items-center">
                     <span className="text-sm">Crisis Alerts</span>
                     <Badge variant={profile?.enable_crisis_alerts ? "default" : "secondary"}>
-                      {profile?.enable_crisis_alerts ? "Enabled" : "Disabled"}
+                      {profile?.enable_crisis_alerts ? "Support Active" : "Support Paused"}
                     </Badge>
                   </div>
                   <div className="flex justify-between items-center">

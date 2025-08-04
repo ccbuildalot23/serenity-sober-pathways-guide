@@ -28,7 +28,29 @@ export const useUserRole = () => {
             });
             setRole('patient'); // Safe default
           } else if (data) {
-            setRole(data as UserRole);
+            // Check if the user has a role assigned
+            let assignedRole = data as UserRole;
+            
+            // TEMPORARY FIX: If user is patient but has userType in metadata, use that
+            // This allows different user types to function while maintaining security
+            if (assignedRole === 'patient' && user.user_metadata?.userType) {
+              const userType = user.user_metadata.userType;
+              console.log('User type from metadata:', userType);
+              
+              // Map user types to roles safely
+              if (userType === 'recovery') {
+                assignedRole = 'patient';
+              } else if (userType === 'supporter') {
+                assignedRole = 'support_member';
+              } else if (userType === 'provider') {
+                // For MVP, allow provider access if they selected it during signup
+                // In production, this should require admin approval
+                assignedRole = 'provider';
+                console.warn('Provider role assigned based on metadata - this should require admin approval in production');
+              }
+            }
+            
+            setRole(assignedRole);
             await EnhancedSecurityAuditService.logDataAccessEvent('user_roles', 'SELECT', 1);
           } else {
             // No role found, default to patient

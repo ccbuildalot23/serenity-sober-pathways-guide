@@ -86,7 +86,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
       // Include user type in metadata for role assignment
       const { error } = await signUp(email, password, {
         data: {
-          userType: userType || 'patient'
+          userType: userType || 'recovery'
         }
       });
       

@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { SignInForm } from './SignInForm';
 import { SignUpForm } from './SignUpForm';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 interface AuthFormProps {
   initialMode?: 'signin' | 'signup';
@@ -24,6 +26,15 @@ export const AuthForm: React.FC<AuthFormProps> = ({ initialMode = 'signin', user
             </strong>
           </p>
         </div>
+      )}
+      
+      {!userType && (
+        <Alert className="border-amber-200 bg-amber-50 dark:bg-amber-900/20">
+          <AlertCircle className="h-4 w-4 text-amber-600" />
+          <AlertDescription className="text-amber-700 dark:text-amber-300">
+            Please select your user type above before signing in or signing up.
+          </AlertDescription>
+        </Alert>
       )}
       
       {mode === 'signin' ? (

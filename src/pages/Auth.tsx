@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthForm } from '@/components/auth/AuthForm';
+import { AuthDebugPanel } from '@/components/auth/AuthDebugPanel';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, Shield, Heart, Brain, Users, Bug, AlertCircle, Stethoscope, HandHeart, UserCheck, Activity, CheckCircle } from 'lucide-react';
@@ -163,42 +164,45 @@ const Auth = () => {
 
                 {/* Debug Panel */}
                 {showDebug && (
-                  <Card className="bg-gray-50 dark:bg-gray-800">
-                    <CardContent className="pt-4">
-                      <h4 className="font-semibold mb-2 flex items-center gap-2">
-                        <Bug className="w-4 h-4" />
-                        Debug Information
-                      </h4>
-                      <pre className="text-xs bg-white dark:bg-gray-900 p-2 rounded overflow-auto max-h-40">
-                        {JSON.stringify(debugInfo, null, 2)}
-                      </pre>
-                      <div className="mt-3 space-y-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            localStorage.clear();
-                            sessionStorage.clear();
-                            window.location.reload();
-                          }}
-                          className="w-full"
-                        >
-                          Clear Storage & Reload
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            console.log('Current auth state:', { user, authLoading });
-                            alert('Check console for auth state');
-                          }}
-                          className="w-full"
-                        >
-                          Log Auth State
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <>
+                    <AuthDebugPanel />
+                    <Card className="bg-gray-50 dark:bg-gray-800">
+                      <CardContent className="pt-4">
+                        <h4 className="font-semibold mb-2 flex items-center gap-2">
+                          <Bug className="w-4 h-4" />
+                          Debug Information
+                        </h4>
+                        <pre className="text-xs bg-white dark:bg-gray-900 p-2 rounded overflow-auto max-h-40">
+                          {JSON.stringify(debugInfo, null, 2)}
+                        </pre>
+                        <div className="mt-3 space-y-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              localStorage.clear();
+                              sessionStorage.clear();
+                              window.location.reload();
+                            }}
+                            className="w-full"
+                          >
+                            Clear Storage & Reload
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              console.log('Current auth state:', { user, authLoading });
+                              alert('Check console for auth state');
+                            }}
+                            className="w-full"
+                          >
+                            Log Auth State
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </>
                 )}
               </div>
             )}
@@ -222,6 +226,20 @@ const Auth = () => {
               </Alert>
             )}
 
+            {/* Temporary Database Issue Notice */}
+            <Alert className="border-amber-200 bg-amber-50 dark:bg-amber-900/20">
+              <AlertCircle className="h-4 w-4 text-amber-600" />
+              <AlertDescription className="text-amber-700 dark:text-amber-300">
+                <strong>Notice:</strong> We're currently experiencing database configuration issues. 
+                If you're unable to sign in or create an account, please try the following:
+                <ul className="mt-2 ml-4 list-disc text-sm">
+                  <li>Use the development mode buttons above to skip authentication</li>
+                  <li>Contact support if you need immediate access</li>
+                  <li>Check back later as we're working on resolving this issue</li>
+                </ul>
+              </AlertDescription>
+            </Alert>
+
             {/* User Type Selection */}
             <div className="text-center space-y-4">
               <p className="text-lg font-medium text-gray-800 dark:text-gray-200">
@@ -244,7 +262,11 @@ const Auth = () => {
                         name="userType"
                         value={option.value}
                         checked={selectedUserType === option.value}
-                        onChange={(e) => setSelectedUserType(e.target.value)}
+                        onChange={(e) => {
+                          const newValue = e.target.value;
+                          console.log('🎯 User type selected:', newValue);
+                          setSelectedUserType(newValue);
+                        }}
                         className="text-blue-600"
                       />
                       <span className="text-sm text-gray-700 dark:text-gray-300">{option.label}</span>

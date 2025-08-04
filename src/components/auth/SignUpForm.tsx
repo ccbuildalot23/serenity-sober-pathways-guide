@@ -93,9 +93,15 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
       if (error) {
         // Handle specific Supabase errors
         if (error.message?.includes('User already registered')) {
-          setError('An account with this email already exists');
+          setError('An account with this email already exists. Please sign in instead.');
         } else if (error.message?.includes('Invalid email')) {
           setError('Please enter a valid email address');
+        } else if (error.message?.includes('Database error')) {
+          setError('We\'re experiencing technical difficulties. The database configuration needs to be updated. Please try again later or use the development mode options.');
+        } else if (error.message?.includes('recursion')) {
+          setError('Database configuration error detected. Please contact support for assistance.');
+        } else if (error.message?.includes('weak')) {
+          setError('Password is too weak. Please use a stronger password with at least 8 characters, including uppercase, lowercase, numbers, and special characters.');
         } else {
           setError(error.message || 'Failed to create account. Please try again.');
         }

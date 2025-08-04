@@ -39,6 +39,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         throw new Error('Invalid email format');
       }
 
+      console.log('🔐 Starting sign in process for:', sanitizedEmail);
+
       // Clear any existing auth state before signing in
       try {
         // Clear localStorage auth keys
@@ -49,16 +51,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
         });
         await supabase.auth.signOut({ scope: 'global' });
       } catch (err) {
+        console.warn('⚠️ Error clearing previous auth state:', err);
         // Continue even if this fails
       }
 
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log('📡 Attempting Supabase sign in...');
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: sanitizedEmail,
         password,
       });
 
+      if (error) {
+        console.error('❌ Supabase sign in error:', error);
+        console.error('Error details:', { code: error.code, message: error.message, status: error.status });
+      } else {
+        console.log('✅ Sign in successful!', { user: data.user?.email, session: !!data.session });
+      }
+
       return { error };
     } catch (error) {
+      console.error('❌ Sign in exception:', error);
       return { error };
     }
   };

@@ -11,21 +11,21 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 const testUsers = [
   {
     email: 'test-recovery@example.com',
-    password: 'TestPassword123!',
+    password: 'TestSecure#2024!Recovery',
     userType: 'recovery',
     expectedRole: 'patient',
     expectedDashboard: 'PatientDashboard'
   },
   {
     email: 'test-provider@example.com',
-    password: 'TestPassword123!',
+    password: 'TestSecure#2024!Provider',
     userType: 'provider',
     expectedRole: 'provider',
     expectedDashboard: 'ProviderDashboard'
   },
   {
     email: 'test-supporter@example.com',
-    password: 'TestPassword123!',
+    password: 'TestSecure#2024!Supporter',
     userType: 'supporter',
     expectedRole: 'support_member',
     expectedDashboard: 'SupporterDashboard'

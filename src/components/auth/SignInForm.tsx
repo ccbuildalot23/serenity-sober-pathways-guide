@@ -20,6 +20,16 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Check if user type is selected
+    if (!userType) {
+      toast({
+        title: "Error",
+        description: "Please select your user type before signing in",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     // Basic input validation
     const sanitizedEmail = email.trim().toLowerCase();
     const sanitizedPassword = password.trim();
@@ -46,7 +56,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
 
     try {
       setLoading(true);
-      console.log('Attempting sign in...');
+      console.log('Attempting sign in with user type:', userType);
 
       const { error } = await signIn(sanitizedEmail, sanitizedPassword);
 
@@ -64,9 +74,27 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
       
     } catch (error: any) {
       console.error('Sign in error:', error);
+      
+      // Provide user-friendly error messages
+      let errorMessage = "Failed to sign in";
+      
+      if (error.message?.includes('Invalid login credentials')) {
+        errorMessage = "Invalid email or password. Please check your credentials and try again.";
+      } else if (error.message?.includes('Email not confirmed')) {
+        errorMessage = "Please check your email and confirm your account before signing in.";
+      } else if (error.message?.includes('User already registered')) {
+        errorMessage = "This email is already registered. Please sign in instead.";
+      } else if (error.message?.includes('Database error')) {
+        errorMessage = "We're experiencing technical difficulties. Please try again later or contact support.";
+      } else if (error.message?.includes('recursion')) {
+        errorMessage = "Database configuration error. Please contact support for assistance.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
-        title: "Error",
-        description: error.message || "Failed to sign in",
+        title: "Sign In Error",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -104,7 +132,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
         />
       </div>
       
-      <Button type="submit" className="w-full" disabled={loading}>
+      <Button type="submit" className="w-full" disabled={loading || !userType}>
         {loading ? 'Signing in...' : 'Sign In'}
       </Button>
     </form>

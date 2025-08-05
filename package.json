@@ -15,7 +15,9 @@
     "test:storage": "tsx scripts/test-data-storage.ts",
     "setup:deploy": "./scripts/setup-deployment.sh",
     "deploy:vercel": "vercel --prod",
-    "deploy:netlify": "netlify deploy --prod"
+    "deploy:netlify": "netlify deploy --prod",
+    "bmad:analyze": "node .bmad-core/commands/analyze.js",
+    "bmad:config": "node -p \"JSON.stringify(require('./.bmad-core/bmad-config.json'), null, 2)\""
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
@@ -86,6 +88,7 @@
     "eslint": "^9.9.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
+    "glob": "^11.0.3",
     "globals": "^15.9.0",
     "lovable-tagger": "^1.1.7",
     "postcss": "^8.4.47",

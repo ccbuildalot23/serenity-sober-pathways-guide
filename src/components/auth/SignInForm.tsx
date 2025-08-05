@@ -26,8 +26,8 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
     
     if (!sanitizedEmail || !sanitizedPassword) {
       toast({
-        title: "Error",
-        description: "Please fill in all fields",
+        title: "Please fill in all fields",
+        description: "Email and password are required",
         variant: "destructive",
       });
       return;
@@ -37,7 +37,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(sanitizedEmail)) {
       toast({
-        title: "Error",
+        title: "Invalid email format",
         description: "Please enter a valid email address",
         variant: "destructive",
       });
@@ -51,22 +51,42 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
       const { error } = await signIn(sanitizedEmail, sanitizedPassword);
 
       if (error) {
-        throw error;
+        console.error('Sign in error:', error);
+        
+        // Handle specific error types
+        let errorMessage = "Failed to sign in. Please try again.";
+        
+        if (error.message?.includes('Invalid login credentials')) {
+          errorMessage = "Invalid email or password. Please check your credentials and try again.";
+        } else if (error.message?.includes('Email not confirmed')) {
+          errorMessage = "Please check your email and click the verification link before signing in.";
+        } else if (error.message?.includes('Too many requests')) {
+          errorMessage = "Too many sign-in attempts. Please wait a moment before trying again.";
+        } else if (error.message?.includes('User not found')) {
+          errorMessage = "No account found with this email address. Please check your email or create a new account.";
+        }
+        
+        toast({
+          title: "Sign in failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        return;
       }
 
       toast({
-        title: "Success",
-        description: "Welcome back!",
+        title: "Welcome back!",
+        description: "Signing you in...",
       });
       
       // Let the auth context handle the redirect
       console.log('Sign in successful, waiting for auth state change...');
       
     } catch (error: any) {
-      console.error('Sign in error:', error);
+      console.error('Sign in exception:', error);
       toast({
-        title: "Error",
-        description: error.message || "Failed to sign in",
+        title: "Unexpected error",
+        description: "Something went wrong. Please try again or contact support if the problem persists.",
         variant: "destructive",
       });
     } finally {
@@ -87,6 +107,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
           autoComplete="email"
           disabled={loading}
           maxLength={254}
+          placeholder="Enter your email address"
         />
       </div>
       
@@ -101,6 +122,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
           autoComplete="current-password"
           disabled={loading}
           maxLength={128}
+          placeholder="Enter your password"
         />
       </div>
       

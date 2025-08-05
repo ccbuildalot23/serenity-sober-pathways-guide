@@ -1,122 +1,173 @@
--- Fix missing database functions and ensure all required functions exist
+-- Fix database issues preventing new user creation
+-- This migration resolves conflicts between multiple triggers and functions
 
--- Ensure get_current_user_role function exists
-CREATE OR REPLACE FUNCTION public.get_current_user_role()
-RETURNS public.app_role
-LANGUAGE SQL
-STABLE
-SECURITY DEFINER
-SET search_path TO 'public'
-AS $$
-  SELECT COALESCE(
-    (SELECT role FROM public.user_roles WHERE user_id = auth.uid() LIMIT 1),
-    'patient'::public.app_role
-  )
-$$;
+-- 1. Drop all conflicting triggers first
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+DROP TRIGGER IF EXISTS on_auth_user_created_assign_role ON auth.users;
 
--- Ensure get_recovery_streak function exists (if not already created)
-CREATE OR REPLACE FUNCTION public.get_recovery_streak(user_uuid UUID)
-RETURNS INTEGER
+-- 2. Drop conflicting functions
+DROP FUNCTION IF EXISTS public.handle_new_user();
+DROP FUNCTION IF EXISTS public.assign_default_role();
+
+-- 3. Create a single, unified function to handle new user creation
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger
 LANGUAGE plpgsql
-STABLE
 SECURITY DEFINER
 SET search_path TO 'public'
 AS $$
 DECLARE
-  streak_count INTEGER := 0;
-  last_checkin_date DATE;
-  current_date_var DATE := CURRENT_DATE;
+    requested_user_type text;
+    assigned_role app_role;
 BEGIN
-  -- Get the most recent checkin date
-  SELECT MAX(checkin_date)::DATE INTO last_checkin_date
-  FROM public.daily_checkins
-  WHERE user_id = user_uuid AND is_complete = true;
-  
-  -- If no checkins, return 0
-  IF last_checkin_date IS NULL THEN
-    RETURN 0;
-  END IF;
-  
-  -- If last checkin wasn't today or yesterday, streak is broken
-  IF last_checkin_date < current_date_var - INTERVAL '1 day' THEN
-    RETURN 0;
-  END IF;
-  
-  -- Count consecutive days backwards from last checkin
-  WITH RECURSIVE streak_days AS (
-    SELECT 
-      checkin_date::DATE as check_date,
-      1 as day_count
-    FROM public.daily_checkins
-    WHERE user_id = user_uuid 
-      AND is_complete = true
-      AND checkin_date::DATE = last_checkin_date
+    -- Get the user type from metadata (default to 'recovery')
+    requested_user_type := COALESCE(NEW.raw_user_meta_data ->> 'userType', 'recovery');
     
-    UNION ALL
+    -- Map user types to roles safely
+    CASE requested_user_type
+        WHEN 'recovery' THEN assigned_role := 'patient';
+        WHEN 'supporter' THEN assigned_role := 'support_member';
+        WHEN 'provider' THEN assigned_role := 'patient'; -- Start as patient for security
+        ELSE assigned_role := 'patient';
+    END CASE;
     
-    SELECT 
-      dc.checkin_date::DATE,
-      sd.day_count + 1
-    FROM streak_days sd
-    JOIN public.daily_checkins dc ON 
-      dc.user_id = user_uuid 
-      AND dc.is_complete = true
-      AND dc.checkin_date::DATE = sd.check_date - INTERVAL '1 day'
-    WHERE sd.check_date > current_date_var - INTERVAL '365 days'
-  )
-  SELECT MAX(day_count) INTO streak_count FROM streak_days;
-  
-  RETURN COALESCE(streak_count, 0);
+    -- Insert into profiles table (if it exists)
+    BEGIN
+        INSERT INTO public.profiles (id, full_name, recovery_start_date, email)
+        VALUES (
+            NEW.id,
+            NEW.raw_user_meta_data ->> 'full_name',
+            CASE 
+                WHEN NEW.raw_user_meta_data ->> 'recovery_start_date' IS NOT NULL 
+                THEN (NEW.raw_user_meta_data ->> 'recovery_start_date')::date
+                ELSE NULL
+            END,
+            NEW.email
+        );
+    EXCEPTION WHEN undefined_table THEN
+        -- Profiles table doesn't exist, skip it
+        NULL;
+    END;
+    
+    -- Assign the appropriate role
+    INSERT INTO public.user_roles (user_id, role)
+    VALUES (NEW.id, assigned_role);
+    
+    -- Log the role assignment (if audit_logs table exists)
+    BEGIN
+        INSERT INTO public.audit_logs (
+            user_id,
+            action,
+            details_encrypted,
+            timestamp
+        ) VALUES (
+            NEW.id,
+            'USER_ROLE_ASSIGNED',
+            jsonb_build_object(
+                'assigned_role', assigned_role,
+                'user_type_requested', requested_user_type,
+                'timestamp', now()
+            )::text,
+            now()
+        );
+    EXCEPTION WHEN undefined_table THEN
+        -- Audit logs table doesn't exist, skip it
+        NULL;
+    END;
+    
+    RETURN NEW;
 END;
 $$;
 
--- Grant execute permissions on functions
-GRANT EXECUTE ON FUNCTION public.get_current_user_role() TO authenticated;
-GRANT EXECUTE ON FUNCTION public.get_recovery_streak(UUID) TO authenticated;
+-- 4. Create a single trigger for new user creation
+CREATE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
--- Ensure audit_logs table exists (for error boundary logging)
-CREATE TABLE IF NOT EXISTS public.audit_logs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id),
-  action TEXT NOT NULL,
-  details_encrypted TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+-- 5. Ensure the profiles table exists with proper structure
+CREATE TABLE IF NOT EXISTS public.profiles (
+    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    full_name TEXT,
+    recovery_start_date DATE,
+    email TEXT,
+    timezone TEXT DEFAULT 'UTC',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Enable RLS on audit_logs
+-- 6. Enable RLS on profiles table
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+-- 7. Create RLS policies for profiles
+DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
+CREATE POLICY "Users can view own profile"
+ON public.profiles
+FOR SELECT
+USING (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
+CREATE POLICY "Users can update own profile"
+ON public.profiles
+FOR UPDATE
+USING (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Users can insert own profile" ON public.profiles;
+CREATE POLICY "Users can insert own profile"
+ON public.profiles
+FOR INSERT
+WITH CHECK (auth.uid() = id);
+
+-- 8. Ensure the user_roles table exists
+CREATE TABLE IF NOT EXISTS public.user_roles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    role app_role NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(user_id)
+);
+
+-- 9. Enable RLS on user_roles table
+ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
+
+-- 10. Create RLS policies for user_roles
+DROP POLICY IF EXISTS "Users can view own roles" ON public.user_roles;
+CREATE POLICY "Users can view own roles"
+ON public.user_roles
+FOR SELECT
+USING (auth.uid() = user_id);
+
+-- 11. Ensure the audit_logs table exists (optional)
+CREATE TABLE IF NOT EXISTS public.audit_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES auth.users(id),
+    action TEXT NOT NULL,
+    details_encrypted TEXT,
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 12. Enable RLS on audit_logs table
 ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
 
--- Create policy for audit_logs
-CREATE POLICY "Users can insert their own audit logs"
-ON public.audit_logs
-FOR INSERT
-WITH CHECK (auth.uid() = user_id OR user_id = '00000000-0000-0000-0000-000000000000');
-
-CREATE POLICY "Users can view their own audit logs"
+-- 13. Create RLS policies for audit_logs
+DROP POLICY IF EXISTS "Users can view own audit logs" ON public.audit_logs;
+CREATE POLICY "Users can view own audit logs"
 ON public.audit_logs
 FOR SELECT
 USING (auth.uid() = user_id);
 
--- Ensure daily_checkins table has proper indexes
-CREATE INDEX IF NOT EXISTS idx_daily_checkins_user_date 
-ON public.daily_checkins(user_id, checkin_date DESC);
+DROP POLICY IF EXISTS "System can insert audit logs" ON public.audit_logs;
+CREATE POLICY "System can insert audit logs"
+ON public.audit_logs
+FOR INSERT
+WITH CHECK (true);
 
-CREATE INDEX IF NOT EXISTS idx_daily_checkins_complete 
-ON public.daily_checkins(user_id, is_complete) 
-WHERE is_complete = true;
+-- 14. Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_user_roles_user_id ON public.user_roles(user_id);
+CREATE INDEX IF NOT EXISTS idx_profiles_id ON public.profiles(id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON public.audit_logs(user_id);
 
--- Ensure crisis_events table has proper indexes
-CREATE INDEX IF NOT EXISTS idx_crisis_events_user_created 
-ON public.crisis_events(user_id, created_at DESC);
-
--- Ensure support_contacts table has proper indexes
-CREATE INDEX IF NOT EXISTS idx_support_contacts_user 
-ON public.support_contacts(user_id);
-
--- Ensure security_audit_logs has proper structure
-ALTER TABLE public.security_audit_logs 
-ALTER COLUMN user_id DROP NOT NULL;
-
--- Add helpful comment
-COMMENT ON FUNCTION public.get_current_user_role() IS 'Returns the current authenticated user role, defaults to patient if not found';
-COMMENT ON FUNCTION public.get_recovery_streak(UUID) IS 'Calculates the current recovery streak in days for a given user';
+-- 15. Add comments for documentation
+COMMENT ON FUNCTION public.handle_new_user() IS 'Handles new user creation with role assignment and profile creation';
+COMMENT ON TABLE public.profiles IS 'User profiles with recovery information';
+COMMENT ON TABLE public.user_roles IS 'User role assignments for access control';
+COMMENT ON TABLE public.audit_logs IS 'Audit trail for security events';

@@ -1,0 +1,86 @@
+{
+  "version": "4.35.0",
+  "projectPath": "C:\\Users\\cmcal\\OneDrive\\Documents\\serenity-sober-pathways-guide",
+  "projectName": "Serenity Recovery Platform",
+  "framework": "react-typescript",
+  "buildTool": "vite",
+  "ide": "claude-code",
+  "domain": "healthcare-recovery",
+  "features": {
+    "hipaaCompliant": true,
+    "realtime": true,
+    "offlineSupport": true,
+    "authentication": true,
+    "database": "supabase",
+    "styling": "tailwindcss",
+    "componentLibrary": "shadcn-ui"
+  },
+  "agents": {
+    "architecture": {
+      "enabled": true,
+      "patterns": ["feature-based", "enhanced-components", "service-layer"]
+    },
+    "security": {
+      "enabled": true,
+      "compliance": ["HIPAA", "RLS", "audit-logging"]
+    },
+    "testing": {
+      "enabled": true,
+      "frameworks": ["vitest", "react-testing-library"]
+    },
+    "optimization": {
+      "enabled": true,
+      "targets": ["performance", "bundle-size", "accessibility"]
+    },
+    "documentation": {
+      "enabled": true,
+      "autoGenerate": true
+    }
+  },
+  "integrations": {
+    "supabase": {
+      "enabled": true,
+      "features": ["auth", "database", "realtime", "storage", "edge-functions"]
+    },
+    "vercel": {
+      "enabled": true,
+      "deployment": true
+    },
+    "tanstack-query": {
+      "enabled": true,
+      "caching": true
+    }
+  },
+  "codeStandards": {
+    "typescript": {
+      "strict": true,
+      "noImplicitAny": true
+    },
+    "formatting": {
+      "prettier": true,
+      "eslint": true
+    },
+    "naming": {
+      "components": "PascalCase",
+      "hooks": "camelCase",
+      "services": "camelCase",
+      "types": "PascalCase"
+    }
+  },
+  "workflows": {
+    "development": {
+      "hotReload": true,
+      "port": 8080,
+      "https": false
+    },
+    "testing": {
+      "onSave": false,
+      "coverage": true
+    },
+    "deployment": {
+      "platform": "vercel",
+      "branch": "main",
+      "preview": true
+    }
+  }
+}

@@ -21,6 +21,9 @@ npm run build
 # Build for development
 npm run build:dev
 
+# Type checking
+npm run typecheck
+
 # Lint code (minimal ESLint config, no strict rules)
 npm run lint
 
@@ -29,6 +32,13 @@ npm run preview
 
 # Run tests (currently no tests implemented)
 npm test
+
+# Deployment checks and utilities
+npm run deployment:check
+npm run test:storage
+npm run setup:deploy
+npm run deploy:vercel
+npm run deploy:netlify
 ```
 
 ## Architecture & Code Organization
@@ -93,6 +103,7 @@ The following enhanced components replace legacy implementations:
 - Full TypeScript coverage required
 - Supabase types generated in `src/integrations/supabase/types.ts`
 - Use proper type definitions from `src/types/` directory
+- TypeScript configured with relaxed settings (no strict null checks)
 
 ## Common Development Tasks
 

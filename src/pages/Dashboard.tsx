@@ -1,16 +1,70 @@
 // MVP Dashboard - You're Not Alone
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDashboardData } from '@/hooks/useDashboardData';
-import { Phone, Heart, Users, Sparkles } from 'lucide-react';
+import { useCrisisSMS } from '@/hooks/useCrisisSMS';
+import { useEmergencyContacts } from '@/hooks/useEmergencyContacts';
+import { Phone, Heart, Users, Sparkles, AlertCircle, MessageSquare, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const Dashboard = () => {
   const { user } = useAuth();
   const { stats, profile, loading } = useDashboardData();
   const navigate = useNavigate();
+  const { sendCrisisSMS, sending } = useCrisisSMS();
+  const { contacts, loading: contactsLoading } = useEmergencyContacts();
+  
+  // Crisis confirmation modal state
+  const [showCrisisModal, setShowCrisisModal] = useState(false);
+  const [includeLocation, setIncludeLocation] = useState(true);
+  const [crisisMessage, setCrisisMessage] = useState('');
+  
+  // Handle crisis button click
+  const handleCrisisClick = () => {
+    if (contacts.length === 0) {
+      // No contacts - go directly to crisis page to add some
+      toast.warning('No emergency contacts found', {
+        description: 'Add contacts to enable SMS alerts',
+        action: {
+          label: 'Add Contacts',
+          onClick: () => navigate('/settings')
+        }
+      });
+      navigate('/crisis-intervention');
+    } else {
+      // Show confirmation modal
+      setShowCrisisModal(true);
+    }
+  };
+  
+  // Send crisis alert
+  const sendCrisisAlert = async () => {
+    try {
+      await sendCrisisSMS({
+        customMessage: crisisMessage || undefined,
+        includeLocation
+      });
+      setShowCrisisModal(false);
+      // Navigate to crisis page for additional support
+      navigate('/crisis-intervention');
+    } catch (error) {
+      console.error('Crisis alert failed:', error);
+      // Still navigate to crisis page even if SMS fails
+      navigate('/crisis-intervention');
+    }
+  };
 
   if (loading) {
     return (
@@ -44,15 +98,30 @@ const Dashboard = () => {
             )}
           {/* Three Big Action Buttons */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto px-4">
-            {/* I NEED HELP NOW Button */}
+            {/* I NEED HELP NOW Button - ENHANCED WITH SMS */}
             <Button
-              onClick={() => navigate('/crisis-intervention')}
-              className="h-32 md:h-40 bg-red-600 hover:bg-red-700 text-white rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200"
+              onClick={handleCrisisClick}
+              disabled={sending}
+              className="h-32 md:h-40 bg-red-600 hover:bg-red-700 text-white rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200 relative overflow-hidden group"
             >
-              <div className="flex flex-col items-center gap-3">
-                <Phone className="w-12 h-12" />
+              {/* Pulse animation for urgency */}
+              <div className="absolute inset-0 bg-red-500 opacity-0 group-hover:opacity-20 animate-pulse" />
+              <div className="flex flex-col items-center gap-3 relative z-10">
+                <div className="relative">
+                  <Phone className="w-12 h-12" />
+                  {contacts.length > 0 && (
+                    <div className="absolute -top-2 -right-2 bg-white text-red-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
+                      {contacts.length}
+                    </div>
+                  )}
+                </div>
                 <span className="text-2xl font-bold">I NEED HELP NOW</span>
-                <span className="text-sm opacity-90">Crisis support available 24/7</span>
+                <span className="text-sm opacity-90">
+                  {contacts.length > 0 
+                    ? `Alerts ${contacts.length} contact${contacts.length !== 1 ? 's' : ''} + 988`
+                    : 'Crisis support available 24/7'
+                  }
+                </span>
               </div>
             </Button>
 
@@ -146,6 +215,87 @@ const Dashboard = () => {
       <div className="mt-auto py-8 text-center text-gray-500">
         <p className="text-sm">You matter. Recovery is possible. We're here for you 24/7.</p>
       </div>
+      
+      {/* Crisis Confirmation Modal */}
+      <Dialog open={showCrisisModal} onOpenChange={setShowCrisisModal}>
+        <DialogContent className="bg-gray-900 text-white border-gray-700 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <AlertCircle className="w-6 h-6 text-red-500" />
+              Send Crisis Alert?
+            </DialogTitle>
+            <DialogDescription className="text-gray-300 pt-4">
+              This will immediately notify your {contacts.length} emergency contact{contacts.length !== 1 ? 's' : ''}:
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            {/* Show contacts who will be notified */}
+            <div className="bg-gray-800 rounded-lg p-3 space-y-2">
+              {contacts.slice(0, 3).map((contact, idx) => (
+                <div key={contact.id} className="flex items-center gap-2 text-sm">
+                  <MessageSquare className="w-4 h-4 text-blue-400" />
+                  <span>{contact.name}</span>
+                  <span className="text-gray-500">({contact.relationship || 'Support'})</span>
+                </div>
+              ))}
+              {contacts.length > 3 && (
+                <div className="text-sm text-gray-500">...and {contacts.length - 3} more</div>
+              )}
+            </div>
+            
+            {/* Location sharing option */}
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="location"
+                checked={includeLocation}
+                onCheckedChange={(checked) => setIncludeLocation(checked as boolean)}
+                className="border-gray-600"
+              />
+              <label htmlFor="location" className="flex items-center gap-2 text-sm cursor-pointer">
+                <MapPin className="w-4 h-4" />
+                Include my current location
+              </label>
+            </div>
+            
+            {/* Optional custom message */}
+            <div className="space-y-2">
+              <label className="text-sm text-gray-400">Add a message (optional):</label>
+              <textarea
+                value={crisisMessage}
+                onChange={(e) => setCrisisMessage(e.target.value)}
+                placeholder="Let them know what you need..."
+                className="w-full h-20 bg-gray-800 border border-gray-700 rounded-lg p-2 text-sm text-white placeholder-gray-500 resize-none"
+                maxLength={160}
+              />
+            </div>
+          </div>
+          
+          <DialogFooter className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowCrisisModal(false)}
+              className="bg-gray-800 hover:bg-gray-700 border-gray-700"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={sendCrisisAlert}
+              disabled={sending}
+              className="bg-red-600 hover:bg-red-700 text-white min-w-[120px]"
+            >
+              {sending ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Sending...
+                </div>
+              ) : (
+                'Send Alert'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

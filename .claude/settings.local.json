@@ -15,7 +15,10 @@
       "Bash(then sed -i \"s/enhancedSecurityAuditService/EnhancedSecurityAuditService/g\" \"$file\")",
       "Bash(echo \"Fixed: $file\")",
       "Bash(fi)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(grep:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(git rm:*)"
     ],
     "deny": []
   }

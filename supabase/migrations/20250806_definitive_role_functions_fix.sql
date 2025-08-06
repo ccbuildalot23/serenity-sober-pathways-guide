@@ -50,7 +50,36 @@ END $$;
 -- Drop the view that depends on has_role with app_role
 DROP VIEW IF EXISTS public.role_assignments_audit CASCADE;
 
--- Drop app_role enum type that's causing conflicts
+-- Convert role column to TEXT before dropping enum (if needed)
+DO $$
+BEGIN
+    -- Check if role column is still using app_role enum
+    IF EXISTS (
+        SELECT 1 
+        FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+        AND table_name = 'user_roles' 
+        AND column_name = 'role'
+        AND udt_name = 'app_role'
+    ) THEN
+        -- Convert to TEXT first
+        ALTER TABLE public.user_roles 
+        ALTER COLUMN role TYPE TEXT 
+        USING role::TEXT;
+        
+        -- Add check constraint
+        ALTER TABLE public.user_roles
+        ADD CONSTRAINT user_roles_role_check 
+        CHECK (role IN ('patient', 'support_member', 'provider', 'admin'));
+        
+        RAISE NOTICE 'Converted user_roles.role from app_role to TEXT';
+    END IF;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Could not convert role column: %', SQLERRM;
+END $$;
+
+-- Now safe to drop app_role enum type
 DROP TYPE IF EXISTS app_role CASCADE;
 
 -- =====================================================

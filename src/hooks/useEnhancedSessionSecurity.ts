@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { EnhancedSecurityHeaders } from '@/lib/enhancedSecurityHeaders';
-import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
+import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
 
 export const useEnhancedSessionSecurity = () => {
   const { user, signOut } = useAuth();

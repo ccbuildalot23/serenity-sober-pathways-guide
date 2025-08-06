@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserRole } from '@/types/userRoles';
 import { supabase } from '@/integrations/supabase/client';
-import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
+import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
 
 export const useUserRole = () => {
   const { user } = useAuth();

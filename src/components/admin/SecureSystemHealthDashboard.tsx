@@ -12,7 +12,7 @@ import { enhancedRealtimeService } from '@/services/enhancedRealtimeService';
 import { enhancedSMSService } from '@/services/enhancedSMSService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
-import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
+import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
 import { toast } from 'sonner';
 
 interface SecureSystemHealthDashboardProps {

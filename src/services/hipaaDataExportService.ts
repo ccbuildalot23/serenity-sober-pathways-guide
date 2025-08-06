@@ -1,6 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { serverSideEncryption } from '@/lib/serverSideEncryption';
-import { EnhancedSecurityAuditService } from './enhancedSecurityAuditService';
+import { EnhancedSecurityAuditService } from './EnhancedSecurityAuditService';
 
 export interface ExportRequest {
   id?: string;

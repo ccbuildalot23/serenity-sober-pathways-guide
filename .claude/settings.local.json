@@ -7,7 +7,15 @@
       "Bash(npm run build:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(npm ls:*)",
+      "Bash(for file in hooks/useSecureProfileManagement.ts hooks/useSecureAuditLogger.ts hooks/useEnhancedSessionSecurity.ts services/ultraSecureCrisisDataService.ts services/secureValidationService.ts services/secureUserDataService.ts services/hipaaDataExportService.ts pages/HIPAASecurityDashboard.tsx components/admin/SecureSystemHealthDashboard.tsx components/daily-checkin/CheckInPatternAnalysis.tsx)",
+      "Bash(do if [ -f \"$file\" ])",
+      "Bash(then sed -i \"s/enhancedSecurityAuditService/EnhancedSecurityAuditService/g\" \"$file\")",
+      "Bash(echo \"Fixed: $file\")",
+      "Bash(fi)",
+      "Bash(done)"
     ],
     "deny": []
   }

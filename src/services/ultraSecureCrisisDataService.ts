@@ -1,7 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { serverSideEncryption } from '@/lib/serverSideEncryption';
-import { EnhancedSecurityAuditService } from './enhancedSecurityAuditService';
+import { EnhancedSecurityAuditService } from './EnhancedSecurityAuditService';
 import type { CrisisResolution, CheckInResponse, FollowUpTask } from '@/types/crisisData';
 import { transformCrisisResolution, transformCheckInResponse, transformFollowUpTask } from '@/utils/crisisDataUtils';
 

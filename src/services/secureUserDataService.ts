@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { EnhancedSecurityAuditService } from './enhancedSecurityAuditService';
+import { EnhancedSecurityAuditService } from './EnhancedSecurityAuditService';
 
 /**
  * Secure User Data Service

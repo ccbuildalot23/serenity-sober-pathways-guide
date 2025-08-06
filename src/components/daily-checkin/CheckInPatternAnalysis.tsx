@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { PredictiveCrisisAlert } from '@/components/crisis/PredictiveCrisisAlert';
 import { UltraSecureCrisisDataService } from '@/services/ultraSecureCrisisDataService';
-import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
+import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
 import { analyzePatterns } from '@/utils/patternAnalysis';
 
 interface CheckInPatternAnalysisProps {

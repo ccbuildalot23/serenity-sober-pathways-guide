@@ -5,7 +5,7 @@
 
 import { SecurityHeaders } from './securityHeaders';
 import { securityComplianceService } from '@/services/securityComplianceService';
-import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
+import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
 
 export class EnhancedSecurityInitializer {
   private static initialized = false;

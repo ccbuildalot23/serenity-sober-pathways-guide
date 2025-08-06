@@ -1,5 +1,5 @@
 import { SecurityHeaders } from '@/lib/securityHeaders';
-import { EnhancedSecurityAuditService } from './enhancedSecurityAuditService';
+import { EnhancedSecurityAuditService } from './EnhancedSecurityAuditService';
 
 /**
  * Secure Input Validation Service

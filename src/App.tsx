@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
 import { EnhancedSecurityInitializer } from '@/lib/enhancedSecurityInitializer';
-import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
+import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
 import RealtimeNotifications from '@/components/RealtimeNotifications';
 import { Toaster } from '@/components/ui/sonner';
 import { HealthcareErrorBoundary } from '@/components/HealthcareErrorBoundary';

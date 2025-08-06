@@ -5,7 +5,9 @@
       "Bash(node:*)",
       "Bash(npx vercel:*)",
       "Bash(npm run build:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }

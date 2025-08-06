@@ -14,7 +14,7 @@ export class SecurityHeaders {
       `style-src 'self' 'nonce-${nonce}' https://fonts.googleapis.com`,
       "font-src 'self' https://fonts.gstatic.com data:",
       "img-src 'self' data: blob: https:",
-      "connect-src 'self' https://tqyiqstpvwztvofrxpuf.supabase.co wss://tqyiqstpvwztvofrxpuf.supabase.co",
+      "connect-src 'self' https://osfgyoupkmjbxwodsoqh.supabase.co wss://osfgyoupkmjbxwodsoqh.supabase.co https://*.supabase.co wss://*.supabase.co",
       "frame-src 'none'",
       "object-src 'none'",
       "base-uri 'self'",

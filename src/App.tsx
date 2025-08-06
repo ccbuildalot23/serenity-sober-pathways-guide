@@ -2,71 +2,79 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
-import { useEffect } from 'react';
+import { useEffect, Suspense, lazy } from 'react';
 import { EnhancedSecurityInitializer } from '@/lib/enhancedSecurityInitializer';
 import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
 import RealtimeNotifications from '@/components/RealtimeNotifications';
 import { Toaster } from '@/components/ui/sonner';
 import { HealthcareErrorBoundary } from '@/components/HealthcareErrorBoundary';
 import { SessionTimeoutManager } from '@/components/SessionTimeoutManager';
-// New Landing Pages
-import HomePage from '@/pages/HomePage';
-import Platform from '@/pages/Platform';
-import Providers from '@/pages/Providers';
-import Pilot from '@/pages/Pilot';
-import Contact from '@/pages/Contact';
-import ProviderSignup from '@/pages/ProviderSignup';
-import SupporterSignup from '@/pages/SupporterSignup';
-// MVP Core Pages
-import Home from '@/pages/Home';
-import Login from '@/pages/Login';
-import Auth from '@/pages/Auth';
-import DashboardRouter from '@/components/DashboardRouter';
-import PatientDashboard from '@/pages/PatientDashboard';
-import SupportDashboard from '@/pages/SupportDashboard';
-import ProviderDashboard from '@/pages/ProviderDashboard';
-import CheckIn from '@/pages/CheckIn';
-import PeerSupport from '@/pages/PeerSupport';
-import Motivation from '@/pages/Motivation';
-import AccountabilityPartners from '@/pages/AccountabilityPartners';
-import RecoveryPlanning from '@/pages/RecoveryPlanning';
-import RelapsePreventionPage from '@/pages/RelapsePrevention';
-import ClinicalProtocols from '@/pages/ClinicalProtocols';
-import RegulatoryCompliance from '@/pages/RegulatoryCompliance';
-import PeerSupervision from '@/pages/PeerSupervision';
-import PracticeManagement from '@/pages/PracticeManagement';
-import RoleManagement from '@/components/admin/RoleManagement';
-import CrisisIntervention from '@/pages/CrisisIntervention';
-import MobileCrisis from '@/pages/MobileCrisis';
-import MobileCrisisDemo from '@/components/demo/MobileCrisisDemo';
-import DataExport from '@/pages/DataExport';
-import { Analytics } from '@/pages/Analytics';
-import { TestFeatures } from '@/pages/TestFeatures';
-import HIPAASecurityDashboard from '@/pages/HIPAASecurityDashboard';
-import { InfrastructureMonitoringDashboard } from '@/components/infrastructure/InfrastructureMonitoringDashboard';
-import NotificationManagement from '@/pages/NotificationManagement';
-import IntegrationTesting from '@/pages/IntegrationTesting';
-import Community from '@/pages/Community';
-import Moderation from '@/pages/Moderation';
-import TestDashboard from '@/pages/TestDashboard';
-import VoiceSupport from '@/pages/VoiceSupport';
-import ComplianceManagement from '@/pages/ComplianceManagement';
-import PilotReadinessAssessment from '@/pages/PilotReadinessAssessment';
-import SecurityFixesStatus from '@/pages/SecurityFixesStatus';
-import CrisisSupport from '@/pages/CrisisSupport';
-import { ComprehensiveSupportPage } from '@/pages/ComprehensiveSupportPage';
-import { TestCrisisPage } from '@/pages/TestCrisisPage';
-import SecurityAudit from '@/pages/SecurityAudit';
-import TestSupportDashboard from '@/pages/TestSupportDashboard';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import LoadingState from '@/components/LoadingState';
+// CRITICAL ROUTES - Load immediately (crisis features and auth)
 import CrisisHelp from '@/pages/CrisisHelp';
 import CrisisFloatingButton from '@/components/CrisisFloatingButton';
-import PrivacyPolicy from '@/pages/PrivacyPolicy';
-import TermsOfService from '@/pages/TermsOfService';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import Login from '@/pages/Login';
+import Auth from '@/pages/Auth';
+import HomePage from '@/pages/HomePage';
 
-// Commented out for MVP - keeping functionality but focusing on core features
-import Calendar from '@/pages/Calendar';
-import Progress from '@/pages/Progress';
+// LAZY LOADED ROUTES - Load on demand to reduce bundle size
+// Landing Pages
+const Platform = lazy(() => import('@/pages/Platform'));
+const Providers = lazy(() => import('@/pages/Providers'));
+const Pilot = lazy(() => import('@/pages/Pilot'));
+const Contact = lazy(() => import('@/pages/Contact'));
+const ProviderSignup = lazy(() => import('@/pages/ProviderSignup'));
+const SupporterSignup = lazy(() => import('@/pages/SupporterSignup'));
+const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
+
+// Core Patient Features - Priority loading
+const DashboardRouter = lazy(() => import('@/components/DashboardRouter'));
+const PatientDashboard = lazy(() => import('@/pages/PatientDashboard'));
+const CheckIn = lazy(() => import('@/pages/CheckIn'));
+const PeerSupport = lazy(() => import('@/pages/PeerSupport'));
+const Calendar = lazy(() => import('@/pages/Calendar'));
+const Progress = lazy(() => import('@/pages/Progress'));
+
+// Support & Provider Features
+const SupportDashboard = lazy(() => import('@/pages/SupportDashboard'));
+const ProviderDashboard = lazy(() => import('@/pages/ProviderDashboard'));
+
+// Recovery Tools - Secondary priority
+const Motivation = lazy(() => import('@/pages/Motivation'));
+const AccountabilityPartners = lazy(() => import('@/pages/AccountabilityPartners'));
+const RecoveryPlanning = lazy(() => import('@/pages/RecoveryPlanning'));
+const RelapsePreventionPage = lazy(() => import('@/pages/RelapsePrevention'));
+const CrisisSupport = lazy(() => import('@/pages/CrisisSupport'));
+
+// Clinical & Admin Features - Lowest priority
+const ClinicalProtocols = lazy(() => import('@/pages/ClinicalProtocols'));
+const RegulatoryCompliance = lazy(() => import('@/pages/RegulatoryCompliance'));
+const PeerSupervision = lazy(() => import('@/pages/PeerSupervision'));
+const PracticeManagement = lazy(() => import('@/pages/PracticeManagement'));
+const RoleManagement = lazy(() => import('@/components/admin/RoleManagement'));
+const CrisisIntervention = lazy(() => import('@/pages/CrisisIntervention'));
+const MobileCrisis = lazy(() => import('@/pages/MobileCrisis'));
+const MobileCrisisDemo = lazy(() => import('@/components/demo/MobileCrisisDemo'));
+const DataExport = lazy(() => import('@/pages/DataExport'));
+const Analytics = lazy(() => import('@/pages/Analytics').then(module => ({ default: module.Analytics })));
+const TestFeatures = lazy(() => import('@/pages/TestFeatures').then(module => ({ default: module.TestFeatures })));
+const HIPAASecurityDashboard = lazy(() => import('@/pages/HIPAASecurityDashboard'));
+const InfrastructureMonitoringDashboard = lazy(() => import('@/components/infrastructure/InfrastructureMonitoringDashboard').then(module => ({ default: module.InfrastructureMonitoringDashboard })));
+const NotificationManagement = lazy(() => import('@/pages/NotificationManagement'));
+const IntegrationTesting = lazy(() => import('@/pages/IntegrationTesting'));
+const Community = lazy(() => import('@/pages/Community'));
+const Moderation = lazy(() => import('@/pages/Moderation'));
+const TestDashboard = lazy(() => import('@/pages/TestDashboard'));
+const VoiceSupport = lazy(() => import('@/pages/VoiceSupport'));
+const ComplianceManagement = lazy(() => import('@/pages/ComplianceManagement'));
+const PilotReadinessAssessment = lazy(() => import('@/pages/PilotReadinessAssessment'));
+const SecurityFixesStatus = lazy(() => import('@/pages/SecurityFixesStatus'));
+const ComprehensiveSupportPage = lazy(() => import('@/pages/ComprehensiveSupportPage').then(module => ({ default: module.ComprehensiveSupportPage })));
+const TestCrisisPage = lazy(() => import('@/pages/TestCrisisPage').then(module => ({ default: module.TestCrisisPage })));
+const SecurityAudit = lazy(() => import('@/pages/SecurityAudit'));
+const TestSupportDashboard = lazy(() => import('@/pages/TestSupportDashboard'));
 // import Support from '@/pages/Support';
 // import CrisisToolkit from '@/pages/CrisisToolkit';
 // import Settings from '@/pages/Settings';
@@ -95,54 +103,103 @@ function App() {
           <Router>
             <CrisisFloatingButton />
             <SessionTimeoutManager>
-              <Routes>
+              <Suspense fallback={
+                <div className="min-h-screen flex items-center justify-center">
+                  <LoadingState message="Loading your support tools..." />
+                </div>
+              }>
+                <Routes>
                 {/* Critical Crisis Help - No Auth Required */}
                 <Route path="/crisis-help" element={<CrisisHelp />} />
                 
                 {/* Legal Pages - No Auth Required */}
-                <Route path="/privacy" element={<PrivacyPolicy />} />
-                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/privacy" element={
+                  <Suspense fallback={<LoadingState message="Loading privacy policy..." />}>
+                    <PrivacyPolicy />
+                  </Suspense>
+                } />
+                <Route path="/terms" element={
+                  <Suspense fallback={<LoadingState message="Loading terms of service..." />}>
+                    <TermsOfService />
+                  </Suspense>
+                } />
                 
                 {/* Public Landing Pages */}
                 <Route path="/" element={<HomePage />} />
-                <Route path="/platform" element={<Platform />} />
-                <Route path="/providers" element={<Providers />} />
-                <Route path="/pilot" element={<Pilot />} />
-                <Route path="/contact" element={<Contact />} />
-            <Route path="/provider-signup" element={<ProviderSignup />} />
-            <Route path="/supporter-signup" element={<SupporterSignup />} />
+                <Route path="/platform" element={
+                  <Suspense fallback={<LoadingState message="Loading platform information..." />}>
+                    <Platform />
+                  </Suspense>
+                } />
+                <Route path="/providers" element={
+                  <Suspense fallback={<LoadingState message="Loading provider information..." />}>
+                    <Providers />
+                  </Suspense>
+                } />
+                <Route path="/pilot" element={
+                  <Suspense fallback={<LoadingState message="Loading pilot program details..." />}>
+                    <Pilot />
+                  </Suspense>
+                } />
+                <Route path="/contact" element={
+                  <Suspense fallback={<LoadingState message="Loading contact information..." />}>
+                    <Contact />
+                  </Suspense>
+                } />
+                <Route path="/provider-signup" element={
+                  <Suspense fallback={<LoadingState message="Preparing provider registration..." />}>
+                    <ProviderSignup />
+                  </Suspense>
+                } />
+                <Route path="/supporter-signup" element={
+                  <Suspense fallback={<LoadingState message="Preparing supporter registration..." />}>
+                    <SupporterSignup />
+                  </Suspense>
+                } />
                 
                 {/* Auth and Dashboard Routes */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/dashboard" element={
                   <ProtectedRoute>
-                    <DashboardRouter />
+                    <Suspense fallback={<LoadingState message="Loading your dashboard..." />}>
+                      <DashboardRouter />
+                    </Suspense>
                   </ProtectedRoute>
                 } />
                 <Route path="/patient" element={
                   <ProtectedRoute>
-                    <PatientDashboard />
+                    <Suspense fallback={<LoadingState message="Loading your recovery dashboard..." />}>
+                      <PatientDashboard />
+                    </Suspense>
                   </ProtectedRoute>
                 } />
                 <Route path="/support" element={
                   <ProtectedRoute>
-                    <SupportDashboard />
+                    <Suspense fallback={<LoadingState message="Loading support dashboard..." />}>
+                      <SupportDashboard />
+                    </Suspense>
                   </ProtectedRoute>
                 } />
                 <Route path="/provider" element={
                   <ProtectedRoute>
-                    <ProviderDashboard />
+                    <Suspense fallback={<LoadingState message="Loading provider dashboard..." />}>
+                      <ProviderDashboard />
+                    </Suspense>
                   </ProtectedRoute>
                 } />
                 <Route path="/checkin" element={
                   <ProtectedRoute>
-                    <CheckIn />
+                    <Suspense fallback={<LoadingState message="Preparing your daily check-in..." />}>
+                      <CheckIn />
+                    </Suspense>
                   </ProtectedRoute>
                 } />
                 <Route path="/peer-support" element={
                   <ProtectedRoute>
-                    <PeerSupport />
+                    <Suspense fallback={<LoadingState message="Connecting you with peer support..." />}>
+                      <PeerSupport />
+                    </Suspense>
                   </ProtectedRoute>
                 } />
                 <Route path="/motivation" element={
@@ -239,7 +296,9 @@ function App() {
                 } />
                 <Route path="/progress" element={
                   <ProtectedRoute>
-                    <Progress />
+                    <Suspense fallback={<LoadingState message="Calculating your progress..." />}>
+                      <Progress />
+                    </Suspense>
                   </ProtectedRoute>
                 } />
                 <Route path="/analytics" element={
@@ -310,12 +369,16 @@ function App() {
                 {/* Critical routes that are being navigated to */}
                 <Route path="/calendar" element={
                   <ProtectedRoute>
-                    <Calendar />
+                    <Suspense fallback={<LoadingState message="Loading your recovery calendar..." />}>
+                      <Calendar />
+                    </Suspense>
                   </ProtectedRoute>
                 } />
                 <Route path="/crisis-toolkit" element={
                   <ProtectedRoute>
-                    <CrisisSupport />
+                    <Suspense fallback={<LoadingState message="Loading your crisis support toolkit..." showEncouragement={true} />}>
+                      <CrisisSupport />
+                    </Suspense>
                   </ProtectedRoute>
                 } />
                 <Route path="/settings" element={
@@ -326,7 +389,8 @@ function App() {
                     </div>
                   </ProtectedRoute>
                 } />
-              </Routes>
+                </Routes>
+              </Suspense>
             </SessionTimeoutManager>
           </Router>
         </AuthProvider>

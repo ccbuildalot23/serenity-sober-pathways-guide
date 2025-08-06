@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="2732" height="2732" viewBox="0 0 2732 2732" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with gradient -->
+  <defs>
+    <linearGradient id="splashGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#dbeafe;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#bfdbfe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#93c5fd;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e40af;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="2732" height="2732" fill="url(#splashGradient)"/>
+  
+  <!-- Central logo area -->
+  <g transform="translate(1366, 1200)">
+    <!-- Heart symbol -->
+    <path d="M0 300c-15 0-30-5-42-15-140-115-280-260-280-400 0-110 85-195 195-195 65 0 120 30 155 80 35-50 90-80 155-80 110 0 195 85 195 195 0 140-140 285-280 400-12 10-27 15-42 15-28 0-56 0-56 0z" 
+          fill="url(#logoGradient)" 
+          transform="scale(2)"/>
+  </g>
+  
+  <!-- App name -->
+  <text x="1366" y="1800" 
+        font-family="Arial, sans-serif" 
+        font-size="180" 
+        font-weight="bold" 
+        text-anchor="middle" 
+        fill="#1e40af">
+    Serenity
+  </text>
+  
+  <!-- Tagline -->
+  <text x="1366" y="1920" 
+        font-family="Arial, sans-serif" 
+        font-size="72" 
+        text-anchor="middle" 
+        fill="#64748b">
+    Your Recovery Journey
+  </text>
+  
+  <!-- Loading indicator placeholder -->
+  <g transform="translate(1366, 2200)">
+    <circle cx="-40" cy="0" r="12" fill="#2563eb" opacity="0.8">
+      <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.5s" repeatCount="indefinite" begin="0s"/>
+    </circle>
+    <circle cx="0" cy="0" r="12" fill="#2563eb" opacity="0.8">
+      <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.5s" repeatCount="indefinite" begin="0.2s"/>
+    </circle>
+    <circle cx="40" cy="0" r="12" fill="#2563eb" opacity="0.8">
+      <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.5s" repeatCount="indefinite" begin="0.4s"/>
+    </circle>
+  </g>
+</svg>

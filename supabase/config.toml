@@ -1,4 +1,4 @@
-project_id = "tqyiqstpvwztvofrxpuf"
+project_id = "osfgyoupkmjbxwodsoqh"
 
 [functions.recovery-notification-scheduler]
 verify_jwt = false

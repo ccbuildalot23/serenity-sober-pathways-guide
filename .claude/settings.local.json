@@ -20,7 +20,16 @@
       "Bash(git ls-tree:*)",
       "Bash(git rm:*)",
       "Bash(npm install:*)",
-      "Bash(npx cap init:*)"
+      "Bash(npx cap init:*)",
+      "Bash(npm run dev:*)",
+      "Bash(dir .env*)",
+      "Bash(vercel env:*)",
+      "Bash(npm run deployment:check:*)",
+      "Bash(npx supabase:*)",
+      "Bash(dir:*)",
+      "Bash(npx cap:*)",
+      "Bash(mkdir:*)",
+      "Bash(npx cordova-res:*)"
     ],
     "deny": []
   }

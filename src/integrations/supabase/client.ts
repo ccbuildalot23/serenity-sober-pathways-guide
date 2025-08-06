@@ -3,14 +3,15 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-// Use environment variables for security
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://tqyiqstpvwztvofrxpuf.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeWlxc3Rwdnd6dHZvZnJ4cHVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyODIxNzksImV4cCI6MjA2NDg1ODE3OX0.EJPmyjD9cpZDa_PjxKkUiVpKfVmFAFofNSk58Ssqp_8";
+// Use environment variables for security - NO FALLBACKS to prevent using wrong project
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Validate that required environment variables are present
 if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
   console.error('Missing required Supabase environment variables');
-  throw new Error('Supabase configuration is incomplete');
+  console.error('Please ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set in your .env.local file');
+  throw new Error('Supabase configuration is incomplete. Check your environment variables.');
 }
 
 // Validate URL format for additional security

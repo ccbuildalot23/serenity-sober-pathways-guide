@@ -12,6 +12,22 @@ dist
 dist-ssr
 *.local
 
+# CRITICAL: Environment variables (HIPAA Compliance)
+.env
+.env.local
+.env.production
+.env.development
+.env.staging
+*.key
+*.pem
+*.p12
+
+# Secrets and credentials
+secrets/
+.secrets
+auth-keys/
+credentials.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -22,5 +38,16 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
 # Compiled JS artifacts
 src/**/*.js
+
+# Database and cache
+*.sqlite
+*.db
+.cache/
+
+# Temporary files
+tmp/
+temp/
+.tmp/

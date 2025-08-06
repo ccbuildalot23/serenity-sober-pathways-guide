@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import './styles/calendar-theme.css';
 
 /* Recovery Support Platform - Enhanced Design System */
 
@@ -592,5 +593,3 @@ button, a, input, textarea, select {
     font-weight: bold !important;
   }
 }
-
-@import './styles/calendar-theme.css';

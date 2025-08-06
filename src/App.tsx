@@ -59,6 +59,10 @@ import { TestCrisisPage } from '@/pages/TestCrisisPage';
 import SecurityAudit from '@/pages/SecurityAudit';
 import TestSupportDashboard from '@/pages/TestSupportDashboard';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import CrisisHelp from '@/pages/CrisisHelp';
+import CrisisFloatingButton from '@/components/CrisisFloatingButton';
+import PrivacyPolicy from '@/pages/PrivacyPolicy';
+import TermsOfService from '@/pages/TermsOfService';
 
 // Commented out for MVP - keeping functionality but focusing on core features
 import Calendar from '@/pages/Calendar';
@@ -89,8 +93,16 @@ function App() {
           <RealtimeNotifications />
           <Toaster />
           <Router>
+            <CrisisFloatingButton />
             <SessionTimeoutManager>
               <Routes>
+                {/* Critical Crisis Help - No Auth Required */}
+                <Route path="/crisis-help" element={<CrisisHelp />} />
+                
+                {/* Legal Pages - No Auth Required */}
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                
                 {/* Public Landing Pages */}
                 <Route path="/" element={<HomePage />} />
                 <Route path="/platform" element={<Platform />} />

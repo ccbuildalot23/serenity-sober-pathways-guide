@@ -4,7 +4,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
-import { EnhancedSecurityAuditService } from './EnhancedSecurityAuditService.js';
+import { EnhancedSecurityAuditService } from './EnhancedSecurityAuditService';
 
 interface MFASetupResponse {
   secret: string;

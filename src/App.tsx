@@ -43,6 +43,7 @@ import DataExport from '@/pages/DataExport';
 import { Analytics } from '@/pages/Analytics';
 import { TestFeatures } from '@/pages/TestFeatures';
 import HIPAASecurityDashboard from '@/pages/HIPAASecurityDashboard';
+import { InfrastructureMonitoringDashboard } from '@/components/infrastructure/InfrastructureMonitoringDashboard';
 import NotificationManagement from '@/pages/NotificationManagement';
 import IntegrationTesting from '@/pages/IntegrationTesting';
 import Community from '@/pages/Community';
@@ -287,6 +288,11 @@ function App() {
                 <Route path="/security-audit" element={
                   <ProtectedRoute>
                     <SecurityAudit />
+                  </ProtectedRoute>
+                } />
+                <Route path="/infrastructure-monitoring" element={
+                  <ProtectedRoute>
+                    <InfrastructureMonitoringDashboard />
                   </ProtectedRoute>
                 } />
                 {/* Critical routes that are being navigated to */}

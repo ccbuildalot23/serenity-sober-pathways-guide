@@ -14,8 +14,8 @@ const TermsOfService: React.FC = () => {
           </div>
           
           <div className="text-sm text-gray-600 mb-6">
-            <p>Effective Date: August 6, 2024</p>
-            <p>Last Updated: August 6, 2024</p>
+            <p>Effective Date: August 6, 2025</p>
+            <p>Last Updated: August 6, 2025</p>
           </div>
 
           <Alert className="mb-6 bg-amber-50 border-amber-200">
@@ -206,15 +206,55 @@ const TermsOfService: React.FC = () => {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold mb-4">14. Governing Law</h2>
+              <h2 className="text-2xl font-semibold mb-4">14. Mobile App Terms</h2>
+              <h3 className="text-lg font-semibold mb-2">App Store Terms</h3>
+              <p className="text-gray-700 mb-4">
+                Your use of our mobile app is also subject to the terms and conditions of the app store from which you download the app:
+              </p>
+              <ul className="list-disc pl-6 space-y-2 text-gray-700">
+                <li>Apple App Store Terms of Service for iOS users</li>
+                <li>Google Play Terms of Service for Android users</li>
+                <li>You acknowledge that these Terms are between you and Serenity, not Apple or Google</li>
+                <li>Apple and Google have no obligation to provide maintenance or support for the app</li>
+              </ul>
+
+              <h3 className="text-lg font-semibold mb-2 mt-4">In-App Purchases and Subscriptions</h3>
+              <ul className="list-disc pl-6 space-y-2 text-gray-700">
+                <li>Premium features may be available through in-app purchases</li>
+                <li>Subscriptions auto-renew unless canceled 24 hours before renewal</li>
+                <li>Manage subscriptions through your app store account settings</li>
+                <li>No refunds for partial subscription periods</li>
+              </ul>
+
+              <h3 className="text-lg font-semibold mb-2 mt-4">Updates and Compatibility</h3>
+              <ul className="list-disc pl-6 space-y-2 text-gray-700">
+                <li>We may update the app periodically for security and functionality</li>
+                <li>Some updates may be mandatory for continued use</li>
+                <li>Older devices may lose compatibility over time</li>
+                <li>Internet connection required for most features</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold mb-4">15. Dispute Resolution</h2>
+              <p className="text-gray-700 mb-4">
+                <strong>Arbitration Agreement:</strong> Any disputes arising from these Terms or your use of the Service shall be resolved through binding arbitration, except where prohibited by law.
+              </p>
               <p className="text-gray-700">
-                These Terms are governed by the laws of the United States and the State of [Your State], 
-                without regard to conflict of law principles. Any disputes shall be resolved in the courts of [Your State].
+                <strong>Class Action Waiver:</strong> You agree to resolve disputes individually and waive any right to participate in class action lawsuits.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold mb-4">15. Contact Information</h2>
+              <h2 className="text-2xl font-semibold mb-4">16. Governing Law</h2>
+              <p className="text-gray-700">
+                These Terms are governed by the laws of the United States and the State of California, 
+                without regard to conflict of law principles. Any disputes shall be resolved in the courts of California.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold mb-4">17. Contact Information</h2>
               <Card className="p-4 bg-gray-50">
                 <p className="text-gray-700">For questions about these Terms, please contact us:</p>
                 <div className="mt-3 space-y-1">

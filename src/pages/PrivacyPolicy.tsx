@@ -13,8 +13,8 @@ const PrivacyPolicy: React.FC = () => {
           </div>
           
           <div className="text-sm text-gray-600 mb-6">
-            <p>Effective Date: August 6, 2024</p>
-            <p>Last Updated: August 6, 2024</p>
+            <p>Effective Date: August 6, 2025</p>
+            <p>Last Updated: August 6, 2025</p>
           </div>
 
           <div className="prose prose-gray max-w-none space-y-6">
@@ -70,6 +70,17 @@ const PrivacyPolicy: React.FC = () => {
                 <li>Location data (only when you grant permission)</li>
                 <li>Communication preferences</li>
               </ul>
+
+              <h3 className="text-lg font-semibold mb-2 mt-4">Mobile App Permissions</h3>
+              <p className="text-gray-700 mb-2">Our mobile app may request the following permissions:</p>
+              <ul className="list-disc pl-6 space-y-2 text-gray-700">
+                <li><strong>Camera:</strong> For profile photos and video therapy sessions (optional)</li>
+                <li><strong>Location:</strong> To find nearby support groups and emergency services (optional)</li>
+                <li><strong>Notifications:</strong> For medication reminders and crisis alerts (optional)</li>
+                <li><strong>Storage:</strong> To save recovery resources offline (optional)</li>
+                <li><strong>Phone:</strong> To enable one-tap crisis hotline calling (optional)</li>
+              </ul>
+              <p className="text-gray-700 mt-2 text-sm">All permissions are optional and can be managed in your device settings.</p>
             </section>
 
             <section>
@@ -158,6 +169,30 @@ const PrivacyPolicy: React.FC = () => {
                 Our services are currently available only in the United States. All data is processed and stored within the United States 
                 in compliance with U.S. healthcare privacy laws.
               </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold mb-4">California Privacy Rights (CCPA)</h2>
+              <p className="text-gray-700 mb-4">California residents have additional rights under the California Consumer Privacy Act (CCPA):</p>
+              <ul className="list-disc pl-6 space-y-2 text-gray-700">
+                <li>Right to know what personal information we collect, use, and share</li>
+                <li>Right to delete personal information (subject to healthcare record retention requirements)</li>
+                <li>Right to opt-out of the sale of personal information (we do not sell your data)</li>
+                <li>Right to non-discrimination for exercising privacy rights</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold mb-4">Analytics and Crash Reporting</h2>
+              <p className="text-gray-700">
+                We use privacy-focused analytics to improve app performance and user experience. This includes:
+              </p>
+              <ul className="list-disc pl-6 space-y-2 text-gray-700 mt-2">
+                <li>Anonymous usage statistics (no personal data)</li>
+                <li>Crash reports to fix bugs and improve stability</li>
+                <li>Performance metrics to optimize app speed</li>
+              </ul>
+              <p className="text-gray-700 mt-2">You can opt-out of analytics in the app settings.</p>
             </section>
 
             <section>

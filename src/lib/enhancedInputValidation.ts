@@ -1,5 +1,4 @@
 import DOMPurify from 'dompurify';
-import crypto from 'crypto';
 
 // Consolidated input validation utilities. This file now contains the
 // previously separate InputValidator along with the enhanced features.
@@ -228,7 +227,16 @@ export class EnhancedInputValidator extends InputValidator {
    * Generates CSRF token for sensitive operations
    */
   static generateCSRFToken(): string {
-    return crypto.randomUUID();
+    // Use browser's built-in crypto API (available in all modern browsers)
+    if (typeof window !== 'undefined' && window.crypto && window.crypto.randomUUID) {
+      return window.crypto.randomUUID();
+    }
+    // Fallback for older browsers or SSR
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
   }
 
   /**

@@ -29,7 +29,8 @@
       "Bash(dir:*)",
       "Bash(npx cap:*)",
       "Bash(mkdir:*)",
-      "Bash(npx cordova-res:*)"
+      "Bash(npx cordova-res:*)",
+      "WebFetch(domain:serenity-sober-pathways-guide.vercel.app)"
     ],
     "deny": []
   }

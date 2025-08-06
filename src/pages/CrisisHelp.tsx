@@ -356,7 +356,7 @@ const CrisisHelp: React.FC = () => {
                   {selectedCrisisType === 'shame' ? 'Identify your shame triggers and practice self-compassion responses.' :
                    selectedCrisisType === 'relapse' ? 'Plan specific actions for when cravings hit and build your support network.' :
                    selectedCrisisType === 'panic' ? 'Prepare breathing exercises, grounding techniques, and comfort items.' :
-                   'When you're feeling better, create a personalized safety plan with warning signs and coping strategies.'}
+                   'When you are feeling better, create a personalized safety plan with warning signs and coping strategies.'}
                 </p>
               </div>
             </div>
@@ -365,7 +365,7 @@ const CrisisHelp: React.FC = () => {
           {/* Footer */}
           <div className="mt-12 pt-8 border-t border-gray-200 text-center">
             <p className="text-sm text-gray-600 mb-2">
-              {selectedCrisisType === 'emergency' ? 'If you're in immediate physical danger, call 911' :
+              {selectedCrisisType === 'emergency' ? 'If you are in immediate physical danger, call 911' :
                'Remember: You took a brave step by reaching out today'}
             </p>
             <div className="space-y-2">

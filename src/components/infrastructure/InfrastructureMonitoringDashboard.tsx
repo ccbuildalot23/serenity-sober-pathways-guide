@@ -34,7 +34,7 @@ import {
 import { healthCheckService } from '../../../infrastructure/monitoring/health-checks';
 import { automatedSecurityScanner } from '../../../infrastructure/security/automated-scanner';
 import { hipaaBackupSystem } from '../../../infrastructure/backup/hipaa-backup-system';
-import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService.js';
+import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
 
 interface SystemHealth {
   overall_status: 'healthy' | 'degraded' | 'critical';

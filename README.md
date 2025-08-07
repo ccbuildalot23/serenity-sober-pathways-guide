@@ -1,116 +1,133 @@
-<!-- ...existing code or leave empty if no content... -->
+# Serenity Crisis MCP Server
 
-## Project info
+A Model Context Protocol (MCP) server for crisis communication in the Serenity Sober Pathways application.
 
-**URL**: https://lovable.dev/projects/0774991d-cd10-45cb-be11-ae632aeb1333
+## Overview
 
-## How can I edit this code?
+This MCP server provides a `crisis_alert` tool that can be used to send emergency notifications to supporters when a user is in crisis. The server handles:
 
-There are several ways of editing your application.
+- Multi-tier escalation (emergency, primary, secondary supporters)
+- Multiple notification channels (SMS, email, push notifications)
+- Configurable escalation delays
+- Severity-based response levels
 
-**Use Lovable**
+## Installation
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/0774991d-cd10-45cb-be11-ae632aeb1333) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```bash
+npm install
 ```
 
-**Edit a file directly in GitHub**
+## Building
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+npm run build
+```
 
-**Use GitHub Codespaces**
+This compiles TypeScript to JavaScript in the `dist/` directory.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Usage
 
-## What technologies are used for this project?
+### Starting the Server
 
-This project is built with:
+```bash
+node dist/index.js
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Tool: crisis_alert
 
-## How can I deploy this project?
+The server exposes one tool: `crisis_alert`
 
-Simply open [Lovable](https://lovable.dev/projects/0774991d-cd10-45cb-be11-ae632aeb1333) and click on Share -> Publish.
+**Parameters:**
+- `message` (string): The crisis message to send
+- `severity` (string): Severity level - one of: 'low', 'medium', 'high', 'critical'
+- `supporter_tiers` (array): Array of supporter tiers with contacts
 
-## Can I connect a custom domain to my Lovable project?
+**Example Request:**
+```json
+{
+  "name": "crisis_alert",
+  "arguments": {
+    "message": "User is experiencing strong urges to relapse",
+    "severity": "high",
+    "supporter_tiers": [
+      {
+        "tier": "emergency",
+        "contacts": [
+          {
+            "name": "Emergency Contact",
+            "phone": "+1234567890",
+            "email": "emergency@example.com",
+            "relationship": "Emergency Contact",
+            "priority": 1
+          }
+        ]
+      },
+      {
+        "tier": "primary",
+        "contacts": [
+          {
+            "name": "Primary Supporter",
+            "phone": "+1234567891",
+            "email": "primary@example.com",
+            "relationship": "Sponsor",
+            "priority": 2
+          }
+        ]
+      }
+    ]
+  }
+}
+```
 
-Yes, you can!
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Crisis alert processed successfully. 3 notifications sent.",
+  "alerts_sent": 3,
+  "timestamp": "2025-08-07T19:57:00.000Z",
+  "escalation_level": "urgent"
+}
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Configuration
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+The crisis handler can be configured with the following options:
 
-## Security Logging
+- `enable_sms`: Enable SMS notifications (default: true)
+- `enable_email`: Enable email notifications (default: true)
+- `enable_push`: Enable push notifications (default: true)
+- `escalation_delay_minutes`: Delay between tier escalations (default: 5)
+- `max_retries`: Maximum retry attempts (default: 3)
 
-This project uses `EnhancedSecurityAuditService` for all audit and security events. Previous services like `auditLogService` and `secureAuditLogService` were removed in favor of this consolidated implementation.
+## Development
 
-## Development Notes
+### Project Structure
 
-### Linting
-Run `npm run lint` to check code style. The project uses a minimal ESLint configuration without extra plugins.
+```
+src/
+├── index.ts          # MCP server entry point
+├── crisis-handler.ts # Core crisis communication logic
+└── types.ts          # TypeScript interfaces
+```
 
-## Component Consolidation
+### Testing
 
-Legacy implementations of several major features have been removed. The app now
-uses the enhanced versions exclusively (with a runtime-safe calendar page):
+```bash
+node test-mcp.js
+```
 
-- **EnhancedCBTSkillsLibrary** replaces the basic CBT skills library
-- **EnhancedCrisisSystem** replaces the old crisis intervention system
-- **Calendar** dynamically loads the enhanced calendar and falls back to a
-  simple calendar when unavailable
-- **dashboard/NotificationBanner** replaces the generic banner component
-- **useSecureAuditLogger** replaces useAuditLogger and server-side variants
-- **EnhancedSecurityAuditService** consolidates audit logging services
-- **EnhancedInputValidator** consolidates input validation utilities
-- **EnhancedRealtimeService** replaces the legacy realtime service
+## Integration
 
-These components provide richer functionality and improved security compared to
-their predecessors.
+This MCP server is designed to be integrated with Cursor's MCP settings. The compiled `dist/index.js` file should be configured as the server executable in Cursor's MCP configuration.
 
-See `docs/DEDUPLICATION_PLAN.md` for details about remaining duplicates and the
-migration checklist.
+## Security Notes
 
-### Centralized Exports
+- Current implementation uses mock notification methods
+- Production deployment should integrate with actual SMS/email services
+- Consider HIPAA compliance for healthcare-related communications
+- Implement proper authentication and authorization
 
-Core components are re-exported from `src/components/index.ts` and common
-utilities from `src/utils/index.ts` to simplify imports across the codebase.
+## License
 
-### Deployment to Vercel
-
-This project can be deployed on [Vercel](https://vercel.com). A `vercel.json` file is included to configure the build command and output directory. Vercel will run `npm run build` and serve the generated static files from the `dist` directory.
-
-1. Import the repository into Vercel.
-2. Ensure required environment variables (e.g. `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) are set in the project settings.
-3. Trigger a deployment.
+MIT

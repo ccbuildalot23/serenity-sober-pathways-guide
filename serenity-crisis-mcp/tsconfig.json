@@ -13,9 +13,8 @@
     "declarationMap": true,
     "sourceMap": true,
     "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
-    "types": ["node"]
+    "allowSyntheticDefaultImports": true
   },
-  "include": ["src/index.ts", "src/crisis-handler.ts", "src/types.ts"],
-  "exclude": ["node_modules", "dist", "../**/*", "src/**/*.tsx", "src/**/*.css", "src/**/*.d.ts", "src/**/*.js", "src/**/*.mjs"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

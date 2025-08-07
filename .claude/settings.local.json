@@ -38,7 +38,9 @@
       "Bash(vercel:*)",
       "Bash(mv:*)",
       "Bash(curl:*)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "WebFetch(domain:www.serenityandrecovery.com)",
+      "Bash(git rebase:*)"
     ],
     "deny": []
   }

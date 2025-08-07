@@ -96,6 +96,7 @@ const Dashboard = () => {
                 <span className="font-semibold">{stats.streak} days of courage</span>
               </div>
             )}
+          </div>
           {/* Three Big Action Buttons */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto px-4">
             {/* I NEED HELP NOW Button - ENHANCED WITH SMS */}

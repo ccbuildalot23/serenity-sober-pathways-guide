@@ -1,21 +1,7 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
-    "types": ["node"]
-  },
-  "include": ["src/index.ts", "src/crisis-handler.ts", "src/types.ts"],
-  "exclude": ["node_modules", "dist", "../**/*", "src/**/*.tsx", "src/**/*.css", "src/**/*.d.ts", "src/**/*.js", "src/**/*.mjs"]
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
 }

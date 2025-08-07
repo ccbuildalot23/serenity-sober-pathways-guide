@@ -27,7 +27,7 @@ export default defineConfig(({ mode }) => ({
           // Critical crisis features - loaded first
           'crisis-core': [
             './src/pages/CrisisHelp.tsx',
-            './src/components/CrisisFloatingButton.tsx'
+            './src/components/crisis/EnhancedCrisisSystem.tsx'
           ],
           // Authentication - needed early
           'auth-core': [

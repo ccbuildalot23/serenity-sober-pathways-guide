@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, TrendingUp, Heart, Stethoscope, Hospital, BarChart3, ArrowRight, CircleDollarSign, Users, FlaskConical, Lightbulb } from "lucide-react";
+import { Shield, TrendingUp, Heart, Stethoscope, Building2, BarChart3, ArrowRight, CircleDollarSign, Users, FlaskConical, Lightbulb } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const HomePage = () => {
@@ -111,7 +111,7 @@ const HomePage = () => {
           <Card className="text-center border-0 shadow-lg">
             <CardHeader>
               <div className="w-16 h-16 bg-accent rounded-xl flex items-center justify-center mx-auto mb-4">
-                <Hospital className="w-8 h-8 text-white" />
+                <Building2 className="w-8 h-8 text-white" />
               </div>
               <CardTitle className="text-accent">Reduce Readmissions</CardTitle>
             </CardHeader>
@@ -232,7 +232,7 @@ const HomePage = () => {
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 bg-secondary rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <Hospital className="w-6 h-6 text-white" />
+                  <Building2 className="w-6 h-6 text-white" />
                 </div>
                 <h4 className="font-semibold text-foreground mb-2">30%</h4>
                 <p className="text-sm text-muted-foreground">Recovery Research Institute at Mass General</p>
@@ -288,7 +288,7 @@ const HomePage = () => {
               <ArrowRight className="w-6 h-6 text-muted-foreground rotate-90 md:rotate-0" />
               <div className="flex flex-col items-center">
                 <div className="w-16 h-16 bg-secondary/80 rounded-full flex items-center justify-center mb-3">
-                  <Hospital className="w-8 h-8 text-white" />
+                  <Building2 className="w-8 h-8 text-white" />
                 </div>
                 <p className="text-sm font-medium text-center">Better Treatment</p>
               </div>

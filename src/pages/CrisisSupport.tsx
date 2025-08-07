@@ -1,6 +1,6 @@
 import React from 'react';
 import Layout from '@/components/Layout';
-import { EnhancedCrisisSystem } from '@/components/crisis/EnhancedCrisisSystem';
+import EnhancedCrisisSystem from '@/components/crisis/EnhancedCrisisSystem';
 import { EmergencyContactsSetup } from '@/components/crisis/EmergencyContactsSetup';
 
 const CrisisSupport = () => {

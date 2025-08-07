@@ -12,7 +12,7 @@ import { SessionTimeoutManager } from '@/components/SessionTimeoutManager';
 import LoadingState from '@/components/LoadingState';
 // CRITICAL ROUTES - Load immediately (crisis features and auth)
 import CrisisHelp from '@/pages/CrisisHelp';
-import { EnhancedCrisisSystem } from '@/components/crisis/EnhancedCrisisSystem';
+import EnhancedCrisisSystem from '@/components/crisis/EnhancedCrisisSystem';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import Login from '@/pages/Login';
 import Auth from '@/pages/Auth';

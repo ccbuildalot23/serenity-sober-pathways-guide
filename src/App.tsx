@@ -12,7 +12,7 @@ import { SessionTimeoutManager } from '@/components/SessionTimeoutManager';
 import LoadingState from '@/components/LoadingState';
 // CRITICAL ROUTES - Load immediately (crisis features and auth)
 import CrisisHelp from '@/pages/CrisisHelp';
-import CrisisFloatingButton from '@/components/CrisisFloatingButton';
+import { EnhancedCrisisSystem } from '@/components/crisis/EnhancedCrisisSystem';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import Login from '@/pages/Login';
 import Auth from '@/pages/Auth';
@@ -95,7 +95,7 @@ function App() {
           <RealtimeNotifications />
           <Toaster />
           <Router>
-            <CrisisFloatingButton />
+            <EnhancedCrisisSystem />
             <SessionTimeoutManager>
               <Suspense fallback={
                 <div className="min-h-screen flex items-center justify-center">

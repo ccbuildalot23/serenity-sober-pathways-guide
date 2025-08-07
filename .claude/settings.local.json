@@ -36,7 +36,8 @@
       "Bash(rm:*)",
       "Bash(npm run bmad:config:*)",
       "Bash(vercel:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(curl:*)"
     ],
     "deny": []
   }

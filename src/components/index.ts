@@ -2,8 +2,6 @@
 export { default as CheckInCelebration } from './CheckInCelebration'
 export { default as DailyCheckIn } from './DailyCheckIn'
 export { default as EducationalResources } from './EducationalResources'
-export { default as EmergencyButton } from './EmergencyButton'
-export { default as FloatingHelpButton } from './FloatingHelpButton'
 export { default as Layout } from './Layout'
 export { default as NotificationFeedback } from './NotificationFeedback'
 export { default as NotificationPreview } from './NotificationPreview'

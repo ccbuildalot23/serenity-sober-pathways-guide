@@ -56,11 +56,9 @@ export default defineConfig(({ mode }) => ({
             './src/pages/ClinicalProtocols.tsx',
             './src/pages/RegulatoryCompliance.tsx'
           ],
-          // Admin/Testing - lowest priority
+          // Admin - lowest priority
           'admin-tools': [
             './src/pages/Analytics.tsx',
-            './src/pages/TestFeatures.tsx',
-            './src/pages/TestDashboard.tsx',
             './src/pages/SecurityAudit.tsx'
           ],
           // Vendor libraries
@@ -72,8 +70,14 @@ export default defineConfig(({ mode }) => ({
       }
     },
     // Reduce chunk size warnings for crisis scenarios
-    chunkSizeWarningLimit: 500, // Still warn but allow larger crisis chunks
+    chunkSizeWarningLimit: 500,
     // Enable source maps for debugging in production (HIPAA audit requirement)
-    sourcemap: mode === 'production' ? 'hidden' : true
+    sourcemap: mode === 'production' ? 'hidden' : true,
+    // Clean dist folder before build
+    emptyOutDir: true,
+    // Optimize for production
+    minify: mode === 'production' ? 'terser' : false,
+    // Target modern browsers for better optimization
+    target: 'esnext'
   }
 }));

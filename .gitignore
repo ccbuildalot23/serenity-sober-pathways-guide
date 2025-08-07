@@ -52,3 +52,51 @@ tmp/
 temp/
 .tmp/
 .vercel
+
+# Build system and package manager artifacts
+bun.lockb
+.vite/
+*.tsbuildinfo
+.turbo/
+.next/
+coverage/
+.nyc_output/
+
+# IDE and tooling
+.claude/
+*.swp
+*.swo
+*~
+
+# OS artifacts
+Thumbs.db
+ehthumbs.db
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Temporary output files
+nul
+*.tmp
+*.temp
+
+# Mobile build artifacts
+android/app/build/
+android/app/src/main/assets/
+android/capacitor-cordova-android-plugins/
+ios/capacitor-cordova-ios-plugins/
+ios/App/App/public/
+android/app/src/main/res/xml/config.xml
+ios/App/App/config.xml
+ios/App/App/capacitor.config.json
+
+# Development and testing artifacts  
+.bmad-workflows/
+mcp-app-store-tests.json
+app-store-screenshots/
+
+# Supabase temp files
+supabase/.temp/
+supabase/functions/*/config.toml

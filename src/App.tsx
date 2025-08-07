@@ -56,25 +56,19 @@ const PracticeManagement = lazy(() => import('@/pages/PracticeManagement'));
 const RoleManagement = lazy(() => import('@/components/admin/RoleManagement'));
 const CrisisIntervention = lazy(() => import('@/pages/CrisisIntervention'));
 const MobileCrisis = lazy(() => import('@/pages/MobileCrisis'));
-const MobileCrisisDemo = lazy(() => import('@/components/demo/MobileCrisisDemo'));
 const DataExport = lazy(() => import('@/pages/DataExport'));
 const Analytics = lazy(() => import('@/pages/Analytics').then(module => ({ default: module.Analytics })));
-const TestFeatures = lazy(() => import('@/pages/TestFeatures').then(module => ({ default: module.TestFeatures })));
 const HIPAASecurityDashboard = lazy(() => import('@/pages/HIPAASecurityDashboard'));
 const InfrastructureMonitoringDashboard = lazy(() => import('@/components/infrastructure/InfrastructureMonitoringDashboard').then(module => ({ default: module.InfrastructureMonitoringDashboard })));
 const NotificationManagement = lazy(() => import('@/pages/NotificationManagement'));
-const IntegrationTesting = lazy(() => import('@/pages/IntegrationTesting'));
 const Community = lazy(() => import('@/pages/Community'));
 const Moderation = lazy(() => import('@/pages/Moderation'));
-const TestDashboard = lazy(() => import('@/pages/TestDashboard'));
 const VoiceSupport = lazy(() => import('@/pages/VoiceSupport'));
 const ComplianceManagement = lazy(() => import('@/pages/ComplianceManagement'));
 const PilotReadinessAssessment = lazy(() => import('@/pages/PilotReadinessAssessment'));
 const SecurityFixesStatus = lazy(() => import('@/pages/SecurityFixesStatus'));
 const ComprehensiveSupportPage = lazy(() => import('@/pages/ComprehensiveSupportPage').then(module => ({ default: module.ComprehensiveSupportPage })));
-const TestCrisisPage = lazy(() => import('@/pages/TestCrisisPage').then(module => ({ default: module.TestCrisisPage })));
 const SecurityAudit = lazy(() => import('@/pages/SecurityAudit'));
-const TestSupportDashboard = lazy(() => import('@/pages/TestSupportDashboard'));
 // import Support from '@/pages/Support';
 // import CrisisToolkit from '@/pages/CrisisToolkit';
 // import Settings from '@/pages/Settings';
@@ -306,11 +300,6 @@ function App() {
                     <Analytics />
                   </ProtectedRoute>
                 } />
-                <Route path="/test-features" element={
-                  <ProtectedRoute>
-                    <TestFeatures />
-                  </ProtectedRoute>
-                } />
                 <Route path="/notification-management" element={
                   <ProtectedRoute>
                     <NotificationManagement />
@@ -344,16 +333,6 @@ function App() {
                 <Route path="/comprehensive-support" element={
                   <ProtectedRoute>
                     <ComprehensiveSupportPage />
-                  </ProtectedRoute>
-                } />
-                <Route path="/test-crisis" element={
-                  <ProtectedRoute>
-                    <TestCrisisPage />
-                  </ProtectedRoute>
-                } />
-                <Route path="/test-support" element={
-                  <ProtectedRoute>
-                    <TestSupportDashboard />
                   </ProtectedRoute>
                 } />
                 <Route path="/security-audit" element={

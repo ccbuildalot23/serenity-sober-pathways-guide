@@ -15,5 +15,13 @@ export { default as EnhancedCBTSkillsLibrary } from './cbt/EnhancedCBTSkillsLibr
 export { default as EnhancedCrisisSystem } from './crisis/EnhancedCrisisSystem'
 export { default as EnhancedCalendar } from './calendar/EnhancedCalendar'
 
+// Crisis Notification Components
+export { CrisisAlertButton } from './crisis/CrisisAlertButton'
+export { NotificationPanel } from './crisis/NotificationPanel'
+export { SupportNetworkDashboard } from './crisis/SupportNetworkDashboard'
+export { CrisisNotificationToasts } from './crisis/CrisisNotificationToasts'
+export { CrisisNotificationBell } from './crisis/CrisisNotificationBell'
+export { CrisisNotificationProvider, CrisisNotificationDemo } from './crisis/CrisisNotificationProvider'
+
 // Feature Components
 export { default as DailyAccountability } from './accountability/DailyAccountability'

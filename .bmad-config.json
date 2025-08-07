@@ -1,0 +1,173 @@
+{
+  "version": "4.35.3",
+  "projectName": "Serenity Sober Pathways Guide",
+  "projectType": "healthcare-recovery-platform",
+  "framework": "react-typescript-supabase",
+  "ide": "claude-code",
+  "developmentCycle": {
+    "methodology": "6-Day Sprint",
+    "phases": [
+      {
+        "day": 1,
+        "name": "Foundation & Architecture",
+        "focus": "Core infrastructure, authentication, database setup",
+        "deliverables": [
+          "Authentication system",
+          "Database schema",
+          "Core routing",
+          "Security framework"
+        ]
+      },
+      {
+        "day": 2,
+        "name": "Core Features",
+        "focus": "Primary healthcare features implementation",
+        "deliverables": [
+          "Crisis intervention system",
+          "CBT skills library",
+          "Assessment tools (PHQ-9, GAD-7)",
+          "Daily check-in system"
+        ]
+      },
+      {
+        "day": 3,
+        "name": "Enhanced Features",
+        "focus": "Advanced features and integrations",
+        "deliverables": [
+          "Peer support system",
+          "Recovery calendar",
+          "Progress tracking",
+          "Notification system"
+        ]
+      },
+      {
+        "day": 4,
+        "name": "Security & Compliance",
+        "focus": "HIPAA compliance and security hardening",
+        "deliverables": [
+          "Audit logging",
+          "Data encryption",
+          "Input validation",
+          "RLS policies"
+        ]
+      },
+      {
+        "day": 5,
+        "name": "Testing & Optimization",
+        "focus": "Quality assurance and performance",
+        "deliverables": [
+          "Unit tests",
+          "Integration tests",
+          "Performance optimization",
+          "Accessibility compliance"
+        ]
+      },
+      {
+        "day": 6,
+        "name": "Deployment & Documentation",
+        "focus": "Production deployment and documentation",
+        "deliverables": [
+          "Production deployment",
+          "User documentation",
+          "API documentation",
+          "Post-deployment monitoring"
+        ]
+      }
+    ]
+  },
+  "agents": {
+    "healthcare": {
+      "enabled": true,
+      "specializations": [
+        "hipaa-compliance",
+        "crisis-intervention",
+        "mental-health",
+        "substance-recovery"
+      ]
+    },
+    "security": {
+      "enabled": true,
+      "features": [
+        "audit-logging",
+        "encryption",
+        "input-validation",
+        "role-based-access"
+      ]
+    },
+    "testing": {
+      "enabled": true,
+      "types": [
+        "unit",
+        "integration",
+        "e2e",
+        "accessibility"
+      ]
+    }
+  },
+  "workflows": {
+    "rapidDevelopment": {
+      "enabled": true,
+      "features": [
+        "component-scaffolding",
+        "api-generation",
+        "type-safety",
+        "hot-reload"
+      ]
+    },
+    "continuousIntegration": {
+      "enabled": true,
+      "pipeline": [
+        "lint",
+        "typecheck",
+        "test",
+        "build",
+        "deploy"
+      ]
+    }
+  },
+  "codeOrganization": {
+    "pattern": "feature-based",
+    "enhancedComponents": true,
+    "centralizedExports": true,
+    "serviceLayer": true
+  },
+  "qualityGates": {
+    "preCommit": [
+      "lint",
+      "typecheck"
+    ],
+    "preDeploy": [
+      "test",
+      "security-scan",
+      "hipaa-compliance-check"
+    ]
+  },
+  "dependencies": {
+    "core": [
+      "@supabase/supabase-js",
+      "@tanstack/react-query",
+      "react-router-dom",
+      "zod"
+    ],
+    "ui": [
+      "@radix-ui/react-*",
+      "tailwindcss",
+      "lucide-react"
+    ],
+    "security": [
+      "dompurify",
+      "dotenv"
+    ],
+    "mobile": [
+      "@capacitor/core",
+      "@capacitor/android",
+      "@capacitor/ios"
+    ]
+  },
+  "commands": {
+    "analyze": "bmad:analyze",
+    "scaffold": "bmad:scaffold",
+    "validate": "bmad:validate",
+    "deploy": "bmad:deploy"
+  }
+}

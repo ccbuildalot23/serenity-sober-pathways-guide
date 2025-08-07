@@ -1,0 +1,156 @@
+{
+  "name": "Serenity App Store Preparation Tests",
+  "version": "1.0.0",
+  "tests": {
+    "legal_documents": {
+      "privacy_policy": {
+        "url": "/privacy",
+        "required_sections": [
+          "HIPAA Compliance",
+          "Mobile App Permissions",
+          "California Privacy Rights",
+          "Analytics and Crash Reporting"
+        ],
+        "validate_links": true,
+        "check_mobile_responsive": true
+      },
+      "terms_of_service": {
+        "url": "/terms",
+        "required_sections": [
+          "Medical Disclaimer",
+          "Mobile App Terms",
+          "In-App Purchases and Subscriptions",
+          "Dispute Resolution"
+        ],
+        "validate_links": true,
+        "check_mobile_responsive": true
+      }
+    },
+    "screenshots": {
+      "required_screens": [
+        {
+          "name": "crisis_support",
+          "route": "/crisis-help",
+          "caption": "Get help instantly with one-tap crisis support",
+          "wait_for_element": ".crisis-button"
+        },
+        {
+          "name": "cbt_skills",
+          "route": "/cbt-skills",
+          "caption": "Evidence-based therapy tools at your fingertips",
+          "wait_for_element": ".skills-library"
+        },
+        {
+          "name": "daily_checkin",
+          "route": "/daily-checkin",
+          "caption": "Track your mood and identify patterns",
+          "wait_for_element": ".checkin-form"
+        },
+        {
+          "name": "recovery_timeline",
+          "route": "/recovery",
+          "caption": "Celebrate every milestone in your journey",
+          "wait_for_element": ".timeline"
+        },
+        {
+          "name": "peer_support",
+          "route": "/community",
+          "caption": "Connect with others who understand",
+          "wait_for_element": ".community-chat"
+        },
+        {
+          "name": "provider_dashboard",
+          "route": "/providers",
+          "caption": "Share progress with your care team",
+          "wait_for_element": ".provider-dash"
+        },
+        {
+          "name": "privacy_settings",
+          "route": "/settings",
+          "caption": "HIPAA-compliant security you can trust",
+          "wait_for_element": ".privacy-settings"
+        },
+        {
+          "name": "offline_crisis",
+          "route": "/crisis-help",
+          "caption": "Access help even without internet",
+          "offline_mode": true
+        }
+      ],
+      "devices": [
+        {
+          "name": "iphone_14_pro",
+          "width": 393,
+          "height": 852,
+          "deviceScaleFactor": 3
+        },
+        {
+          "name": "pixel_7",
+          "width": 412,
+          "height": 915,
+          "deviceScaleFactor": 2.625
+        }
+      ]
+    },
+    "functionality": {
+      "critical_features": [
+        {
+          "name": "Crisis Button",
+          "test": "Click crisis button and verify help modal appears",
+          "priority": "critical"
+        },
+        {
+          "name": "Login Flow",
+          "test": "Complete login with demo account",
+          "credentials": {
+            "email": "demo@serenityrecovery.app",
+            "password": "DemoUser2025!"
+          }
+        },
+        {
+          "name": "Daily Check-in",
+          "test": "Submit a daily check-in form",
+          "priority": "high"
+        },
+        {
+          "name": "Offline Mode",
+          "test": "Verify crisis plan accessible offline",
+          "priority": "critical"
+        }
+      ]
+    },
+    "performance": {
+      "metrics": {
+        "first_contentful_paint": 2000,
+        "time_to_interactive": 3500,
+        "largest_contentful_paint": 2500
+      },
+      "bundle_size_limits": {
+        "main_bundle": 500000,
+        "total_size": 2000000
+      }
+    },
+    "app_store_validation": {
+      "ios": {
+        "bundle_id": "com.serenity.recovery",
+        "version": "1.0.0",
+        "required_icons": [
+          "Icon-20.png",
+          "Icon-29.png",
+          "Icon-40.png",
+          "Icon-60.png",
+          "Icon-76.png",
+          "Icon-83.5.png",
+          "Icon-1024.png"
+        ]
+      },
+      "android": {
+        "package_name": "com.serenity.recovery",
+        "version_code": 1,
+        "version_name": "1.0.0",
+        "min_sdk": 24,
+        "target_sdk": 34
+      }
+    }
+  }
+}

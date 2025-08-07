@@ -12,17 +12,27 @@ const WEBHOOK_VERIFY_TOKEN = Deno.env.get('WHATSAPP_WEBHOOK_VERIFY_TOKEN') || 's
 serve(async (req) => {
   const url = new URL(req.url)
   
-  // Handle webhook verification from Meta
+  // Handle webhook verification from Meta - NO AUTH REQUIRED
   if (req.method === 'GET') {
     const mode = url.searchParams.get('hub.mode')
     const token = url.searchParams.get('hub.verify_token')
     const challenge = url.searchParams.get('hub.challenge')
     
+    console.log('Webhook verification attempt:', { mode, token, challenge })
+    
     if (mode === 'subscribe' && token === WEBHOOK_VERIFY_TOKEN) {
       console.log('Webhook verified successfully')
-      return new Response(challenge, { status: 200 })
+      // Return ONLY the challenge value, no JSON wrapper
+      return new Response(challenge, { 
+        status: 200,
+        headers: { 'Content-Type': 'text/plain' }
+      })
     } else {
-      console.error('Webhook verification failed')
+      console.error('Webhook verification failed:', { 
+        expectedToken: WEBHOOK_VERIFY_TOKEN, 
+        receivedToken: token,
+        mode 
+      })
       return new Response('Forbidden', { status: 403 })
     }
   }

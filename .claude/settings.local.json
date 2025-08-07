@@ -30,7 +30,12 @@
       "Bash(npx cap:*)",
       "Bash(mkdir:*)",
       "Bash(npx cordova-res:*)",
-      "WebFetch(domain:serenity-sober-pathways-guide.vercel.app)"
+      "WebFetch(domain:serenity-sober-pathways-guide.vercel.app)",
+      "Bash(npm --version)",
+      "Bash(npx:*)",
+      "Bash(rm:*)",
+      "Bash(npm run bmad:config:*)",
+      "Bash(vercel:*)"
     ],
     "deny": []
   }

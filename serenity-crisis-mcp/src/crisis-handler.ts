@@ -1,4 +1,5 @@
 import { CrisisAlertRequest, CrisisResponse, CrisisHandlerConfig, SupporterTier, StaggeredTimingConfig } from './types.js';
+import { aiMessageService, AIMessageService, MessageContext } from './ai-message-service.js';
 
 export class CrisisHandler {
   private config: CrisisHandlerConfig;
@@ -164,22 +165,34 @@ export class CrisisHandler {
     let alertsSent = 0;
     
     try {
-      const message = this.formatAlertMessage(request, contact, tier.tier);
+      // Generate AI-powered messages
+      const messageContext: MessageContext = {
+        severity: request.severity,
+        relationship: contact.relationship,
+        recipientName: contact.name,
+        userMessage: request.message,
+        timeOfDay: AIMessageService.getTimeOfDay()
+      };
+      
+      const aiMessages = await aiMessageService.generateCrisisMessage(messageContext);
       
       // Send notifications concurrently for each contact
       const promises = [];
       
       if (this.config.enable_sms && contact.phone) {
-        promises.push(this.sendSMS(contact.phone, message));
+        promises.push(this.sendSMS(contact.phone, aiMessages.sms));
       }
       
       if (this.config.enable_email && contact.email) {
-        promises.push(this.sendEmail(contact.email, message));
+        promises.push(this.sendEmailWithBody(contact.email, aiMessages.email));
       }
       
       if (this.config.enable_push) {
-        promises.push(this.sendPushNotification(contact, message));
+        promises.push(this.sendPushNotification(contact, aiMessages.push));
       }
+      
+      // Log supporter guidance
+      console.log(`[AI GUIDANCE] For ${contact.name}:`, aiMessages.supporterGuidance);
       
       const results = await Promise.allSettled(promises);
       
@@ -192,6 +205,12 @@ export class CrisisHandler {
       
     } catch (error) {
       console.error(`[CRISIS] Failed to send notifications to ${contact.name}:`, error);
+      // Fall back to original message format
+      const fallbackMessage = this.formatAlertMessage(request, contact, tier.tier);
+      if (this.config.enable_sms && contact.phone) {
+        await this.sendSMS(contact.phone, fallbackMessage);
+        alertsSent++;
+      }
     }
     
     return alertsSent;
@@ -280,6 +299,14 @@ This is an automated crisis alert from Serenity Sober Pathways. Please respond i
   private async sendEmail(email: string, message: string): Promise<void> {
     console.log(`[EMAIL] Sending to ${email}: ${message.substring(0, 100)}...`);
     // TODO: Integrate with email service
+    await this.delay(100); // Simulate API call
+  }
+
+  private async sendEmailWithBody(email: string, emailContent: { subject: string; body: string }): Promise<void> {
+    console.log(`[EMAIL] Sending to ${email}`);
+    console.log(`[EMAIL] Subject: ${emailContent.subject}`);
+    console.log(`[EMAIL] Body preview: ${emailContent.body.substring(0, 200)}...`);
+    // TODO: Integrate with email service (SendGrid, AWS SES, etc.)
     await this.delay(100); // Simulate API call
   }
 

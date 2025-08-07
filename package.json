@@ -12,11 +12,15 @@
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
     "test": "echo \"No tests configured yet\"",
+    "validate:structure": "node scripts/validate-structure.cjs",
+    "fix:deployment": "node scripts/fix-deployment.cjs",
+    "prebuild": "npm run validate:structure",
     "deployment:check": "node scripts/deployment-check.js",
     "test:storage": "node scripts/test-storage.js",
     "setup:deploy": "node scripts/setup-deploy.js",
     "deploy:vercel": "vercel",
-    "deploy:netlify": "netlify deploy"
+    "deploy:netlify": "netlify deploy",
+    "prepare": "husky"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
@@ -80,6 +84,7 @@
     "eslint": "^8.56.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "husky": "^9.1.7",
     "lovable-tagger": "^1.0.0",
     "postcss": "^8.4.33",
     "tailwindcss": "^3.4.0",

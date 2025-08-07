@@ -100,3 +100,34 @@ app-store-screenshots/
 # Supabase temp files
 supabase/.temp/
 supabase/functions/*/config.toml
+
+# ===== CRITICAL DEPLOYMENT PROTECTION =====
+# These rules prevent MCP/React project mixing that causes deployment failures
+
+# Prevent MCP server files in main src/ directory
+/src/index.ts
+/src/crisis-handler.ts
+/src/types.ts
+# Only allow MCP files in their proper location
+!/serenity-crisis-mcp/src/*.ts
+
+# Protect critical config files from being overwritten
+# These should NEVER be changed by MCP server configs
+/tsconfig.json.mcp-backup
+/package.json.mcp-backup
+
+# Validation and fix scripts (should be tracked)
+!/scripts/validate-structure.cjs
+!/scripts/fix-deployment.cjs
+!/scripts/pre-commit-check.js
+
+# MCP server build artifacts (keep isolated)
+serenity-crisis-mcp/dist/
+serenity-crisis-mcp/node_modules/
+serenity-crisis-mcp/.env
+
+# Test files for MCP (keep in MCP directory only)
+/test-*.mjs
+/test-*.js
+!/serenity-crisis-mcp/test-*.mjs
+!/serenity-crisis-mcp/test-*.js

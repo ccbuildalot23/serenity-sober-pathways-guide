@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# Pre-commit hook to validate project structure before commit
+# Prevents deployment failures caused by mixed MCP/React configurations
+
+echo "🔍 Running pre-commit validation..."
+
+# Run structure validation
+npm run validate:structure
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ Pre-commit validation failed!"
+  echo "Your changes may cause deployment failures."
+  echo ""
+  echo "💡 To fix automatically, run:"
+  echo "   npm run fix:deployment"
+  echo ""
+  echo "📝 To commit anyway (NOT RECOMMENDED), use:"
+  echo "   git commit --no-verify"
+  echo ""
+  exit 1
+fi
+
+echo "✅ Pre-commit validation passed!"

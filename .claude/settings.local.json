@@ -37,7 +37,8 @@
       "Bash(npm run bmad:config:*)",
       "Bash(vercel:*)",
       "Bash(mv:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(git log:*)"
     ],
     "deny": []
   }

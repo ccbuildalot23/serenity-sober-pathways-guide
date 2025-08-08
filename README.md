@@ -136,3 +136,9 @@ This MCP server is designed to be integrated with Cursor's MCP settings. The com
 ## License
 
 MIT
+ 
+## Contributing
+
+- Commits follow Conventional Commits (enforced by commitlint via Husky)
+- Open PRs with a clear summary and link to related ADRs
+- CI runs Playwright and uploads artifacts to each run

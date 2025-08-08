@@ -1,0 +1,10 @@
+# Default owner for all files
+* @ccbuildalot23
+
+# App source
+src/** @ccbuildalot23
+tests/** @ccbuildalot23
+scripts/** @ccbuildalot23
+serenity-crisis-mcp/** @ccbuildalot23
+
+

@@ -1,4 +1,14 @@
 {
+  "buildCommand": "npm ci --no-audit --no-fund && npm run build",
+  "installCommand": "npm ci --no-audit --no-fund",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "github": { "silent": false },
+  "env": {
+    "NODE_VERSION": "20"
+  }
+}
+{
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "installCommand": "npm install --legacy-peer-deps",

@@ -193,3 +193,5 @@ export const RecoveryPlanTemplates: React.FC = () => {
     </div>
   );
 };
+
+export default RecoveryPlanTemplates;

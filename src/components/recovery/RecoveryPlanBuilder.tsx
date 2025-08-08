@@ -524,3 +524,5 @@ export const RecoveryPlanBuilder: React.FC = () => {
     </div>
   );
 };
+
+export default RecoveryPlanBuilder;

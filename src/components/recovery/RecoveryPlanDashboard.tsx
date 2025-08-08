@@ -190,3 +190,5 @@ export const RecoveryPlanDashboard: React.FC = () => {
     </div>
   );
 };
+
+export default RecoveryPlanDashboard;

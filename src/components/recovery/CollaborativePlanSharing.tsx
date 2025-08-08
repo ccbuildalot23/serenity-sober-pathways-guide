@@ -162,3 +162,5 @@ export const CollaborativePlanSharing: React.FC = () => {
     </div>
   );
 };
+
+export default CollaborativePlanSharing;

@@ -180,3 +180,5 @@ export const ProviderIntegration: React.FC = () => {
     </div>
   );
 };
+
+export default ProviderIntegration;

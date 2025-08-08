@@ -16,23 +16,9 @@ export { default as MeetingFinder } from './MeetingFinder';
 // Integration System
 export { default as RecoverySystemIntegrator } from './RecoverySystemIntegrator';
 
-// Type exports for other components to use
-export type {
-  HALTState,
-  Suggestion
-} from './HALTAssessment';
-
-export type {
-  CravingSession
-} from './CravingTimer';
-
-export type {
-  Consequence,
-  PersonalGoal,
-  DecisionPath
-} from './PlayingItForward';
-
-export type {
-  MeetingWithDetails,
-  FilterOptions
-} from './MeetingFinder';
+// Recovery Planning Components (existing)
+export { default as RecoveryPlanTemplates } from './RecoveryPlanTemplates';
+export { default as RecoveryPlanBuilder } from './RecoveryPlanBuilder';
+export { default as RecoveryPlanDashboard } from './RecoveryPlanDashboard';
+export { default as ProviderIntegration } from './ProviderIntegration';
+export { default as CollaborativePlanSharing } from './CollaborativePlanSharing';

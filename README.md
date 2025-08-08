@@ -2,6 +2,10 @@
 
 A Model Context Protocol (MCP) server for crisis communication in the Serenity Sober Pathways application.
 
+## CI/CD Status
+
+This project uses GitHub Actions for continuous integration and deployment. All code changes are automatically tested, validated, and deployed through our automated pipeline.
+
 ## Overview
 
 This MCP server provides a `crisis_alert` tool that can be used to send emergency notifications to supporters when a user is in crisis. The server handles:

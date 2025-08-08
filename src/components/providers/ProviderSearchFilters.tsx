@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, SlidersHorizontal, MapPin, Star, Users } from 'lucide-react';
+import { Search, Filter, SlidersHorizontal, MapPin, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -43,8 +43,8 @@ export const ProviderSearchFilters: React.FC<ProviderSearchFiltersProps> = ({
       try {
         const options = await ProviderService.getFilterOptions();
         setFilterOptions(options);
-      } catch (error) {
-        console.error('Failed to load filter options:', error);
+      } catch (_error) {
+        console._error('Failed to load filter options:', _error);
       }
     };
 
@@ -66,18 +66,18 @@ export const ProviderSearchFilters: React.FC<ProviderSearchFiltersProps> = ({
     onFiltersChange({
       searchTerm: '',
       state: '',
-      specialty: '',
+      _specialty: '',
       insurance: '',
       tags: [],
       acceptingNewPatients: false,
       sortBy: 'name',
-      sortOrder: 'asc'
+      _sortOrder: 'asc'
     });
   };
 
   const activeFiltersCount = 
     (filters.state ? 1 : 0) + 
-    (filters.specialty ? 1 : 0) + 
+    (filters._specialty ? 1 : 0) + 
     (filters.insurance ? 1 : 0) +
     filters.tags.length +
     (filters.acceptingNewPatients ? 1 : 0);
@@ -89,14 +89,14 @@ export const ProviderSearchFilters: React.FC<ProviderSearchFiltersProps> = ({
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
           <Input
-            placeholder="Search by name, specialty, or keyword..."
+            placeholder="Search by name, _specialty, or keyword..."
             value={filters.searchTerm}
             onChange={(e) => updateFilters({ searchTerm: e.target.value })}
             className="pl-10"
           />
         </div>
         
-        <Select value={filters.sortBy} onValueChange={(value: any) => updateFilters({ sortBy: value })}>
+        <Select value={filters.sortBy} onValueChange={(value: unknown) => updateFilters({ sortBy: value })}>
           <SelectTrigger className="w-40">
             <SelectValue />
           </SelectTrigger>
@@ -171,14 +171,14 @@ export const ProviderSearchFilters: React.FC<ProviderSearchFiltersProps> = ({
               {/* Specialty Filter */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">Specialty</label>
-                <Select value={filters.specialty} onValueChange={(value) => updateFilters({ specialty: value })}>
+                <Select value={filters._specialty} onValueChange={(value) => updateFilters({ _specialty: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="All Specialties" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">All Specialties</SelectItem>
-                    {filterOptions.specialties.map(specialty => (
-                      <SelectItem key={specialty} value={specialty}>{specialty}</SelectItem>
+                    {filterOptions.specialties.map(_specialty => (
+                      <SelectItem key={_specialty} value={_specialty}>{_specialty}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

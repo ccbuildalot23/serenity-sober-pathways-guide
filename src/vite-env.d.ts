@@ -3,14 +3,14 @@
 
 declare global {
   interface Window {
-    confetti: any;
-    AudioContext: any;
-    webkitAudioContext: any;
+    confetti: unknown;
+    AudioContext: unknown;
+    webkitAudioContext: unknown;
     debugLog: Array<{
       timestamp: string;
       category: string;
       message: string;
-      data?: any;
+      data?: unknown;
     }>;
   }
 }

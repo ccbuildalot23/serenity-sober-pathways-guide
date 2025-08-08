@@ -10,26 +10,26 @@ import { toast } from 'sonner';
 
 interface TelehealthWaitingRoomProps {
   open: boolean;
-  appointmentId: string;
+  _appointmentId: string;
   userRole: 'patient' | 'provider';
   onClose: () => void;
 }
 
 export const TelehealthWaitingRoom: React.FC<TelehealthWaitingRoomProps> = ({
   open,
-  appointmentId,
+  _appointmentId,
   userRole,
   onClose
 }) => {
   const [session, setSession] = useState<TelehealthSession | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [videoEnabled, setVideoEnabled] = useState(true);
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'waiting' | 'failed'>('connecting');
 
   useEffect(() => {
-    if (open && appointmentId) {
+    if (open && _appointmentId) {
       loadSession();
       setupMedia();
     }
@@ -39,20 +39,20 @@ export const TelehealthWaitingRoom: React.FC<TelehealthWaitingRoomProps> = ({
         mediaStream.getTracks().forEach(track => track.stop());
       }
     };
-  }, [open, appointmentId]);
+  }, [open, _appointmentId]);
 
   const loadSession = async () => {
     try {
       setLoading(true);
-      const sessionData = await AppointmentService.getTelehealthSession(appointmentId);
-      setSession(sessionData);
+      const _sessionData = await AppointmentService.getTelehealthSession(_appointmentId);
+      setSession(_sessionData);
       setConnectionStatus('waiting');
     } catch (error) {
-      console.error('Error loading session:', error);
+      console.error('Error _loading session:', error);
       toast.error('Failed to load session details');
       setConnectionStatus('failed');
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
 
@@ -113,7 +113,7 @@ export const TelehealthWaitingRoom: React.FC<TelehealthWaitingRoomProps> = ({
     onClose();
   };
 
-  if (loading) {
+  if (_loading) {
     return (
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-4xl h-[600px]">
@@ -154,7 +154,7 @@ export const TelehealthWaitingRoom: React.FC<TelehealthWaitingRoomProps> = ({
               <div>
                 <h2 className="font-semibold">Telehealth Session</h2>
                 <p className="text-sm text-muted-foreground">
-                  {userRole === 'patient' ? 'Waiting for provider...' : 'Patient waiting room'}
+                  {userRole === 'patient' ? 'Waiting for provider...' : '_Patient waiting room'}
                 </p>
               </div>
             </div>
@@ -246,11 +246,11 @@ export const TelehealthWaitingRoom: React.FC<TelehealthWaitingRoomProps> = ({
                     <span className="font-medium">Duration:</span> 50 minutes
                   </div>
                   <div>
-                    <span className="font-medium">Session ID:</span> #{appointmentId.slice(0, 8)}
+                    <span className="font-medium">Session ID:</span> #{_appointmentId.slice(0, 8)}
                   </div>
                   <div>
                     <span className="font-medium">Participant:</span> 
-                    {userRole === 'patient' ? 'You (Patient)' : 'Provider'}
+                    {userRole === 'patient' ? 'You (_Patient)' : 'Provider'}
                   </div>
                 </CardContent>
               </Card>

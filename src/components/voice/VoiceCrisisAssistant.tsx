@@ -34,10 +34,10 @@ interface VoiceCrisisResponse {
 
 const VoiceCrisisAssistant: React.FC = () => {
   const { user } = useAuth();
-  const [isActive, setIsActive] = useState(false);
-  const [response, setResponse] = useState<VoiceCrisisResponse | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
+  const [isActive, setIsActive] = useState(_false);
+  const [response, setResponse] = useState<VoiceCrisisResponse | _null>(_null);
+  const [isProcessing, setIsProcessing] = useState(_false);
+  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | _null>(_null);
 
   const voiceRecording = useVoiceRecording({
     maxDuration: 120, // 2 minutes for crisis situations
@@ -47,40 +47,40 @@ const VoiceCrisisAssistant: React.FC = () => {
       });
     },
     onStop: () => {
-      setIsProcessing(true);
+      setIsProcessing(_true);
     },
     onError: (error) => {
       toast.error('Voice recording failed', { description: error });
-      setIsActive(false);
+      setIsActive(_false);
     },
-    onTranscription: async (transcript) => {
-      await processCrisisInput(transcript);
+    onTranscription: async (_transcript) => {
+      await processCrisisInput(_transcript);
     }
   });
 
-  const processCrisisInput = async (transcript: string) => {
+  const processCrisisInput = async (_transcript: string) => {
     if (!user?.id) return;
 
     try {
       // Get user location if available
       let location: { lat: number; lng: number } | undefined;
       try {
-        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+        const position = await new Promise<GeolocationPosition>((_resolve, _reject) => {
+          navigator.geolocation.getCurrentPosition(_resolve, _reject, { timeout: 5000 });
         });
         location = {
           lat: position.coords.latitude,
           lng: position.coords.longitude
         };
-      } catch (locationError) {
-        console.log('Location not available:', locationError);
+      } catch (_locationError) {
+        console.log('Location not available:', _locationError);
       }
 
       // Send to voice crisis assistant
       const { data, error } = await supabase.functions.invoke('voice-crisis-assistant', {
         body: {
           userId: user.id,
-          transcript,
+          _transcript,
           location
         }
       });
@@ -95,7 +95,7 @@ const VoiceCrisisAssistant: React.FC = () => {
         setCurrentAudio(audio);
         
         audio.onended = () => {
-          setCurrentAudio(null);
+          setCurrentAudio(_null);
         };
         
         await audio.play();
@@ -112,22 +112,22 @@ const VoiceCrisisAssistant: React.FC = () => {
         description: 'Please contact emergency services directly'
       });
     } finally {
-      setIsProcessing(false);
+      setIsProcessing(_false);
     }
   };
 
   const activateCrisisAssistant = () => {
-    setIsActive(true);
-    setResponse(null);
+    setIsActive(_true);
+    setResponse(_null);
     voiceRecording.startRecording();
   };
 
   const deactivateCrisisAssistant = () => {
-    setIsActive(false);
+    setIsActive(_false);
     voiceRecording.stopRecording();
     if (currentAudio) {
       currentAudio.pause();
-      setCurrentAudio(null);
+      setCurrentAudio(_null);
     }
   };
 
@@ -135,8 +135,8 @@ const VoiceCrisisAssistant: React.FC = () => {
     window.open(`tel:${phone}`, '_self');
   };
 
-  const getCrisisLevelColor = (level: string) => {
-    switch (level) {
+  const getCrisisLevelColor = (_level: string) => {
+    switch (_level) {
       case 'critical': return 'destructive';
       case 'high': return 'destructive';
       case 'medium': return 'secondary';
@@ -147,7 +147,7 @@ const VoiceCrisisAssistant: React.FC = () => {
 
   // Emergency activation via keyboard shortcut
   useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
+    const _handleKeyPress = (event: KeyboardEvent) => {
       // Ctrl + Shift + H for Help
       if (event.ctrlKey && event.shiftKey && event.key === 'H') {
         event.preventDefault();
@@ -157,8 +157,8 @@ const VoiceCrisisAssistant: React.FC = () => {
       }
     };
 
-    document.addEventListener('keydown', handleKeyPress);
-    return () => document.removeEventListener('keydown', handleKeyPress);
+    document.addEventListener('keydown', _handleKeyPress);
+    return () => document.removeEventListener('keydown', _handleKeyPress);
   }, [isActive]);
 
   return (

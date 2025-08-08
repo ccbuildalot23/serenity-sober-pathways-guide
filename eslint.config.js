@@ -47,6 +47,23 @@ export default [
         setInterval: 'readonly',
         clearInterval: 'readonly',
         caches: 'readonly',
+        URL: 'readonly',
+        Response: 'readonly',
+        Request: 'readonly',
+        Headers: 'readonly',
+        Blob: 'readonly',
+        File: 'readonly',
+        FormData: 'readonly',
+        TextEncoder: 'readonly',
+        TextDecoder: 'readonly',
+        crypto: 'readonly',
+        performance: 'readonly',
+        Notification: 'readonly',
+        confirm: 'readonly',
+        Router: 'readonly',
+        btoa: 'readonly',
+        atob: 'readonly',
+        URLSearchParams: 'readonly',
         
         // Node globals
         process: 'readonly',
@@ -57,6 +74,9 @@ export default [
         require: 'readonly',
         exports: 'readonly',
         global: 'readonly',
+        
+        // Deno globals (for Supabase Edge Functions)
+        Deno: 'readonly',
         
         // TypeScript/Node types
         NodeJS: 'readonly',

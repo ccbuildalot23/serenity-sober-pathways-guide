@@ -10,21 +10,21 @@ interface SkillSessionData {
   moduleType: string;
   sessionDurationMinutes?: number;
   effectivenessRating?: number;
-  notes?: string;
+  _notes?: string;
   realWorldApplied?: boolean;
 }
 
 interface Achievement {
   id: string;
-  badge_name: string;
-  badge_type: string;
+  _badge_name: string;
+  _badge_type: string;
   earned_at: string;
   user_id: string;
 }
 
 export const useSkillSession = () => {
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(_false);
 
   const recordSkillSession = async (sessionData: SkillSessionData) => {
     if (!user) return { error: 'User not authenticated' };
@@ -35,13 +35,13 @@ export const useSkillSession = () => {
         .from('skill_sessions')
         .insert({
           user_id: user.id,
-          skill_category: sessionData.skillCategory,
-          skill_name: sessionData.skillName,
-          module_type: sessionData.moduleType,
-          session_duration_minutes: sessionData.sessionDurationMinutes,
-          effectiveness_rating: sessionData.effectivenessRating,
-          notes: sessionData.notes,
-          real_world_applied: sessionData.realWorldApplied || false
+          _skill_category: sessionData.skillCategory,
+          _skill_name: sessionData.skillName,
+          _module_type: sessionData.moduleType,
+          _session_duration_minutes: sessionData.sessionDurationMinutes,
+          _effectiveness_rating: sessionData.effectivenessRating,
+          _notes: sessionData._notes,
+          _real_world_applied: sessionData.realWorldApplied || _false
         });
 
       if (error) throw error;
@@ -58,7 +58,7 @@ export const useSkillSession = () => {
       console.error('Error recording skill session:', error);
       return { error: 'Failed to record skill session' };
     } finally {
-      setIsLoading(false);
+      setIsLoading(_false);
     }
   };
 
@@ -73,28 +73,28 @@ export const useSkillSession = () => {
         .from('user_achievements')
         .select('*')
         .eq('user_id', user.id)
-        .eq('badge_name', badgeName)
+        .eq('_badge_name', badgeName)
         .single();
 
       if (!existingBadge) {
         // Check eligibility
-        const { data: eligible } = await supabase.rpc('check_badge_eligibility', {
+        const { data: _eligible } = await supabase.rpc('check_badge_eligibility', {
           user_uuid: user.id,
-          badge_name_param: badgeName
+          _badge_name_param: badgeName
         });
 
-        if (eligible) {
+        if (_eligible) {
           await supabase
             .from('user_achievements')
             .insert({
               user_id: user.id,
-              badge_name: badgeName,
-              badge_type: 'completion'
+              _badge_name: badgeName,
+              _badge_type: 'completion'
             });
 
           toast.success(`🏆 Achievement Unlocked!`, {
             description: `You've earned the ${badgeName} badge!`,
-            duration: 5000
+            _duration: 5000
           });
         }
       }
@@ -109,10 +109,10 @@ export const useSkillSession = () => {
         .from('skill_sessions')
         .select('*')
         .eq('user_id', user.id)
-        .order('completed_at', { ascending: false });
+        .order('completed_at', { ascending: _false });
 
       if (skillCategory) {
-        query = query.eq('skill_category', skillCategory);
+        query = query.eq('_skill_category', skillCategory);
       }
 
       const { data, error } = await query;
@@ -133,7 +133,7 @@ export const useSkillSession = () => {
         .from('user_achievements')
         .select('*')
         .eq('user_id', user.id)
-        .order('earned_at', { ascending: false });
+        .order('earned_at', { ascending: _false });
 
       if (error) throw error;
       return { data, error: null };
@@ -149,7 +149,7 @@ export const useSkillSession = () => {
     try {
       const { data, error } = await supabase.rpc('calculate_skill_mastery', {
         user_uuid: user.id,
-        skill_category_param: skillCategory
+        _skill_category_param: skillCategory
       });
 
       if (error) throw error;

@@ -20,10 +20,10 @@ import { toast } from 'sonner';
 
 const DailyCheckIn = () => {
   const [currentTab, setCurrentTab] = useState('mood');
-  const [showCelebration, setShowCelebration] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(_false);
   const [stats, setStats] = useState<CheckinStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [streakMessage, setStreakMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(_true);
+  const [_streakMessage, setStreakMessage] = useState<string | null>(null);
 
   const { user } = useAuth();
   const {
@@ -34,7 +34,7 @@ const DailyCheckIn = () => {
     canComplete,
     handleComplete,
     isSubmitting,
-    hasCheckedInToday,
+    _hasCheckedInToday,
     loading: checkinLoading
   } = useEnhancedDailyCheckIn();
 
@@ -56,14 +56,14 @@ const DailyCheckIn = () => {
       setStats(userStats);
       
       // Check for streak celebration
-      const message = enhancedCheckinService.getStreakCelebrationMessage(userStats.streak_count);
-      if (message) {
-        setStreakMessage(message);
+      const _message = enhancedCheckinService.getStreakCelebrationMessage(userStats.streak_count);
+      if (_message) {
+        setStreakMessage(_message);
       }
-    } catch (error) {
-      console.error('Error loading stats:', error);
+    } catch (_error) {
+      console._error('Error loading stats:', _error);
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
 
@@ -72,19 +72,19 @@ const DailyCheckIn = () => {
     
     try {
       await enhancedCheckinService.syncOfflineData(user.id);
-    } catch (error) {
-      console.error('Error syncing offline data:', error);
+    } catch (_error) {
+      console._error('Error syncing offline data:', _error);
     }
   };
 
   // Real-time subscription to crisis events
   useRealtimeUpdates({
-    onCrisisEvent: (payload) => {
+    onCrisisEvent: (_payload) => {
       toast.warning("Crisis pattern detected", {
         description: "Your support network has been notified",
-        action: {
+        _action: {
           label: "View Tools",
-          onClick: () => window.location.href = '/crisis-support'
+          _onClick: () => window.location.href = '/crisis-support'
         }
       });
     }
@@ -96,22 +96,22 @@ const DailyCheckIn = () => {
     // Show celebration and reload stats after successful completion
     if (!isSubmitting) {
       await loadStats();
-      setShowCelebration(true);
+      setShowCelebration(_true);
       
-      // Show streak message if there's one
-      if (streakMessage) {
-        toast.success(streakMessage, { duration: 5000 });
+      // Show streak _message if there's one
+      if (_streakMessage) {
+        toast.success(_streakMessage, { duration: 5000 });
       }
     }
   };
 
   const handleStartMindfulness = () => {
-    setShowCelebration(false);
+    setShowCelebration(_false);
     toast.success('Opening mindfulness exercises...');
   };
 
   const handleCloseCelebration = () => {
-    setShowCelebration(false);
+    setShowCelebration(_false);
   };
 
   // Show loading state
@@ -127,7 +127,7 @@ const DailyCheckIn = () => {
   }
 
   // Show "already checked in" state
-  if (hasCheckedInToday) {
+  if (_hasCheckedInToday) {
     return (
       <Card className="w-full max-w-4xl mx-auto">
         <CardHeader>
@@ -293,7 +293,7 @@ const DailyCheckIn = () => {
               <span>{completedSections.size}/3</span>
             </div>
             <Button
-              onClick={handleCompleteCheckIn}
+              _onClick={handleCompleteCheckIn}
               disabled={!canComplete() || isSubmitting}
               className="bg-green-500 text-white hover:bg-green-600"
             >

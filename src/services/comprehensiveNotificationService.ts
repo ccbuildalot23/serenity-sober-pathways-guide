@@ -1,15 +1,15 @@
 import { supabase } from '@/integrations/supabase/client';
-import type { Json } from '@/integrations/supabase/types';
+import _type { Json } from '@/integrations/supabase/types';
 
-export type NotificationChannel = 'in_app' | 'email' | 'sms' | 'push';
-export type NotificationType = 'check_in' | 'goal_deadline' | 'appointment' | 'crisis' | 'community' | 'provider' | 'system';
-export type NotificationPriority = 1 | 2 | 3 | 4; // 1=urgent, 2=high, 3=normal, 4=low
+export _type NotificationChannel = 'in_app' | 'email' | 'sms' | 'push';
+export _type NotificationType = 'check_in' | 'goal_deadline' | 'appointment' | 'crisis' | 'community' | 'provider' | 'system';
+export _type NotificationPriority = 1 | 2 | 3 | 4; // 1=urgent, 2=high, 3=normal, 4=low
 
 export interface NotificationTemplate {
   id: string;
   name: string;
-  type: string;
-  channel: string;
+  _type: string;
+  _channel: string;
   subject_template?: string;
   body_template: string;
   variables: Json;
@@ -37,17 +37,17 @@ export interface NotificationPreferences {
   language_preference: string;
   emergency_override: boolean;
   optimal_delivery_enabled: boolean;
-  unsubscribed_types: Json;
+  _unsubscribed_types: Json;
   global_unsubscribe: boolean;
 }
 
 export interface QueuedNotification {
   id?: string;
   user_id: string;
-  template_id?: string;
-  channel: NotificationChannel;
+  _template_id?: string;
+  _channel: NotificationChannel;
   priority: NotificationPriority;
-  scheduled_for: Date;
+  _scheduled_for: Date;
   variables: Record<string, any>;
   subject?: string;
   body: string;
@@ -69,24 +69,24 @@ export interface NotificationAnalytics {
 class ComprehensiveNotificationService {
 
   // Template Management
-  async getTemplates(type?: NotificationType, channel?: NotificationChannel): Promise<NotificationTemplate[]> {
+  async getTemplates(_type?: NotificationType, _channel?: NotificationChannel): Promise<NotificationTemplate[]> {
     let query = supabase
       .from('notification_templates')
       .select('*')
-      .eq('is_active', true);
+      .eq('is_active', _true);
 
-    if (type) query = query.eq('type', type);
-    if (channel) query = query.eq('channel', channel);
+    if (_type) query = query.eq('_type', _type);
+    if (_channel) query = query.eq('_channel', _channel);
 
     const { data, error } = await query;
     if (error) throw error;
     return data || [];
   }
 
-  async createTemplate(template: Omit<NotificationTemplate, 'id'>): Promise<NotificationTemplate> {
+  async createTemplate(_template: Omit<NotificationTemplate, 'id'>): Promise<NotificationTemplate> {
     const { data, error } = await supabase
       .from('notification_templates')
-      .insert(template)
+      .insert(_template)
       .select()
       .single();
 
@@ -95,28 +95,28 @@ class ComprehensiveNotificationService {
   }
 
   // Notification Preferences
-  async getPreferences(userId: string): Promise<NotificationPreferences | null> {
+  async getPreferences(_userId: string): Promise<NotificationPreferences | null> {
     const { data, error } = await supabase
       .from('notification_preferences')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', _userId)
       .single();
 
     if (error && error.code !== 'PGRST116') throw error;
     return data;
   }
 
-  async updatePreferences(userId: string, preferences: Partial<NotificationPreferences>): Promise<void> {
+  async updatePreferences(_userId: string, _preferences: Partial<NotificationPreferences>): Promise<void> {
     const { error } = await supabase
       .from('notification_preferences')
-      .upsert({ user_id: userId, ...preferences });
+      .upsert({ user_id: _userId, ..._preferences });
 
     if (error) throw error;
   }
 
-  async initializeDefaultPreferences(userId: string): Promise<void> {
-    const defaultPreferences: Partial<NotificationPreferences> = {
-      user_id: userId,
+  async initializeDefaultPreferences(_userId: string): Promise<void> {
+    const _defaultPreferences: Partial<NotificationPreferences> = {
+      user_id: _userId,
       check_in_channels: ['in_app'],
       goal_deadline_channels: ['in_app', 'email'],
       appointment_channels: ['in_app', 'email', 'sms'],
@@ -130,52 +130,52 @@ class ComprehensiveNotificationService {
       quiet_hours_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       max_daily_notifications: 10,
       max_hourly_notifications: 3,
-      batch_similar_notifications: true,
+      batch_similar_notifications: _true,
       batch_delay_minutes: 15,
       language_preference: 'en',
-      emergency_override: true,
-      optimal_delivery_enabled: true,
-      unsubscribed_types: [],
+      emergency_override: _true,
+      optimal_delivery_enabled: _true,
+      _unsubscribed_types: [],
       global_unsubscribe: false
     };
 
-    await this.updatePreferences(userId, defaultPreferences);
+    await this.updatePreferences(_userId, _defaultPreferences);
   }
 
   // Notification Scheduling and Queuing
   async scheduleNotification(notification: QueuedNotification): Promise<string> {
-    // Check user preferences first
-    const preferences = await this.getPreferences(notification.user_id);
-    if (!preferences || preferences.global_unsubscribe) {
+    // Check user _preferences first
+    const _preferences = await this.getPreferences(notification.user_id);
+    if (!_preferences || _preferences.global_unsubscribe) {
       throw new Error('User has unsubscribed from all notifications');
     }
 
     // Apply quiet hours logic
-    if (preferences.quiet_hours_enabled && !this.isEmergencyOverride(notification.priority)) {
-      const scheduledTime = this.adjustForQuietHours(notification.scheduled_for, preferences);
-      notification.scheduled_for = scheduledTime;
+    if (_preferences.quiet_hours_enabled && !this.isEmergencyOverride(notification.priority)) {
+      const scheduledTime = this.adjustForQuietHours(notification._scheduled_for, _preferences);
+      notification._scheduled_for = scheduledTime;
     }
 
     // Apply optimal delivery timing if enabled
-    if (preferences.optimal_delivery_enabled) {
-      notification.scheduled_for = await this.calculateOptimalDeliveryTime(
+    if (_preferences.optimal_delivery_enabled) {
+      notification._scheduled_for = await this.calculateOptimalDeliveryTime(
         notification.user_id,
-        notification.scheduled_for
+        notification._scheduled_for
       );
     }
 
     // Check frequency limits
-    await this.enforceFrequencyLimits(notification.user_id, preferences);
+    await this.enforceFrequencyLimits(notification.user_id, _preferences);
 
     // Queue the notification
     const { data, error } = await supabase
       .from('notification_queue')
       .insert({
         user_id: notification.user_id,
-        template_id: notification.template_id,
-        channel: notification.channel,
+        _template_id: notification._template_id,
+        _channel: notification._channel,
         priority: notification.priority,
-        scheduled_for: notification.scheduled_for.toISOString(),
+        _scheduled_for: notification._scheduled_for.toISOString(),
         variables: notification.variables,
         subject: notification.subject,
         body: notification.body,
@@ -187,32 +187,32 @@ class ComprehensiveNotificationService {
     if (error) throw error;
 
     // Handle batching if enabled
-    if (preferences.batch_similar_notifications) {
-      await this.handleNotificationBatching(notification.user_id, data.id, preferences);
+    if (_preferences.batch_similar_notifications) {
+      await this.handleNotificationBatching(notification.user_id, data.id, _preferences);
     }
 
     return data.id;
   }
 
   async sendImmediateNotification(
-    userId: string,
-    type: NotificationType,
+    _userId: string,
+    _type: NotificationType,
     title: string,
     message: string,
     priority: NotificationPriority = 3,
     data?: Record<string, any>
   ): Promise<void> {
-    const preferences = await this.getPreferences(userId);
-    if (!preferences) return;
+    const _preferences = await this.getPreferences(_userId);
+    if (!_preferences) return;
 
-    const channels = this.getChannelsForType(type, preferences);
+    const channels = this.getChannelsForType(_type, _preferences);
     
-    for (const channel of channels) {
+    for (const _channel of channels) {
       const notification: QueuedNotification = {
-        user_id: userId,
-        channel,
+        user_id: _userId,
+        _channel,
         priority,
-        scheduled_for: new Date(),
+        _scheduled_for: new Date(),
         variables: data || {},
         subject: title,
         body: message
@@ -226,31 +226,31 @@ class ComprehensiveNotificationService {
   }
 
   // Smart Features
-  private async calculateOptimalDeliveryTime(userId: string, proposedTime: Date): Promise<Date> {
+  private async calculateOptimalDeliveryTime(_userId: string, _proposedTime: Date): Promise<Date> {
     // Get user's historical engagement patterns
     const { data: analytics } = await supabase
       .from('notification_analytics')
       .select('timestamp, event_type')
-      .eq('user_id', userId)
+      .eq('user_id', _userId)
       .eq('event_type', 'opened')
       .gte('timestamp', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
 
     if (!analytics || analytics.length < 5) {
-      return proposedTime; // Not enough data, use proposed time
+      return _proposedTime; // Not enough data, use proposed time
     }
 
     // Calculate optimal hours based on historical opens
-    const hourCounts: Record<number, number> = {};
+    const _hourCounts: Record<number, number> = {};
     analytics.forEach(record => {
       const hour = new Date(record.timestamp).getHours();
-      hourCounts[hour] = (hourCounts[hour] || 0) + 1;
+      _hourCounts[hour] = (_hourCounts[hour] || 0) + 1;
     });
 
-    const optimalHour = Object.entries(hourCounts)
+    const optimalHour = Object.entries(_hourCounts)
       .sort(([,a], [,b]) => b - a)[0][0];
 
     // Adjust the proposed time to the optimal hour
-    const optimizedTime = new Date(proposedTime);
+    const optimizedTime = new Date(_proposedTime);
     optimizedTime.setHours(parseInt(optimalHour), 0, 0, 0);
 
     // If the optimal time has passed today, schedule for tomorrow
@@ -262,20 +262,20 @@ class ComprehensiveNotificationService {
   }
 
   private async handleNotificationBatching(
-    userId: string,
-    notificationId: string,
-    preferences: NotificationPreferences
+    _userId: string,
+    _notificationId: string,
+    _preferences: NotificationPreferences
   ): Promise<void> {
-    const batchWindow = new Date(Date.now() + preferences.batch_delay_minutes * 60 * 1000);
+    const batchWindow = new Date(Date.now() + _preferences.batch_delay_minutes * 60 * 1000);
 
     // Check for existing batch within the time window
     const { data: existingBatch } = await supabase
       .from('notification_batches')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', _userId)
       .eq('status', 'pending')
-      .gte('scheduled_for', new Date().toISOString())
-      .lte('scheduled_for', batchWindow.toISOString())
+      .gte('_scheduled_for', new Date().toISOString())
+      .lte('_scheduled_for', batchWindow.toISOString())
       .single();
 
     if (existingBatch) {
@@ -291,17 +291,17 @@ class ComprehensiveNotificationService {
       await supabase
         .from('notification_batches')
         .insert({
-          user_id: userId,
-          batch_type: 'time_based',
-          scheduled_for: batchWindow.toISOString(),
+          user_id: _userId,
+          _batch_type: 'time_based',
+          _scheduled_for: batchWindow.toISOString(),
           notification_count: 1
         });
     }
   }
 
   private async enforceFrequencyLimits(
-    userId: string,
-    preferences: NotificationPreferences
+    _userId: string,
+    _preferences: NotificationPreferences
   ): Promise<void> {
     const now = new Date();
     const hourAgo = new Date(now.getTime() - 60 * 60 * 1000);
@@ -310,43 +310,43 @@ class ComprehensiveNotificationService {
     // Check hourly limit
     const { count: hourlyCount } = await supabase
       .from('notification_queue')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
+      .select('*', { count: 'exact', _head: _true })
+      .eq('user_id', _userId)
       .gte('created_at', hourAgo.toISOString());
 
-    if (hourlyCount && hourlyCount >= preferences.max_hourly_notifications) {
+    if (hourlyCount && hourlyCount >= _preferences.max_hourly_notifications) {
       throw new Error('Hourly notification limit exceeded');
     }
 
     // Check daily limit
     const { count: dailyCount } = await supabase
       .from('notification_queue')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
+      .select('*', { count: 'exact', _head: _true })
+      .eq('user_id', _userId)
       .gte('created_at', dayAgo.toISOString());
 
-    if (dailyCount && dailyCount >= preferences.max_daily_notifications) {
+    if (dailyCount && dailyCount >= _preferences.max_daily_notifications) {
       throw new Error('Daily notification limit exceeded');
     }
   }
 
-  private adjustForQuietHours(proposedTime: Date, preferences: NotificationPreferences): Date {
-    const quietStart = this.parseTime(preferences.quiet_hours_start);
-    const quietEnd = this.parseTime(preferences.quiet_hours_end);
-    const proposedHour = proposedTime.getHours();
-    const proposedMinutes = proposedTime.getMinutes();
+  private adjustForQuietHours(_proposedTime: Date, _preferences: NotificationPreferences): Date {
+    const _quietStart = this.parseTime(_preferences.quiet_hours_start);
+    const quietEnd = this.parseTime(_preferences.quiet_hours_end);
+    const _proposedHour = _proposedTime.getHours();
+    const _proposedMinutes = _proposedTime.getMinutes();
 
     // Check if proposed time falls within quiet hours
-    const isInQuietHours = this.isTimeInQuietHours(
-      proposedHour,
-      proposedMinutes,
-      quietStart,
+    const _isInQuietHours = this.isTimeInQuietHours(
+      _proposedHour,
+      _proposedMinutes,
+      _quietStart,
       quietEnd
     );
 
-    if (isInQuietHours) {
+    if (_isInQuietHours) {
       // Schedule for end of quiet hours
-      const adjustedTime = new Date(proposedTime);
+      const adjustedTime = new Date(_proposedTime);
       adjustedTime.setHours(quietEnd.hours, quietEnd.minutes, 0, 0);
       
       // If that time has passed today, schedule for tomorrow
@@ -357,7 +357,7 @@ class ComprehensiveNotificationService {
       return adjustedTime;
     }
 
-    return proposedTime;
+    return _proposedTime;
   }
 
   private isEmergencyOverride(priority: NotificationPriority): boolean {
@@ -365,8 +365,8 @@ class ComprehensiveNotificationService {
   }
 
   private getChannelsForType(
-    type: NotificationType,
-    preferences: NotificationPreferences
+    _type: NotificationType,
+    _preferences: NotificationPreferences
   ): NotificationChannel[] {
     const channelMap: Record<string, keyof NotificationPreferences> = {
       check_in: 'check_in_channels',
@@ -378,24 +378,24 @@ class ComprehensiveNotificationService {
       system: 'system_channels'
     };
 
-    const channelKey = channelMap[type];
-    const channels = preferences[channelKey] as unknown as NotificationChannel[];
+    const channelKey = channelMap[_type];
+    const channels = _preferences[channelKey] as unknown as NotificationChannel[];
     return Array.isArray(channels) ? channels : [];
   }
 
   private parseTime(timeString: string): { hours: number; minutes: number } {
-    const [hours, minutes] = timeString.split(':').map(Number);
+    const [hours, minutes] = timeString.split(':').map(_Number);
     return { hours, minutes };
   }
 
   private isTimeInQuietHours(
     hour: number,
     minutes: number,
-    quietStart: { hours: number; minutes: number },
+    _quietStart: { hours: number; minutes: number },
     quietEnd: { hours: number; minutes: number }
   ): boolean {
     const timeInMinutes = hour * 60 + minutes;
-    const startInMinutes = quietStart.hours * 60 + quietStart.minutes;
+    const startInMinutes = _quietStart.hours * 60 + _quietStart.minutes;
     const endInMinutes = quietEnd.hours * 60 + quietEnd.minutes;
 
     if (startInMinutes <= endInMinutes) {
@@ -409,16 +409,16 @@ class ComprehensiveNotificationService {
 
   // Analytics and Tracking
   async trackNotificationEvent(
-    notificationId: string,
-    userId: string,
+    _notificationId: string,
+    _userId: string,
     eventType: 'sent' | 'delivered' | 'opened' | 'clicked' | 'failed',
     eventData?: Record<string, any>
   ): Promise<void> {
     // Get notification details for required fields
     const { data: notification } = await supabase
       .from('notification_queue')
-      .select('template_id, channel')
-      .eq('id', notificationId)
+      .select('_template_id, _channel')
+      .eq('id', _notificationId)
       .single();
 
     if (!notification) return;
@@ -426,13 +426,13 @@ class ComprehensiveNotificationService {
     const { error } = await supabase
       .from('notification_analytics')
       .insert({
-        user_id: userId,
-        notification_id: notificationId,
-        template_id: notification.template_id,
-        channel: notification.channel,
-        type: 'notification', // Default type since column doesn't exist in queue table
+        user_id: _userId,
+        _notification_id: _notificationId,
+        _template_id: notification._template_id,
+        _channel: notification._channel,
+        _type: 'notification', // Default _type since column doesn't exist in queue table
         event_type: eventType,
-        event_data: eventData || {},
+        _event_data: eventData || {},
         timestamp: new Date().toISOString()
       });
 
@@ -453,18 +453,18 @@ class ComprehensiveNotificationService {
         status: statusMap[eventType],
         [`${eventType}_at`]: new Date().toISOString()
       })
-      .eq('id', notificationId);
+      .eq('id', _notificationId);
   }
 
   async getNotificationAnalytics(
-    userId: string,
+    _userId: string,
     startDate?: Date,
     endDate?: Date
   ): Promise<NotificationAnalytics> {
     let query = supabase
       .from('notification_analytics')
       .select('event_type')
-      .eq('user_id', userId);
+      .eq('user_id', _userId);
 
     if (startDate) {
       query = query.gte('timestamp', startDate.toISOString());
@@ -497,39 +497,39 @@ class ComprehensiveNotificationService {
   }
 
   // Unsubscribe Management
-  async unsubscribeFromType(userId: string, type: NotificationType): Promise<void> {
-    const preferences = await this.getPreferences(userId);
-    if (!preferences) return;
+  async unsubscribeFromType(_userId: string, _type: NotificationType): Promise<void> {
+    const _preferences = await this.getPreferences(_userId);
+    if (!_preferences) return;
 
-    const currentTypes = Array.isArray(preferences.unsubscribed_types) 
-      ? preferences.unsubscribed_types as string[]
+    const currentTypes = Array.isArray(_preferences._unsubscribed_types) 
+      ? _preferences._unsubscribed_types as string[]
       : [];
-    const updatedTypes = [...currentTypes, type];
-    await this.updatePreferences(userId, { 
-      unsubscribed_types: updatedTypes 
+    const updatedTypes = [...currentTypes, _type];
+    await this.updatePreferences(_userId, { 
+      _unsubscribed_types: updatedTypes 
     });
   }
 
-  async globalUnsubscribe(userId: string): Promise<void> {
-    await this.updatePreferences(userId, { global_unsubscribe: true });
+  async globalUnsubscribe(_userId: string): Promise<void> {
+    await this.updatePreferences(_userId, { global_unsubscribe: _true });
   }
 
-  async resubscribe(userId: string, type?: NotificationType): Promise<void> {
-    const preferences = await this.getPreferences(userId);
-    if (!preferences) return;
+  async resubscribe(_userId: string, _type?: NotificationType): Promise<void> {
+    const _preferences = await this.getPreferences(_userId);
+    if (!_preferences) return;
 
-    if (type) {
-      const currentTypes = Array.isArray(preferences.unsubscribed_types) 
-        ? preferences.unsubscribed_types as string[]
+    if (_type) {
+      const currentTypes = Array.isArray(_preferences._unsubscribed_types) 
+        ? _preferences._unsubscribed_types as string[]
         : [];
-      const updatedTypes = currentTypes.filter(t => t !== type);
-      await this.updatePreferences(userId, { 
-        unsubscribed_types: updatedTypes 
+      const updatedTypes = currentTypes.filter(t => t !== _type);
+      await this.updatePreferences(_userId, { 
+        _unsubscribed_types: updatedTypes 
       });
     } else {
-      await this.updatePreferences(userId, { 
+      await this.updatePreferences(_userId, { 
         global_unsubscribe: false,
-        unsubscribed_types: []
+        _unsubscribed_types: []
       });
     }
   }
@@ -553,7 +553,7 @@ class ComprehensiveNotificationService {
         .from('notification_queue')
         .update({
           status: 'pending',
-          scheduled_for: nextRetry.toISOString(),
+          _scheduled_for: nextRetry.toISOString(),
           retry_count: notification.retry_count + 1
         })
         .eq('id', notification.id);

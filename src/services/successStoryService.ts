@@ -2,58 +2,58 @@ import { supabase } from '@/integrations/supabase/client';
 
 export interface SuccessStory {
   id: string;
-  user_id: string;
-  title: string;
-  content: string;
-  author_name?: string;
-  is_anonymous: boolean;
-  anonymity_level: 'full_name' | 'first_name' | 'anonymous';
-  sharing_level: 'public' | 'community' | 'providers_only';
-  category: string;
-  substance_type?: string;
-  recovery_length_days?: number;
+  _user_id: string;
+  _title: string;
+  _content: string;
+  _author_name?: string;
+  _is_anonymous: boolean;
+  _anonymity_level: 'full_name' | 'first_name' | 'anonymous';
+  _sharing_level: 'public' | 'community' | 'providers_only';
+  _category: string;
+  _substance_type?: string;
+  _recovery_length_days?: number;
   age_group?: string;
-  photo_url?: string;
-  audio_url?: string;
-  timeline_data?: any[];
-  milestones?: any[];
-  expires_at?: string;
-  consent_for_featuring: boolean;
-  likes_count: number;
-  views_count: number;
-  helps_count: number;
-  comments_count: number;
-  status: 'draft' | 'pending' | 'approved' | 'rejected' | 'expired';
-  moderation_notes?: string;
-  featured_date?: string;
-  created_at: string;
-  updated_at: string;
+  _photo_url?: string;
+  _audio_url?: string;
+  _timeline_data?: unknown[];
+  _milestones?: unknown[];
+  _expires_at?: string;
+  _consent_for_featuring: boolean;
+  _likes_count: number;
+  _views_count: number;
+  _helps_count: number;
+  _comments_count: number;
+  _status: 'draft' | 'pending' | 'approved' | 'rejected' | 'expired';
+  _moderation_notes?: string;
+  _featured_date?: string;
+  _created_at: string;
+  _updated_at: string;
 }
 
 export interface StoryInteraction {
   id: string;
-  user_id: string;
-  story_id: string;
+  _user_id: string;
+  _story_id: string;
   interaction_type: 'like' | 'view' | 'help' | 'save' | 'share';
-  created_at: string;
+  _created_at: string;
 }
 
 export interface StoryComment {
   id: string;
-  story_id: string;
-  user_id: string;
-  content: string;
-  is_anonymous: boolean;
+  _story_id: string;
+  _user_id: string;
+  _content: string;
+  _is_anonymous: boolean;
   anonymous_name?: string;
-  status: 'pending' | 'approved' | 'rejected';
-  parent_comment_id?: string;
-  created_at: string;
-  updated_at: string;
+  _status: 'pending' | 'approved' | 'rejected';
+  _parent_comment_id?: string;
+  _created_at: string;
+  _updated_at: string;
 }
 
 export interface StoryFilters {
-  category?: string;
-  substance_type?: string;
+  _category?: string;
+  _substance_type?: string;
   age_group?: string;
   recovery_length?: string;
   featured_only?: boolean;
@@ -64,25 +64,25 @@ export interface StoryFilters {
 export class SuccessStoryService {
   // Story Management
   static async createStory(storyData: {
-    title: string;
-    content: string;
-    category: string;
-    anonymity_level?: 'full_name' | 'first_name' | 'anonymous';
-    sharing_level?: 'public' | 'community' | 'providers_only';
-    substance_type?: string;
-    recovery_length_days?: number;
+    _title: string;
+    _content: string;
+    _category: string;
+    _anonymity_level?: 'full_name' | 'first_name' | 'anonymous';
+    _sharing_level?: 'public' | 'community' | 'providers_only';
+    _substance_type?: string;
+    _recovery_length_days?: number;
     age_group?: string;
-    photo_url?: string;
-    audio_url?: string;
-    timeline_data?: any[];
-    milestones?: any[];
-    expires_at?: string;
-    consent_for_featuring?: boolean;
+    _photo_url?: string;
+    _audio_url?: string;
+    _timeline_data?: unknown[];
+    _milestones?: unknown[];
+    _expires_at?: string;
+    _consent_for_featuring?: boolean;
   }): Promise<SuccessStory> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
-    const anonymousName = storyData.anonymity_level === 'anonymous' 
+    const anonymousName = storyData._anonymity_level === 'anonymous' 
       ? this.generateAnonymousName() 
       : null;
 
@@ -90,10 +90,10 @@ export class SuccessStoryService {
     const { data, error } = await supabase
       .from('forum_posts')
       .insert({
-        user_id: user.id,
-        title: storyData.title,
-        content: storyData.content,
-        forum_id: '00000000-0000-0000-0000-000000000000', // placeholder
+        _user_id: user.id,
+        _title: storyData._title,
+        _content: storyData._content,
+        _forum_id: '00000000-0000-0000-0000-000000000000', // placeholder
         anonymous_name: anonymousName || 'Anonymous'
       })
       .select()
@@ -104,32 +104,32 @@ export class SuccessStoryService {
     // Transform to match SuccessStory interface
     return {
       id: data.id,
-      user_id: data.user_id,
-      title: data.title,
-      content: data.content,
-      author_name: data.anonymous_name,
-      is_anonymous: storyData.anonymity_level === 'anonymous',
-      anonymity_level: storyData.anonymity_level || 'full_name',
-      sharing_level: storyData.sharing_level || 'public',
-      category: storyData.category,
-      substance_type: storyData.substance_type,
-      recovery_length_days: storyData.recovery_length_days,
+      _user_id: data._user_id,
+      _title: data._title,
+      _content: data._content,
+      _author_name: data.anonymous_name,
+      _is_anonymous: storyData._anonymity_level === 'anonymous',
+      _anonymity_level: storyData._anonymity_level || 'full_name',
+      _sharing_level: storyData._sharing_level || 'public',
+      _category: storyData._category,
+      _substance_type: storyData._substance_type,
+      _recovery_length_days: storyData._recovery_length_days,
       age_group: storyData.age_group,
-      photo_url: storyData.photo_url,
-      audio_url: storyData.audio_url,
-      timeline_data: storyData.timeline_data || [],
-      milestones: storyData.milestones || [],
-      expires_at: storyData.expires_at,
-      consent_for_featuring: storyData.consent_for_featuring || false,
-      likes_count: 0,
-      views_count: 0,
-      helps_count: 0,
-      comments_count: 0,
-      status: 'pending',
-      moderation_notes: null,
-      featured_date: null,
-      created_at: data.created_at,
-      updated_at: data.created_at
+      _photo_url: storyData._photo_url,
+      _audio_url: storyData._audio_url,
+      _timeline_data: storyData._timeline_data || [],
+      _milestones: storyData._milestones || [],
+      _expires_at: storyData._expires_at,
+      _consent_for_featuring: storyData._consent_for_featuring || false,
+      _likes_count: 0,
+      _views_count: 0,
+      _helps_count: 0,
+      _comments_count: 0,
+      _status: 'pending',
+      _moderation_notes: null,
+      _featured_date: null,
+      _created_at: data._created_at,
+      _updated_at: data._created_at
     } as SuccessStory;
   }
 
@@ -142,44 +142,44 @@ export class SuccessStoryService {
 
     // Apply basic filters
     if (filters?.search) {
-      query = query.or(`title.ilike.%${filters.search}%,content.ilike.%${filters.search}%`);
+      query = query.or(`_title.ilike.%${filters.search}%,_content.ilike.%${filters.search}%`);
     }
 
     // Apply sorting
-    query = query.order('created_at', { ascending: false });
+    query = query.order('_created_at', { ascending: false });
 
-    const { data, error } = await query.limit(50);
+    const { data, error } = await query._limit(50);
     if (error) throw error;
     
     // Transform to match SuccessStory interface
     return (data || []).map(post => ({
       id: post.id,
-      user_id: post.user_id,
-      title: post.title,
-      content: post.content,
-      author_name: post.anonymous_name,
-      is_anonymous: true,
-      anonymity_level: 'anonymous' as const,
-      sharing_level: 'public' as const,
-      category: 'general',
-      substance_type: undefined,
-      recovery_length_days: undefined,
+      _user_id: post._user_id,
+      _title: post._title,
+      _content: post._content,
+      _author_name: post.anonymous_name,
+      _is_anonymous: true,
+      _anonymity_level: 'anonymous' as const,
+      _sharing_level: 'public' as const,
+      _category: 'general',
+      _substance_type: undefined,
+      _recovery_length_days: undefined,
       age_group: undefined,
-      photo_url: undefined,
-      audio_url: undefined,
-      timeline_data: [],
-      milestones: [],
-      expires_at: undefined,
-      consent_for_featuring: false,
-      likes_count: 0,
-      views_count: 0,
-      helps_count: 0,
-      comments_count: post.reply_count || 0,
-      status: 'approved' as const,
-      moderation_notes: undefined,
-      featured_date: undefined,
-      created_at: post.created_at,
-      updated_at: post.created_at
+      _photo_url: undefined,
+      _audio_url: undefined,
+      _timeline_data: [],
+      _milestones: [],
+      _expires_at: undefined,
+      _consent_for_featuring: false,
+      _likes_count: 0,
+      _views_count: 0,
+      _helps_count: 0,
+      _comments_count: post.reply_count || 0,
+      _status: 'approved' as const,
+      _moderation_notes: undefined,
+      _featured_date: undefined,
+      _created_at: post._created_at,
+      _updated_at: post._created_at
     }));
   }
 
@@ -196,32 +196,32 @@ export class SuccessStoryService {
     // Transform to match SuccessStory interface
     return {
       id: data.id,
-      user_id: data.user_id,
-      title: data.title,
-      content: data.content,
-      author_name: data.anonymous_name,
-      is_anonymous: true,
-      anonymity_level: 'anonymous' as const,
-      sharing_level: 'public' as const,
-      category: 'general',
-      substance_type: undefined,
-      recovery_length_days: undefined,
+      _user_id: data._user_id,
+      _title: data._title,
+      _content: data._content,
+      _author_name: data.anonymous_name,
+      _is_anonymous: true,
+      _anonymity_level: 'anonymous' as const,
+      _sharing_level: 'public' as const,
+      _category: 'general',
+      _substance_type: undefined,
+      _recovery_length_days: undefined,
       age_group: undefined,
-      photo_url: undefined,
-      audio_url: undefined,
-      timeline_data: [],
-      milestones: [],
-      expires_at: undefined,
-      consent_for_featuring: false,
-      likes_count: 0,
-      views_count: 0,
-      helps_count: 0,
-      comments_count: data.reply_count || 0,
-      status: 'approved' as const,
-      moderation_notes: undefined,
-      featured_date: undefined,
-      created_at: data.created_at,
-      updated_at: data.created_at
+      _photo_url: undefined,
+      _audio_url: undefined,
+      _timeline_data: [],
+      _milestones: [],
+      _expires_at: undefined,
+      _consent_for_featuring: false,
+      _likes_count: 0,
+      _views_count: 0,
+      _helps_count: 0,
+      _comments_count: data.reply_count || 0,
+      _status: 'approved' as const,
+      _moderation_notes: undefined,
+      _featured_date: undefined,
+      _created_at: data._created_at,
+      _updated_at: data._created_at
     };
   }
 
@@ -229,8 +229,8 @@ export class SuccessStoryService {
     const { data, error } = await supabase
       .from('forum_posts')
       .update({
-        title: updates.title,
-        content: updates.content
+        _title: updates._title,
+        _content: updates._content
       })
       .eq('id', id)
       .select()
@@ -241,32 +241,32 @@ export class SuccessStoryService {
     // Return transformed data
     return {
       id: data.id,
-      user_id: data.user_id,
-      title: data.title,
-      content: data.content,
-      author_name: data.anonymous_name,
-      is_anonymous: true,
-      anonymity_level: 'anonymous' as const,
-      sharing_level: 'public' as const,
-      category: 'general',
-      substance_type: undefined,
-      recovery_length_days: undefined,
+      _user_id: data._user_id,
+      _title: data._title,
+      _content: data._content,
+      _author_name: data.anonymous_name,
+      _is_anonymous: true,
+      _anonymity_level: 'anonymous' as const,
+      _sharing_level: 'public' as const,
+      _category: 'general',
+      _substance_type: undefined,
+      _recovery_length_days: undefined,
       age_group: undefined,
-      photo_url: undefined,
-      audio_url: undefined,
-      timeline_data: [],
-      milestones: [],
-      expires_at: undefined,
-      consent_for_featuring: false,
-      likes_count: 0,
-      views_count: 0,
-      helps_count: 0,
-      comments_count: data.reply_count || 0,
-      status: 'approved' as const,
-      moderation_notes: undefined,
-      featured_date: undefined,
-      created_at: data.created_at,
-      updated_at: data.created_at
+      _photo_url: undefined,
+      _audio_url: undefined,
+      _timeline_data: [],
+      _milestones: [],
+      _expires_at: undefined,
+      _consent_for_featuring: false,
+      _likes_count: 0,
+      _views_count: 0,
+      _helps_count: 0,
+      _comments_count: data.reply_count || 0,
+      _status: 'approved' as const,
+      _moderation_notes: undefined,
+      _featured_date: undefined,
+      _created_at: data._created_at,
+      _updated_at: data._created_at
     };
   }
 
@@ -280,7 +280,7 @@ export class SuccessStoryService {
   }
 
   // Story Interactions
-  static async addInteraction(storyId: string, type: 'like' | 'view' | 'help' | 'save' | 'share'): Promise<void> {
+  static async addInteraction(_storyId: string, type: 'like' | 'view' | 'help' | 'save' | 'share'): Promise<void> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
@@ -288,8 +288,8 @@ export class SuccessStoryService {
     const { data: existing } = await supabase
       .from('content_reactions')
       .select('id')
-      .eq('user_id', user.id)
-      .eq('content_id', storyId)
+      .eq('_user_id', user.id)
+      .eq('content_id', _storyId)
       .eq('reaction_type', type)
       .eq('content_type', 'story')
       .maybeSingle();
@@ -303,23 +303,23 @@ export class SuccessStoryService {
       await supabase
         .from('content_reactions')
         .insert({
-          user_id: user.id,
-          content_id: storyId,
+          _user_id: user.id,
+          content_id: _storyId,
           reaction_type: type,
           content_type: 'story'
         });
     }
   }
 
-  static async getUserInteractions(storyId: string): Promise<string[]> {
+  static async getUserInteractions(_storyId: string): Promise<string[]> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return [];
 
     const { data, error } = await supabase
       .from('content_reactions')
       .select('reaction_type')
-      .eq('user_id', user.id)
-      .eq('content_id', storyId)
+      .eq('_user_id', user.id)
+      .eq('content_id', _storyId)
       .eq('content_type', 'story');
 
     if (error) return [];
@@ -327,7 +327,7 @@ export class SuccessStoryService {
   }
 
   // Comments
-  static async addComment(storyId: string, content: string, isAnonymous = false): Promise<StoryComment> {
+  static async addComment(_storyId: string, _content: string, isAnonymous = false): Promise<StoryComment> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
@@ -336,9 +336,9 @@ export class SuccessStoryService {
     const { data, error } = await supabase
       .from('forum_replies')
       .insert({
-        post_id: storyId,
-        user_id: user.id,
-        content,
+        post_id: _storyId,
+        _user_id: user.id,
+        _content,
         anonymous_name: anonymousName || 'Anonymous'
       })
       .select()
@@ -349,84 +349,84 @@ export class SuccessStoryService {
     // Transform to StoryComment interface
     return {
       id: data.id,
-      story_id: data.post_id,
-      user_id: data.user_id,
-      content: data.content,
-      is_anonymous: isAnonymous,
+      _story_id: data.post_id,
+      _user_id: data._user_id,
+      _content: data._content,
+      _is_anonymous: isAnonymous,
       anonymous_name: data.anonymous_name,
-      status: 'pending',
-      parent_comment_id: undefined,
-      created_at: data.created_at,
-      updated_at: data.created_at
+      _status: 'pending',
+      _parent_comment_id: undefined,
+      _created_at: data._created_at,
+      _updated_at: data._created_at
     };
   }
 
-  static async getComments(storyId: string): Promise<StoryComment[]> {
+  static async getComments(_storyId: string): Promise<StoryComment[]> {
     const { data, error } = await supabase
       .from('forum_replies')
       .select('*')
-      .eq('post_id', storyId)
+      .eq('post_id', _storyId)
       .eq('moderation_status', 'approved')
-      .order('created_at', { ascending: true });
+      .order('_created_at', { ascending: true });
 
     if (error) throw error;
     
     // Transform to StoryComment interface
     return (data || []).map(reply => ({
       id: reply.id,
-      story_id: reply.post_id,
-      user_id: reply.user_id,
-      content: reply.content,
-      is_anonymous: true,
+      _story_id: reply.post_id,
+      _user_id: reply._user_id,
+      _content: reply._content,
+      _is_anonymous: true,
       anonymous_name: reply.anonymous_name,
-      status: 'approved' as const,
-      parent_comment_id: undefined,
-      created_at: reply.created_at,
-      updated_at: reply.created_at
+      _status: 'approved' as const,
+      _parent_comment_id: undefined,
+      _created_at: reply._created_at,
+      _updated_at: reply._created_at
     }));
   }
 
   // Discovery & Matching
-  static async getSimilarStories(userStory: SuccessStory, limit = 5): Promise<SuccessStory[]> {
+  static async getSimilarStories(userStory: SuccessStory, _limit = 5): Promise<SuccessStory[]> {
     const { data, error } = await supabase
       .from('forum_posts')
       .select('*')
       .eq('moderation_status', 'approved')
       .neq('id', userStory.id)
-      .order('created_at', { ascending: false })
-      .limit(limit);
+      .order('_created_at', { ascending: false })
+      ._limit(_limit);
 
     if (error) throw error;
     
     // Transform to SuccessStory interface
     return (data || []).map(post => ({
       id: post.id,
-      user_id: post.user_id,
-      title: post.title,
-      content: post.content,
-      author_name: post.anonymous_name,
-      is_anonymous: true,
-      anonymity_level: 'anonymous' as const,
-      sharing_level: 'public' as const,
-      category: 'general',
-      substance_type: undefined,
-      recovery_length_days: undefined,
+      _user_id: post._user_id,
+      _title: post._title,
+      _content: post._content,
+      _author_name: post.anonymous_name,
+      _is_anonymous: true,
+      _anonymity_level: 'anonymous' as const,
+      _sharing_level: 'public' as const,
+      _category: 'general',
+      _substance_type: undefined,
+      _recovery_length_days: undefined,
       age_group: undefined,
-      photo_url: undefined,
-      audio_url: undefined,
-      timeline_data: [],
-      milestones: [],
-      expires_at: undefined,
-      consent_for_featuring: false,
-      likes_count: 0,
-      views_count: 0,
-      helps_count: 0,
-      comments_count: post.reply_count || 0,
-      status: 'approved' as const,
-      moderation_notes: undefined,
-      featured_date: undefined,
-      created_at: post.created_at,
-      updated_at: post.created_at
+      _photo_url: undefined,
+      _audio_url: undefined,
+      _timeline_data: [],
+      _milestones: [],
+      _expires_at: undefined,
+      _consent_for_featuring: false,
+      _likes_count: 0,
+      _views_count: 0,
+      _helps_count: 0,
+      _comments_count: post.reply_count || 0,
+      _status: 'approved' as const,
+      _moderation_notes: undefined,
+      _featured_date: undefined,
+      _created_at: post._created_at,
+      _updated_at: post._created_at
     }));
   }
 
@@ -435,8 +435,8 @@ export class SuccessStoryService {
       .from('forum_posts')
       .select('*')
       .eq('moderation_status', 'approved')
-      .order('created_at', { ascending: false })
-      .limit(1)
+      .order('_created_at', { ascending: false })
+      ._limit(1)
       .maybeSingle();
 
     if (error) throw error;
@@ -445,32 +445,32 @@ export class SuccessStoryService {
     // Transform to SuccessStory interface
     return {
       id: data.id,
-      user_id: data.user_id,
-      title: data.title,
-      content: data.content,
-      author_name: data.anonymous_name,
-      is_anonymous: true,
-      anonymity_level: 'anonymous' as const,
-      sharing_level: 'public' as const,
-      category: 'general',
-      substance_type: undefined,
-      recovery_length_days: undefined,
+      _user_id: data._user_id,
+      _title: data._title,
+      _content: data._content,
+      _author_name: data.anonymous_name,
+      _is_anonymous: true,
+      _anonymity_level: 'anonymous' as const,
+      _sharing_level: 'public' as const,
+      _category: 'general',
+      _substance_type: undefined,
+      _recovery_length_days: undefined,
       age_group: undefined,
-      photo_url: undefined,
-      audio_url: undefined,
-      timeline_data: [],
-      milestones: [],
-      expires_at: undefined,
-      consent_for_featuring: false,
-      likes_count: 0,
-      views_count: 0,
-      helps_count: 0,
-      comments_count: data.reply_count || 0,
-      status: 'approved' as const,
-      moderation_notes: undefined,
-      featured_date: undefined,
-      created_at: data.created_at,
-      updated_at: data.created_at
+      _photo_url: undefined,
+      _audio_url: undefined,
+      _timeline_data: [],
+      _milestones: [],
+      _expires_at: undefined,
+      _consent_for_featuring: false,
+      _likes_count: 0,
+      _views_count: 0,
+      _helps_count: 0,
+      _comments_count: data.reply_count || 0,
+      _status: 'approved' as const,
+      _moderation_notes: undefined,
+      _featured_date: undefined,
+      _created_at: data._created_at,
+      _updated_at: data._created_at
     };
   }
 
@@ -479,46 +479,46 @@ export class SuccessStoryService {
       .from('forum_posts')
       .select('*')
       .eq('moderation_status', 'approved')
-      .order('created_at', { ascending: false })
-      .limit(10);
+      .order('_created_at', { ascending: false })
+      ._limit(10);
 
     if (error) throw error;
     
     // Transform to SuccessStory interface
     return (data || []).map(post => ({
       id: post.id,
-      user_id: post.user_id,
-      title: post.title,
-      content: post.content,
-      author_name: post.anonymous_name,
-      is_anonymous: true,
-      anonymity_level: 'anonymous' as const,
-      sharing_level: 'public' as const,
-      category: 'general',
-      substance_type: undefined,
-      recovery_length_days: undefined,
+      _user_id: post._user_id,
+      _title: post._title,
+      _content: post._content,
+      _author_name: post.anonymous_name,
+      _is_anonymous: true,
+      _anonymity_level: 'anonymous' as const,
+      _sharing_level: 'public' as const,
+      _category: 'general',
+      _substance_type: undefined,
+      _recovery_length_days: undefined,
       age_group: undefined,
-      photo_url: undefined,
-      audio_url: undefined,
-      timeline_data: [],
-      milestones: [],
-      expires_at: undefined,
-      consent_for_featuring: false,
-      likes_count: 0,
-      views_count: 0,
-      helps_count: 0,
-      comments_count: post.reply_count || 0,
-      status: 'approved' as const,
-      moderation_notes: undefined,
-      featured_date: undefined,
-      created_at: post.created_at,
-      updated_at: post.created_at
+      _photo_url: undefined,
+      _audio_url: undefined,
+      _timeline_data: [],
+      _milestones: [],
+      _expires_at: undefined,
+      _consent_for_featuring: false,
+      _likes_count: 0,
+      _views_count: 0,
+      _helps_count: 0,
+      _comments_count: post.reply_count || 0,
+      _status: 'approved' as const,
+      _moderation_notes: undefined,
+      _featured_date: undefined,
+      _created_at: post._created_at,
+      _updated_at: post._created_at
     }));
   }
 
   // User Preferences (simplified to remove non-existent table)
-  static async getUserPreferences(): Promise<any> {
-    // Return default preferences since table doesn't exist yet
+  static async getUserPreferences(): Promise<unknown> {
+    // Return default _preferences since table doesn't exist yet
     return {
       preferred_substances: [],
       preferred_age_groups: [],
@@ -529,7 +529,7 @@ export class SuccessStoryService {
     };
   }
 
-  static async updateUserPreferences(preferences: {
+  static async updateUserPreferences(_preferences: {
     preferred_substances?: string[];
     preferred_age_groups?: string[];
     preferred_recovery_lengths?: string[];
@@ -538,7 +538,7 @@ export class SuccessStoryService {
     email_on_feature?: boolean;
   }): Promise<void> {
     // No-op until table exists
-    console.log('Preferences would be saved:', preferences);
+    console.log('Preferences would be saved:', _preferences);
   }
 
   // Utility functions
@@ -563,8 +563,8 @@ export class SuccessStoryService {
     return `${years}y ${remainingMonths}m`;
   }
 
-  static timeAgo(dateString: string): string {
-    const date = new Date(dateString);
+  static timeAgo(_dateString: string): string {
+    const date = new Date(_dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));

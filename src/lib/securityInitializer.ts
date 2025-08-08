@@ -19,8 +19,8 @@ export class SecurityInitializer {
       this.initialized = true;
       console.log('✅ Security initialization complete');
       
-    } catch (error) {
-      console.error('❌ Security initialization failed:', error);
+    } catch (_error) {
+      console._error('❌ Security initialization failed:', _error);
       // Don't throw - allow app to continue
     }
   }

@@ -16,19 +16,19 @@ export function useRecoveryNotifications() {
 
     try {
       setLoading(true);
-      const [notificationsData, unreadCountData, preferencesData] = await Promise.all([
+      const [_notificationsData, _unreadCountData, _preferencesData] = await Promise.all([
         recoveryNotificationService.getNotifications(user.id),
         recoveryNotificationService.getUnreadCount(user.id),
         recoveryNotificationService.getPreferences(user.id),
       ]);
 
-      setNotifications(notificationsData);
-      setUnreadCount(unreadCountData);
-      setPreferences(preferencesData);
-    } catch (error) {
-      console.error('Error loading notification data:', error);
+      setNotifications(_notificationsData);
+      setUnreadCount(_unreadCountData);
+      setPreferences(_preferencesData);
+    } catch (_error) {
+      console._error('Error loading notification data:', _error);
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
 
@@ -41,13 +41,13 @@ export function useRecoveryNotifications() {
       setNotifications(prev => 
         prev.map(notification => 
           notification.id === notificationId 
-            ? { ...notification, is_read: true }
+            ? { ...notification, _is_read: true }
             : notification
         )
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (error) {
-      console.error('Error marking notification as read:', error);
+    } catch (_error) {
+      console._error('Error marking notification as read:', _error);
     }
   };
 
@@ -60,11 +60,11 @@ export function useRecoveryNotifications() {
       
       // Update local state
       setNotifications(prev => 
-        prev.map(notification => ({ ...notification, is_read: true }))
+        prev.map(notification => ({ ...notification, _is_read: true }))
       );
       setUnreadCount(0);
-    } catch (error) {
-      console.error('Error marking all notifications as read:', error);
+    } catch (_error) {
+      console._error('Error marking all notifications as read:', _error);
     }
   };
 
@@ -75,9 +75,9 @@ export function useRecoveryNotifications() {
     try {
       await recoveryNotificationService.updatePreferences(user.id, newPreferences);
       setPreferences(prev => prev ? { ...prev, ...newPreferences } : null);
-    } catch (error) {
-      console.error('Error updating notification preferences:', error);
-      throw error;
+    } catch (_error) {
+      console._error('Error updating notification preferences:', _error);
+      throw _error;
     }
   };
 
@@ -90,28 +90,28 @@ export function useRecoveryNotifications() {
       const deletedNotification = notifications.find(n => n.id === notificationId);
       setNotifications(prev => prev.filter(n => n.id !== notificationId));
       
-      if (deletedNotification && !deletedNotification.is_read) {
+      if (deletedNotification && !deletedNotification._is_read) {
         setUnreadCount(prev => Math.max(0, prev - 1));
       }
-    } catch (error) {
-      console.error('Error deleting notification:', error);
+    } catch (_error) {
+      console._error('Error deleting notification:', _error);
     }
   };
 
   // Snooze notification
-  const snoozeNotification = async (notificationId: string, minutes: number) => {
+  const snoozeNotification = async (notificationId: string, _minutes: number) => {
     try {
-      await recoveryNotificationService.snoozeNotification(notificationId, minutes);
+      await recoveryNotificationService.snoozeNotification(notificationId, _minutes);
       
       // Remove from current notifications (it will reappear when scheduled)
       const snoozedNotification = notifications.find(n => n.id === notificationId);
       setNotifications(prev => prev.filter(n => n.id !== notificationId));
       
-      if (snoozedNotification && !snoozedNotification.is_read) {
+      if (snoozedNotification && !snoozedNotification._is_read) {
         setUnreadCount(prev => Math.max(0, prev - 1));
       }
-    } catch (error) {
-      console.error('Error snoozing notification:', error);
+    } catch (_error) {
+      console._error('Error snoozing notification:', _error);
     }
   };
 
@@ -119,11 +119,11 @@ export function useRecoveryNotifications() {
   const trackActivity = async () => {
     if (!user?.id) return;
 
-    const currentHour = new Date().getHours();
+    const _currentHour = new Date().getHours();
     try {
-      await recoveryNotificationService.updateActivityPattern(user.id, currentHour);
-    } catch (error) {
-      console.error('Error tracking activity:', error);
+      await recoveryNotificationService.updateActivityPattern(user.id, _currentHour);
+    } catch (_error) {
+      console._error('Error tracking activity:', _error);
     }
   };
 
@@ -131,14 +131,14 @@ export function useRecoveryNotifications() {
   useEffect(() => {
     if (!user?.id) return;
 
-    const channel = supabase
-      .channel('recovery-notifications')
+    const _channel = supabase
+      ._channel('recovery-notifications')
       .on(
         'postgres_changes',
         {
           event: '*',
-          schema: 'public',
-          table: 'recovery_notifications',
+          _schema: 'public',
+          _table: 'recovery_notifications',
           filter: `user_id=eq.${user.id}`,
         },
         (payload) => {
@@ -147,7 +147,7 @@ export function useRecoveryNotifications() {
           if (payload.eventType === 'INSERT') {
             const newNotification = payload.new as RecoveryNotification;
             setNotifications(prev => [newNotification, ...prev]);
-            if (!newNotification.is_read) {
+            if (!newNotification._is_read) {
               setUnreadCount(prev => prev + 1);
             }
           } else if (payload.eventType === 'UPDATE') {
@@ -164,7 +164,7 @@ export function useRecoveryNotifications() {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(_channel);
     };
   }, [user?.id]);
 

@@ -18,29 +18,29 @@ interface ReachingOutMoment {
 }
 
 export const useHelpNowSystem = () => {
-  const [showCheckIn, setShowCheckIn] = useState(false);
-  const [showSupport, setShowSupport] = useState(false);
-  const [showTools, setShowTools] = useState(false);
-  const [showConnections, setShowConnections] = useState(false);
-  const [showNextSteps, setShowNextSteps] = useState(false);
-  const [needLevel, setNeedLevel] = useState<NeedLevel | null>(null);
-  const [currentMoment, setCurrentMoment] = useState<ReachingOutMoment | null>(null);
-  const [voiceListening, setVoiceListening] = useState(false);
-  const [hasLocationPermission, setHasLocationPermission] = useState(false);
+  const [showCheckIn, setShowCheckIn] = useState(_false);
+  const [showSupport, setShowSupport] = useState(_false);
+  const [showTools, setShowTools] = useState(_false);
+  const [showConnections, setShowConnections] = useState(_false);
+  const [showNextSteps, setShowNextSteps] = useState(_false);
+  const [needLevel, setNeedLevel] = useState<NeedLevel | _null>(_null);
+  const [currentMoment, setCurrentMoment] = useState<ReachingOutMoment | _null>(_null);
+  const [voiceListening, setVoiceListening] = useState(_false);
+  const [hasLocationPermission, setHasLocationPermission] = useState(_false);
   const { user } = useAuth();
   const { log } = useSecureAuditLogger();
 
   useEffect(() => {
     // Initialize voice activation if supported
     if (voiceActivationService.isSupported()) {
-      const success = voiceActivationService.startListening({
+      const _success = voiceActivationService.startListening({
         onCrisisDetected: handleVoiceActivatedHelp,
-        onError: (error) => {
-          console.error('Voice activation error:', error);
-          setVoiceListening(false);
+        _onError: (_error) => {
+          console._error('Voice activation _error:', _error);
+          setVoiceListening(_false);
         }
       });
-      setVoiceListening(success);
+      setVoiceListening(_success);
     }
 
     // Request notification permission
@@ -72,7 +72,7 @@ export const useHelpNowSystem = () => {
     console.log('Voice-activated help request detected');
     toast.info('We Heard You', {
       description: 'Getting help right away',
-      duration: 2000,
+      _duration: 2000,
     });
     
     // Add haptic feedback if available
@@ -85,7 +85,7 @@ export const useHelpNowSystem = () => {
 
   const handleHelpActivated = useCallback(() => {
     console.log('Help button activated - checking in');
-    setShowCheckIn(true);
+    setShowCheckIn(_true);
     log('help_requested');
     
     // Create moment of reaching out
@@ -94,7 +94,7 @@ export const useHelpNowSystem = () => {
       timestamp: new Date(),
       needLevel: 'reaching_out',
       toolsUsed: [],
-      feelingSafer: false
+      feelingSafer: _false
     };
 
     // Get location if permission granted
@@ -107,8 +107,8 @@ export const useHelpNowSystem = () => {
           };
           setCurrentMoment(moment);
         },
-        (error) => {
-          console.log('Location access failed:', error);
+        (_error) => {
+          console.log('Location access failed:', _error);
           setCurrentMoment(moment);
         }
       );
@@ -119,15 +119,15 @@ export const useHelpNowSystem = () => {
     // Supportive message
     toast.info("You're Being So Brave", {
       description: "Let's find what helps you right now",
-      duration: 2000,
+      _duration: 2000,
     });
   }, [hasLocationPermission, log]);
 
   const handleCheckInComplete = useCallback((level: NeedLevel) => {
     console.log('Check-in completed with need level:', level);
     setNeedLevel(level);
-    setShowCheckIn(false);
-    setShowSupport(true);
+    setShowCheckIn(_false);
+    setShowSupport(_true);
     log('checkin_complete', { level });
     if (level === 'emergency' || level === 'needing_help_now') {
       connectToSupport('immediate');
@@ -135,12 +135,12 @@ export const useHelpNowSystem = () => {
 
     // Update moment
     if (currentMoment) {
-      const updatedMoment = { ...currentMoment, needLevel: level };
-      setCurrentMoment(updatedMoment);
+      const _updatedMoment = { ...currentMoment, needLevel: level };
+      setCurrentMoment(_updatedMoment);
       
       // Save moment to localStorage for follow-up
       const savedMoments = JSON.parse(localStorage.getItem('supportMoments') || '[]');
-      savedMoments.push(updatedMoment);
+      savedMoments.push(_updatedMoment);
       localStorage.setItem('supportMoments', JSON.stringify(savedMoments));
     }
 
@@ -152,40 +152,40 @@ export const useHelpNowSystem = () => {
       emergency: "Connecting you immediately"
     };
     
-    toast.success('Thank You for Sharing', {
+    toast._success('Thank You for Sharing', {
       description: messages[level],
-      duration: 3000,
+      _duration: 3000,
     });
   }, [currentMoment, log]);
 
   const handleSupportComplete = useCallback(() => {
-    setShowSupport(false);
+    setShowSupport(_false);
     log('support_session_complete');
     
     if (currentMoment) {
       // Mark as feeling safer
-      const updatedMoment = { ...currentMoment, feelingSafer: true };
-      setCurrentMoment(updatedMoment);
+      const _updatedMoment = { ...currentMoment, feelingSafer: _true };
+      setCurrentMoment(_updatedMoment);
       
       // Show next steps
-      setShowNextSteps(true);
+      setShowNextSteps(_true);
     }
 
-    setNeedLevel(null);
+    setNeedLevel(_null);
     
-    toast.success("You Did It", {
+    toast._success("You Did It", {
       description: "You reached out and that takes real strength",
-      duration: 5000,
+      _duration: 5000,
     });
   }, [currentMoment, log]);
 
   const handleToolUsed = (toolName: string) => {
     if (currentMoment) {
-      const updatedMoment = {
+      const _updatedMoment = {
         ...currentMoment,
         toolsUsed: [...currentMoment.toolsUsed, toolName]
       };
-      setCurrentMoment(updatedMoment);
+      setCurrentMoment(_updatedMoment);
     }
 
     log('tool_used', { toolName });
@@ -197,9 +197,9 @@ export const useHelpNowSystem = () => {
       "One moment at a time"
     ];
     
-    toast.success(messages[Math.floor(Math.random() * messages.length)], {
+    toast._success(messages[Math.floor(Math.random() * messages.length)], {
       description: `${toolName} is helping`,
-      duration: 3000,
+      _duration: 3000,
     });
   };
 

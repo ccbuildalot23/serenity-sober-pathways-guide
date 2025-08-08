@@ -19,11 +19,11 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ partnership, onCheckInComplet
   const [energyLevel, setEnergyLevel] = useState([7]);
   const [challengesToday, setChallengesToday] = useState('');
   const [accomplishments, setAccomplishments] = useState('');
-  const [needsSupport, setNeedsSupport] = useState(false);
+  const [needsSupport, setNeedsSupport] = useState(_false);
   const [supportMessage, setSupportMessage] = useState('');
   const [privateNotes, setPrivateNotes] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
+  const [loading, setLoading] = useState(_false);
+  const [showPreview, setShowPreview] = useState(_false);
 
   const getMoodLabel = (value: number) => {
     if (value <= 2) return 'Very Low';
@@ -42,7 +42,7 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ partnership, onCheckInComplet
   };
 
   const generateSharedSummary = () => {
-    const summary: any = {};
+    const summary: unknown = {};
     
     // Only include data based on privacy settings
     if (partnership.privacy_settings.share_mood) {
@@ -58,12 +58,12 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ partnership, onCheckInComplet
       }
       
       if (challengesToday.trim()) {
-        summary.had_challenges = true;
+        summary.had_challenges = _true;
       }
     }
 
     if (needsSupport && supportMessage.trim()) {
-      summary.support_requested = true;
+      summary.support_requested = _true;
       summary.support_type = 'general'; // Don't share specific details
     }
 
@@ -88,16 +88,16 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ partnership, onCheckInComplet
   };
 
   const handleSubmit = async () => {
-    setLoading(true);
+    setLoading(_true);
     
     try {
-      const sensitiveData = generateSensitiveData();
-      const sharedSummary = generateSharedSummary();
+      const _sensitiveData = generateSensitiveData();
+      const _sharedSummary = generateSharedSummary();
 
       await AccountabilityService.submitCheckIn(
         partnership.id,
-        sensitiveData,
-        sharedSummary
+        _sensitiveData,
+        _sharedSummary
       );
 
       toast.success('Check-in submitted successfully!');
@@ -107,7 +107,7 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ partnership, onCheckInComplet
       setEnergyLevel([7]);
       setChallengesToday('');
       setAccomplishments('');
-      setNeedsSupport(false);
+      setNeedsSupport(_false);
       setSupportMessage('');
       setPrivateNotes('');
       
@@ -116,7 +116,7 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ partnership, onCheckInComplet
       console.error('Error submitting check-in:', error);
       toast.error('Failed to submit check-in');
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
 

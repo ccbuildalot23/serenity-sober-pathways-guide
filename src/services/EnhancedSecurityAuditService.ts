@@ -3,11 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface SecurityEvent {
   event_type: string;
-  user_id?: string;
+  _user_id?: string;
   session_id?: string;
-  ip_address?: string;
+  _ip_address?: string;
   user_agent?: string;
-  risk_level: 'low' | 'medium' | 'high' | 'critical';
+  _risk_level: 'low' | 'medium' | 'high' | 'critical';
   metadata?: Record<string, any>;
   timestamp?: string;
 }
@@ -38,11 +38,11 @@ export class EnhancedSecurityAuditService {
     try {
       const event: SecurityEvent = {
         event_type: eventType,
-        user_id: (await supabase.auth.getUser()).data.user?.id,
-        risk_level: riskLevel,
+        _user_id: (await supabase.auth.getUser()).data.user?.id,
+        _risk_level: riskLevel,
         metadata,
         timestamp: new Date().toISOString(),
-        ip_address: await this.getClientIP(),
+        _ip_address: await this.getClientIP(),
         user_agent: navigator.userAgent
       };
 
@@ -57,8 +57,8 @@ export class EnhancedSecurityAuditService {
       if (this.eventQueue.length >= this.batchSize) {
         await this.flushEvents();
       }
-    } catch (error) {
-      console.error('Failed to log security event:', error);
+    } catch (_error) {
+      console._error('Failed to log security event:', _error);
     }
   }
 
@@ -76,25 +76,25 @@ export class EnhancedSecurityAuditService {
     );
   }
 
-  static async logSecurityViolation(violation: string, details: Record<string, any> = {}): Promise<void> {
+  static async logSecurityViolation(_violation: string, details: Record<string, any> = {}): Promise<void> {
     const instance = this.getInstance();
-    await instance.logSecurityEvent(violation, details, 'high');
+    await instance.logSecurityEvent(_violation, details, 'high');
   }
 
-  static async logDataAccessEvent(table: string, operation: string, recordCount: number = 1): Promise<void> {
+  static async logDataAccessEvent(table: string, _operation: string, recordCount: number = 1): Promise<void> {
     const instance = this.getInstance();
     await instance.logSecurityEvent(
       'DATA_ACCESS',
-      { table, operation, record_count: recordCount },
+      { table, _operation, _record_count: recordCount },
       'low'
     );
   }
 
-  static async logRLSViolation(table: string, operation: string, details: Record<string, any> = {}): Promise<void> {
+  static async logRLSViolation(table: string, _operation: string, details: Record<string, any> = {}): Promise<void> {
     const instance = this.getInstance();
     await instance.logSecurityEvent(
       'RLS_VIOLATION',
-      { table, operation, ...details },
+      { table, _operation, ...details },
       'critical'
     );
   }
@@ -119,24 +119,24 @@ export class EnhancedSecurityAuditService {
 
     try {
       // Insert security events into the security_audit_logs table
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('security_audit_logs')
         .insert(eventsToFlush);
       
-      if (error) {
-        console.error('Failed to insert security audit logs:', error);
-        throw error;
+      if (_error) {
+        console._error('Failed to insert security audit logs:', _error);
+        throw _error;
       }
 
       console.log(`Successfully logged ${eventsToFlush.length} security events`);
-    } catch (error) {
-      console.error('Failed to flush security events:', error);
+    } catch (_error) {
+      console._error('Failed to flush security events:', _error);
       // Re-queue events on failure
       this.eventQueue.unshift(...eventsToFlush);
     }
   }
 
-  private async getClientIP(): Promise<string | null> {
+  private async getClientIP(): Promise<string | _null> {
     try {
       // Try multiple methods to get client IP
       
@@ -146,14 +146,14 @@ export class EnhancedSecurityAuditService {
           const response = await fetch('https://api.ipify.org?format=json', {
             method: 'GET',
             headers: { 'Accept': 'application/json' },
-            signal: AbortSignal.timeout(3000) // 3 second timeout
+            _signal: AbortSignal.timeout(3000) // 3 second timeout
           });
           if (response.ok) {
             const data = await response.json();
-            return data.ip || null;
+            return data.ip || _null;
           }
-        } catch (error) {
-          console.warn('Failed to get IP from external service:', error);
+        } catch (_error) {
+          console.warn('Failed to get IP from external service:', _error);
         }
       }
       
@@ -163,8 +163,8 @@ export class EnhancedSecurityAuditService {
         if (ip && ip !== '127.0.0.1') {
           return ip;
         }
-      } catch (error) {
-        console.warn('WebRTC IP detection failed:', error);
+      } catch (_error) {
+        console.warn('WebRTC IP detection failed:', _error);
       }
       
       // Method 3: Fallback to forwarded headers (if available via edge function)
@@ -175,14 +175,14 @@ export class EnhancedSecurityAuditService {
       }
       
       // Method 4: Final fallback
-      return import.meta.env.DEV ? '127.0.0.1' : null;
-    } catch (error) {
-      console.warn('IP detection error:', error);
-      return null;
+      return import.meta.env.DEV ? '127.0.0.1' : _null;
+    } catch (_error) {
+      console.warn('IP detection _error:', _error);
+      return _null;
     }
   }
 
-  private async getLocalIP(): Promise<string | null> {
+  private async getLocalIP(): Promise<string | _null> {
     return new Promise((resolve) => {
       try {
         const rtc = new RTCPeerConnection({
@@ -193,7 +193,7 @@ export class EnhancedSecurityAuditService {
         
         rtc.onicecandidate = (ice) => {
           if (!ice || !ice.candidate || !ice.candidate.candidate) {
-            resolve(null);
+            resolve(_null);
             return;
           }
           
@@ -211,10 +211,10 @@ export class EnhancedSecurityAuditService {
         // Timeout after 2 seconds
         setTimeout(() => {
           rtc.close();
-          resolve(null);
+          resolve(_null);
         }, 2000);
-      } catch (error) {
-        resolve(null);
+      } catch (_error) {
+        resolve(_null);
       }
     });
   }
@@ -243,13 +243,13 @@ export class EnhancedSecurityAuditService {
     );
   }
 
-  async generateSecurityReport(): Promise<any> {
+  async generateSecurityReport(): Promise<unknown> {
     try {
       // Get security audit logs from the last 30 days
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       
-      const { data: auditLogs, error: auditError } = await supabase
+      const { data: auditLogs, _error: auditError } = await supabase
         .from('security_audit_logs')
         .select('*')
         .gte('timestamp', thirtyDaysAgo.toISOString())
@@ -257,7 +257,7 @@ export class EnhancedSecurityAuditService {
         .limit(1000);
       
       if (auditError) {
-        console.error('Error fetching audit logs:', auditError);
+        console._error('Error fetching audit logs:', auditError);
         throw auditError;
       }
       
@@ -266,11 +266,11 @@ export class EnhancedSecurityAuditService {
         generated_at: new Date().toISOString(),
         summary: {
           total_events: auditLogs?.length || 0,
-          critical_events: auditLogs?.filter(log => log.risk_level === 'critical').length || 0,
-          high_risk_events: auditLogs?.filter(log => log.risk_level === 'high').length || 0,
+          critical_events: auditLogs?.filter(log => log._risk_level === 'critical').length || 0,
+          high_risk_events: auditLogs?.filter(log => log._risk_level === 'high').length || 0,
           failed_logins: auditLogs?.filter(log => log.event_type === 'AUTH_FAILURE').length || 0,
-          unique_users: new Set(auditLogs?.map(log => log.user_id).filter(Boolean)).size || 0,
-          unique_ips: new Set(auditLogs?.map(log => log.ip_address).filter(Boolean)).size || 0
+          unique_users: new Set(auditLogs?.map(log => log._user_id).filter(_Boolean)).size || 0,
+          unique_ips: new Set(auditLogs?.map(log => log._ip_address).filter(_Boolean)).size || 0
         },
         risk_analysis: {
           high_risk_indicators: [],
@@ -291,7 +291,7 @@ export class EnhancedSecurityAuditService {
         
         // Analyze events by risk level
         const eventsByRisk = auditLogs.reduce((acc, log) => {
-          acc[log.risk_level] = (acc[log.risk_level] || 0) + 1;
+          acc[log._risk_level] = (acc[log._risk_level] || 0) + 1;
           return acc;
         }, {} as Record<string, number>);
         report.events_by_risk = eventsByRisk;
@@ -316,14 +316,14 @@ export class EnhancedSecurityAuditService {
         }
         
         // Check for suspicious IP patterns
-        const ipFrequency = auditLogs.reduce((acc, log) => {
-          if (log.ip_address) {
-            acc[log.ip_address] = (acc[log.ip_address] || 0) + 1;
+        const _ipFrequency = auditLogs.reduce((acc, log) => {
+          if (log._ip_address) {
+            acc[log._ip_address] = (acc[log._ip_address] || 0) + 1;
           }
           return acc;
         }, {} as Record<string, number>);
         
-        const suspiciousIPs = Object.entries(ipFrequency)
+        const suspiciousIPs = Object.entries(_ipFrequency)
           .filter(([ip, count]) => count > 50)
           .map(([ip]) => ip);
           
@@ -346,9 +346,9 @@ export class EnhancedSecurityAuditService {
           .map(log => ({
             timestamp: log.timestamp,
             event_type: log.event_type,
-            risk_level: log.risk_level,
-            user_id: log.user_id,
-            ip_address: log.ip_address
+            _risk_level: log._risk_level,
+            _user_id: log._user_id,
+            _ip_address: log._ip_address
           }));
         
         report.timeline = recentEvents;
@@ -362,67 +362,67 @@ export class EnhancedSecurityAuditService {
       );
       
       return report;
-    } catch (error) {
-      console.error('Failed to generate security report:', error);
+    } catch (_error) {
+      console._error('Failed to generate security report:', _error);
       await this.logSecurityEvent(
         'SECURITY_REPORT_FAILED',
-        { error: error instanceof Error ? error.message : 'Unknown error' },
+        { _error: _error instanceof Error ? _error.message : 'Unknown _error' },
         'medium'
       );
-      throw error;
+      throw _error;
     }
   }
   
-  async getFailedLoginAttempts(timeframeHours: number = 24): Promise<any[]> {
+  async getFailedLoginAttempts(timeframeHours: number = 24): Promise<unknown[]> {
     try {
       const timeframe = new Date();
       timeframe.setHours(timeframe.getHours() - timeframeHours);
       
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('security_audit_logs')
         .select('*')
         .eq('event_type', 'AUTH_FAILURE')
         .gte('timestamp', timeframe.toISOString())
         .order('timestamp', { ascending: false });
       
-      if (error) throw error;
+      if (_error) throw _error;
       return data || [];
-    } catch (error) {
-      console.error('Failed to get failed login attempts:', error);
+    } catch (_error) {
+      console._error('Failed to get failed login attempts:', _error);
       return [];
     }
   }
   
-  async getSessionAnalytics(userId?: string): Promise<any> {
+  async getSessionAnalytics(_userId?: string): Promise<unknown> {
     try {
       let query = supabase
         .from('security_audit_logs')
         .select('*')
         .eq('event_type', 'SESSION_ACTIVITY');
       
-      if (userId) {
-        query = query.eq('user_id', userId);
+      if (_userId) {
+        query = query.eq('_user_id', _userId);
       }
       
-      const { data, error } = await query
+      const { data, _error } = await query
         .order('timestamp', { ascending: false })
         .limit(100);
       
-      if (error) throw error;
+      if (_error) throw _error;
       
       // Aggregate session data
       const sessions = data || [];
       const analysis = {
         total_sessions: sessions.length,
-        unique_users: new Set(sessions.map(s => s.user_id).filter(Boolean)).size,
-        unique_devices: new Set(sessions.map(s => s.user_agent).filter(Boolean)).size,
+        unique_users: new Set(sessions.map(s => s._user_id).filter(_Boolean)).size,
+        unique_devices: new Set(sessions.map(s => s.user_agent).filter(_Boolean)).size,
         session_duration_stats: this.calculateSessionDurations(sessions),
         device_breakdown: this.analyzeDevices(sessions)
       };
       
       return analysis;
-    } catch (error) {
-      console.error('Failed to get session analytics:', error);
+    } catch (_error) {
+      console._error('Failed to get session analytics:', _error);
       return {
         total_sessions: 0,
         unique_users: 0,
@@ -433,7 +433,7 @@ export class EnhancedSecurityAuditService {
     }
   }
   
-  private calculateSessionDurations(sessions: any[]): Record<string, number> {
+  private calculateSessionDurations(sessions: unknown[]): Record<string, number> {
     // This would require more sophisticated session tracking
     // For now, return basic stats
     return {
@@ -442,7 +442,7 @@ export class EnhancedSecurityAuditService {
     };
   }
   
-  private analyzeDevices(sessions: any[]): Record<string, number> {
+  private analyzeDevices(sessions: unknown[]): Record<string, number> {
     const devices = sessions.reduce((acc, session) => {
       if (session.user_agent) {
         const device = this.getDeviceType(session.user_agent);

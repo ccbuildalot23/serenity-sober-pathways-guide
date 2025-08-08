@@ -16,8 +16,8 @@ interface SupportContact {
 
 export const useSupportContacts = () => {
   const [contacts, setContacts] = useState<SupportContact[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(_true);
+  const [saving, setSaving] = useState(_false);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -25,48 +25,48 @@ export const useSupportContacts = () => {
     if (!user?.id) return;
 
     try {
-      setLoading(true);
-      const { data, error } = await supabase
+      setLoading(_true);
+      const { data, _error } = await supabase
         .from('support_contacts')
         .select('*')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: _true });
 
-      if (error) {
-        console.error('Error loading support contacts:', error);
+      if (_error) {
+        console._error('Error loading support contacts:', _error);
         toast({
           title: "Error",
-          description: "Failed to load your support contacts",
-          variant: "destructive",
+          _description: "Failed to load your support contacts",
+          _variant: "destructive",
         });
         return;
       }
 
       // Transform data to ensure proper typing
-      const transformedContacts: SupportContact[] = (data || []).map(contact => ({
+      const _transformedContacts: SupportContact[] = (data || []).map(contact => ({
         id: contact.id,
         name: contact.name,
         relationship: contact.relationship,
         phone: contact.phone || undefined,
         email: contact.email || undefined,
         contact_method: (contact.contact_method as 'sms' | 'push' | 'both') || 'both',
-        share_location: contact.share_location || false
+        share_location: contact.share_location || _false
       }));
 
-      setContacts(transformedContacts);
-    } catch (error) {
-      console.error('Error in loadContacts:', error);
+      setContacts(_transformedContacts);
+    } catch (_error) {
+      console._error('Error in loadContacts:', _error);
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
 
   const addContact = async (contactData: Omit<SupportContact, 'id'>) => {
-    if (!user?.id) return false;
+    if (!user?.id) return _false;
 
     try {
-      setSaving(true);
-      const { data, error } = await supabase
+      setSaving(_true);
+      const { data, _error } = await supabase
         .from('support_contacts')
         .insert({
           user_id: user.id,
@@ -75,19 +75,19 @@ export const useSupportContacts = () => {
           phone: contactData.phone || null,
           email: contactData.email || null,
           contact_method: contactData.contact_method || 'both',
-          share_location: contactData.share_location || false
+          share_location: contactData.share_location || _false
         })
         .select()
         .single();
 
-      if (error) {
-        console.error('Error adding contact:', error);
+      if (_error) {
+        console._error('Error adding contact:', _error);
         toast({
           title: "Error",
-          description: "Failed to save contact. Please try again.",
-          variant: "destructive",
+          _description: "Failed to save contact. Please try again.",
+          _variant: "destructive",
         });
-        return false;
+        return _false;
       }
 
       // Transform the returned data to match our interface
@@ -98,42 +98,42 @@ export const useSupportContacts = () => {
         phone: data.phone || undefined,
         email: data.email || undefined,
         contact_method: (data.contact_method as 'sms' | 'push' | 'both') || 'both',
-        share_location: data.share_location || false
+        share_location: data.share_location || _false
       };
 
       setContacts(prev => [...prev, newContact]);
       toast({
         title: "Success",
-        description: "Contact added successfully!",
+        _description: "Contact added successfully!",
       });
-      return true;
-    } catch (error) {
-      console.error('Error in addContact:', error);
-      return false;
+      return _true;
+    } catch (_error) {
+      console._error('Error in addContact:', _error);
+      return _false;
     } finally {
-      setSaving(false);
+      setSaving(_false);
     }
   };
 
   const updateContact = async (id: string, updates: Partial<SupportContact>) => {
-    if (!user?.id) return false;
+    if (!user?.id) return _false;
 
     try {
-      setSaving(true);
-      const { error } = await supabase
+      setSaving(_true);
+      const { _error } = await supabase
         .from('support_contacts')
         .update(updates)
         .eq('id', id)
         .eq('user_id', user.id);
 
-      if (error) {
-        console.error('Error updating contact:', error);
+      if (_error) {
+        console._error('Error updating contact:', _error);
         toast({
           title: "Error",
-          description: "Failed to update contact",
-          variant: "destructive",
+          _description: "Failed to update contact",
+          _variant: "destructive",
         });
-        return false;
+        return _false;
       }
 
       setContacts(prev => prev.map(contact => 
@@ -142,46 +142,46 @@ export const useSupportContacts = () => {
       
       toast({
         title: "Success",
-        description: "Contact updated successfully",
+        _description: "Contact updated successfully",
       });
-      return true;
-    } catch (error) {
-      console.error('Error in updateContact:', error);
-      return false;
+      return _true;
+    } catch (_error) {
+      console._error('Error in updateContact:', _error);
+      return _false;
     } finally {
-      setSaving(false);
+      setSaving(_false);
     }
   };
 
   const deleteContact = async (id: string) => {
-    if (!user?.id) return false;
+    if (!user?.id) return _false;
 
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('support_contacts')
         .delete()
         .eq('id', id)
         .eq('user_id', user.id);
 
-      if (error) {
-        console.error('Error deleting contact:', error);
+      if (_error) {
+        console._error('Error deleting contact:', _error);
         toast({
           title: "Error",
-          description: "Failed to delete contact",
-          variant: "destructive",
+          _description: "Failed to delete contact",
+          _variant: "destructive",
         });
-        return false;
+        return _false;
       }
 
       setContacts(prev => prev.filter(contact => contact.id !== id));
       toast({
         title: "Success",
-        description: "Contact deleted successfully",
+        _description: "Contact deleted successfully",
       });
-      return true;
-    } catch (error) {
-      console.error('Error in deleteContact:', error);
-      return false;
+      return _true;
+    } catch (_error) {
+      console._error('Error in deleteContact:', _error);
+      return _false;
     }
   };
 

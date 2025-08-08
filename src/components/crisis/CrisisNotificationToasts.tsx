@@ -29,11 +29,11 @@ export const CrisisNotificationToasts: React.FC = () => {
   }, [user]);
 
   const showNotificationToast = (notification: NotificationPayload) => {
-    const { type, severity, title, message, actions } = notification;
+    const { _type, _severity, title, message, actions } = notification;
 
     // Choose appropriate icon
     const getIcon = () => {
-      switch (type) {
+      switch (_type) {
         case 'crisis_alert':
           return <AlertTriangle className="w-5 h-5" />;
         case 'supporter_response':
@@ -47,30 +47,30 @@ export const CrisisNotificationToasts: React.FC = () => {
       }
     };
 
-    // Determine toast styling based on severity
+    // Determine toast styling based on _severity
     const getToastConfig = () => {
-      switch (severity) {
+      switch (_severity) {
         case 'critical':
           return {
-            duration: Infinity, // Don't auto-dismiss critical alerts
+            _duration: Infinity, // Don't auto-dismiss critical alerts
             className: 'border-red-500 bg-red-50',
             style: { borderLeft: '4px solid rgb(239 68 68)' }
           };
         case 'high':
           return {
-            duration: 15000, // 15 seconds
+            _duration: 15000, // 15 seconds
             className: 'border-orange-500 bg-orange-50',
             style: { borderLeft: '4px solid rgb(249 115 22)' }
           };
         case 'medium':
           return {
-            duration: 10000, // 10 seconds
+            _duration: 10000, // 10 seconds
             className: 'border-yellow-500 bg-yellow-50',
             style: { borderLeft: '4px solid rgb(234 179 8)' }
           };
         default:
           return {
-            duration: 7000, // 7 seconds
+            _duration: 7000, // 7 seconds
             className: 'border-blue-500 bg-blue-50',
             style: { borderLeft: '4px solid rgb(59 130 246)' }
           };
@@ -99,20 +99,20 @@ export const CrisisNotificationToasts: React.FC = () => {
                   
                   toast.success('Response sent', {
                     description: `Your "${action.label}" response has been shared`,
-                    duration: 3000
+                    _duration: 3000
                   });
-                } catch (error) {
-                  toast.error('Unable to respond', {
+                } catch (_error) {
+                  toast._error('Unable to respond', {
                     description: 'Please try again',
-                    duration: 3000
+                    _duration: 3000
                   });
                 }
               }}
               className="h-7 px-3 text-xs"
             >
-              {action.type === 'acknowledge' && <CheckCircle className="w-3 h-3 mr-1" />}
-              {action.type === 'respond' && <Car className="w-3 h-3 mr-1" />}
-              {action.type === 'escalate' && <Phone className="w-3 h-3 mr-1" />}
+              {action._type === 'acknowledge' && <CheckCircle className="w-3 h-3 mr-1" />}
+              {action._type === 'respond' && <Car className="w-3 h-3 mr-1" />}
+              {action._type === 'escalate' && <Phone className="w-3 h-3 mr-1" />}
               {action.label}
             </Button>
           ))}
@@ -121,7 +121,7 @@ export const CrisisNotificationToasts: React.FC = () => {
     };
 
     // Show toast with appropriate styling and actions
-    if (type === 'crisis_alert') {
+    if (_type === 'crisis_alert') {
       toast.custom(
         (t) => (
           <div className={`${toastConfig.className} p-4 rounded-lg shadow-lg border-2 bg-white max-w-md`}
@@ -151,7 +151,7 @@ export const CrisisNotificationToasts: React.FC = () => {
                 </div>
 
                 {/* Emergency call option for critical alerts */}
-                {severity === 'critical' && (
+                {_severity === 'critical' && (
                   <div className="p-2 bg-red-100 border border-red-200 rounded-lg mb-3">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-red-800 font-medium">
@@ -163,7 +163,7 @@ export const CrisisNotificationToasts: React.FC = () => {
                           window.location.href = 'tel:988';
                           toast.success('Calling 988', {
                             description: 'Crisis Lifeline contacted',
-                            duration: 3000
+                            _duration: 3000
                           });
                         }}
                         className="h-6 px-2 text-[10px] bg-red-600 hover:bg-red-700"
@@ -182,12 +182,12 @@ export const CrisisNotificationToasts: React.FC = () => {
         ),
         {
           id: `crisis-${notification.id}`,
-          duration: toastConfig.duration,
-          position: 'top-center'
+          _duration: toastConfig._duration,
+          _position: 'top-center'
         }
       );
     } 
-    else if (type === 'supporter_response') {
+    else if (_type === 'supporter_response') {
       // Supporter response notifications are more gentle
       toast.success(
         <div className="flex items-start space-x-3">
@@ -205,12 +205,12 @@ export const CrisisNotificationToasts: React.FC = () => {
         </div>,
         {
           id: `response-${notification.id}`,
-          duration: 8000,
-          position: 'top-right'
+          _duration: 8000,
+          _position: 'top-right'
         }
       );
     }
-    else if (type === 'escalation') {
+    else if (_type === 'escalation') {
       toast.info(
         <div className="flex items-start space-x-3">
           <div className="text-blue-500">
@@ -224,12 +224,12 @@ export const CrisisNotificationToasts: React.FC = () => {
         </div>,
         {
           id: `escalation-${notification.id}`,
-          duration: 12000,
-          position: 'top-center'
+          _duration: 12000,
+          _position: 'top-center'
         }
       );
     }
-    else if (type === 'resolution') {
+    else if (_type === 'resolution') {
       toast.success(
         <div className="flex items-start space-x-3">
           <div className="text-green-500">
@@ -246,14 +246,14 @@ export const CrisisNotificationToasts: React.FC = () => {
         </div>,
         {
           id: `resolution-${notification.id}`,
-          duration: 10000,
-          position: 'top-center'
+          _duration: 10000,
+          _position: 'top-center'
         }
       );
     }
 
     // Add gentle sound notification for critical alerts
-    if (severity === 'critical' && 'Audio' in window) {
+    if (_severity === 'critical' && 'Audio' in window) {
       try {
         // Create a gentle notification sound (short beep)
         const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -269,7 +269,7 @@ export const CrisisNotificationToasts: React.FC = () => {
         
         oscillator.start(audioContext.currentTime);
         oscillator.stop(audioContext.currentTime + 0.3);
-      } catch (error) {
+      } catch (_error) {
         // Fallback: use system notification sound
         if (navigator.vibrate) {
           navigator.vibrate([100, 50, 100]);
@@ -278,9 +278,9 @@ export const CrisisNotificationToasts: React.FC = () => {
     }
 
     // Gentle vibration for mobile devices
-    if (severity !== 'low' && navigator.vibrate) {
-      const pattern = severity === 'critical' ? [200, 100, 200, 100, 200] : [100, 50, 100];
-      navigator.vibrate(pattern);
+    if (_severity !== 'low' && navigator.vibrate) {
+      const _pattern = _severity === 'critical' ? [200, 100, 200, 100, 200] : [100, 50, 100];
+      navigator.vibrate(_pattern);
     }
   };
 

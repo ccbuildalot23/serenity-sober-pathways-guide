@@ -18,8 +18,8 @@ export interface CrisisNotification {
   tier_level: number;
   status: 'pending' | 'queued' | 'sending' | 'delivered' | 'failed' | 'acknowledged' | 'expired';
   delivered_at?: string;
-  acknowledged_at?: string;
-  metadata?: any;
+  _acknowledged_at?: string;
+  metadata?: unknown;
   created_at: string;
 }
 
@@ -41,11 +41,11 @@ export interface SupporterAvailability {
   status: 'available' | 'busy' | 'in_crisis' | 'offline';
   status_message?: string;
   current_active_crises: number;
-  updated_at: string;
+  _updated_at: string;
 }
 
 type NotificationCallback = (notification: CrisisNotification) => void;
-type ResponseCallback = (response: CrisisResponse) => void;
+type ResponseCallback = (_response: CrisisResponse) => void;
 type AvailabilityCallback = (availability: SupporterAvailability) => void;
 
 class RealtimeNotificationService {
@@ -72,18 +72,18 @@ class RealtimeNotificationService {
       }
 
       // Subscribe to crisis notifications
-      const notificationChannel = supabase
+      const _notificationChannel = supabase
         .channel('crisis-notifications')
         .on(
           'postgres_changes',
           {
             event: '*',
-            schema: 'public',
-            table: 'crisis_notifications',
-            filter: `user_id=eq.${user.id},supporter_id=eq.${user.id}`
+            _schema: 'public',
+            _table: 'crisis_notifications',
+            _filter: `user_id=eq.${user.id},supporter_id=eq.${user.id}`
           },
-          (payload: RealtimePostgresChangesPayload<CrisisNotification>) => {
-            this.handleNotificationChange(payload);
+          (_payload: RealtimePostgresChangesPayload<CrisisNotification>) => {
+            this.handleNotificationChange(_payload);
           }
         )
         .on('presence', { event: 'sync' }, () => {
@@ -99,43 +99,43 @@ class RealtimeNotificationService {
           }
         });
 
-      this.channels.set('notifications', notificationChannel);
+      this.channels.set('notifications', _notificationChannel);
 
       // Subscribe to crisis responses
-      const responseChannel = supabase
+      const _responseChannel = supabase
         .channel('crisis-responses')
         .on(
           'postgres_changes',
           {
             event: '*',
-            schema: 'public',
-            table: 'crisis_responses'
+            _schema: 'public',
+            _table: 'crisis_responses'
           },
-          (payload: RealtimePostgresChangesPayload<CrisisResponse>) => {
-            this.handleResponseChange(payload);
+          (_payload: RealtimePostgresChangesPayload<CrisisResponse>) => {
+            this.handleResponseChange(_payload);
           }
         )
         .subscribe();
 
-      this.channels.set('responses', responseChannel);
+      this.channels.set('responses', _responseChannel);
 
       // Subscribe to supporter availability
-      const availabilityChannel = supabase
+      const _availabilityChannel = supabase
         .channel('supporter-availability')
         .on(
           'postgres_changes',
           {
             event: '*',
-            schema: 'public',
-            table: 'supporter_availability'
+            _schema: 'public',
+            _table: 'supporter_availability'
           },
-          (payload: RealtimePostgresChangesPayload<SupporterAvailability>) => {
-            this.handleAvailabilityChange(payload);
+          (_payload: RealtimePostgresChangesPayload<SupporterAvailability>) => {
+            this.handleAvailabilityChange(_payload);
           }
         )
         .subscribe();
 
-      this.channels.set('availability', availabilityChannel);
+      this.channels.set('availability', _availabilityChannel);
 
     } catch (error) {
       console.error('Failed to setup realtime connections:', error);
@@ -197,51 +197,51 @@ class RealtimeNotificationService {
     }, delay);
   }
 
-  private handleNotificationChange(payload: RealtimePostgresChangesPayload<CrisisNotification>) {
-    const notification = payload.new as CrisisNotification;
+  private handleNotificationChange(_payload: RealtimePostgresChangesPayload<CrisisNotification>) {
+    const notification = _payload.new as CrisisNotification;
     
-    if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+    if (_payload.eventType === 'INSERT' || _payload.eventType === 'UPDATE') {
       // Notify all registered callbacks
-      this.notificationCallbacks.forEach(callback => callback(notification));
+      this.notificationCallbacks.forEach(_callback => _callback(notification));
 
       // Show toast for new notifications
-      if (payload.eventType === 'INSERT' && notification.status === 'delivered') {
+      if (_payload.eventType === 'INSERT' && notification.status === 'delivered') {
         this.showNotificationToast(notification);
       }
     }
   }
 
-  private handleResponseChange(payload: RealtimePostgresChangesPayload<CrisisResponse>) {
-    const response = payload.new as CrisisResponse;
+  private handleResponseChange(_payload: RealtimePostgresChangesPayload<CrisisResponse>) {
+    const _response = _payload.new as CrisisResponse;
     
-    if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-      this.responseCallbacks.forEach(callback => callback(response));
+    if (_payload.eventType === 'INSERT' || _payload.eventType === 'UPDATE') {
+      this.responseCallbacks.forEach(_callback => _callback(_response));
     }
   }
 
-  private handleAvailabilityChange(payload: RealtimePostgresChangesPayload<SupporterAvailability>) {
-    const availability = payload.new as SupporterAvailability;
+  private handleAvailabilityChange(_payload: RealtimePostgresChangesPayload<SupporterAvailability>) {
+    const availability = _payload.new as SupporterAvailability;
     
-    if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-      this.availabilityCallbacks.forEach(callback => callback(availability));
+    if (_payload.eventType === 'INSERT' || _payload.eventType === 'UPDATE') {
+      this.availabilityCallbacks.forEach(_callback => _callback(availability));
     }
   }
 
   private showNotificationToast(notification: CrisisNotification) {
     const severityConfig = {
-      emergency: { duration: Infinity, action: true },
-      critical: { duration: 10000, action: true },
-      high: { duration: 7000, action: true },
-      medium: { duration: 5000, action: false },
-      low: { duration: 3000, action: false }
+      emergency: { _duration: Infinity, _action: true },
+      critical: { _duration: 10000, _action: true },
+      high: { _duration: 7000, _action: true },
+      medium: { _duration: 5000, _action: false },
+      low: { _duration: 3000, _action: false }
     };
 
     const config = severityConfig[notification.severity];
 
     toast(notification.title, {
       description: notification.message,
-      duration: config.duration,
-      action: config.action ? {
+      _duration: config._duration,
+      _action: config._action ? {
         label: 'View',
         onClick: () => this.handleNotificationAction(notification)
       } : undefined,
@@ -263,25 +263,25 @@ class RealtimeNotificationService {
   }
 
   private handleNotificationAction(notification: CrisisNotification) {
-    // Navigate to crisis response page or open modal
+    // Navigate to crisis _response page or open modal
     window.location.href = `/crisis/respond/${notification.crisis_event_id}`;
   }
 
   // Public methods for component usage
 
-  public onNotification(callback: NotificationCallback) {
-    this.notificationCallbacks.add(callback);
-    return () => this.notificationCallbacks.delete(callback);
+  public onNotification(_callback: NotificationCallback) {
+    this.notificationCallbacks.add(_callback);
+    return () => this.notificationCallbacks.delete(_callback);
   }
 
-  public onResponse(callback: ResponseCallback) {
-    this.responseCallbacks.add(callback);
-    return () => this.responseCallbacks.delete(callback);
+  public onResponse(_callback: ResponseCallback) {
+    this.responseCallbacks.add(_callback);
+    return () => this.responseCallbacks.delete(_callback);
   }
 
-  public onAvailability(callback: AvailabilityCallback) {
-    this.availabilityCallbacks.add(callback);
-    return () => this.availabilityCallbacks.delete(callback);
+  public onAvailability(_callback: AvailabilityCallback) {
+    this.availabilityCallbacks.add(_callback);
+    return () => this.availabilityCallbacks.delete(_callback);
   }
 
   public async sendNotification(notification: Omit<CrisisNotification, 'id' | 'created_at'>) {
@@ -300,15 +300,15 @@ class RealtimeNotificationService {
     }
   }
 
-  public async acknowledgeNotification(notificationId: string) {
+  public async acknowledgeNotification(_notificationId: string) {
     try {
       const { error } = await supabase
         .from('crisis_notifications')
         .update({ 
           status: 'acknowledged',
-          acknowledged_at: new Date().toISOString()
+          _acknowledged_at: new Date().toISOString()
         })
-        .eq('id', notificationId);
+        .eq('id', _notificationId);
 
       if (error) throw error;
     } catch (error) {
@@ -317,11 +317,11 @@ class RealtimeNotificationService {
     }
   }
 
-  public async respondToCrisis(response: Omit<CrisisResponse, 'id' | 'created_at'>) {
+  public async respondToCrisis(_response: Omit<CrisisResponse, 'id' | 'created_at'>) {
     try {
       const { data, error } = await supabase
         .from('crisis_responses')
-        .insert(response)
+        .insert(_response)
         .select()
         .single();
 
@@ -343,7 +343,7 @@ class RealtimeNotificationService {
         .upsert({
           supporter_id: user.id,
           ...availability,
-          updated_at: new Date().toISOString()
+          _updated_at: new Date().toISOString()
         });
 
       if (error) throw error;

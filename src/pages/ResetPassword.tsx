@@ -17,10 +17,10 @@ const ResetPassword: React.FC = () => {
 
     if (type === 'recovery' && accessToken) {
       // Valid recovery token found
-      setIsValidToken(true);
+      setIsValidToken(_true);
     } else {
       // No valid token - check if user navigated here directly
-      setIsValidToken(false);
+      setIsValidToken(_false);
     }
   }, []);
 

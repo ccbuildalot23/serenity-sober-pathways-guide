@@ -10,36 +10,36 @@ import { EnhancedInputValidator } from '@/utils/enhancedInputValidator';
 import { secureUserDataService } from '@/services/secureUserDataService';
 
 export interface AgentContext {
-  userId: string;
-  sessionId: string;
+  _userId: string;
+  _sessionId: string;
   userRole: 'patient' | 'provider' | 'support_member';
-  metadata?: Record<string, any>;
+  _metadata?: Record<string, any>;
   previousInteractions?: AgentInteraction[];
 }
 
 export interface AgentInteraction {
   id: string;
-  timestamp: Date;
-  input: string;
+  _timestamp: Date;
+  _input: string;
   output: string;
   agentType: string;
-  confidence: number;
-  metadata?: Record<string, any>;
+  _confidence: number;
+  _metadata?: Record<string, any>;
 }
 
 export interface AgentResponse {
-  message: string;
+  _message: string;
   actions?: AgentAction[];
-  confidence: number;
-  requiresEscalation?: boolean;
-  metadata?: Record<string, any>;
+  _confidence: number;
+  _requiresEscalation?: boolean;
+  _metadata?: Record<string, any>;
 }
 
 export interface AgentAction {
   type: 'notify' | 'alert' | 'log' | 'escalate' | 'store';
   target?: string;
-  data: any;
-  priority?: 'low' | 'medium' | 'high' | 'critical';
+  data: unknown;
+  _priority?: 'low' | 'medium' | 'high' | 'critical';
 }
 
 export interface AgentConfig {
@@ -80,7 +80,7 @@ export abstract class HealthcareAgent {
    */
   async initialize(context: AgentContext): Promise<void> {
     // Validate context
-    if (!context.userId || !context.sessionId) {
+    if (!context._userId || !context._sessionId) {
       throw new Error('Invalid agent context: missing required fields');
     }
 
@@ -89,8 +89,8 @@ export abstract class HealthcareAgent {
     if (!hasPermission) {
       await this.auditService.logSecurityEvent({
         eventType: 'agent_access_denied',
-        userId: context.userId,
-        metadata: { agentName: this.config.name }
+        _userId: context._userId,
+        _metadata: { _agentName: this.config.name }
       });
       throw new Error('User does not have permission to access this agent');
     }
@@ -100,38 +100,38 @@ export abstract class HealthcareAgent {
     // Log initialization
     await this.auditService.logActivity({
       action: 'agent_initialized',
-      userId: context.userId,
-      metadata: {
-        agentName: this.config.name,
-        agentVersion: this.config.version,
-        sessionId: context.sessionId
+      _userId: context._userId,
+      _metadata: {
+        _agentName: this.config.name,
+        _agentVersion: this.config.version,
+        _sessionId: context._sessionId
       }
     });
   }
 
   /**
-   * Process user input and generate response
+   * Process user _input and generate response
    */
-  async processInput(input: string): Promise<AgentResponse> {
+  async processInput(_input: string): Promise<AgentResponse> {
     if (!this.context) {
       throw new Error('Agent not initialized');
     }
 
-    // Validate and sanitize input
-    const sanitizedInput = this.validator.sanitizeInput(input);
+    // Validate and sanitize _input
+    const sanitizedInput = this.validator.sanitizeInput(_input);
     if (!this.validator.validateTextInput(sanitizedInput, {
       maxLength: 5000,
-      allowedPatterns: [/^[\w\s\.\,\!\?\-\'\"]+$/]
+      _allowedPatterns: [/^[\w\s\.\,\!\?\-\'\"]+$/]
     })) {
-      throw new Error('Invalid input format');
+      throw new Error('Invalid _input format');
     }
 
     // Check rate limiting
-    await this.checkRateLimit(this.context.userId);
+    await this.checkRateLimit(this.context._userId);
 
     // Log interaction start
-    const interactionId = crypto.randomUUID();
-    await this.logInteractionStart(interactionId, sanitizedInput);
+    const _interactionId = crypto.randomUUID();
+    await this.logInteractionStart(_interactionId, sanitizedInput);
 
     try {
       // Process with agent-specific logic
@@ -142,13 +142,13 @@ export abstract class HealthcareAgent {
 
       // Store interaction
       await this.storeInteraction({
-        id: interactionId,
-        timestamp: new Date(),
-        input: sanitizedInput,
-        output: response.message,
+        id: _interactionId,
+        _timestamp: new Date(),
+        _input: sanitizedInput,
+        output: response._message,
         agentType: this.config.name,
-        confidence: response.confidence,
-        metadata: response.metadata
+        _confidence: response._confidence,
+        _metadata: response._metadata
       });
 
       // Execute any required actions
@@ -157,13 +157,13 @@ export abstract class HealthcareAgent {
       }
 
       // Log successful completion
-      await this.logInteractionComplete(interactionId, response);
+      await this.logInteractionComplete(_interactionId, response);
 
       return response;
-    } catch (error) {
-      // Log error
-      await this.logInteractionError(interactionId, error);
-      throw error;
+    } catch (_error) {
+      // Log _error
+      await this.logInteractionError(_interactionId, _error);
+      throw _error;
     }
   }
 
@@ -171,7 +171,7 @@ export abstract class HealthcareAgent {
    * Abstract method for agent-specific processing logic
    */
   protected abstract process(
-    input: string,
+    _input: string,
     context: AgentContext
   ): Promise<AgentResponse>;
 
@@ -183,7 +183,7 @@ export abstract class HealthcareAgent {
       const { data: user } = await supabase
         .from('users')
         .select('id, role, is_active')
-        .eq('id', context.userId)
+        .eq('id', context._userId)
         .single();
 
       if (!user || !user.is_active) {
@@ -192,8 +192,8 @@ export abstract class HealthcareAgent {
 
       // Check role-based permissions
       return this.checkRolePermissions(user.role, context.userRole);
-    } catch (error) {
-      console.error('Permission verification failed:', error);
+    } catch (_error) {
+      console._error('Permission verification failed:', _error);
       return false;
     }
   }
@@ -204,7 +204,7 @@ export abstract class HealthcareAgent {
   protected checkRolePermissions(userRole: string, contextRole: string): boolean {
     // Providers have access to all agents
     if (userRole === 'provider' || contextRole === 'provider') {
-      return true;
+      return _true;
     }
 
     // Support members have limited access
@@ -225,12 +225,12 @@ export abstract class HealthcareAgent {
   /**
    * Check rate limiting for user
    */
-  protected async checkRateLimit(userId: string): Promise<void> {
-    const now = Date.now();
-    const hourAgo = now - 3600000;
+  protected async checkRateLimit(_userId: string): Promise<void> {
+    const _now = Date._now();
+    const hourAgo = _now - 3600000;
 
     // Get user's request timestamps
-    let timestamps = this.rateLimitMap.get(userId) || [];
+    let timestamps = this.rateLimitMap.get(_userId) || [];
     
     // Filter out old timestamps
     timestamps = timestamps.filter(t => t > hourAgo);
@@ -239,30 +239,30 @@ export abstract class HealthcareAgent {
     if (timestamps.length >= this.config.rateLimitPerHour!) {
       await this.auditService.logSecurityEvent({
         eventType: 'rate_limit_exceeded',
-        userId,
-        metadata: {
-          agentName: this.config.name,
-          attempts: timestamps.length
+        _userId,
+        _metadata: {
+          _agentName: this.config.name,
+          _attempts: timestamps.length
         }
       });
       throw new Error('Rate limit exceeded. Please try again later.');
     }
 
-    // Add current timestamp
-    timestamps.push(now);
-    this.rateLimitMap.set(userId, timestamps);
+    // Add current _timestamp
+    timestamps.push(_now);
+    this.rateLimitMap.set(_userId, timestamps);
   }
 
   /**
    * Validate agent response
    */
   protected validateResponse(response: AgentResponse): void {
-    if (!response.message || response.message.trim().length === 0) {
-      throw new Error('Invalid response: empty message');
+    if (!response._message || response._message.trim().length === 0) {
+      throw new Error('Invalid response: empty _message');
     }
 
-    if (response.confidence < 0 || response.confidence > 1) {
-      throw new Error('Invalid response: confidence must be between 0 and 1');
+    if (response._confidence < 0 || response._confidence > 1) {
+      throw new Error('Invalid response: _confidence must be between 0 and 1');
     }
 
     // Validate actions if present
@@ -288,17 +288,17 @@ export abstract class HealthcareAgent {
         : interaction;
 
       await supabase.from('agent_interactions').insert({
-        user_id: this.context.userId,
-        session_id: this.context.sessionId,
-        agent_type: interaction.agentType,
-        input: dataToStore.input,
+        user_id: this.context._userId,
+        _session_id: this.context._sessionId,
+        _agent_type: interaction.agentType,
+        _input: dataToStore._input,
         output: dataToStore.output,
-        confidence: interaction.confidence,
-        metadata: dataToStore.metadata,
-        created_at: interaction.timestamp
+        _confidence: interaction._confidence,
+        _metadata: dataToStore._metadata,
+        _created_at: interaction._timestamp
       });
-    } catch (error) {
-      console.error('Failed to store interaction:', error);
+    } catch (_error) {
+      console._error('Failed to store interaction:', _error);
       // Don't throw - continue processing even if storage fails
     }
   }
@@ -311,19 +311,19 @@ export abstract class HealthcareAgent {
   ): Promise<AgentInteraction> {
     try {
       const encrypted = await secureUserDataService.encryptSensitiveData({
-        input: interaction.input,
+        _input: interaction._input,
         output: interaction.output,
-        metadata: interaction.metadata
+        _metadata: interaction._metadata
       });
 
       return {
         ...interaction,
-        input: encrypted.input,
+        _input: encrypted._input,
         output: encrypted.output,
-        metadata: encrypted.metadata
+        _metadata: encrypted._metadata
       };
-    } catch (error) {
-      console.error('Encryption failed:', error);
+    } catch (_error) {
+      console._error('Encryption failed:', _error);
       throw new Error('Failed to encrypt interaction data');
     }
   }
@@ -351,8 +351,8 @@ export abstract class HealthcareAgent {
             await this.executeStore(action);
             break;
         }
-      } catch (error) {
-        console.error(`Failed to execute action ${action.type}:`, error);
+      } catch (_error) {
+        console._error(`Failed to execute action ${action.type}:`, _error);
         // Continue with other actions
       }
     }
@@ -363,12 +363,12 @@ export abstract class HealthcareAgent {
    */
   protected async executeNotification(action: AgentAction): Promise<void> {
     await supabase.from('notifications').insert({
-      user_id: action.target || this.context?.userId,
+      user_id: action.target || this.context?._userId,
       type: 'agent_notification',
-      title: `${this.config.name} Update`,
-      message: action.data.message || 'New update available',
-      priority: action.priority || 'medium',
-      metadata: action.data
+      _title: `${this.config.name} Update`,
+      _message: action.data._message || 'New update available',
+      _priority: action._priority || 'medium',
+      _metadata: action.data
     });
   }
 
@@ -377,13 +377,13 @@ export abstract class HealthcareAgent {
    */
   protected async executeAlert(action: AgentAction): Promise<void> {
     await supabase.from('alerts').insert({
-      user_id: action.target || this.context?.userId,
-      agent_type: this.config.name,
-      alert_type: action.data.type || 'general',
-      message: action.data.message,
-      severity: action.priority || 'medium',
-      requires_action: true,
-      metadata: action.data
+      user_id: action.target || this.context?._userId,
+      _agent_type: this.config.name,
+      _alert_type: action.data.type || 'general',
+      _message: action.data._message,
+      _severity: action._priority || 'medium',
+      _requires_action: _true,
+      _metadata: action.data
     });
   }
 
@@ -393,10 +393,10 @@ export abstract class HealthcareAgent {
   protected async executeLog(action: AgentAction): Promise<void> {
     await this.auditService.logActivity({
       action: `agent_action_${action.type}`,
-      userId: this.context?.userId || 'system',
-      metadata: {
-        agentName: this.config.name,
-        actionData: action.data
+      _userId: this.context?._userId || 'system',
+      _metadata: {
+        _agentName: this.config.name,
+        _actionData: action.data
       }
     });
   }
@@ -410,17 +410,17 @@ export abstract class HealthcareAgent {
       .from('users')
       .select('id')
       .eq('role', 'provider')
-      .eq('is_active', true)
+      .eq('is_active', _true)
       .limit(1)
       .single();
 
     if (provider) {
       await supabase.from('escalations').insert({
-        patient_id: this.context?.userId,
-        provider_id: provider.id,
-        agent_type: this.config.name,
-        reason: action.data.reason,
-        priority: action.priority || 'high',
+        patient_id: this.context?._userId,
+        _provider_id: provider.id,
+        _agent_type: this.config.name,
+        _reason: action.data._reason,
+        _priority: action._priority || 'high',
         context: action.data
       });
     }
@@ -431,11 +431,11 @@ export abstract class HealthcareAgent {
    */
   protected async executeStore(action: AgentAction): Promise<void> {
     await supabase.from('agent_data_store').insert({
-      user_id: this.context?.userId,
-      agent_type: this.config.name,
-      data_type: action.data.type,
+      user_id: this.context?._userId,
+      _agent_type: this.config.name,
+      _data_type: action.data.type,
       data: action.data.content,
-      metadata: action.data.metadata
+      _metadata: action.data._metadata
     });
   }
 
@@ -443,18 +443,18 @@ export abstract class HealthcareAgent {
    * Log interaction start
    */
   protected async logInteractionStart(
-    interactionId: string,
-    input: string
+    _interactionId: string,
+    _input: string
   ): Promise<void> {
     if (this.config.auditLevel === 'minimal') return;
 
     await this.auditService.logActivity({
       action: 'agent_interaction_start',
-      userId: this.context?.userId || 'unknown',
-      metadata: {
-        interactionId,
-        agentName: this.config.name,
-        inputLength: input.length
+      _userId: this.context?._userId || 'unknown',
+      _metadata: {
+        _interactionId,
+        _agentName: this.config.name,
+        _inputLength: _input.length
       }
     });
   }
@@ -463,38 +463,38 @@ export abstract class HealthcareAgent {
    * Log interaction completion
    */
   protected async logInteractionComplete(
-    interactionId: string,
+    _interactionId: string,
     response: AgentResponse
   ): Promise<void> {
     if (this.config.auditLevel === 'minimal') return;
 
     await this.auditService.logActivity({
       action: 'agent_interaction_complete',
-      userId: this.context?.userId || 'unknown',
-      metadata: {
-        interactionId,
-        agentName: this.config.name,
-        confidence: response.confidence,
-        requiresEscalation: response.requiresEscalation,
-        actionCount: response.actions?.length || 0
+      _userId: this.context?._userId || 'unknown',
+      _metadata: {
+        _interactionId,
+        _agentName: this.config.name,
+        _confidence: response._confidence,
+        _requiresEscalation: response._requiresEscalation,
+        _actionCount: response.actions?.length || 0
       }
     });
   }
 
   /**
-   * Log interaction error
+   * Log interaction _error
    */
   protected async logInteractionError(
-    interactionId: string,
-    error: any
+    _interactionId: string,
+    _error: unknown
   ): Promise<void> {
     await this.auditService.logSecurityEvent({
       eventType: 'agent_interaction_error',
-      userId: this.context?.userId || 'unknown',
-      metadata: {
-        interactionId,
-        agentName: this.config.name,
-        error: error.message || 'Unknown error'
+      _userId: this.context?._userId || 'unknown',
+      _metadata: {
+        _interactionId,
+        _agentName: this.config.name,
+        _error: _error._message || 'Unknown _error'
       }
     });
   }

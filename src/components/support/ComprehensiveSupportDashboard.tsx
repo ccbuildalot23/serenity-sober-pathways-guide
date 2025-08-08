@@ -32,15 +32,15 @@ interface SupportStats {
 interface PositiveReinforcement {
   id: string;
   message: string;
-  reinforcement_type: string;
+  _reinforcement_type: string;
   delivered_at: string;
   acknowledged: boolean;
 }
 
 export const ComprehensiveSupportDashboard: React.FC = () => {
   const { user } = useAuth();
-  const [sending, setSending] = useState<string | null>(null);
-  const [stats, setStats] = useState<SupportStats | null>(null);
+  const [sending, setSending] = useState<string | _null>(_null);
+  const [stats, setStats] = useState<SupportStats | _null>(_null);
   const [reinforcements, setReinforcements] = useState<PositiveReinforcement[]>([]);
   const [encouragementIndex, setEncouragementIndex] = useState(0);
 
@@ -89,11 +89,11 @@ export const ComprehensiveSupportDashboard: React.FC = () => {
     loadReinforcements();
     
     // Rotate encouragements every 4 seconds
-    const interval = setInterval(() => {
+    const _interval = setInterval(() => {
       setEncouragementIndex(prev => (prev + 1) % encouragements.length);
     }, 4000);
 
-    return () => clearInterval(interval);
+    return () => clearInterval(_interval);
   }, [user]);
 
   const loadStats = async () => {
@@ -152,10 +152,10 @@ export const ComprehensiveSupportDashboard: React.FC = () => {
         .from('support_requests')
         .insert({
           user_id: user.id,
-          request_type: level.id as any,
-          message_sent: level.message,
-          anonymous_send: false,
-          sponsor_only: false
+          _request_type: level.id as any,
+          _message_sent: level.message,
+          _anonymous_send: false,
+          _sponsor_only: false
         })
         .select()
         .single();
@@ -166,8 +166,8 @@ export const ComprehensiveSupportDashboard: React.FC = () => {
       const { data: smsData, error: smsError } = await supabase.functions.invoke('send-crisis-sms', {
         body: {
           customMessage: level.message,
-          isTestMessage: level.id !== 'crisis',
-          includeLocation: level.id === 'crisis'
+          _isTestMessage: level.id !== 'crisis',
+          _includeLocation: level.id === 'crisis'
         }
       });
 
@@ -186,8 +186,8 @@ export const ComprehensiveSupportDashboard: React.FC = () => {
         .from('positive_reinforcements')
         .insert({
           user_id: user.id,
-          support_request_id: requestData.id,
-          reinforcement_type: 'immediate',
+          _support_request_id: requestData.id,
+          _reinforcement_type: 'immediate',
           message: getImmediateReinforcement(level.id)
         });
 
@@ -195,20 +195,20 @@ export const ComprehensiveSupportDashboard: React.FC = () => {
       scheduleDelayedReinforcements(requestData.id, level.id);
 
       // Show success message
-      const encouragement = level.id === 'crisis' 
+      const _encouragement = level.id === 'crisis' 
         ? 'Help is on the way. You did the right thing.'
         : 'Message sent! You\'re connected to your support network.';
       
-      toast.success(encouragement);
+      toast.success(_encouragement);
       
       // Reload reinforcements
       loadReinforcements();
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to send support request:', error);
       toast.error(error.message || 'Failed to send support request');
     } finally {
-      setSending(null);
+      setSending(_null);
     }
   };
 
@@ -234,8 +234,8 @@ export const ComprehensiveSupportDashboard: React.FC = () => {
         .from('positive_reinforcements')
         .insert({
           user_id: user!.id,
-          support_request_id: requestId,
-          reinforcement_type: 'one_hour',
+          _support_request_id: requestId,
+          _reinforcement_type: 'one_hour',
           message: level === 'crisis' 
             ? "You reached out. That took courage. How are you feeling now? 💙"
             : "You stayed connected to your support network. That's recovery! 🌱"
@@ -247,8 +247,8 @@ export const ComprehensiveSupportDashboard: React.FC = () => {
         .from('positive_reinforcements')
         .insert({
           user_id: user!.id,
-          support_request_id: requestId,
-          reinforcement_type: 'twenty_four_hour',
+          _support_request_id: requestId,
+          _reinforcement_type: 'twenty_four_hour',
           message: level === 'crisis'
             ? "You made it through yesterday. That's a huge win. One day at a time. 🌅"
             : "You used your support network yesterday. That's how recovery works! ⭐"
@@ -280,7 +280,7 @@ export const ComprehensiveSupportDashboard: React.FC = () => {
         .from('practice_sessions')
         .insert({
           user_id: user.id,
-          session_type: 'daily_checkin'
+          _session_type: 'daily_checkin'
         });
 
       // Send practice message
@@ -289,7 +289,7 @@ export const ComprehensiveSupportDashboard: React.FC = () => {
       const { data, error } = await supabase.functions.invoke('send-crisis-sms', {
         body: {
           customMessage: practiceMessage,
-          isTestMessage: true
+          _isTestMessage: true
         }
       });
 
@@ -297,11 +297,11 @@ export const ComprehensiveSupportDashboard: React.FC = () => {
 
       toast.success("Practice check-in sent! Building healthy connection habits. 🌱");
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to send practice message:', error);
       toast.error('Failed to send practice message');
     } finally {
-      setSending(null);
+      setSending(_null);
     }
   };
 
@@ -309,7 +309,7 @@ export const ComprehensiveSupportDashboard: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 p-4">
       <div className="max-w-6xl mx-auto space-y-6">
         
-        {/* Header with rotating encouragement */}
+        {/* Header with rotating _encouragement */}
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold tracking-tight">Your Support Network</h1>
           <div className="h-8 flex items-center justify-center">

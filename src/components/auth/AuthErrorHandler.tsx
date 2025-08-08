@@ -1,12 +1,12 @@
 import React from 'react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, RefreshCw, Mail, HelpCircle, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface AuthErrorHandlerProps {
-  error: any;
+  error: unknown;
   onRetry?: () => void;
   onBack?: () => void;
   context?: 'signin' | 'signup' | 'general';
@@ -20,7 +20,7 @@ export const AuthErrorHandler: React.FC<AuthErrorHandlerProps> = ({
 }) => {
   const { signOut } = useAuth();
 
-  const getErrorInfo = (error: any) => {
+  const getErrorInfo = (error: unknown) => {
     const message = error?.message?.toLowerCase() || '';
     const code = error?.code?.toLowerCase() || '';
 
@@ -121,7 +121,7 @@ export const AuthErrorHandler: React.FC<AuthErrorHandlerProps> = ({
               Technical Details (Development)
             </summary>
             <pre className="mt-2 p-2 bg-muted rounded overflow-auto">
-              {JSON.stringify(error, null, 2)}
+              {JSON.stringify(error, _null, 2)}
             </pre>
           </details>
         )}

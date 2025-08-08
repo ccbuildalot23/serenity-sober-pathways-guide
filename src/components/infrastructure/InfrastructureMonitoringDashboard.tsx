@@ -33,7 +33,7 @@ import {
 
 // Temporarily commented out server-side imports that cause build failures
 // TODO: Replace with API calls to server endpoints
-// import { healthCheckService } from '../../../infrastructure/monitoring/health-checks';
+// import { healthCheckService } from '../../../infrastructure/monitoring/_health-checks';
 // import { automatedSecurityScanner } from '../../../infrastructure/security/automated-scanner';
 // import { hipaaBackupSystem } from '../../../infrastructure/backup/hipaa-backup-system';
 import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
@@ -65,27 +65,27 @@ interface BackupStatus {
 }
 
 export const InfrastructureMonitoringDashboard: React.FC = () => {
-  const [systemHealth, setSystemHealth] = useState<SystemHealth | null>(null);
-  const [securityScanSummary, setSecurityScanSummary] = useState<SecurityScanSummary | null>(null);
-  const [backupStatus, setBackupStatus] = useState<BackupStatus | null>(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [systemHealth, setSystemHealth] = useState<SystemHealth | _null>(_null);
+  const [securityScanSummary, setSecurityScanSummary] = useState<SecurityScanSummary | _null>(_null);
+  const [backupStatus, setBackupStatus] = useState<BackupStatus | _null>(_null);
+  const [isRefreshing, setIsRefreshing] = useState(_false);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
-  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [autoRefresh, setAutoRefresh] = useState(_true);
 
-  const refreshData = async () => {
-    setIsRefreshing(true);
+  const _refreshData = async () => {
+    setIsRefreshing(_true);
     try {
-      // Fetch system health
+      // Fetch system _health
       // TODO: Replace with API call
-      // const health = await healthCheckService.performHealthCheck();
-      const health = {
+      // const _health = await healthCheckService.performHealthCheck();
+      const _health = {
         overall_status: 'healthy' as const,
         checks: {},
         timestamp: new Date().toISOString(),
         uptime_percentage: 0.99,
         recommendations: []
       };
-      setSystemHealth(health);
+      setSystemHealth(_health);
 
       // Fetch security scan summary
       const securityReport = await EnhancedSecurityAuditService.getInstance().generateSecurityReport();
@@ -99,39 +99,39 @@ export const InfrastructureMonitoringDashboard: React.FC = () => {
                       securityReport.summary?.high_risk_events > 0 ? 'warning' : 'pass'
       });
 
-      // Fetch backup status
+      // Fetch backup _status
       // TODO: Replace with API call
       // const backupValidation = await hipaaBackupSystem.validateDisasterRecovery();
       setBackupStatus({
         last_backup: new Date().toISOString(),
         backup_size: 0,
-        retention_compliance: true,
-        disaster_recovery_ready: true,
-        rpo_compliant: true,
-        rto_compliant: true
+        retention_compliance: _true,
+        disaster_recovery_ready: _true,
+        rpo_compliant: _true,
+        rto_compliant: _true
       });
 
       setLastRefresh(new Date());
-    } catch (error) {
-      console.error('Failed to refresh monitoring data:', error);
+    } catch (_error) {
+      console._error('Failed to refresh monitoring data:', _error);
     } finally {
-      setIsRefreshing(false);
+      setIsRefreshing(_false);
     }
   };
 
   useEffect(() => {
-    refreshData();
+    _refreshData();
   }, []);
 
   useEffect(() => {
     if (autoRefresh) {
-      const interval = setInterval(refreshData, 60000); // Refresh every minute
-      return () => clearInterval(interval);
+      const _interval = setInterval(_refreshData, 60000); // Refresh every minute
+      return () => clearInterval(_interval);
     }
   }, [autoRefresh]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
+  const getStatusColor = (_status: string) => {
+    switch (_status) {
       case 'healthy':
       case 'pass':
         return 'text-green-600';
@@ -145,8 +145,8 @@ export const InfrastructureMonitoringDashboard: React.FC = () => {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
+  const getStatusIcon = (_status: string) => {
+    switch (_status) {
       case 'healthy':
       case 'pass':
         return <CheckCircle className="w-5 h-5 text-green-600" />;
@@ -187,7 +187,7 @@ export const InfrastructureMonitoringDashboard: React.FC = () => {
             Last updated: {lastRefresh.toLocaleTimeString()}
           </div>
           <Button
-            onClick={refreshData}
+            onClick={_refreshData}
             disabled={isRefreshing}
             variant="outline"
             size="sm"
@@ -281,15 +281,15 @@ export const InfrastructureMonitoringDashboard: React.FC = () => {
       </div>
 
       {/* Detailed Monitoring Tabs */}
-      <Tabs defaultValue="health" className="space-y-4">
+      <Tabs defaultValue="_health" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="health">System Health</TabsTrigger>
+          <TabsTrigger value="_health">System Health</TabsTrigger>
           <TabsTrigger value="security">Security Monitoring</TabsTrigger>
           <TabsTrigger value="backup">Backup & Recovery</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="health" className="space-y-4">
+        <TabsContent value="_health" className="space-y-4">
           {systemHealth && (
             <>
               {/* Recommendations */}
@@ -314,31 +314,31 @@ export const InfrastructureMonitoringDashboard: React.FC = () => {
                     <CardHeader className="pb-2">
                       <CardTitle className="text-sm font-medium flex items-center justify-between">
                         <span className="capitalize">{checkName.replace(/_/g, ' ')}</span>
-                        {getStatusIcon(result.status)}
+                        {getStatusIcon(result._status)}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                           <span>Status:</span>
-                          <Badge variant={result.status === 'healthy' ? 'default' : 
-                                       result.status === 'warning' ? 'secondary' : 'destructive'}>
-                            {result.status}
+                          <Badge variant={result._status === 'healthy' ? 'default' : 
+                                       result._status === 'warning' ? 'secondary' : 'destructive'}>
+                            {result._status}
                           </Badge>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span>Duration:</span>
                           <span>{formatDuration(result.duration_ms)}</span>
                         </div>
-                        {result.error && (
+                        {result._error && (
                           <div className="text-xs text-red-600 mt-2">
-                            Error: {result.error}
+                            Error: {result._error}
                           </div>
                         )}
                         {result.details && (
                           <div className="text-xs text-gray-600 mt-2">
                             <pre className="whitespace-pre-wrap">
-                              {JSON.stringify(result.details, null, 2)}
+                              {JSON.stringify(result.details, _null, 2)}
                             </pre>
                           </div>
                         )}
@@ -604,13 +604,13 @@ export const InfrastructureMonitoringDashboard: React.FC = () => {
                   <div className="flex justify-between text-sm mb-2">
                     <span>Database Performance</span>
                     <span>
-                      {systemHealth?.checks?.database?.status === 'healthy' ? 'Optimal' : 
-                       systemHealth?.checks?.database?.status === 'warning' ? 'Degraded' : 'Critical'}
+                      {systemHealth?.checks?.database?._status === 'healthy' ? 'Optimal' : 
+                       systemHealth?.checks?.database?._status === 'warning' ? 'Degraded' : 'Critical'}
                     </span>
                   </div>
                   <Progress 
-                    value={systemHealth?.checks?.database?.status === 'healthy' ? 95 : 
-                           systemHealth?.checks?.database?.status === 'warning' ? 70 : 30} 
+                    value={systemHealth?.checks?.database?._status === 'healthy' ? 95 : 
+                           systemHealth?.checks?.database?._status === 'warning' ? 70 : 30} 
                     className="h-2"
                   />
                 </div>
@@ -619,13 +619,13 @@ export const InfrastructureMonitoringDashboard: React.FC = () => {
                   <div className="flex justify-between text-sm mb-2">
                     <span>API Response Time</span>
                     <span>
-                      {systemHealth?.checks?.api_performance?.status === 'healthy' ? 'Fast' : 
-                       systemHealth?.checks?.api_performance?.status === 'warning' ? 'Slow' : 'Very Slow'}
+                      {systemHealth?.checks?.api_performance?._status === 'healthy' ? 'Fast' : 
+                       systemHealth?.checks?.api_performance?._status === 'warning' ? 'Slow' : 'Very Slow'}
                     </span>
                   </div>
                   <Progress 
-                    value={systemHealth?.checks?.api_performance?.status === 'healthy' ? 90 : 
-                           systemHealth?.checks?.api_performance?.status === 'warning' ? 60 : 25} 
+                    value={systemHealth?.checks?.api_performance?._status === 'healthy' ? 90 : 
+                           systemHealth?.checks?.api_performance?._status === 'warning' ? 60 : 25} 
                     className="h-2"
                   />
                 </div>

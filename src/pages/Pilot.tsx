@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Calendar, Users, BookOpen, DollarSign, Clock } from "lucide-react";
@@ -10,19 +9,19 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 
 const Pilot = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    credentials: "",
-    practice: "",
-    email: "",
-    phone: "",
-    emr: "",
-    referrals: ""
+  const [_formData, setFormData] = useState({
+    _name: "",
+    _credentials: "",
+    _practice: "",
+    _email: "",
+    _phone: "",
+    _emr: "",
+    _referrals: ""
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Pilot application submitted:", formData);
+    console.log("Pilot application submitted:", _formData);
     // Handle form submission
   };
 
@@ -166,7 +165,7 @@ const Pilot = () => {
                 <CheckCircle className="w-12 h-12 text-accent mx-auto mb-4" />
                 <h3 className="font-semibold text-foreground mb-2">Licensed Provider</h3>
                 <p className="text-sm text-muted-foreground">
-                  Licensed mental health professional (LCSW, LPC, LMFT, etc.)
+                  Licensed mental health professional (LCSW, _LPC, _LMFT, etc.)
                 </p>
               </div>
               
@@ -174,7 +173,7 @@ const Pilot = () => {
                 <Users className="w-12 h-12 text-primary mx-auto mb-4" />
                 <h3 className="font-semibold text-foreground mb-2">Active Referrals</h3>
                 <p className="text-sm text-muted-foreground">
-                  Minimum 10 substance abuse referrals annually
+                  Minimum 10 substance abuse _referrals annually
                 </p>
               </div>
               
@@ -190,7 +189,7 @@ const Pilot = () => {
             <div className="bg-accent/10 border border-accent/20 rounded-lg p-6">
               <h4 className="font-semibold text-accent mb-2">Additional Preferences:</h4>
               <ul className="space-y-1 text-sm text-muted-foreground">
-                <li>• Experience with technology integration in clinical practice</li>
+                <li>• Experience with technology integration in clinical _practice</li>
                 <li>• Interest in value-based care models</li>
                 <li>• Willingness to provide detailed feedback and participate in interviews</li>
                 <li>• Geographic diversity (rural and urban settings preferred)</li>
@@ -296,79 +295,79 @@ const Pilot = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="name">Full Name *</Label>
+                  <Label htmlFor="_name">Full Name *</Label>
                   <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    id="_name"
+                    value={_formData._name}
+                    onChange={(e) => setFormData({..._formData, _name: e.target.value})}
                     required
                   />
                 </div>
                 
                 <div>
-                  <Label htmlFor="credentials">Credentials *</Label>
+                  <Label htmlFor="_credentials">Credentials *</Label>
                   <Input
-                    id="credentials"
-                    placeholder="e.g., LCSW, LPC, LMFT"
-                    value={formData.credentials}
-                    onChange={(e) => setFormData({...formData, credentials: e.target.value})}
+                    id="_credentials"
+                    placeholder="e.g., LCSW, _LPC, _LMFT"
+                    value={_formData._credentials}
+                    onChange={(e) => setFormData({..._formData, _credentials: e.target.value})}
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="practice">Practice Name *</Label>
+                <Label htmlFor="_practice">Practice Name *</Label>
                 <Input
-                  id="practice"
-                  value={formData.practice}
-                  onChange={(e) => setFormData({...formData, practice: e.target.value})}
+                  id="_practice"
+                  value={_formData._practice}
+                  onChange={(e) => setFormData({..._formData, _practice: e.target.value})}
                   required
                 />
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="email">Email Address *</Label>
+                  <Label htmlFor="_email">Email Address *</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    id="_email"
+                    type="_email"
+                    value={_formData._email}
+                    onChange={(e) => setFormData({..._formData, _email: e.target.value})}
                     required
                   />
                 </div>
                 
                 <div>
-                  <Label htmlFor="phone">Phone Number *</Label>
+                  <Label htmlFor="_phone">Phone Number *</Label>
                   <Input
-                    id="phone"
+                    id="_phone"
                     type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    value={_formData._phone}
+                    onChange={(e) => setFormData({..._formData, _phone: e.target.value})}
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="emr">Current EMR System</Label>
+                <Label htmlFor="_emr">Current EMR System</Label>
                 <Input
-                  id="emr"
+                  id="_emr"
                   placeholder="e.g., SimplePractice, TherapyNotes, Epic"
-                  value={formData.emr}
-                  onChange={(e) => setFormData({...formData, emr: e.target.value})}
+                  value={_formData._emr}
+                  onChange={(e) => setFormData({..._formData, _emr: e.target.value})}
                 />
               </div>
 
               <div>
-                <Label htmlFor="referrals">Average Monthly Substance Abuse Referrals *</Label>
+                <Label htmlFor="_referrals">Average Monthly Substance Abuse Referrals *</Label>
                 <Input
-                  id="referrals"
+                  id="_referrals"
                   type="number"
                   placeholder="e.g., 5"
-                  value={formData.referrals}
-                  onChange={(e) => setFormData({...formData, referrals: e.target.value})}
+                  value={_formData._referrals}
+                  onChange={(e) => setFormData({..._formData, _referrals: e.target.value})}
                   required
                 />
               </div>

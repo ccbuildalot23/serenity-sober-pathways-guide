@@ -52,13 +52,13 @@ class HopeErrorService {
     console.error('Error occurred:', error);
     
     const messages = hopeErrorMessages[type];
-    const message = messages[Math.floor(Math.random() * messages.length)];
+    const _message = messages[Math.floor(Math.random() * messages.length)];
     
-    toast.error(message, {
+    toast.error(_message, {
       duration: 4000,
-      action: {
+      _action: {
         label: 'Dismiss',
-        onClick: () => console.log('Dismissed')
+        _onClick: () => console.log('Dismissed')
       }
     });
     
@@ -120,7 +120,7 @@ class HopeErrorService {
   }
   
   // API error handler
-  handleApiError(status: number, message?: string) {
+  handleApiError(status: number, _message?: string) {
     if (status === 404) {
       toast.error("Can't find that right now. Let's try another path.", {
         duration: 3000
@@ -136,12 +136,12 @@ class HopeErrorService {
         duration: 5000
       });
     } else {
-      this.handleError(new Error(message), 'general');
+      this.handleError(new Error(_message), 'general');
     }
   }
   
   // Success with encouragement
-  handleSuccess(action: string) {
+  handleSuccess(_action: string) {
     const messages = {
       save: "Saved! You're building something beautiful.",
       update: "Updated! Progress, not perfection.",
@@ -151,7 +151,7 @@ class HopeErrorService {
       default: "Success! You're doing great things."
     };
     
-    toast.success(messages[action as keyof typeof messages] || messages.default, {
+    toast.success(messages[_action as keyof typeof messages] || messages.default, {
       duration: 3000
     });
   }
@@ -159,7 +159,7 @@ class HopeErrorService {
 
 export const hopeError = new HopeErrorService();
 
-// Global error boundary message
+// Global error boundary _message
 export const getErrorBoundaryMessage = (): string => {
   const messages = [
     "Something went wrong, but you didn't. Refresh when ready.",
@@ -172,7 +172,7 @@ export const getErrorBoundaryMessage = (): string => {
   return messages[Math.floor(Math.random() * messages.length)];
 };
 
-// Offline message
+// Offline _message
 export const getOfflineMessage = (): string => {
   return "You're offline. Crisis tools still work. Your recovery doesn't need internet.";
 };

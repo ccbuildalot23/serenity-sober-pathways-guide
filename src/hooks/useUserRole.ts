@@ -7,11 +7,11 @@ import { UserRole } from '@/types/userRoles';
 export const useUserRole = () => {
   const { user } = useAuth();
   const [role, setRole] = useState<UserRole>('patient');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(_true);
 
   useEffect(() => {
     const determineUserRole = () => {
-      setLoading(true);
+      setLoading(_true);
       
       if (!user) {
         setRole('patient');
@@ -23,24 +23,24 @@ export const useUserRole = () => {
       // This was set during signup and stored in Supabase
       const userType = user.user_metadata?.userType || 'recovery';
       
-      let assignedRole: UserRole = 'patient';
+      let _assignedRole: UserRole = 'patient';
       
       switch(userType) {
         case 'recovery':
-          assignedRole = 'patient';
+          _assignedRole = 'patient';
           break;
         case 'supporter':
-          assignedRole = 'support_member';
+          _assignedRole = 'support_member';
           break;
         case 'provider':
-          assignedRole = 'provider';
+          _assignedRole = 'provider';
           break;
         default:
-          assignedRole = 'patient';
+          _assignedRole = 'patient';
       }
       
-      console.log(`User role determined: ${assignedRole} (from userType: ${userType})`);
-      setRole(assignedRole);
+      console.log(`User role determined: ${_assignedRole} (from userType: ${userType})`);
+      setRole(_assignedRole);
       setLoading(false);
     };
 
@@ -52,11 +52,11 @@ export const useUserRole = () => {
     if (loading) return false;
     
     // Provider can access everything
-    if (role === 'provider') return true;
+    if (role === 'provider') return _true;
     
     // Support member can access support and patient features
     if (role === 'support_member' && (requiredRole === 'support_member' || requiredRole === 'patient')) {
-      return true;
+      return _true;
     }
     
     // Patient can only access patient features
@@ -64,10 +64,10 @@ export const useUserRole = () => {
   };
 
   // Simple switchRole for testing (disabled in production)
-  const switchRole = (newRole: UserRole) => {
+  const switchRole = (_newRole: UserRole) => {
     if (process.env.NODE_ENV === 'development') {
-      console.log(`Switching role from ${role} to ${newRole} (dev only)`);
-      setRole(newRole);
+      console.log(`Switching role from ${role} to ${_newRole} (dev only)`);
+      setRole(_newRole);
     }
   };
 

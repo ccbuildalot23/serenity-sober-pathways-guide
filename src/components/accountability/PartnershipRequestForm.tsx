@@ -3,7 +3,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,22 +21,22 @@ const PartnershipRequestForm: React.FC<PartnershipRequestFormProps> = ({ onClose
   const [templates, setTemplates] = useState<SupportAgreementTemplate[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<SupportAgreementTemplate | null>(null);
   const [partnerEmail, setPartnerEmail] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(_false);
   
   // Privacy settings
-  const [privacySettings, setPrivacySettings] = useState({
-    share_mood: true,
-    share_progress: true,
-    share_goals: false,
-    share_streaks: true,
-    notification_level: 'summary' as 'minimal' | 'summary' | 'detailed'
+  const [_privacySettings, setPrivacySettings] = useState({
+    _share_mood: _true,
+    _share_progress: _true,
+    _share_goals: _false,
+    _share_streaks: _true,
+    _notification_level: 'summary' as 'minimal' | 'summary' | 'detailed'
   });
 
-  // Check-in schedule
-  const [schedule, setSchedule] = useState({
-    frequency: 'daily',
-    times: ['09:00'],
-    timezone: 'UTC'
+  // Check-in _schedule
+  const [_schedule, setSchedule] = useState({
+    _frequency: 'daily',
+    _times: ['09:00'],
+    _timezone: 'UTC'
   });
 
   useEffect(() => {
@@ -63,17 +62,17 @@ const PartnershipRequestForm: React.FC<PartnershipRequestFormProps> = ({ onClose
       return;
     }
 
-    setLoading(true);
+    setLoading(_true);
     try {
       // In a real app, you'd look up the partner by email
       // For demo purposes, we'll use a placeholder partner ID
-      const partnerId = 'demo-partner-id';
+      const _partnerId = 'demo-partner-id';
       
       await AccountabilityService.requestPartnership(
-        partnerId,
+        _partnerId,
         selectedTemplate.template_content,
-        schedule,
-        privacySettings
+        _schedule,
+        _privacySettings
       );
 
       toast.success('Partnership request sent successfully!');
@@ -82,28 +81,28 @@ const PartnershipRequestForm: React.FC<PartnershipRequestFormProps> = ({ onClose
       console.error('Error sending partnership request:', error);
       toast.error('Failed to send partnership request');
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
 
   const addCheckInTime = () => {
     setSchedule(prev => ({
       ...prev,
-      times: [...prev.times, '18:00']
+      _times: [...prev._times, '18:00']
     }));
   };
 
-  const removeCheckInTime = (index: number) => {
+  const removeCheckInTime = (_index: number) => {
     setSchedule(prev => ({
       ...prev,
-      times: prev.times.filter((_, i) => i !== index)
+      _times: prev._times.filter((_, i) => i !== _index)
     }));
   };
 
-  const updateCheckInTime = (index: number, time: string) => {
+  const updateCheckInTime = (_index: number, time: string) => {
     setSchedule(prev => ({
       ...prev,
-      times: prev.times.map((t, i) => i === index ? time : t)
+      _times: prev._times.map((t, i) => i === _index ? time : t)
     }));
   };
 
@@ -207,8 +206,8 @@ const PartnershipRequestForm: React.FC<PartnershipRequestFormProps> = ({ onClose
                           <div>
                             <h5 className="font-medium text-sm mb-2">Key Commitments:</h5>
                             <ul className="text-xs text-gray-600 space-y-1">
-                              {template.template_content.commitments?.slice(0, 3).map((commitment: string, index: number) => (
-                                <li key={index}>• {commitment}</li>
+                              {template.template_content.commitments?.slice(0, 3).map((commitment: string, _index: number) => (
+                                <li key={_index}>• {commitment}</li>
                               ))}
                             </ul>
                           </div>
@@ -235,8 +234,8 @@ const PartnershipRequestForm: React.FC<PartnershipRequestFormProps> = ({ onClose
                 <CardContent className="space-y-4">
                   <div>
                     <Label>Frequency</Label>
-                    <Select value={schedule.frequency} onValueChange={(value) => 
-                      setSchedule(prev => ({ ...prev, frequency: value }))
+                    <Select value={_schedule._frequency} onValueChange={(value) => 
+                      setSchedule(prev => ({ ...prev, _frequency: value }))
                     }>
                       <SelectTrigger>
                         <SelectValue />
@@ -252,20 +251,20 @@ const PartnershipRequestForm: React.FC<PartnershipRequestFormProps> = ({ onClose
                   <div>
                     <Label>Check-in Times</Label>
                     <div className="space-y-2">
-                      {schedule.times.map((time, index) => (
-                        <div key={index} className="flex items-center space-x-2">
+                      {_schedule._times.map((time, _index) => (
+                        <div key={_index} className="flex items-center space-x-2">
                           <Input
                             type="time"
                             value={time}
-                            onChange={(e) => updateCheckInTime(index, e.target.value)}
+                            onChange={(e) => updateCheckInTime(_index, e.target.value)}
                             className="flex-1"
                           />
-                          {schedule.times.length > 1 && (
+                          {_schedule._times.length > 1 && (
                             <Button 
                               type="button"
                               variant="outline" 
                               size="sm"
-                              onClick={() => removeCheckInTime(index)}
+                              onClick={() => removeCheckInTime(_index)}
                             >
                               Remove
                             </Button>
@@ -273,7 +272,7 @@ const PartnershipRequestForm: React.FC<PartnershipRequestFormProps> = ({ onClose
                         </div>
                       ))}
                       
-                      {schedule.times.length < 3 && (
+                      {_schedule._times.length < 3 && (
                         <Button 
                           type="button"
                           variant="outline" 
@@ -309,9 +308,9 @@ const PartnershipRequestForm: React.FC<PartnershipRequestFormProps> = ({ onClose
                         <p className="text-sm text-gray-600">Let your partner see your daily mood ratings</p>
                       </div>
                       <Switch
-                        checked={privacySettings.share_mood}
+                        checked={_privacySettings._share_mood}
                         onCheckedChange={(checked) => 
-                          setPrivacySettings(prev => ({ ...prev, share_mood: checked }))
+                          setPrivacySettings(prev => ({ ...prev, _share_mood: checked }))
                         }
                       />
                     </div>
@@ -322,9 +321,9 @@ const PartnershipRequestForm: React.FC<PartnershipRequestFormProps> = ({ onClose
                         <p className="text-sm text-gray-600">Share general progress summaries</p>
                       </div>
                       <Switch
-                        checked={privacySettings.share_progress}
+                        checked={_privacySettings._share_progress}
                         onCheckedChange={(checked) => 
-                          setPrivacySettings(prev => ({ ...prev, share_progress: checked }))
+                          setPrivacySettings(prev => ({ ...prev, _share_progress: checked }))
                         }
                       />
                     </div>
@@ -335,9 +334,9 @@ const PartnershipRequestForm: React.FC<PartnershipRequestFormProps> = ({ onClose
                         <p className="text-sm text-gray-600">Let your partner see your specific goals</p>
                       </div>
                       <Switch
-                        checked={privacySettings.share_goals}
+                        checked={_privacySettings._share_goals}
                         onCheckedChange={(checked) => 
-                          setPrivacySettings(prev => ({ ...prev, share_goals: checked }))
+                          setPrivacySettings(prev => ({ ...prev, _share_goals: checked }))
                         }
                       />
                     </div>
@@ -348,9 +347,9 @@ const PartnershipRequestForm: React.FC<PartnershipRequestFormProps> = ({ onClose
                         <p className="text-sm text-gray-600">Share your check-in streaks and milestones</p>
                       </div>
                       <Switch
-                        checked={privacySettings.share_streaks}
+                        checked={_privacySettings._share_streaks}
                         onCheckedChange={(checked) => 
-                          setPrivacySettings(prev => ({ ...prev, share_streaks: checked }))
+                          setPrivacySettings(prev => ({ ...prev, _share_streaks: checked }))
                         }
                       />
                     </div>
@@ -359,11 +358,11 @@ const PartnershipRequestForm: React.FC<PartnershipRequestFormProps> = ({ onClose
                   <div className="pt-4 border-t">
                     <Label>Notification Detail Level</Label>
                     <Select 
-                      value={privacySettings.notification_level} 
+                      value={_privacySettings._notification_level} 
                       onValueChange={(value) => 
                         setPrivacySettings(prev => ({ 
                           ...prev, 
-                          notification_level: value as 'minimal' | 'summary' | 'detailed' 
+                          _notification_level: value as 'minimal' | 'summary' | 'detailed' 
                         }))
                       }
                     >

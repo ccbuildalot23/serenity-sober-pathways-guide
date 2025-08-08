@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, Users, Heart, Star, Flag, Pin, Eye, ThumbsUp } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { MessageSquare, Users, Heart, Star, Flag, ThumbsUp } from 'lucide-react';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -14,21 +14,21 @@ import { format, formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
 
 interface CommunityForumProps {
-  forumId?: string;
+  _forumId?: string;
 }
 
-export const CommunityForum: React.FC<CommunityForumProps> = ({ forumId = 'general' }) => {
+export const CommunityForum: React.FC<CommunityForumProps> = ({ _forumId = 'general' }) => {
   const [posts, setPosts] = useState<ForumPost[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(_true);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [reportDialog, setReportDialog] = useState<{
     open: boolean;
-    contentId: string;
-    contentType: 'post' | 'reply' | 'story';
-  }>({ open: false, contentId: '', contentType: 'post' });
+    _contentId: string;
+    _contentType: 'post' | 'reply' | 'story';
+  }>({ open: false, _contentId: '', _contentType: 'post' });
 
   const categories = [
     { id: 'general', name: 'General Discussion', icon: MessageSquare, color: 'bg-blue-500' },
@@ -44,16 +44,16 @@ export const CommunityForum: React.FC<CommunityForumProps> = ({ forumId = 'gener
 
   useEffect(() => {
     loadPosts();
-  }, [forumId, sortBy, selectedTags, searchTerm]);
+  }, [_forumId, sortBy, selectedTags, searchTerm]);
 
   const loadPosts = async () => {
     try {
-      setLoading(true);
-      const data = await CommunityService.getForumPosts(forumId, {
+      setLoading(_true);
+      const _data = await CommunityService.getForumPosts(_forumId, {
         sort: sortBy,
-        search: searchTerm
+        _search: searchTerm
       });
-      setPosts(data);
+      setPosts(_data);
     } catch (error) {
       console.error('Error loading posts:', error);
       toast.error('Failed to load posts');
@@ -62,9 +62,9 @@ export const CommunityForum: React.FC<CommunityForumProps> = ({ forumId = 'gener
     }
   };
 
-  const handleReaction = async (postId: string, reactionType: 'helpful' | 'supportive' | 'inspiring' | 'understanding') => {
+  const handleReaction = async (_postId: string, _reactionType: 'helpful' | 'supportive' | 'inspiring' | 'understanding') => {
     try {
-      await CommunityService.reactToPost(postId, reactionType);
+      await CommunityService.reactToPost(_postId, _reactionType);
       toast.success('Reaction added');
       loadPosts(); // Refresh to show updated counts
     } catch (error) {
@@ -72,22 +72,22 @@ export const CommunityForum: React.FC<CommunityForumProps> = ({ forumId = 'gener
     }
   };
 
-  const handleReport = async (reason: string, details?: string) => {
+  const handleReport = async (_reason: string, _details?: string) => {
     try {
       await CommunityService.reportContent(
-        reportDialog.contentType,
-        reportDialog.contentId,
-        reason,
-        details
+        reportDialog._contentType,
+        reportDialog._contentId,
+        _reason,
+        _details
       );
       toast.success('Content reported successfully');
-      setReportDialog({ open: false, contentId: '', contentType: 'post' });
+      setReportDialog({ open: false, _contentId: '', _contentType: 'post' });
     } catch (error) {
       toast.error('Failed to report content');
     }
   };
 
-  const renderPost = (post: ForumPost) => (
+  const _renderPost = (post: ForumPost) => (
     <Card key={post.id} className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
@@ -106,7 +106,7 @@ export const CommunityForum: React.FC<CommunityForumProps> = ({ forumId = 'gener
                 )}
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span>{formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}</span>
+                <span>{formatDistanceToNow(new Date(post.created_at), { addSuffix: _true })}</span>
                 <span>•</span>
                 <span>{post.reply_count || 0} replies</span>
               </div>
@@ -117,9 +117,9 @@ export const CommunityForum: React.FC<CommunityForumProps> = ({ forumId = 'gener
             variant="ghost"
             size="sm"
             onClick={() => setReportDialog({
-              open: true,
-              contentId: post.id,
-              contentType: 'post'
+              open: _true,
+              _contentId: post.id,
+              _contentType: 'post'
             })}
           >
             <Flag className="h-4 w-4" />
@@ -182,14 +182,14 @@ export const CommunityForum: React.FC<CommunityForumProps> = ({ forumId = 'gener
           <h1 className="text-2xl font-bold">Community Forum</h1>
           <p className="text-muted-foreground">Connect with others on your recovery journey</p>
         </div>
-        <Button onClick={() => setShowCreatePost(true)}>
+        <Button onClick={() => setShowCreatePost(_true)}>
           <MessageSquare className="h-4 w-4 mr-2" />
           New Post
         </Button>
       </div>
 
       {/* Categories */}
-      <Tabs value={forumId} className="space-y-4">
+      <Tabs value={_forumId} className="space-y-4">
         <TabsList className="grid w-full grid-cols-4">
           {categories.map((category) => (
             <TabsTrigger key={category.id} value={category.id}>
@@ -210,7 +210,7 @@ export const CommunityForum: React.FC<CommunityForumProps> = ({ forumId = 'gener
                 className="flex-1"
               />
               
-              <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+              <Select value={sortBy} onValueChange={(value: unknown) => setSortBy(value)}>
                 <SelectTrigger className="w-40">
                   <SelectValue />
                 </SelectTrigger>
@@ -244,7 +244,7 @@ export const CommunityForum: React.FC<CommunityForumProps> = ({ forumId = 'gener
         </Card>
 
         {/* Posts */}
-        <TabsContent value={forumId} className="space-y-4">
+        <TabsContent value={_forumId} className="space-y-4">
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -257,7 +257,7 @@ export const CommunityForum: React.FC<CommunityForumProps> = ({ forumId = 'gener
               </CardContent>
             </Card>
           ) : (
-            posts.map(renderPost)
+            posts.map(_renderPost)
           )}
         </TabsContent>
       </Tabs>
@@ -265,7 +265,7 @@ export const CommunityForum: React.FC<CommunityForumProps> = ({ forumId = 'gener
       {/* Create Post Dialog */}
       <CreatePostDialog
         open={showCreatePost}
-        forumId={forumId}
+        _forumId={_forumId}
         onClose={() => setShowCreatePost(false)}
         onSuccess={() => {
           setShowCreatePost(false);
@@ -276,7 +276,7 @@ export const CommunityForum: React.FC<CommunityForumProps> = ({ forumId = 'gener
       {/* Report Dialog */}
       <ReportDialog
         open={reportDialog.open}
-        onClose={() => setReportDialog({ open: false, contentId: '', contentType: 'post' })}
+        onClose={() => setReportDialog({ open: false, _contentId: '', _contentType: 'post' })}
         onSubmit={handleReport}
       />
     </div>

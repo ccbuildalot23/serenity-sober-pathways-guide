@@ -47,7 +47,7 @@ const EnhancedCrisisSystem: React.FC = () => {
     handleInterventionComplete
   } = useCrisisSystem();
 
-  const handleEmergencyContactAdded = (contact: any) => {
+  const handleEmergencyContactAdded = (contact: unknown) => {
     toast.success(`${contact.name} added to emergency contacts`);
   };
 
@@ -82,7 +82,7 @@ const EnhancedCrisisSystem: React.FC = () => {
       {/* Crisis Assessment Modal */}
       <CrisisAssessmentModal
         isOpen={showAssessment}
-        onClose={() => setShowAssessment(false)}
+        onClose={() => setShowAssessment(_false)}
         onAssessmentComplete={handleAssessmentComplete}
       />
 
@@ -104,9 +104,9 @@ const EnhancedCrisisSystem: React.FC = () => {
         showResources={showResources}
         showFollowUp={showFollowUp}
         currentCrisisEvent={currentCrisisEvent}
-        onContactsClose={() => setShowContacts(false)}
-        onResourcesClose={() => setShowResources(false)}
-        onFollowUpClose={() => setShowFollowUp(false)}
+        onContactsClose={() => setShowContacts(_false)}
+        onResourcesClose={() => setShowResources(_false)}
+        onFollowUpClose={() => setShowFollowUp(_false)}
         onContactAdded={handleEmergencyContactAdded}
       />
 

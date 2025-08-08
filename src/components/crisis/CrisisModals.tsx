@@ -21,7 +21,7 @@ interface CrisisModalsProps {
   onContactsClose: () => void;
   onResourcesClose: () => void;
   onFollowUpClose: () => void;
-  onContactAdded: (contact: any) => void;
+  onContactAdded: (contact: unknown) => void;
 }
 
 export const CrisisModals: React.FC<CrisisModalsProps> = ({
@@ -94,8 +94,8 @@ export const CrisisModals: React.FC<CrisisModalsProps> = ({
               </div>
               <FollowUpScheduler
                 crisisEventId={currentCrisisEvent.id}
-                onFollowUpComplete={(followUp) => {
-                  console.log('Follow-up completed:', followUp);
+                onFollowUpComplete={(_followUp) => {
+                  console.log('Follow-up completed:', _followUp);
                 }}
               />
               <div className="mt-4 pt-4 border-t">

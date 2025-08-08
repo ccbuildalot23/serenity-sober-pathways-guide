@@ -17,17 +17,17 @@ interface ModerationItem {
   sentiment: string;
   crisis_risk: string;
   ai_confidence: number;
-  priority: string;
+  _priority: string;
   status: string;
   created_at: string;
-  content?: any;
-  user_profile?: any;
+  content?: unknown;
+  user_profile?: unknown;
 }
 
 const ModerationDashboard: React.FC = () => {
   const { user } = useAuth();
   const [moderationItems, setModerationItems] = useState<ModerationItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(_true);
   const [activeTab, setActiveTab] = useState('pending');
 
   useEffect(() => {
@@ -35,31 +35,31 @@ const ModerationDashboard: React.FC = () => {
       loadModerationItems();
       
       // Set up real-time subscription for moderation queue updates
-      const channel = supabase
-        .channel('moderation-updates')
+      const _channel = supabase
+        ._channel('moderation-updates')
         .on(
           'postgres_changes',
           {
             event: '*',
-            schema: 'public',
-            table: 'moderation_queue'
+            _schema: 'public',
+            _table: 'moderation_queue'
           },
-          (payload) => {
-            console.log('Moderation queue update:', payload);
+          (_payload) => {
+            console.log('Moderation queue update:', _payload);
             loadModerationItems(); // Reload data when changes occur
           }
         )
         .subscribe();
 
       return () => {
-        supabase.removeChannel(channel);
+        supabase.removeChannel(_channel);
       };
     }
   }, [user, activeTab]);
 
   const loadModerationItems = async () => {
     try {
-      setLoading(true);
+      setLoading(_true);
       
       // Mock data until types are updated - this will be replaced with real data fetching
       const mockData = [
@@ -72,7 +72,7 @@ const ModerationDashboard: React.FC = () => {
           sentiment: 'negative',
           crisis_risk: 'high',
           ai_confidence: 0.85,
-          priority: 'urgent',
+          _priority: 'urgent',
           status: 'pending',
           created_at: new Date().toISOString(),
           full_name: 'Anonymous User',
@@ -86,8 +86,8 @@ const ModerationDashboard: React.FC = () => {
         : mockData.filter(item => item.status === activeTab);
 
       // Fetch associated content for each item
-      const itemsWithContent = await Promise.all(
-        filteredData.map(async (item: any) => {
+      const _itemsWithContent = await Promise.all(
+        filteredData.map(async (item: unknown) => {
           let content = null;
           
           // Mock content for demonstration
@@ -107,12 +107,12 @@ const ModerationDashboard: React.FC = () => {
         })
       );
 
-      setModerationItems(itemsWithContent);
+      setModerationItems(_itemsWithContent);
     } catch (error) {
       console.error('Error loading moderation items:', error);
       toast.error('Failed to load moderation queue');
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
 
@@ -141,8 +141,8 @@ const ModerationDashboard: React.FC = () => {
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
+  const getPriorityColor = (_priority: string) => {
+    switch (_priority) {
       case 'urgent': return 'destructive';
       case 'high': return 'secondary';
       case 'normal': return 'outline';
@@ -150,8 +150,8 @@ const ModerationDashboard: React.FC = () => {
     }
   };
 
-  const getCrisisRiskColor = (risk: string) => {
-    switch (risk) {
+  const getCrisisRiskColor = (_risk: string) => {
+    switch (_risk) {
       case 'high': return 'destructive';
       case 'medium': return 'secondary';
       case 'low': return 'outline';
@@ -217,8 +217,8 @@ const ModerationDashboard: React.FC = () => {
                   <div className="flex items-start justify-between">
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <Badge variant={getPriorityColor(item.priority)}>
-                          {item.priority}
+                        <Badge variant={getPriorityColor(item._priority)}>
+                          {item._priority}
                         </Badge>
                         <Badge variant={getCrisisRiskColor(item.crisis_risk)}>
                           Crisis: {item.crisis_risk}

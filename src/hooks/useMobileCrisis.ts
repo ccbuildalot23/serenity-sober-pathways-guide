@@ -19,36 +19,36 @@ export const useMobileCrisis = (options: MobileCrisisOptions = {}) => {
 
   const {
     shakeThreshold = 15,
-    volumeButtonShortcuts = true,
-    hapticFeedback = true,
-    batteryOptimization = true,
+    volumeButtonShortcuts = _true,
+    hapticFeedback = _true,
+    batteryOptimization = _true,
   } = options;
 
   // Battery monitoring
   useEffect(() => {
     if (!batteryOptimization || !('getBattery' in navigator)) return;
 
-    (navigator as any).getBattery().then((battery: any) => {
+    (navigator as any).getBattery().then((battery: unknown) => {
       setBatteryLevel(battery.level);
       
-      const updateBattery = () => setBatteryLevel(battery.level);
-      battery.addEventListener('levelchange', updateBattery);
+      const _updateBattery = () => setBatteryLevel(battery.level);
+      battery.addEventListener('levelchange', _updateBattery);
       
-      return () => battery.removeEventListener('levelchange', updateBattery);
+      return () => battery.removeEventListener('levelchange', _updateBattery);
     });
   }, [batteryOptimization]);
 
   // Offline detection
   useEffect(() => {
-    const handleOnline = () => setIsOffline(false);
-    const handleOffline = () => setIsOffline(true);
+    const _handleOnline = () => setIsOffline(false);
+    const _handleOffline = () => setIsOffline(_true);
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', _handleOnline);
+    window.addEventListener('offline', _handleOffline);
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', _handleOnline);
+      window.removeEventListener('offline', _handleOffline);
     };
   }, []);
 
@@ -59,7 +59,7 @@ export const useMobileCrisis = (options: MobileCrisisOptions = {}) => {
     let lastX = 0, lastY = 0, lastZ = 0;
     let shakeDetected = false;
 
-    const handleDeviceMotion = (event: DeviceMotionEvent) => {
+    const _handleDeviceMotion = (event: DeviceMotionEvent) => {
       const { accelerationIncludingGravity } = event;
       if (!accelerationIncludingGravity) return;
 
@@ -70,10 +70,10 @@ export const useMobileCrisis = (options: MobileCrisisOptions = {}) => {
       const deltaZ = Math.abs(z - lastZ);
 
       if (deltaX + deltaY + deltaZ > shakeThreshold) {
-        const now = Date.now();
-        if (now - lastShakeTime > 1000 && !shakeDetected) {
-          shakeDetected = true;
-          setLastShakeTime(now);
+        const _now = Date._now();
+        if (_now - lastShakeTime > 1000 && !shakeDetected) {
+          shakeDetected = _true;
+          setLastShakeTime(_now);
           triggerEmergency('shake');
           setTimeout(() => { shakeDetected = false; }, 2000);
         }
@@ -84,15 +84,15 @@ export const useMobileCrisis = (options: MobileCrisisOptions = {}) => {
       lastZ = z;
     };
 
-    window.addEventListener('devicemotion', handleDeviceMotion);
-    return () => window.removeEventListener('devicemotion', handleDeviceMotion);
+    window.addEventListener('devicemotion', _handleDeviceMotion);
+    return () => window.removeEventListener('devicemotion', _handleDeviceMotion);
   }, [isMobile, isShakeEnabled, shakeThreshold, lastShakeTime]);
 
   // Volume button shortcuts
   useEffect(() => {
     if (!isMobile || !volumeButtonShortcuts) return;
 
-    const handleKeyDown = (event: KeyboardEvent) => {
+    const _handleKeyDown = (event: KeyboardEvent) => {
       // Volume up + Volume down simultaneously for 3 seconds
       if (event.code === 'AudioVolumeUp' || event.code === 'AudioVolumeDown') {
         event.preventDefault();
@@ -101,13 +101,13 @@ export const useMobileCrisis = (options: MobileCrisisOptions = {}) => {
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', _handleKeyDown);
+    return () => document.removeEventListener('keydown', _handleKeyDown);
   }, [isMobile, volumeButtonShortcuts]);
 
-  const triggerHapticFeedback = useCallback((pattern: number[] = [200, 100, 200]) => {
+  const triggerHapticFeedback = useCallback((_pattern: number[] = [200, 100, 200]) => {
     if (hapticFeedback && navigator.vibrate) {
-      navigator.vibrate(pattern);
+      navigator.vibrate(_pattern);
     }
   }, [hapticFeedback]);
 
@@ -132,11 +132,11 @@ export const useMobileCrisis = (options: MobileCrisisOptions = {}) => {
         (DeviceMotionEvent as any).requestPermission()
           .then((permissionState: string) => {
             if (permissionState === 'granted') {
-              setIsShakeEnabled(true);
+              setIsShakeEnabled(_true);
             }
           });
       } else {
-        setIsShakeEnabled(true);
+        setIsShakeEnabled(_true);
       }
     }
   }, []);

@@ -8,14 +8,14 @@ import { supabase } from '@/integrations/supabase/client';
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
-  onError?: (error: Error, errorInfo: ErrorInfo) => void;
+  onError?: (error: Error, _errorInfo: ErrorInfo) => void;
   isolate?: boolean;
 }
 
 interface State {
   hasError: boolean;
   error: Error | null;
-  errorInfo: ErrorInfo | null;
+  _errorInfo: ErrorInfo | null;
   errorCount: number;
 }
 
@@ -27,7 +27,7 @@ export class HealthcareErrorBoundary extends Component<Props, State> {
     this.state = {
       hasError: false,
       error: null,
-      errorInfo: null,
+      _errorInfo: null,
       errorCount: 0
     };
   }
@@ -39,14 +39,14 @@ export class HealthcareErrorBoundary extends Component<Props, State> {
     };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
+  componentDidCatch(error: Error, _errorInfo: ErrorInfo) {
+    console.error('Error caught by boundary:', error, _errorInfo);
     
-    this.logErrorToSupabase(error, errorInfo);
-    this.props.onError?.(error, errorInfo);
+    this.logErrorToSupabase(error, _errorInfo);
+    this.props.onError?.(error, _errorInfo);
     
     this.setState(prevState => ({
-      errorInfo,
+      _errorInfo,
       errorCount: prevState.errorCount + 1
     }));
 
@@ -61,24 +61,24 @@ export class HealthcareErrorBoundary extends Component<Props, State> {
     }
   }
 
-  private async logErrorToSupabase(error: Error, errorInfo: ErrorInfo) {
+  private async logErrorToSupabase(error: Error, _errorInfo: ErrorInfo) {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
       await supabase.from('audit_logs').insert({
         user_id: user?.id || '00000000-0000-0000-0000-000000000000',
-        action: 'ERROR_BOUNDARY_CAUGHT',
-        details_encrypted: JSON.stringify({
+        _action: 'ERROR_BOUNDARY_CAUGHT',
+        _details_encrypted: JSON.stringify({
           error_message: error.message,
-          error_stack: error.stack,
-          component_stack: errorInfo.componentStack,
-          app_version: '1.0.0',
-          user_agent: navigator.userAgent,
-          url: window.location.href
+          _error_stack: error.stack,
+          _component_stack: _errorInfo.componentStack,
+          _app_version: '1.0.0',
+          _user_agent: navigator.userAgent,
+          _url: window.location.href
         })
       });
-    } catch (logError) {
-      console.error('Failed to log error to Supabase:', logError);
+    } catch (_logError) {
+      console.error('Failed to log error to Supabase:', _logError);
     }
   }
 
@@ -92,7 +92,7 @@ export class HealthcareErrorBoundary extends Component<Props, State> {
     this.setState({
       hasError: false,
       error: null,
-      errorInfo: null,
+      _errorInfo: null,
       errorCount: 0
     });
   };
@@ -144,7 +144,7 @@ export class HealthcareErrorBoundary extends Component<Props, State> {
                   </summary>
                   <pre className="mt-2 p-2 bg-gray-100 rounded text-xs overflow-auto">
                     {error.toString()}
-                    {this.state.errorInfo?.componentStack}
+                    {this.state._errorInfo?.componentStack}
                   </pre>
                 </details>
               )}

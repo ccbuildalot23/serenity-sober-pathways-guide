@@ -18,7 +18,20 @@
       "Bash(npx eslint:*)",
       "Bash(node:*)",
       "Bash(npm run lighthouse:validate:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npx:*)",
+      "Bash(gh run list:*)",
+      "Bash(mkdir:*)",
+      "Bash(gh workflow list:*)",
+      "Bash(git reset:*)",
+      "Bash(gh api:*)",
+      "Bash(find:*)",
+      "Bash(npm:*)",
+      "Bash(gh pr status:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(git fetch:*)",
+      "Bash(rm:*)",
+      "Bash(git merge:*)"
     ],
     "deny": []
   }

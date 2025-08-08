@@ -14,7 +14,7 @@ interface Value {
 
 const ValuesCardSort: React.FC = () => {
   const [selectedValues, setSelectedValues] = useState<Value[]>([]);
-  const [topValues, setTopValues] = useState<Value[]>([]);
+  const [_topValues, setTopValues] = useState<Value[]>([]);
   const [step, setStep] = useState<'select' | 'prioritize' | 'complete'>('select');
 
   const allValues: Value[] = [
@@ -73,13 +73,13 @@ const ValuesCardSort: React.FC = () => {
   };
 
   const moveToTop = (value: Value) => {
-    if (topValues.length < 5 && !topValues.find(v => v.id === value.id)) {
-      setTopValues([...topValues, value]);
+    if (_topValues.length < 5 && !_topValues.find(v => v.id === value.id)) {
+      setTopValues([..._topValues, value]);
     }
   };
 
   const removeFromTop = (value: Value) => {
-    setTopValues(topValues.filter(v => v.id !== value.id));
+    setTopValues(_topValues.filter(v => v.id !== value.id));
   };
 
   const handleReset = () => {
@@ -90,7 +90,7 @@ const ValuesCardSort: React.FC = () => {
 
   const handleSave = () => {
     // Save to local storage or database
-    console.log('Saving top values:', topValues);
+    console.log('Saving top values:', _topValues);
     setStep('complete');
   };
 
@@ -190,7 +190,7 @@ const ValuesCardSort: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {selectedValues.filter(v => !topValues.find(tv => tv.id === v.id)).map((value) => (
+                  {selectedValues.filter(v => !_topValues.find(tv => tv.id === v.id)).map((value) => (
                     <div
                       key={value.id}
                       className={`p-3 rounded-lg border cursor-pointer hover:shadow-sm ${categoryColors[value.category]}`}
@@ -209,14 +209,14 @@ const ValuesCardSort: React.FC = () => {
                 <CardTitle className="flex items-center justify-between">
                   <span>Top 5 Values</span>
                   <Badge variant="outline">
-                    {topValues.length}/5
+                    {_topValues.length}/5
                   </Badge>
                 </CardTitle>
                 <p className="text-gray-600">Your most important values</p>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {topValues.map((value, index) => (
+                  {_topValues.map((value, index) => (
                     <div
                       key={value.id}
                       className="p-3 rounded-lg border bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200"
@@ -242,9 +242,9 @@ const ValuesCardSort: React.FC = () => {
                     </div>
                   ))}
                   
-                  {topValues.length < 5 && (
+                  {_topValues.length < 5 && (
                     <div className="p-6 border-2 border-dashed border-gray-300 rounded-lg text-center text-gray-500">
-                      Select {5 - topValues.length} more value{5 - topValues.length !== 1 ? 's' : ''}
+                      Select {5 - _topValues.length} more value{5 - _topValues.length !== 1 ? 's' : ''}
                     </div>
                   )}
                 </div>
@@ -258,7 +258,7 @@ const ValuesCardSort: React.FC = () => {
             </Button>
             <Button 
               onClick={handleSave}
-              disabled={topValues.length !== 5}
+              disabled={_topValues.length !== 5}
             >
               <Save className="w-4 h-4 mr-2" />
               Complete
@@ -280,7 +280,7 @@ const ValuesCardSort: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {topValues.map((value, index) => (
+              {_topValues.map((value, index) => (
                 <div
                   key={value.id}
                   className="p-4 rounded-lg border bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200"

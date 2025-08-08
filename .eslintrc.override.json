@@ -1,0 +1,20 @@
+{
+  "extends": [
+    ".eslintrc.json"
+  ],
+  "rules": {
+    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "no-undef": "warn"
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2022": true
+  },
+  "globals": {
+    "btoa": "readonly",
+    "atob": "readonly",
+    "URLSearchParams": "readonly"
+  }
+}

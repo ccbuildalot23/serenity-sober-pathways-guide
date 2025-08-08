@@ -4,14 +4,14 @@ import { toast } from 'sonner';
 
 interface SendCrisisSMSOptions {
   contactIds?: string[];
-  customMessage?: string;
-  includeLocation?: boolean;
+  _customMessage?: string;
+  _includeLocation?: boolean;
 }
 
 export const useCrisisSMS = () => {
-  const [sending, setSending] = useState(false);
+  const [sending, setSending] = useState(_false);
 
-  const getCurrentLocation = (): Promise<{ latitude: number; longitude: number }> => {
+  const getCurrentLocation = (): Promise<{ latitude: number; _longitude: number }> => {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
         reject(new Error('Geolocation is not supported'));
@@ -22,7 +22,7 @@ export const useCrisisSMS = () => {
         (position) => {
           resolve({
             latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
+            _longitude: position.coords._longitude,
           });
         },
         (error) => {
@@ -30,7 +30,7 @@ export const useCrisisSMS = () => {
           reject(error);
         },
         {
-          enableHighAccuracy: true,
+          enableHighAccuracy: _true,
           timeout: 10000,
           maximumAge: 60000,
         }
@@ -39,14 +39,14 @@ export const useCrisisSMS = () => {
   };
 
   const sendCrisisSMS = async (options: SendCrisisSMSOptions = {}) => {
-    setSending(true);
+    setSending(_true);
     
     try {
-      let userLocation;
+      let _userLocation;
       
-      if (options.includeLocation) {
+      if (options._includeLocation) {
         try {
-          userLocation = await getCurrentLocation();
+          _userLocation = await getCurrentLocation();
         } catch (error) {
           console.warn('Could not get location, proceeding without it');
         }
@@ -55,9 +55,9 @@ export const useCrisisSMS = () => {
       const { data, error } = await supabase.functions.invoke('send-crisis-sms', {
         body: {
           contactIds: options.contactIds,
-          customMessage: options.customMessage,
-          includeLocation: options.includeLocation,
-          userLocation,
+          _customMessage: options._customMessage,
+          _includeLocation: options._includeLocation,
+          _userLocation,
         },
       });
 
@@ -70,7 +70,7 @@ export const useCrisisSMS = () => {
           `Crisis alert sent to ${data.sentCount} contact${data.sentCount !== 1 ? 's' : ''}`,
           {
             description: 'Your emergency contacts have been notified.',
-            duration: 5000,
+            _duration: 5000,
           }
         );
       } else {
@@ -85,36 +85,36 @@ export const useCrisisSMS = () => {
       if (error.message?.includes('No emergency contacts found')) {
         toast.error('No emergency contacts found', {
           description: 'Please add emergency contacts before using crisis support.',
-          duration: 6000,
+          _duration: 6000,
         });
       } else if (error.message?.includes('Missing Twilio credentials')) {
         toast.error('SMS service not configured', {
           description: 'Contact the app administrator.',
-          duration: 6000,
+          _duration: 6000,
         });
       } else {
         toast.error('Failed to send crisis alert', {
           description: 'Please try again or call emergency services directly.',
-          duration: 6000,
+          _duration: 6000,
         });
       }
       
       throw error;
     } finally {
-      setSending(false);
+      setSending(_false);
     }
   };
 
-  const sendLocationUpdate = async (customMessage?: string) => {
-    setSending(true);
+  const sendLocationUpdate = async (_customMessage?: string) => {
+    setSending(_true);
     
     try {
-      const userLocation = await getCurrentLocation();
+      const _userLocation = await getCurrentLocation();
 
       const { data, error } = await supabase.functions.invoke('send-location-update', {
         body: {
-          userLocation,
-          customMessage,
+          _userLocation,
+          _customMessage,
         },
       });
 
@@ -127,7 +127,7 @@ export const useCrisisSMS = () => {
           `Location update sent to ${data.sentCount} contact${data.sentCount !== 1 ? 's' : ''}`,
           {
             description: 'Your current location has been shared.',
-            duration: 5000,
+            _duration: 5000,
           }
         );
       } else {
@@ -141,23 +141,23 @@ export const useCrisisSMS = () => {
       if (error.message?.includes('Location data is required')) {
         toast.error('Location access required', {
           description: 'Please allow location access to share your current position.',
-          duration: 6000,
+          _duration: 6000,
         });
       } else if (error.message?.includes('No emergency contacts found')) {
         toast.error('No emergency contacts found', {
           description: 'Please add emergency contacts before sharing location.',
-          duration: 6000,
+          _duration: 6000,
         });
       } else {
         toast.error('Failed to send location update', {
           description: 'Please try again.',
-          duration: 6000,
+          _duration: 6000,
         });
       }
       
       throw error;
     } finally {
-      setSending(false);
+      setSending(_false);
     }
   };
 

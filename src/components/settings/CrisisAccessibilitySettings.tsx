@@ -25,16 +25,16 @@ export const CrisisAccessibilitySettings: React.FC = () => {
 
   // Load settings from localStorage on mount
   useEffect(() => {
-    const savedSettings = localStorage.getItem('crisisAccessibilitySettings');
-    if (savedSettings) {
+    const _savedSettings = localStorage.getItem('crisisAccessibilitySettings');
+    if (_savedSettings) {
       try {
-        const parsed = JSON.parse(savedSettings);
-        setSettings(parsed);
+        const _parsed = JSON.parse(_savedSettings);
+        setSettings(_parsed);
         
         // Apply settings to document
-        applySettingsToDocument(parsed);
-      } catch (error) {
-        console.error('Error loading accessibility settings:', error);
+        applySettingsToDocument(_parsed);
+      } catch (_error) {
+        console._error('Error loading accessibility settings:', _error);
       }
     }
   }, []);
@@ -64,13 +64,13 @@ export const CrisisAccessibilitySettings: React.FC = () => {
 
   const testVoiceAlert = () => {
     if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance("Voice alerts are working correctly. This is a test message.");
-      utterance.rate = 0.8;
-      utterance.volume = 0.8;
-      speechSynthesis.speak(utterance);
+      const _utterance = new SpeechSynthesisUtterance("Voice alerts are working correctly. This is a test message.");
+      _utterance.rate = 0.8;
+      _utterance.volume = 0.8;
+      speechSynthesis.speak(_utterance);
       toast.success("Voice alert test completed");
     } else {
-      toast.error("Speech synthesis not supported in this browser");
+      toast._error("Speech synthesis not supported in this browser");
     }
   };
 
@@ -79,7 +79,7 @@ export const CrisisAccessibilitySettings: React.FC = () => {
       navigator.vibrate([200, 100, 200, 100, 200]);
       toast.success("Haptic feedback test completed");
     } else {
-      toast.error("Haptic feedback not supported on this device");
+      toast._error("Haptic feedback not supported on this device");
     }
   };
 
@@ -101,8 +101,8 @@ export const CrisisAccessibilitySettings: React.FC = () => {
           </div>
           <Switch
             id="large-panic"
-            checked={settings.largePanicButton}
-            onCheckedChange={(checked) => updateSetting('largePanicButton', checked)}
+            _checked={settings.largePanicButton}
+            onCheckedChange={(_checked) => updateSetting('largePanicButton', _checked)}
           />
         </div>
 
@@ -119,10 +119,10 @@ export const CrisisAccessibilitySettings: React.FC = () => {
           <div className="flex items-center gap-2">
             <Switch
               id="voice-alerts"
-              checked={settings.voiceAlerts}
-              onCheckedChange={(checked) => {
-                updateSetting('voiceAlerts', checked);
-                if (checked) {
+              _checked={settings.voiceAlerts}
+              onCheckedChange={(_checked) => {
+                updateSetting('voiceAlerts', _checked);
+                if (_checked) {
                   speechSynthesis.speak(new SpeechSynthesisUtterance("Voice alerts enabled"));
                 }
               }}
@@ -150,8 +150,8 @@ export const CrisisAccessibilitySettings: React.FC = () => {
           </div>
           <Switch
             id="high-contrast"
-            checked={settings.highContrastCrisis}
-            onCheckedChange={(checked) => updateSetting('highContrastCrisis', checked)}
+            _checked={settings.highContrastCrisis}
+            onCheckedChange={(_checked) => updateSetting('highContrastCrisis', _checked)}
           />
         </div>
 
@@ -167,8 +167,8 @@ export const CrisisAccessibilitySettings: React.FC = () => {
           </div>
           <Switch
             id="simplified-crisis"
-            checked={settings.simplifiedCrisisMode}
-            onCheckedChange={(checked) => updateSetting('simplifiedCrisisMode', checked)}
+            _checked={settings.simplifiedCrisisMode}
+            onCheckedChange={(_checked) => updateSetting('simplifiedCrisisMode', _checked)}
           />
         </div>
 
@@ -185,8 +185,8 @@ export const CrisisAccessibilitySettings: React.FC = () => {
           <div className="flex items-center gap-2">
             <Switch
               id="haptic-feedback"
-              checked={settings.hapticFeedback}
-              onCheckedChange={(checked) => updateSetting('hapticFeedback', checked)}
+              _checked={settings.hapticFeedback}
+              onCheckedChange={(_checked) => updateSetting('hapticFeedback', _checked)}
             />
             <Button
               variant="outline"
@@ -204,14 +204,14 @@ export const CrisisAccessibilitySettings: React.FC = () => {
           <Button
             variant="outline"
             onClick={() => {
-              const defaultSettings = {
+              const _defaultSettings = {
                 largePanicButton: true,
                 voiceAlerts: true,
                 highContrastCrisis: true,
                 simplifiedCrisisMode: false,
                 hapticFeedback: true
               };
-              setSettings(defaultSettings);
+              setSettings(_defaultSettings);
               toast.success("Settings reset to defaults");
             }}
           >

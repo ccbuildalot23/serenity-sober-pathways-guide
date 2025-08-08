@@ -3,21 +3,21 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export const contactService = {
-  async sendSMS(phone: string, message: string): Promise<boolean> {
+  async sendSMS(phone: string, _message: string): Promise<boolean> {
     try {
       // For web app, create SMS link
-      const smsLink = `sms:${phone}?body=${encodeURIComponent(message)}`;
+      const smsLink = `sms:${phone}?body=${encodeURIComponent(_message)}`;
       window.location.href = smsLink;
       
-      // Log the action using audit_logs instead of support_interactions
+      // Log the _action using audit_logs instead of support_interactions
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         await supabase.from('audit_logs').insert({
           user_id: user.id,
-          action: 'SMS_SENT',
-          details_encrypted: JSON.stringify({
+          _action: 'SMS_SENT',
+          _details_encrypted: JSON.stringify({
             contact_phone: phone,
-            message_length: message.length
+            _message_length: _message.length
           })
         });
       }
@@ -35,13 +35,13 @@ export const contactService = {
       const telLink = `tel:${phone}`;
       window.location.href = telLink;
       
-      // Log the action using audit_logs instead of support_interactions
+      // Log the _action using audit_logs instead of support_interactions
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         await supabase.from('audit_logs').insert({
           user_id: user.id,
-          action: 'CALL_INITIATED',
-          details_encrypted: JSON.stringify({
+          _action: 'CALL_INITIATED',
+          _details_encrypted: JSON.stringify({
             contact_phone: phone
           })
         });
@@ -55,7 +55,7 @@ export const contactService = {
     }
   },
 
-  async sendAlert(contactId: string, message: string, urgency: 'high' | 'medium' | 'low'): Promise<boolean> {
+  async sendAlert(contactId: string, _message: string, _urgency: 'high' | 'medium' | 'low'): Promise<boolean> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
@@ -63,12 +63,12 @@ export const contactService = {
       // Since support_alerts table doesn't exist, we'll log to audit_logs instead
       await supabase.from('audit_logs').insert({
         user_id: user.id,
-        action: 'ALERT_SENT',
-        details_encrypted: JSON.stringify({
+        _action: 'ALERT_SENT',
+        _details_encrypted: JSON.stringify({
           contact_id: contactId,
-          message: message,
-          urgency: urgency,
-          status: 'pending'
+          _message: _message,
+          _urgency: _urgency,
+          _status: 'pending'
         })
       });
 

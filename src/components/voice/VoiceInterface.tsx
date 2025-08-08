@@ -13,21 +13,21 @@ interface VoiceInterfaceProps {
   onTextGenerated?: (text: string) => void;
   placeholder?: string;
   showTextToSpeech?: boolean;
-  initialText?: string;
+  _initialText?: string;
 }
 
 const VoiceInterface: React.FC<VoiceInterfaceProps> = ({
   onTextGenerated,
   placeholder = 'Voice input will appear here...',
   showTextToSpeech = true,
-  initialText = ''
+  _initialText = ''
 }) => {
-  const [text, setText] = useState(initialText);
+  const [text, setText] = useState(_initialText);
   const [selectedVoice, setSelectedVoice] = useState<'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer'>('alloy');
 
   const voiceRecording = useVoiceRecording({
     maxDuration: 60,
-    onStart: () => {
+    _onStart: () => {
       toast.info('Recording started', { description: 'Speak clearly into your microphone' });
     },
     onStop: () => {
@@ -45,7 +45,7 @@ const VoiceInterface: React.FC<VoiceInterfaceProps> = ({
 
   const textToSpeech = useTextToSpeech({
     voice: selectedVoice,
-    onStart: () => {
+    _onStart: () => {
       toast.info('Playing audio...');
     },
     onEnd: () => {
@@ -70,7 +70,7 @@ const VoiceInterface: React.FC<VoiceInterfaceProps> = ({
   };
 
   const voices = [
-    { value: 'alloy', label: 'Alloy (Neutral)' },
+    { value: 'alloy', label: 'Alloy (_Neutral)' },
     { value: 'echo', label: 'Echo (Male)' },
     { value: 'fable', label: 'Fable (British Male)' },
     { value: 'onyx', label: 'Onyx (Deep Male)' },
@@ -160,7 +160,7 @@ const VoiceInterface: React.FC<VoiceInterfaceProps> = ({
             <label className="text-sm font-medium">Speech Output</label>
             
             <div className="flex gap-2 items-center">
-              <Select value={selectedVoice} onValueChange={(value: any) => setSelectedVoice(value)}>
+              <Select value={selectedVoice} onValueChange={(value: unknown) => setSelectedVoice(value)}>
                 <SelectTrigger className="w-48">
                   <SelectValue />
                 </SelectTrigger>

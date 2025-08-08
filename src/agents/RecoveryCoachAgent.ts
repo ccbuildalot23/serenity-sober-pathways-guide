@@ -12,8 +12,8 @@ import {
 } from './base/HealthcareAgent';
 import { RecoveryCoachConfig, agentConfigManager } from './base/AgentConfig';
 import { motivationService } from '@/services/motivationService';
-import { recoveryWisdomService } from '@/services/recoveryWisdomService';
-import { successStoryService } from '@/services/successStoryService';
+// import { recoveryWisdomService } from '@/services/recoveryWisdomService';
+// import { successStoryService } from '@/services/successStoryService';
 import { supabase } from '@/integrations/supabase/client';
 
 interface RecoveryContext {
@@ -28,7 +28,7 @@ interface RecoveryContext {
 
 interface MotivationalContent {
   type: 'affirmation' | 'quote' | 'milestone' | 'tip' | 'story';
-  content: string;
+  _content: string;
   author?: string;
   relevance: number;
 }
@@ -38,8 +38,8 @@ export class RecoveryCoachAgent extends HealthcareAgent {
   private contentCache: Map<string, MotivationalContent[]> = new Map();
 
   constructor() {
-    const config = agentConfigManager.getConfig('RecoveryCoach') as RecoveryCoachConfig;
-    super(config);
+    const _config = agentConfigManager.getConfig('RecoveryCoach') as RecoveryCoachConfig;
+    super(_config);
   }
 
   /**
@@ -47,115 +47,115 @@ export class RecoveryCoachAgent extends HealthcareAgent {
    */
   async initialize(context: AgentContext): Promise<void> {
     await super.initialize(context);
-    await this.loadRecoveryContext(context.userId);
+    await this.loadRecoveryContext(context._userId);
   }
 
   /**
    * Load user's recovery context
    */
-  private async loadRecoveryContext(userId: string): Promise<void> {
+  private async loadRecoveryContext(_userId: string): Promise<void> {
     try {
       // Load user profile
-      const { data: profile } = await supabase
+      const { _data: profile } = await supabase
         .from('users')
         .select('created_at, recovery_preferences')
-        .eq('id', userId)
+        .eq('id', _userId)
         .single();
 
       // Load recent check-ins
-      const { data: checkIns } = await supabase
+      const { _data: checkIns } = await supabase
         .from('daily_check_ins')
         .select('mood_score, created_at')
-        .eq('user_id', userId)
+        .eq('user_id', _userId)
         .order('created_at', { ascending: false })
         .limit(7);
 
       // Load achievements
-      const { data: achievements } = await supabase
+      const { _data: achievements } = await supabase
         .from('achievements')
         .select('title, achieved_at')
-        .eq('user_id', userId)
+        .eq('user_id', _userId)
         .order('achieved_at', { ascending: false })
         .limit(5);
 
       // Calculate sobriety milestone
       const sobrietyDate = profile?.created_at ? new Date(profile.created_at) : new Date();
-      const daysSober = Math.floor(
+      const _daysSober = Math.floor(
         (Date.now() - sobrietyDate.getTime()) / (1000 * 60 * 60 * 24)
       );
 
       this.recoveryContext = {
         sobrietyDate,
-        currentMilestone: this.calculateMilestone(daysSober),
+        currentMilestone: this.calculateMilestone(_daysSober),
         recentAchievements: achievements?.map(a => a.title) || [],
         preferredMotivationalStyle: profile?.recovery_preferences?.motivationalStyle || 'supportive',
         dailyMood: checkIns?.[0]?.mood_score || 5,
         lastCheckIn: checkIns?.[0]?.created_at ? new Date(checkIns[0].created_at) : undefined
       };
-    } catch (error) {
-      console.error('Failed to load recovery context:', error);
+    } catch (_error) {
+      console._error('Failed to load recovery context:', _error);
       // Continue with default context
     }
   }
 
   /**
-   * Process user input and generate motivational response
+   * Process user _input and generate motivational response
    */
   protected async process(
-    input: string,
-    context: AgentContext
+    _input: string,
+    _context: AgentContext
   ): Promise<AgentResponse> {
     const startTime = Date.now();
 
     try {
-      // Analyze input sentiment and intent
-      const analysis = this.analyzeInput(input);
+      // Analyze _input sentiment and intent
+      const analysis = this.analyzeInput(_input);
       
-      // Generate appropriate motivational content
-      const content = await this.generateMotivationalContent(analysis);
+      // Generate appropriate motivational _content
+      const _content = await this.generateMotivationalContent(analysis);
       
       // Create response based on analysis
-      const response = this.createMotivationalResponse(content, analysis);
+      const response = this.createMotivationalResponse(_content, analysis);
       
       // Add any necessary actions
       const actions = this.determineActions(analysis, response);
 
-      // Calculate confidence based on content relevance
-      const confidence = this.calculateConfidence(content, analysis);
+      // Calculate _confidence based on _content relevance
+      const _confidence = this.calculateConfidence(_content, analysis);
 
       return {
         message: response,
         actions,
-        confidence,
+        _confidence,
         requiresEscalation: analysis.needsSupport && analysis.sentiment < 0.3,
-        metadata: {
-          contentType: content.type,
+        _metadata: {
+          contentType: _content.type,
           sentiment: analysis.sentiment,
           responseTime: Date.now() - startTime
         }
       };
-    } catch (error) {
-      console.error('Recovery coach processing error:', error);
+    } catch (_error) {
+      console._error('Recovery coach processing _error:', _error);
       return {
         message: "I'm here to support your recovery journey. Every step forward counts, no matter how small. What would you like to talk about today?",
-        confidence: 0.5,
+        _confidence: 0.5,
         requiresEscalation: false
       };
     }
   }
 
   /**
-   * Analyze user input for sentiment and intent
+   * Analyze user _input for sentiment and intent
    */
-  private analyzeInput(input: string): {
+  private analyzeInput(_input: string): {
     sentiment: number;
     intent: string;
     keywords: string[];
     needsSupport: boolean;
   } {
-    const lowerInput = input.toLowerCase();
+    const lowerInput = _input.toLowerCase();
     
-    // Sentiment analysis (simplified)
+    // Sentiment analysis (_simplified)
     const positiveWords = ['good', 'great', 'happy', 'proud', 'strong', 'better', 'success', 'achieved'];
     const negativeWords = ['bad', 'sad', 'angry', 'frustrated', 'relapse', 'struggle', 'hard', 'difficult'];
     const urgentWords = ['help', 'crisis', 'emergency', 'can\'t', 'desperate', 'scared'];
@@ -200,48 +200,48 @@ export class RecoveryCoachAgent extends HealthcareAgent {
   }
 
   /**
-   * Generate appropriate motivational content
+   * Generate appropriate motivational _content
    */
   private async generateMotivationalContent(
     analysis: { intent: string; sentiment: number }
   ): Promise<MotivationalContent> {
     // Check cache first
-    const cacheKey = `${analysis.intent}_${Math.round(analysis.sentiment * 10)}`;
-    const cached = this.contentCache.get(cacheKey);
+    const _cacheKey = `${analysis.intent}_${Math.round(analysis.sentiment * 10)}`;
+    const cached = this.contentCache.get(_cacheKey);
     if (cached && cached.length > 0) {
       return cached[Math.floor(Math.random() * cached.length)];
     }
 
-    let content: MotivationalContent;
+    let _content: MotivationalContent;
 
     switch (analysis.intent) {
       case 'milestone_celebration':
-        content = await this.getMilestoneContent();
+        _content = await this.getMilestoneContent();
         break;
       case 'struggle_support':
-        content = await this.getStruggleSupportContent();
+        _content = await this.getStruggleSupportContent();
         break;
       case 'relapse_prevention':
-        content = await this.getRelapsePreventionContent();
+        _content = await this.getRelapsePreventionContent();
         break;
       case 'motivation_request':
-        content = await this.getMotivationalQuote();
+        _content = await this.getMotivationalQuote();
         break;
       default:
-        content = await this.getGeneralSupportContent(analysis.sentiment);
+        _content = await this.getGeneralSupportContent(analysis.sentiment);
     }
 
-    // Cache the content
-    if (!this.contentCache.has(cacheKey)) {
-      this.contentCache.set(cacheKey, []);
+    // Cache the _content
+    if (!this.contentCache.has(_cacheKey)) {
+      this.contentCache.set(_cacheKey, []);
     }
-    this.contentCache.get(cacheKey)!.push(content);
+    this.contentCache.get(_cacheKey)!.push(_content);
 
-    return content;
+    return _content;
   }
 
   /**
-   * Get milestone celebration content
+   * Get milestone celebration _content
    */
   private async getMilestoneContent(): Promise<MotivationalContent> {
     const milestone = this.recoveryContext.currentMilestone || '1 day';
@@ -253,13 +253,13 @@ export class RecoveryCoachAgent extends HealthcareAgent {
 
     return {
       type: 'milestone',
-      content: messages[Math.floor(Math.random() * messages.length)],
+      _content: messages[Math.floor(Math.random() * messages.length)],
       relevance: 0.9
     };
   }
 
   /**
-   * Get struggle support content
+   * Get struggle support _content
    */
   private async getStruggleSupportContent(): Promise<MotivationalContent> {
     const messages = [
@@ -270,13 +270,13 @@ export class RecoveryCoachAgent extends HealthcareAgent {
 
     return {
       type: 'affirmation',
-      content: messages[Math.floor(Math.random() * messages.length)],
+      _content: messages[Math.floor(Math.random() * messages.length)],
       relevance: 0.85
     };
   }
 
   /**
-   * Get relapse prevention content
+   * Get relapse prevention _content
    */
   private async getRelapsePreventionContent(): Promise<MotivationalContent> {
     const tips = [
@@ -287,7 +287,7 @@ export class RecoveryCoachAgent extends HealthcareAgent {
 
     return {
       type: 'tip',
-      content: tips[Math.floor(Math.random() * tips.length)],
+      _content: tips[Math.floor(Math.random() * tips.length)],
       relevance: 0.95
     };
   }
@@ -301,13 +301,13 @@ export class RecoveryCoachAgent extends HealthcareAgent {
       if (quote) {
         return {
           type: 'quote',
-          content: quote.quote_text,
+          _content: quote.quote_text,
           author: quote.author,
           relevance: 0.8
         };
       }
-    } catch (error) {
-      console.error('Failed to get quote:', error);
+    } catch (_error) {
+      console._error('Failed to get quote:', _error);
     }
 
     // Fallback quotes
@@ -320,14 +320,14 @@ export class RecoveryCoachAgent extends HealthcareAgent {
     const selected = fallbackQuotes[Math.floor(Math.random() * fallbackQuotes.length)];
     return {
       type: 'quote',
-      content: selected.text,
+      _content: selected.text,
       author: selected.author,
       relevance: 0.7
     };
   }
 
   /**
-   * Get general support content based on sentiment
+   * Get general support _content based on sentiment
    */
   private async getGeneralSupportContent(sentiment: number): Promise<MotivationalContent> {
     let messages: string[];
@@ -357,7 +357,7 @@ export class RecoveryCoachAgent extends HealthcareAgent {
 
     return {
       type: 'affirmation',
-      content: messages[Math.floor(Math.random() * messages.length)],
+      _content: messages[Math.floor(Math.random() * messages.length)],
       relevance: 0.75
     };
   }
@@ -366,14 +366,14 @@ export class RecoveryCoachAgent extends HealthcareAgent {
    * Create motivational response message
    */
   private createMotivationalResponse(
-    content: MotivationalContent,
+    _content: MotivationalContent,
     analysis: { intent: string; sentiment: number }
   ): string {
-    let response = content.content;
+    let response = _content._content;
 
     // Add author attribution for quotes
-    if (content.type === 'quote' && content.author) {
-      response += `\n\n- ${content.author}`;
+    if (_content.type === 'quote' && _content.author) {
+      response += `\n\n- ${_content.author}`;
     }
 
     // Add personalization based on recovery context
@@ -404,10 +404,10 @@ export class RecoveryCoachAgent extends HealthcareAgent {
     if (analysis.intent === 'milestone_celebration') {
       actions.push({
         type: 'store',
-        data: {
+        _data: {
           type: 'milestone_celebration',
-          content: this.recoveryContext.currentMilestone,
-          metadata: { sentiment: analysis.sentiment }
+          _content: this.recoveryContext.currentMilestone,
+          _metadata: { sentiment: analysis.sentiment }
         }
       });
     }
@@ -416,8 +416,8 @@ export class RecoveryCoachAgent extends HealthcareAgent {
     if (analysis.needsSupport && analysis.sentiment < 0.3) {
       actions.push({
         type: 'alert',
-        priority: 'high',
-        data: {
+        _priority: 'high',
+        _data: {
           type: 'low_mood_alert',
           message: 'User may need additional support',
           sentiment: analysis.sentiment
@@ -428,11 +428,11 @@ export class RecoveryCoachAgent extends HealthcareAgent {
     // Store interaction for progress tracking
     actions.push({
       type: 'log',
-      data: {
+      _data: {
         interaction_type: 'recovery_coaching',
         intent: analysis.intent,
         sentiment: analysis.sentiment,
-        response_excerpt: response.substring(0, 100)
+        _response_excerpt: response.substring(0, 100)
       }
     });
 
@@ -440,11 +440,11 @@ export class RecoveryCoachAgent extends HealthcareAgent {
     if (analysis.intent === 'struggle_support' || analysis.intent === 'relapse_prevention') {
       actions.push({
         type: 'notify',
-        target: this.context?.userId,
-        priority: 'medium',
-        data: {
+        _target: this.context?._userId,
+        _priority: 'medium',
+        _data: {
           message: 'Check-in reminder: How are you feeling today?',
-          schedule: '+24h'
+          _schedule: '+24h'
         }
       });
     }
@@ -453,18 +453,18 @@ export class RecoveryCoachAgent extends HealthcareAgent {
   }
 
   /**
-   * Calculate confidence score
+   * Calculate _confidence score
    */
   private calculateConfidence(
-    content: MotivationalContent,
+    _content: MotivationalContent,
     analysis: { intent: string; sentiment: number }
   ): number {
-    let confidence = content.relevance;
+    let _confidence = _content.relevance;
 
     // Adjust based on context match
     if (this.recoveryContext.preferredMotivationalStyle === 'supportive' && 
         analysis.sentiment < 0.5) {
-      confidence += 0.1;
+      _confidence += 0.1;
     }
 
     // Adjust based on recent interaction patterns
@@ -472,11 +472,11 @@ export class RecoveryCoachAgent extends HealthcareAgent {
       const hoursSinceCheckIn = 
         (Date.now() - this.recoveryContext.lastCheckIn.getTime()) / (1000 * 60 * 60);
       if (hoursSinceCheckIn < 24) {
-        confidence += 0.05;
+        _confidence += 0.05;
       }
     }
 
-    return Math.min(confidence, 1);
+    return Math.min(_confidence, 1);
   }
 
   /**

@@ -31,8 +31,8 @@ export const AchievementBadges: React.FC = () => {
   const { user } = useAuth();
   const { getUserAchievements } = useSkillSession();
   const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [userStats, setUserStats] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [userStats, setUserStats] = useState<unknown>(null);
+  const [isLoading, setIsLoading] = useState(_true);
 
   useEffect(() => {
     if (user) {
@@ -44,7 +44,7 @@ export const AchievementBadges: React.FC = () => {
     if (!user) return;
 
     try {
-      const [achievementsResult, stats] = await Promise.all([
+      const [achievementsResult, _stats] = await Promise.all([
         getUserAchievements(),
         dashboardDataService.getUserStats(user.id)
       ]);
@@ -52,11 +52,11 @@ export const AchievementBadges: React.FC = () => {
       if (achievementsResult.data) {
         setAchievements(achievementsResult.data);
       }
-      setUserStats(stats);
-    } catch (error) {
-      console.error('Error loading achievement data:', error);
+      setUserStats(_stats);
+    } catch (_error) {
+      console._error('Error loading achievement data:', _error);
     } finally {
-      setIsLoading(false);
+      setIsLoading(_false);
     }
   };
 

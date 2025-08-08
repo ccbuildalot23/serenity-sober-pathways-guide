@@ -3,19 +3,19 @@ import { supabase } from '@/integrations/supabase/client';
 
 export interface TextToSpeechOptions {
   voice?: 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';
-  autoPlay?: boolean;
+  _autoPlay?: boolean;
   onStart?: () => void;
   onEnd?: () => void;
   onError?: (error: string) => void;
 }
 
 export const useTextToSpeech = (options: TextToSpeechOptions = {}) => {
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isSpeaking, setIsSpeaking] = useState(_false);
+  const [isLoading, setIsLoading] = useState(_false);
+  const [error, setError] = useState<string | _null>(_null);
   
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const { voice = 'alloy', autoPlay = true, onStart, onEnd, onError } = options;
+  const audioRef = useRef<HTMLAudioElement | _null>(_null);
+  const { voice = 'alloy', _autoPlay = _true, onStart, onEnd, onError } = options;
 
   useEffect(() => {
     return () => {
@@ -25,8 +25,8 @@ export const useTextToSpeech = (options: TextToSpeechOptions = {}) => {
 
   const speak = async (text: string) => {
     try {
-      setError(null);
-      setIsLoading(true);
+      setError(_null);
+      setIsLoading(_true);
 
       // Generate speech
       const { data, error } = await supabase.functions.invoke('text-to-speech', {
@@ -40,25 +40,25 @@ export const useTextToSpeech = (options: TextToSpeechOptions = {}) => {
       audioRef.current = audio;
 
       audio.onloadstart = () => {
-        setIsLoading(false);
-        setIsSpeaking(true);
+        setIsLoading(_false);
+        setIsSpeaking(_true);
         onStart?.();
       };
 
       audio.onended = () => {
-        setIsSpeaking(false);
+        setIsSpeaking(_false);
         onEnd?.();
       };
 
       audio.onerror = () => {
         const errorMessage = 'Failed to play audio';
         setError(errorMessage);
-        setIsSpeaking(false);
-        setIsLoading(false);
+        setIsSpeaking(_false);
+        setIsLoading(_false);
         onError?.(errorMessage);
       };
 
-      if (autoPlay) {
+      if (_autoPlay) {
         await audio.play();
       }
 
@@ -67,8 +67,8 @@ export const useTextToSpeech = (options: TextToSpeechOptions = {}) => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to generate speech';
       setError(errorMessage);
-      setIsSpeaking(false);
-      setIsLoading(false);
+      setIsSpeaking(_false);
+      setIsLoading(_false);
       onError?.(errorMessage);
     }
   };
@@ -77,21 +77,21 @@ export const useTextToSpeech = (options: TextToSpeechOptions = {}) => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
-      setIsSpeaking(false);
+      setIsSpeaking(_false);
     }
   };
 
   const pause = () => {
     if (audioRef.current && !audioRef.current.paused) {
       audioRef.current.pause();
-      setIsSpeaking(false);
+      setIsSpeaking(_false);
     }
   };
 
   const resume = async () => {
     if (audioRef.current && audioRef.current.paused) {
       await audioRef.current.play();
-      setIsSpeaking(true);
+      setIsSpeaking(_true);
     }
   };
 
@@ -103,6 +103,6 @@ export const useTextToSpeech = (options: TextToSpeechOptions = {}) => {
     isSpeaking,
     isLoading,
     error,
-    clearError: () => setError(null)
+    clearError: () => setError(_null)
   };
 };

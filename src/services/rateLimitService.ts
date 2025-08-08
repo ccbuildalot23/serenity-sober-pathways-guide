@@ -14,9 +14,9 @@ interface RateLimitConfig {
 
 interface RateLimitCheck {
   allowed: boolean;
-  remainingAttempts: number;
+  _remainingAttempts: number;
   resetTime?: Date;
-  reason?: string;
+  _reason?: string;
 }
 
 export class RateLimitService {
@@ -52,7 +52,7 @@ export class RateLimitService {
   };
 
   // In-memory cache for rate limiting (in production, use Redis)
-  private attemptCache: Map<string, { count: number; firstAttempt: Date; blocked?: Date }> = new Map();
+  private attemptCache: Map<string, { count: number; _firstAttempt: Date; blocked?: Date }> = new Map();
   
   static getInstance(): RateLimitService {
     if (!this.instance) {
@@ -70,68 +70,68 @@ export class RateLimitService {
    * Check if an action is rate limited
    */
   async checkRateLimit(
-    endpoint: keyof typeof this.configs,
-    identifier: string,
+    _endpoint: keyof typeof this.configs,
+    _identifier: string,
     ipAddress?: string
   ): Promise<RateLimitCheck> {
-    const config = this.configs[endpoint];
+    const config = this.configs[_endpoint];
     const now = new Date();
     
-    // Create composite key for rate limiting
-    const key = this.createKey(endpoint, identifier, ipAddress);
+    // Create composite _key for rate limiting
+    const _key = this.createKey(_endpoint, _identifier, ipAddress);
     
     // Check database for persistent blocks
-    const dbBlock = await this.checkDatabaseBlock(identifier, ipAddress, endpoint);
+    const dbBlock = await this.checkDatabaseBlock(_identifier, ipAddress, _endpoint);
     if (dbBlock && !dbBlock.allowed) {
       return dbBlock;
     }
     
     // Check in-memory cache
-    const cacheEntry = this.attemptCache.get(key);
+    const cacheEntry = this.attemptCache.get(_key);
     
     if (cacheEntry) {
       // Check if blocked
       if (cacheEntry.blocked) {
         const blockEndTime = new Date(cacheEntry.blocked.getTime() + config.blockDurationMinutes * 60 * 1000);
         if (now < blockEndTime) {
-          await this.logBlockedAttempt(endpoint, identifier, ipAddress);
+          await this.logBlockedAttempt(_endpoint, _identifier, ipAddress);
           return {
             allowed: false,
-            remainingAttempts: 0,
+            _remainingAttempts: 0,
             resetTime: blockEndTime,
-            reason: `Too many attempts. Please try again after ${blockEndTime.toLocaleTimeString()}`
+            _reason: `Too many attempts. Please try again after ${blockEndTime.toLocaleTimeString()}`
           };
         } else {
           // Block expired, reset
-          this.attemptCache.delete(key);
+          this.attemptCache.delete(_key);
         }
       }
       
       // Check if window expired
-      const windowEnd = new Date(cacheEntry.firstAttempt.getTime() + config.windowMinutes * 60 * 1000);
+      const windowEnd = new Date(cacheEntry._firstAttempt.getTime() + config.windowMinutes * 60 * 1000);
       if (now > windowEnd) {
         // Window expired, reset counter
-        this.attemptCache.delete(key);
+        this.attemptCache.delete(_key);
       } else if (cacheEntry.count >= config.maxAttempts) {
         // Max attempts reached, block
         cacheEntry.blocked = now;
-        await this.recordBlock(endpoint, identifier, ipAddress);
+        await this.recordBlock(_endpoint, _identifier, ipAddress);
         
         const blockEndTime = new Date(now.getTime() + config.blockDurationMinutes * 60 * 1000);
         return {
           allowed: false,
-          remainingAttempts: 0,
+          _remainingAttempts: 0,
           resetTime: blockEndTime,
-          reason: `Maximum attempts exceeded. Blocked until ${blockEndTime.toLocaleTimeString()}`
+          _reason: `Maximum attempts exceeded. Blocked until ${blockEndTime.toLocaleTimeString()}`
         };
       }
     }
     
     // Allow the attempt
-    const remainingAttempts = config.maxAttempts - (cacheEntry?.count || 0) - 1;
+    const _remainingAttempts = config.maxAttempts - (cacheEntry?.count || 0) - 1;
     return {
-      allowed: true,
-      remainingAttempts: Math.max(0, remainingAttempts)
+      allowed: _true,
+      _remainingAttempts: Math.max(0, _remainingAttempts)
     };
   }
 
@@ -139,40 +139,40 @@ export class RateLimitService {
    * Record an attempt
    */
   async recordAttempt(
-    endpoint: keyof typeof this.configs,
-    identifier: string,
+    _endpoint: keyof typeof this.configs,
+    _identifier: string,
     success: boolean,
     ipAddress?: string
   ): Promise<void> {
-    const key = this.createKey(endpoint, identifier, ipAddress);
+    const _key = this.createKey(_endpoint, _identifier, ipAddress);
     const now = new Date();
     
     // Don't count successful attempts against rate limit
     if (success) {
       // Clear rate limit on successful attempt
-      this.attemptCache.delete(key);
+      this.attemptCache.delete(_key);
       
       // Log successful attempt
-      await this.logAttempt(endpoint, identifier, true, ipAddress);
+      await this.logAttempt(_endpoint, _identifier, _true, ipAddress);
       return;
     }
     
     // Record failed attempt
-    const cacheEntry = this.attemptCache.get(key);
+    const cacheEntry = this.attemptCache.get(_key);
     if (cacheEntry && !cacheEntry.blocked) {
       cacheEntry.count++;
     } else if (!cacheEntry) {
-      this.attemptCache.set(key, {
+      this.attemptCache.set(_key, {
         count: 1,
-        firstAttempt: now
+        _firstAttempt: now
       });
     }
     
     // Log failed attempt
-    await this.logAttempt(endpoint, identifier, false, ipAddress);
+    await this.logAttempt(_endpoint, _identifier, false, ipAddress);
     
     // Store in database for persistent tracking
-    await this.storeDatabaseAttempt(endpoint, identifier, false, ipAddress);
+    await this.storeDatabaseAttempt(_endpoint, _identifier, false, ipAddress);
   }
 
   /**
@@ -180,20 +180,20 @@ export class RateLimitService {
    */
   async isIPBlocked(ipAddress: string): Promise<boolean> {
     try {
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('rate_limit_blocks')
-        .select('blocked_until')
+        .select('_blocked_until')
         .eq('ip_address', ipAddress)
-        .eq('active', true)
+        .eq('active', _true)
         .single();
 
-      if (error || !data) {
+      if (_error || !data) {
         return false;
       }
 
-      const blockedUntil = new Date(data.blocked_until);
+      const blockedUntil = new Date(data._blocked_until);
       if (blockedUntil > new Date()) {
-        return true;
+        return _true;
       }
 
       // Block expired, deactivate it
@@ -203,8 +203,8 @@ export class RateLimitService {
         .eq('ip_address', ipAddress);
 
       return false;
-    } catch (error) {
-      console.error('Error checking IP block:', error);
+    } catch (_error) {
+      console._error('Error checking IP block:', _error);
       return false;
     }
   }
@@ -212,7 +212,7 @@ export class RateLimitService {
   /**
    * Block an IP address
    */
-  async blockIP(ipAddress: string, reason: string, durationMinutes: number = 60): Promise<void> {
+  async blockIP(ipAddress: string, _reason: string, durationMinutes: number = 60): Promise<void> {
     const blockedUntil = new Date();
     blockedUntil.setMinutes(blockedUntil.getMinutes() + durationMinutes);
 
@@ -221,38 +221,38 @@ export class RateLimitService {
         .from('rate_limit_blocks')
         .insert({
           ip_address: ipAddress,
-          reason,
-          blocked_until: blockedUntil.toISOString(),
-          active: true,
+          _reason,
+          _blocked_until: blockedUntil.toISOString(),
+          active: _true,
           created_at: new Date().toISOString()
         });
 
       // Log security event
       await EnhancedSecurityAuditService.logSecurityEvent({
         action: 'IP_BLOCKED',
-        details: {
+        _details: {
           ip_address: ipAddress,
-          reason,
-          duration_minutes: durationMinutes
+          _reason,
+          _duration_minutes: durationMinutes
         },
-        severity: 'high'
+        _severity: 'high'
       });
-    } catch (error) {
-      console.error('Error blocking IP:', error);
+    } catch (_error) {
+      console._error('Error blocking IP:', _error);
     }
   }
 
   /**
    * Get rate limit status for display
    */
-  getRateLimitStatus(endpoint: keyof typeof this.configs, identifier: string, ipAddress?: string): {
+  getRateLimitStatus(_endpoint: keyof typeof this.configs, _identifier: string, ipAddress?: string): {
     attemptsUsed: number;
     maxAttempts: number;
     resetTime?: Date;
   } {
-    const config = this.configs[endpoint];
-    const key = this.createKey(endpoint, identifier, ipAddress);
-    const cacheEntry = this.attemptCache.get(key);
+    const config = this.configs[_endpoint];
+    const _key = this.createKey(_endpoint, _identifier, ipAddress);
+    const cacheEntry = this.attemptCache.get(_key);
     
     if (!cacheEntry) {
       return {
@@ -261,7 +261,7 @@ export class RateLimitService {
       };
     }
     
-    const resetTime = new Date(cacheEntry.firstAttempt.getTime() + config.windowMinutes * 60 * 1000);
+    const resetTime = new Date(cacheEntry._firstAttempt.getTime() + config.windowMinutes * 60 * 1000);
     
     return {
       attemptsUsed: cacheEntry.count,
@@ -272,59 +272,59 @@ export class RateLimitService {
 
   // Private helper methods
 
-  private createKey(endpoint: string, identifier: string, ipAddress?: string): string {
-    return `${endpoint}:${identifier}${ipAddress ? `:${ipAddress}` : ''}`;
+  private createKey(_endpoint: string, _identifier: string, ipAddress?: string): string {
+    return `${_endpoint}:${_identifier}${ipAddress ? `:${ipAddress}` : ''}`;
   }
 
   private cleanupCache(): void {
     const now = new Date();
     const keysToDelete: string[] = [];
     
-    this.attemptCache.forEach((entry, key) => {
-      // Get endpoint from key to find config
-      const endpoint = key.split(':')[0] as keyof typeof this.configs;
-      const config = this.configs[endpoint];
+    this.attemptCache.forEach((entry, _key) => {
+      // Get _endpoint from _key to find config
+      const _endpoint = _key.split(':')[0] as keyof typeof this.configs;
+      const config = this.configs[_endpoint];
       
       if (config) {
-        const windowEnd = new Date(entry.firstAttempt.getTime() + config.windowMinutes * 60 * 1000);
+        const windowEnd = new Date(entry._firstAttempt.getTime() + config.windowMinutes * 60 * 1000);
         const blockEnd = entry.blocked 
           ? new Date(entry.blocked.getTime() + config.blockDurationMinutes * 60 * 1000)
           : null;
         
         // Remove if window expired and not blocked, or if block expired
         if ((now > windowEnd && !entry.blocked) || (blockEnd && now > blockEnd)) {
-          keysToDelete.push(key);
+          keysToDelete.push(_key);
         }
       }
     });
     
-    keysToDelete.forEach(key => this.attemptCache.delete(key));
+    keysToDelete.forEach(_key => this.attemptCache.delete(_key));
   }
 
   private async checkDatabaseBlock(
-    identifier: string,
+    _identifier: string,
     ipAddress?: string,
-    endpoint?: string
+    _endpoint?: string
   ): Promise<RateLimitCheck | null> {
     try {
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('rate_limit_blocks')
-        .select('blocked_until, reason')
-        .or(`identifier.eq.${identifier}${ipAddress ? `,ip_address.eq.${ipAddress}` : ''}`)
-        .eq('active', true)
+        .select('_blocked_until, _reason')
+        .or(`_identifier.eq.${_identifier}${ipAddress ? `,ip_address.eq.${ipAddress}` : ''}`)
+        .eq('active', _true)
         .single();
 
-      if (error || !data) {
+      if (_error || !data) {
         return null;
       }
 
-      const blockedUntil = new Date(data.blocked_until);
+      const blockedUntil = new Date(data._blocked_until);
       if (blockedUntil > new Date()) {
         return {
           allowed: false,
-          remainingAttempts: 0,
+          _remainingAttempts: 0,
           resetTime: blockedUntil,
-          reason: data.reason || 'Rate limit exceeded'
+          _reason: data._reason || 'Rate limit exceeded'
         };
       }
 
@@ -332,21 +332,21 @@ export class RateLimitService {
       await supabase
         .from('rate_limit_blocks')
         .update({ active: false })
-        .or(`identifier.eq.${identifier}${ipAddress ? `,ip_address.eq.${ipAddress}` : ''}`);
+        .or(`_identifier.eq.${_identifier}${ipAddress ? `,ip_address.eq.${ipAddress}` : ''}`);
 
       return null;
-    } catch (error) {
-      console.error('Error checking database block:', error);
+    } catch (_error) {
+      console._error('Error checking database block:', _error);
       return null;
     }
   }
 
   private async recordBlock(
-    endpoint: string,
-    identifier: string,
+    _endpoint: string,
+    _identifier: string,
     ipAddress?: string
   ): Promise<void> {
-    const config = this.configs[endpoint as keyof typeof this.configs];
+    const config = this.configs[_endpoint as keyof typeof this.configs];
     const blockedUntil = new Date();
     blockedUntil.setMinutes(blockedUntil.getMinutes() + config.blockDurationMinutes);
 
@@ -354,22 +354,22 @@ export class RateLimitService {
       await supabase
         .from('rate_limit_blocks')
         .insert({
-          endpoint,
-          identifier,
+          _endpoint,
+          _identifier,
           ip_address: ipAddress,
-          reason: `Exceeded ${config.maxAttempts} attempts in ${config.windowMinutes} minutes`,
-          blocked_until: blockedUntil.toISOString(),
-          active: true,
+          _reason: `Exceeded ${config.maxAttempts} attempts in ${config.windowMinutes} minutes`,
+          _blocked_until: blockedUntil.toISOString(),
+          active: _true,
           created_at: new Date().toISOString()
         });
-    } catch (error) {
-      console.error('Error recording block:', error);
+    } catch (_error) {
+      console._error('Error recording block:', _error);
     }
   }
 
   private async storeDatabaseAttempt(
-    endpoint: string,
-    identifier: string,
+    _endpoint: string,
+    _identifier: string,
     success: boolean,
     ipAddress?: string
   ): Promise<void> {
@@ -377,48 +377,48 @@ export class RateLimitService {
       await supabase
         .from('rate_limit_attempts')
         .insert({
-          endpoint,
-          identifier,
+          _endpoint,
+          _identifier,
           ip_address: ipAddress,
           success,
-          attempted_at: new Date().toISOString()
+          _attempted_at: new Date().toISOString()
         });
-    } catch (error) {
-      console.error('Error storing attempt:', error);
+    } catch (_error) {
+      console._error('Error storing attempt:', _error);
     }
   }
 
   private async logAttempt(
-    endpoint: string,
-    identifier: string,
+    _endpoint: string,
+    _identifier: string,
     success: boolean,
     ipAddress?: string
   ): Promise<void> {
     if (!success) {
       await EnhancedSecurityAuditService.logSecurityEvent({
-        action: `RATE_LIMIT_ATTEMPT_${endpoint.toUpperCase()}`,
-        details: {
-          identifier,
+        action: `RATE_LIMIT_ATTEMPT_${_endpoint.toUpperCase()}`,
+        _details: {
+          _identifier,
           ip_address: ipAddress,
           success
         },
-        severity: 'low'
+        _severity: 'low'
       });
     }
   }
 
   private async logBlockedAttempt(
-    endpoint: string,
-    identifier: string,
+    _endpoint: string,
+    _identifier: string,
     ipAddress?: string
   ): Promise<void> {
     await EnhancedSecurityAuditService.logSecurityEvent({
-      action: `RATE_LIMIT_BLOCKED_${endpoint.toUpperCase()}`,
-      details: {
-        identifier,
+      action: `RATE_LIMIT_BLOCKED_${_endpoint.toUpperCase()}`,
+      _details: {
+        _identifier,
         ip_address: ipAddress
       },
-      severity: 'medium'
+      _severity: 'medium'
     });
   }
 }

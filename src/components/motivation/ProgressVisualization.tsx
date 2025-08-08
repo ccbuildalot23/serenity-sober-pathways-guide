@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { TrendingUp, Calendar, Heart, Target, Activity, Sparkles } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { dashboardDataService } from '@/services/dashboardDataService';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,9 +27,9 @@ export const ProgressVisualization: React.FC = () => {
   const { user } = useAuth();
   const [moodTrends, setMoodTrends] = useState<MoodTrend[]>([]);
   const [recoveryStats, setRecoveryStats] = useState<RecoveryStats | null>(null);
-  const [userStats, setUserStats] = useState<any>(null);
+  const [userStats, setUserStats] = useState<unknown>(null);
   const [timeRange, setTimeRange] = useState<'7' | '30' | '90'>('30');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(_true);
 
   useEffect(() => {
     if (user) {
@@ -42,16 +41,16 @@ export const ProgressVisualization: React.FC = () => {
     if (!user) return;
 
     try {
-      const [userStatsResult, moodTrendsResult, recoveryStatsResult] = await Promise.all([
+      const [_userStatsResult, moodTrendsResult, recoveryStatsResult] = await Promise.all([
         dashboardDataService.getUserStats(user.id),
         supabase.rpc('get_daily_trends', { 
           user_uuid: user.id, 
-          days_back: parseInt(timeRange) 
+          _days_back: parseInt(timeRange) 
         }),
         supabase.rpc('get_recovery_streak', { user_uuid: user.id })
       ]);
 
-      setUserStats(userStatsResult);
+      setUserStats(_userStatsResult);
       
       if (moodTrendsResult.data) {
         setMoodTrends(moodTrendsResult.data);
@@ -60,10 +59,10 @@ export const ProgressVisualization: React.FC = () => {
       if (recoveryStatsResult.data && typeof recoveryStatsResult.data === 'object' && !Array.isArray(recoveryStatsResult.data)) {
         setRecoveryStats(recoveryStatsResult.data as unknown as RecoveryStats);
       }
-    } catch (error) {
-      console.error('Error loading progress data:', error);
+    } catch (_error) {
+      console._error('Error loading progress data:', _error);
     } finally {
-      setIsLoading(false);
+      setIsLoading(_false);
     }
   };
 

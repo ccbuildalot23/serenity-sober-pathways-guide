@@ -133,7 +133,7 @@ async function handleIncomingMessage(supabaseClient: any, message: any, contacts
   const { from, id, timestamp, text, type } = message
   
   // Get contact info
-  const contact = contacts?.find(c => c.wa_id === from)
+  const _contact = contacts?.find(c => c.wa_id === from)
   const phoneNumber = `+${from}`
   
   console.log(`Incoming message from ${phoneNumber}: ${text?.body}`)

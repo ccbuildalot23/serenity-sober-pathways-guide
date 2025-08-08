@@ -117,7 +117,7 @@ class AuthTestingMCP {
       console.log('Testing Supabase connection...');
       
       const startTime = Date.now();
-      const { data, error } = await this.supabase.from('_test_connection').select('*').limit(1);
+      const { error } = await this.supabase.from('_test_connection').select('*').limit(1);
       const responseTime = Date.now() - startTime;
       
       if (error && error.code !== 'PGRST116') {

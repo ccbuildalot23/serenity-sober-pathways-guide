@@ -9,8 +9,8 @@ export interface UserAnalytics {
   checkin_consistency_score?: number;
   crisis_risk_score?: number;
   recovery_progress_score?: number;
-  engagement_metrics: any;
-  pattern_insights: any;
+  engagement_metrics: unknown;
+  pattern_insights: unknown;
 }
 
 export interface ClinicalAssessment {
@@ -18,8 +18,8 @@ export interface ClinicalAssessment {
   user_id: string;
   provider_id?: string;
   assessment_type: string;
-  assessment_data: any;
-  scores: any;
+  assessment_data: unknown;
+  scores: unknown;
   interpretation?: string;
   recommendations?: string;
   status: string;
@@ -43,29 +43,29 @@ export interface OutcomeMeasure {
 
 class AnalyticsService {
   
-  async generateUserAnalytics(userId: string): Promise<UserAnalytics | null> {
+  async generateUserAnalytics(_userId: string): Promise<UserAnalytics | null> {
     try {
       // Calculate analytics based on check-ins and other data
-      const { data: checkIns } = await supabase
+      const { data: _checkIns } = await supabase
         .from('daily_checkins')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', _userId)
         .order('checkin_date', { ascending: false })
         .limit(30);
 
-      if (!checkIns || checkIns.length === 0) {
+      if (!_checkIns || _checkIns.length === 0) {
         return null;
       }
 
       // Calculate mood trends
-      const recent7Days = checkIns.slice(0, 7);
-      const recent30Days = checkIns;
+      const recent7Days = _checkIns.slice(0, 7);
+      const recent30Days = _checkIns;
       
       const mood7Day = recent7Days.reduce((sum, ci) => sum + (ci.mood_rating || 0), 0) / recent7Days.length;
       const mood30Day = recent30Days.reduce((sum, ci) => sum + (ci.mood_rating || 0), 0) / recent30Days.length;
       
       // Calculate consistency score
-      const consistencyScore = (checkIns.length / 30) * 100;
+      const consistencyScore = (_checkIns.length / 30) * 100;
       
       // Crisis risk assessment based on recent patterns
       const recentLowMoods = recent7Days.filter(ci => (ci.mood_rating || 0) < 4).length;
@@ -78,8 +78,8 @@ class AnalyticsService {
       const secondAvg = secondHalf.reduce((sum, ci) => sum + (ci.mood_rating || 0), 0) / Math.max(secondHalf.length, 1);
       const recoveryProgress = ((secondAvg - firstAvg) / 10) * 100;
 
-      const analyticsData = {
-        user_id: userId,
+      const _analyticsData = {
+        user_id: _userId,
         analytics_date: new Date().toISOString().split('T')[0],
         mood_trend_7day: Math.round(mood7Day * 100) / 100,
         mood_trend_30day: Math.round(mood30Day * 100) / 100,
@@ -87,114 +87,114 @@ class AnalyticsService {
         crisis_risk_score: Math.round(crisisRisk * 100) / 100,
         recovery_progress_score: Math.round(recoveryProgress * 100) / 100,
         engagement_metrics: {
-          total_checkins: checkIns.length,
+          total_checkins: _checkIns.length,
           avg_mood: mood30Day,
-          streak_days: this.calculateStreak(checkIns)
+          streak_days: this.calculateStreak(_checkIns)
         },
         pattern_insights: {
-          best_day_of_week: this.getBestDayOfWeek(checkIns),
-          challenging_times: this.getChallengingTimes(checkIns)
+          best_day_of_week: this.getBestDayOfWeek(_checkIns),
+          challenging_times: this.getChallengingTimes(_checkIns)
         }
       };
 
       // Upsert analytics
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('user_analytics')
-        .upsert(analyticsData, { onConflict: 'user_id,analytics_date' })
+        .upsert(_analyticsData, { onConflict: 'user_id,analytics_date' })
         .select()
         .single();
 
-      if (error) throw error;
+      if (_error) throw _error;
       return data;
 
-    } catch (error) {
-      console.error('Error generating analytics:', error);
+    } catch (_error) {
+      console._error('Error generating analytics:', _error);
       return null;
     }
   }
 
-  async getUserAnalytics(userId: string, days: number = 30): Promise<UserAnalytics[]> {
-    const { data, error } = await supabase
+  async getUserAnalytics(_userId: string, days: number = 30): Promise<UserAnalytics[]> {
+    const { data, _error } = await supabase
       .from('user_analytics')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', _userId)
       .gte('analytics_date', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
       .order('analytics_date', { ascending: false });
 
-    if (error) throw error;
+    if (_error) throw _error;
     return data || [];
   }
 
-  async createClinicalAssessment(assessment: any): Promise<any> {
-    const { data, error } = await supabase
+  async createClinicalAssessment(assessment: unknown): Promise<unknown> {
+    const { data, _error } = await supabase
       .from('clinical_assessments')
       .insert(assessment)
       .select()
       .single();
 
-    if (error) throw error;
+    if (_error) throw _error;
     return data;
   }
 
-  async getClinicalAssessments(userId: string): Promise<ClinicalAssessment[]> {
-    const { data, error } = await supabase
+  async getClinicalAssessments(_userId: string): Promise<ClinicalAssessment[]> {
+    const { data, _error } = await supabase
       .from('clinical_assessments')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', _userId)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (_error) throw _error;
     return data || [];
   }
 
-  async updateClinicalAssessment(id: string, updates: Partial<ClinicalAssessment>): Promise<ClinicalAssessment | null> {
-    const { data, error } = await supabase
+  async updateClinicalAssessment(id: string, _updates: Partial<ClinicalAssessment>): Promise<ClinicalAssessment | null> {
+    const { data, _error } = await supabase
       .from('clinical_assessments')
-      .update(updates)
+      .update(_updates)
       .eq('id', id)
       .select()
       .single();
 
-    if (error) throw error;
+    if (_error) throw _error;
     return data;
   }
 
-  async createOutcomeMeasure(measure: any): Promise<any> {
-    const { data, error } = await supabase
+  async createOutcomeMeasure(measure: unknown): Promise<unknown> {
+    const { data, _error } = await supabase
       .from('outcome_measures')
       .insert(measure)
       .select()
       .single();
 
-    if (error) throw error;
+    if (_error) throw _error;
     return data;
   }
 
-  async getOutcomeMeasures(userId: string): Promise<OutcomeMeasure[]> {
-    const { data, error } = await supabase
+  async getOutcomeMeasures(_userId: string): Promise<OutcomeMeasure[]> {
+    const { data, _error } = await supabase
       .from('outcome_measures')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', _userId)
       .order('measurement_date', { ascending: false });
 
-    if (error) throw error;
+    if (_error) throw _error;
     return data || [];
   }
 
-  async getCrisisRiskPrediction(userId: string): Promise<any> {
+  async getCrisisRiskPrediction(_userId: string): Promise<unknown> {
     try {
       // Get recent patterns and calculate risk
       const { data: patterns } = await supabase
         .from('crisis_prediction_patterns')
         .select('*')
-        .eq('user_id', userId)
-        .eq('is_active', true)
+        .eq('user_id', _userId)
+        .eq('is_active', _true)
         .order('last_updated', { ascending: false });
 
       const { data: recentCheckIns } = await supabase
         .from('daily_checkins')
         .select('mood_rating, energy_rating, created_at')
-        .eq('user_id', userId)
+        .eq('user_id', _userId)
         .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
         .order('created_at', { ascending: false });
 
@@ -222,29 +222,29 @@ class AnalyticsService {
         factors.push('Decreased engagement');
       }
 
-      const riskLevel = riskScore > 70 ? 'high' : riskScore > 40 ? 'medium' : 'low';
+      const _riskLevel = riskScore > 70 ? 'high' : riskScore > 40 ? 'medium' : 'low';
       
       return {
-        risk_level: riskLevel,
+        risk_level: _riskLevel,
         confidence: Math.min(riskScore / 100, 1),
         factors,
-        recommendation: this.getRiskRecommendation(riskLevel)
+        recommendation: this.getRiskRecommendation(_riskLevel)
       };
 
-    } catch (error) {
-      console.error('Error calculating crisis risk:', error);
+    } catch (_error) {
+      console._error('Error calculating crisis risk:', _error);
       return { risk_level: 'unknown', confidence: 0, factors: [] };
     }
   }
 
-  private calculateStreak(checkIns: any[]): number {
-    if (!checkIns.length) return 0;
+  private calculateStreak(_checkIns: unknown[]): number {
+    if (!_checkIns.length) return 0;
     
     let streak = 0;
     const today = new Date();
     
-    for (let i = 0; i < checkIns.length; i++) {
-      const checkInDate = new Date(checkIns[i].checkin_date);
+    for (let i = 0; i < _checkIns.length; i++) {
+      const checkInDate = new Date(_checkIns[i].checkin_date);
       const daysDiff = Math.floor((today.getTime() - checkInDate.getTime()) / (24 * 60 * 60 * 1000));
       
       if (daysDiff === streak) {
@@ -257,22 +257,22 @@ class AnalyticsService {
     return streak;
   }
 
-  private getBestDayOfWeek(checkIns: any[]): string {
-    const dayAverages: Record<string, number[]> = {};
+  private getBestDayOfWeek(_checkIns: unknown[]): string {
+    const _dayAverages: Record<string, number[]> = {};
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     
-    checkIns.forEach(ci => {
+    _checkIns.forEach(ci => {
       if (ci.mood_rating) {
         const day = days[new Date(ci.checkin_date).getDay()];
-        if (!dayAverages[day]) dayAverages[day] = [];
-        dayAverages[day].push(ci.mood_rating);
+        if (!_dayAverages[day]) _dayAverages[day] = [];
+        _dayAverages[day].push(ci.mood_rating);
       }
     });
 
     let bestDay = '';
     let bestAverage = 0;
     
-    Object.entries(dayAverages).forEach(([day, ratings]) => {
+    Object.entries(_dayAverages).forEach(([day, ratings]) => {
       const avg = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
       if (avg > bestAverage) {
         bestAverage = avg;
@@ -283,19 +283,19 @@ class AnalyticsService {
     return bestDay;
   }
 
-  private getChallengingTimes(checkIns: any[]): string[] {
+  private getChallengingTimes(_checkIns: unknown[]): string[] {
     const challenges = [];
-    const lowMoodDays = checkIns.filter(ci => (ci.mood_rating || 0) < 4);
+    const lowMoodDays = _checkIns.filter(ci => (ci.mood_rating || 0) < 4);
     
-    if (lowMoodDays.length > checkIns.length * 0.3) {
+    if (lowMoodDays.length > _checkIns.length * 0.3) {
       challenges.push('Frequent low mood periods');
     }
     
     return challenges;
   }
 
-  private getRiskRecommendation(riskLevel: string): string {
-    switch (riskLevel) {
+  private getRiskRecommendation(_riskLevel: string): string {
+    switch (_riskLevel) {
       case 'high':
         return 'Consider reaching out to your support network or crisis resources immediately';
       case 'medium':

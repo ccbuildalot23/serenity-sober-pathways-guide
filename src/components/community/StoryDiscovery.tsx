@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   Search, 
   Filter, 
@@ -38,16 +38,16 @@ interface SuccessStory {
   views_count: number;
   is_featured: boolean;
   created_at: string;
-  user_liked?: boolean;
+  _user_liked?: boolean;
   user_saved?: boolean;
 }
 
 interface StoryFilters {
-  search: string;
-  category: string;
-  substance: string;
-  recoveryLength: string;
-  sort: 'recent' | 'popular' | 'helpful';
+  _search: string;
+  _category: string;
+  _substance: string;
+  _recoveryLength: string;
+  _sort: 'recent' | 'popular' | 'helpful';
 }
 
 const StoryDiscovery = () => {
@@ -55,14 +55,14 @@ const StoryDiscovery = () => {
   const { toast } = useToast();
   
   const [stories, setStories] = useState<SuccessStory[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [selectedStory, setSelectedStory] = useState<SuccessStory | null>(null);
+  const [loading, setLoading] = useState(_false);
+  const [_selectedStory, setSelectedStory] = useState<SuccessStory | _null>(_null);
   const [filters, setFilters] = useState<StoryFilters>({
-    search: '',
-    category: 'all',
-    substance: 'all',
-    recoveryLength: 'all',
-    sort: 'recent'
+    _search: '',
+    _category: 'all',
+    _substance: 'all',
+    _recoveryLength: 'all',
+    _sort: 'recent'
   });
 
   const categories = [
@@ -111,58 +111,58 @@ const StoryDiscovery = () => {
 
   const loadStories = async () => {
     try {
-      setLoading(true);
+      setLoading(_true);
       let query = supabase
         .from('success_stories')
         .select('*')
         .eq('moderation_status', 'approved')
-        .order(getOrderByColumn(), { ascending: false });
+        .order(getOrderByColumn(), { ascending: _false });
 
       // Apply filters
-      if (filters.category !== 'all') {
-        query = query.eq('story_category', filters.category);
+      if (filters._category !== 'all') {
+        query = query.eq('story_category', filters._category);
       }
 
-      if (filters.search) {
-        query = query.or(`title.ilike.%${filters.search}%,content.ilike.%${filters.search}%`);
+      if (filters._search) {
+        query = query.or(`title.ilike.%${filters._search}%,content.ilike.%${filters._search}%`);
       }
 
-      const { data, error } = await query.limit(50);
+      const { data, _error } = await query.limit(50);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       // Get user interactions for authenticated users
-      let storiesWithInteractions = data || [];
+      let _storiesWithInteractions = data || [];
       if (user && data) {
-        const storyIds = data.map(story => story.id);
+        const _storyIds = data.map(_story => _story.id);
         const { data: interactions } = await supabase
           .from('story_interactions')
-          .select('story_id, interaction_type')
+          .select('_story_id, _interaction_type')
           .eq('user_id', user.id)
-          .in('story_id', storyIds);
+          .in('_story_id', _storyIds);
 
-        storiesWithInteractions = data.map(story => ({
-          ...story,
-          user_liked: interactions?.some(i => i.story_id === story.id && i.interaction_type === 'like') || false,
-          user_saved: interactions?.some(i => i.story_id === story.id && i.interaction_type === 'save') || false
+        _storiesWithInteractions = data.map(_story => ({
+          ..._story,
+          _user_liked: interactions?.some(i => i._story_id === _story.id && i._interaction_type === 'like') || _false,
+          user_saved: interactions?.some(i => i._story_id === _story.id && i._interaction_type === 'save') || _false
         }));
       }
 
-      setStories(storiesWithInteractions);
-    } catch (error) {
-      console.error('Error loading stories:', error);
+      setStories(_storiesWithInteractions);
+    } catch (_error) {
+      console._error('Error loading stories:', _error);
       toast({
         title: "Error",
-        description: "Failed to load stories. Please try again.",
-        variant: "destructive",
+        _description: "Failed to load stories. Please try again.",
+        _variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
 
   const getOrderByColumn = () => {
-    switch (filters.sort) {
+    switch (filters._sort) {
       case 'popular':
         return 'likes_count';
       case 'helpful':
@@ -176,8 +176,8 @@ const StoryDiscovery = () => {
     if (!user) {
       toast({
         title: "Please log in",
-        description: "You need to be logged in to interact with stories.",
-        variant: "destructive",
+        _description: "You need to be logged in to interact with stories.",
+        _variant: "destructive",
       });
       return;
     }
@@ -189,8 +189,8 @@ const StoryDiscovery = () => {
           .from('story_interactions')
           .insert({
             user_id: user.id,
-            story_id: storyId,
-            interaction_type: type
+            _story_id: storyId,
+            _interaction_type: type
           });
       } else {
         // Toggle for like/save
@@ -198,8 +198,8 @@ const StoryDiscovery = () => {
           .from('story_interactions')
           .select('id')
           .eq('user_id', user.id)
-          .eq('story_id', storyId)
-          .eq('interaction_type', type)
+          .eq('_story_id', storyId)
+          .eq('_interaction_type', type)
           .single();
 
         if (existing) {
@@ -212,8 +212,8 @@ const StoryDiscovery = () => {
             .from('story_interactions')
             .insert({
               user_id: user.id,
-              story_id: storyId,
-              interaction_type: type
+              _story_id: storyId,
+              _interaction_type: type
             });
         }
       }
@@ -221,19 +221,19 @@ const StoryDiscovery = () => {
       if (type === 'share') {
         toast({
           title: "Story shared!",
-          description: "The story link has been copied to your clipboard.",
+          _description: "The _story link has been copied to your clipboard.",
         });
       }
 
       // Refresh stories to update counts
       await loadStories();
-    } catch (error) {
-      console.error('Error handling interaction:', error);
+    } catch (_error) {
+      console._error('Error handling interaction:', _error);
     }
   };
 
-  const timeAgo = (dateString: string) => {
-    const date = new Date(dateString);
+  const timeAgo = (_dateString: string) => {
+    const date = new Date(_dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
@@ -246,7 +246,7 @@ const StoryDiscovery = () => {
   };
 
   const formatRecoveryTime = (days?: number) => {
-    if (!days) return null;
+    if (!days) return _null;
     
     if (days < 30) return `${days} days`;
     if (days < 365) return `${Math.floor(days / 30)} months`;
@@ -257,14 +257,14 @@ const StoryDiscovery = () => {
     return `${years}y ${remainingMonths}m`;
   };
 
-  const getCategoryIcon = (category: string) => {
-    const categoryData = categories.find(c => c.value === category);
+  const getCategoryIcon = (_category: string) => {
+    const categoryData = categories.find(c => c.value === _category);
     return categoryData?.label.split(' ')[0] || '🌟';
   };
 
-  const getSimilarStories = (story: SuccessStory) => {
+  const getSimilarStories = (_story: SuccessStory) => {
     return stories
-      .filter(s => s.id !== story.id && s.story_category === story.story_category)
+      .filter(s => s.id !== _story.id && s.story_category === _story.story_category)
       .slice(0, 3);
   };
 
@@ -278,7 +278,7 @@ const StoryDiscovery = () => {
             Discover Inspiring Stories
           </CardTitle>
           <p className="text-muted-foreground">
-            Find hope, inspiration, and connection through shared recovery experiences
+            Find hope, _inspiration, and connection through shared recovery experiences
           </p>
         </CardHeader>
         <CardContent>
@@ -286,9 +286,9 @@ const StoryDiscovery = () => {
             {inspirationalPrompts.map((prompt, index) => (
               <Button
                 key={index}
-                variant="outline"
+                _variant="outline"
                 className="text-left justify-start h-auto p-3"
-                onClick={() => setFilters(prev => ({ ...prev, search: prompt }))}
+                onClick={() => setFilters(prev => ({ ...prev, _search: prompt }))}
               >
                 <Search className="w-4 h-4 mr-2 shrink-0" />
                 <span className="text-sm">{prompt}</span>
@@ -307,15 +307,15 @@ const StoryDiscovery = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
                 placeholder="Search stories, keywords, experiences..."
-                value={filters.search}
-                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                value={filters._search}
+                onChange={(e) => setFilters(prev => ({ ...prev, _search: e.target.value }))}
                 className="pl-10"
               />
             </div>
 
             {/* Filters */}
             <div className="flex gap-2">
-              <Select value={filters.category} onValueChange={(value) => setFilters(prev => ({ ...prev, category: value }))}>
+              <Select value={filters._category} onValueChange={(value) => setFilters(prev => ({ ...prev, _category: value }))}>
                 <SelectTrigger className="w-48">
                   <SelectValue />
                 </SelectTrigger>
@@ -326,18 +326,18 @@ const StoryDiscovery = () => {
                 </SelectContent>
               </Select>
 
-              <Select value={filters.substance} onValueChange={(value) => setFilters(prev => ({ ...prev, substance: value }))}>
+              <Select value={filters._substance} onValueChange={(value) => setFilters(prev => ({ ...prev, _substance: value }))}>
                 <SelectTrigger className="w-48">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {substances.map((substance) => (
-                    <SelectItem key={substance.value} value={substance.value}>{substance.label}</SelectItem>
+                  {substances.map((_substance) => (
+                    <SelectItem key={_substance.value} value={_substance.value}>{_substance.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
 
-              <Select value={filters.sort} onValueChange={(value) => setFilters(prev => ({ ...prev, sort: value as any }))}>
+              <Select value={filters._sort} onValueChange={(value) => setFilters(prev => ({ ...prev, _sort: value as any }))}>
                 <SelectTrigger className="w-32">
                   <SelectValue />
                 </SelectTrigger>
@@ -362,26 +362,26 @@ const StoryDiscovery = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {stories.filter(story => story.is_featured).slice(0, 3).map((story) => (
-              <Card key={story.id} className="hover:shadow-lg transition-shadow cursor-pointer ring-2 ring-serenity-gold/20">
+            {stories.filter(_story => _story.is_featured).slice(0, 3).map((_story) => (
+              <Card key={_story.id} className="hover:shadow-lg transition-shadow cursor-pointer ring-2 ring-serenity-gold/20">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-2">
                     <Badge className="bg-serenity-gold text-white">Featured</Badge>
-                    <span className="text-xs text-muted-foreground">{timeAgo(story.created_at)}</span>
+                    <span className="text-xs text-muted-foreground">{timeAgo(_story.created_at)}</span>
                   </div>
-                  <h3 className="font-semibold text-serenity-navy mb-2 line-clamp-2">{story.title}</h3>
-                  <p className="text-sm text-muted-foreground mb-3 line-clamp-3">{story.content}</p>
+                  <h3 className="font-semibold text-serenity-navy mb-2 line-clamp-2">{_story.title}</h3>
+                  <p className="text-sm text-muted-foreground mb-3 line-clamp-3">{_story.content}</p>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Eye className="w-3 h-3" />
-                      <span>{story.views_count}</span>
+                      <span>{_story.views_count}</span>
                       <Heart className="w-3 h-3" />
-                      <span>{story.likes_count}</span>
+                      <span>{_story.likes_count}</span>
                     </div>
                     <Button
                       size="sm"
-                      variant="ghost"
-                      onClick={() => setSelectedStory(story)}
+                      _variant="ghost"
+                      onClick={() => setSelectedStory(_story)}
                     >
                       Read More
                     </Button>
@@ -412,92 +412,92 @@ const StoryDiscovery = () => {
             <div className="text-center py-8">
               <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <p className="text-muted-foreground mb-4">No stories found matching your criteria.</p>
-              <Button onClick={() => setFilters({ search: '', category: 'all', substance: 'all', recoveryLength: 'all', sort: 'recent' })}>
+              <Button onClick={() => setFilters({ _search: '', _category: 'all', _substance: 'all', _recoveryLength: 'all', _sort: 'recent' })}>
                 Clear Filters
               </Button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {stories.map((story) => (
-                <Card key={story.id} className="hover:shadow-lg transition-shadow">
+              {stories.map((_story) => (
+                <Card key={_story.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div className="flex items-center gap-2">
-                        <span className="text-lg">{getCategoryIcon(story.story_category)}</span>
-                        <Badge variant="outline" className="text-xs">
-                          {categories.find(c => c.value === story.story_category)?.label?.split(' ').slice(1).join(' ')}
+                        <span className="text-lg">{getCategoryIcon(_story.story_category)}</span>
+                        <Badge _variant="outline" className="text-xs">
+                          {categories.find(c => c.value === _story.story_category)?.label?.split(' ').slice(1).join(' ')}
                         </Badge>
-                        {story.is_featured && (
+                        {_story.is_featured && (
                           <Badge className="bg-serenity-gold text-white">
                             <Trophy className="w-3 h-3 mr-1" />
                             Featured
                           </Badge>
                         )}
                       </div>
-                      <span className="text-xs text-muted-foreground">{timeAgo(story.created_at)}</span>
+                      <span className="text-xs text-muted-foreground">{timeAgo(_story.created_at)}</span>
                     </div>
                     
-                    <CardTitle className="text-lg text-serenity-navy line-clamp-2">{story.title}</CardTitle>
+                    <CardTitle className="text-lg text-serenity-navy line-clamp-2">{_story.title}</CardTitle>
                     
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <User className="w-3 h-3" />
-                        {story.is_anonymous ? (story.anonymous_name || 'Anonymous') : 'Verified Member'}
+                        {_story.is_anonymous ? (_story.anonymous_name || 'Anonymous') : 'Verified Member'}
                       </span>
-                      {story.recovery_duration_days && (
-                        <Badge variant="secondary" className="text-xs">
+                      {_story.recovery_duration_days && (
+                        <Badge _variant="secondary" className="text-xs">
                           <Calendar className="w-3 h-3 mr-1" />
-                          {formatRecoveryTime(story.recovery_duration_days)} sober
+                          {formatRecoveryTime(_story.recovery_duration_days)} sober
                         </Badge>
                       )}
                     </div>
                   </CardHeader>
                   
                   <CardContent>
-                    <p className="text-sm text-gray-700 mb-4 line-clamp-4">{story.content}</p>
+                    <p className="text-sm text-gray-700 mb-4 line-clamp-4">{_story.content}</p>
                     
                     <div className="flex items-center justify-between pt-4 border-t">
                       <div className="flex items-center gap-4">
                         <Button
-                          variant="ghost"
+                          _variant="ghost"
                           size="sm"
-                          onClick={() => handleInteraction(story.id, 'like')}
-                          className={`flex items-center gap-1 ${story.user_liked ? 'text-red-500' : 'text-muted-foreground'}`}
+                          onClick={() => handleInteraction(_story.id, 'like')}
+                          className={`flex items-center gap-1 ${_story._user_liked ? 'text-red-500' : 'text-muted-foreground'}`}
                         >
-                          <Heart className={`w-4 h-4 ${story.user_liked ? 'fill-current' : ''}`} />
-                          <span>{story.likes_count}</span>
+                          <Heart className={`w-4 h-4 ${_story._user_liked ? 'fill-current' : ''}`} />
+                          <span>{_story.likes_count}</span>
                         </Button>
 
                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
                           <Eye className="w-4 h-4" />
-                          <span>{story.views_count}</span>
+                          <span>{_story.views_count}</span>
                         </div>
 
                         <Button
-                          variant="ghost"
+                          _variant="ghost"
                           size="sm"
-                          onClick={() => handleInteraction(story.id, 'save')}
-                          className={`flex items-center gap-1 ${story.user_saved ? 'text-serenity-teal' : 'text-muted-foreground'}`}
+                          onClick={() => handleInteraction(_story.id, 'save')}
+                          className={`flex items-center gap-1 ${_story.user_saved ? 'text-serenity-teal' : 'text-muted-foreground'}`}
                         >
-                          <Bookmark className={`w-4 h-4 ${story.user_saved ? 'fill-current' : ''}`} />
+                          <Bookmark className={`w-4 h-4 ${_story.user_saved ? 'fill-current' : ''}`} />
                         </Button>
                       </div>
                       
                       <div className="flex items-center gap-2">
                         <Button
-                          variant="ghost"
+                          _variant="ghost"
                           size="sm"
-                          onClick={() => handleInteraction(story.id, 'share')}
+                          onClick={() => handleInteraction(_story.id, 'share')}
                         >
                           <Share2 className="w-4 h-4" />
                         </Button>
                         
                         <Button
-                          variant="ghost"
+                          _variant="ghost"
                           size="sm"
                           onClick={() => {
-                            handleInteraction(story.id, 'view');
-                            setSelectedStory(story);
+                            handleInteraction(_story.id, 'view');
+                            setSelectedStory(_story);
                           }}
                           className="text-serenity-teal"
                         >
@@ -526,27 +526,27 @@ const StoryDiscovery = () => {
       </Tabs>
 
       {/* Story Detail Modal */}
-      <Dialog open={!!selectedStory} onOpenChange={() => setSelectedStory(null)}>
+      <Dialog open={!!_selectedStory} onOpenChange={() => setSelectedStory(_null)}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          {selectedStory && (
+          {_selectedStory && (
             <>
               <DialogHeader>
                 <DialogTitle className="text-xl text-serenity-navy">
-                  {selectedStory.title}
+                  {_selectedStory.title}
                 </DialogTitle>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  <Badge variant="outline">
-                    {getCategoryIcon(selectedStory.story_category)} {categories.find(c => c.value === selectedStory.story_category)?.label?.split(' ').slice(1).join(' ')}
+                  <Badge _variant="outline">
+                    {getCategoryIcon(_selectedStory.story_category)} {categories.find(c => c.value === _selectedStory.story_category)?.label?.split(' ').slice(1).join(' ')}
                   </Badge>
-                  {selectedStory.is_featured && (
+                  {_selectedStory.is_featured && (
                     <Badge className="bg-serenity-gold text-white">
                       <Trophy className="w-3 h-3 mr-1" />
                       Featured
                     </Badge>
                   )}
-                  {selectedStory.recovery_duration_days && (
-                    <Badge variant="secondary">
-                      {formatRecoveryTime(selectedStory.recovery_duration_days)} sober
+                  {_selectedStory.recovery_duration_days && (
+                    <Badge _variant="secondary">
+                      {formatRecoveryTime(_selectedStory.recovery_duration_days)} sober
                     </Badge>
                   )}
                 </div>
@@ -556,41 +556,41 @@ const StoryDiscovery = () => {
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <User className="w-4 h-4" />
-                    By {selectedStory.is_anonymous ? (selectedStory.anonymous_name || 'Anonymous') : 'Verified Member'}
+                    By {_selectedStory.is_anonymous ? (_selectedStory.anonymous_name || 'Anonymous') : 'Verified Member'}
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock className="w-4 h-4" />
-                    {timeAgo(selectedStory.created_at)}
+                    {timeAgo(_selectedStory.created_at)}
                   </span>
                 </div>
 
                 <div className="prose max-w-none">
-                  <p className="whitespace-pre-wrap">{selectedStory.content}</p>
+                  <p className="whitespace-pre-wrap">{_selectedStory.content}</p>
                 </div>
 
                 <div className="flex items-center justify-between pt-4 border-t">
                   <div className="flex items-center gap-4">
                     <Button
-                      variant="ghost"
-                      onClick={() => handleInteraction(selectedStory.id, 'like')}
-                      className={`flex items-center gap-2 ${selectedStory.user_liked ? 'text-red-500' : 'text-muted-foreground'}`}
+                      _variant="ghost"
+                      onClick={() => handleInteraction(_selectedStory.id, 'like')}
+                      className={`flex items-center gap-2 ${_selectedStory._user_liked ? 'text-red-500' : 'text-muted-foreground'}`}
                     >
-                      <Heart className={`w-5 h-5 ${selectedStory.user_liked ? 'fill-current' : ''}`} />
-                      <span>{selectedStory.likes_count} likes</span>
+                      <Heart className={`w-5 h-5 ${_selectedStory._user_liked ? 'fill-current' : ''}`} />
+                      <span>{_selectedStory.likes_count} likes</span>
                     </Button>
 
                     <Button
-                      variant="ghost"
-                      onClick={() => handleInteraction(selectedStory.id, 'save')}
-                      className={`flex items-center gap-2 ${selectedStory.user_saved ? 'text-serenity-teal' : 'text-muted-foreground'}`}
+                      _variant="ghost"
+                      onClick={() => handleInteraction(_selectedStory.id, 'save')}
+                      className={`flex items-center gap-2 ${_selectedStory.user_saved ? 'text-serenity-teal' : 'text-muted-foreground'}`}
                     >
-                      <Bookmark className={`w-5 h-5 ${selectedStory.user_saved ? 'fill-current' : ''}`} />
+                      <Bookmark className={`w-5 h-5 ${_selectedStory.user_saved ? 'fill-current' : ''}`} />
                       Save Story
                     </Button>
 
                     <Button
-                      variant="ghost"
-                      onClick={() => handleInteraction(selectedStory.id, 'share')}
+                      _variant="ghost"
+                      onClick={() => handleInteraction(_selectedStory.id, 'share')}
                       className="flex items-center gap-2"
                     >
                       <Share2 className="w-5 h-5" />
@@ -600,16 +600,16 @@ const StoryDiscovery = () => {
 
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     <Eye className="w-4 h-4" />
-                    <span>{selectedStory.views_count} views</span>
+                    <span>{_selectedStory.views_count} views</span>
                   </div>
                 </div>
 
                 {/* Similar Stories */}
-                {getSimilarStories(selectedStory).length > 0 && (
+                {getSimilarStories(_selectedStory).length > 0 && (
                   <div className="pt-6 border-t">
                     <h4 className="font-semibold text-serenity-navy mb-4">Similar Stories</h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {getSimilarStories(selectedStory).map((similarStory) => (
+                      {getSimilarStories(_selectedStory).map((similarStory) => (
                         <Card key={similarStory.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedStory(similarStory)}>
                           <CardContent className="p-4">
                             <h5 className="font-medium text-sm line-clamp-2 mb-2">{similarStory.title}</h5>

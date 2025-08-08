@@ -31,7 +31,7 @@ export class VoiceActivatedCrisisService {
 
     const success = voiceActivationService.startListening({
       onCrisisDetected: this.handleVoiceCrisisActivation,
-      onError: (error) => {
+      _onError: (error) => {
         console.error('Voice crisis service error:', error);
         toast.error('Voice crisis detection temporarily unavailable');
       }
@@ -97,12 +97,12 @@ export class VoiceActivatedCrisisService {
         "You're doing great. Let's repeat this."
       ];
       
-      instructions.forEach((instruction, index) => {
+      instructions.forEach((_instruction, index) => {
         setTimeout(() => {
-          const utterance = new SpeechSynthesisUtterance(instruction);
-          utterance.rate = 0.7;
-          utterance.pitch = 0.9;
-          speechSynthesis.speak(utterance);
+          const _utterance = new SpeechSynthesisUtterance(_instruction);
+          _utterance.rate = 0.7;
+          _utterance.pitch = 0.9;
+          speechSynthesis.speak(_utterance);
         }, index * 8000); // 8 seconds between instructions
       });
     }
@@ -121,11 +121,11 @@ export class VoiceActivatedCrisisService {
         "You are safe. You are present. You are grounded."
       ];
       
-      grounding.forEach((instruction, index) => {
+      grounding.forEach((_instruction, index) => {
         setTimeout(() => {
-          const utterance = new SpeechSynthesisUtterance(instruction);
-          utterance.rate = 0.8;
-          speechSynthesis.speak(utterance);
+          const _utterance = new SpeechSynthesisUtterance(_instruction);
+          _utterance.rate = 0.8;
+          speechSynthesis.speak(_utterance);
         }, index * 6000);
       });
     }

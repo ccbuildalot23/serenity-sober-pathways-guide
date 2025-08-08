@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
-import { Eye, User, Home, Brain, UserCircle, BookOpen } from 'lucide-react';
+// import { Switch } from '@/components/ui/switch';
+// import { Badge } from '@/components/ui/badge';
+import { Home, Brain, UserCircle, BookOpen } from 'lucide-react';
 
 interface ViewToggleProps {
   currentView: string;

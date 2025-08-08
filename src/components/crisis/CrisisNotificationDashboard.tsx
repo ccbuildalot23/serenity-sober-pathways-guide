@@ -2,7 +2,7 @@
  * Crisis Notification Dashboard
  * 
  * Real-time dashboard for crisis management showing active alerts,
- * supporter responses, and system status. Integrates with both
+ * supporter responses, and system _status. Integrates with both
  * in-app notifications and MCP systems.
  */
 
@@ -28,7 +28,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -57,38 +57,38 @@ const CrisisNotificationDashboard: React.FC = () => {
     isResponding,
     isEscalating,
     isResolving,
-    error,
+    _error,
     clearError,
     systemHealth
   } = useCrisisManagement(activeCrisis?.id);
 
   const [selectedTab, setSelectedTab] = useState('overview');
-  const [responseDialogOpen, setResponseDialogOpen] = useState(false);
-  const [escalationDialogOpen, setEscalationDialogOpen] = useState(false);
-  const [resolutionDialogOpen, setResolutionDialogOpen] = useState(false);
-  const [createAlertDialogOpen, setCreateAlertDialogOpen] = useState(false);
+  const [responseDialogOpen, setResponseDialogOpen] = useState(_false);
+  const [escalationDialogOpen, setEscalationDialogOpen] = useState(_false);
+  const [resolutionDialogOpen, setResolutionDialogOpen] = useState(_false);
+  const [createAlertDialogOpen, setCreateAlertDialogOpen] = useState(_false);
 
   // Form states
-  const [responseForm, setResponseForm] = useState({
-    type: 'acknowledged' as const,
-    message: ''
+  const [_responseForm, setResponseForm] = useState({
+    _type: 'acknowledged' as const,
+    _message: ''
   });
-  const [escalationForm, setEscalationForm] = useState({
-    type: 'next_tier' as const,
-    reason: ''
+  const [_escalationForm, setEscalationForm] = useState({
+    _type: 'next_tier' as const,
+    _reason: ''
   });
-  const [resolutionForm, setResolutionForm] = useState({
-    description: '',
-    followUpNeeded: false
+  const [_resolutionForm, setResolutionForm] = useState({
+    _description: '',
+    _followUpNeeded: _false
   });
   const [alertForm, setAlertForm] = useState({
-    severity: 'medium' as const,
-    message: '',
-    customMessage: ''
+    _severity: 'medium' as const,
+    _message: '',
+    _customMessage: ''
   });
 
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
+  const getSeverityColor = (_severity: string) => {
+    switch (_severity) {
       case 'critical': return 'destructive';
       case 'high': return 'destructive';
       case 'medium': return 'default';
@@ -97,8 +97,8 @@ const CrisisNotificationDashboard: React.FC = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
+  const getStatusColor = (_status: string) => {
+    switch (_status) {
       case 'resolved': return 'text-green-600';
       case 'escalated': return 'text-red-600';
       case 'acknowledged': return 'text-blue-600';
@@ -110,15 +110,15 @@ const CrisisNotificationDashboard: React.FC = () => {
   const handleCreateAlert = async () => {
     try {
       await createCrisisAlert({
-        severity: alertForm.severity,
-        message: alertForm.message,
-        customMessage: alertForm.customMessage
+        _severity: alertForm._severity,
+        _message: alertForm._message,
+        _customMessage: alertForm._customMessage
       });
-      setCreateAlertDialogOpen(false);
-      setAlertForm({ severity: 'medium', message: '', customMessage: '' });
+      setCreateAlertDialogOpen(_false);
+      setAlertForm({ _severity: 'medium', _message: '', _customMessage: '' });
       toast.success('Crisis alert sent to support network');
-    } catch (error) {
-      console.error('Error creating alert:', error);
+    } catch (_error) {
+      console._error('Error creating alert:', _error);
     }
   };
 
@@ -126,11 +126,11 @@ const CrisisNotificationDashboard: React.FC = () => {
     if (!activeCrisis) return;
     
     try {
-      await respondToAlert(activeCrisis.id, responseForm);
-      setResponseDialogOpen(false);
-      setResponseForm({ type: 'acknowledged', message: '' });
-    } catch (error) {
-      console.error('Error responding to alert:', error);
+      await respondToAlert(activeCrisis.id, _responseForm);
+      setResponseDialogOpen(_false);
+      setResponseForm({ _type: 'acknowledged', _message: '' });
+    } catch (_error) {
+      console._error('Error responding to alert:', _error);
     }
   };
 
@@ -138,11 +138,11 @@ const CrisisNotificationDashboard: React.FC = () => {
     if (!activeCrisis) return;
     
     try {
-      await escalateAlert(activeCrisis.id, escalationForm);
-      setEscalationDialogOpen(false);
-      setEscalationForm({ type: 'next_tier', reason: '' });
-    } catch (error) {
-      console.error('Error escalating alert:', error);
+      await escalateAlert(activeCrisis.id, _escalationForm);
+      setEscalationDialogOpen(_false);
+      setEscalationForm({ _type: 'next_tier', _reason: '' });
+    } catch (_error) {
+      console._error('Error escalating alert:', _error);
     }
   };
 
@@ -150,11 +150,11 @@ const CrisisNotificationDashboard: React.FC = () => {
     if (!activeCrisis) return;
     
     try {
-      await resolveAlert(activeCrisis.id, resolutionForm);
-      setResolutionDialogOpen(false);
-      setResolutionForm({ description: '', followUpNeeded: false });
-    } catch (error) {
-      console.error('Error resolving alert:', error);
+      await resolveAlert(activeCrisis.id, _resolutionForm);
+      setResolutionDialogOpen(_false);
+      setResolutionForm({ _description: '', _followUpNeeded: _false });
+    } catch (_error) {
+      console._error('Error resolving alert:', _error);
     }
   };
 
@@ -212,8 +212,8 @@ const CrisisNotificationDashboard: React.FC = () => {
               <div className="space-y-4">
                 <div>
                   <Label>Severity Level</Label>
-                  <Select value={alertForm.severity} onValueChange={(value: any) => 
-                    setAlertForm(prev => ({ ...prev, severity: value }))
+                  <Select value={alertForm._severity} onValueChange={(value: unknown) => 
+                    setAlertForm(prev => ({ ...prev, _severity: value }))
                   }>
                     <SelectTrigger>
                       <SelectValue />
@@ -231,27 +231,27 @@ const CrisisNotificationDashboard: React.FC = () => {
                   <Label>Message</Label>
                   <Textarea
                     placeholder="What's happening? Your support network wants to help..."
-                    value={alertForm.message}
-                    onChange={(e) => setAlertForm(prev => ({ ...prev, message: e.target.value }))}
+                    value={alertForm._message}
+                    onChange={(e) => setAlertForm(prev => ({ ...prev, _message: e.target.value }))}
                   />
                 </div>
                 
                 <div>
-                  <Label>Custom Message (optional)</Label>
+                  <Label>Custom Message (_optional)</Label>
                   <Textarea
-                    placeholder="Personal message to your supporters..."
-                    value={alertForm.customMessage}
-                    onChange={(e) => setAlertForm(prev => ({ ...prev, customMessage: e.target.value }))}
+                    placeholder="Personal _message to your supporters..."
+                    value={alertForm._customMessage}
+                    onChange={(e) => setAlertForm(prev => ({ ...prev, _customMessage: e.target.value }))}
                   />
                 </div>
                 
                 <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => setCreateAlertDialogOpen(false)}>
+                  <Button variant="outline" onClick={() => setCreateAlertDialogOpen(_false)}>
                     Cancel
                   </Button>
                   <Button 
                     onClick={handleCreateAlert}
-                    disabled={isCreatingAlert || !alertForm.message}
+                    disabled={isCreatingAlert || !alertForm._message}
                     className="bg-red-600 hover:bg-red-700"
                   >
                     {isCreatingAlert ? 'Sending...' : 'Send Alert'}
@@ -332,7 +332,7 @@ const CrisisNotificationDashboard: React.FC = () => {
                   {activeCrisis ? 1 : 0}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {activeCrisis ? `${activeCrisis.severity} severity` : 'No active crises'}
+                  {activeCrisis ? `${activeCrisis._severity} _severity` : 'No active crises'}
                 </p>
               </CardContent>
             </Card>
@@ -401,9 +401,9 @@ const CrisisNotificationDashboard: React.FC = () => {
                     <div key={notification.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
                       <div className={cn(
                         "w-2 h-2 rounded-full mt-2",
-                        notification.severity === 'critical' ? 'bg-red-500' :
-                        notification.severity === 'high' ? 'bg-orange-500' :
-                        notification.severity === 'medium' ? 'bg-yellow-500' :
+                        notification._severity === 'critical' ? 'bg-red-500' :
+                        notification._severity === 'high' ? 'bg-orange-500' :
+                        notification._severity === 'medium' ? 'bg-yellow-500' :
                         'bg-blue-500'
                       )} />
                       <div className="flex-1">
@@ -413,7 +413,7 @@ const CrisisNotificationDashboard: React.FC = () => {
                             {new Date(notification.createdAt).toLocaleTimeString()}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-600">{notification.message}</p>
+                        <p className="text-sm text-gray-600">{notification._message}</p>
                       </div>
                     </div>
                   ))}
@@ -439,13 +439,13 @@ const CrisisNotificationDashboard: React.FC = () => {
                     <CardTitle className="flex items-center space-x-2">
                       <AlertTriangle className={cn(
                         "h-5 w-5",
-                        activeCrisis.severity === 'critical' ? 'text-red-600' :
-                        activeCrisis.severity === 'high' ? 'text-orange-600' :
+                        activeCrisis._severity === 'critical' ? 'text-red-600' :
+                        activeCrisis._severity === 'high' ? 'text-orange-600' :
                         'text-yellow-600'
                       )} />
                       <span>Active Crisis Alert</span>
-                      <Badge variant={getSeverityColor(activeCrisis.severity) as any}>
-                        {activeCrisis.severity.toUpperCase()}
+                      <Badge variant={getSeverityColor(activeCrisis._severity) as any}>
+                        {activeCrisis._severity.toUpperCase()}
                       </Badge>
                     </CardTitle>
                     <div className="flex space-x-2">
@@ -463,8 +463,8 @@ const CrisisNotificationDashboard: React.FC = () => {
                           <div className="space-y-4">
                             <div>
                               <Label>Response Type</Label>
-                              <Select value={responseForm.type} onValueChange={(value: any) => 
-                                setResponseForm(prev => ({ ...prev, type: value }))
+                              <Select value={_responseForm._type} onValueChange={(value: unknown) => 
+                                setResponseForm(prev => ({ ...prev, _type: value }))
                               }>
                                 <SelectTrigger>
                                   <SelectValue />
@@ -482,14 +482,14 @@ const CrisisNotificationDashboard: React.FC = () => {
                             <div>
                               <Label>Message</Label>
                               <Textarea
-                                placeholder="Additional message..."
-                                value={responseForm.message}
-                                onChange={(e) => setResponseForm(prev => ({ ...prev, message: e.target.value }))}
+                                placeholder="Additional _message..."
+                                value={_responseForm._message}
+                                onChange={(e) => setResponseForm(prev => ({ ...prev, _message: e.target.value }))}
                               />
                             </div>
                             
                             <div className="flex justify-end space-x-2">
-                              <Button variant="outline" onClick={() => setResponseDialogOpen(false)}>
+                              <Button variant="outline" onClick={() => setResponseDialogOpen(_false)}>
                                 Cancel
                               </Button>
                               <Button onClick={handleRespond} disabled={isResponding}>
@@ -514,8 +514,8 @@ const CrisisNotificationDashboard: React.FC = () => {
                           <div className="space-y-4">
                             <div>
                               <Label>Escalation Type</Label>
-                              <Select value={escalationForm.type} onValueChange={(value: any) => 
-                                setEscalationForm(prev => ({ ...prev, type: value }))
+                              <Select value={_escalationForm._type} onValueChange={(value: unknown) => 
+                                setEscalationForm(prev => ({ ...prev, _type: value }))
                               }>
                                 <SelectTrigger>
                                   <SelectValue />
@@ -532,18 +532,18 @@ const CrisisNotificationDashboard: React.FC = () => {
                               <Label>Reason</Label>
                               <Textarea
                                 placeholder="Why is escalation needed?"
-                                value={escalationForm.reason}
-                                onChange={(e) => setEscalationForm(prev => ({ ...prev, reason: e.target.value }))}
+                                value={_escalationForm._reason}
+                                onChange={(e) => setEscalationForm(prev => ({ ...prev, _reason: e.target.value }))}
                               />
                             </div>
                             
                             <div className="flex justify-end space-x-2">
-                              <Button variant="outline" onClick={() => setEscalationDialogOpen(false)}>
+                              <Button variant="outline" onClick={() => setEscalationDialogOpen(_false)}>
                                 Cancel
                               </Button>
                               <Button 
                                 onClick={handleEscalate} 
-                                disabled={isEscalating || !escalationForm.reason}
+                                disabled={isEscalating || !_escalationForm._reason}
                                 className="bg-orange-600 hover:bg-orange-700"
                               >
                                 {isEscalating ? 'Escalating...' : 'Escalate'}
@@ -553,7 +553,7 @@ const CrisisNotificationDashboard: React.FC = () => {
                         </DialogContent>
                       </Dialog>
 
-                      {activeCrisis.status !== 'resolved' && (
+                      {activeCrisis._status !== 'resolved' && (
                         <Dialog open={resolutionDialogOpen} onOpenChange={setResolutionDialogOpen}>
                           <DialogTrigger asChild>
                             <Button variant="outline" size="sm">
@@ -570,27 +570,27 @@ const CrisisNotificationDashboard: React.FC = () => {
                                 <Label>Resolution Description</Label>
                                 <Textarea
                                   placeholder="How was the crisis resolved?"
-                                  value={resolutionForm.description}
-                                  onChange={(e) => setResolutionForm(prev => ({ ...prev, description: e.target.value }))}
+                                  value={_resolutionForm._description}
+                                  onChange={(e) => setResolutionForm(prev => ({ ...prev, _description: e.target.value }))}
                                 />
                               </div>
                               
                               <div className="flex items-center space-x-2">
                                 <input
-                                  type="checkbox"
-                                  checked={resolutionForm.followUpNeeded}
-                                  onChange={(e) => setResolutionForm(prev => ({ ...prev, followUpNeeded: e.target.checked }))}
+                                  _type="checkbox"
+                                  checked={_resolutionForm._followUpNeeded}
+                                  onChange={(e) => setResolutionForm(prev => ({ ...prev, _followUpNeeded: e.target.checked }))}
                                 />
                                 <Label>Follow-up needed</Label>
                               </div>
                               
                               <div className="flex justify-end space-x-2">
-                                <Button variant="outline" onClick={() => setResolutionDialogOpen(false)}>
+                                <Button variant="outline" onClick={() => setResolutionDialogOpen(_false)}>
                                   Cancel
                                 </Button>
                                 <Button 
                                   onClick={handleResolve} 
-                                  disabled={isResolving || !resolutionForm.description}
+                                  disabled={isResolving || !_resolutionForm._description}
                                   className="bg-green-600 hover:bg-green-700"
                                 >
                                   {isResolving ? 'Resolving...' : 'Resolve Crisis'}
@@ -610,8 +610,8 @@ const CrisisNotificationDashboard: React.FC = () => {
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span>Status:</span>
-                          <span className={getStatusColor(activeCrisis.status)}>
-                            {activeCrisis.status}
+                          <span className={getStatusColor(activeCrisis._status)}>
+                            {activeCrisis._status}
                           </span>
                         </div>
                         <div className="flex justify-between">
@@ -646,7 +646,7 @@ const CrisisNotificationDashboard: React.FC = () => {
                     <div>
                       <h4 className="font-medium mb-2">Message</h4>
                       <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
-                        {activeCrisis.message || 'No message provided'}
+                        {activeCrisis._message || 'No _message provided'}
                       </div>
                     </div>
                   </div>
@@ -670,7 +670,7 @@ const CrisisNotificationDashboard: React.FC = () => {
                       </div>
                     </div>
                     
-                    {activeCrisis.status !== 'created' && (
+                    {activeCrisis._status !== 'created' && (
                       <div className="flex items-center space-x-3">
                         <div className="w-3 h-3 bg-yellow-500 rounded-full" />
                         <div>
@@ -694,7 +694,7 @@ const CrisisNotificationDashboard: React.FC = () => {
                       </div>
                     )}
                     
-                    {activeCrisis.status === 'resolved' && (
+                    {activeCrisis._status === 'resolved' && (
                       <div className="flex items-center space-x-3">
                         <div className="w-3 h-3 bg-green-600 rounded-full" />
                         <div>
@@ -718,7 +718,7 @@ const CrisisNotificationDashboard: React.FC = () => {
                   Your support network is ready when you need them.
                 </p>
                 <Button 
-                  onClick={() => setCreateAlertDialogOpen(true)}
+                  onClick={() => setCreateAlertDialogOpen(_true)}
                   className="bg-blue-600 hover:bg-blue-700"
                 >
                   <AlertTriangle className="h-4 w-4 mr-2" />
@@ -759,7 +759,7 @@ const CrisisNotificationDashboard: React.FC = () => {
                             </Badge>
                           </div>
                           <p className="text-sm text-gray-600 mt-1">
-                            {response.message}
+                            {response._message}
                           </p>
                           <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
                             <span className="flex items-center">
@@ -823,17 +823,17 @@ const CrisisNotificationDashboard: React.FC = () => {
                         <div className="flex items-center space-x-2 mb-1">
                           <span className="font-medium">{notification.title}</span>
                           <Badge 
-                            variant={getSeverityColor(notification.severity) as any}
+                            variant={getSeverityColor(notification._severity) as any}
                             size="sm"
                           >
-                            {notification.severity}
+                            {notification._severity}
                           </Badge>
                           {!notification.read && (
                             <div className="w-2 h-2 bg-blue-500 rounded-full" />
                           )}
                         </div>
                         <p className="text-sm text-gray-600 mb-2">
-                          {notification.message}
+                          {notification._message}
                         </p>
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-gray-500">
@@ -847,7 +847,7 @@ const CrisisNotificationDashboard: React.FC = () => {
                                   size="sm"
                                   variant={action.primary ? "default" : "outline"}
                                   onClick={() => {
-                                    if (action.type === 'acknowledge') {
+                                    if (action._type === 'acknowledge') {
                                       acknowledgeNotification(notification.id);
                                     }
                                   }}
@@ -879,10 +879,10 @@ const CrisisNotificationDashboard: React.FC = () => {
       </Tabs>
 
       {/* Error Display */}
-      {error && (
+      {_error && (
         <div className="fixed bottom-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
           <div className="flex items-center justify-between">
-            <span>{error}</span>
+            <span>{_error}</span>
             <button onClick={clearError} className="ml-2 text-red-500 hover:text-red-700">
               ×
             </button>

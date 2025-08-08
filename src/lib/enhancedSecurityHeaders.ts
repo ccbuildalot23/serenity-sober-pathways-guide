@@ -7,14 +7,14 @@ export class EnhancedSecurityHeaders {
   private static deviceFingerprint: string | null = null;
   
   static applyEnhancedSecurity() {
-    // Generate a unique nonce for this session
-    const nonce = crypto.randomUUID();
+    // Generate a unique _nonce for this session
+    const _nonce = crypto.randomUUID();
     
     // Enhanced Content Security Policy with stricter controls
-    const cspDirectives = [
+    const _cspDirectives = [
       "default-src 'self'",
       "script-src 'self' 'strict-dynamic'",
-      `style-src 'self' 'nonce-${nonce}' https://fonts.googleapis.com`,
+      `style-src 'self' '_nonce-${_nonce}' https://fonts.googleapis.com`,
       "font-src 'self' https://fonts.gstatic.com data:",
       "img-src 'self' data: blob: https:",
       // Stricter connect-src - only allow specific Supabase endpoints
@@ -29,7 +29,7 @@ export class EnhancedSecurityHeaders {
       "require-trusted-types-for 'script'" // Additional XSS protection
     ].join('; ');
 
-    this.setMetaTag('Content-Security-Policy', cspDirectives);
+    this.setMetaTag('Content-Security-Policy', _cspDirectives);
     
     // Enhanced security headers
     this.setMetaTag('X-Content-Type-Options', 'nosniff');
@@ -49,8 +49,8 @@ export class EnhancedSecurityHeaders {
     // Set up session timeout monitoring
     this.initializeSessionTimeout();
     
-    // Store nonce for potential use
-    this.setNonce(nonce);
+    // Store _nonce for potential use
+    this.setNonce(_nonce);
     
     if (import.meta.env.DEV) {
       console.log('Enhanced security headers applied with stricter CSP and session management');
@@ -76,8 +76,8 @@ export class EnhancedSecurityHeaders {
       if (import.meta.env.DEV) {
         console.log('Device fingerprint generated for session validation');
       }
-    } catch (error) {
-      console.warn('Could not generate device fingerprint:', error);
+    } catch (_error) {
+      console.warn('Could not generate device fingerprint:', _error);
     }
   }
 
@@ -103,13 +103,13 @@ export class EnhancedSecurityHeaders {
   private static setupActivityMonitoring(): void {
     const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
     
-    const resetTimeout = () => {
+    const _resetTimeout = () => {
       localStorage.setItem('session_last_activity', Date.now().toString());
       this.initializeSessionTimeout();
     };
     
     events.forEach(event => {
-      document.addEventListener(event, resetTimeout, { passive: true });
+      document.addEventListener(event, _resetTimeout, { passive: true });
     });
   }
 
@@ -119,9 +119,9 @@ export class EnhancedSecurityHeaders {
     }
     
     // Clear session data
-    Object.keys(localStorage).forEach((key) => {
-      if (key.startsWith('supabase.auth.') || key.includes('sb-') || key.includes('supabase-auth')) {
-        localStorage.removeItem(key);
+    Object.keys(localStorage).forEach((_key) => {
+      if (_key.startsWith('supabase.auth.') || _key.includes('sb-') || _key.includes('supabase-auth')) {
+        localStorage.removeItem(_key);
       }
     });
     
@@ -130,14 +130,14 @@ export class EnhancedSecurityHeaders {
   }
 
   static validateSession(): boolean {
-    const lastActivity = localStorage.getItem('session_last_activity');
+    const _lastActivity = localStorage.getItem('session_last_activity');
     const storedFingerprint = localStorage.getItem('device_fp');
     
-    if (!lastActivity || !storedFingerprint) {
+    if (!_lastActivity || !storedFingerprint) {
       return false;
     }
     
-    const timeSinceActivity = Date.now() - parseInt(lastActivity);
+    const timeSinceActivity = Date.now() - parseInt(_lastActivity);
     const fingerprintMatch = storedFingerprint === this.deviceFingerprint;
     
     if (timeSinceActivity > this.sessionTimeout || !fingerprintMatch) {

@@ -19,14 +19,14 @@ export const CrisisIntegrationWrapper: React.FC<CrisisIntegrationWrapperProps> =
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
-  const [showAccessibilitySettings, setShowAccessibilitySettings] = useState(false);
+  const [showAccessibilitySettings, setShowAccessibilitySettings] = useState(_false);
   
   const crisisSystem = useCrisisSystem();
 
   // Monitor online/offline status
   useEffect(() => {
-    const handleOnline = () => {
-      setIsOffline(false);
+    const _handleOnline = () => {
+      setIsOffline(_false);
       toast.success("Back online - crisis data will now sync");
       
       // Sync queued crisis data
@@ -38,23 +38,23 @@ export const CrisisIntegrationWrapper: React.FC<CrisisIntegrationWrapperProps> =
       }
     };
 
-    const handleOffline = () => {
-      setIsOffline(true);
+    const _handleOffline = () => {
+      setIsOffline(_true);
       toast.warning("You're offline - crisis tools will work with cached data");
     };
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', _handleOnline);
+    window.addEventListener('offline', _handleOffline);
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', _handleOnline);
+      window.removeEventListener('offline', _handleOffline);
     };
   }, []);
 
   // Keyboard shortcuts for crisis access
   useEffect(() => {
-    const handleKeydown = (event: KeyboardEvent) => {
+    const _handleKeydown = (event: KeyboardEvent) => {
       // Ctrl/Cmd + E for emergency
       if ((event.ctrlKey || event.metaKey) && event.key === 'e') {
         event.preventDefault();
@@ -68,8 +68,8 @@ export const CrisisIntegrationWrapper: React.FC<CrisisIntegrationWrapperProps> =
       }
     };
 
-    window.addEventListener('keydown', handleKeydown);
-    return () => window.removeEventListener('keydown', handleKeydown);
+    window.addEventListener('keydown', _handleKeydown);
+    return () => window.removeEventListener('keydown', _handleKeydown);
   }, [navigate]);
 
   if (!user) {
@@ -108,7 +108,7 @@ export const CrisisIntegrationWrapper: React.FC<CrisisIntegrationWrapperProps> =
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold">Crisis Accessibility Settings</h2>
                 <button
-                  onClick={() => setShowAccessibilitySettings(false)}
+                  onClick={() => setShowAccessibilitySettings(_false)}
                   className="text-gray-500 hover:text-gray-700 text-2xl"
                   aria-label="Close accessibility settings"
                 >
@@ -118,7 +118,7 @@ export const CrisisIntegrationWrapper: React.FC<CrisisIntegrationWrapperProps> =
               <CrisisAccessibilitySettings />
               <div className="mt-4 pt-4 border-t">
                 <button
-                  onClick={() => setShowAccessibilitySettings(false)}
+                  onClick={() => setShowAccessibilitySettings(_false)}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
                 >
                   Close

@@ -12,14 +12,14 @@ import { useToast } from '@/hooks/use-toast';
 import confetti from 'canvas-confetti';
 import CrisisMilestoneDialog from '@/components/milestones/CrisisMilestoneDialog';
 
-interface SobrietyRecord {
-  id?: string;
-  user_id: string;
-  start_date: string;
-  daily_cost: number;
-  created_at?: string;
-  is_active: boolean;
-}
+// interface SobrietyRecord {
+//   id?: string;
+//   user_id: string;
+//   start_date: string;
+//   daily_cost: number;
+//   created_at?: string;
+//   is_active: boolean;
+// }
 
 interface MilestoneData {
   days: number;
@@ -31,7 +31,7 @@ interface MilestoneData {
 const SobrietyTracker = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [sobrietyDate, setSobrietyDate] = useState<string>('');
+  const [_sobrietyDate, setSobrietyDate] = useState<string>('');
   const [dailyCost, setDailyCost] = useState<string>('15');
   const [days, setDays] = useState<number>(0);
   const [hours, setHours] = useState<number>(0);
@@ -40,25 +40,25 @@ const SobrietyTracker = () => {
   const [moneySaved, setMoneySaved] = useState<number>(0);
   const [totalHours, setTotalHours] = useState<number>(0);
   const [achievements, setAchievements] = useState<string[]>([]);
-  const [newAchievement, setNewAchievement] = useState<string | null>(null);
-  const [showMilestone, setShowMilestone] = useState(false);
-  const [currentMilestone, setCurrentMilestone] = useState<MilestoneData | null>(null);
-  const [crisisData, setCrisisData] = useState<any[]>([]);
-  const [relapseHistory, setRelapseHistory] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [analyticsData, setAnalyticsData] = useState<any>(null);
+  const [newAchievement, setNewAchievement] = useState<string | _null>(_null);
+  const [showMilestone, setShowMilestone] = useState(_false);
+  const [currentMilestone, setCurrentMilestone] = useState<MilestoneData | _null>(_null);
+  const [crisisData, setCrisisData] = useState<unknown[]>([]);
+  const [relapseHistory, setRelapseHistory] = useState<unknown[]>([]);
+  const [loading, setLoading] = useState(_false);
+  const [analyticsData, setAnalyticsData] = useState<unknown>(_null);
 
   // Real-time counter update (every second for more granular tracking)
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (sobrietyDate) {
+    const _interval = setInterval(() => {
+      if (_sobrietyDate) {
         calculateRealTimeProgress();
         checkForNewAchievements();
       }
     }, 1000); // Update every second
 
-    return () => clearInterval(interval);
-  }, [sobrietyDate, totalHours]);
+    return () => clearInterval(_interval);
+  }, [_sobrietyDate, totalHours]);
 
   // Load data from database
   useEffect(() => {
@@ -83,7 +83,7 @@ const SobrietyTracker = () => {
     const milestone = milestones[days];
     if (milestone && days > 0) {
       setCurrentMilestone(milestone);
-      setShowMilestone(true);
+      setShowMilestone(_true);
       celebrateMilestone(milestone);
     }
   }, [days]);
@@ -92,15 +92,15 @@ const SobrietyTracker = () => {
     // Confetti celebration
     confetti({
       particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 }
+      _spread: 70,
+      _origin: { y: 0.6 }
     });
     
     // Toast notification
     toast({
       title: `🎉 ${milestone.title}!`,
-      description: milestone.message,
-      duration: 5000,
+      _description: milestone.message,
+      _duration: 5000,
     });
   };
 
@@ -119,8 +119,8 @@ const SobrietyTracker = () => {
         setSobrietyDate(profile.recovery_start_date);
         calculateRealTimeProgress(profile.recovery_start_date);
       }
-    } catch (error) {
-      console.error('Error loading sobriety data:', error);
+    } catch (_error) {
+      console._error('Error loading sobriety data:', _error);
     }
   };
 
@@ -132,12 +132,12 @@ const SobrietyTracker = () => {
         .from('recovery_goals')
         .select('*')
         .eq('user_id', user.id)
-        .eq('category', 'sobriety')
-        .order('created_at', { ascending: false });
+        .eq('_category', 'sobriety')
+        .order('created_at', { ascending: _false });
 
       setRelapseHistory(data || []);
-    } catch (error) {
-      console.error('Error loading relapse history:', error);
+    } catch (_error) {
+      console._error('Error loading relapse history:', _error);
     }
   };
 
@@ -149,89 +149,89 @@ const SobrietyTracker = () => {
         .rpc('get_recovery_streak', { user_uuid: user.id });
 
       setAnalyticsData(data);
-    } catch (error) {
-      console.error('Error loading analytics:', error);
+    } catch (_error) {
+      console._error('Error loading analytics:', _error);
     }
   };
 
-  const loadCrisisData = async () => {
+  const _loadCrisisData = async () => {
     if (!user?.id) return;
 
     try {
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('crisis_events')
         .select('id, created_at as crisis_start_time')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
+        .order('created_at', { ascending: _false })
         .limit(10);
 
-      if (error) {
-        console.error('Error loading crisis data:', error);
+      if (_error) {
+        console._error('Error loading crisis data:', _error);
         return;
       }
 
       setCrisisData(data || []);
-    } catch (error) {
-      console.error('Error in loadCrisisData:', error);
+    } catch (_error) {
+      console._error('Error in loadCrisisData:', _error);
     }
   };
 
   const calculateRealTimeProgress = (startDate?: string) => {
-    const dateToUse = startDate || sobrietyDate;
-    if (!dateToUse) return;
+    const _dateToUse = startDate || _sobrietyDate;
+    if (!_dateToUse) return;
     
-    const start = new Date(dateToUse);
+    const start = new Date(_dateToUse);
     const now = new Date();
     const diffTime = now.getTime() - start.getTime();
     
     const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    const totalHoursInDay = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const totalMinutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
-    const totalSeconds = Math.floor((diffTime % (1000 * 60)) / 1000);
-    const totalHoursOverall = Math.floor(diffTime / (1000 * 60 * 60));
+    const _totalHoursInDay = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const _totalMinutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
+    const _totalSeconds = Math.floor((diffTime % (1000 * 60)) / 1000);
+    const _totalHoursOverall = Math.floor(diffTime / (1000 * 60 * 60));
     
     setDays(totalDays);
-    setHours(totalHoursInDay);
-    setMinutes(totalMinutes);
-    setSeconds(totalSeconds);
-    setTotalHours(totalHoursOverall);
+    setHours(_totalHoursInDay);
+    setMinutes(_totalMinutes);
+    setSeconds(_totalSeconds);
+    setTotalHours(_totalHoursOverall);
     setMoneySaved(totalDays * parseFloat(dailyCost));
   };
 
-  const handleDateChange = async (newDate: string) => {
-    setLoading(true);
-    setSobrietyDate(newDate);
+  const handleDateChange = async (_newDate: string) => {
+    setLoading(_true);
+    setSobrietyDate(_newDate);
     
     try {
       // Update profile with new start date
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('profiles')
-        .update({ recovery_start_date: newDate })
+        .update({ recovery_start_date: _newDate })
         .eq('id', user?.id);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
-      calculateRealTimeProgress(newDate);
+      calculateRealTimeProgress(_newDate);
       
       toast({
         title: "Journey Updated",
-        description: "Your sobriety start date has been saved.",
+        _description: "Your sobriety start date has been saved.",
       });
-    } catch (error) {
-      console.error('Error updating sobriety date:', error);
+    } catch (_error) {
+      console._error('Error updating sobriety date:', _error);
       toast({
         title: "Error",
-        description: "Failed to update start date. Please try again.",
-        variant: "destructive",
+        _description: "Failed to update start date. Please try again.",
+        _variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
 
-  const handleCostChange = (newCost: string) => {
-    setDailyCost(newCost);
-    if (sobrietyDate) {
+  const handleCostChange = (_newCost: string) => {
+    setDailyCost(_newCost);
+    if (_sobrietyDate) {
       calculateRealTimeProgress();
     }
   };
@@ -239,7 +239,7 @@ const SobrietyTracker = () => {
   const handleRelapse = async () => {
     if (!user?.id) return;
     
-    setLoading(true);
+    setLoading(_true);
     try {
       // Create a supportive relapse record
       await supabase
@@ -247,26 +247,26 @@ const SobrietyTracker = () => {
         .insert({
           user_id: user.id,
           title: 'Recovery Reset',
-          description: 'Starting fresh with renewed commitment',
-          category: 'sobriety',
-          priority: 'high',
-          target_date: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          _description: 'Starting fresh with renewed commitment',
+          _category: 'sobriety',
+          _priority: 'high',
+          _target_date: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
           status: 'active'
         });
 
-      // Reset counter to today
-      const today = new Date().toISOString().split('T')[0];
-      await handleDateChange(today);
+      // Reset counter to _today
+      const _today = new Date().toISOString().split('T')[0];
+      await handleDateChange(_today);
       
       toast({
         title: "Fresh Start 💪",
-        description: "Every journey has bumps. You're brave for starting again. This moment is your strength.",
-        duration: 6000,
+        _description: "Every journey has bumps. You're brave for starting again. This moment is your strength.",
+        _duration: 6000,
       });
-    } catch (error) {
-      console.error('Error handling relapse:', error);
+    } catch (_error) {
+      console._error('Error handling relapse:', _error);
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
 
@@ -282,7 +282,7 @@ const SobrietyTracker = () => {
   const getProgressToNextMilestone = () => {
     const milestones = [1, 7, 30, 90, 180, 365, 730, 1095]; // Up to 3 years
     const nextMilestone = milestones.find(m => m > days);
-    if (!nextMilestone) return null;
+    if (!nextMilestone) return _null;
     
     const progress = (days / nextMilestone) * 100;
     return { next: nextMilestone, progress, remaining: nextMilestone - days };
@@ -311,7 +311,7 @@ const SobrietyTracker = () => {
       setNewAchievement(`${newMilestone.icon} ${newMilestone.title}`);
       
       // Show achievement notification
-      setTimeout(() => setNewAchievement(null), 5000);
+      setTimeout(() => setNewAchievement(_null), 5000);
     }
   };
 
@@ -352,7 +352,7 @@ const SobrietyTracker = () => {
                 
                 {/* Total Hours Badge */}
                 <div className="flex justify-center mb-4">
-                  <Badge variant="outline" className="px-4 py-2 text-lg">
+                  <Badge _variant="outline" className="px-4 py-2 text-lg">
                     <Clock className="w-4 h-4 mr-2" />
                     {totalHours.toLocaleString()} Total Hours Clean
                   </Badge>
@@ -366,7 +366,7 @@ const SobrietyTracker = () => {
                 <div className="mb-6 p-4 bg-white/50 rounded-lg border border-serenity-sage/20">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium text-serenity-navy">Next Milestone</span>
-                    <Badge variant="outline" className="border-serenity-teal text-serenity-teal">
+                    <Badge _variant="outline" className="border-serenity-teal text-serenity-teal">
                       {progressData.next} days
                     </Badge>
                   </div>
@@ -445,7 +445,7 @@ const SobrietyTracker = () => {
               </label>
               <Input
                 type="date"
-                value={sobrietyDate}
+                value={_sobrietyDate}
                 onChange={(e) => handleDateChange(e.target.value)}
                 disabled={loading}
                 className="w-full"
@@ -475,7 +475,7 @@ const SobrietyTracker = () => {
                   Recovery isn't linear. If you need to reset your counter, that's okay. You're still strong.
                 </p>
                 <Button 
-                  variant="outline" 
+                  _variant="outline" 
                   onClick={handleRelapse}
                   disabled={loading}
                   className="w-full border-serenity-coral text-serenity-coral hover:bg-serenity-coral/10"
@@ -506,14 +506,14 @@ const SobrietyTracker = () => {
               
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">Longest Streak</span>
-                <Badge variant="outline" className="border-serenity-gold text-serenity-gold">
+                <Badge _variant="outline" className="border-serenity-gold text-serenity-gold">
                   {analyticsData.longest_streak_days} days
                 </Badge>
               </div>
               
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">30-Day Rate</span>
-                <Badge variant="outline" className="border-serenity-teal text-serenity-teal">
+                <Badge _variant="outline" className="border-serenity-teal text-serenity-teal">
                   {analyticsData.completion_rate_30_days}%
                 </Badge>
               </div>
@@ -542,7 +542,7 @@ const SobrietyTracker = () => {
           <h3 className="text-2xl font-bold text-serenity-navy mb-2">{currentMilestone.title}</h3>
           <p className="text-serenity-sage mb-6">{currentMilestone.message}</p>
           <Button 
-            onClick={() => setShowMilestone(false)}
+            onClick={() => setShowMilestone(_false)}
             className="bg-serenity-emerald hover:bg-serenity-emerald/90"
           >
             <Heart className="w-4 h-4 mr-2" />
@@ -567,7 +567,7 @@ const SobrietyTracker = () => {
       {/* Crisis Milestone Dialog */}
       <CrisisMilestoneDialog
         isOpen={showMilestone}
-        onClose={() => setShowMilestone(false)}
+        onClose={() => setShowMilestone(_false)}
         milestone={currentMilestone?.days || 0}
         crisisData={crisisData}
       />

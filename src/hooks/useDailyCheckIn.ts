@@ -12,10 +12,10 @@ export const useDailyCheckIn = () => {
   const { user } = useAuth();
   const [mood, setMood] = useState<MoodToday | null>(null);
   const [gratitude, setGratitude] = useState('');
-  const [todaysVictory, setTodaysVictory] = useState('');
-  const [needsSupport, setNeedsSupport] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasCheckedIn, setHasCheckedIn] = useState(false);
+  const [_todaysVictory, setTodaysVictory] = useState('');
+  const [needsSupport, setNeedsSupport] = useState(_false);
+  const [isSubmitting, setIsSubmitting] = useState(_false);
+  const [hasCheckedIn, setHasCheckedIn] = useState(_false);
 
   useEffect(() => {
     checkTodaysStatus();
@@ -27,22 +27,22 @@ export const useDailyCheckIn = () => {
     const todaysCheckin = await simpleCheckin.getTodaysCheckin();
     if (todaysCheckin) {
       setMood(todaysCheckin.mood);
-      setHasCheckedIn(true);
+      setHasCheckedIn(_true);
     }
   };
 
   const submitCheckIn = async () => {
     if (!user || !mood || isSubmitting) return;
     
-    setIsSubmitting(true);
+    setIsSubmitting(_true);
     
     try {
       // Submit mood
       await simpleCheckin.checkIn(mood);
       
       // Track victory if they shared one
-      if (todaysVictory.trim()) {
-        await victoryTracker.trackDailyVictory(todaysVictory);
+      if (_todaysVictory.trim()) {
+        await victoryTracker.trackDailyVictory(_todaysVictory);
       }
       
       // Track gratitude as a victory too
@@ -64,7 +64,7 @@ export const useDailyCheckIn = () => {
         hopeMessenger.sendHope('victory');
       }
       
-      setHasCheckedIn(true);
+      setHasCheckedIn(_true);
       
       // Show success with recovery language
       const messages = {
@@ -86,7 +86,7 @@ export const useDailyCheckIn = () => {
       console.error('Check-in error:', error);
       toast.error("Couldn't save your check-in. That's okay, you're still doing great.");
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(_false);
     }
   };
 
@@ -94,7 +94,7 @@ export const useDailyCheckIn = () => {
     setMood(null);
     setGratitude('');
     setTodaysVictory('');
-    setNeedsSupport(false);
+    setNeedsSupport(_false);
   };
 
   return {
@@ -102,7 +102,7 @@ export const useDailyCheckIn = () => {
     setMood,
     gratitude,
     setGratitude,
-    todaysVictory,
+    _todaysVictory,
     setTodaysVictory,
     needsSupport,
     setNeedsSupport,

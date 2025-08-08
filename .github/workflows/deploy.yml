@@ -16,7 +16,7 @@ on:
           - preview
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
 
 jobs:
   deploy-vercel:
@@ -34,7 +34,7 @@ jobs:
           cache: 'npm'
           
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
         
       - name: Build application
         run: npm run build

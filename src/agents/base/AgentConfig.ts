@@ -10,7 +10,7 @@ import { z } from 'zod';
  * Configuration schemas for different agent types
  */
 export const BaseAgentConfigSchema = z.object({
-  name: z.string().min(1),
+  _name: z.string().min(1),
   version: z.string().regex(/^\d+\.\d+\.\d+$/),
   capabilities: z.array(z.string()),
   maxTokens: z.number().min(100).max(4000).optional(),
@@ -69,9 +69,9 @@ export type ClinicalDocumentationConfig = z.infer<typeof ClinicalDocumentationCo
 /**
  * Default configurations for each agent type
  */
-export const DEFAULT_CONFIGS = {
+export const _DEFAULT_CONFIGS = {
   RecoveryCoach: {
-    name: 'RecoveryCoach',
+    _name: 'RecoveryCoach',
     version: '1.0.0',
     capabilities: [
       'motivational_messaging',
@@ -94,7 +94,7 @@ export const DEFAULT_CONFIGS = {
   },
 
   CrisisSupport: {
-    name: 'CrisisSupport',
+    _name: 'CrisisSupport',
     version: '1.0.0',
     capabilities: [
       'crisis_detection',
@@ -122,7 +122,7 @@ export const DEFAULT_CONFIGS = {
   },
 
   ProgressTracking: {
-    name: 'ProgressTracking',
+    _name: 'ProgressTracking',
     version: '1.0.0',
     capabilities: [
       'pattern_analysis',
@@ -149,7 +149,7 @@ export const DEFAULT_CONFIGS = {
   },
 
   ClinicalDocumentation: {
-    name: 'ClinicalDocumentation',
+    _name: 'ClinicalDocumentation',
     version: '1.0.0',
     capabilities: [
       'note_generation',
@@ -187,18 +187,18 @@ export class AgentConfigManager {
    * Load default configurations
    */
   private loadDefaultConfigs(): void {
-    Object.entries(DEFAULT_CONFIGS).forEach(([key, config]) => {
-      this.configs.set(key, config);
+    Object.entries(_DEFAULT_CONFIGS).forEach(([_key, config]) => {
+      this.configs.set(_key, config);
     });
   }
 
   /**
    * Get configuration for a specific agent
    */
-  getConfig(agentName: string): any {
-    const config = this.configs.get(agentName);
+  getConfig(_agentName: string): any {
+    const config = this.configs.get(_agentName);
     if (!config) {
-      throw new Error(`Configuration not found for agent: ${agentName}`);
+      throw new Error(`Configuration not found for agent: ${_agentName}`);
     }
     return { ...config };
   }
@@ -206,23 +206,23 @@ export class AgentConfigManager {
   /**
    * Update configuration for an agent
    */
-  updateConfig(agentName: string, updates: Partial<any>): void {
-    const currentConfig = this.getConfig(agentName);
-    const updatedConfig = { ...currentConfig, ...updates };
+  updateConfig(_agentName: string, updates: Partial<unknown>): void {
+    const currentConfig = this.getConfig(_agentName);
+    const _updatedConfig = { ...currentConfig, ...updates };
     
     // Validate updated configuration
-    this.validateConfig(agentName, updatedConfig);
+    this.validateConfig(_agentName, _updatedConfig);
     
-    this.configs.set(agentName, updatedConfig);
+    this.configs.set(_agentName, _updatedConfig);
   }
 
   /**
    * Validate configuration based on agent type
    */
-  private validateConfig(agentName: string, config: any): void {
+  private validateConfig(_agentName: string, config: unknown): void {
     let schema;
     
-    switch (agentName) {
+    switch (_agentName) {
       case 'RecoveryCoach':
         schema = RecoveryCoachConfigSchema;
         break;
@@ -248,12 +248,12 @@ export class AgentConfigManager {
   /**
    * Reset configuration to defaults
    */
-  resetToDefaults(agentName: string): void {
-    const defaultConfig = DEFAULT_CONFIGS[agentName as keyof typeof DEFAULT_CONFIGS];
+  resetToDefaults(_agentName: string): void {
+    const defaultConfig = _DEFAULT_CONFIGS[_agentName as keyof typeof _DEFAULT_CONFIGS];
     if (!defaultConfig) {
-      throw new Error(`No default configuration for agent: ${agentName}`);
+      throw new Error(`No default configuration for agent: ${_agentName}`);
     }
-    this.configs.set(agentName, { ...defaultConfig });
+    this.configs.set(_agentName, { ...defaultConfig });
   }
 
   /**
@@ -261,8 +261,8 @@ export class AgentConfigManager {
    */
   exportConfigs(): Record<string, any> {
     const exported: Record<string, any> = {};
-    this.configs.forEach((config, name) => {
-      exported[name] = { ...config };
+    this.configs.forEach((config, _name) => {
+      exported[_name] = { ...config };
     });
     return exported;
   }
@@ -271,17 +271,17 @@ export class AgentConfigManager {
    * Import configurations
    */
   importConfigs(configs: Record<string, any>): void {
-    Object.entries(configs).forEach(([name, config]) => {
-      this.validateConfig(name, config);
-      this.configs.set(name, config);
+    Object.entries(configs).forEach(([_name, config]) => {
+      this.validateConfig(_name, config);
+      this.configs.set(_name, config);
     });
   }
 
   /**
    * Get configuration schema for an agent type
    */
-  getSchema(agentName: string): z.ZodSchema {
-    switch (agentName) {
+  getSchema(_agentName: string): z.ZodSchema {
+    switch (_agentName) {
       case 'RecoveryCoach':
         return RecoveryCoachConfigSchema;
       case 'CrisisSupport':

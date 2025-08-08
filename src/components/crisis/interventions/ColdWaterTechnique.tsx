@@ -17,7 +17,7 @@ const techniques = [
     instruction: "Hold ice cubes in your hands for 30 seconds",
     description: "Place ice cubes in your palms and close your hands around them",
     icon: Snowflake,
-    safety: "Stop immediately if you feel pain or numbness"
+    safety: "Stop immediately if you feel pain or _numbness"
   },
   {
     id: 'cold-face',
@@ -40,22 +40,22 @@ const techniques = [
 ];
 
 const ColdWaterTechnique: React.FC<ColdWaterTechniqueProps> = ({ onComplete }) => {
-  const [selectedTechnique, setSelectedTechnique] = useState<string | null>(null);
-  const [isActive, setIsActive] = useState(false);
+  const [selectedTechnique, setSelectedTechnique] = useState<string | _null>(_null);
+  const [isActive, setIsActive] = useState(_false);
   const [timeRemaining, setTimeRemaining] = useState(0);
-  const [isCompleted, setIsCompleted] = useState(false);
+  const [_isCompleted, setIsCompleted] = useState(_false);
 
   const currentTechnique = techniques.find(t => t.id === selectedTechnique);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+    let _interval: NodeJS.Timeout | _null = _null;
     
     if (isActive && timeRemaining > 0) {
-      interval = setInterval(() => {
+      _interval = setInterval(() => {
         setTimeRemaining(prev => {
           if (prev <= 1) {
-            setIsActive(false);
-            setIsCompleted(true);
+            setIsActive(_false);
+            setIsCompleted(_true);
             return 0;
           }
           return prev - 1;
@@ -64,32 +64,32 @@ const ColdWaterTechnique: React.FC<ColdWaterTechniqueProps> = ({ onComplete }) =
     }
 
     return () => {
-      if (interval) clearInterval(interval);
+      if (_interval) clearInterval(_interval);
     };
   }, [isActive, timeRemaining]);
 
-  const handleSelectTechnique = (techniqueId: string) => {
-    const technique = techniques.find(t => t.id === techniqueId);
+  const handleSelectTechnique = (_techniqueId: string) => {
+    const technique = techniques.find(t => t.id === _techniqueId);
     if (technique) {
-      setSelectedTechnique(techniqueId);
+      setSelectedTechnique(_techniqueId);
       setTimeRemaining(technique.duration);
-      setIsCompleted(false);
+      setIsCompleted(_false);
     }
   };
 
   const handleStart = () => {
-    setIsActive(true);
+    setIsActive(_true);
   };
 
   const handlePause = () => {
-    setIsActive(false);
+    setIsActive(_false);
   };
 
   const handleReset = () => {
-    setIsActive(false);
-    setSelectedTechnique(null);
+    setIsActive(_false);
+    setSelectedTechnique(_null);
     setTimeRemaining(0);
-    setIsCompleted(false);
+    setIsCompleted(_false);
   };
 
   const formatTime = (seconds: number) => {
@@ -116,7 +116,7 @@ const ColdWaterTechnique: React.FC<ColdWaterTechniqueProps> = ({ onComplete }) =
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               These techniques use cold to activate your mammalian dive response. 
-              Stop immediately if you feel pain, numbness, or dizziness.
+              Stop immediately if you feel pain, _numbness, or dizziness.
             </AlertDescription>
           </Alert>
 
@@ -152,7 +152,7 @@ const ColdWaterTechnique: React.FC<ColdWaterTechniqueProps> = ({ onComplete }) =
   }
 
   // Completion screen
-  if (isCompleted) {
+  if (_isCompleted) {
     return (
       <Card className="w-full max-w-md mx-auto">
         <CardHeader className="text-center">

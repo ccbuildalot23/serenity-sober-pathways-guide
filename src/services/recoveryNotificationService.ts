@@ -13,7 +13,7 @@ export interface RecoveryNotification {
   is_read: boolean;
   priority: 'low' | 'normal' | 'high' | 'urgent';
   scheduled_for?: string;
-  delivered_at?: string;
+  _delivered_at?: string;
   delivery_methods: {
     in_app: boolean;
     email: boolean;
@@ -50,85 +50,85 @@ export interface NotificationPreferences {
 
 class RecoveryNotificationService {
   // Get user's notifications
-  async getNotifications(userId: string, includeRead: boolean = false): Promise<RecoveryNotification[]> {
+  async getNotifications(_userId: string, includeRead: boolean = _false): Promise<RecoveryNotification[]> {
     try {
       let query = supabase
         .from('recovery_notifications')
         .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
+        .eq('user_id', _userId)
+        .order('created_at', { ascending: _false });
 
       if (!includeRead) {
-        query = query.eq('is_read', false);
+        query = query.eq('is_read', _false);
       }
 
-      const { data, error } = await query;
+      const { data, _error } = await query;
       
-      if (error) throw error;
+      if (_error) throw _error;
       return (data || []) as RecoveryNotification[];
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
-      throw error;
+    } catch (_error) {
+      console._error('Error fetching notifications:', _error);
+      throw _error;
     }
   }
 
   // Get unread notification count
-  async getUnreadCount(userId: string): Promise<number> {
+  async getUnreadCount(_userId: string): Promise<number> {
     try {
-      const { count, error } = await supabase
+      const { count, _error } = await supabase
         .from('recovery_notifications')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .eq('is_read', false);
+        .select('*', { count: 'exact', _head: true })
+        .eq('user_id', _userId)
+        .eq('is_read', _false);
       
-      if (error) throw error;
+      if (_error) throw _error;
       return count || 0;
-    } catch (error) {
-      console.error('Error fetching unread count:', error);
+    } catch (_error) {
+      console._error('Error fetching unread count:', _error);
       return 0;
     }
   }
 
   // Mark notification as read
-  async markAsRead(notificationId: string): Promise<void> {
+  async markAsRead(_notificationId: string): Promise<void> {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('recovery_notifications')
         .update({ 
           is_read: true,
-          delivered_at: new Date().toISOString()
+          _delivered_at: new Date().toISOString()
         })
-        .eq('id', notificationId);
+        .eq('id', _notificationId);
       
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error marking notification as read:', error);
-      throw error;
+      if (_error) throw _error;
+    } catch (_error) {
+      console._error('Error marking notification as read:', _error);
+      throw _error;
     }
   }
 
   // Mark all notifications as read
-  async markAllAsRead(userId: string): Promise<void> {
+  async markAllAsRead(_userId: string): Promise<void> {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('recovery_notifications')
         .update({ 
           is_read: true,
-          delivered_at: new Date().toISOString()
+          _delivered_at: new Date().toISOString()
         })
-        .eq('user_id', userId)
-        .eq('is_read', false);
+        .eq('user_id', _userId)
+        .eq('is_read', _false);
       
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error marking all notifications as read:', error);
-      throw error;
+      if (_error) throw _error;
+    } catch (_error) {
+      console._error('Error marking all notifications as read:', _error);
+      throw _error;
     }
   }
 
   // Create a new notification
   async createNotification(
-    userId: string,
+    _userId: string,
     type: RecoveryNotification['notification_type'],
     title: string,
     message: string,
@@ -138,7 +138,7 @@ class RecoveryNotificationService {
   ): Promise<void> {
     try {
       const notification = {
-        user_id: userId,
+        user_id: _userId,
         notification_type: type,
         title,
         message,
@@ -147,49 +147,49 @@ class RecoveryNotificationService {
         scheduled_for: scheduledFor?.toISOString(),
       };
 
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('recovery_notifications')
         .insert(notification);
       
-      if (error) throw error;
+      if (_error) throw _error;
 
       // Show in-app notification immediately if not scheduled
       if (!scheduledFor) {
         this.showInAppNotification(title, message, priority);
       }
-    } catch (error) {
-      console.error('Error creating notification:', error);
-      throw error;
+    } catch (_error) {
+      console._error('Error creating notification:', _error);
+      throw _error;
     }
   }
 
   // Show in-app toast notification
   private showInAppNotification(title: string, message: string, priority: RecoveryNotification['priority']): void {
-    const duration = priority === 'urgent' ? 10000 : priority === 'high' ? 7000 : 5000;
+    const _duration = priority === 'urgent' ? 10000 : priority === 'high' ? 7000 : 5000;
     
     toast({
       title,
-      description: message,
-      duration,
-      variant: priority === 'urgent' || priority === 'high' ? 'destructive' : 'default',
+      _description: message,
+      _duration,
+      _variant: priority === 'urgent' || priority === 'high' ? 'destructive' : 'default',
     });
   }
 
   // Get notification preferences
-  async getPreferences(userId: string): Promise<NotificationPreferences | null> {
+  async getPreferences(_userId: string): Promise<NotificationPreferences | null> {
     try {
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('recovery_notification_preferences')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', _userId)
         .single();
       
-      if (error) {
-        if (error.code === 'PGRST116') {
+      if (_error) {
+        if (_error.code === 'PGRST116') {
           // No preferences found, create default ones
-          return this.createDefaultPreferences(userId);
+          return this.createDefaultPreferences(_userId);
         }
-        throw error;
+        throw _error;
       }
 
       return {
@@ -207,16 +207,16 @@ class RecoveryNotificationService {
         daily_limit: data.daily_limit,
         optimal_send_time: data.optimal_send_time,
       };
-    } catch (error) {
-      console.error('Error fetching notification preferences:', error);
-      throw error;
+    } catch (_error) {
+      console._error('Error fetching notification preferences:', _error);
+      throw _error;
     }
   }
 
   // Create default preferences
-  private async createDefaultPreferences(userId: string): Promise<NotificationPreferences> {
+  private async createDefaultPreferences(_userId: string): Promise<NotificationPreferences> {
     const defaultPrefs = {
-      user_id: userId,
+      user_id: _userId,
       goal_reminders_enabled: true,
       goal_reminder_days_before: [1, 3, 7],
       goal_reminder_time: '09:00:00',
@@ -226,17 +226,17 @@ class RecoveryNotificationService {
       progress_encouragement_enabled: true,
       weekly_summary_enabled: true,
       weekly_summary_day: 0,
-      delivery_methods: { in_app: true, email: false, sms: false },
+      delivery_methods: { in_app: true, email: _false, sms: _false },
       quiet_hours: { enabled: true, start_time: '22:00', end_time: '08:00', timezone: 'UTC' },
       daily_limit: 10,
     };
 
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('recovery_notification_preferences')
         .insert(defaultPrefs);
       
-      if (error) throw error;
+      if (_error) throw _error;
 
       return {
         goal_reminders_enabled: defaultPrefs.goal_reminders_enabled,
@@ -252,156 +252,156 @@ class RecoveryNotificationService {
         quiet_hours: defaultPrefs.quiet_hours,
         daily_limit: defaultPrefs.daily_limit,
       };
-    } catch (error) {
-      console.error('Error creating default preferences:', error);
-      throw error;
+    } catch (_error) {
+      console._error('Error creating default preferences:', _error);
+      throw _error;
     }
   }
 
   // Update notification preferences
-  async updatePreferences(userId: string, preferences: Partial<NotificationPreferences>): Promise<void> {
+  async updatePreferences(_userId: string, preferences: Partial<NotificationPreferences>): Promise<void> {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('recovery_notification_preferences')
         .upsert({
-          user_id: userId,
+          user_id: _userId,
           ...preferences,
         });
       
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error updating notification preferences:', error);
-      throw error;
+      if (_error) throw _error;
+    } catch (_error) {
+      console._error('Error updating notification preferences:', _error);
+      throw _error;
     }
   }
 
   // Create goal reminder notifications
-  async createGoalReminders(userId: string, goalId: string, goalTitle: string, dueDate: Date): Promise<void> {
+  async createGoalReminders(_userId: string, goalId: string, goalTitle: string, _dueDate: Date): Promise<void> {
     try {
-      const preferences = await this.getPreferences(userId);
+      const preferences = await this.getPreferences(_userId);
       if (!preferences?.goal_reminders_enabled) return;
 
       for (const daysBefore of (preferences.goal_reminder_days_before || [])) {
-        const reminderDate = new Date(dueDate);
-        reminderDate.setDate(reminderDate.getDate() - daysBefore);
+        const _reminderDate = new Date(_dueDate);
+        _reminderDate.setDate(_reminderDate.getDate() - daysBefore);
         
         // Set the time based on preferences
-        const [hours, minutes] = preferences.goal_reminder_time.split(':');
-        reminderDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+        const [hours, _minutes] = preferences.goal_reminder_time.split(':');
+        _reminderDate.setHours(parseInt(hours), parseInt(_minutes), 0, 0);
 
         // Only schedule if the reminder date is in the future
-        if (reminderDate > new Date()) {
+        if (_reminderDate > new Date()) {
           await this.createNotification(
-            userId,
+            _userId,
             'goal_due_reminder',
             `Goal Reminder: ${goalTitle}`,
             `Your goal "${goalTitle}" is due in ${daysBefore} day${daysBefore !== 1 ? 's' : ''}. Keep up the great work!`,
-            { goal_id: goalId, days_until_due: daysBefore },
+            { goal_id: goalId, _days_until_due: daysBefore },
             daysBefore <= 1 ? 'high' : 'normal',
-            reminderDate
+            _reminderDate
           );
         }
       }
-    } catch (error) {
-      console.error('Error creating goal reminders:', error);
+    } catch (_error) {
+      console._error('Error creating goal reminders:', _error);
     }
   }
 
   // Create milestone achievement notification
   async createMilestoneNotification(
-    userId: string, 
+    _userId: string, 
     milestoneType: 'goal' | 'streak',
     title: string,
-    description: string,
+    _description: string,
     data: Record<string, any> = {}
   ): Promise<void> {
     try {
-      const preferences = await this.getPreferences(userId);
+      const preferences = await this.getPreferences(_userId);
       if (!preferences?.milestone_celebrations_enabled) return;
 
       await this.createNotification(
-        userId,
+        _userId,
         'milestone_achieved',
         `🎉 ${title}`,
-        description,
+        _description,
         { milestone_type: milestoneType, ...data },
         'high'
       );
-    } catch (error) {
-      console.error('Error creating milestone notification:', error);
+    } catch (_error) {
+      console._error('Error creating milestone notification:', _error);
     }
   }
 
   // Update user activity pattern for smart timing
-  async updateActivityPattern(userId: string, activityHour: number): Promise<void> {
+  async updateActivityPattern(_userId: string, activityHour: number): Promise<void> {
     try {
       // Get current pattern or create new one
       const { data: existing } = await supabase
         .from('user_activity_patterns')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', _userId)
         .single();
 
       if (existing) {
         // Update existing pattern
-        const currentHours = Array.isArray(existing.most_active_hours) ? existing.most_active_hours : [];
+        const currentHours = Array.isArray(existing._most_active_hours) ? existing._most_active_hours : [];
         const updatedHours = [...new Set([...currentHours, activityHour])].slice(0, 5); // Keep top 5 hours
 
         await supabase
           .from('user_activity_patterns')
           .update({
-            most_active_hours: updatedHours,
-            last_calculated: new Date().toISOString(),
+            _most_active_hours: updatedHours,
+            _last_calculated: new Date().toISOString(),
           })
-          .eq('user_id', userId);
+          .eq('user_id', _userId);
       } else {
         // Create new pattern
         await supabase
           .from('user_activity_patterns')
           .insert({
-            user_id: userId,
-            most_active_hours: [activityHour],
+            user_id: _userId,
+            _most_active_hours: [activityHour],
           });
       }
-    } catch (error) {
-      console.error('Error updating activity pattern:', error);
+    } catch (_error) {
+      console._error('Error updating activity pattern:', _error);
     }
   }
 
   // Delete notification
-  async deleteNotification(notificationId: string): Promise<void> {
+  async deleteNotification(_notificationId: string): Promise<void> {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('recovery_notifications')
         .delete()
-        .eq('id', notificationId);
+        .eq('id', _notificationId);
       
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error deleting notification:', error);
-      throw error;
+      if (_error) throw _error;
+    } catch (_error) {
+      console._error('Error deleting notification:', _error);
+      throw _error;
     }
   }
 
   // Snooze notification (reschedule for later)
-  async snoozeNotification(notificationId: string, snoozeMinutes: number): Promise<void> {
+  async snoozeNotification(_notificationId: string, snoozeMinutes: number): Promise<void> {
     try {
       const newScheduledTime = new Date();
       newScheduledTime.setMinutes(newScheduledTime.getMinutes() + snoozeMinutes);
 
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('recovery_notifications')
         .update({
           scheduled_for: newScheduledTime.toISOString(),
-          is_read: false,
-          delivered_at: null,
+          is_read: _false,
+          _delivered_at: null,
         })
-        .eq('id', notificationId);
+        .eq('id', _notificationId);
       
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error snoozing notification:', error);
-      throw error;
+      if (_error) throw _error;
+    } catch (_error) {
+      console._error('Error snoozing notification:', _error);
+      throw _error;
     }
   }
 }

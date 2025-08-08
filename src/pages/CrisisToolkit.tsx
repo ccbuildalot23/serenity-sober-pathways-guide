@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Wind, Eye, Heart, ArrowLeft, Play, Pause } from 'lucide-react';
+import { Wind, Heart, ArrowLeft, Play, Pause } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const CrisisToolkit: React.FC = () => {
   const navigate = useNavigate();
-  const [breathingActive, setBreathingActive] = useState(false);
+  const [breathingActive, setBreathingActive] = useState(_false);
   const [breathPhase, setBreathPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale');
   const [breathCount, setBreathCount] = useState(0);
   const [groundingStep, setGroundingStep] = useState(0);
-  const [playingTape, setPlayingTape] = useState(false);
+  const [playingTape, setPlayingTape] = useState(_false);
   const [bodyScanStep, setBodyScanStep] = useState(0);
 
   // Auto-breathing animation
   useEffect(() => {
     if (breathingActive) {
-      const interval = setInterval(() => {
+      const _interval = setInterval(() => {
         setBreathCount(prev => {
           const next = (prev + 1) % 12;
           if (next < 4) setBreathPhase('inhale');
@@ -24,7 +24,7 @@ const CrisisToolkit: React.FC = () => {
           return next;
         });
       }, 1000);
-      return () => clearInterval(interval);
+      return () => clearInterval(_interval);
     }
   }, [breathingActive]);
 
@@ -73,7 +73,7 @@ const CrisisToolkit: React.FC = () => {
           <h2 className="text-2xl font-bold mb-6 text-center">Automatic Breathing</h2>
           {!breathingActive ? (
             <Button
-              onClick={() => setBreathingActive(true)}
+              onClick={() => setBreathingActive(_true)}
               className="w-full h-20 bg-white/10 hover:bg-white/20 text-white rounded-xl backdrop-blur"
             >
               <Wind className="w-8 h-8 mr-3" />
@@ -95,7 +95,7 @@ const CrisisToolkit: React.FC = () => {
                 </div>
               </div>
               <Button
-                onClick={() => setBreathingActive(false)}
+                onClick={() => setBreathingActive(_false)}
                 variant="outline"
                 className="border-gray-600 text-gray-300"
               >
@@ -147,7 +147,7 @@ const CrisisToolkit: React.FC = () => {
             <div className="text-center space-y-4">
               <p className="text-gray-300">What happens if you use? Let's think it through together.</p>
               <Button
-                onClick={() => setPlayingTape(true)}
+                onClick={() => setPlayingTape(_true)}
                 className="bg-red-600 hover:bg-red-700 px-8 py-4"
               >
                 <Play className="w-5 h-5 mr-2" />
@@ -170,7 +170,7 @@ const CrisisToolkit: React.FC = () => {
                 <p className="text-green-400 font-semibold">But if I don't use... Tomorrow I wake up proud.</p>
               </div>
               <Button
-                onClick={() => setPlayingTape(false)}
+                onClick={() => setPlayingTape(_false)}
                 variant="outline"
                 className="border-gray-600 text-gray-300"
               >

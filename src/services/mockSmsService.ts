@@ -25,12 +25,12 @@ export const sendMockSMS = async (contact: Contact, message: string): Promise<vo
   return Promise.resolve();
 };
 
-export const sendEmergencyAlert = async (contacts: Contact[], message: string, location?: { lat: number; lng: number }): Promise<void> => {
+export const sendEmergencyAlert = async (contacts: Contact[], message: string, _location?: { lat: number; lng: number }): Promise<void> => {
   console.log('Sending emergency alert to contacts:', contacts.map(c => c.name));
   console.log('Message:', message);
   
-  if (location) {
-    console.log('Location:', location);
+  if (_location) {
+    console.log('Location:', _location);
   }
   
   // In production, this would send to all contacts simultaneously
@@ -41,7 +41,7 @@ export const sendEmergencyAlert = async (contacts: Contact[], message: string, l
 
 export const getSentAlerts = async (): Promise<SentAlert[]> => {
   // Mock data for alert history
-  const mockAlerts: SentAlert[] = [
+  const _mockAlerts: SentAlert[] = [
     {
       id: '1',
       contactName: 'John D.',
@@ -58,5 +58,5 @@ export const getSentAlerts = async (): Promise<SentAlert[]> => {
     }
   ];
   
-  return Promise.resolve(mockAlerts);
+  return Promise.resolve(_mockAlerts);
 };

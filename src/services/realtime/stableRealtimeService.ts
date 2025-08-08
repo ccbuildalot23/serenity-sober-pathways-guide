@@ -12,16 +12,16 @@ export class StableRealtimeService {
   private maxReconnectAttempts = 3;
   private backoffDelay = 1000; // Start with 1 second
 
-  async createChannel(channelName: string, config: any = {}): Promise<RealtimeChannel> {
+  async createChannel(channelName: string, _config: unknown = {}): Promise<RealtimeChannel> {
     try {
       // Remove existing channel if it exists
-      const existingChannel = this.channels.get(channelName);
-      if (existingChannel) {
-        supabase.removeChannel(existingChannel);
+      const _existingChannel = this.channels.get(channelName);
+      if (_existingChannel) {
+        supabase.removeChannel(_existingChannel);
         this.channels.delete(channelName);
       }
 
-      const channel = supabase.channel(channelName, config);
+      const channel = supabase.channel(channelName, _config);
       
       // Set up connection monitoring
       channel.subscribe((status) => {
@@ -59,9 +59,9 @@ export class StableRealtimeService {
         console.log(`Attempting to reconnect ${channelName} (attempt ${this.reconnectAttempts})`);
         
         // Try to recreate the channel
-        const existingChannel = this.channels.get(channelName);
-        if (existingChannel) {
-          supabase.removeChannel(existingChannel);
+        const _existingChannel = this.channels.get(channelName);
+        if (_existingChannel) {
+          supabase.removeChannel(_existingChannel);
           this.channels.delete(channelName);
         }
 
@@ -85,7 +85,7 @@ export class StableRealtimeService {
   }
 
   removeAllChannels() {
-    this.channels.forEach((channel, name) => {
+    this.channels.forEach((channel, _name) => {
       supabase.removeChannel(channel);
     });
     this.channels.clear();
@@ -101,10 +101,10 @@ export class StableRealtimeService {
   }
 
   // Simplified presence tracking
-  async trackPresence(channelName: string, data: any) {
+  async trackPresence(channelName: string, _data: unknown) {
     try {
       const channel = await this.createChannel(channelName);
-      await channel.track(data);
+      await channel.track(_data);
       return channel;
     } catch (error) {
       console.error('Failed to track presence:', error);
@@ -113,7 +113,7 @@ export class StableRealtimeService {
   }
 
   // Simplified broadcasting
-  async broadcast(channelName: string, event: string, payload: any) {
+  async broadcast(channelName: string, _event: string, payload: unknown) {
     try {
       const channel = this.channels.get(channelName);
       if (!channel) {
@@ -122,7 +122,7 @@ export class StableRealtimeService {
       
       await channel.send({
         type: 'broadcast',
-        event,
+        _event,
         payload
       });
     } catch (error) {

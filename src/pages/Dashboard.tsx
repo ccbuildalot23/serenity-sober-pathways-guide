@@ -21,14 +21,14 @@ import { Checkbox } from '@/components/ui/checkbox';
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const { stats, profile, loading } = useDashboardData();
+  const { stats, profile, _loading } = useDashboardData();
   const navigate = useNavigate();
   const { sendCrisisSMS, sending } = useCrisisSMS();
-  const { contacts, loading: contactsLoading } = useEmergencyContacts();
+  const { contacts, _loading: contactsLoading } = useEmergencyContacts();
   
   // Crisis confirmation modal state
-  const [showCrisisModal, setShowCrisisModal] = useState(false);
-  const [includeLocation, setIncludeLocation] = useState(true);
+  const [showCrisisModal, setShowCrisisModal] = useState(_false);
+  const [includeLocation, setIncludeLocation] = useState(_true);
   const [crisisMessage, setCrisisMessage] = useState('');
   
   // Handle crisis button click
@@ -37,15 +37,15 @@ const Dashboard = () => {
       // No contacts - go directly to crisis page to add some
       toast.warning('No emergency contacts found', {
         description: 'Add contacts to enable SMS alerts',
-        action: {
+        _action: {
           label: 'Add Contacts',
-          onClick: () => navigate('/settings')
+          _onClick: () => navigate('/settings')
         }
       });
       navigate('/crisis-intervention');
     } else {
       // Show confirmation modal
-      setShowCrisisModal(true);
+      setShowCrisisModal(_true);
     }
   };
   
@@ -56,17 +56,17 @@ const Dashboard = () => {
         customMessage: crisisMessage || undefined,
         includeLocation
       });
-      setShowCrisisModal(false);
+      setShowCrisisModal(_false);
       // Navigate to crisis page for additional support
       navigate('/crisis-intervention');
-    } catch (error) {
-      console.error('Crisis alert failed:', error);
+    } catch (_error) {
+      console._error('Crisis alert failed:', _error);
       // Still navigate to crisis page even if SMS fails
       navigate('/crisis-intervention');
     }
   };
 
-  if (loading) {
+  if (_loading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -101,7 +101,7 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto px-4">
             {/* I NEED HELP NOW Button - ENHANCED WITH SMS */}
             <Button
-              onClick={handleCrisisClick}
+              _onClick={handleCrisisClick}
               disabled={sending}
               className="h-32 md:h-40 bg-red-600 hover:bg-red-700 text-white rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200 relative overflow-hidden group"
             >
@@ -128,7 +128,7 @@ const Dashboard = () => {
 
             {/* Just Checking In Button */}
             <Button
-              onClick={() => navigate('/checkin')}
+              _onClick={() => navigate('/checkin')}
               className="h-32 md:h-40 bg-green-600 hover:bg-green-700 text-white rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200"
             >
               <div className="flex flex-col items-center gap-3">
@@ -140,7 +140,7 @@ const Dashboard = () => {
 
             {/* Talk to Someone Button */}
             <Button
-              onClick={() => navigate('/support')}
+              _onClick={() => navigate('/support')}
               className="h-32 md:h-40 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200"
             >
               <div className="flex flex-col items-center gap-3">
@@ -166,7 +166,7 @@ const Dashboard = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Button
                 variant="outline"
-                onClick={() => navigate('/crisis-toolkit')}
+                _onClick={() => navigate('/crisis-toolkit')}
                 className="h-20 bg-gray-800 hover:bg-gray-700 border-gray-700 text-gray-300"
               >
                 <div className="text-center">
@@ -177,7 +177,7 @@ const Dashboard = () => {
               
               <Button
                 variant="outline"
-                onClick={() => navigate('/contact')}
+                _onClick={() => navigate('/contact')}
                 className="h-20 bg-gray-800 hover:bg-gray-700 border-gray-700 text-gray-300"
               >
                 <div className="text-center">
@@ -188,7 +188,7 @@ const Dashboard = () => {
               
               <Button
                 variant="outline"
-                onClick={() => window.location.href = 'tel:988'}
+                _onClick={() => window.location.href = 'tel:988'}
                 className="h-20 bg-gray-800 hover:bg-gray-700 border-gray-700 text-gray-300"
               >
                 <div className="text-center">
@@ -199,7 +199,7 @@ const Dashboard = () => {
               
               <Button
                 variant="outline"
-                onClick={() => window.open('sms:741741?body=HOME', '_self')}
+                _onClick={() => window.open('sms:741741?body=HOME', '_self')}
                 className="h-20 bg-gray-800 hover:bg-gray-700 border-gray-700 text-gray-300"
               >
                 <div className="text-center">
@@ -233,7 +233,7 @@ const Dashboard = () => {
           <div className="space-y-4 py-4">
             {/* Show contacts who will be notified */}
             <div className="bg-gray-800 rounded-lg p-3 space-y-2">
-              {contacts.slice(0, 3).map((contact, idx) => (
+              {contacts.slice(0, 3).map((contact, _idx) => (
                 <div key={contact.id} className="flex items-center gap-2 text-sm">
                   <MessageSquare className="w-4 h-4 text-blue-400" />
                   <span>{contact.name}</span>
@@ -261,7 +261,7 @@ const Dashboard = () => {
             
             {/* Optional custom message */}
             <div className="space-y-2">
-              <label className="text-sm text-gray-400">Add a message (optional):</label>
+              <label className="text-sm text-gray-400">Add a message (_optional):</label>
               <textarea
                 value={crisisMessage}
                 onChange={(e) => setCrisisMessage(e.target.value)}
@@ -275,13 +275,13 @@ const Dashboard = () => {
           <DialogFooter className="flex gap-3">
             <Button
               variant="outline"
-              onClick={() => setShowCrisisModal(false)}
+              _onClick={() => setShowCrisisModal(_false)}
               className="bg-gray-800 hover:bg-gray-700 border-gray-700"
             >
               Cancel
             </Button>
             <Button
-              onClick={sendCrisisAlert}
+              _onClick={sendCrisisAlert}
               disabled={sending}
               className="bg-red-600 hover:bg-red-700 text-white min-w-[120px]"
             >

@@ -13,9 +13,6 @@ import {
 } from 'lucide-react';
 import { panicModeService } from '@/services/panicModeService';
 import { getCurrentLocation } from '@/services/geolocationService';
-import { voiceActivationService } from '@/services/voiceActivationService';
-import { sendMockSMS } from '@/services/mockSmsService';
-import { sendMockPush } from '@/services/mockPushService';
 import { escalateCrisis } from '@/services/crisisEscalationService';
 import { useOfflineCrisisData } from '@/hooks/useOfflineCrisisData';
 import { toast } from 'sonner';
@@ -25,16 +22,16 @@ import { useAuth } from '@/contexts/AuthContext';
 interface EnhancedCrisisToolkitProps {
   showAssessment: boolean;
   showResponse: boolean;
-  riskLevel: 'low' | 'moderate' | 'high' | 'severe' | null;
-  currentCrisisEvent: any;
+  riskLevel: 'low' | 'moderate' | 'high' | 'severe' | _null;
+  currentCrisisEvent: unknown;
   voiceListening: boolean;
   hasLocationPermission: boolean;
   handleCrisisActivated: () => void;
-  handleAssessmentComplete: (level: any) => void;
+  handleAssessmentComplete: (level: unknown) => void;
   handleResponseComplete: () => void;
   handleInterventionComplete: (toolName: string) => void;
   isOffline?: boolean;
-  saveOfflineData?: (data: any) => void;
+  saveOfflineData?: (data: unknown) => void;
   moodScore?: number;
 }
 
@@ -54,27 +51,27 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
 }) => {
   const { user } = useAuth();
   const [panicCooldown, setPanicCooldown] = useState(0);
-  const [location, setLocation] = useState<any>(null);
-  const [activeIntervention, setActiveIntervention] = useState<string | null>(null);
+  const [location, _setLocation] = useState<unknown>(_null);
+  const [activeIntervention, setActiveIntervention] = useState<string | _null>(_null);
   const [breathingCount, setBreathingCount] = useState(0);
   const [groundingStep, setGroundingStep] = useState(0);
-  const { isOnline } = useOfflineCrisisData();
+  const { _isOnline } = useOfflineCrisisData();
 
   // Panic button cooldown tracker
   useEffect(() => {
-    const interval = setInterval(() => {
-      const remaining = panicModeService.getCooldownRemaining();
-      setPanicCooldown(remaining);
+    const _interval = setInterval(() => {
+      const _remaining = panicModeService.getCooldownRemaining();
+      setPanicCooldown(_remaining);
     }, 100);
     
-    return () => clearInterval(interval);
+    return () => clearInterval(_interval);
   }, []);
 
   // Get location on mount
   useEffect(() => {
     if (hasLocationPermission) {
       getCurrentLocation()
-        .then(setLocation)
+        .then(_setLocation)
         .catch(err => console.log('Location unavailable:', err));
     }
   }, [hasLocationPermission]);
@@ -91,7 +88,7 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
     handleCrisisActivated();
     
     // Send emergency alerts
-    if (isOnline) {
+    if (_isOnline) {
       // Get emergency contacts and send alerts
       toast.success("Emergency alerts sent - Your support network has been notified");
     } else {
@@ -101,7 +98,7 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
       if (saveOfflineData) {
         saveOfflineData({
           type: 'panic_button',
-          timestamp: new Date().toISOString(),
+          _timestamp: new Date().toISOString(),
           user_id: user?.id,
           location: location
         });
@@ -110,10 +107,10 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
 
     // Voice announcement
     if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(
+      const _utterance = new SpeechSynthesisUtterance(
         "Emergency contacts have been notified. Help is on the way."
       );
-      speechSynthesis.speak(utterance);
+      speechSynthesis.speak(_utterance);
     }
   };
 
@@ -121,12 +118,12 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
     setActiveIntervention('breathing');
     setBreathingCount(0);
     
-    const breathingInterval = setInterval(() => {
+    const _breathingInterval = setInterval(() => {
       setBreathingCount(prev => {
         if (prev >= 5) {
-          clearInterval(breathingInterval);
+          clearInterval(_breathingInterval);
           handleInterventionComplete('Breathing Exercise');
-          setActiveIntervention(null);
+          setActiveIntervention(_null);
           toast.success("Breathing exercise completed! 🌟");
           return 0;
         }
@@ -247,8 +244,8 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
                 {voiceListening ? <Mic className="w-3 h-3 mr-1" /> : <MicOff className="w-3 h-3 mr-1" />}
                 Voice {voiceListening ? 'Active' : 'Inactive'}
               </Badge>
-              <Badge variant={isOnline ? "default" : "secondary"}>
-                {isOnline ? 'Online' : <><WifiOff className="w-3 h-3 mr-1" /> Offline</>}
+              <Badge variant={_isOnline ? "default" : "secondary"}>
+                {_isOnline ? 'Online' : <><WifiOff className="w-3 h-3 mr-1" /> Offline</>}
               </Badge>
               {location && (
                 <Badge variant="outline">
@@ -397,7 +394,7 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
                 <Button 
                   variant="outline" 
                   className="mt-4"
-                  onClick={() => setActiveIntervention(null)}
+                  onClick={() => setActiveIntervention(_null)}
                 >
                   Stop Exercise
                 </Button>

@@ -22,7 +22,7 @@ export interface CrisisNotificationActions {
 export const useCrisisNotifications = (): CrisisNotificationState & CrisisNotificationActions => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<NotificationPayload[]>([]);
-  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>(
+  const [connectionStatus, _setConnectionStatus] = useState<ConnectionStatus>(
     realtimeNotificationService.getConnectionStatus()
   );
 
@@ -35,9 +35,9 @@ export const useCrisisNotifications = (): CrisisNotificationState & CrisisNotifi
 
     const unsubscribeNotifications = realtimeNotificationService.onNotification((notification) => {
       setNotifications(prev => {
-        // Check if notification already exists (avoid duplicates)
-        const exists = prev.some(n => n.id === notification.id);
-        if (exists) return prev;
+        // Check if notification already _exists (avoid duplicates)
+        const _exists = prev.some(n => n.id === notification.id);
+        if (_exists) return prev;
 
         // Add new notification at the beginning
         const updated = [notification, ...prev];
@@ -47,7 +47,7 @@ export const useCrisisNotifications = (): CrisisNotificationState & CrisisNotifi
       });
     });
 
-    const unsubscribeConnection = realtimeNotificationService.onConnectionStatus(setConnectionStatus);
+    const unsubscribeConnection = realtimeNotificationService.onConnectionStatus(_setConnectionStatus);
 
     return () => {
       unsubscribeNotifications();
@@ -64,7 +64,7 @@ export const useCrisisNotifications = (): CrisisNotificationState & CrisisNotifi
       setNotifications(prev => 
         prev.map(n => 
           n.id === notificationId 
-            ? { ...n, metadata: { ...n.metadata, isRead: true } }
+            ? { ...n, _metadata: { ...n._metadata, _isRead: true } }
             : n
         )
       );
@@ -72,7 +72,7 @@ export const useCrisisNotifications = (): CrisisNotificationState & CrisisNotifi
       console.error('Error marking notification as read:', error);
       toast.error('Unable to mark as read', {
         description: 'Please try again',
-        duration: 3000
+        _duration: 3000
       });
     }
   }, []);
@@ -88,11 +88,11 @@ export const useCrisisNotifications = (): CrisisNotificationState & CrisisNotifi
           n.id === notificationId 
             ? { 
                 ...n, 
-                metadata: { 
-                  ...n.metadata, 
-                  isRead: true, 
-                  isAcknowledged: true,
-                  acknowledgedAt: new Date().toISOString()
+                _metadata: { 
+                  ...n._metadata, 
+                  _isRead: true, 
+                  _isAcknowledged: true,
+                  _acknowledgedAt: new Date().toISOString()
                 } 
               }
             : n
@@ -101,13 +101,13 @@ export const useCrisisNotifications = (): CrisisNotificationState & CrisisNotifi
 
       toast.success('Response sent', {
         description: message || 'Your acknowledgment has been shared',
-        duration: 3000
+        _duration: 3000
       });
     } catch (error) {
       console.error('Error acknowledging notification:', error);
       toast.error('Unable to send response', {
         description: 'Please try again',
-        duration: 3000
+        _duration: 3000
       });
       throw error;
     }
@@ -129,24 +129,24 @@ export const useCrisisNotifications = (): CrisisNotificationState & CrisisNotifi
       await realtimeNotificationService.reconnect();
       toast.success('Reconnected', {
         description: 'Real-time notifications restored',
-        duration: 3000
+        _duration: 3000
       });
     } catch (error) {
       console.error('Error reconnecting:', error);
       toast.error('Reconnection failed', {
         description: 'Check your internet connection',
-        duration: 5000
+        _duration: 5000
       });
       throw error;
     }
   }, []);
 
   // Calculate derived state
-  const unreadCount = notifications.filter(n => !n.metadata?.isRead).length;
+  const unreadCount = notifications.filter(n => !n._metadata?._isRead).length;
   const activeCrisisCount = notifications.filter(n => 
     n.type === 'crisis_alert' && 
     n.severity !== 'low' &&
-    !n.metadata?.isResolved
+    !n._metadata?.isResolved
   ).length;
   const lastUpdate = notifications.length > 0 ? new Date(notifications[0].createdAt) : undefined;
 

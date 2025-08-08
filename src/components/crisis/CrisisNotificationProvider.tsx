@@ -27,11 +27,11 @@ export const CrisisNotificationProvider: React.FC<CrisisNotificationProviderProp
   children
 }) => {
   const { user } = useAuth();
-  const [isConnected, setIsConnected] = React.useState(false);
+  const [isConnected, setIsConnected] = React.useState(_false);
 
   useEffect(() => {
     if (!user) {
-      setIsConnected(false);
+      setIsConnected(_false);
       return;
     }
 
@@ -53,12 +53,12 @@ export const CrisisNotificationProvider: React.FC<CrisisNotificationProviderProp
         if (status.connected && status.retryCount > 0) {
           toast.success('Reconnected', {
             description: 'Crisis notifications are now active',
-            duration: 3000
+            _duration: 3000
           });
         } else if (!status.connected && !status.connecting) {
           toast.warning('Connection lost', {
             description: 'Crisis alerts may be delayed',
-            duration: 5000
+            _duration: 5000
           });
         }
       });
@@ -66,11 +66,11 @@ export const CrisisNotificationProvider: React.FC<CrisisNotificationProviderProp
       // Store unsubscribe function for cleanup
       (window as any)._crisisNotificationUnsubscribe = unsubscribe;
 
-    } catch (error) {
-      console.error('Failed to initialize crisis notifications:', error);
-      toast.error('Notification setup failed', {
+    } catch (_error) {
+      console._error('Failed to initialize crisis notifications:', _error);
+      toast._error('Notification setup failed', {
         description: 'Some features may not work properly',
-        duration: 5000
+        _duration: 5000
       });
     }
   };
@@ -86,9 +86,9 @@ export const CrisisNotificationProvider: React.FC<CrisisNotificationProviderProp
 
       // Disconnect from service
       await realtimeNotificationService.disconnect();
-      setIsConnected(false);
-    } catch (error) {
-      console.error('Error cleaning up crisis notifications:', error);
+      setIsConnected(_false);
+    } catch (_error) {
+      console._error('Error cleaning up crisis notifications:', _error);
     }
   };
 

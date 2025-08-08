@@ -17,14 +17,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import { mcpIntegrationBridge } from '@/services/McpIntegrationBridge';
-import { realtimeNotificationService, type NotificationPayload } from '@/services/RealtimeNotificationService';
+import { realtimeNotificationService } from '@/services/RealtimeNotificationService';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface CrisisAlert {
   id: string;
   mcpAlertId?: string;
   severity: 'low' | 'medium' | 'high' | 'critical';
-  message: string;
+  _message: string;
   status: 'created' | 'notified' | 'acknowledged' | 'escalated' | 'resolved';
   createdAt: string;
   updatedAt: string;
@@ -37,21 +37,21 @@ export interface CrisisAlert {
 
 export interface SupporterResponse {
   id: string;
-  supporterId: string;
+  _supporterId: string;
   supporterName?: string;
-  responseType: 'acknowledged' | 'on_my_way' | 'made_contact' | 'needs_help' | 'call_911' | 'unavailable';
+  _responseType: 'acknowledged' | 'on_my_way' | 'made_contact' | 'needs_help' | 'call_911' | 'unavailable';
   respondedAt: string;
-  message?: string;
+  _message?: string;
   isPrimary: boolean;
   coordinationStatus: string;
-  location?: { latitude: number; longitude: number };
+  _location?: { latitude: number; longitude: number };
   estimatedArrival?: string;
 }
 
 export interface CrisisStatus {
   alert: CrisisAlert;
   responses: SupporterResponse[];
-  escalations: any[];
+  escalations: unknown[];
   summary: {
     totalResponders: number;
     contactsMade: number;
@@ -69,38 +69,38 @@ export interface UseCrisisManagementReturn {
   // Crisis management
   createCrisisAlert: (params: {
     severity: CrisisAlert['severity'];
-    message: string;
+    _message: string;
     customMessage?: string;
-    location?: { latitude: number; longitude: number; accuracy: number };
-  }) => Promise<any>;
+    _location?: { latitude: number; longitude: number; accuracy: number };
+  }) => Promise<unknown>;
   
   respondToAlert: (alertId: string, response: {
-    type: SupporterResponse['responseType'];
-    message?: string;
-    location?: { latitude: number; longitude: number };
+    type: SupporterResponse['_responseType'];
+    _message?: string;
+    _location?: { latitude: number; longitude: number };
     estimatedArrival?: Date;
-  }) => Promise<any>;
+  }) => Promise<unknown>;
   
   escalateAlert: (alertId: string, escalation: {
     type: 'next_tier' | 'professional' | 'emergency_services';
-    reason: string;
-  }) => Promise<any>;
+    _reason: string;
+  }) => Promise<unknown>;
   
   resolveAlert: (alertId: string, resolution: {
     description: string;
     supporterInvolved?: string;
     followUpNeeded: boolean;
-  }) => Promise<any>;
+  }) => Promise<unknown>;
   
   // Status and monitoring
-  activeCrisis: CrisisAlert | null;
-  crisisStatus: CrisisStatus | null;
+  activeCrisis: CrisisAlert | _null;
+  crisisStatus: CrisisStatus | _null;
   isLoadingStatus: boolean;
   connectionStatus: {
     connected: boolean;
-    connecting: boolean;
-    lastConnected?: string;
-    retryCount: number;
+    _connecting: boolean;
+    _lastConnected?: string;
+    _retryCount: number;
   };
   
   // Real-time updates
@@ -108,7 +108,7 @@ export interface UseCrisisManagementReturn {
   unreadCount: number;
   
   // Actions
-  acknowledgeNotification: (id: string, message?: string) => Promise<void>;
+  acknowledgeNotification: (id: string, _message?: string) => Promise<void>;
   markNotificationRead: (id: string) => Promise<void>;
   clearNotifications: () => void;
   
@@ -119,14 +119,14 @@ export interface UseCrisisManagementReturn {
   isResolving: boolean;
   
   // Error handling
-  error: string | null;
+  _error: string | _null;
   clearError: () => void;
   
   // Health monitoring
   systemHealth: {
     inApp: boolean;
-    mcp: boolean;
-    overall: boolean;
+    _mcp: boolean;
+    _overall: boolean;
   };
   refreshHealth: () => Promise<void>;
 }
@@ -136,22 +136,22 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
   
   // Local state
   const [notifications, setNotifications] = useState<NotificationPayload[]>([]);
-  const [connectionStatus, setConnectionStatus] = useState({
+  const [connectionStatus, _setConnectionStatus] = useState({
     connected: false,
-    connecting: false,
-    lastConnected: undefined as string | undefined,
-    retryCount: 0
+    _connecting: false,
+    _lastConnected: undefined as string | undefined,
+    _retryCount: 0
   });
-  const [error, setError] = useState<string | null>(null);
+  const [_error, setError] = useState<string | _null>(_null);
   const [systemHealth, setSystemHealth] = useState({
     inApp: false,
-    mcp: false,
-    overall: false
+    _mcp: false,
+    _overall: false
   });
   
   // Refs for cleanup
-  const notificationUnsubscribe = useRef<(() => void) | null>(null);
-  const connectionUnsubscribe = useRef<(() => void) | null>(null);
+  const notificationUnsubscribe = useRef<(() => void) | _null>(_null);
+  const connectionUnsubscribe = useRef<(() => void) | _null>(_null);
 
   // Query for active crisis
   const { 
@@ -159,17 +159,17 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
     isLoading: isLoadingActiveCrisis 
   } = useQuery({
     queryKey: ['crisis', 'active'],
-    queryFn: async () => {
+    _queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
+      if (!user) return _null;
 
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('crisis_alert_notifications')
         .select(`
           *,
           notification_requests (
             user_id,
-            message,
+            _message,
             custom_message,
             created_at,
             status
@@ -181,16 +181,16 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
         .limit(1)
         .single();
 
-      if (error && error.code !== 'PGRST116') { // Not found error
-        console.error('[useCrisisManagement] Error fetching active crisis:', error);
-        return null;
+      if (_error && _error.code !== 'PGRST116') { // Not found _error
+        console._error('[useCrisisManagement] Error fetching active crisis:', _error);
+        return _null;
       }
 
       return data ? {
         id: data.id,
         mcpAlertId: data.mcp_alert_id,
         severity: data.severity,
-        message: data.notification_requests?.custom_message || data.notification_requests?.message || '',
+        _message: data.notification_requests?.custom_message || data.notification_requests?._message || '',
         status: data.status,
         createdAt: data.created_at,
         updatedAt: data.updated_at,
@@ -199,7 +199,7 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
         firstResponderId: data.first_responder_id,
         tier: data.tier,
         escalationLevel: data.escalation_level
-      } as CrisisAlert : null;
+      } as CrisisAlert : _null;
     },
     refetchInterval: 10000, // Poll every 10 seconds for active crisis
   });
@@ -210,8 +210,8 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
     isLoading: isLoadingStatus 
   } = useQuery({
     queryKey: ['crisis', 'status', alertId],
-    queryFn: async () => {
-      if (!alertId) return null;
+    _queryFn: async () => {
+      if (!alertId) return _null;
       const unified = await mcpIntegrationBridge.getAlertStatus(alertId);
       return unified.unified as CrisisStatus;
     },
@@ -223,9 +223,9 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
   const createAlertMutation = useMutation({
     mutationFn: async (params: {
       severity: CrisisAlert['severity'];
-      message: string;
+      _message: string;
       customMessage?: string;
-      location?: { latitude: number; longitude: number; accuracy: number };
+      _location?: { latitude: number; longitude: number; accuracy: number };
     }) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
@@ -235,7 +235,7 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
         .from('support_network_members')
         .select('*')
         .eq('user_id', user.id)
-        .eq('is_active', true);
+        .eq('is_active', _true);
 
       const supporterTiers = [
         {
@@ -244,10 +244,10 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
             .filter(m => m.priority_order === 1)
             .map(m => ({
               name: m.supporter_name,
-              phone: m.phone_number,
-              email: m.email,
-              relationship: m.relationship,
-              priority: m.priority_order
+              _phone: m.phone_number,
+              _email: m._email,
+              _relationship: m._relationship,
+              _priority: m.priority_order
             }))
         },
         {
@@ -256,10 +256,10 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
             .filter(m => m.priority_order === 2)
             .map(m => ({
               name: m.supporter_name,
-              phone: m.phone_number,
-              email: m.email,
-              relationship: m.relationship,
-              priority: m.priority_order
+              _phone: m.phone_number,
+              _email: m._email,
+              _relationship: m._relationship,
+              _priority: m.priority_order
             }))
         },
         {
@@ -268,19 +268,19 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
             .filter(m => m.priority_order >= 3)
             .map(m => ({
               name: m.supporter_name,
-              phone: m.phone_number,
-              email: m.email,
-              relationship: m.relationship,
-              priority: m.priority_order
+              _phone: m.phone_number,
+              _email: m._email,
+              _relationship: m._relationship,
+              _priority: m.priority_order
             }))
         }
       ].filter(tier => tier.contacts.length > 0);
 
       return mcpIntegrationBridge.sendCrisisAlert({
         severity: params.severity,
-        message: params.message,
-        userId: user.id,
-        location: params.location ? `${params.location.latitude},${params.location.longitude}` : undefined,
+        _message: params._message,
+        _userId: user.id,
+        _location: params._location ? `${params._location.latitude},${params._location.longitude}` : undefined,
         supporterTiers
       });
     },
@@ -289,10 +289,10 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
       toast.success('Crisis alert sent to your support network');
       console.log('[useCrisisManagement] Crisis alert created:', data.unified);
     },
-    onError: (error) => {
-      setError(`Failed to create crisis alert: ${error.message}`);
-      toast.error('Failed to send crisis alert');
-      console.error('[useCrisisManagement] Error creating crisis alert:', error);
+    onError: (_error) => {
+      setError(`Failed to create crisis alert: ${_error._message}`);
+      toast._error('Failed to send crisis alert');
+      console._error('[useCrisisManagement] Error creating crisis alert:', _error);
     }
   });
 
@@ -300,9 +300,9 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
     mutationFn: async (params: {
       alertId: string;
       response: {
-        type: SupporterResponse['responseType'];
-        message?: string;
-        location?: { latitude: number; longitude: number };
+        type: SupporterResponse['_responseType'];
+        _message?: string;
+        _location?: { latitude: number; longitude: number };
         estimatedArrival?: Date;
       };
     }) => {
@@ -311,10 +311,10 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
 
       return mcpIntegrationBridge.trackResponse({
         alertId: params.alertId,
-        supporterId: user.id,
-        responseType: params.response.type,
-        message: params.response.message,
-        location: params.response.location ? `${params.response.location.latitude},${params.response.location.longitude}` : undefined
+        _supporterId: user.id,
+        _responseType: params.response.type,
+        _message: params.response._message,
+        _location: params.response._location ? `${params.response._location.latitude},${params.response._location.longitude}` : undefined
       });
     },
     onSuccess: (data, variables) => {
@@ -322,10 +322,10 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
       toast.success(`Response recorded: ${variables.response.type.replace('_', ' ')}`);
       console.log('[useCrisisManagement] Response recorded:', data.unified);
     },
-    onError: (error) => {
-      setError(`Failed to record response: ${error.message}`);
-      toast.error('Failed to record response');
-      console.error('[useCrisisManagement] Error recording response:', error);
+    onError: (_error) => {
+      setError(`Failed to record response: ${_error._message}`);
+      toast._error('Failed to record response');
+      console._error('[useCrisisManagement] Error recording response:', _error);
     }
   });
 
@@ -334,13 +334,13 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
       alertId: string;
       escalation: {
         type: 'next_tier' | 'professional' | 'emergency_services';
-        reason: string;
+        _reason: string;
       };
     }) => {
       return mcpIntegrationBridge.escalateSupport({
         alertId: params.alertId,
-        escalationType: params.escalation.type,
-        reason: params.escalation.reason
+        _escalationType: params.escalation.type,
+        _reason: params.escalation._reason
       });
     },
     onSuccess: (data, variables) => {
@@ -348,10 +348,10 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
       toast.success(`Crisis escalated: ${variables.escalation.type.replace('_', ' ')}`);
       console.log('[useCrisisManagement] Crisis escalated:', data.unified);
     },
-    onError: (error) => {
-      setError(`Failed to escalate crisis: ${error.message}`);
-      toast.error('Failed to escalate crisis');
-      console.error('[useCrisisManagement] Error escalating crisis:', error);
+    onError: (_error) => {
+      setError(`Failed to escalate crisis: ${_error._message}`);
+      toast._error('Failed to escalate crisis');
+      console._error('[useCrisisManagement] Error escalating crisis:', _error);
     }
   });
 
@@ -371,10 +371,10 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
       toast.success('Crisis resolved successfully');
       console.log('[useCrisisManagement] Crisis resolved:', data.unified);
     },
-    onError: (error) => {
-      setError(`Failed to resolve crisis: ${error.message}`);
-      toast.error('Failed to resolve crisis');
-      console.error('[useCrisisManagement] Error resolving crisis:', error);
+    onError: (_error) => {
+      setError(`Failed to resolve crisis: ${_error._message}`);
+      toast._error('Failed to resolve crisis');
+      console._error('[useCrisisManagement] Error resolving crisis:', _error);
     }
   });
 
@@ -386,13 +386,13 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
       
       // Show toast for crisis notifications
       if (notification.severity === 'critical' || notification.type === 'crisis_alert') {
-        toast.error(notification.title, {
-          description: notification.message,
-          duration: 10000, // Keep critical notifications longer
+        toast._error(notification.title, {
+          description: notification._message,
+          _duration: 10000, // Keep critical notifications longer
         });
       } else {
         toast.info(notification.title, {
-          description: notification.message,
+          description: notification._message,
         });
       }
 
@@ -403,7 +403,7 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
     });
 
     // Subscribe to connection status
-    connectionUnsubscribe.current = realtimeNotificationService.onConnectionStatus(setConnectionStatus);
+    connectionUnsubscribe.current = realtimeNotificationService.onConnectionStatus(_setConnectionStatus);
 
     return () => {
       notificationUnsubscribe.current?.();
@@ -413,33 +413,33 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
 
   // Health monitoring
   useEffect(() => {
-    const checkHealth = async () => {
+    const _checkHealth = async () => {
       try {
-        const health = await mcpIntegrationBridge.healthCheck();
-        setSystemHealth(health);
-      } catch (error) {
-        console.error('[useCrisisManagement] Health check failed:', error);
-        setSystemHealth({ inApp: false, mcp: false, overall: false });
+        const _health = await mcpIntegrationBridge.healthCheck();
+        setSystemHealth(_health);
+      } catch (_error) {
+        console._error('[useCrisisManagement] Health check failed:', _error);
+        setSystemHealth({ inApp: false, _mcp: false, _overall: false });
       }
     };
 
-    checkHealth();
-    const interval = setInterval(checkHealth, 30000); // Check every 30 seconds
+    _checkHealth();
+    const _interval = setInterval(_checkHealth, 30000); // Check every 30 seconds
 
-    return () => clearInterval(interval);
+    return () => clearInterval(_interval);
   }, []);
 
   // Notification actions
-  const acknowledgeNotification = useCallback(async (id: string, message?: string) => {
+  const acknowledgeNotification = useCallback(async (id: string, _message?: string) => {
     try {
-      await realtimeNotificationService.acknowledgeNotification(id, message);
+      await realtimeNotificationService.acknowledgeNotification(id, _message);
       setNotifications(prev => 
-        prev.map(n => n.id === id ? { ...n, acknowledged: true } : n)
+        prev.map(n => n.id === id ? { ...n, acknowledged: _true } : n)
       );
       toast.success('Notification acknowledged');
-    } catch (error) {
-      console.error('[useCrisisManagement] Error acknowledging notification:', error);
-      toast.error('Failed to acknowledge notification');
+    } catch (_error) {
+      console._error('[useCrisisManagement] Error acknowledging notification:', _error);
+      toast._error('Failed to acknowledge notification');
     }
   }, []);
 
@@ -447,10 +447,10 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
     try {
       await realtimeNotificationService.markNotificationRead(id);
       setNotifications(prev => 
-        prev.map(n => n.id === id ? { ...n, read: true } : n)
+        prev.map(n => n.id === id ? { ...n, read: _true } : n)
       );
-    } catch (error) {
-      console.error('[useCrisisManagement] Error marking notification as read:', error);
+    } catch (_error) {
+      console._error('[useCrisisManagement] Error marking notification as read:', _error);
     }
   }, []);
 
@@ -459,15 +459,15 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
   }, []);
 
   const clearError = useCallback(() => {
-    setError(null);
+    setError(_null);
   }, []);
 
   const refreshHealth = useCallback(async () => {
     try {
-      const health = await mcpIntegrationBridge.healthCheck();
-      setSystemHealth(health);
-    } catch (error) {
-      console.error('[useCrisisManagement] Error refreshing health:', error);
+      const _health = await mcpIntegrationBridge.healthCheck();
+      setSystemHealth(_health);
+    } catch (_error) {
+      console._error('[useCrisisManagement] Error refreshing _health:', _error);
     }
   }, []);
 
@@ -503,7 +503,7 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
     isResolving: resolveMutation.isPending,
     
     // Error handling
-    error,
+    _error,
     clearError,
     
     // Health monitoring

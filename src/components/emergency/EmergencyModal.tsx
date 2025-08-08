@@ -33,14 +33,14 @@ interface EmergencyModalProps {
   onLocationToggle: (checked: boolean | 'indeterminate') => void;
   isLoading: boolean;
   contacts: Contact[];
-  phoneContacts: any[];
+  phoneContacts: unknown[];
   isLoadingPhoneContacts: boolean;
   alertResults: { success: string[]; failed: string[] } | null;
   locationData: LocationData | null;
   isLoadingLocation: boolean;
   locationError: string | null;
   onSendAlert: () => void;
-  onQuickTemplate: (template: any) => void;
+  onQuickTemplate: (template: unknown) => void;
   isFormValid: boolean;
 }
 

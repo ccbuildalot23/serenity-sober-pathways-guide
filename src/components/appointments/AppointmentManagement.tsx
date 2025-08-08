@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, Filter, Search, Plus } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Calendar, Filter, Search, Plus } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -13,7 +13,7 @@ import { AppointmentService } from '@/services/appointmentService';
 import { Appointment } from '@/types/appointment';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
+import { startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
 
 interface AppointmentManagementProps {
   userRole: 'patient' | 'provider';
@@ -26,90 +26,90 @@ export const AppointmentManagement: React.FC<AppointmentManagementProps> = ({
 }) => {
   const { user } = useAuth();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(_true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [dateRange, setDateRange] = useState<string>('week');
-  const [showBookingFlow, setShowBookingFlow] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState<any>(null);
+  const [_dateRange, setDateRange] = useState<string>('week');
+  const [showBookingFlow, setShowBookingFlow] = useState(_false);
+  const [selectedProvider, setSelectedProvider] = useState<unknown>(_null);
   const [changeRequestDialog, setChangeRequestDialog] = useState<{
     open: boolean;
-    appointmentId: string;
-    type: 'reschedule' | 'cancel';
-  }>({ open: false, appointmentId: '', type: 'reschedule' });
+    _appointmentId: string;
+    _type: 'reschedule' | 'cancel';
+  }>({ open: _false, _appointmentId: '', _type: 'reschedule' });
   const [telehealthSession, setTelehealthSession] = useState<{
     open: boolean;
-    appointmentId: string;
-  }>({ open: false, appointmentId: '' });
+    _appointmentId: string;
+  }>({ open: _false, _appointmentId: '' });
 
   useEffect(() => {
     loadAppointments();
-  }, [statusFilter, dateRange]);
+  }, [statusFilter, _dateRange]);
 
   const loadAppointments = async () => {
     try {
-      setLoading(true);
+      setLoading(_true);
       
-      let startDate: string | undefined;
-      let endDate: string | undefined;
+      let _startDate: string | undefined;
+      let _endDate: string | undefined;
 
       const now = new Date();
-      switch (dateRange) {
+      switch (_dateRange) {
         case 'week':
-          startDate = startOfWeek(now).toISOString();
-          endDate = endOfWeek(now).toISOString();
+          _startDate = startOfWeek(now).toISOString();
+          _endDate = endOfWeek(now).toISOString();
           break;
         case 'month':
-          startDate = startOfMonth(now).toISOString();
-          endDate = endOfMonth(now).toISOString();
+          _startDate = startOfMonth(now).toISOString();
+          _endDate = endOfMonth(now).toISOString();
           break;
         case 'upcoming':
-          startDate = now.toISOString();
+          _startDate = now.toISOString();
           break;
       }
 
-      const data = await AppointmentService.getUserAppointments(
+      const _data = await AppointmentService.getUserAppointments(
         user?.id,
         statusFilter === 'all' ? undefined : statusFilter,
-        startDate,
-        endDate
+        _startDate,
+        _endDate
       );
       
-      setAppointments(data);
+      setAppointments(_data);
     } catch (error) {
       console.error('Error loading appointments:', error);
       toast.error('Failed to load appointments');
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
 
-  const handleReschedule = (appointmentId: string) => {
+  const handleReschedule = (_appointmentId: string) => {
     setChangeRequestDialog({
-      open: true,
-      appointmentId,
-      type: 'reschedule'
+      open: _true,
+      _appointmentId,
+      _type: 'reschedule'
     });
   };
 
-  const handleCancel = (appointmentId: string) => {
+  const handleCancel = (_appointmentId: string) => {
     setChangeRequestDialog({
-      open: true,
-      appointmentId,
-      type: 'cancel'
+      open: _true,
+      _appointmentId,
+      _type: 'cancel'
     });
   };
 
-  const handleJoinVideo = (appointmentId: string) => {
+  const handleJoinVideo = (_appointmentId: string) => {
     setTelehealthSession({
-      open: true,
-      appointmentId
+      open: _true,
+      _appointmentId
     });
   };
 
-  const handleMarkComplete = async (appointmentId: string) => {
+  const handleMarkComplete = async (_appointmentId: string) => {
     try {
-      await AppointmentService.updateAppointmentStatus(appointmentId, 'completed');
+      await AppointmentService.updateAppointmentStatus(_appointmentId, 'completed');
       toast.success('Appointment marked as completed');
       loadAppointments();
     } catch (error) {
@@ -117,9 +117,9 @@ export const AppointmentManagement: React.FC<AppointmentManagementProps> = ({
     }
   };
 
-  const handleMarkNoShow = async (appointmentId: string) => {
+  const handleMarkNoShow = async (_appointmentId: string) => {
     try {
-      await AppointmentService.updateAppointmentStatus(appointmentId, 'no_show');
+      await AppointmentService.updateAppointmentStatus(_appointmentId, 'no_show');
       toast.success('Appointment marked as no show');
       loadAppointments();
     } catch (error) {
@@ -129,15 +129,15 @@ export const AppointmentManagement: React.FC<AppointmentManagementProps> = ({
 
   const filteredAppointments = appointments.filter(appointment => {
     if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
+      const _searchLower = searchTerm.toLowerCase();
       return (
-        appointment.title?.toLowerCase().includes(searchLower) ||
-        appointment.appointment_type.toLowerCase().includes(searchLower) ||
-        (appointment as any).provider?.name?.toLowerCase().includes(searchLower) ||
-        (appointment as any).patient?.full_name?.toLowerCase().includes(searchLower)
+        appointment.title?.toLowerCase().includes(_searchLower) ||
+        appointment.appointment_type.toLowerCase().includes(_searchLower) ||
+        (appointment as any).provider?.name?.toLowerCase().includes(_searchLower) ||
+        (appointment as any).patient?.full_name?.toLowerCase().includes(_searchLower)
       );
     }
-    return true;
+    return _true;
   });
 
   const getTabCounts = () => {
@@ -155,15 +155,15 @@ export const AppointmentManagement: React.FC<AppointmentManagementProps> = ({
     return (
       <AppointmentBookingFlow
         provider={selectedProvider}
-        onBookingComplete={(appointmentId) => {
-          setShowBookingFlow(false);
-          setSelectedProvider(null);
+        onBookingComplete={(_appointmentId) => {
+          setShowBookingFlow(_false);
+          setSelectedProvider(_null);
           loadAppointments();
           toast.success('Appointment booked successfully!');
         }}
         onCancel={() => {
-          setShowBookingFlow(false);
-          setSelectedProvider(null);
+          setShowBookingFlow(_false);
+          setSelectedProvider(_null);
         }}
       />
     );
@@ -181,7 +181,7 @@ export const AppointmentManagement: React.FC<AppointmentManagementProps> = ({
         </div>
         
         {userRole === 'patient' && (
-          <Button onClick={() => setShowBookingFlow(true)}>
+          <Button onClick={() => setShowBookingFlow(_true)}>
             <Plus className="h-4 w-4 mr-2" />
             Book Appointment
           </Button>
@@ -217,7 +217,7 @@ export const AppointmentManagement: React.FC<AppointmentManagementProps> = ({
               </SelectContent>
             </Select>
 
-            <Select value={dateRange} onValueChange={setDateRange}>
+            <Select value={_dateRange} onValueChange={setDateRange}>
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Date range" />
               </SelectTrigger>
@@ -309,11 +309,11 @@ export const AppointmentManagement: React.FC<AppointmentManagementProps> = ({
       {/* Change Request Dialog */}
       <AppointmentChangeRequestDialog
         open={changeRequestDialog.open}
-        appointmentId={changeRequestDialog.appointmentId}
-        requestType={changeRequestDialog.type}
-        onClose={() => setChangeRequestDialog({ open: false, appointmentId: '', type: 'reschedule' })}
+        _appointmentId={changeRequestDialog._appointmentId}
+        requestType={changeRequestDialog._type}
+        onClose={() => setChangeRequestDialog({ open: _false, _appointmentId: '', _type: 'reschedule' })}
         onSuccess={() => {
-          setChangeRequestDialog({ open: false, appointmentId: '', type: 'reschedule' });
+          setChangeRequestDialog({ open: _false, _appointmentId: '', _type: 'reschedule' });
           loadAppointments();
         }}
       />
@@ -321,9 +321,9 @@ export const AppointmentManagement: React.FC<AppointmentManagementProps> = ({
       {/* Telehealth Waiting Room */}
       <TelehealthWaitingRoom
         open={telehealthSession.open}
-        appointmentId={telehealthSession.appointmentId}
+        _appointmentId={telehealthSession._appointmentId}
         userRole={userRole}
-        onClose={() => setTelehealthSession({ open: false, appointmentId: '' })}
+        onClose={() => setTelehealthSession({ open: _false, _appointmentId: '' })}
       />
     </div>
   );

@@ -34,9 +34,9 @@ const CheckInCelebration: React.FC<CheckInCelebrationProps> = ({
     if (window.confetti) {
       window.confetti({
         particleCount: 150,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#10B981', '#1E3A8A', '#ffffff']
+        _spread: 70,
+        _origin: { y: 0.6 },
+        _colors: ['#10B981', '#1E3A8A', '#ffffff']
       });
     }
 
@@ -57,7 +57,7 @@ const CheckInCelebration: React.FC<CheckInCelebrationProps> = ({
       
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + 0.3);
-    } catch (error) {
+    } catch (_error) {
       console.log('Audio not supported');
     }
   };
@@ -86,11 +86,11 @@ const CheckInCelebration: React.FC<CheckInCelebrationProps> = ({
           30: "One month strong. This is who you are now."
         };
 
-        const message = affirmations[currentStreak] || "Keep stacking those wins. You matter.";
-        setAffirmation(message);
+        const _message = affirmations[currentStreak] || "Keep stacking those wins. You matter.";
+        setAffirmation(_message);
       }
-    } catch (error) {
-      console.error('Error updating streak:', error);
+    } catch (_error) {
+      console._error('Error updating streak:', _error);
     }
   };
 

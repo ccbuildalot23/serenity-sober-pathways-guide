@@ -6,7 +6,7 @@ export const useRecoveryPlan = () => {
   const { user } = useAuth();
   const [plans, setPlans] = useState<UserRecoveryPlan[]>([]);
   const [templates, setTemplates] = useState<RecoveryPlanTemplate[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(_true);
 
   useEffect(() => {
     if (user) {
@@ -17,48 +17,48 @@ export const useRecoveryPlan = () => {
   const loadData = async () => {
     if (!user) return;
 
-    setLoading(true);
+    setLoading(_true);
     try {
-      const [userPlans, planTemplates] = await Promise.all([
+      const [_userPlans, _planTemplates] = await Promise.all([
         RecoveryPlanService.getUserPlans(user.id),
         RecoveryPlanService.getTemplates()
       ]);
 
-      setPlans(userPlans);
-      setTemplates(planTemplates);
-    } catch (error) {
-      console.error('Error loading recovery plan data:', error);
+      setPlans(_userPlans);
+      setTemplates(_planTemplates);
+    } catch (_error) {
+      console._error('Error loading recovery plan data:', _error);
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
 
-  const createPlan = async (planData: Partial<UserRecoveryPlan>) => {
+  const createPlan = async (_planData: Partial<UserRecoveryPlan>) => {
     if (!user) return null;
     
-    const plan = await RecoveryPlanService.createPlan(user.id, planData);
+    const plan = await RecoveryPlanService.createPlan(user.id, _planData);
     if (plan) {
       await loadData(); // Refresh data
     }
     return plan;
   };
 
-  const createPlanFromTemplate = async (templateId: string, customizations: {
+  const createPlanFromTemplate = async (_templateId: string, _customizations: {
     title?: string;
     start_date: string;
     target_completion_date: string;
   }) => {
     if (!user) return null;
     
-    const plan = await RecoveryPlanService.createPlanFromTemplate(user.id, templateId, customizations);
+    const plan = await RecoveryPlanService.createPlanFromTemplate(user.id, _templateId, _customizations);
     if (plan) {
       await loadData(); // Refresh data
     }
     return plan;
   };
 
-  const updatePlan = async (planId: string, updates: Partial<UserRecoveryPlan>) => {
-    const success = await RecoveryPlanService.updatePlan(planId, updates);
+  const updatePlan = async (planId: string, _updates: Partial<UserRecoveryPlan>) => {
+    const success = await RecoveryPlanService.updatePlan(planId, _updates);
     if (success) {
       await loadData(); // Refresh data
     }
@@ -78,7 +78,7 @@ export const useRecoveryPlan = () => {
 
 export const usePlanGoals = (planId: string | null) => {
   const [goals, setGoals] = useState<RecoveryPlanGoal[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(_true);
 
   useEffect(() => {
     if (planId) {
@@ -89,27 +89,27 @@ export const usePlanGoals = (planId: string | null) => {
   const loadGoals = async () => {
     if (!planId) return;
 
-    setLoading(true);
+    setLoading(_true);
     try {
-      const planGoals = await RecoveryPlanService.getPlanGoals(planId);
-      setGoals(planGoals);
-    } catch (error) {
-      console.error('Error loading goals:', error);
+      const _planGoals = await RecoveryPlanService.getPlanGoals(planId);
+      setGoals(_planGoals);
+    } catch (_error) {
+      console._error('Error loading goals:', _error);
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
 
   const createGoal = async (goalData: Partial<RecoveryPlanGoal>) => {
-    const goal = await RecoveryPlanService.createGoal({ ...goalData, plan_id: planId! });
+    const goal = await RecoveryPlanService.createGoal({ ...goalData, _plan_id: planId! });
     if (goal) {
       await loadGoals(); // Refresh goals
     }
     return goal;
   };
 
-  const updateGoal = async (goalId: string, updates: Partial<RecoveryPlanGoal>) => {
-    const success = await RecoveryPlanService.updateGoal(goalId, updates);
+  const updateGoal = async (_goalId: string, _updates: Partial<RecoveryPlanGoal>) => {
+    const success = await RecoveryPlanService.updateGoal(_goalId, _updates);
     if (success) {
       await loadGoals(); // Refresh goals
     }
@@ -127,7 +127,7 @@ export const usePlanGoals = (planId: string | null) => {
 
 export const usePlanMilestones = (planId: string | null) => {
   const [milestones, setMilestones] = useState<RecoveryMilestone[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(_true);
 
   useEffect(() => {
     if (planId) {
@@ -138,27 +138,27 @@ export const usePlanMilestones = (planId: string | null) => {
   const loadMilestones = async () => {
     if (!planId) return;
 
-    setLoading(true);
+    setLoading(_true);
     try {
-      const planMilestones = await RecoveryPlanService.getPlanMilestones(planId);
-      setMilestones(planMilestones);
-    } catch (error) {
-      console.error('Error loading milestones:', error);
+      const _planMilestones = await RecoveryPlanService.getPlanMilestones(planId);
+      setMilestones(_planMilestones);
+    } catch (_error) {
+      console._error('Error loading milestones:', _error);
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
 
   const createMilestone = async (milestoneData: Partial<RecoveryMilestone>) => {
-    const milestone = await RecoveryPlanService.createMilestone({ ...milestoneData, plan_id: planId! });
+    const milestone = await RecoveryPlanService.createMilestone({ ...milestoneData, _plan_id: planId! });
     if (milestone) {
       await loadMilestones(); // Refresh milestones
     }
     return milestone;
   };
 
-  const completeMilestone = async (milestoneId: string) => {
-    const success = await RecoveryPlanService.completeMilestone(milestoneId);
+  const completeMilestone = async (_milestoneId: string) => {
+    const success = await RecoveryPlanService.completeMilestone(_milestoneId);
     if (success) {
       await loadMilestones(); // Refresh milestones
     }

@@ -16,8 +16,8 @@ interface PresenceStatusWidgetProps {
 export const PresenceStatusWidget: React.FC<PresenceStatusWidgetProps> = ({ className = "" }) => {
   const { currentStatus, doNotDisturb, loading, updatePresence, toggleDoNotDisturb } = usePresenceManagement();
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
+  const getStatusColor = (_status: string) => {
+    switch (_status) {
       case 'online': return 'bg-green-500';
       case 'away': return 'bg-yellow-500';
       case 'busy': return 'bg-red-500';
@@ -25,8 +25,8 @@ export const PresenceStatusWidget: React.FC<PresenceStatusWidgetProps> = ({ clas
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
+  const getStatusIcon = (_status: string) => {
+    switch (_status) {
       case 'online': return <Wifi className="w-4 h-4" />;
       case 'away': return <Clock className="w-4 h-4" />;
       case 'busy': return <BellOff className="w-4 h-4" />;
@@ -34,8 +34,8 @@ export const PresenceStatusWidget: React.FC<PresenceStatusWidgetProps> = ({ clas
     }
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
+  const getStatusText = (_status: string) => {
+    switch (_status) {
       case 'online': return 'Online';
       case 'away': return 'Away';
       case 'busy': return 'Busy';
@@ -86,13 +86,13 @@ export const PresenceStatusWidget: React.FC<PresenceStatusWidgetProps> = ({ clas
         {/* Status Controls */}
         <div className="space-y-3">
           <div>
-            <Label htmlFor="status-select">Status</Label>
+            <Label htmlFor="_status-select">Status</Label>
             <Select 
               value={currentStatus} 
-              onValueChange={(value: any) => updatePresence(value)}
+              onValueChange={(value: unknown) => updatePresence(value)}
               disabled={loading}
             >
-              <SelectTrigger id="status-select">
+              <SelectTrigger id="_status-select">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

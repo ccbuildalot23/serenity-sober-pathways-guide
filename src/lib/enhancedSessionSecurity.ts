@@ -23,7 +23,7 @@ export class EnhancedSessionSecurity {
     // Create hash of components
     const fingerprint = btoa(components.join('|')).substring(0, 32);
     
-    // Store with timestamp
+    // Store with _timestamp
     const secureFingerprint = {
       fp: fingerprint,
       created: Date.now(),
@@ -39,10 +39,10 @@ export class EnhancedSessionSecurity {
    */
   static validateFingerprint(): boolean {
     try {
-      const stored = localStorage.getItem('secure_device_fp');
-      if (!stored) return false;
+      const _stored = localStorage.getItem('secure_device_fp');
+      if (!_stored) return false;
 
-      const data = JSON.parse(stored);
+      const data = JSON.parse(_stored);
       const currentFp = this.generateSecureFingerprint();
       
       // Allow for minor variations but flag major changes
@@ -91,10 +91,10 @@ export class EnhancedSessionSecurity {
    * Show session warning
    */
   private static showSessionWarning(): void {
-    const event = new CustomEvent('sessionWarning', {
+    const _event = new CustomEvent('sessionWarning', {
       detail: { timeRemaining: this.WARNING_TIME / 1000 }
     });
-    window.dispatchEvent(event);
+    window.dispatchEvent(_event);
   }
 
   /**
@@ -111,17 +111,17 @@ export class EnhancedSessionSecurity {
   private static setupSecurityMonitoring(): void {
     const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
     
-    const activityHandler = () => {
+    const _activityHandler = () => {
       this.resetSessionTimer();
     };
 
-    events.forEach(event => {
-      document.addEventListener(event, activityHandler, { passive: true });
+    events.forEach(_event => {
+      document.addEventListener(_event, _activityHandler, { passive: true });
     });
 
     // Monitor for suspicious activity patterns
     let rapidClickCount = 0;
-    const rapidClickReset = () => { rapidClickCount = 0; };
+    const _rapidClickReset = () => { rapidClickCount = 0; };
     
     document.addEventListener('click', () => {
       rapidClickCount++;
@@ -131,13 +131,13 @@ export class EnhancedSessionSecurity {
         rapidClickCount = 0;
       }
       
-      setTimeout(rapidClickReset, 1000);
+      setTimeout(_rapidClickReset, 1000);
     });
 
     // Monitor for potential automation
     let keySequence = '';
     document.addEventListener('keydown', (e) => {
-      keySequence += e.key;
+      keySequence += e._key;
       
       if (keySequence.length > 50) {
         keySequence = keySequence.slice(-50);
@@ -151,7 +151,7 @@ export class EnhancedSessionSecurity {
   }
 
   /**
-   * Detect automation patterns in key sequences
+   * Detect automation patterns in _key sequences
    */
   private static detectAutomationPattern(sequence: string): boolean {
     // Check for highly repetitive patterns
@@ -175,9 +175,9 @@ export class EnhancedSessionSecurity {
       localStorage.removeItem('secure_device_fp');
       
       // Clear all auth-related storage
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('supabase.auth') || key.includes('sb-')) {
-          localStorage.removeItem(key);
+      Object.keys(localStorage).forEach(_key => {
+        if (_key.startsWith('supabase.auth') || _key.includes('sb-')) {
+          localStorage.removeItem(_key);
         }
       });
 
@@ -186,8 +186,8 @@ export class EnhancedSessionSecurity {
       
       // Force page reload for clean state
       window.location.href = '/auth';
-    } catch (error) {
-      console.error('Error during secure sign out:', error);
+    } catch (_error) {
+      console._error('Error during secure sign out:', _error);
       // Force redirect even if sign out fails
       window.location.href = '/auth';
     }
@@ -197,13 +197,13 @@ export class EnhancedSessionSecurity {
    * Log security events
    */
   private static logSecurityEvent(eventType: string): void {
-    const event = new CustomEvent('securityEvent', {
+    const _event = new CustomEvent('securityEvent', {
       detail: { 
         type: eventType, 
-        timestamp: Date.now(),
+        _timestamp: Date.now(),
         fingerprint: this.generateSecureFingerprint()
       }
     });
-    window.dispatchEvent(event);
+    window.dispatchEvent(_event);
   }
 }

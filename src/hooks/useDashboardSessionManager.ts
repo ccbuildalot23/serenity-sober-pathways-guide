@@ -2,46 +2,46 @@
 import { useState, useEffect } from 'react';
 
 export const useDashboardSessionManager = () => {
-  const [sessionWarning, setSessionWarning] = useState(false);
+  const [sessionWarning, setSessionWarning] = useState(_false);
 
   useEffect(() => {
-    const checkSession = () => {
-      const lastActivity = localStorage.getItem('session_last_activity');
-      if (lastActivity) {
-        const timeSinceActivity = Date.now() - parseInt(lastActivity);
+    const _checkSession = () => {
+      const _lastActivity = localStorage.getItem('session_last_activity');
+      if (_lastActivity) {
+        const timeSinceActivity = Date.now() - parseInt(_lastActivity);
         // Show warning after 25 minutes of inactivity
         if (timeSinceActivity > 25 * 60 * 1000) {
-          setSessionWarning(true);
+          setSessionWarning(_true);
         }
       }
     };
 
     // Update activity on user interaction
-    const updateActivity = () => {
+    const _updateActivity = () => {
       localStorage.setItem('session_last_activity', Date.now().toString());
     };
 
     // Set initial activity
-    updateActivity();
+    _updateActivity();
 
     // Add event listeners for user activity
-    window.addEventListener('click', updateActivity);
-    window.addEventListener('keypress', updateActivity);
-    window.addEventListener('scroll', updateActivity);
+    window.addEventListener('click', _updateActivity);
+    window.addEventListener('keypress', _updateActivity);
+    window.addEventListener('scroll', _updateActivity);
 
-    const interval = setInterval(checkSession, 60000); // Check every minute
+    const _interval = setInterval(_checkSession, 60000); // Check every minute
     
     return () => {
-      clearInterval(interval);
-      window.removeEventListener('click', updateActivity);
-      window.removeEventListener('keypress', updateActivity);
-      window.removeEventListener('scroll', updateActivity);
+      clearInterval(_interval);
+      window.removeEventListener('click', _updateActivity);
+      window.removeEventListener('keypress', _updateActivity);
+      window.removeEventListener('scroll', _updateActivity);
     };
   }, []);
 
   const extendSession = () => {
     localStorage.setItem('session_last_activity', Date.now().toString());
-    setSessionWarning(false);
+    setSessionWarning(_false);
   };
 
   return {

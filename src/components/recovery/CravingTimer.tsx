@@ -33,9 +33,9 @@ import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditSe
 
 interface CravingSession {
   intensityBefore: number;
-  intensityAfter?: number;
-  duration: number;
-  completed: boolean;
+  _intensityAfter?: number;
+  _duration: number;
+  _completed: boolean;
   distractionUsed?: string;
 }
 
@@ -44,24 +44,24 @@ const CravingTimer = () => {
   const { handleCrisisActivated } = useCrisisSystem();
   
   // Timer state
-  const [isActive, setIsActive] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
+  const [isActive, setIsActive] = useState(_false);
+  const [isPaused, setIsPaused] = useState(_false);
   const [timeRemaining, setTimeRemaining] = useState(900); // 15 minutes in seconds
   const [session, setSession] = useState<CravingSession>({
     intensityBefore: 5,
-    intensityAfter: undefined,
-    duration: 0,
-    completed: false
+    _intensityAfter: undefined,
+    _duration: 0,
+    _completed: _false
   });
   
   // UI state
-  const [showIntensityBefore, setShowIntensityBefore] = useState(true);
-  const [showIntensityAfter, setShowIntensityAfter] = useState(false);
-  const [currentDistraction, setCurrentDistraction] = useState<string | null>(null);
+  const [_showIntensityBefore, setShowIntensityBefore] = useState(_true);
+  const [_showIntensityAfter, setShowIntensityAfter] = useState(_false);
+  const [currentDistraction, setCurrentDistraction] = useState<string | _null>(_null);
   const [motivationalQuote, setMotivationalQuote] = useState('');
   
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const audioRef = useRef<HTMLAudioElement | _null>(_null);
+  const intervalRef = useRef<NodeJS.Timeout | _null>(_null);
 
   const distractions = [
     { id: 'breathing', icon: Wind, label: 'Breathing Exercise', description: 'Follow the 4-7-8 technique' },
@@ -90,15 +90,15 @@ const CravingTimer = () => {
   // Update motivational quote every 30 seconds
   useEffect(() => {
     if (isActive && !isPaused) {
-      const quoteInterval = setInterval(() => {
-        const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
-        setMotivationalQuote(randomQuote);
+      const _quoteInterval = setInterval(() => {
+        const _randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+        setMotivationalQuote(_randomQuote);
       }, 30000);
       
       // Set initial quote
       setMotivationalQuote(motivationalQuotes[0]);
       
-      return () => clearInterval(quoteInterval);
+      return () => clearInterval(_quoteInterval);
     }
   }, [isActive, isPaused]);
 
@@ -113,7 +113,7 @@ const CravingTimer = () => {
           }
           return prev - 1;
         });
-        setSession(prev => ({ ...prev, duration: prev.duration + 1 }));
+        setSession(prev => ({ ...prev, _duration: prev._duration + 1 }));
       }, 1000);
     } else {
       if (intervalRef.current) {
@@ -129,9 +129,9 @@ const CravingTimer = () => {
   }, [isActive, isPaused, timeRemaining]);
 
   const handleStart = async () => {
-    if (showIntensityBefore) {
-      setShowIntensityBefore(false);
-      setIsActive(true);
+    if (_showIntensityBefore) {
+      setShowIntensityBefore(_false);
+      setIsActive(_true);
       
       // Play calming sound if available
       try {
@@ -141,7 +141,7 @@ const CravingTimer = () => {
       
       toast.success('Timer started! You can do this!', {
         description: 'Focus on the present moment',
-        duration: 3000
+        _duration: 3000
       });
 
       // Validate and save session start
@@ -154,8 +154,8 @@ const CravingTimer = () => {
           .from('craving_sessions')
           .insert({
             user_id: user.id,
-            intensity_before: validatedIntensity,
-            started_at: new Date().toISOString()
+            _intensity_before: validatedIntensity,
+            _started_at: new Date().toISOString()
           })
           .select('id')
           .single();
@@ -164,11 +164,11 @@ const CravingTimer = () => {
           // Log PHI creation
           await EnhancedSecurityAuditService.logSecurityEvent({
             action: 'CRAVING_SESSION_STARTED',
-            details: {
+            _details: {
               session_id: data?.id,
-              intensity_before: validatedIntensity
+              _intensity_before: validatedIntensity
             },
-            severity: validatedIntensity >= 8 ? 'high' : 'low'
+            _severity: validatedIntensity >= 8 ? 'high' : 'low'
           });
         }
       }
@@ -181,36 +181,36 @@ const CravingTimer = () => {
   };
 
   const handleReset = () => {
-    setIsActive(false);
-    setIsPaused(false);
+    setIsActive(_false);
+    setIsPaused(_false);
     setTimeRemaining(900);
     setSession({
       intensityBefore: 5,
-      intensityAfter: undefined,
-      duration: 0,
-      completed: false
+      _intensityAfter: undefined,
+      _duration: 0,
+      _completed: _false
     });
-    setShowIntensityBefore(true);
-    setShowIntensityAfter(false);
-    setCurrentDistraction(null);
+    setShowIntensityBefore(_true);
+    setShowIntensityAfter(_false);
+    setCurrentDistraction(_null);
     setMotivationalQuote('');
   };
 
   const handleTimerComplete = async () => {
-    setIsActive(false);
-    setShowIntensityAfter(true);
-    setSession(prev => ({ ...prev, completed: true }));
+    setIsActive(_false);
+    setShowIntensityAfter(_true);
+    setSession(prev => ({ ...prev, _completed: _true }));
     
     // Celebration
     confetti({
       particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 }
+      _spread: 70,
+      _origin: { y: 0.6 }
     });
     
     toast.success('🎉 You did it! 15 minutes complete!', {
       description: 'The craving has passed. You are stronger!',
-      duration: 5000
+      _duration: 5000
     });
 
     // Play completion sound
@@ -221,9 +221,9 @@ const CravingTimer = () => {
   };
 
   const handleIntensityAfter = async (intensity: number) => {
-    setSession(prev => ({ ...prev, intensityAfter: intensity }));
+    setSession(prev => ({ ...prev, _intensityAfter: intensity }));
     
-    // Validate and save completed session
+    // Validate and save _completed session
     if (user) {
       const validatedIntensityAfter = EnhancedInputValidator.validateRating(intensity) ? intensity : 5;
       const validatedIntensityBefore = EnhancedInputValidator.validateRating(session.intensityBefore) 
@@ -233,11 +233,11 @@ const CravingTimer = () => {
         .from('craving_sessions')
         .insert({
           user_id: user.id,
-          intensity_before: validatedIntensityBefore,
-          intensity_after: validatedIntensityAfter,
-          duration: session.duration,
-          completed: true,
-          distraction_used: EnhancedInputValidator.sanitizeText(currentDistraction || '')
+          _intensity_before: validatedIntensityBefore,
+          _intensity_after: validatedIntensityAfter,
+          _duration: session._duration,
+          _completed: _true,
+          _distraction_used: EnhancedInputValidator.sanitizeText(currentDistraction || '')
         })
         .select('id')
         .single();
@@ -246,12 +246,12 @@ const CravingTimer = () => {
         // Log successful completion
         await EnhancedSecurityAuditService.logSecurityEvent({
           action: 'CRAVING_SESSION_COMPLETED',
-          details: {
+          _details: {
             session_id: data?.id,
-            intensity_reduction: validatedIntensityBefore - validatedIntensityAfter,
-            duration_minutes: Math.round(session.duration / 60)
+            _intensity_reduction: validatedIntensityBefore - validatedIntensityAfter,
+            _duration_minutes: Math.round(session._duration / 60)
           },
-          severity: 'low'
+          _severity: 'low'
         });
       }
     }
@@ -260,11 +260,11 @@ const CravingTimer = () => {
     if (reduction > 0) {
       toast.success(`Craving reduced by ${reduction} points!`, {
         description: 'Great job managing your craving',
-        duration: 5000
+        _duration: 5000
       });
     }
 
-    setShowIntensityAfter(false);
+    setShowIntensityAfter(_false);
   };
 
   const handleEmergencyContact = async () => {
@@ -273,31 +273,31 @@ const CravingTimer = () => {
     // Log crisis intervention
     await EnhancedSecurityAuditService.logSecurityEvent({
       action: 'CRISIS_HOTLINE_CALLED',
-      details: { 
+      _details: { 
         source: 'craving_timer', 
-        intensity_before: session.intensityBefore,
-        intensity_after: session.intensityAfter,
-        trigger: 'emergency_button'
+        _intensity_before: session.intensityBefore,
+        _intensity_after: session._intensityAfter,
+        _trigger: 'emergency_button'
       },
-      severity: 'critical'
+      _severity: 'critical'
     });
     
-    if (session.intensityBefore >= 8 || (session.intensityAfter && session.intensityAfter >= 8)) {
+    if (session.intensityBefore >= 8 || (session._intensityAfter && session._intensityAfter >= 8)) {
       handleCrisisActivated();
     }
     window.open('tel:988', '_self');
   };
 
-  const selectDistraction = (distractionId: string) => {
-    setCurrentDistraction(distractionId);
-    const distraction = distractions.find(d => d.id === distractionId);
+  const selectDistraction = (_distractionId: string) => {
+    setCurrentDistraction(_distractionId);
+    const distraction = distractions.find(d => d.id === _distractionId);
     
     toast.info(`Starting: ${distraction?.label}`, {
       description: distraction?.description
     });
 
     // Handle specific distractions
-    switch (distractionId) {
+    switch (_distractionId) {
       case 'sponsor':
         if (navigator.userAgent.includes('Mobile')) {
           window.open('tel:', '_self');
@@ -326,7 +326,7 @@ const CravingTimer = () => {
   const progress = ((900 - timeRemaining) / 900) * 100;
 
   // Intensity selection screen
-  if (showIntensityBefore && !isActive) {
+  if (_showIntensityBefore && !isActive) {
     return (
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
@@ -401,7 +401,7 @@ const CravingTimer = () => {
   }
 
   // Intensity after screen
-  if (showIntensityAfter) {
+  if (_showIntensityAfter) {
     return (
       <Card className="max-w-2xl mx-auto">
         <CardHeader className="text-center">
@@ -426,13 +426,13 @@ const CravingTimer = () => {
                 defaultValue="3"
                 onChange={(e) => setSession(prev => ({ 
                   ...prev, 
-                  intensityAfter: parseInt(e.target.value) 
+                  _intensityAfter: parseInt(e.target.value) 
                 }))}
                 className="w-full"
               />
               <div className="text-center">
                 <Badge className="text-lg px-4 py-2 bg-green-100 text-green-800">
-                  Intensity: {session.intensityAfter || 3}/10
+                  Intensity: {session._intensityAfter || 3}/10
                 </Badge>
               </div>
             </div>
@@ -443,14 +443,14 @@ const CravingTimer = () => {
             <div>
               <p className="text-sm text-gray-600">Craving Reduction</p>
               <p className="text-xl font-bold text-blue-800">
-                {session.intensityBefore - (session.intensityAfter || 3)} points
+                {session.intensityBefore - (session._intensityAfter || 3)} points
               </p>
             </div>
           </div>
 
           <div className="flex gap-2">
             <Button 
-              onClick={() => handleIntensityAfter(session.intensityAfter || 3)}
+              onClick={() => handleIntensityAfter(session._intensityAfter || 3)}
               className="flex-1 bg-green-600 hover:bg-green-700"
             >
               Complete
@@ -589,7 +589,7 @@ const CravingTimer = () => {
             <div className="text-right">
               <p className="text-sm text-gray-600">Time Resisted</p>
               <p className="text-xl font-bold text-green-800">
-                {formatTime(session.duration)}
+                {formatTime(session._duration)}
               </p>
             </div>
           </div>

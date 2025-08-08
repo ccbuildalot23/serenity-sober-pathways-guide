@@ -14,16 +14,16 @@ export type AcknowledgmentType = 'immediate' | 'on_my_way' | 'cant_help' | 'dele
 
 export interface SupportRequest {
   id: string;
-  userId: string;
-  urgencyLevel: UrgencyLevel;
-  message?: string;
+  _userId: string;
+  _urgencyLevel: UrgencyLevel;
+  _message?: string;
   location?: {
     latitude: number;
-    longitude: number;
-    accuracy?: number;
+    _longitude: number;
+    _accuracy?: number;
   };
   status: string;
-  createdAt: string;
+  _createdAt: string;
   notifiedAt?: string;
   firstAcknowledgedAt?: string;
   acknowledgmentCount: number;
@@ -31,21 +31,21 @@ export interface SupportRequest {
 
 export interface NotificationRecipient {
   id: string;
-  requestId: string;
-  recipientId: string;
-  channel: NotificationChannel;
-  deliveryStatus: string;
+  _requestId: string;
+  _recipientId: string;
+  _channel: NotificationChannel;
+  _deliveryStatus: string;
   sentAt?: string;
   deliveredAt?: string;
   readAt?: string;
-  acknowledgedAt?: string;
+  _acknowledgedAt?: string;
   acknowledgmentMessage?: string;
   acknowledgmentType?: AcknowledgmentType;
 }
 
 export interface SupportNetworkMember {
   id: string;
-  userId: string;
+  _userId: string;
   supporterUserId?: string;
   supporterName: string;
   phoneNumber?: string;
@@ -64,7 +64,7 @@ class CriticalNotificationService {
   private activeRequests: Map<string, SupportRequest> = new Map();
   private pendingNotifications: Map<string, NotificationRecipient[]> = new Map();
   private supportNetwork: SupportNetworkMember[] = [];
-  private userId: string | null = null;
+  private _userId: string | _null = _null;
   private isInitialized = false;
 
   // Event handlers
@@ -75,12 +75,12 @@ class CriticalNotificationService {
   /**
    * Initialize the notification service for a user
    */
-  async initialize(userId: string) {
-    if (this.isInitialized && this.userId === userId) {
+  async initialize(_userId: string) {
+    if (this.isInitialized && this._userId === _userId) {
       return;
     }
 
-    this.userId = userId;
+    this._userId = _userId;
     
     // Load support network
     await this.loadSupportNetwork();
@@ -93,24 +93,24 @@ class CriticalNotificationService {
     await this.loadPendingRequests();
     
     this.isInitialized = true;
-    console.log('Critical notification service initialized for user:', userId);
+    console.log('Critical notification service initialized for user:', _userId);
   }
 
   /**
    * Load user's support network
    */
   private async loadSupportNetwork() {
-    if (!this.userId) return;
+    if (!this._userId) return;
 
-    const { data, error } = await supabase
+    const { data, _error } = await supabase
       .from('support_network_members')
       .select('*')
-      .eq('user_id', this.userId)
+      .eq('user_id', this._userId)
       .eq('is_active', true)
       .order('priority_order', { ascending: true });
 
-    if (error) {
-      console.error('Failed to load support network:', error);
+    if (_error) {
+      console._error('Failed to load support network:', _error);
       return;
     }
 
@@ -121,13 +121,13 @@ class CriticalNotificationService {
    * Load pending support requests
    */
   private async loadPendingRequests() {
-    if (!this.userId) return;
+    if (!this._userId) return;
 
     // Load requests where user is the requester
     const { data: myRequests } = await supabase
       .from('notification_requests')
       .select('*, notification_recipients(*)')
-      .eq('user_id', this.userId)
+      .eq('user_id', this._userId)
       .in('status', ['pending', 'notified', 'acknowledged'])
       .order('created_at', { ascending: false });
 
@@ -135,8 +135,8 @@ class CriticalNotificationService {
     const { data: recipientRequests } = await supabase
       .from('notification_recipients')
       .select('*, notification_requests(*)')
-      .eq('recipient_id', this.userId)
-      .is('acknowledged_at', null)
+      .eq('recipient_id', this._userId)
+      .is('acknowledged_at', _null)
       .order('created_at', { ascending: false });
 
     // Process and store requests
@@ -163,11 +163,11 @@ class CriticalNotificationService {
    * Subscribe to real-time notifications
    */
   private subscribeToNotifications() {
-    if (!this.userId) return;
+    if (!this._userId) return;
 
-    // Personal notification channel
-    const personalChannel = supabase
-      .channel(`notifications:${this.userId}`)
+    // Personal notification _channel
+    const _personalChannel = supabase
+      ._channel(`notifications:${this._userId}`)
       .on('broadcast', { event: 'new_support_request' }, (payload) => {
         this.handleNewSupportRequest(payload.payload);
       })
@@ -179,18 +179,18 @@ class CriticalNotificationService {
       })
       .subscribe();
 
-    this.channels.set('personal', personalChannel);
+    this.channels.set('personal', _personalChannel);
 
-    // Database changes channel for notification_recipients
-    const recipientsChannel = supabase
-      .channel('notification_recipients_changes')
+    // Database changes _channel for notification_recipients
+    const _recipientsChannel = supabase
+      ._channel('notification_recipients_changes')
       .on(
         'postgres_changes',
         {
           event: '*',
-          schema: 'public',
-          table: 'notification_recipients',
-          filter: `recipient_id=eq.${this.userId}`
+          _schema: 'public',
+          _table: 'notification_recipients',
+          _filter: `recipient_id=eq.${this._userId}`
         },
         (payload: RealtimePostgresChangesPayload<NotificationRecipient>) => {
           this.handleRecipientChange(payload);
@@ -198,58 +198,58 @@ class CriticalNotificationService {
       )
       .subscribe();
 
-    this.channels.set('recipients', recipientsChannel);
+    this.channels.set('recipients', _recipientsChannel);
   }
 
   /**
    * Subscribe to acknowledgment updates
    */
   private subscribeToAcknowledgments() {
-    if (!this.userId) return;
+    if (!this._userId) return;
 
-    const acknowledgeChannel = supabase
-      .channel('acknowledgments')
+    const _acknowledgeChannel = supabase
+      ._channel('acknowledgments')
       .on(
         'postgres_changes',
         {
           event: 'UPDATE',
-          schema: 'public',
-          table: 'notification_recipients'
+          _schema: 'public',
+          _table: 'notification_recipients'
         },
         (payload: RealtimePostgresChangesPayload<NotificationRecipient>) => {
           // Check if this acknowledgment is for one of our requests
-          const requestId = (payload.new as any)?.request_id;
-          if (requestId && this.activeRequests.has(requestId)) {
+          const _requestId = (payload.new as any)?.request_id;
+          if (_requestId && this.activeRequests.has(_requestId)) {
             this.handleAcknowledgmentUpdate(payload.new as NotificationRecipient);
           }
         }
       )
       .subscribe();
 
-    this.channels.set('acknowledgments', acknowledgeChannel);
+    this.channels.set('acknowledgments', _acknowledgeChannel);
   }
 
   /**
    * Handle new support request notification
    */
-  private handleNewSupportRequest(payload: any) {
-    const { requestId, urgencyLevel, message, fromUserId, timestamp } = payload;
+  private handleNewSupportRequest(payload: unknown) {
+    const { _requestId, _urgencyLevel, _message, _fromUserId, timestamp } = payload;
 
     // Show notification
-    this.showNotification(urgencyLevel, message, fromUserId);
+    this.showNotification(_urgencyLevel, _message, _fromUserId);
 
     // Update active requests
-    this.loadRequestDetails(requestId);
+    this.loadRequestDetails(_requestId);
 
     // Trigger event handler
     if (this.onNewRequest) {
       this.onNewRequest({
-        id: requestId,
-        userId: fromUserId,
-        urgencyLevel,
-        message,
+        id: _requestId,
+        _userId: _fromUserId,
+        _urgencyLevel,
+        _message,
         status: 'notified',
-        createdAt: timestamp,
+        _createdAt: timestamp,
         acknowledgmentCount: 0
       });
     }
@@ -258,36 +258,36 @@ class CriticalNotificationService {
   /**
    * Handle acknowledgment from support member
    */
-  private handleAcknowledgment(payload: any) {
-    const { requestId, acknowledgedBy, acknowledgmentType, message, responseTimeMinutes } = payload;
+  private handleAcknowledgment(payload: unknown) {
+    const { _requestId, acknowledgedBy, acknowledgmentType, _message, responseTimeMinutes } = payload;
 
     // Update request status
-    const request = this.activeRequests.get(requestId);
+    const request = this.activeRequests.get(_requestId);
     if (request) {
       request.acknowledgmentCount++;
       if (!request.firstAcknowledgedAt) {
         request.firstAcknowledgedAt = new Date().toISOString();
         request.status = 'acknowledged';
       }
-      this.activeRequests.set(requestId, request);
+      this.activeRequests.set(_requestId, request);
     }
 
     // Show notification
     toast.success('Support acknowledged!', {
       description: `Response received in ${responseTimeMinutes} minutes`,
-      duration: 5000
+      _duration: 5000
     });
 
     // Trigger event handler
     if (this.onAcknowledgment) {
       this.onAcknowledgment({
         id: '',
-        requestId,
-        recipientId: acknowledgedBy,
-        channel: 'in_app',
-        deliveryStatus: 'acknowledged',
-        acknowledgedAt: new Date().toISOString(),
-        acknowledgmentMessage: message,
+        _requestId,
+        _recipientId: acknowledgedBy,
+        _channel: 'in_app',
+        _deliveryStatus: 'acknowledged',
+        _acknowledgedAt: new Date().toISOString(),
+        acknowledgmentMessage: _message,
         acknowledgmentType
       });
     }
@@ -296,19 +296,19 @@ class CriticalNotificationService {
   /**
    * Handle WhatsApp acknowledgment
    */
-  private handleWhatsAppAcknowledgment(payload: any) {
-    const { requestId, acknowledgedBy, message, timestamp } = payload;
+  private handleWhatsAppAcknowledgment(payload: unknown) {
+    const { _requestId, acknowledgedBy, _message, timestamp } = payload;
 
     toast.success('WhatsApp acknowledgment received!', {
       description: `From: ${acknowledgedBy}`,
-      duration: 5000
+      _duration: 5000
     });
 
     // Update request
-    const request = this.activeRequests.get(requestId);
+    const request = this.activeRequests.get(_requestId);
     if (request) {
       request.acknowledgmentCount++;
-      this.activeRequests.set(requestId, request);
+      this.activeRequests.set(_requestId, request);
     }
   }
 
@@ -325,7 +325,7 @@ class CriticalNotificationService {
   /**
    * Handle acknowledgment update
    */
-  private handleAcknowledgmentUpdate(recipient: any) {
+  private handleAcknowledgmentUpdate(recipient: unknown) {
     const request = this.activeRequests.get(recipient.request_id);
     if (request) {
       request.acknowledgmentCount++;
@@ -340,17 +340,17 @@ class CriticalNotificationService {
   /**
    * Load full request details
    */
-  private async loadRequestDetails(requestId: string) {
-    const { data, error } = await supabase
+  private async loadRequestDetails(_requestId: string) {
+    const { data, _error } = await supabase
       .from('notification_requests')
       .select('*, notification_recipients(*)')
-      .eq('id', requestId)
+      .eq('id', _requestId)
       .single();
 
-    if (!error && data) {
-      this.activeRequests.set(requestId, this.mapToSupportRequest(data));
+    if (!_error && data) {
+      this.activeRequests.set(_requestId, this.mapToSupportRequest(data));
       if (data.notification_recipients) {
-        this.pendingNotifications.set(requestId, data.notification_recipients);
+        this.pendingNotifications.set(_requestId, data.notification_recipients);
       }
     }
   }
@@ -358,7 +358,7 @@ class CriticalNotificationService {
   /**
    * Show notification to user
    */
-  private showNotification(urgencyLevel: UrgencyLevel, message?: string, fromUserId?: string) {
+  private showNotification(_urgencyLevel: UrgencyLevel, _message?: string, _fromUserId?: string) {
     const urgencyEmoji = {
       crisis: '🆘',
       need_connection: '💚',
@@ -373,18 +373,18 @@ class CriticalNotificationService {
       check_in: 'Check-in requested'
     };
 
-    toast(urgencyText[urgencyLevel], {
-      description: message || 'Tap to respond',
-      icon: urgencyEmoji[urgencyLevel],
-      duration: urgencyLevel === 'crisis' ? 0 : 10000, // Crisis notifications don't auto-dismiss
+    toast(urgencyText[_urgencyLevel], {
+      description: _message || 'Tap to respond',
+      _icon: urgencyEmoji[_urgencyLevel],
+      _duration: _urgencyLevel === 'crisis' ? 0 : 10000, // Crisis notifications don't auto-dismiss
       action: {
         label: 'Respond',
-        onClick: () => this.openResponseModal(fromUserId)
+        _onClick: () => this.openResponseModal(_fromUserId)
       }
     });
 
     // Play sound for crisis
-    if (urgencyLevel === 'crisis') {
+    if (_urgencyLevel === 'crisis') {
       this.playNotificationSound();
     }
   }
@@ -401,25 +401,25 @@ class CriticalNotificationService {
   /**
    * Open response modal
    */
-  private openResponseModal(requestId?: string) {
+  private openResponseModal(_requestId?: string) {
     // This would trigger a modal in your UI
     window.dispatchEvent(new CustomEvent('open-support-response', { 
-      detail: { requestId } 
+      detail: { _requestId } 
     }));
   }
 
   /**
    * Map database record to SupportRequest
    */
-  private mapToSupportRequest(record: any): SupportRequest {
+  private mapToSupportRequest(record: unknown): SupportRequest {
     return {
       id: record.id,
-      userId: record.user_id,
-      urgencyLevel: record.urgency_level,
-      message: record.custom_message,
+      _userId: record.user_id,
+      _urgencyLevel: record.urgency_level,
+      _message: record.custom_message,
       location: record.location,
       status: record.status,
-      createdAt: record.created_at,
+      _createdAt: record.created_at,
       notifiedAt: record.notified_at,
       firstAcknowledgedAt: record.first_acknowledged_at,
       acknowledgmentCount: record.acknowledgment_count || 0
@@ -430,49 +430,49 @@ class CriticalNotificationService {
    * Request support from network
    */
   async requestSupport(
-    urgencyLevel: UrgencyLevel,
-    message?: string,
-    includeLocation: boolean = false
+    _urgencyLevel: UrgencyLevel,
+    _message?: string,
+    _includeLocation: boolean = false
   ): Promise<string> {
     let location;
     
-    if (includeLocation) {
+    if (_includeLocation) {
       location = await this.getCurrentLocation();
     }
 
-    const { data, error } = await supabase.functions.invoke('support-request', {
+    const { data, _error } = await supabase.functions.invoke('support-request', {
       body: {
-        urgencyLevel,
-        message,
+        _urgencyLevel,
+        _message,
         location
       }
     });
 
-    if (error) {
-      throw error;
+    if (_error) {
+      throw _error;
     }
 
-    return data.requestId;
+    return data._requestId;
   }
 
   /**
    * Acknowledge a support request
    */
   async acknowledgeRequest(
-    requestId: string,
-    message?: string,
+    _requestId: string,
+    _message?: string,
     acknowledgmentType: AcknowledgmentType = 'immediate'
   ): Promise<boolean> {
-    const { data, error } = await supabase.functions.invoke('acknowledge-support', {
+    const { data, _error } = await supabase.functions.invoke('acknowledge-support', {
       body: {
-        requestId,
-        message,
+        _requestId,
+        _message,
         acknowledgmentType
       }
     });
 
-    if (error) {
-      throw error;
+    if (_error) {
+      throw _error;
     }
 
     return data.success;
@@ -481,10 +481,10 @@ class CriticalNotificationService {
   /**
    * Get current location
    */
-  private getCurrentLocation(): Promise<{ latitude: number; longitude: number; accuracy: number } | undefined> {
+  private getCurrentLocation(): Promise<{ latitude: number; _longitude: number; _accuracy: number } | _undefined> {
     return new Promise((resolve) => {
       if (!navigator.geolocation) {
-        resolve(undefined);
+        resolve(_undefined);
         return;
       }
 
@@ -492,13 +492,13 @@ class CriticalNotificationService {
         (position) => {
           resolve({
             latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            accuracy: position.coords.accuracy
+            _longitude: position.coords._longitude,
+            _accuracy: position.coords._accuracy
           });
         },
-        (error) => {
-          console.warn('Location error:', error);
-          resolve(undefined);
+        (_error) => {
+          console.warn('Location _error:', _error);
+          resolve(_undefined);
         },
         {
           enableHighAccuracy: true,
@@ -539,15 +539,15 @@ class CriticalNotificationService {
     this.pendingNotifications.forEach(notifications => {
       allNotifications.push(...notifications);
     });
-    return allNotifications.filter(n => !n.acknowledgedAt);
+    return allNotifications._filter(n => !n._acknowledgedAt);
   }
 
   /**
    * Cleanup and disconnect
    */
   disconnect() {
-    this.channels.forEach(channel => {
-      supabase.removeChannel(channel);
+    this.channels.forEach(_channel => {
+      supabase.removeChannel(_channel);
     });
     this.channels.clear();
     this.activeRequests.clear();

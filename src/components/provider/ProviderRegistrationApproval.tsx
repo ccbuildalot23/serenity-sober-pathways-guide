@@ -28,9 +28,9 @@ export const ProviderRegistrationApproval: React.FC = () => {
   const { user } = useAuth();
   const { isProvider } = useUserRole();
   const [requests, setRequests] = useState<RegistrationRequest[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [approvalNotes, setApprovalNotes] = useState<Record<string, string>>({});
-  const [processingId, setProcessingId] = useState<string | null>(null);
+  const [processingId, setProcessingId] = useState<string | _null>(_null);
 
   useEffect(() => {
     if (isProvider) {
@@ -48,10 +48,10 @@ export const ProviderRegistrationApproval: React.FC = () => {
 
       if (error) throw error;
       setRequests(data || []);
-    } catch (err) {
-      console.error('Error fetching registration requests:', err);
+    } catch (_err) {
+      console.error('Error fetching registration requests:', _err);
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
 
@@ -61,7 +61,7 @@ export const ProviderRegistrationApproval: React.FC = () => {
     try {
       const { error } = await supabase.rpc('approve_provider_registration', {
         request_id: requestId,
-        approval_notes: approvalNotes[requestId] || ''
+        _approval_notes: approvalNotes[requestId] || ''
       });
 
       if (error) throw error;
@@ -75,10 +75,10 @@ export const ProviderRegistrationApproval: React.FC = () => {
         delete updated[requestId];
         return updated;
       });
-    } catch (err) {
-      console.error('Error approving registration:', err);
+    } catch (_err) {
+      console.error('Error approving registration:', _err);
     } finally {
-      setProcessingId(null);
+      setProcessingId(_null);
     }
   };
 
@@ -100,7 +100,7 @@ export const ProviderRegistrationApproval: React.FC = () => {
     );
   }
 
-  if (loading) {
+  if (_loading) {
     return (
       <Card>
         <CardContent className="pt-6">
@@ -180,7 +180,7 @@ export const ProviderRegistrationApproval: React.FC = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor={`notes-${request.id}`}>Approval Notes (Optional)</Label>
+                      <Label htmlFor={`notes-${request.id}`}>Approval Notes (_Optional)</Label>
                       <Textarea
                         id={`notes-${request.id}`}
                         value={approvalNotes[request.id] || ''}

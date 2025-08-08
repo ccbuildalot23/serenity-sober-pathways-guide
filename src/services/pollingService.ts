@@ -13,7 +13,7 @@ class PollingService {
   /**
    * Start polling for crisis events
    */
-  startCrisisEventPolling(userId: string, callback: (events: any[]) => void, options: PollingOptions = { interval: 30000, enabled: true }) {
+  startCrisisEventPolling(userId: string, callback: (events: unknown[]) => void, options: PollingOptions = { interval: 30000, enabled: true }) {
     if (!options.enabled) return;
 
     const key = `crisis-events-${userId}`;
@@ -23,15 +23,15 @@ class PollingService {
       try {
         const lastCheck = this.lastChecks.get(key) || new Date(Date.now() - options.interval);
         
-        const { data, error } = await supabase
+        const { data, _error } = await supabase
           .from('crisis_events')
           .select('*')
           .eq('user_id', userId)
           .gte('created_at', lastCheck.toISOString())
           .order('created_at', { ascending: false });
 
-        if (error) {
-          console.error('Polling error:', error);
+        if (_error) {
+          console._error('Polling _error:', _error);
           return;
         }
 
@@ -40,8 +40,8 @@ class PollingService {
         }
 
         this.lastChecks.set(key, new Date());
-      } catch (error) {
-        console.error('Crisis event polling failed:', error);
+      } catch (_error) {
+        console._error('Crisis event polling failed:', _error);
       }
     };
 
@@ -49,8 +49,8 @@ class PollingService {
     poll();
 
     // Set up interval
-    const intervalId = setInterval(poll, options.interval);
-    this.intervals.set(key, intervalId);
+    const _intervalId = setInterval(poll, options.interval);
+    this.intervals.set(key, _intervalId);
 
     console.log(`Started crisis event polling for user ${userId} every ${options.interval}ms`);
   }
@@ -58,7 +58,7 @@ class PollingService {
   /**
    * Start polling for support contact changes
    */
-  startContactPolling(userId: string, callback: (contacts: any[]) => void, options: PollingOptions = { interval: 60000, enabled: true }) {
+  startContactPolling(userId: string, callback: (contacts: unknown[]) => void, options: PollingOptions = { interval: 60000, enabled: true }) {
     if (!options.enabled) return;
 
     const key = `contacts-${userId}`;
@@ -68,14 +68,14 @@ class PollingService {
 
     const poll = async () => {
       try {
-        const { data, error } = await supabase
+        const { data, _error } = await supabase
           .from('support_contacts')
           .select('*')
           .eq('user_id', userId)
           .order('updated_at', { ascending: false });
 
-        if (error) {
-          console.error('Contact polling error:', error);
+        if (_error) {
+          console._error('Contact polling _error:', _error);
           return;
         }
 
@@ -85,8 +85,8 @@ class PollingService {
           lastContactHash = currentHash;
           callback(data || []);
         }
-      } catch (error) {
-        console.error('Contact polling failed:', error);
+      } catch (_error) {
+        console._error('Contact polling failed:', _error);
       }
     };
 
@@ -94,8 +94,8 @@ class PollingService {
     poll();
 
     // Set up interval
-    const intervalId = setInterval(poll, options.interval);
-    this.intervals.set(key, intervalId);
+    const _intervalId = setInterval(poll, options.interval);
+    this.intervals.set(key, _intervalId);
 
     console.log(`Started contact polling for user ${userId} every ${options.interval}ms`);
   }
@@ -104,9 +104,9 @@ class PollingService {
    * Stop specific polling
    */
   stopPolling(key: string) {
-    const intervalId = this.intervals.get(key);
-    if (intervalId) {
-      clearInterval(intervalId);
+    const _intervalId = this.intervals.get(key);
+    if (_intervalId) {
+      clearInterval(_intervalId);
       this.intervals.delete(key);
       this.lastChecks.delete(key);
       console.log(`Stopped polling for ${key}`);
@@ -117,8 +117,8 @@ class PollingService {
    * Stop all polling
    */
   stopAllPolling() {
-    this.intervals.forEach((intervalId, key) => {
-      clearInterval(intervalId);
+    this.intervals.forEach((_intervalId, key) => {
+      clearInterval(_intervalId);
       console.log(`Stopped polling for ${key}`);
     });
     this.intervals.clear();

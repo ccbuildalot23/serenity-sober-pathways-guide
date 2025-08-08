@@ -42,9 +42,9 @@ async function applySecurityFix() {
       console.log(`[${i + 1}/${statements.length}] Executing: ${preview}...`);
       
       // Execute the SQL statement using the admin client
-      const { data, error } = await supabase.rpc('exec_sql', {
+      const { error } = await supabase.rpc('exec_sql', {
         sql_query: statement
-      }).catch(async (err) => {
+      }).catch(async (_err) => {
         // If RPC doesn't exist, try direct execution through REST API
         const response = await fetch(`${supabaseUrl}/rest/v1/rpc/exec_sql`, {
           method: 'POST',
@@ -103,18 +103,19 @@ async function applySecurityFix() {
 async function checkPolicies() {
   console.log('\n🔍 Checking current RLS policies on user_roles table...\n');
   
-  const query = `
-    SELECT 
-      polname as policy_name,
-      polcmd as operation,
-      pg_get_expr(polqual, polrelid) as using_clause,
-      pg_get_expr(polwithcheck, polrelid) as with_check_clause
-    FROM pg_policy 
-    WHERE polrelid = 'user_roles'::regclass
-    ORDER BY polname;
-  `;
+  // Query for checking policies (commented out as not currently used)
+  // const query = `
+  //   SELECT 
+  //     polname as policy_name,
+  //     polcmd as operation,
+  //     pg_get_expr(polqual, polrelid) as using_clause,
+  //     pg_get_expr(polwithcheck, polrelid) as with_check_clause
+  //   FROM pg_policy 
+  //   WHERE polrelid = 'user_roles'::regclass
+  //   ORDER BY polname;
+  // `;
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('user_roles')
     .select('*')
     .limit(0); // Just to test connection

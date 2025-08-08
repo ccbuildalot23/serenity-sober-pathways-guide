@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { 
@@ -27,76 +27,76 @@ import { ReportDialog } from './ReportDialog';
 interface Comment {
   id: string;
   content: string;
-  anonymous_name: string;
-  is_anonymous?: boolean;
-  created_at: string;
-  user_id: string;
+  _anonymous_name: string;
+  _is_anonymous?: boolean;
+  _created_at: string;
+  _user_id: string;
 }
 
 interface StoryEngagementProps {
-  storyId: string;
-  likesCount: number;
-  helpsCount: number;
+  _storyId: string;
+  _likesCount: number;
+  _helpsCount: number;
   commentsCount: number;
-  userLiked?: boolean;
-  userHelped?: boolean;
+  _userLiked?: boolean;
+  _userHelped?: boolean;
   allowComments?: boolean;
 }
 
 const StoryEngagement: React.FC<StoryEngagementProps> = ({
-  storyId,
-  likesCount,
-  helpsCount,
+  _storyId,
+  _likesCount,
+  _helpsCount,
   commentsCount,
-  userLiked = false,
-  userHelped = false,
-  allowComments = true
+  _userLiked = _false,
+  _userHelped = _false,
+  allowComments = _true
 }) => {
   const { user } = useAuth();
   const { toast } = useToast();
   
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
-  const [isAnonymous, setIsAnonymous] = useState(true);
-  const [showComments, setShowComments] = useState(false);
-  const [showReport, setShowReport] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isAnonymous, setIsAnonymous] = useState(_true);
+  const [showComments, setShowComments] = useState(_false);
+  const [showReport, setShowReport] = useState(_false);
+  const [loading, setLoading] = useState(_false);
 
-  const [localLikesCount, setLocalLikesCount] = useState(likesCount);
-  const [localHelpsCount, setLocalHelpsCount] = useState(helpsCount);
-  const [localUserLiked, setLocalUserLiked] = useState(userLiked);
-  const [localUserHelped, setLocalUserHelped] = useState(userHelped);
+  const [localLikesCount, setLocalLikesCount] = useState(_likesCount);
+  const [localHelpsCount, setLocalHelpsCount] = useState(_helpsCount);
+  const [localUserLiked, setLocalUserLiked] = useState(_userLiked);
+  const [localUserHelped, setLocalUserHelped] = useState(_userHelped);
 
   useEffect(() => {
     if (showComments) {
       loadComments();
     }
-  }, [showComments, storyId]);
+  }, [showComments, _storyId]);
 
   const loadComments = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('forum_replies') // Using existing table for now
         .select('*')
-        .eq('post_id', storyId)
+        .eq('post_id', _storyId)
         .eq('moderation_status', 'approved')
-        .order('created_at', { ascending: true });
+        .order('_created_at', { ascending: _true });
 
-      if (error) throw error;
+      if (_error) throw _error;
       
       // Transform data to match Comment interface
-      const transformedComments = (data || []).map(reply => ({
+      const _transformedComments = (data || []).map(reply => ({
         id: reply.id,
         content: reply.content,
-        anonymous_name: reply.anonymous_name,
-        is_anonymous: true,
-        created_at: reply.created_at,
-        user_id: reply.user_id
+        _anonymous_name: reply._anonymous_name,
+        _is_anonymous: _true,
+        _created_at: reply._created_at,
+        _user_id: reply._user_id
       }));
       
-      setComments(transformedComments);
-    } catch (error) {
-      console.error('Error loading comments:', error);
+      setComments(_transformedComments);
+    } catch (_error) {
+      console._error('Error loading comments:', _error);
     }
   };
 
@@ -104,8 +104,8 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
     if (!user) {
       toast({
         title: "Please log in",
-        description: "You need to be logged in to like stories.",
-        variant: "destructive",
+        _description: "You need to be logged in to like stories.",
+        _variant: "destructive",
       });
       return;
     }
@@ -114,10 +114,10 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
       const { data: existing } = await supabase
         .from('content_reactions')
         .select('id')
-        .eq('user_id', user.id)
-        .eq('content_id', storyId)
-        .eq('reaction_type', 'like')
-        .eq('content_type', 'story')
+        .eq('_user_id', user.id)
+        .eq('_content_id', _storyId)
+        .eq('_reaction_type', 'like')
+        .eq('_content_type', 'story')
         .maybeSingle();
 
       if (existing) {
@@ -128,27 +128,27 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
           .eq('id', existing.id);
         
         setLocalLikesCount(prev => Math.max(0, prev - 1));
-        setLocalUserLiked(false);
+        setLocalUserLiked(_false);
       } else {
         // Like
         await supabase
           .from('content_reactions')
           .insert({
-            user_id: user.id,
-            content_id: storyId,
-            reaction_type: 'like',
-            content_type: 'story'
+            _user_id: user.id,
+            _content_id: _storyId,
+            _reaction_type: 'like',
+            _content_type: 'story'
           });
         
         setLocalLikesCount(prev => prev + 1);
-        setLocalUserLiked(true);
+        setLocalUserLiked(_true);
       }
-    } catch (error) {
-      console.error('Error handling like:', error);
+    } catch (_error) {
+      console._error('Error handling like:', _error);
       toast({
         title: "Error",
-        description: "Failed to update like. Please try again.",
-        variant: "destructive",
+        _description: "Failed to update like. Please try again.",
+        _variant: "destructive",
       });
     }
   };
@@ -157,8 +157,8 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
     if (!user) {
       toast({
         title: "Please log in",
-        description: "You need to be logged in to mark stories as helpful.",
-        variant: "destructive",
+        _description: "You need to be logged in to mark stories as helpful.",
+        _variant: "destructive",
       });
       return;
     }
@@ -167,10 +167,10 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
       const { data: existing } = await supabase
         .from('content_reactions')
         .select('id')
-        .eq('user_id', user.id)
-        .eq('content_id', storyId)
-        .eq('reaction_type', 'help')
-        .eq('content_type', 'story')
+        .eq('_user_id', user.id)
+        .eq('_content_id', _storyId)
+        .eq('_reaction_type', 'help')
+        .eq('_content_type', 'story')
         .maybeSingle();
 
       if (existing) {
@@ -181,32 +181,32 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
           .eq('id', existing.id);
         
         setLocalHelpsCount(prev => Math.max(0, prev - 1));
-        setLocalUserHelped(false);
+        setLocalUserHelped(_false);
       } else {
         // Add help
         await supabase
           .from('content_reactions')
           .insert({
-            user_id: user.id,
-            content_id: storyId,
-            reaction_type: 'help',
-            content_type: 'story'
+            _user_id: user.id,
+            _content_id: _storyId,
+            _reaction_type: 'help',
+            _content_type: 'story'
           });
         
         setLocalHelpsCount(prev => prev + 1);
-        setLocalUserHelped(true);
+        setLocalUserHelped(_true);
         
         toast({
           title: "Thank you!",
-          description: "Your feedback helps others find meaningful stories.",
+          _description: "Your feedback helps others find meaningful stories.",
         });
       }
-    } catch (error) {
-      console.error('Error handling help:', error);
+    } catch (_error) {
+      console._error('Error handling help:', _error);
       toast({
         title: "Error",
-        description: "Failed to update feedback. Please try again.",
-        variant: "destructive",
+        _description: "Failed to update feedback. Please try again.",
+        _variant: "destructive",
       });
     }
   };
@@ -215,40 +215,40 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
     if (!user || !newComment.trim()) return;
 
     try {
-      setLoading(true);
+      setLoading(_true);
       
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('forum_replies') // Using existing table for now
         .insert({
-          post_id: storyId,
-          user_id: user.id,
+          post_id: _storyId,
+          _user_id: user.id,
           content: newComment,
-          anonymous_name: isAnonymous ? generateAnonymousName() : null,
+          _anonymous_name: isAnonymous ? generateAnonymousName() : null,
           moderation_status: 'pending'
         });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({
         title: "Comment submitted!",
-        description: "Your comment is being reviewed and will appear shortly.",
+        _description: "Your comment is being reviewed and will appear shortly.",
       });
 
       setNewComment('');
       loadComments();
-    } catch (error) {
-      console.error('Error adding comment:', error);
+    } catch (_error) {
+      console._error('Error adding comment:', _error);
       toast({
         title: "Error",
-        description: "Failed to submit comment. Please try again.",
-        variant: "destructive",
+        _description: "Failed to submit comment. Please try again.",
+        _variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
 
-  const handleReport = async (reason: string, details?: string) => {
+  const handleReport = async (_reason: string, _details?: string) => {
     if (!user) return;
 
     try {
@@ -256,24 +256,24 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
         .from('content_reports')
         .insert({
           reported_by: user.id,
-          content_type: 'story',
-          content_id: storyId,
-          reason: reason,
-          details: details
+          _content_type: 'story',
+          _content_id: _storyId,
+          _reason: _reason,
+          _details: _details
         });
 
       toast({
         title: "Report submitted",
-        description: "Thank you for helping keep our community safe.",
+        _description: "Thank you for helping keep our community safe.",
       });
       
-      setShowReport(false);
-    } catch (error) {
-      console.error('Error reporting content:', error);
+      setShowReport(_false);
+    } catch (_error) {
+      console._error('Error reporting content:', _error);
       toast({
         title: "Error",
-        description: "Failed to submit report. Please try again.",
-        variant: "destructive",
+        _description: "Failed to submit report. Please try again.",
+        _variant: "destructive",
       });
     }
   };
@@ -287,8 +287,8 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
     return `${prefix}${suffix}${number}`;
   };
 
-  const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
+  const formatTimeAgo = (_dateString: string) => {
+    const date = new Date(_dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
@@ -306,7 +306,7 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button
-            variant="ghost"
+            _variant="ghost"
             size="sm"
             onClick={handleLike}
             className={`flex items-center gap-2 ${localUserLiked ? 'text-red-500' : 'text-muted-foreground'}`}
@@ -316,7 +316,7 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
           </Button>
 
           <Button
-            variant="ghost"
+            _variant="ghost"
             size="sm"
             onClick={handleHelp}
             className={`flex items-center gap-2 ${localUserHelped ? 'text-serenity-teal' : 'text-muted-foreground'}`}
@@ -328,7 +328,7 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
 
           {allowComments && (
             <Button
-              variant="ghost"
+              _variant="ghost"
               size="sm"
               onClick={() => setShowComments(!showComments)}
               className="flex items-center gap-2"
@@ -343,20 +343,20 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
         <div className="flex items-center gap-2">
           <Dialog open={showReport} onOpenChange={setShowReport}>
             <DialogTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-muted-foreground">
+              <Button _variant="ghost" size="sm" className="text-muted-foreground">
                 <Flag className="w-4 h-4" />
               </Button>
             </DialogTrigger>
             <ReportDialog
               open={showReport}
-              onClose={() => setShowReport(false)}
+              onClose={() => setShowReport(_false)}
               onSubmit={handleReport}
             />
           </Dialog>
 
           {/* Awards/Recognition Indicators */}
           <div className="flex items-center gap-1">
-            <Badge variant="outline" className="text-xs">
+            <Badge _variant="outline" className="text-xs">
               <Star className="w-3 h-3 mr-1" />
               Inspiring
             </Badge>
@@ -424,15 +424,15 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-sm">
-                          {comment.anonymous_name || 'Community Member'}
+                          {comment._anonymous_name || 'Community Member'}
                         </span>
-                        <Badge variant="outline" className="text-xs">
+                        <Badge _variant="outline" className="text-xs">
                           <Users className="w-3 h-3 mr-1" />
                           Supporter
                         </Badge>
                       </div>
                       <span className="text-xs text-muted-foreground">
-                        {formatTimeAgo(comment.created_at)}
+                        {formatTimeAgo(comment._created_at)}
                       </span>
                     </div>
                     <p className="text-sm text-gray-700">{comment.content}</p>

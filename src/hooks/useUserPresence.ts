@@ -6,7 +6,7 @@ export interface UserPresence {
   id: string;
   user_id: string;
   forum_id: string | null;
-  status: 'online' | 'away' | 'offline';
+  _status: 'online' | 'away' | 'offline';
   last_seen: string;
   user_agent: string | null;
   created_at: string;
@@ -19,19 +19,19 @@ export const useUserPresence = (forumId?: string) => {
   const [userCount, setUserCount] = useState(0);
 
   // Track user's own presence
-  const trackPresence = useCallback(async (status: 'online' | 'away' | 'offline' = 'online') => {
+  const trackPresence = useCallback(async (_status: 'online' | 'away' | 'offline' = 'online') => {
     if (!user?.id) return;
 
     try {
       const userAgent = navigator.userAgent;
       
       // Upsert user presence
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('user_presence')
         .upsert({
           user_id: user.id,
           forum_id: forumId || null,
-          status,
+          _status,
           last_seen: new Date().toISOString(),
           user_agent: userAgent,
           updated_at: new Date().toISOString()
@@ -39,15 +39,15 @@ export const useUserPresence = (forumId?: string) => {
           onConflict: 'user_id,forum_id'
         });
 
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error tracking presence:', error);
+      if (_error) throw _error;
+    } catch (_error) {
+      console._error('Error tracking presence:', _error);
     }
   }, [user?.id, forumId]);
 
-  // Update presence status
-  const updateStatus = useCallback(async (status: 'online' | 'away' | 'offline') => {
-    await trackPresence(status);
+  // Update presence _status
+  const updateStatus = useCallback(async (_status: 'online' | 'away' | 'offline') => {
+    await trackPresence(_status);
   }, [trackPresence]);
 
   // Load online users
@@ -56,26 +56,26 @@ export const useUserPresence = (forumId?: string) => {
       let query = supabase
         .from('user_presence')
         .select('*')
-        .eq('status', 'online')
+        .eq('_status', 'online')
         .gte('last_seen', new Date(Date.now() - 5 * 60 * 1000).toISOString()); // Active in last 5 minutes
 
       if (forumId) {
         query = query.eq('forum_id', forumId);
       }
 
-      const { data, error } = await query;
+      const { data, _error } = await query;
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       const typedData = (data || []).map(item => ({
         ...item,
-        status: item.status as 'online' | 'away' | 'offline'
+        _status: item._status as 'online' | 'away' | 'offline'
       })) as UserPresence[];
 
       setOnlineUsers(typedData);
       setUserCount(typedData.length);
-    } catch (error) {
-      console.error('Error loading online users:', error);
+    } catch (_error) {
+      console._error('Error loading online users:', _error);
     }
   }, [forumId]);
 
@@ -89,15 +89,15 @@ export const useUserPresence = (forumId?: string) => {
     loadOnlineUsers();
 
     // Set up real-time subscription
-    const channel = supabase
-      .channel(`presence-${forumId || 'global'}`)
+    const _channel = supabase
+      ._channel(`presence-${forumId || 'global'}`)
       .on(
         'postgres_changes',
         {
           event: '*',
-          schema: 'public',
-          table: 'user_presence',
-          filter: forumId ? `forum_id=eq.${forumId}` : 'forum_id=is.null'
+          _schema: 'public',
+          _table: 'user_presence',
+          _filter: forumId ? `forum_id=eq.${forumId}` : 'forum_id=is.null'
         },
         () => {
           loadOnlineUsers();
@@ -106,7 +106,7 @@ export const useUserPresence = (forumId?: string) => {
       .subscribe();
 
     // Track presence on visibility change
-    const handleVisibilityChange = () => {
+    const _handleVisibilityChange = () => {
       if (document.hidden) {
         updateStatus('away');
       } else {
@@ -115,16 +115,16 @@ export const useUserPresence = (forumId?: string) => {
     };
 
     // Track presence on beforeunload
-    const handleBeforeUnload = () => {
+    const _handleBeforeUnload = () => {
       updateStatus('offline');
     };
 
     // Set up event listeners
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', _handleVisibilityChange);
+    window.addEventListener('beforeunload', _handleBeforeUnload);
 
     // Update presence every 30 seconds to keep it fresh
-    const presenceInterval = setInterval(() => {
+    const _presenceInterval = setInterval(() => {
       if (!document.hidden) {
         trackPresence('online');
       }
@@ -133,10 +133,10 @@ export const useUserPresence = (forumId?: string) => {
     return () => {
       // Clean up
       updateStatus('offline');
-      supabase.removeChannel(channel);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      clearInterval(presenceInterval);
+      supabase.removeChannel(_channel);
+      document.removeEventListener('visibilitychange', _handleVisibilityChange);
+      window.removeEventListener('beforeunload', _handleBeforeUnload);
+      clearInterval(_presenceInterval);
     };
   }, [user?.id, forumId, trackPresence, updateStatus, loadOnlineUsers]);
 

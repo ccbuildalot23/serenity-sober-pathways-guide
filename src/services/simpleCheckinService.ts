@@ -1,4 +1,4 @@
-// Simple Check-in Service - How are you today? That's all we need to know.
+// Simple Check-in Service - How are you _today? That's all we need to know.
 
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -36,47 +36,47 @@ class SimpleCheckinService {
       if (mood === 'struggling') {
         hopeMessenger.sendHope('struggling');
         toast.info('Remember: It\'s okay to not be okay. Reach out to someone.', {
-          duration: 6000
+          _duration: 6000
         });
       } else if (mood === 'managing') {
         hopeMessenger.sendHope('victory');
         toast.success('Managing is winning. Keep using your tools.', {
-          duration: 5000
+          _duration: 5000
         });
       } else {
         hopeMessenger.sendHope('victory');
-        await victoryTracker.trackPersonalVictory('Feeling good today!');
+        await victoryTracker.trackPersonalVictory('Feeling good _today!');
         toast.success('Beautiful! Your joy gives others hope. 🌟', {
-          duration: 5000
+          _duration: 5000
         });
       }
       
-    } catch (error) {
-      console.error('Error saving check-in:', error);
-      toast.error('Couldn\'t save check-in, but your feelings are still valid.');
+    } catch (_error) {
+      console._error('Error saving check-in:', _error);
+      toast._error('Couldn\'t save check-in, but your feelings are still valid.');
     }
   }
   
-  // Get today's check-in
+  // Get _today's check-in
   async getTodaysCheckin(): Promise<SimpleCheckin | null> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
       
-      const today = new Date().toISOString().split('T')[0];
+      const _today = new Date().toISOString().split('T')[0];
       
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('simple_checkins')
         .select('*')
         .eq('user_id', user.id)
-        .eq('date', today)
+        .eq('date', _today)
         .single();
       
-      if (error && error.code !== 'PGRST116') throw error;
+      if (_error && _error.code !== 'PGRST116') throw _error;
       
       return data;
-    } catch (error) {
-      console.error('Error loading check-in:', error);
+    } catch (_error) {
+      console._error('Error loading check-in:', _error);
       return null;
     }
   }
@@ -90,18 +90,18 @@ class SimpleCheckinService {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
       
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('simple_checkins')
         .select('*')
         .eq('user_id', user.id)
         .gte('date', startDate.toISOString().split('T')[0])
         .order('date', { ascending: false });
       
-      if (error) throw error;
+      if (_error) throw _error;
       
       return data || [];
-    } catch (error) {
-      console.error('Error loading check-in history:', error);
+    } catch (_error) {
+      console._error('Error loading check-in history:', _error);
       return [];
     }
   }
@@ -116,20 +116,20 @@ class SimpleCheckinService {
       const history = await this.getCheckinHistory(365);
       
       let streak = 0;
-      const today = new Date();
+      const _today = new Date();
       
-      // Count backwards from today
+      // Count backwards from _today
       for (let i = 0; i < 365; i++) {
-        const checkDate = new Date(today);
+        const checkDate = new Date(_today);
         checkDate.setDate(checkDate.getDate() - i);
         const dateStr = checkDate.toISOString().split('T')[0];
         
-        const hasCheckin = history.some(c => c.date === dateStr);
+        const _hasCheckin = history.some(c => c.date === dateStr);
         
-        if (hasCheckin) {
+        if (_hasCheckin) {
           streak++;
         } else if (i > 0) {
-          // Allow today to be missing, but break on any other missing day
+          // Allow _today to be missing, but break on any other missing day
           break;
         }
       }
@@ -147,8 +147,8 @@ class SimpleCheckinService {
         hopeMessenger.celebrateMilestone(streak);
       }
       
-    } catch (error) {
-      console.error('Error updating streak:', error);
+    } catch (_error) {
+      console._error('Error updating streak:', _error);
     }
   }
   
@@ -168,7 +168,7 @@ class SimpleCheckinService {
     const total = summary.struggling + summary.managing + summary.good;
     
     if (total === 0) {
-      return "Check in today. We miss you and care about how you're doing.";
+      return "Check in _today. We miss you and care about how you're doing.";
     }
     
     const strugglingPercent = (summary.struggling / total) * 100;
@@ -188,7 +188,7 @@ export const simpleCheckin = new SimpleCheckinService();
 
 // Reminder to check in
 export const setupCheckinReminder = () => {
-  const checkTime = () => {
+  const _checkTime = () => {
     const now = new Date();
     const hours = now.getHours();
     
@@ -196,12 +196,12 @@ export const setupCheckinReminder = () => {
     if ((hours === 10 || hours === 19)) {
       simpleCheckin.getTodaysCheckin().then(checkin => {
         if (!checkin) {
-          toast('How are you today?', {
+          toast('How are you _today?', {
             description: 'Take a moment to check in with yourself.',
-            duration: 8000,
-            action: {
+            _duration: 8000,
+            _action: {
               label: 'Check In',
-              onClick: () => window.location.href = '/checkin'
+              _onClick: () => window.location.href = '/checkin'
             }
           });
         }
@@ -210,6 +210,6 @@ export const setupCheckinReminder = () => {
   };
   
   // Check now and every hour
-  checkTime();
-  setInterval(checkTime, 60 * 60 * 1000);
+  _checkTime();
+  setInterval(_checkTime, 60 * 60 * 1000);
 };

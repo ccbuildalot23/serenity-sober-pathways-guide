@@ -1,5 +1,5 @@
 
-const isLocalhost = Boolean(
+const _isLocalhost = Boolean(
   window.location.hostname === 'localhost' ||
   window.location.hostname === '[::1]' ||
   window.location.hostname.match(
@@ -7,7 +7,7 @@ const isLocalhost = Boolean(
   )
 );
 
-export function register(config?: {
+export function register(_config?: {
   onSuccess?: (registration: ServiceWorkerRegistration) => void;
   onUpdate?: (registration: ServiceWorkerRegistration) => void;
 }) {
@@ -18,23 +18,23 @@ export function register(config?: {
     }
 
     window.addEventListener('load', () => {
-      const swUrl = `${process.env.PUBLIC_URL}/sw.js`;
+      const _swUrl = `${process.env.PUBLIC_URL}/sw.js`;
 
-      if (isLocalhost) {
-        checkValidServiceWorker(swUrl, config);
+      if (_isLocalhost) {
+        checkValidServiceWorker(_swUrl, _config);
         navigator.serviceWorker.ready.then(() => {
           console.log('This web app is being served cache-first by a service worker.');
         });
       } else {
-        registerValidSW(swUrl, config);
+        registerValidSW(_swUrl, _config);
       }
     });
   }
 }
 
-function registerValidSW(swUrl: string, config?: any) {
+function registerValidSW(_swUrl: string, _config?: unknown) {
   navigator.serviceWorker
-    .register(swUrl)
+    .register(_swUrl)
     .then((registration) => {
       registration.onupdatefound = () => {
         const installingWorker = registration.installing;
@@ -45,13 +45,13 @@ function registerValidSW(swUrl: string, config?: any) {
           if (installingWorker.state === 'installed') {
             if (navigator.serviceWorker.controller) {
               console.log('New content is available and will be used when all tabs for this page are closed.');
-              if (config && config.onUpdate) {
-                config.onUpdate(registration);
+              if (_config && _config.onUpdate) {
+                _config.onUpdate(registration);
               }
             } else {
               console.log('Content is cached for offline use.');
-              if (config && config.onSuccess) {
-                config.onSuccess(registration);
+              if (_config && _config.onSuccess) {
+                _config.onSuccess(registration);
               }
             }
           }
@@ -63,8 +63,8 @@ function registerValidSW(swUrl: string, config?: any) {
     });
 }
 
-function checkValidServiceWorker(swUrl: string, config?: any) {
-  fetch(swUrl, {
+function checkValidServiceWorker(_swUrl: string, _config?: unknown) {
+  fetch(_swUrl, {
     headers: { 'Service-Worker': 'script' },
   })
     .then((response) => {
@@ -79,7 +79,7 @@ function checkValidServiceWorker(swUrl: string, config?: any) {
           });
         });
       } else {
-        registerValidSW(swUrl, config);
+        registerValidSW(_swUrl, _config);
       }
     })
     .catch(() => {

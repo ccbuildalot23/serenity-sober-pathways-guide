@@ -5,7 +5,7 @@ import { AlertTriangle, Phone, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 const CrisisContactManager: React.FC = () => {
-  const [crisisContacts, setCrisisContacts] = React.useState<any[]>([]);
+  const [crisisContacts, setCrisisContacts] = React.useState<unknown[]>([]);
 
   React.useEffect(() => {
     const saved = localStorage.getItem('crisis-contacts');

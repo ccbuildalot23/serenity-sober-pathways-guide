@@ -8,30 +8,30 @@ import { StoryPlayer } from './components/StoryPlayer';
 import { ReflectionPrompt } from './components/ReflectionPrompt';
 
 interface PlayTheTapeModalProps {
-  userData: UserData;
+  _userData: UserData;
   onClose: () => void;
 }
 
 export const PlayTheTapeModal: React.FC<PlayTheTapeModalProps> = ({ 
-  userData, 
+  _userData, 
   onClose 
 }) => {
   const [stage, setStage] = useState<'warning' | 'story' | 'reflection'>('warning');
   const [story, setStory] = useState<GeneratedStory | null>(null);
-  const [audioEnabled, setAudioEnabled] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(_true);
+  const [loading, setLoading] = useState(_false);
   
   const handleProceed = async () => {
-    setLoading(true);
+    setLoading(_true);
     try {
-      const generatedStory = await generateRelapseStory(userData);
-      setStory(generatedStory);
+      const _generatedStory = await generateRelapseStory(_userData);
+      setStory(_generatedStory);
       setStage('story');
     } catch (error) {
       console.error('Failed to generate story:', error);
       // TODO: Show error state
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
   

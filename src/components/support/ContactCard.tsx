@@ -4,9 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Phone, MessageSquare, Trash2, User } from 'lucide-react';
 
 interface ContactCardProps {
-  contact: any;
-  onCall: (contact: any) => void;
-  onMessage: (contact: any) => void;
+  contact: unknown;
+  onCall: (contact: unknown) => void;
+  onMessage: (contact: unknown) => void;
   onDelete: (id: string) => void;
 }
 

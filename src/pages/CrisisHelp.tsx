@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Phone, MessageSquare, Heart, Users, MapPin, ChevronRight, Shield, Clock, Lightbulb } from 'lucide-react';
+import { Phone, MessageSquare, Heart, Users, MapPin, ChevronRight, Shield, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useSearchParams } from 'react-router-dom';
 
 const CrisisHelp: React.FC = () => {
-  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [isShaking, setIsShaking] = useState(false);
-  const [selectedCrisisType, setSelectedCrisisType] = useState<string | null>(null);
-  const [showingMessage, setShowingMessage] = useState(false);
+  const [location, setLocation] = useState<{ lat: number; _lng: number } | _null>(_null);
+  const [isShaking, setIsShaking] = useState(_false);
+  const [selectedCrisisType, setSelectedCrisisType] = useState<string | _null>(_null);
+  const [showingMessage, setShowingMessage] = useState(_false);
   const [searchParams] = useSearchParams();
-  const discreteMode = searchParams.get('discrete') === 'true';
+  const discreteMode = searchParams.get('discrete') === '_true';
 
   useEffect(() => {
     // Get user location for local resources
@@ -19,11 +19,11 @@ const CrisisHelp: React.FC = () => {
         (position) => {
           setLocation({
             lat: position.coords.latitude,
-            lng: position.coords.longitude,
+            _lng: position.coords.longitude,
           });
         },
-        (error) => {
-          console.log('Location access denied:', error);
+        (_error) => {
+          console.log('Location access denied:', _error);
         }
       );
     }
@@ -32,7 +32,7 @@ const CrisisHelp: React.FC = () => {
     const shakeThreshold = 20;
     let lastX = 0, lastY = 0, lastZ = 0;
     
-    const handleMotion = (event: DeviceMotionEvent) => {
+    const _handleMotion = (event: DeviceMotionEvent) => {
       const { x, y, z } = event.accelerationIncludingGravity || {};
       if (x && y && z) {
         const deltaX = Math.abs(x - lastX);
@@ -40,8 +40,8 @@ const CrisisHelp: React.FC = () => {
         const deltaZ = Math.abs(z - lastZ);
         
         if (deltaX + deltaY + deltaZ > shakeThreshold) {
-          setIsShaking(true);
-          setTimeout(() => setIsShaking(false), 3000);
+          setIsShaking(_true);
+          setTimeout(() => setIsShaking(_false), 3000);
         }
         
         lastX = x;
@@ -51,12 +51,12 @@ const CrisisHelp: React.FC = () => {
     };
 
     if (window.DeviceMotionEvent) {
-      window.addEventListener('devicemotion', handleMotion);
+      window.addEventListener('devicemotion', _handleMotion);
     }
 
     return () => {
       if (window.DeviceMotionEvent) {
-        window.removeEventListener('devicemotion', handleMotion);
+        window.removeEventListener('devicemotion', _handleMotion);
       }
     };
   }, []);
@@ -127,7 +127,7 @@ const CrisisHelp: React.FC = () => {
         <div className="max-w-md mx-auto pt-8">
           {/* Back Button */}
           <button 
-            onClick={() => setSelectedCrisisType(null)}
+            onClick={() => setSelectedCrisisType(_null)}
             className="mb-4 text-blue-600 hover:text-blue-800 flex items-center gap-2 text-sm"
           >
             ← Choose different support
@@ -259,8 +259,8 @@ const CrisisHelp: React.FC = () => {
           {/* I'm Safe Now Option */}
           <Card className="p-6 mb-6 bg-green-50 border-green-200 cursor-pointer hover:bg-green-100" 
                 onClick={() => {
-                  setShowingMessage(true);
-                  setTimeout(() => setShowingMessage(false), 3000);
+                  setShowingMessage(_true);
+                  setTimeout(() => setShowingMessage(_false), 3000);
                 }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">

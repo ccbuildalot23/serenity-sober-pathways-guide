@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Progress } from '@/components/ui/progress';
 import { 
   TreePine,
   TrendingDown,
@@ -38,8 +36,8 @@ interface Consequence {
 interface PersonalGoal {
   id: string;
   title: string;
-  category: 'health' | 'relationships' | 'career' | 'financial' | 'personal';
-  description: string;
+  _category: 'health' | 'relationships' | 'career' | 'financial' | 'personal';
+  _description: string;
 }
 
 interface DecisionPath {
@@ -52,51 +50,51 @@ const PlayingItForward = () => {
   const { user } = useAuth();
   const { handleCrisisActivated } = useCrisisSystem();
   
-  const [currentPath, setCurrentPath] = useState<'using' | 'staying_clean' | null>(null);
+  const [currentPath, setCurrentPath] = useState<'using' | 'staying_clean' | _null>(_null);
   const [timeframe, setTimeframe] = useState<'immediate' | 'oneDay' | 'oneWeek' | 'oneMonth'>('immediate');
   const [userGoals, setUserGoals] = useState<PersonalGoal[]>([]);
-  const [showGoalSelection, setShowGoalSelection] = useState(true);
+  const [_showGoalSelection, setShowGoalSelection] = useState(_true);
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
   const [decisionPaths, setDecisionPaths] = useState<Record<string, DecisionPath>>({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(_false);
 
   // Default goals if user hasn't set any
-  const defaultGoals: PersonalGoal[] = [
+  const _defaultGoals: PersonalGoal[] = [
     {
       id: '1',
       title: 'Rebuild Trust with Family',
-      category: 'relationships',
-      description: 'Repair damaged relationships and create healthy bonds'
+      _category: 'relationships',
+      _description: 'Repair damaged relationships and create healthy bonds'
     },
     {
       id: '2',
       title: 'Advance My Career',
-      category: 'career',
-      description: 'Get promoted or find meaningful work'
+      _category: 'career',
+      _description: 'Get promoted or find meaningful work'
     },
     {
       id: '3',
       title: 'Improve Physical Health',
-      category: 'health',
-      description: 'Feel strong, energetic, and healthy'
+      _category: 'health',
+      _description: 'Feel strong, energetic, and healthy'
     },
     {
       id: '4',
       title: 'Financial Stability',
-      category: 'financial',
-      description: 'Save money and pay off debts'
+      _category: 'financial',
+      _description: 'Save money and pay off debts'
     },
     {
       id: '5',
       title: 'Find Inner Peace',
-      category: 'personal',
-      description: 'Feel calm, centered, and proud of myself'
+      _category: 'personal',
+      _description: 'Feel calm, centered, and proud of myself'
     },
     {
       id: '6',
       title: 'Help Others in Recovery',
-      category: 'personal',
-      description: 'Become someone others can look up to'
+      _category: 'personal',
+      _description: 'Become someone others can look up to'
     }
   ];
 
@@ -125,21 +123,21 @@ const PlayingItForward = () => {
         const goals: PersonalGoal[] = data.map(goal => ({
           id: goal.id,
           title: goal.title,
-          category: goal.category as any,
-          description: goal.description || ''
+          _category: goal._category as any,
+          _description: goal._description || ''
         }));
         setUserGoals(goals);
       } else {
-        setUserGoals(defaultGoals);
+        setUserGoals(_defaultGoals);
       }
     } catch (error) {
       // Log security event for PHI access error
       await EnhancedSecurityAuditService.logSecurityEvent({
         action: 'RECOVERY_GOALS_ACCESS_ERROR',
-        details: { error_type: 'database_error' },
-        severity: 'medium'
+        _details: { error_type: 'database_error' },
+        _severity: 'medium'
       });
-      setUserGoals(defaultGoals);
+      setUserGoals(_defaultGoals);
     }
   };
 
@@ -233,19 +231,19 @@ const PlayingItForward = () => {
       return;
     }
     
-    const relevantGoals = userGoals.filter(g => selectedGoals.includes(g.id));
+    const _relevantGoals = userGoals.filter(g => selectedGoals.includes(g.id));
     
     // Generate both paths
     const usingPath: DecisionPath = {
       choice: 'using',
-      consequences: generateConsequences('using', relevantGoals),
-      completed: false
+      consequences: generateConsequences('using', _relevantGoals),
+      completed: _false
     };
     
     const stayingCleanPath: DecisionPath = {
       choice: 'staying_clean', 
-      consequences: generateConsequences('staying_clean', relevantGoals),
-      completed: false
+      consequences: generateConsequences('staying_clean', _relevantGoals),
+      completed: _false
     };
     
     setDecisionPaths({
@@ -253,7 +251,7 @@ const PlayingItForward = () => {
       staying_clean: stayingCleanPath
     });
     
-    setShowGoalSelection(false);
+    setShowGoalSelection(_false);
   };
 
   const selectPath = async (path: 'using' | 'staying_clean') => {
@@ -262,8 +260,8 @@ const PlayingItForward = () => {
     // If they're exploring the "using" path and it's a high-risk moment
     if (path === 'using') {
       toast.warning('Remember: This is just an exercise', {
-        description: 'You\'re exploring consequences, not making the choice',
-        duration: 4000
+        _description: 'You\'re exploring consequences, not making the choice',
+        _duration: 4000
       });
       
       // Validate and save vulnerable moment
@@ -276,9 +274,9 @@ const PlayingItForward = () => {
           .from('playing_forward_sessions')
           .insert({
             user_id: user.id,
-            selected_goals: sanitizedGoals,
-            path_explored: path,
-            is_vulnerable: true
+            _selected_goals: sanitizedGoals,
+            _path_explored: path,
+            _is_vulnerable: _true
           })
           .select('id')
           .single();
@@ -287,19 +285,19 @@ const PlayingItForward = () => {
           // Log vulnerable moment detection
           await EnhancedSecurityAuditService.logSecurityEvent({
             action: 'VULNERABLE_MOMENT_DETECTED',
-            details: {
+            _details: {
               session_id: data?.id,
-              path_explored: path,
-              goals_count: sanitizedGoals.length
+              _path_explored: path,
+              _goals_count: sanitizedGoals.length
             },
-            severity: 'high'
+            _severity: 'high'
           });
         }
       }
     } else {
       toast.success('Exploring the path of recovery', {
-        description: 'See how your choices align with your goals',
-        duration: 3000
+        _description: 'See how your choices align with your goals',
+        _duration: 3000
       });
       
       if (user) {
@@ -311,9 +309,9 @@ const PlayingItForward = () => {
           .from('playing_forward_sessions')
           .insert({
             user_id: user.id,
-            selected_goals: sanitizedGoals,
-            path_explored: path,
-            is_vulnerable: false
+            _selected_goals: sanitizedGoals,
+            _path_explored: path,
+            _is_vulnerable: _false
           })
           .select('id')
           .single();
@@ -322,12 +320,12 @@ const PlayingItForward = () => {
           // Log positive recovery exploration
           await EnhancedSecurityAuditService.logSecurityEvent({
             action: 'RECOVERY_PATH_EXPLORED',
-            details: {
+            _details: {
               session_id: data?.id,
-              path_explored: path,
-              goals_count: sanitizedGoals.length
+              _path_explored: path,
+              _goals_count: sanitizedGoals.length
             },
-            severity: 'low'
+            _severity: 'low'
           });
         }
       }
@@ -340,7 +338,7 @@ const PlayingItForward = () => {
     const cleanConsequences = decisionPaths.staying_clean?.consequences;
     if (!cleanConsequences) return;
     
-    const shareText = `I'm staying strong in my recovery! Here's why this choice matters:
+    const _shareText = `I'm staying strong in my recovery! Here's why this choice matters:
 
 ✨ Right now: ${cleanConsequences.immediate[0]}
 📅 In a week: ${cleanConsequences.oneWeek[0]}  
@@ -351,24 +349,24 @@ const PlayingItForward = () => {
     if (navigator.share) {
       navigator.share({
         title: 'My Recovery Journey',
-        text: shareText
+        text: _shareText
       });
     } else {
-      navigator.clipboard.writeText(shareText);
+      navigator.clipboard.writeText(_shareText);
       toast.success('Recovery message copied to clipboard!');
     }
   };
 
   const reset = () => {
-    setCurrentPath(null);
+    setCurrentPath(_null);
     setTimeframe('immediate');
-    setShowGoalSelection(true);
+    setShowGoalSelection(_true);
     setSelectedGoals([]);
     setDecisionPaths({});
   };
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
+  const getCategoryIcon = (_category: string) => {
+    switch (_category) {
       case 'health': return Heart;
       case 'relationships': return Users;
       case 'career': return Target;
@@ -379,7 +377,7 @@ const PlayingItForward = () => {
   };
 
   // Goal selection screen
-  if (showGoalSelection) {
+  if (_showGoalSelection) {
     return (
       <Card className="max-w-4xl mx-auto">
         <CardHeader>
@@ -396,7 +394,7 @@ const PlayingItForward = () => {
             <h3 className="font-medium mb-4">What matters most to you in recovery?</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {userGoals.map((goal) => {
-                const Icon = getCategoryIcon(goal.category);
+                const Icon = getCategoryIcon(goal._category);
                 const isSelected = selectedGoals.includes(goal.id);
                 
                 return (
@@ -422,7 +420,7 @@ const PlayingItForward = () => {
                         }`} />
                         <div className="flex-1">
                           <h4 className="font-medium text-gray-900">{goal.title}</h4>
-                          <p className="text-sm text-gray-600 mt-1">{goal.description}</p>
+                          <p className="text-sm text-gray-600 mt-1">{goal._description}</p>
                         </div>
                         {isSelected && <CheckCircle className="w-5 h-5 text-purple-600" />}
                       </div>
@@ -536,7 +534,7 @@ const PlayingItForward = () => {
 
   // Consequences visualization
   const consequences = decisionPaths[currentPath]?.consequences;
-  if (!consequences) return null;
+  if (!consequences) return _null;
 
   const currentConsequences = consequences[timeframe];
   const isUsingPath = currentPath === 'using';
@@ -670,7 +668,7 @@ const PlayingItForward = () => {
 
       {/* Action Buttons */}
       <div className="flex gap-4 justify-center">
-        <Button variant="ghost" onClick={() => setCurrentPath(null)}>
+        <Button variant="ghost" onClick={() => setCurrentPath(_null)}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           Compare Paths
         </Button>

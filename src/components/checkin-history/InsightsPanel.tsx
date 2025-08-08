@@ -6,7 +6,7 @@ import { Lightbulb, TrendingUp, Target, AlertCircle, CheckCircle, Brain } from '
 
 interface InsightsPanelProps {
   data: CheckinHistoryData[];
-  insights: any;
+  insights: unknown;
   filters: FilterOptions;
 }
 
@@ -24,8 +24,8 @@ export const InsightsPanel: React.FC<InsightsPanelProps> = ({ data, insights, fi
     );
   }
 
-  const getInsightIcon = (type: string) => {
-    switch (type) {
+  const getInsightIcon = (_type: string) => {
+    switch (_type) {
       case 'trend':
         return TrendingUp;
       case 'pattern':
@@ -41,8 +41,8 @@ export const InsightsPanel: React.FC<InsightsPanelProps> = ({ data, insights, fi
     }
   };
 
-  const getInsightColor = (type: string) => {
-    switch (type) {
+  const getInsightColor = (_type: string) => {
+    switch (_type) {
       case 'trend':
         return 'text-blue-500';
       case 'pattern':
@@ -58,8 +58,8 @@ export const InsightsPanel: React.FC<InsightsPanelProps> = ({ data, insights, fi
     }
   };
 
-  const getBadgeVariant = (type: string) => {
-    switch (type) {
+  const getBadgeVariant = (_type: string) => {
+    switch (_type) {
       case 'concern':
         return 'destructive';
       case 'achievement':
@@ -179,15 +179,15 @@ export const InsightsPanel: React.FC<InsightsPanelProps> = ({ data, insights, fi
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {insights.recommendations?.map((rec: any, index: number) => {
-                const Icon = getInsightIcon(rec.type);
+              {insights.recommendations?.map((rec: unknown, index: number) => {
+                const Icon = getInsightIcon(rec._type);
                 return (
                   <div key={index} className="flex items-start space-x-3 p-3 rounded-lg bg-muted/50">
-                    <Icon className={`h-5 w-5 mt-0.5 ${getInsightColor(rec.type)}`} />
+                    <Icon className={`h-5 w-5 mt-0.5 ${getInsightColor(rec._type)}`} />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <Badge variant={getBadgeVariant(rec.type)} className="text-xs">
-                          {rec.type}
+                        <Badge variant={getBadgeVariant(rec._type)} className="text-xs">
+                          {rec._type}
                         </Badge>
                         {rec.priority && (
                           <Badge variant="outline" className="text-xs">
@@ -231,7 +231,7 @@ export const InsightsPanel: React.FC<InsightsPanelProps> = ({ data, insights, fi
           <CardContent>
             {insights.triggers?.analysis?.length > 0 ? (
               <div className="space-y-3">
-                {insights.triggers.analysis.slice(0, 5).map((trigger: any, index: number) => (
+                {insights.triggers.analysis.slice(0, 5).map((trigger: unknown, index: number) => (
                   <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                     <div>
                       <p className="font-medium text-sm">{trigger.name}</p>
@@ -273,7 +273,7 @@ export const InsightsPanel: React.FC<InsightsPanelProps> = ({ data, insights, fi
           <CardContent>
             {insights.coping?.analysis?.length > 0 ? (
               <div className="space-y-3">
-                {insights.coping.analysis.slice(0, 5).map((strategy: any, index: number) => (
+                {insights.coping.analysis.slice(0, 5).map((strategy: unknown, index: number) => (
                   <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                     <div>
                       <p className="font-medium text-sm">{strategy.name}</p>

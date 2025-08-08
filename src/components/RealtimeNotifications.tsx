@@ -12,18 +12,18 @@ const RealtimeNotifications: React.FC = () => {
     if (eventData.risk_level === 'high') {
       toast.error('High Risk Crisis Alert', {
         description: `High-risk crisis event detected at ${eventTime}`,
-        _icon: <ShieldAlert className="w-4 h-4" />,
-        _duration: 15000,
-        _action: {
+        icon: <ShieldAlert className="w-4 h-4" />,
+        duration: 15000,
+        action: {
           label: 'View Details',
-          _onClick: () => console.log('Navigate to crisis details')
+          onClick: () => console.log('Navigate to crisis details')
         }
       });
     } else {
       toast.warning('Crisis Alert', {
         description: `Crisis event logged at ${eventTime}`,
-        _icon: <AlertTriangle className="w-4 h-4" />,
-        _duration: 10000,
+        icon: <AlertTriangle className="w-4 h-4" />,
+        duration: 10000,
       });
     }
   }, []);
@@ -40,14 +40,14 @@ const RealtimeNotifications: React.FC = () => {
       if (checkinData.mood_rating <= 3) {
         toast.warning('Low Mood Alert', {
           description: `Mood rating is low (${checkinData.mood_rating}/10). Consider reaching out for support.`,
-          _icon: <Heart className="w-4 h-4" />,
-          _duration: 7000,
+          icon: <Heart className="w-4 h-4" />,
+          duration: 7000,
         });
       } else {
         toast.success('Mood Update', {
           description: `Mood rating: ${checkinData.mood_rating}/10 (${moodLevel})`,
-          _icon: <Heart className="w-4 h-4" />,
-          _duration: 4000,
+          icon: <Heart className="w-4 h-4" />,
+          duration: 4000,
         });
       }
     }
@@ -59,22 +59,22 @@ const RealtimeNotifications: React.FC = () => {
     if (payload.eventType === 'INSERT' && checkinData.is_complete) {
       toast.success('Daily Check-in Complete', {
         description: 'Daily check-in completed successfully',
-        _icon: <CheckCircle className="w-4 h-4" />,
-        _duration: 3000,
+        icon: <CheckCircle className="w-4 h-4" />,
+        duration: 3000,
       });
     } else if (payload.eventType === 'INSERT') {
       toast.info('Check-in Started', {
         description: 'Daily check-in in progress...',
-        _icon: <TrendingUp className="w-4 h-4" />,
-        _duration: 2000,
+        icon: <TrendingUp className="w-4 h-4" />,
+        duration: 2000,
       });
     }
   }, []);
 
   useRealtimeUpdates({
     onCrisisEvent: handleCrisisEvent,
-    _onMoodUpdate: handleMoodUpdate,
-    _onCheckInUpdate: handleCheckInUpdate,
+    onMoodUpdate: handleMoodUpdate,
+    onCheckInUpdate: handleCheckInUpdate,
   });
 
   return null; // This component only handles notifications

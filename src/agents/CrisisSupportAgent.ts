@@ -34,10 +34,10 @@ interface DeescalationTechnique {
 
 interface EmergencyContact {
   id: string;
-  _name: string;
-  _relationship: string;
-  _phone: string;
-  _isEmergency: boolean;
+  name: string;
+  relationship: string;
+  phone: string;
+  isEmergency: boolean;
 }
 
 export class CrisisSupportAgent extends HealthcareAgent {
@@ -53,8 +53,8 @@ export class CrisisSupportAgent extends HealthcareAgent {
   };
 
   constructor() {
-    const _config = agentConfigManager.getConfig('CrisisSupport') as CrisisSupportConfig;
-    super(_config);
+    const config = agentConfigManager.getConfig('CrisisSupport') as CrisisSupportConfig;
+    super(config);
   }
 
   /**
@@ -62,58 +62,58 @@ export class CrisisSupportAgent extends HealthcareAgent {
    */
   async initialize(context: AgentContext): Promise<void> {
     await super.initialize(context);
-    await this.loadEmergencyContacts(context._userId);
-    await this.loadCrisisHistory(context._userId);
+    await this.loadEmergencyContacts(context.userId);
+    await this.loadCrisisHistory(context.userId);
   }
 
   /**
    * Load user's emergency contacts
    */
-  private async loadEmergencyContacts(_userId: string): Promise<void> {
+  private async loadEmergencyContacts(userId: string): Promise<void> {
     try {
-      const { _data } = await supabase
+      const { data } = await supabase
         .from('emergency_contacts')
         .select('*')
-        .eq('user_id', _userId)
+        .eq('user_id', userId)
         .eq('is_active', true)
-        .order('_priority', { ascending: true });
+        .order('priority', { ascending: true });
 
-      this.emergencyContacts = (_data || []).map(contact => ({
+      this.emergencyContacts = (data || []).map(contact => ({
         id: contact.id,
-        _name: contact._name,
-        _relationship: contact._relationship,
-        _phone: contact._phone,
-        _isEmergency: contact.is_emergency
+        name: contact.name,
+        relationship: contact.relationship,
+        phone: contact.phone,
+        isEmergency: contact.is_emergency
       }));
-    } catch (_error) {
-      console._error('Failed to load emergency contacts:', _error);
+    } catch (error) {
+      console.error('Failed to load emergency contacts:', error);
     }
   }
 
   /**
    * Load recent crisis history
    */
-  private async loadCrisisHistory(_userId: string): Promise<void> {
+  private async loadCrisisHistory(userId: string): Promise<void> {
     try {
-      const { _data } = await supabase
+      const { data } = await supabase
         .from('crisis_interventions')
-        .select('created_at, _severity, resolved')
-        .eq('user_id', _userId)
+        .select('created_at, severity, resolved')
+        .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(10);
 
       // Track patterns for better intervention
-      if (_data && _data.length > 0) {
-        const recentCrisis = _data[0];
+      if (data && data.length > 0) {
+        const recentCrisis = data[0];
         if (recentCrisis.created_at) {
           const hoursSince = (Date.now() - new Date(recentCrisis.created_at).getTime()) / (1000 * 60 * 60);
           if (hoursSince < 24) {
-            this.activeInterventions.set(_userId, new Date(recentCrisis.created_at));
+            this.activeInterventions.set(userId, new Date(recentCrisis.created_at));
           }
         }
       }
-    } catch (_error) {
-      console._error('Failed to load crisis history:', _error);
+    } catch (error) {
+      console.error('Failed to load crisis history:', error);
     }
   }
 
@@ -121,54 +121,54 @@ export class CrisisSupportAgent extends HealthcareAgent {
    * Process crisis situation with immediate response
    */
   protected async process(
-    _input: string,
+    input: string,
     context: AgentContext
   ): Promise<AgentResponse> {
     const startTime = Date.now();
 
     // Immediate crisis assessment
-    const _indicators = this.assessCrisisIndicators(_input);
+    const indicators = this.assessCrisisIndicators(input);
     
-    // Determine response _strategy
-    const _strategy = this.determineResponseStrategy(_indicators);
+    // Determine response strategy
+    const strategy = this.determineResponseStrategy(indicators);
     
     // Generate crisis response
-    const response = await this.generateCrisisResponse(_indicators, _strategy);
+    const response = await this.generateCrisisResponse(indicators, strategy);
     
     // Execute immediate interventions if needed
-    const actions = await this.executeInterventions(_indicators, context);
+    const actions = await this.executeInterventions(indicators, context);
     
     // Calculate confidence and escalation need
-    const confidence = this.calculateCrisisConfidence(_indicators, _strategy);
-    const requiresEscalation = this.shouldEscalate(_indicators);
+    const confidence = this.calculateCrisisConfidence(indicators, strategy);
+    const requiresEscalation = this.shouldEscalate(indicators);
 
     // Log crisis intervention
-    await this.logCrisisIntervention(context._userId, _indicators, response);
+    await this.logCrisisIntervention(context.userId, indicators, response);
 
     return {
-      _message: response,
+      message: response,
       actions,
       confidence,
       requiresEscalation,
       metadata: {
-        urgencyLevel: _indicators.urgencyLevel,
-        interventionType: _strategy,
+        urgencyLevel: indicators.urgencyLevel,
+        interventionType: strategy,
         responseTime: Date.now() - startTime,
         indicatorsDetected: {
-          suicidalIdeation: _indicators.suicidalIdeation,
-          selfHarmIntent: _indicators.selfHarmIntent,
-          substanceUseRisk: _indicators.substanceUseRisk
+          suicidalIdeation: indicators.suicidalIdeation,
+          selfHarmIntent: indicators.selfHarmIntent,
+          substanceUseRisk: indicators.substanceUseRisk
         }
       }
     };
   }
 
   /**
-   * Assess crisis _indicators from user _input
+   * Assess crisis indicators from user input
    */
-  private assessCrisisIndicators(_input: string): CrisisIndicators {
-    const lowerInput = _input.toLowerCase();
-    const _indicators: CrisisIndicators = {
+  private assessCrisisIndicators(input: string): CrisisIndicators {
+    const lowerInput = input.toLowerCase();
+    const indicators: CrisisIndicators = {
       suicidalIdeation: false,
       selfHarmIntent: false,
       substanceUseRisk: false,
@@ -178,73 +178,73 @@ export class CrisisSupportAgent extends HealthcareAgent {
     };
 
     // Check for suicide risk
-    _indicators.suicidalIdeation = this.crisisKeywords.suicide.some(_keyword => 
-      lowerInput.includes(_keyword)
+    indicators.suicidalIdeation = this.crisisKeywords.suicide.some(keyword => 
+      lowerInput.includes(keyword)
     );
 
     // Check for self-harm risk
-    _indicators.selfHarmIntent = this.crisisKeywords.selfHarm.some(_keyword =>
-      lowerInput.includes(_keyword)
+    indicators.selfHarmIntent = this.crisisKeywords.selfHarm.some(keyword =>
+      lowerInput.includes(keyword)
     );
 
     // Check for substance use risk
-    _indicators.substanceUseRisk = this.crisisKeywords.substance.some(_keyword =>
-      lowerInput.includes(_keyword)
+    indicators.substanceUseRisk = this.crisisKeywords.substance.some(keyword =>
+      lowerInput.includes(keyword)
     );
 
     // Check for panic/anxiety
-    const hasPanic = this.crisisKeywords.panic.some(_keyword =>
-      lowerInput.includes(_keyword)
+    const hasPanic = this.crisisKeywords.panic.some(keyword =>
+      lowerInput.includes(keyword)
     );
 
     // Check for general emergency words
-    const hasEmergency = this.crisisKeywords.emergency.some(_keyword =>
-      lowerInput.includes(_keyword)
+    const hasEmergency = this.crisisKeywords.emergency.some(keyword =>
+      lowerInput.includes(keyword)
     );
 
     // Calculate emotional distress level
-    let _distressScore = 0;
-    if (_indicators.suicidalIdeation) _distressScore += 0.4;
-    if (_indicators.selfHarmIntent) _distressScore += 0.3;
-    if (_indicators.substanceUseRisk) _distressScore += 0.2;
-    if (hasPanic) _distressScore += 0.2;
-    if (hasEmergency) _distressScore += 0.1;
-    _indicators.emotionalDistress = Math.min(_distressScore, 1);
+    let distressScore = 0;
+    if (indicators.suicidalIdeation) distressScore += 0.4;
+    if (indicators.selfHarmIntent) distressScore += 0.3;
+    if (indicators.substanceUseRisk) distressScore += 0.2;
+    if (hasPanic) distressScore += 0.2;
+    if (hasEmergency) distressScore += 0.1;
+    indicators.emotionalDistress = Math.min(distressScore, 1);
 
     // Determine urgency level
-    if (_indicators.suicidalIdeation || _indicators.selfHarmIntent) {
-      _indicators.urgencyLevel = 'critical';
-    } else if (_indicators.substanceUseRisk || hasPanic) {
-      _indicators.urgencyLevel = 'high';
-    } else if (hasEmergency || _indicators.emotionalDistress > 0.5) {
-      _indicators.urgencyLevel = 'medium';
+    if (indicators.suicidalIdeation || indicators.selfHarmIntent) {
+      indicators.urgencyLevel = 'critical';
+    } else if (indicators.substanceUseRisk || hasPanic) {
+      indicators.urgencyLevel = 'high';
+    } else if (hasEmergency || indicators.emotionalDistress > 0.5) {
+      indicators.urgencyLevel = 'medium';
     } else {
-      _indicators.urgencyLevel = 'low';
+      indicators.urgencyLevel = 'low';
     }
 
     // Collect trigger words found
     Object.entries(this.crisisKeywords).forEach(([_category, keywords]) => {
-      keywords.forEach(_keyword => {
-        if (lowerInput.includes(_keyword)) {
-          _indicators.triggerWords.push(_keyword);
+      keywords.forEach(keyword => {
+        if (lowerInput.includes(keyword)) {
+          indicators.triggerWords.push(keyword);
         }
       });
     });
 
-    return _indicators;
+    return indicators;
   }
 
   /**
-   * Determine appropriate response _strategy
+   * Determine appropriate response strategy
    */
   private determineResponseStrategy(
-    _indicators: CrisisIndicators
+    indicators: CrisisIndicators
   ): 'immediate_safety' | 'deescalation' | 'coping_support' | 'resource_connection' {
-    if (_indicators.urgencyLevel === 'critical') {
+    if (indicators.urgencyLevel === 'critical') {
       return 'immediate_safety';
-    } else if (_indicators.urgencyLevel === 'high') {
+    } else if (indicators.urgencyLevel === 'high') {
       return 'deescalation';
-    } else if (_indicators.emotionalDistress > 0.3) {
+    } else if (indicators.emotionalDistress > 0.3) {
       return 'coping_support';
     } else {
       return 'resource_connection';
@@ -255,20 +255,20 @@ export class CrisisSupportAgent extends HealthcareAgent {
    * Generate crisis-appropriate response
    */
   private async generateCrisisResponse(
-    _indicators: CrisisIndicators,
-    _strategy: string
+    indicators: CrisisIndicators,
+    strategy: string
   ): Promise<string> {
     let response = '';
 
-    switch (_strategy) {
+    switch (strategy) {
       case 'immediate_safety':
-        response = this.getImmediateSafetyResponse(_indicators);
+        response = this.getImmediateSafetyResponse(indicators);
         break;
       case 'deescalation':
-        response = this.getDeescalationResponse(_indicators);
+        response = this.getDeescalationResponse(indicators);
         break;
       case 'coping_support':
-        response = this.getCopingSupportResponse(_indicators);
+        response = this.getCopingSupportResponse(indicators);
         break;
       case 'resource_connection':
         response = this.getResourceConnectionResponse();
@@ -276,7 +276,7 @@ export class CrisisSupportAgent extends HealthcareAgent {
     }
 
     // Add grounding technique if high distress
-    if (_indicators.emotionalDistress > 0.6) {
+    if (indicators.emotionalDistress > 0.6) {
       const technique = this.getGroundingTechnique();
       response += `\n\n${technique.script}`;
       if (technique.instructions) {
@@ -501,8 +501,8 @@ export class CrisisSupportAgent extends HealthcareAgent {
         intervention_type: 'crisis_support',
         urgency: _indicators.urgencyLevel,
         _indicators_present: Object.entries(_indicators)
-          .filter(([key, value]) => value === true || (typeof value === 'number' && value > 0.5))
-          .map(([_key]) => _key)
+          .filter(([_key, value]) => value === true || (typeof value === 'number' && value > 0.5))
+          .map(([key]) => key)
       }
     });
 

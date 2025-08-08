@@ -34,9 +34,9 @@ const CheckInCelebration: React.FC<CheckInCelebrationProps> = ({
     if (window.confetti) {
       window.confetti({
         particleCount: 150,
-        _spread: 70,
-        _origin: { y: 0.6 },
-        _colors: ['#10B981', '#1E3A8A', '#ffffff']
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#10B981', '#1E3A8A', '#ffffff']
       });
     }
 
@@ -86,11 +86,11 @@ const CheckInCelebration: React.FC<CheckInCelebrationProps> = ({
           30: "One month strong. This is who you are now."
         };
 
-        const _message = affirmations[currentStreak] || "Keep stacking those wins. You matter.";
-        setAffirmation(_message);
+        const message = affirmations[currentStreak] || "Keep stacking those wins. You matter.";
+        setAffirmation(message);
       }
-    } catch (_error) {
-      console._error('Error updating streak:', _error);
+    } catch (error) {
+      console.error('Error updating streak:', error);
     }
   };
 

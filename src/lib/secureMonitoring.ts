@@ -9,54 +9,54 @@ export class SecureMonitoring {
   private static suspiciousActivity = new Map<string, unknown[]>();
 
   static trackAuthAttempt(email: string, success: boolean) {
-    const _key = `auth_${email}`;
+    const key = `auth_${email}`;
     const now = Date.now();
     
     if (!success) {
       // Track failed attempts
-      const attempts = this.failedAttempts.get(_key) || [];
+      const attempts = this.failedAttempts.get(key) || [];
       attempts.push(now);
       
       // Clean old attempts outside the window
       const recentAttempts = attempts.filter(time => now - time < this.RATE_LIMIT_WINDOW);
-      this.failedAttempts.set(_key, recentAttempts);
+      this.failedAttempts.set(key, recentAttempts);
       
       // Check if user should be rate limited
       if (recentAttempts.length >= this.MAX_FAILED_ATTEMPTS) {
         this.logSecurityThreat('AUTHENTICATION_BRUTE_FORCE', {
           email,
-          _attemptCount: recentAttempts.length,
-          _timeWindow: this.RATE_LIMIT_WINDOW
+          attemptCount: recentAttempts.length,
+          timeWindow: this.RATE_LIMIT_WINDOW
         });
         return false; // Block further attempts
       }
     } else {
       // Clear failed attempts on successful login
-      this.failedAttempts.delete(_key);
+      this.failedAttempts.delete(key);
     }
     
     return true; // Allow attempt
   }
 
-  static trackSuspiciousActivity(type: string, _details: unknown = {}) {
-    const _key = `suspicious_${type}`;
+  static trackSuspiciousActivity(type: string, details: unknown = {}) {
+    const key = `suspicious_${type}`;
     const now = Date.now();
     
-    const activities = this.suspiciousActivity.get(_key) || [];
-    activities.push({ _timestamp: now, ..._details });
+    const activities = this.suspiciousActivity.get(key) || [];
+    activities.push({ timestamp: now, ...details });
     
     // Keep only recent activities
     const recentActivities = activities.filter(
-      activity => now - activity._timestamp < this.RATE_LIMIT_WINDOW
+      activity => now - activity.timestamp < this.RATE_LIMIT_WINDOW
     );
-    this.suspiciousActivity.set(_key, recentActivities);
+    this.suspiciousActivity.set(key, recentActivities);
     
     // Analyze patterns with higher threshold for production
     if (recentActivities.length > 25) {
       this.logSecurityThreat('SUSPICIOUS_PATTERN_DETECTED', {
         type,
-        _count: recentActivities.length,
-        _recentDetails: recentActivities.slice(-3) // Only log last 3 events
+        count: recentActivities.length,
+        recentDetails: recentActivities.slice(-3) // Only log last 3 events
       });
     }
   }
@@ -70,7 +70,7 @@ export class SecureMonitoring {
       if (import.meta.env.DEV) {
         this.logSecurityEvent('SENSITIVE_PAGE_ACCESS', {
           page: currentPath,
-          _timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString()
         });
       }
     }
@@ -86,7 +86,7 @@ export class SecureMonitoring {
     const devtools = { open: false, orientation: null };
     const threshold = 160;
 
-    const _checkDevTools = () => {
+    const checkDevTools = () => {
       const widthThreshold = window.outerWidth - window.innerWidth > threshold;
       const heightThreshold = window.outerHeight - window.innerHeight > threshold;
       
@@ -95,8 +95,8 @@ export class SecureMonitoring {
           devtools.open = true;
           this.logSecurityThreat('DEV_TOOLS_OPENED', {
             windowDimensions: {
-              outer: { width: window.outerWidth, _height: window.outerHeight },
-              _inner: { width: window.innerWidth, _height: window.innerHeight }
+              outer: { width: window.outerWidth, height: window.outerHeight },
+              inner: { width: window.innerWidth, height: window.innerHeight }
             }
           });
         }
@@ -106,10 +106,10 @@ export class SecureMonitoring {
     };
 
     // Check less frequently in production
-    setInterval(_checkDevTools, 5000);
+    setInterval(checkDevTools, 5000);
   }
 
-  private static logSecurityEvent(event: string, _details: unknown = {}) {
+  private static logSecurityEvent(event: string, details: unknown = {}) {
     // Only log critical events in production to reduce noise
     if (import.meta.env.PROD && !event.includes('THREAT') && !event.includes('VIOLATION')) {
       return;
@@ -120,8 +120,8 @@ export class SecureMonitoring {
       const monitoringLogs = JSON.parse(localStorage.getItem('security_monitoring') || '[]');
       monitoringLogs.push({
         event,
-        _timestamp: new Date().toISOString(),
-        ..._details
+        timestamp: new Date().toISOString(),
+        ...details
       });
       
       // Keep only last 25 monitoring events to prevent storage bloat
@@ -130,14 +130,14 @@ export class SecureMonitoring {
       }
       
       localStorage.setItem('security_monitoring', JSON.stringify(monitoringLogs));
-    } catch (_error) {
+    } catch (error) {
       // Silently fail to avoid blocking user experience
     }
   }
 
-  private static logSecurityThreat(threat: string, _details: unknown = {}) {
-    console.warn(`SECURITY THREAT DETECTED: ${threat}`, _details);
-    this.logSecurityEvent(`THREAT_${threat}`, _details);
+  private static logSecurityThreat(threat: string, details: unknown = {}) {
+    console.warn(`SECURITY THREAT DETECTED: ${threat}`, details);
+    this.logSecurityEvent(`THREAT_${threat}`, details);
     
     // In production, could integrate with external security monitoring service
     if (import.meta.env.PROD) {
@@ -152,7 +152,7 @@ export class SecureMonitoring {
         failedAttempts: Object.fromEntries(this.failedAttempts),
         suspiciousActivity: Object.fromEntries(this.suspiciousActivity)
       };
-    } catch (_error) {
+    } catch (error) {
       return { events: [], failedAttempts: {}, suspiciousActivity: {} };
     }
   }

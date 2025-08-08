@@ -16,7 +16,7 @@ interface OptInBody {
 const WHATSAPP_API_URL = 'https://graph.facebook.com/v17.0'
 const WHATSAPP_PHONE_NUMBER_ID = Deno.env.get('WHATSAPP_PHONE_NUMBER_ID')
 const WHATSAPP_ACCESS_TOKEN = Deno.env.get('WHATSAPP_ACCESS_TOKEN')
-const WHATSAPP_BUSINESS_ID = Deno.env.get('WHATSAPP_BUSINESS_ID')
+const _WHATSAPP_BUSINESS_ID = Deno.env.get('WHATSAPP_BUSINESS_ID')
 
 serve(async (req) => {
   // Handle CORS

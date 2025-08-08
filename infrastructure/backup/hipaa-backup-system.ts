@@ -275,7 +275,7 @@ export class HIPAABackupSystem {
     error?: string;
     metadata?: any;
   }> {
-    const { tables, targetTimestamp, dryRun = false } = options;
+    const { tables, dryRun = false } = options;
     
     try {
       await this.auditService.logSecurityEvent(
@@ -514,13 +514,13 @@ export class HIPAABackupSystem {
   private async ensureBackupTables(): Promise<void> {
     // Create backup metadata table (would be done via migration in production)
     try {
-      const { error } = await supabase
+      await supabase
         .from('backup_metadata')
         .select('id')
         .limit(1);
       
       // If no error, table exists
-    } catch (error) {
+    } catch (_error) {
       // Table doesn't exist - would need to create via migration
       console.warn('backup_metadata table not found - ensure migration is applied');
     }
@@ -589,12 +589,12 @@ export class HIPAABackupSystem {
     return data || [];
   }
 
-  private async encryptBackupData(data: any[], keyId: string): Promise<any> {
+  private async encryptBackupData(data: any[], _keyId: string): Promise<any> {
     const jsonData = JSON.stringify(data);
     return await serverSideEncryption.encrypt(jsonData);
   }
 
-  private async decryptBackupData(encryptedData: any, keyId: string): Promise<any[]> {
+  private async decryptBackupData(encryptedData: any, _keyId: string): Promise<any[]> {
     const decryptedJson = await serverSideEncryption.decrypt(encryptedData);
     return JSON.parse(decryptedJson);
   }
@@ -653,7 +653,7 @@ export class HIPAABackupSystem {
     return date.toISOString();
   }
 
-  private async verifyBackupIntegrity(backupId?: string): Promise<boolean> {
+  private async verifyBackupIntegrity(_backupId?: string): Promise<boolean> {
     // In production, this would verify backup file integrity
     // For now, return true as a placeholder
     return true;
@@ -676,7 +676,7 @@ export class HIPAABackupSystem {
     };
   }
 
-  private async retrieveBackupData(backupId: string): Promise<Record<string, any>> {
+  private async retrieveBackupData(_backupId: string): Promise<Record<string, any>> {
     // Retrieve actual backup data from storage
     // Placeholder implementation
     return {};

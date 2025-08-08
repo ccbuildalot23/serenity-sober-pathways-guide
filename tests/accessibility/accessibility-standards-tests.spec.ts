@@ -163,7 +163,7 @@ test.describe('Comprehensive Accessibility Standards Tests', () => {
       const interactiveElements = page.locator('button, a, input, select, [tabindex="0"]');
       const elementCount = await interactiveElements.count();
       
-      const currentElement = firstAction;
+      const _currentElement = firstAction;
       for (let i = 0; i < Math.min(elementCount, 10); i++) {
         await page.keyboard.press('Tab');
         const focusedElement = page.locator(':focus');

@@ -159,7 +159,7 @@ export class HealthCheckService {
     const startTime = Date.now();
     try {
       // Test basic connectivity
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('profiles')
         .select('count')
         .limit(1)
@@ -210,7 +210,7 @@ export class HealthCheckService {
       }
 
       // Test user_roles RLS (critical after the security fix)
-      const { data: roles, error: rolesError } = await supabase
+      const { error: rolesError } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', currentUser.user.id);
@@ -225,7 +225,7 @@ export class HealthCheckService {
       }
 
       // Test security_audit_logs RLS
-      const { data: auditLogs, error: auditError } = await supabase
+      const { error: auditError } = await supabase
         .from('security_audit_logs')
         .select('id')
         .eq('user_id', currentUser.user.id)

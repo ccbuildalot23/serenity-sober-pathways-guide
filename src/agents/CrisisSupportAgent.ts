@@ -12,8 +12,8 @@ import {
 } from './base/HealthcareAgent';
 import { CrisisSupportConfig, agentConfigManager } from './base/AgentConfig';
 import { UnifiedCrisisService } from '@/services/unifiedCrisisService';
-import { crisisEscalationService } from '@/services/crisisEscalationService';
-import { emergencyProceduresService } from '@/services/emergencyProceduresService';
+// import { crisisEscalationService } from '@/services/crisisEscalationService';
+// import { emergencyProceduresService } from '@/services/emergencyProceduresService';
 import { supabase } from '@/integrations/supabase/client';
 
 interface CrisisIndicators {

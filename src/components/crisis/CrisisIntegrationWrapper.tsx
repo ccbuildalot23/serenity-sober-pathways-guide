@@ -19,14 +19,14 @@ export const CrisisIntegrationWrapper: React.FC<CrisisIntegrationWrapperProps> =
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
-  const [showAccessibilitySettings, setShowAccessibilitySettings] = useState(_false);
+  const [showAccessibilitySettings, setShowAccessibilitySettings] = useState(false);
   
   const crisisSystem = useCrisisSystem();
 
   // Monitor online/offline status
   useEffect(() => {
     const _handleOnline = () => {
-      setIsOffline(_false);
+      setIsOffline(false);
       toast.success("Back online - crisis data will now sync");
       
       // Sync queued crisis data
@@ -39,7 +39,7 @@ export const CrisisIntegrationWrapper: React.FC<CrisisIntegrationWrapperProps> =
     };
 
     const _handleOffline = () => {
-      setIsOffline(_true);
+      setIsOffline(true);
       toast.warning("You're offline - crisis tools will work with cached data");
     };
 
@@ -108,7 +108,7 @@ export const CrisisIntegrationWrapper: React.FC<CrisisIntegrationWrapperProps> =
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold">Crisis Accessibility Settings</h2>
                 <button
-                  onClick={() => setShowAccessibilitySettings(_false)}
+                  onClick={() => setShowAccessibilitySettings(false)}
                   className="text-gray-500 hover:text-gray-700 text-2xl"
                   aria-label="Close accessibility settings"
                 >
@@ -118,7 +118,7 @@ export const CrisisIntegrationWrapper: React.FC<CrisisIntegrationWrapperProps> =
               <CrisisAccessibilitySettings />
               <div className="mt-4 pt-4 border-t">
                 <button
-                  onClick={() => setShowAccessibilitySettings(_false)}
+                  onClick={() => setShowAccessibilitySettings(false)}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
                 >
                   Close

@@ -7,12 +7,12 @@ import { hopeMessenger } from '@/services/hopeMessengerService';
 import { toast } from 'sonner';
 
 export const useEmergencySupport = () => {
-  const [isReachingOut, setIsReachingOut] = useState(_false);
+  const [isReachingOut, setIsReachingOut] = useState(false);
   const [lastReachOutTime, setLastReachOutTime] = useState<Date | null>(null);
 
   // Reach out for help
   const reachOut = useCallback(async () => {
-    setIsReachingOut(_true);
+    setIsReachingOut(true);
     
     const result = emergencySupportService.reachOutForHelp();
     
@@ -39,7 +39,7 @@ export const useEmergencySupport = () => {
       toast.info(result.message, { duration: 5000 });
     }
     
-    setIsReachingOut(_false);
+    setIsReachingOut(false);
     return result.success;
   }, []);
 

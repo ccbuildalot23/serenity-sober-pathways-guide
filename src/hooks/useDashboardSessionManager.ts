@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 
 export const useDashboardSessionManager = () => {
-  const [sessionWarning, setSessionWarning] = useState(_false);
+  const [sessionWarning, setSessionWarning] = useState(false);
 
   useEffect(() => {
     const _checkSession = () => {
@@ -11,7 +11,7 @@ export const useDashboardSessionManager = () => {
         const timeSinceActivity = Date.now() - parseInt(_lastActivity);
         // Show warning after 25 minutes of inactivity
         if (timeSinceActivity > 25 * 60 * 1000) {
-          setSessionWarning(_true);
+          setSessionWarning(true);
         }
       }
     };
@@ -41,7 +41,7 @@ export const useDashboardSessionManager = () => {
 
   const extendSession = () => {
     localStorage.setItem('session_last_activity', Date.now().toString());
-    setSessionWarning(_false);
+    setSessionWarning(false);
   };
 
   return {

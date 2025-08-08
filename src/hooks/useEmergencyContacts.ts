@@ -29,14 +29,14 @@ export type EmergencyContact = SupportPerson;
 export const useSupportNetwork = () => {
   const [supportPeople, setSupportPeople] = useState<SupportPerson[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(_false);
+  const [saving, setSaving] = useState(false);
   const { user } = useAuth();
   const { withCompassion, handleError } = useCompassionateError();
 
   const loadSupportNetwork = async () => {
     if (!user) {
       setSupportPeople([]);
-      setLoading(_false);
+      setLoading(false);
       return;
     }
 
@@ -66,7 +66,7 @@ export const useSupportNetwork = () => {
       })));
     }
     
-    setLoading(_false);
+    setLoading(false);
   };
 
   const addSupportPerson = async (personData: {
@@ -125,7 +125,7 @@ export const useSupportNetwork = () => {
       return newPerson;
     }
     
-    setSaving(_false);
+    setSaving(false);
   };
 
   const updateSupportPerson = async (id: string, _updates: Partial<SupportPerson>) => {
@@ -166,7 +166,7 @@ export const useSupportNetwork = () => {
       return updatedPerson;
     }
     
-    setSaving(_false);
+    setSaving(false);
   };
 
   const removeSupportPerson = async (id: string) => {
@@ -187,7 +187,7 @@ export const useSupportNetwork = () => {
       },
       {
         action: 'remove support person',
-        isRecoverable: _false
+        isRecoverable: false
       }
     );
 
@@ -200,7 +200,7 @@ export const useSupportNetwork = () => {
       });
     }
     
-    setSaving(_false);
+    setSaving(false);
   };
 
   // Quick dial function for emergencies

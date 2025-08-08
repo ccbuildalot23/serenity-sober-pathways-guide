@@ -7,17 +7,17 @@ import { toast } from 'sonner';
 export const useSupportNetwork = () => {
   const { user } = useAuth();
   const [supportMembers, setSupportMembers] = useState<SupportMember[]>([]);
-  const [loading, setLoading] = useState(_true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | _null>(_null);
 
   const fetchSupportNetwork = useCallback(async () => {
     if (!user?.id) {
-      setLoading(_false);
+      setLoading(false);
       return;
     }
 
     try {
-      setLoading(_true);
+      setLoading(true);
       const members = await supportNetworkService.getSupportNetwork(user.id);
       setSupportMembers(members);
       setError(_null);
@@ -25,7 +25,7 @@ export const useSupportNetwork = () => {
       console.error('Error fetching support network:', err);
       setError('Failed to load support network');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   }, [user?.id]);
 
@@ -156,14 +156,14 @@ export const useSupportNetwork = () => {
 export const usePresenceManagement = () => {
   const { user } = useAuth();
   const [currentStatus, setCurrentStatus] = useState<PresenceStatus['status']>('offline');
-  const [doNotDisturb, setDoNotDisturb] = useState(_false);
-  const [loading, setLoading] = useState(_false);
+  const [doNotDisturb, setDoNotDisturb] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const updatePresence = useCallback(async (status: PresenceStatus['status'], _dnd: boolean = doNotDisturb) => {
     if (!user?.id) return;
 
     try {
-      setLoading(_true);
+      setLoading(true);
       await supportNetworkService.updatePresence(user.id, status, _dnd);
       setCurrentStatus(status);
       setDoNotDisturb(_dnd);
@@ -171,7 +171,7 @@ export const usePresenceManagement = () => {
       console.error('Error updating presence:', err);
       toast.error('Failed to update presence status');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   }, [user?.id, doNotDisturb]);
 
@@ -221,17 +221,17 @@ export const usePresenceManagement = () => {
 export const useNotificationPreferences = () => {
   const { user } = useAuth();
   const [preferences, setPreferences] = useState<NotificationPreferences | _null>(_null);
-  const [loading, setLoading] = useState(_true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | _null>(_null);
 
   const fetchPreferences = useCallback(async () => {
     if (!user?.id) {
-      setLoading(_false);
+      setLoading(false);
       return;
     }
 
     try {
-      setLoading(_true);
+      setLoading(true);
       const _prefs = await supportNetworkService.getNotificationPreferences(user.id);
       setPreferences(_prefs);
       setError(_null);
@@ -239,7 +239,7 @@ export const useNotificationPreferences = () => {
       console.error('Error fetching notification preferences:', err);
       setError('Failed to load notification preferences');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   }, [user?.id]);
 

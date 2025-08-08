@@ -20,9 +20,9 @@ import { toast } from 'sonner';
 
 const DailyCheckIn = () => {
   const [currentTab, setCurrentTab] = useState('mood');
-  const [showCelebration, setShowCelebration] = useState(_false);
+  const [showCelebration, setShowCelebration] = useState(false);
   const [stats, setStats] = useState<CheckinStats | null>(null);
-  const [loading, setLoading] = useState(_true);
+  const [loading, setLoading] = useState(true);
   const [_streakMessage, setStreakMessage] = useState<string | null>(null);
 
   const { user } = useAuth();
@@ -63,7 +63,7 @@ const DailyCheckIn = () => {
     } catch (_error) {
       console._error('Error loading stats:', _error);
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
@@ -96,7 +96,7 @@ const DailyCheckIn = () => {
     // Show celebration and reload stats after successful completion
     if (!isSubmitting) {
       await loadStats();
-      setShowCelebration(_true);
+      setShowCelebration(true);
       
       // Show streak _message if there's one
       if (_streakMessage) {
@@ -106,12 +106,12 @@ const DailyCheckIn = () => {
   };
 
   const handleStartMindfulness = () => {
-    setShowCelebration(_false);
+    setShowCelebration(false);
     toast.success('Opening mindfulness exercises...');
   };
 
   const handleCloseCelebration = () => {
-    setShowCelebration(_false);
+    setShowCelebration(false);
   };
 
   // Show loading state

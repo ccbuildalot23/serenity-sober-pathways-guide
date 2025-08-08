@@ -15,8 +15,8 @@ import SupportAgreementViewer from './SupportAgreementViewer';
 const AccountabilityPartnerDashboard: React.FC = () => {
   const [partnerships, setPartnerships] = useState<AccountabilityPartnership[]>([]);
   const [selectedPartnership, setSelectedPartnership] = useState<AccountabilityPartnership | null>(null);
-  const [_loading, setLoading] = useState(_true);
-  const [showRequestForm, setShowRequestForm] = useState(_false);
+  const [_loading, setLoading] = useState(true);
+  const [showRequestForm, setShowRequestForm] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const { user } = useAuth();
 
@@ -28,7 +28,7 @@ const AccountabilityPartnerDashboard: React.FC = () => {
     if (!user) return;
 
     try {
-      setLoading(_true);
+      setLoading(true);
       const data = await AccountabilityService.getUserPartnerships(user.id);
       setPartnerships(data);
       
@@ -39,7 +39,7 @@ const AccountabilityPartnerDashboard: React.FC = () => {
       console._error('Error _loading partnerships:', _error);
       toast._error('Failed to load accountability partnerships');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
@@ -119,7 +119,7 @@ const AccountabilityPartnerDashboard: React.FC = () => {
         </div>
         
         <Button 
-          onClick={() => setShowRequestForm(_true)}
+          onClick={() => setShowRequestForm(true)}
           className="flex items-center"
         >
           <Users className="w-4 h-4 mr-2" />
@@ -135,7 +135,7 @@ const AccountabilityPartnerDashboard: React.FC = () => {
             <p className="text-gray-600 mb-6">
               Connect with a recovery partner for mutual support and encouragement
             </p>
-            <Button onClick={() => setShowRequestForm(_true)}>
+            <Button onClick={() => setShowRequestForm(true)}>
               <Users className="w-4 h-4 mr-2" />
               Find Your First Partner
             </Button>
@@ -194,9 +194,9 @@ const AccountabilityPartnerDashboard: React.FC = () => {
       {/* Partnership Request Form Modal */}
       {showRequestForm && (
         <PartnershipRequestForm
-          onClose={() => setShowRequestForm(_false)}
+          onClose={() => setShowRequestForm(false)}
           onSubmit={() => {
-            setShowRequestForm(_false);
+            setShowRequestForm(false);
             loadPartnerships();
           }}
         />

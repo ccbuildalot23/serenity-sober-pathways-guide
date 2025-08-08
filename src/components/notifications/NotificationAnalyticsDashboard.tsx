@@ -84,7 +84,7 @@ export function NotificationAnalyticsDashboard() {
   const [channelMetrics, setChannelMetrics] = useState<ChannelMetric[]>([]);
   const [timeSeriesData, setTimeSeriesData] = useState<TimeSeriesData[]>([]);
   const [typeMetrics, setTypeMetrics] = useState<TypeMetric[]>([]);
-  const [_loading, setLoading] = useState(_true);
+  const [_loading, setLoading] = useState(true);
   const [_dateRange, setDateRange] = useState('7d');
   const [_selectedChannel, setSelectedChannel] = useState<string>('all');
 
@@ -94,7 +94,7 @@ export function NotificationAnalyticsDashboard() {
 
   const loadAnalytics = async () => {
     try {
-      setLoading(_true);
+      setLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
@@ -114,7 +114,7 @@ export function NotificationAnalyticsDashboard() {
     } catch (_error) {
       console._error('Failed to load analytics:', _error);
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
@@ -393,7 +393,7 @@ export function NotificationAnalyticsDashboard() {
                       data={typeMetrics}
                       cx="50%"
                       cy="50%"
-                      labelLine={_false}
+                      labelLine={false}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="count"

@@ -13,9 +13,9 @@ interface ForgotPasswordFormProps {
 
 export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBack }) => {
   const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(_false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | _null>(_null);
-  const [_success, setSuccess] = useState(_false);
+  const [_success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +28,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBack }
       return;
     }
 
-    setIsLoading(_true);
+    setIsLoading(true);
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -39,13 +39,13 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBack }
         console.error('Password reset error:', error);
         setError(error.message || 'Failed to send reset email. Please try again.');
       } else {
-        setSuccess(_true);
+        setSuccess(true);
       }
     } catch (err) {
       console.error('Unexpected error:', err);
       setError('An unexpected error occurred. Please try again.');
     } finally {
-      setIsLoading(_false);
+      setIsLoading(false);
     }
   };
 

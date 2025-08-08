@@ -147,12 +147,12 @@ export class CollaborativeRecoveryPlanService {
       // Mark plan as collaborative
       const { _error: updateError } = await supabase
         .from('recovery_plans')
-        .update({ _is_collaborative: _true })
+        .update({ _is_collaborative: true })
         .eq('id', _planId);
 
       if (updateError) throw updateError;
 
-      return _true;
+      return true;
     } catch (_error) {
       console._error('Error sharing plan:', _error);
       return false;
@@ -274,7 +274,7 @@ export class CollaborativeRecoveryPlanService {
         .update({ _current_version: currentPlan._current_version + 1 })
         .eq('id', _planId);
 
-      return _true;
+      return true;
     } catch (_error) {
       console._error('Error creating version:', _error);
       return false;
@@ -299,7 +299,7 @@ export class CollaborativeRecoveryPlanService {
       const { data, _error } = await supabase
         .from('provider_templates')
         .select('*')
-        .eq('is_shared', _true)
+        .eq('is_shared', true)
         .order('created_at', { ascending: false });
 
       if (_error) throw _error;

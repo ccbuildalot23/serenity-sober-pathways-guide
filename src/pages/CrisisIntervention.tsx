@@ -15,7 +15,7 @@ import {
 const CrisisInterventionSystem: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [breathingActive, setBreathingActive] = useState(_false);
+  const [breathingActive, setBreathingActive] = useState(false);
   const [breathCount, setBreathCount] = useState(0);
   const [groundingStep, setGroundingStep] = useState(0);
   const [sponsorNumber, setSponsorNumber] = useState('');
@@ -32,7 +32,7 @@ const CrisisInterventionSystem: React.FC = () => {
       const _interval = setInterval(() => {
         setBreathCount(prev => {
           if (prev >= 60) {
-            setBreathingActive(_false);
+            setBreathingActive(false);
             return 0;
           }
           return prev + 1;
@@ -67,7 +67,7 @@ const CrisisInterventionSystem: React.FC = () => {
 
   // Start breathing exercise
   const startBreathing = () => {
-    setBreathingActive(_true);
+    setBreathingActive(true);
     setBreathCount(0);
   };
 
@@ -198,7 +198,7 @@ const CrisisInterventionSystem: React.FC = () => {
               </div>
               <div className="text-2xl text-gray-300">{60 - breathCount} seconds left</div>
               <Button
-                onClick={() => setBreathingActive(_false)}
+                onClick={() => setBreathingActive(false)}
                 variant="outline"
                 className="border-gray-600 text-gray-300"
               >

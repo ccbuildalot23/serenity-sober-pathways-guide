@@ -10,11 +10,11 @@ const CheckIn = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [_mood, setMood] = useState<'struggling' | 'managing' | 'good' | null>(null);
-  const [showSupport, setShowSupport] = useState(_false);
-  const [showEncouragement, setShowEncouragement] = useState(_false);
-  const [showShareHope, setShowShareHope] = useState(_false);
+  const [showSupport, setShowSupport] = useState(false);
+  const [showEncouragement, setShowEncouragement] = useState(false);
+  const [showShareHope, setShowShareHope] = useState(false);
   const [savedReason, setSavedReason] = useState('');
-  const [breathingActive, setBreathingActive] = useState(_false);
+  const [breathingActive, setBreathingActive] = useState(false);
   const [breathCount, setBreathCount] = useState(0);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ const CheckIn = () => {
       const _interval = setInterval(() => {
         setBreathCount(prev => {
           if (prev >= 60) {
-            setBreathingActive(_false);
+            setBreathingActive(false);
             return 0;
           }
           return prev + 1;
@@ -55,11 +55,11 @@ const CheckIn = () => {
 
     // Show appropriate response
     if (selectedMood === 'struggling') {
-      setShowSupport(_true);
+      setShowSupport(true);
     } else if (selectedMood === 'managing') {
-      setShowEncouragement(_true);
+      setShowEncouragement(true);
     } else {
-      setShowShareHope(_true);
+      setShowShareHope(true);
     }
   };
 
@@ -171,7 +171,7 @@ const CheckIn = () => {
 
               {!breathingActive ? (
                 <Button
-                  onClick={() => setBreathingActive(_true)}
+                  onClick={() => setBreathingActive(true)}
                   className="h-20 bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
                 >
                   <Wind className="w-6 h-6 mr-3" />

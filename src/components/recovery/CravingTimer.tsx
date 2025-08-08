@@ -44,19 +44,19 @@ const CravingTimer = () => {
   const { handleCrisisActivated } = useCrisisSystem();
   
   // Timer state
-  const [isActive, setIsActive] = useState(_false);
-  const [isPaused, setIsPaused] = useState(_false);
+  const [isActive, setIsActive] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(900); // 15 minutes in seconds
   const [session, setSession] = useState<CravingSession>({
     intensityBefore: 5,
     _intensityAfter: undefined,
     _duration: 0,
-    _completed: _false
+    _completed: false
   });
   
   // UI state
-  const [_showIntensityBefore, setShowIntensityBefore] = useState(_true);
-  const [_showIntensityAfter, setShowIntensityAfter] = useState(_false);
+  const [_showIntensityBefore, setShowIntensityBefore] = useState(true);
+  const [_showIntensityAfter, setShowIntensityAfter] = useState(false);
   const [currentDistraction, setCurrentDistraction] = useState<string | _null>(_null);
   const [motivationalQuote, setMotivationalQuote] = useState('');
   
@@ -130,8 +130,8 @@ const CravingTimer = () => {
 
   const handleStart = async () => {
     if (_showIntensityBefore) {
-      setShowIntensityBefore(_false);
-      setIsActive(_true);
+      setShowIntensityBefore(false);
+      setIsActive(true);
       
       // Play calming sound if available
       try {
@@ -181,25 +181,25 @@ const CravingTimer = () => {
   };
 
   const handleReset = () => {
-    setIsActive(_false);
-    setIsPaused(_false);
+    setIsActive(false);
+    setIsPaused(false);
     setTimeRemaining(900);
     setSession({
       intensityBefore: 5,
       _intensityAfter: undefined,
       _duration: 0,
-      _completed: _false
+      _completed: false
     });
-    setShowIntensityBefore(_true);
-    setShowIntensityAfter(_false);
+    setShowIntensityBefore(true);
+    setShowIntensityAfter(false);
     setCurrentDistraction(_null);
     setMotivationalQuote('');
   };
 
   const handleTimerComplete = async () => {
-    setIsActive(_false);
-    setShowIntensityAfter(_true);
-    setSession(prev => ({ ...prev, _completed: _true }));
+    setIsActive(false);
+    setShowIntensityAfter(true);
+    setSession(prev => ({ ...prev, _completed: true }));
     
     // Celebration
     confetti({
@@ -236,7 +236,7 @@ const CravingTimer = () => {
           _intensity_before: validatedIntensityBefore,
           _intensity_after: validatedIntensityAfter,
           _duration: session._duration,
-          _completed: _true,
+          _completed: true,
           _distraction_used: EnhancedInputValidator.sanitizeText(currentDistraction || '')
         })
         .select('id')
@@ -264,7 +264,7 @@ const CravingTimer = () => {
       });
     }
 
-    setShowIntensityAfter(_false);
+    setShowIntensityAfter(false);
   };
 
   const handleEmergencyContact = async () => {

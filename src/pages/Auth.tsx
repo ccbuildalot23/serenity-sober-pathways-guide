@@ -12,9 +12,9 @@ import { Badge } from '@/components/ui/badge';
 const Auth = () => {
   const navigate = useNavigate();
   const { user, loading: _authLoading } = useAuth();
-  const [isRedirecting, setIsRedirecting] = useState(_false);
-  const [showFeatures, setShowFeatures] = useState(_false);
-  const [showDebug, setShowDebug] = useState(_false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [showFeatures, setShowFeatures] = useState(false);
+  const [showDebug, setShowDebug] = useState(false);
   const [_debugInfo, setDebugInfo] = useState<unknown>({});
   const [selectedUserType, setSelectedUserType] = useState<string>('');
 
@@ -24,8 +24,8 @@ const Auth = () => {
   // Check URL params for debug mode
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('debug') === '_true' || import.meta.env.DEV) {
-      setShowDebug(_true);
+    if (urlParams.get('debug') === 'true' || import.meta.env.DEV) {
+      setShowDebug(true);
     }
   }, []);
 
@@ -45,7 +45,7 @@ const Auth = () => {
     console.log('Auth page - checking user:', { user, _authLoading, isRedirecting });
     
     if (user && !_authLoading && !isRedirecting) {
-      setIsRedirecting(_true);
+      setIsRedirecting(true);
       console.log('User authenticated, preparing redirect...');
       
       // Clear any error states
@@ -61,7 +61,7 @@ const Auth = () => {
 
   // Show features after a delay
   useEffect(() => {
-    const _timer = setTimeout(() => setShowFeatures(_true), 500);
+    const _timer = setTimeout(() => setShowFeatures(true), 500);
     return () => clearTimeout(_timer);
   }, []);
 

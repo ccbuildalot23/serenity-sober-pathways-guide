@@ -8,16 +8,16 @@ import { supabase } from '@/integrations/supabase/client';
  */
 export const useSecureAdminAccess = () => {
   const { user } = useAuth();
-  const [isAdmin, setIsAdmin] = useState(_false);
-  const [verifying, setVerifying] = useState(_false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [verifying, setVerifying] = useState(false);
 
   const verifyAdminAccess = async (): Promise<boolean> => {
     if (!user) {
       console.warn('Admin verification attempted without authenticated user');
-      return _false;
+      return false;
     }
 
-    setVerifying(_true);
+    setVerifying(true);
     try {
       const hasAccess = await securityComplianceService.verifyAdminAccess();
       setIsAdmin(hasAccess);
@@ -37,10 +37,10 @@ export const useSecureAdminAccess = () => {
       return hasAccess;
     } catch (error) {
       console.error('Admin verification failed:', error);
-      setIsAdmin(_false);
-      return _false;
+      setIsAdmin(false);
+      return false;
     } finally {
-      setVerifying(_false);
+      setVerifying(false);
     }
   };
 

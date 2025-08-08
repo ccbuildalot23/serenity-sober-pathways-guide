@@ -53,10 +53,10 @@ const PlayingItForward = () => {
   const [currentPath, setCurrentPath] = useState<'using' | 'staying_clean' | _null>(_null);
   const [timeframe, setTimeframe] = useState<'immediate' | 'oneDay' | 'oneWeek' | 'oneMonth'>('immediate');
   const [userGoals, setUserGoals] = useState<PersonalGoal[]>([]);
-  const [_showGoalSelection, setShowGoalSelection] = useState(_true);
+  const [_showGoalSelection, setShowGoalSelection] = useState(true);
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
   const [decisionPaths, setDecisionPaths] = useState<Record<string, DecisionPath>>({});
-  const [loading, setLoading] = useState(_false);
+  const [loading, setLoading] = useState(false);
 
   // Default goals if user hasn't set any
   const _defaultGoals: PersonalGoal[] = [
@@ -237,13 +237,13 @@ const PlayingItForward = () => {
     const usingPath: DecisionPath = {
       choice: 'using',
       consequences: generateConsequences('using', _relevantGoals),
-      completed: _false
+      completed: false
     };
     
     const stayingCleanPath: DecisionPath = {
       choice: 'staying_clean', 
       consequences: generateConsequences('staying_clean', _relevantGoals),
-      completed: _false
+      completed: false
     };
     
     setDecisionPaths({
@@ -251,7 +251,7 @@ const PlayingItForward = () => {
       staying_clean: stayingCleanPath
     });
     
-    setShowGoalSelection(_false);
+    setShowGoalSelection(false);
   };
 
   const selectPath = async (path: 'using' | 'staying_clean') => {
@@ -276,7 +276,7 @@ const PlayingItForward = () => {
             user_id: user.id,
             _selected_goals: sanitizedGoals,
             _path_explored: path,
-            _is_vulnerable: _true
+            _is_vulnerable: true
           })
           .select('id')
           .single();
@@ -311,7 +311,7 @@ const PlayingItForward = () => {
             user_id: user.id,
             _selected_goals: sanitizedGoals,
             _path_explored: path,
-            _is_vulnerable: _false
+            _is_vulnerable: false
           })
           .select('id')
           .single();
@@ -360,7 +360,7 @@ const PlayingItForward = () => {
   const reset = () => {
     setCurrentPath(_null);
     setTimeframe('immediate');
-    setShowGoalSelection(_true);
+    setShowGoalSelection(true);
     setSelectedGoals([]);
     setDecisionPaths({});
   };

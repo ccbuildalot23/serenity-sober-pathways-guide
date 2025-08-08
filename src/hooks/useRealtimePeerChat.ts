@@ -45,7 +45,7 @@ export const useRealtimePeerChat = ({
   onPresenceUpdate
 }: UseRealtimePeerChatProps) => {
   const { user } = useAuth();
-  const [isConnected, setIsConnected] = useState(_false);
+  const [isConnected, setIsConnected] = useState(false);
   const [_typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
   const [presenceData, setPresenceData] = useState<PresenceStatus[]>([]);
   const channelsRef = useRef<RealtimeChannel[]>([]);
@@ -57,7 +57,7 @@ export const useRealtimePeerChat = ({
       supabase.removeChannel(channel);
     });
     channelsRef.current = [];
-    setIsConnected(_false);
+    setIsConnected(false);
   }, []);
 
   // Update typing _status
@@ -71,7 +71,7 @@ export const useRealtimePeerChat = ({
           .upsert({
             session_id: sessionId,
             _user_id: user.id,
-            _is_typing: _true
+            _is_typing: true
           });
 
         // Clear existing timeout
@@ -81,7 +81,7 @@ export const useRealtimePeerChat = ({
 
         // Set timeout to stop typing after 5 seconds
         typingTimeoutRef.current = setTimeout(() => {
-          updateTypingStatus(_false);
+          updateTypingStatus(false);
         }, 5000);
       } else {
         await supabase
@@ -168,7 +168,7 @@ export const useRealtimePeerChat = ({
         });
 
       // Stop typing indicator
-      await updateTypingStatus(_false);
+      await updateTypingStatus(false);
 
       return data;
     } catch (_error) {
@@ -419,7 +419,7 @@ export const useRealtimePeerChat = ({
             .from('peer_chat_typing')
             .select('_user_id')
             .eq('session_id', sessionId)
-            .eq('_is_typing', _true)
+            .eq('_is_typing', true)
             .neq('_user_id', user.id) // Exclude current user
             .gte('updated_at', new Date(Date.now() - 5000).toISOString());
 

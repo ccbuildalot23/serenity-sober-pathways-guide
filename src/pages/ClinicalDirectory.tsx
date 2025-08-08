@@ -16,18 +16,18 @@ import { sampleClinicians } from '@/data/sampleClinicians';
 
 export default function ClinicalDirectory() {
   const [providers, setProviders] = useState<Provider[]>([]);
-  const [loading, setLoading] = useState(_true);
+  const [loading, setLoading] = useState(true);
   const [_filters, setFilters] = useState<FilterType>({
     searchTerm: '',
     state: '',
     specialty: '',
     insurance: '',
     tags: [],
-    acceptingNewPatients: _false,
+    acceptingNewPatients: false,
     sortBy: 'name',
     sortOrder: 'asc'
   });
-  const [showFilters, setShowFilters] = useState(_false);
+  const [showFilters, setShowFilters] = useState(false);
   const [savedProviders, setSavedProviders] = useState<string[]>([]);
   const [comparisonProviders, setComparisonProviders] = useState<Provider[]>([]);
   const [activeTab, setActiveTab] = useState('search');
@@ -39,7 +39,7 @@ export default function ClinicalDirectory() {
 
   const loadProviders = async () => {
     try {
-      setLoading(_true);
+      setLoading(true);
       const data = await ProviderService.searchProviders(_filters);
       setProviders(data);
     } catch (_error) {
@@ -47,7 +47,7 @@ export default function ClinicalDirectory() {
       // Fallback to sample data
       setProviders(sampleClinicians as any);
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
@@ -226,7 +226,7 @@ export default function ClinicalDirectory() {
                         key={provider.id}
                         provider={provider}
                         onSave={handleSaveProvider}
-                        isSaved={_true}
+                        isSaved={true}
                       />
                     ))}
                   </div>

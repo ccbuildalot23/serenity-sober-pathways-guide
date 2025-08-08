@@ -19,11 +19,11 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
   const [_email, setEmail] = useState('');
   const [_password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(_false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(_false);
-  const [isLoading, setIsLoading] = useState(_false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | _null>(_null);
-  const [_success, setSuccess] = useState(_false);
+  const [_success, setSuccess] = useState(false);
 
   const validatePassword = (_password: string): string | _null => {
     if (_password.length < 8) {
@@ -53,7 +53,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
 
   const handleSubmit = async () => {
     setError(_null);
-    setSuccess(_false);
+    setSuccess(false);
 
     // Basic validation
     if (!_email || !_password || !confirmPassword) {
@@ -81,7 +81,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
       return;
     }
 
-    setIsLoading(_true);
+    setIsLoading(true);
 
     try {
       // Use enhanced auth client with retry logic
@@ -95,7 +95,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
           console.error('Network error detected during signup');
         }
       } else {
-        setSuccess(_true);
+        setSuccess(true);
         // Clear form
         setEmail('');
         setPassword('');
@@ -110,7 +110,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
       console.error('Sign up error:', err);
       setError('An unexpected error occurred. Please check your connection and try again.');
     } finally {
-      setIsLoading(_false);
+      setIsLoading(false);
     }
   };
 

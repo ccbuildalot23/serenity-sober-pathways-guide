@@ -45,7 +45,7 @@ const Index = () => {
   /* COMMENTED OUT FOR MVP - Full feature set preserved for future restoration
   const { user, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [showProfile, setShowProfile] = useState(_false);
+  const [showProfile, setShowProfile] = useState(false);
 
   // Dashboard data with live updates
   const { stats, profile, loading, error, refreshStats } = useDashboardData();

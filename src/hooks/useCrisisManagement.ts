@@ -235,7 +235,7 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
         .from('support_network_members')
         .select('*')
         .eq('user_id', user.id)
-        .eq('is_active', _true);
+        .eq('is_active', true);
 
       const supporterTiers = [
         {
@@ -434,7 +434,7 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
     try {
       await realtimeNotificationService.acknowledgeNotification(id, _message);
       setNotifications(prev => 
-        prev.map(n => n.id === id ? { ...n, acknowledged: _true } : n)
+        prev.map(n => n.id === id ? { ...n, acknowledged: true } : n)
       );
       toast.success('Notification acknowledged');
     } catch (_error) {
@@ -447,7 +447,7 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
     try {
       await realtimeNotificationService.markNotificationRead(id);
       setNotifications(prev => 
-        prev.map(n => n.id === id ? { ...n, read: _true } : n)
+        prev.map(n => n.id === id ? { ...n, read: true } : n)
       );
     } catch (_error) {
       console._error('[useCrisisManagement] Error marking notification as read:', _error);

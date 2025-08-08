@@ -24,12 +24,12 @@ const EnhancedCalendar: React.FC<{
   supabase?: unknown;
   onTabChange?: () => void;
   showLayout?: boolean;
-}> = ({ _user, supabase, onTabChange, showLayout = _true }) => {
+}> = ({ _user, supabase, onTabChange, showLayout = true }) => {
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [_selectedMonth, setSelectedMonth] = useState<Date>(new Date());
-  const [isDayDetailOpen, setIsDayDetailOpen] = useState(_false);
+  const [isDayDetailOpen, setIsDayDetailOpen] = useState(false);
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | _null>(_null);
-  const [showFilters, setShowFilters] = useState(_false);
+  const [showFilters, setShowFilters] = useState(false);
 
   // Use custom hooks
   const { monthEntries, _isLoading, error } = useCalendarData(_selectedMonth, _user, supabase);
@@ -56,7 +56,7 @@ const EnhancedCalendar: React.FC<{
     try {
       // In demo mode, just show success
       showNotification('success', 'Entry updated successfully');
-      setIsDayDetailOpen(_false);
+      setIsDayDetailOpen(false);
     } catch (error) {
       showNotification('error', 'Failed to update entry');
     }
@@ -72,7 +72,7 @@ const EnhancedCalendar: React.FC<{
     const _dateKey = formatDate(date, 'yyyy-MM-dd');
     const dayData = dayDataMap.get(_dateKey);
     if (dayData && dayData.entries.length > 0) {
-      setIsDayDetailOpen(_true);
+      setIsDayDetailOpen(true);
     } else {
       showNotification('error', 'No check-in for this day yet. Keep building your journey! 💪');
     }

@@ -46,12 +46,12 @@ const DailyPledges = () => {
   const [currentTab, setCurrentTab] = useState<'morning' | 'evening' | 'templates'>('morning');
   const [currentStreak] = useState(3);
   const [longestStreak] = useState(12);
-  const [loading, setLoading] = useState(_false);
+  const [loading, setLoading] = useState(false);
   const [morningCommitment, setMorningCommitment] = useState('');
   const [eveningReflection, setEveningReflection] = useState('');
-  const [isEditing, setIsEditing] = useState(_false);
-  const [_completedMorning, setCompletedMorning] = useState(_false);
-  const [completedEvening, setCompletedEvening] = useState(_false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [_completedMorning, setCompletedMorning] = useState(false);
+  const [completedEvening, setCompletedEvening] = useState(false);
 
   const templates = [
     {
@@ -60,7 +60,7 @@ const DailyPledges = () => {
       morning_prompt: 'Today, I commit to staying present and mindful in my serenity journey.',
       evening_prompt: 'What am I most grateful for today?',
       category: 'mindfulness',
-      is_default: _true
+      is_default: true
     },
     {
       id: '2', 
@@ -68,7 +68,7 @@ const DailyPledges = () => {
       morning_prompt: 'I pledge to reach out for support when I need it and to be gentle with myself.',
       evening_prompt: 'How did I honor my commitment to myself today?',
       category: 'support',
-      is_default: _true
+      is_default: true
     },
     {
       id: '3',
@@ -76,7 +76,7 @@ const DailyPledges = () => {
       morning_prompt: 'Today, I choose healing and will take one positive step forward.',
       evening_prompt: 'What challenges did I face, and how did I handle them?',
       category: 'progress',
-      is_default: _true
+      is_default: true
     },
     {
       id: '4',
@@ -84,7 +84,7 @@ const DailyPledges = () => {
       morning_prompt: 'Today is another day I choose my recovery. I will take it one moment at a time and celebrate each small victory.',
       evening_prompt: 'What recovery skills did I practice today? What can I learn from any difficult moments?',
       category: 'early-recovery',
-      is_default: _true
+      is_default: true
     },
     {
       id: '5',
@@ -92,7 +92,7 @@ const DailyPledges = () => {
       morning_prompt: 'Today I commit to regularly checking if I am Hungry, Angry, Lonely, or Tired, and addressing these needs with care.',
       evening_prompt: 'When did I notice HALT feelings today, and how did I respond to them?',
       category: 'self-care',
-      is_default: _true
+      is_default: true
     },
     {
       id: '6',
@@ -100,7 +100,7 @@ const DailyPledges = () => {
       morning_prompt: 'I will prioritize authentic connections today, whether through meetings, friends in recovery, or my support network.',
       evening_prompt: 'How did I connect with others in recovery today? What relationships am I nurturing?',
       category: 'community',
-      is_default: _true
+      is_default: true
     },
     {
       id: '7',
@@ -108,7 +108,7 @@ const DailyPledges = () => {
       morning_prompt: 'If cravings arise today, I commit to using healthy coping strategies and reaching out for support rather than struggling alone.',
       evening_prompt: 'Did I experience any cravings or triggers today? How did I handle them, and what tools were most helpful?',
       category: 'cravings',
-      is_default: _true
+      is_default: true
     },
     {
       id: '8',
@@ -116,7 +116,7 @@ const DailyPledges = () => {
       morning_prompt: 'I will nurture my spiritual connection today through prayer, meditation, or whatever practice brings me peace and strength.',
       evening_prompt: 'How did I connect with my higher power or spiritual practice today? What brought me peace?',
       category: 'spiritual',
-      is_default: _true
+      is_default: true
     },
     {
       id: '9',
@@ -124,7 +124,7 @@ const DailyPledges = () => {
       morning_prompt: 'Today I will work on healing relationships and making amends where appropriate, starting with being compassionate to myself.',
       evening_prompt: 'How did I practice forgiveness today - both giving and receiving? What relationships am I healing?',
       category: 'relationships',
-      is_default: _true
+      is_default: true
     },
     {
       id: '10',
@@ -132,19 +132,19 @@ const DailyPledges = () => {
       morning_prompt: 'With months/years of recovery behind me, I commit to staying vigilant, helping newcomers, and continuing to grow.',
       evening_prompt: 'How did I give back to the recovery community today? What did I do to maintain my spiritual condition?',
       category: 'long-term',
-      is_default: _true
+      is_default: true
     }
   ];
 
   const saveMorningCommitment = async () => {
     if (!morningCommitment.trim()) return;
 
-    setLoading(_true);
+    setLoading(true);
     try {
       // Simulate saving
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      setCompletedMorning(_true);
+      setCompletedMorning(true);
       
       toast({
         title: "Morning Commitment Saved! 🌅",
@@ -159,14 +159,14 @@ const DailyPledges = () => {
         _variant: "destructive",
       });
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
   const saveEveningReflection = async () => {
     if (!eveningReflection.trim()) return;
 
-    setLoading(_true);
+    setLoading(true);
     try {
       if (!_completedMorning) {
         toast({
@@ -174,14 +174,14 @@ const DailyPledges = () => {
           _description: "Please set your morning commitment before adding evening reflection.",
           _variant: "destructive",
         });
-        setLoading(_false);
+        setLoading(false);
         return;
       }
 
       // Simulate saving
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      setCompletedEvening(_true);
+      setCompletedEvening(true);
 
       // Check if both morning and evening are now complete for celebration
       if (_completedMorning) {
@@ -201,7 +201,7 @@ const DailyPledges = () => {
         _variant: "destructive",
       });
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
@@ -374,7 +374,7 @@ const DailyPledges = () => {
                 {_completedMorning && !isEditing ? (
                   <Button
                     _variant="outline"
-                    onClick={() => setIsEditing(_true)}
+                    onClick={() => setIsEditing(true)}
                     className="border-serenity-teal text-serenity-teal"
                   >
                     <Edit3 className="w-4 h-4 mr-2" />
@@ -394,7 +394,7 @@ const DailyPledges = () => {
                 {isEditing && (
                   <Button
                     _variant="outline"
-                    onClick={() => setIsEditing(_false)}
+                    onClick={() => setIsEditing(false)}
                   >
                     Cancel
                   </Button>
@@ -453,7 +453,7 @@ const DailyPledges = () => {
                 {completedEvening && !isEditing ? (
                   <Button
                     _variant="outline"
-                    onClick={() => setIsEditing(_true)}
+                    onClick={() => setIsEditing(true)}
                     className="border-serenity-teal text-serenity-teal"
                   >
                     <Edit3 className="w-4 h-4 mr-2" />
@@ -473,7 +473,7 @@ const DailyPledges = () => {
                 {isEditing && (
                   <Button
                     _variant="outline"
-                    onClick={() => setIsEditing(_false)}
+                    onClick={() => setIsEditing(false)}
                   >
                     Cancel
                   </Button>

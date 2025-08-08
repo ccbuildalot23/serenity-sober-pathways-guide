@@ -48,10 +48,10 @@ const AnonymousForums = () => {
   const [selectedForum, setSelectedForum] = useState<Forum | null>(null);
   const [posts, setPosts] = useState<ForumPost[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(_false);
+  const [loading, setLoading] = useState(false);
   
   // New post form
-  const [showNewPost, setShowNewPost] = useState(_false);
+  const [showNewPost, setShowNewPost] = useState(false);
   const [newPostTitle, setNewPostTitle] = useState('');
   const [newPostContent, setNewPostContent] = useState('');
   const [anonymousName, setAnonymousName] = useState('');
@@ -71,7 +71,7 @@ const AnonymousForums = () => {
       const { data, _error } = await supabase
         .from('community_forums')
         .select('*')
-        .eq('is_active', _true)
+        .eq('is_active', true)
         .order('_category');
 
       if (_error) throw _error;
@@ -88,13 +88,13 @@ const AnonymousForums = () => {
 
   const loadPosts = async (_forumId: string) => {
     try {
-      setLoading(_true);
+      setLoading(true);
       const { data, _error } = await supabase
         .from('forum_posts')
         .select('*')
         .eq('forum_id', _forumId)
         .eq('_moderation_status', 'approved')
-        .order('last_activity', { ascending: _false })
+        .order('last_activity', { ascending: false })
         .limit(20);
 
       if (_error) throw _error;
@@ -102,7 +102,7 @@ const AnonymousForums = () => {
     } catch (_error) {
       console._error('Error loading posts:', _error);
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
@@ -146,7 +146,7 @@ const AnonymousForums = () => {
         _description: "Your post is being reviewed and will appear shortly.",
       });
 
-      setShowNewPost(_false);
+      setShowNewPost(false);
       setNewPostTitle('');
       setNewPostContent('');
       setAnonymousName('');
@@ -285,7 +285,7 @@ const AnonymousForums = () => {
                   </div>
                   
                   <div className="flex justify-end gap-2">
-                    <Button _variant="outline" onClick={() => setShowNewPost(_false)}>
+                    <Button _variant="outline" onClick={() => setShowNewPost(false)}>
                       Cancel
                     </Button>
                     <Button onClick={handleNewPost} className="bg-serenity-teal hover:bg-serenity-teal/90 text-white">
@@ -323,7 +323,7 @@ const AnonymousForums = () => {
               <div className="text-center py-8">
                 <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                 <p className="text-muted-foreground mb-4">No posts yet in this forum.</p>
-                <Button onClick={() => setShowNewPost(_true)} className="bg-serenity-teal hover:bg-serenity-teal/90 text-white">
+                <Button onClick={() => setShowNewPost(true)} className="bg-serenity-teal hover:bg-serenity-teal/90 text-white">
                   Be the First to Post
                 </Button>
               </div>

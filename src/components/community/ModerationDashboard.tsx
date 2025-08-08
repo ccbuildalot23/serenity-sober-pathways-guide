@@ -27,7 +27,7 @@ interface ModerationItem {
 const ModerationDashboard: React.FC = () => {
   const { user } = useAuth();
   const [moderationItems, setModerationItems] = useState<ModerationItem[]>([]);
-  const [loading, setLoading] = useState(_true);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('pending');
 
   useEffect(() => {
@@ -59,7 +59,7 @@ const ModerationDashboard: React.FC = () => {
 
   const loadModerationItems = async () => {
     try {
-      setLoading(_true);
+      setLoading(true);
       
       // Mock data until types are updated - this will be replaced with real data fetching
       const mockData = [
@@ -112,7 +112,7 @@ const ModerationDashboard: React.FC = () => {
       console.error('Error loading moderation items:', error);
       toast.error('Failed to load moderation queue');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 

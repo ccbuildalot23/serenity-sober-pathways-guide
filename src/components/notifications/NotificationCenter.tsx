@@ -28,7 +28,7 @@ export function NotificationCenter() {
     snoozeNotification,
   } = useRecoveryNotifications();
 
-  const [showPreferences, setShowPreferences] = useState(_false);
+  const [showPreferences, setShowPreferences] = useState(false);
 
   const getPriorityColor = (_priority: RecoveryNotification['_priority']) => {
     switch (_priority) {
@@ -124,7 +124,7 @@ export function NotificationCenter() {
                 <DialogHeader>
                   <DialogTitle>Notification Preferences</DialogTitle>
                 </DialogHeader>
-                <NotificationPreferences onClose={() => setShowPreferences(_false)} />
+                <NotificationPreferences onClose={() => setShowPreferences(false)} />
               </DialogContent>
             </Dialog>
           </div>

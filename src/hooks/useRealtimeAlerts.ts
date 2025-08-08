@@ -22,7 +22,7 @@ export interface Alert {
 
 export const useRealtimeAlerts = () => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [loading, setLoading] = useState(_true);
+  const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export const useRealtimeAlerts = () => {
         console.error('Error loading alerts:', error);
         toast.error('Failed to load alerts');
       } finally {
-        setLoading(_false);
+        setLoading(false);
       }
     };
 

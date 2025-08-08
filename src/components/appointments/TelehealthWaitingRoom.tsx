@@ -52,7 +52,7 @@ export const TelehealthWaitingRoom: React.FC<TelehealthWaitingRoomProps> = ({
       toast.error('Failed to load session details');
       setConnectionStatus('failed');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 

@@ -49,12 +49,12 @@ export const DataExportRequest: React.FC = () => {
     _format: 'json',
     _categories: [],
     _dateRange: undefined,
-    _requiresApproval: _false
+    _requiresApproval: false
   });
   
   const [customReason, setCustomReason] = useState('');
   const [_dateRange, setDateRange] = useState({ _start: '', _end: '' });
-  const [isSubmitting, setIsSubmitting] = useState(_false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState<'request' | 'confirmation' | 'submitted'>('request');
 
   const handleCategoryChange = (categoryId: string, checked: boolean) => {
@@ -90,7 +90,7 @@ export const DataExportRequest: React.FC = () => {
   };
 
   const handleConfirmSubmission = async () => {
-    setIsSubmitting(_true);
+    setIsSubmitting(true);
     
     try {
       const finalReason = formData.reason === 'Other (please specify)' ? customReason : formData.reason!;
@@ -101,7 +101,7 @@ export const DataExportRequest: React.FC = () => {
         _format: formData._format!,
         _categories: formData._categories!,
         _dateRange: finalDateRange,
-        _requiresApproval: formData._categories?.includes('audit') || _false
+        _requiresApproval: formData._categories?.includes('audit') || false
       });
 
       await logSecurityEvent('DATA_EXPORT_REQUEST_SUBMITTED', {
@@ -125,7 +125,7 @@ export const DataExportRequest: React.FC = () => {
         _variant: "destructive"
       });
     } finally {
-      setIsSubmitting(_false);
+      setIsSubmitting(false);
     }
   };
 

@@ -59,7 +59,7 @@ const SponsorMatching = () => {
   const [activeTab, setActiveTab] = useState('find');
   const [sponsors, setSponsors] = useState<SponsorProfile[]>([]);
   const [matches, setMatches] = useState<SponsorMatch[]>([]);
-  const [loading, setLoading] = useState(_false);
+  const [loading, setLoading] = useState(false);
   const [userProfile, setUserProfile] = useState<SponsorProfile | null>(null);
   
   // Find sponsor filters
@@ -68,7 +68,7 @@ const SponsorMatching = () => {
   const [_meetingPreferenceFilter, setMeetingPreferenceFilter] = useState('all');
   
   // Sponsor profile form
-  const [showCreateProfile, setShowCreateProfile] = useState(_false);
+  const [showCreateProfile, setShowCreateProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({
     _display_name: '',
     _years_sober: '',
@@ -135,13 +135,13 @@ const SponsorMatching = () => {
 
   const loadSponsors = async () => {
     try {
-      setLoading(_true);
+      setLoading(true);
       let query = supabase
         .from('sponsor_profiles')
         .select('*')
-        .eq('is_available', _true)
+        .eq('is_available', true)
         .neq('user_id', user?.id || '')
-        .order('created_at', { ascending: _false });
+        .order('created_at', { ascending: false });
 
       if (_programFilter !== 'all') {
         query = query.eq('_program_type', _programFilter);
@@ -158,7 +158,7 @@ const SponsorMatching = () => {
     } catch (_error) {
       console._error('Error loading sponsors:', _error);
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
@@ -170,7 +170,7 @@ const SponsorMatching = () => {
         .from('sponsor_matches')
         .select('*')
         .eq('sponsee_user_id', user.id)
-        .order('created_at', { ascending: _false });
+        .order('created_at', { ascending: false });
 
       if (_error) throw _error;
       setMatches(data || []);
@@ -212,7 +212,7 @@ const SponsorMatching = () => {
         _description: "Your sponsor profile is now live and available to potential sponsees.",
       });
 
-      setShowCreateProfile(_false);
+      setShowCreateProfile(false);
       loadUserProfile();
     } catch (_error) {
       console._error('Error creating profile:', _error);
@@ -242,9 +242,9 @@ const SponsorMatching = () => {
           _match_score: matchScore,
           _status: 'contacted',
           _matched_criteria: {
-            program_match: _true,
-            _meeting_preference: _true,
-            _communication_style: _true
+            program_match: true,
+            _meeting_preference: true,
+            _communication_style: true
           }
         }]);
 
@@ -574,7 +574,7 @@ const SponsorMatching = () => {
                 </ul>
               </div>
               
-              <Button onClick={() => setShowCreateProfile(_true)} className="bg-serenity-teal hover:bg-serenity-teal/90 text-white">
+              <Button onClick={() => setShowCreateProfile(true)} className="bg-serenity-teal hover:bg-serenity-teal/90 text-white">
                 <Plus className="w-4 h-4 mr-2" />
                 Create Sponsor Profile
               </Button>
@@ -684,7 +684,7 @@ const SponsorMatching = () => {
               </div>
               
               <div className="flex justify-end gap-2">
-                <Button _variant="outline" onClick={() => setShowCreateProfile(_false)}>
+                <Button _variant="outline" onClick={() => setShowCreateProfile(false)}>
                   Cancel
                 </Button>
                 <Button onClick={createSponsorProfile} className="bg-serenity-teal hover:bg-serenity-teal/90 text-white">

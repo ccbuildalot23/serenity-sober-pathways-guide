@@ -35,10 +35,10 @@ interface MessageSearchProps {
 export const MessageSearch: React.FC<MessageSearchProps> = ({ sessionId }) => {
   const [_searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [isSearching, setIsSearching] = useState(_false);
+  const [isSearching, setIsSearching] = useState(false);
   const [_dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month'>('all');
   const [senderFilter, setSenderFilter] = useState<'all' | 'user' | 'supporter'>('all');
-  const [isOpen, setIsOpen] = useState(_false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const { searchMessages } = useRealtimePeerChat({
     sessionId,
@@ -47,7 +47,7 @@ export const MessageSearch: React.FC<MessageSearchProps> = ({ sessionId }) => {
   const _handleSearch = async () => {
     if (!_searchQuery.trim()) return;
 
-    setIsSearching(_true);
+    setIsSearching(true);
     try {
       const results = await searchMessages(_searchQuery);
       
@@ -85,7 +85,7 @@ export const MessageSearch: React.FC<MessageSearchProps> = ({ sessionId }) => {
     } catch (_error) {
       console._error('Search failed:', _error);
     } finally {
-      setIsSearching(_false);
+      setIsSearching(false);
     }
   };
 

@@ -11,9 +11,9 @@ import CheckInAccountability from './support/CheckInAccountability';
 import CrisisContactManager from './emergency/CrisisContactManager';
 
 const SupportNetwork = () => {
-  const [isAdding, setIsAdding] = useState(_false);
-  const [_showCrisisContacts, setShowCrisisContacts] = useState(_false);
-  const [_showSettings, setShowSettings] = useState(_false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [_showCrisisContacts, setShowCrisisContacts] = useState(false);
+  const [_showSettings, setShowSettings] = useState(false);
   
   const { 
     contacts, 
@@ -27,7 +27,7 @@ const SupportNetwork = () => {
   const handleAddContact = async (_contactData: unknown) => {
     const success = await addContact(_contactData);
     if (success) {
-      setIsAdding(_false);
+      setIsAdding(false);
     }
     return success;
   };
@@ -46,7 +46,7 @@ const SupportNetwork = () => {
       <div>
         <div className="flex items-center mb-4">
           <Button
-            onClick={() => setShowCrisisContacts(_false)}
+            onClick={() => setShowCrisisContacts(false)}
             variant="outline"
             size="sm"
           >
@@ -64,7 +64,7 @@ const SupportNetwork = () => {
       <div>
         <div className="flex items-center mb-4">
           <Button
-            onClick={() => setShowSettings(_false)}
+            onClick={() => setShowSettings(false)}
             variant="outline"
             size="sm"
           >
@@ -98,7 +98,7 @@ const SupportNetwork = () => {
         <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Support Network</h3>
         <div className="flex gap-2">
           <Button
-            onClick={() => setShowCrisisContacts(_true)}
+            onClick={() => setShowCrisisContacts(true)}
             size="sm"
             className="bg-red-600 hover:bg-red-700 text-xs"
           >
@@ -106,7 +106,7 @@ const SupportNetwork = () => {
             Crisis Contacts
           </Button>
           <Button
-            onClick={() => setShowSettings(_true)}
+            onClick={() => setShowSettings(true)}
             size="sm"
             variant="outline"
             className="text-xs"
@@ -114,7 +114,7 @@ const SupportNetwork = () => {
             Settings
           </Button>
           <Button
-            onClick={() => setIsAdding(_true)}
+            onClick={() => setIsAdding(true)}
             size="sm"
             className="bg-blue-600 hover:bg-blue-700"
           >
@@ -137,7 +137,7 @@ const SupportNetwork = () => {
             </p>
           </div>
           <Button
-            onClick={() => setShowCrisisContacts(_true)}
+            onClick={() => setShowCrisisContacts(true)}
             size="sm"
             className="bg-red-600 hover:bg-red-700"
           >
@@ -156,7 +156,7 @@ const SupportNetwork = () => {
       {isAdding && (
         <AddContactForm
           onSubmit={handleAddContact}
-          onCancel={() => setIsAdding(_false)}
+          onCancel={() => setIsAdding(false)}
           _loading={saving}
         />
       )}
@@ -183,7 +183,7 @@ const SupportNetwork = () => {
             Add people who support your recovery journey
           </p>
           <Button 
-            onClick={() => setIsAdding(_true)}
+            onClick={() => setIsAdding(true)}
             className="bg-blue-600 hover:bg-blue-700"
           >
             Add Your First Contact

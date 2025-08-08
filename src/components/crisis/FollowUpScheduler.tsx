@@ -40,7 +40,7 @@ const FollowUpScheduler: React.FC<FollowUpSchedulerProps> = ({
   emergencyContacts = []
 }) => {
   const [followUps, setFollowUps] = useState<FollowUpEvent[]>([]);
-  const [autoReminders, setAutoReminders] = useState(_true);
+  const [autoReminders, setAutoReminders] = useState(true);
   const [notifyContacts, setNotifyContacts] = useState(false);
 
   useEffect(() => {
@@ -139,7 +139,7 @@ const FollowUpScheduler: React.FC<FollowUpSchedulerProps> = ({
 
     // Mark reminder as sent
     const updatedFollowUps = followUps.map(f => 
-      f.id === _followUp.id ? { ...f, _reminderSent: _true } : f
+      f.id === _followUp.id ? { ...f, _reminderSent: true } : f
     );
     setFollowUps(updatedFollowUps);
     saveFollowUps(updatedFollowUps);
@@ -168,8 +168,8 @@ const FollowUpScheduler: React.FC<FollowUpSchedulerProps> = ({
       f.id === followUpId 
         ? { 
             ...f, 
-            completed: _true, 
-            _responseReceived: _true, 
+            completed: true, 
+            _responseReceived: true, 
             safetyStatus 
           } 
         : f

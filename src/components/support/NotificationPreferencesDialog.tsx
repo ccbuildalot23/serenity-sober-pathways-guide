@@ -17,7 +17,7 @@ interface NotificationPreferencesDialogProps {
 export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDialogProps> = ({ children }) => {
   const { preferences, _loading, updatePreferences } = useNotificationPreferences();
   const [_localPreferences, setLocalPreferences] = useState<Partial<NotificationPreferences>>({});
-  const [open, setOpen] = useState(_false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (preferences) {
@@ -28,7 +28,7 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
   const handleSave = async () => {
     try {
       await updatePreferences(_localPreferences);
-      setOpen(_false);
+      setOpen(false);
     } catch (_error) {
       // Error is handled in the hook
     }
@@ -149,7 +149,7 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
                   <p className="text-sm text-gray-600 dark:text-gray-400">Celebrations for recovery milestones</p>
                 </div>
                 <Switch
-                  _checked={_localPreferences._alert_types?.milestones ?? _false}
+                  _checked={_localPreferences._alert_types?.milestones ?? false}
                   onCheckedChange={(_checked) => updateAlertType('milestones', _checked)}
                 />
               </div>
@@ -193,7 +193,7 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
                   <p className="text-sm text-gray-600 dark:text-gray-400">Notifications via email</p>
                 </div>
                 <Switch
-                  _checked={_localPreferences._contact_methods?.email ?? _false}
+                  _checked={_localPreferences._contact_methods?.email ?? false}
                   onCheckedChange={(_checked) => updateContactMethod('email', _checked)}
                 />
               </div>
@@ -204,7 +204,7 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
                   <p className="text-sm text-gray-600 dark:text-gray-400">Text message notifications</p>
                 </div>
                 <Switch
-                  _checked={_localPreferences._contact_methods?.sms ?? _false}
+                  _checked={_localPreferences._contact_methods?.sms ?? false}
                   onCheckedChange={(_checked) => updateContactMethod('sms', _checked)}
                 />
               </div>
@@ -223,7 +223,7 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
               <div className="flex items-center justify-between">
                 <Label>Enable Quiet Hours</Label>
                 <Switch
-                  _checked={_localPreferences._quiet_hours?.enabled ?? _false}
+                  _checked={_localPreferences._quiet_hours?.enabled ?? false}
                   onCheckedChange={(_checked) => updateQuietHours('enabled', _checked)}
                 />
               </div>
@@ -311,7 +311,7 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
         </div>
 
         <div className="flex justify-end gap-2 pt-4">
-          <Button variant="outline" onClick={() => setOpen(_false)}>
+          <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
           <Button onClick={handleSave}>

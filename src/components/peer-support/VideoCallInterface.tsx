@@ -23,9 +23,9 @@ const VideoCallInterface: React.FC<VideoCallInterfaceProps> = ({
   onEscalate
 }) => {
   const { user } = useAuth();
-  const [isVideoEnabled, setIsVideoEnabled] = useState(_true);
-  const [isAudioEnabled, setIsAudioEnabled] = useState(_true);
-  const [isScreenSharing, setIsScreenSharing] = useState(_false);
+  const [isVideoEnabled, setIsVideoEnabled] = useState(true);
+  const [isAudioEnabled, setIsAudioEnabled] = useState(true);
+  const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [volume, setVolume] = useState([80]);
   const [connectionQuality, setConnectionQuality] = useState<'good' | 'fair' | 'poor'>('good');
   const [_callDuration, setCallDuration] = useState(0);
@@ -51,7 +51,7 @@ const VideoCallInterface: React.FC<VideoCallInterfaceProps> = ({
     try {
       const _constraints = {
         video: session.session_type === 'video',
-        _audio: _true
+        _audio: true
       };
 
       const stream = await navigator.mediaDevices.getUserMedia(_constraints);
@@ -103,8 +103,8 @@ const VideoCallInterface: React.FC<VideoCallInterfaceProps> = ({
     if (!isScreenSharing) {
       try {
         const screenStream = await navigator.mediaDevices.getDisplayMedia({
-          video: _true,
-          _audio: _true
+          video: true,
+          _audio: true
         });
         
         // Replace video track with screen share
@@ -112,11 +112,11 @@ const VideoCallInterface: React.FC<VideoCallInterfaceProps> = ({
           localVideoRef.current.srcObject = screenStream;
         }
         
-        setIsScreenSharing(_true);
+        setIsScreenSharing(true);
         toast.success('Screen sharing started');
         
         screenStream.getVideoTracks()[0].onended = () => {
-          setIsScreenSharing(_false);
+          setIsScreenSharing(false);
           initializeMedia(); // Return to camera
         };
       } catch (error) {
@@ -124,7 +124,7 @@ const VideoCallInterface: React.FC<VideoCallInterfaceProps> = ({
         setTechnicalIssues(prev => [...prev, 'Screen sharing failed']);
       }
     } else {
-      setIsScreenSharing(_false);
+      setIsScreenSharing(false);
       initializeMedia(); // Return to camera
     }
   };

@@ -9,8 +9,8 @@ import { useAuth } from '@/contexts/AuthContext';
 export const useSimpleCheckin = () => {
   const { user } = useAuth();
   const [todaysMood, setTodaysMood] = useState<MoodToday | null>(null);
-  const [isCheckedIn, setIsCheckedIn] = useState(_false);
-  const [isSubmitting, setIsSubmitting] = useState(_false);
+  const [isCheckedIn, setIsCheckedIn] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [encouragement, setEncouragement] = useState('');
   const [_streak, setStreak] = useState(0);
 
@@ -25,7 +25,7 @@ export const useSimpleCheckin = () => {
     const checkin = await simpleCheckin.getTodaysCheckin();
     if (checkin) {
       setTodaysMood(checkin.mood);
-      setIsCheckedIn(_true);
+      setIsCheckedIn(true);
     }
     
     // Get _streak from localStorage
@@ -41,12 +41,12 @@ export const useSimpleCheckin = () => {
   const checkIn = useCallback(async (mood: MoodToday) => {
     if (isSubmitting) return;
     
-    setIsSubmitting(_true);
+    setIsSubmitting(true);
     
     try {
       await simpleCheckin.checkIn(mood);
       setTodaysMood(mood);
-      setIsCheckedIn(_true);
+      setIsCheckedIn(true);
       
       // Track daily victory if feeling good
       if (mood === 'good') {
@@ -60,7 +60,7 @@ export const useSimpleCheckin = () => {
       console._error('Check-in _error:', _error);
       hopeMessenger.sendHope('struggling');
     } finally {
-      setIsSubmitting(_false);
+      setIsSubmitting(false);
     }
   }, [isSubmitting]);
 

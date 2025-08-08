@@ -36,7 +36,7 @@ const MobileCrisisInterface: React.FC = () => {
   
   const { isOnline, offlineData, canWorkOffline } = useOfflineSync();
   const [location, setLocation] = useState<string>('');
-  const [isLocationLoading, setIsLocationLoading] = useState(_false);
+  const [isLocationLoading, setIsLocationLoading] = useState(false);
   
   const batterySettings = getBatteryOptimizedSettings();
 
@@ -60,11 +60,11 @@ const MobileCrisisInterface: React.FC = () => {
         navigator.geolocation.getCurrentPosition(
           (position) => {
             setLocation(`${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`);
-            setIsLocationLoading(_false);
+            setIsLocationLoading(false);
           },
           (_error) => {
             console._error('Location _error:', _error);
-            setIsLocationLoading(_false);
+            setIsLocationLoading(false);
           },
           { enableHighAccuracy: true, timeout: 10000 }
         );

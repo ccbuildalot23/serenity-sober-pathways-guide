@@ -74,7 +74,7 @@ class EnhancedCheckinService {
       this.clearLocalStorage(checkinData.checkin_date);
 
       toast.success('Daily check-in saved successfully!');
-      return { success: _true, _data: savedCheckin };
+      return { success: true, _data: savedCheckin };
 
     } catch (_error) {
       console._error('Error saving checkin:', _error);
@@ -156,7 +156,7 @@ class EnhancedCheckinService {
         .from('daily_checkins')
         .select('checkin_date')
         .eq('user_id', userId)
-        .eq('is_complete', _true)
+        .eq('is_complete', true)
         .gte('checkin_date', startDate.toISOString().split('T')[0]);
 
       if (_error) throw _error;

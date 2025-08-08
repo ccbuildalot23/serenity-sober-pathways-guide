@@ -19,7 +19,7 @@ interface CommunityForumProps {
 
 export const CommunityForum: React.FC<CommunityForumProps> = ({ _forumId = 'general' }) => {
   const [posts, setPosts] = useState<ForumPost[]>([]);
-  const [loading, setLoading] = useState(_true);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -48,7 +48,7 @@ export const CommunityForum: React.FC<CommunityForumProps> = ({ _forumId = 'gene
 
   const loadPosts = async () => {
     try {
-      setLoading(_true);
+      setLoading(true);
       const _data = await CommunityService.getForumPosts(_forumId, {
         sort: sortBy,
         _search: searchTerm
@@ -106,7 +106,7 @@ export const CommunityForum: React.FC<CommunityForumProps> = ({ _forumId = 'gene
                 )}
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span>{formatDistanceToNow(new Date(post.created_at), { addSuffix: _true })}</span>
+                <span>{formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}</span>
                 <span>•</span>
                 <span>{post.reply_count || 0} replies</span>
               </div>
@@ -117,7 +117,7 @@ export const CommunityForum: React.FC<CommunityForumProps> = ({ _forumId = 'gene
             variant="ghost"
             size="sm"
             onClick={() => setReportDialog({
-              open: _true,
+              open: true,
               _contentId: post.id,
               _contentType: 'post'
             })}
@@ -182,7 +182,7 @@ export const CommunityForum: React.FC<CommunityForumProps> = ({ _forumId = 'gene
           <h1 className="text-2xl font-bold">Community Forum</h1>
           <p className="text-muted-foreground">Connect with others on your recovery journey</p>
         </div>
-        <Button onClick={() => setShowCreatePost(_true)}>
+        <Button onClick={() => setShowCreatePost(true)}>
           <MessageSquare className="h-4 w-4 mr-2" />
           New Post
         </Button>

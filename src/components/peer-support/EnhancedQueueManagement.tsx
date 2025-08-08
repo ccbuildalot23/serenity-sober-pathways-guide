@@ -33,7 +33,7 @@ const EnhancedQueueManagement = () => {
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [queueStatus, setQueueStatus] = useState<unknown>(null);
   const [estimatedWait, setEstimatedWait] = useState(15);
-  const [loading, setLoading] = useState(_false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (selectedDate) {
@@ -63,7 +63,7 @@ const EnhancedQueueManagement = () => {
     } catch (_error: unknown) {
       toast._error(`Failed to join queue: ${_error.message}`);
     }
-    setLoading(_false);
+    setLoading(false);
   };
 
   const scheduleSession = async () => {
@@ -81,7 +81,7 @@ const EnhancedQueueManagement = () => {
     } catch (_error: unknown) {
       toast._error(`Failed to schedule session: ${_error.message}`);
     }
-    setLoading(_false);
+    setLoading(false);
   };
 
   const requestCallback = async () => {
@@ -99,7 +99,7 @@ const EnhancedQueueManagement = () => {
     } catch (_error: unknown) {
       toast._error(`Failed to request callback: ${_error.message}`);
     }
-    setLoading(_false);
+    setLoading(false);
   };
 
   const startQueuePolling = () => {

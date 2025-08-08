@@ -18,12 +18,12 @@ export const useVictoryDashboard = () => {
     _nextMilestone: { days: 0, _message: '' }
   });
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(_true);
+  const [loading, setLoading] = useState(true);
   const [encouragement, setEncouragement] = useState('');
 
   const fetchVictories = useCallback(async () => {
     if (!user?.id) {
-      setLoading(_false);
+      setLoading(false);
       return;
     }
 
@@ -76,14 +76,14 @@ export const useVictoryDashboard = () => {
       
       setEncouragement("You're here. That's a victory.");
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   }, [user?.id]);
 
   const refreshVictories = useCallback(() => {
     if (user?.id) {
       console.log('Refreshing victories');
-      setLoading(_true);
+      setLoading(true);
       fetchVictories();
     }
   }, [user?.id, fetchVictories]);

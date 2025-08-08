@@ -14,7 +14,7 @@ const OutcomeMeasurementDashboard: React.FC = () => {
   const [analytics, setAnalytics] = useState<UserAnalytics[]>([]);
   const [outcomeMeasures, setOutcomeMeasures] = useState<OutcomeMeasure[]>([]);
   const [crisisRisk, setCrisisRisk] = useState<unknown>(null);
-  const [_loading, setLoading] = useState(_true);
+  const [_loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -24,7 +24,7 @@ const OutcomeMeasurementDashboard: React.FC = () => {
 
   const loadData = async () => {
     try {
-      setLoading(_true);
+      setLoading(true);
       
       // Generate current analytics
       await analyticsService.generateUserAnalytics(user!.id);
@@ -45,7 +45,7 @@ const OutcomeMeasurementDashboard: React.FC = () => {
       console.error('Error _loading dashboard data:', error);
       toast.error('Failed to load analytics data');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 

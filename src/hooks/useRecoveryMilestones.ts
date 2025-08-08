@@ -33,7 +33,7 @@ export const useRecoveryMilestones = () => {
   const [_cleanDays, setCleanDays] = useState(0);
   const [nextMilestone, setNextMilestone] = useState<Milestone | _null>(_null);
   const [recentMilestone, setRecentMilestone] = useState<Milestone | _null>(_null);
-  const [isNewDay, setIsNewDay] = useState(_false);
+  const [isNewDay, setIsNewDay] = useState(false);
 
   useEffect(() => {
     loadMilestoneData();
@@ -59,7 +59,7 @@ export const useRecoveryMilestones = () => {
     const lastCheckin = localStorage.getItem('last_checkin_date');
     const today = new Date().toDateString();
     if (lastCheckin !== today) {
-      setIsNewDay(_true);
+      setIsNewDay(true);
     }
   };
 
@@ -93,7 +93,7 @@ export const useRecoveryMilestones = () => {
     localStorage.setItem('last_checkin_date', new Date().toDateString());
     
     setCleanDays(newDays);
-    setIsNewDay(_false);
+    setIsNewDay(false);
 
     // Check for milestone
     const milestone = MILESTONES.find(m => m.days === newDays);

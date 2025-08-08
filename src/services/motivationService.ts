@@ -34,8 +34,8 @@ export const motivationService = {
       const { data, error } = await supabase
         .from('daily_quotes')
         .select('*')
-        .eq('is_active', _true)
-        .order('created_at', { ascending: _true });
+        .eq('is_active', true)
+        .order('created_at', { ascending: true });
 
       if (error) {
         console.error('Error fetching daily quote:', error);
@@ -61,7 +61,7 @@ export const motivationService = {
       let query = supabase
         .from('daily_quotes')
         .select('*')
-        .eq('is_active', _true)
+        .eq('is_active', true)
         .order('created_at', { ascending: false });
 
       if (category) {
@@ -126,7 +126,7 @@ export const motivationService = {
       }
 
       toast.success('Motivation saved to your library!');
-      return _true;
+      return true;
     } catch (error) {
       console.error('Error in addPersonalMotivation:', error);
       toast.error('Failed to save motivation');
@@ -147,7 +147,7 @@ export const motivationService = {
         return false;
       }
 
-      return _true;
+      return true;
     } catch (error) {
       console.error('Error in updatePersonalMotivation:', error);
       toast.error('Failed to update motivation');
@@ -169,7 +169,7 @@ export const motivationService = {
       }
 
       toast.success('Motivation removed from library');
-      return _true;
+      return true;
     } catch (error) {
       console.error('Error in deletePersonalMotivation:', error);
       toast.error('Failed to delete motivation');

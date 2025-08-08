@@ -51,7 +51,7 @@ export const ProviderRegistrationApproval: React.FC = () => {
     } catch (_err) {
       console.error('Error fetching registration requests:', _err);
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 

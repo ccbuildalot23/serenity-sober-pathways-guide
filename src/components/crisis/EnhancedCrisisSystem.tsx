@@ -82,7 +82,7 @@ const EnhancedCrisisSystem: React.FC = () => {
       {/* Crisis Assessment Modal */}
       <CrisisAssessmentModal
         isOpen={showAssessment}
-        onClose={() => setShowAssessment(_false)}
+        onClose={() => setShowAssessment(false)}
         onAssessmentComplete={handleAssessmentComplete}
       />
 
@@ -104,9 +104,9 @@ const EnhancedCrisisSystem: React.FC = () => {
         showResources={showResources}
         showFollowUp={showFollowUp}
         currentCrisisEvent={currentCrisisEvent}
-        onContactsClose={() => setShowContacts(_false)}
-        onResourcesClose={() => setShowResources(_false)}
-        onFollowUpClose={() => setShowFollowUp(_false)}
+        onContactsClose={() => setShowContacts(false)}
+        onResourcesClose={() => setShowResources(false)}
+        onFollowUpClose={() => setShowFollowUp(false)}
         onContactAdded={handleEmergencyContactAdded}
       />
 

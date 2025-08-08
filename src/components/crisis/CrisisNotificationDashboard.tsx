@@ -63,10 +63,10 @@ const CrisisNotificationDashboard: React.FC = () => {
   } = useCrisisManagement(activeCrisis?.id);
 
   const [selectedTab, setSelectedTab] = useState('overview');
-  const [responseDialogOpen, setResponseDialogOpen] = useState(_false);
-  const [escalationDialogOpen, setEscalationDialogOpen] = useState(_false);
-  const [resolutionDialogOpen, setResolutionDialogOpen] = useState(_false);
-  const [createAlertDialogOpen, setCreateAlertDialogOpen] = useState(_false);
+  const [responseDialogOpen, setResponseDialogOpen] = useState(false);
+  const [escalationDialogOpen, setEscalationDialogOpen] = useState(false);
+  const [resolutionDialogOpen, setResolutionDialogOpen] = useState(false);
+  const [createAlertDialogOpen, setCreateAlertDialogOpen] = useState(false);
 
   // Form states
   const [_responseForm, setResponseForm] = useState({
@@ -79,7 +79,7 @@ const CrisisNotificationDashboard: React.FC = () => {
   });
   const [_resolutionForm, setResolutionForm] = useState({
     _description: '',
-    _followUpNeeded: _false
+    _followUpNeeded: false
   });
   const [alertForm, setAlertForm] = useState({
     _severity: 'medium' as const,
@@ -114,7 +114,7 @@ const CrisisNotificationDashboard: React.FC = () => {
         _message: alertForm._message,
         _customMessage: alertForm._customMessage
       });
-      setCreateAlertDialogOpen(_false);
+      setCreateAlertDialogOpen(false);
       setAlertForm({ _severity: 'medium', _message: '', _customMessage: '' });
       toast.success('Crisis alert sent to support network');
     } catch (_error) {
@@ -127,7 +127,7 @@ const CrisisNotificationDashboard: React.FC = () => {
     
     try {
       await respondToAlert(activeCrisis.id, _responseForm);
-      setResponseDialogOpen(_false);
+      setResponseDialogOpen(false);
       setResponseForm({ _type: 'acknowledged', _message: '' });
     } catch (_error) {
       console._error('Error responding to alert:', _error);
@@ -139,7 +139,7 @@ const CrisisNotificationDashboard: React.FC = () => {
     
     try {
       await escalateAlert(activeCrisis.id, _escalationForm);
-      setEscalationDialogOpen(_false);
+      setEscalationDialogOpen(false);
       setEscalationForm({ _type: 'next_tier', _reason: '' });
     } catch (_error) {
       console._error('Error escalating alert:', _error);
@@ -151,8 +151,8 @@ const CrisisNotificationDashboard: React.FC = () => {
     
     try {
       await resolveAlert(activeCrisis.id, _resolutionForm);
-      setResolutionDialogOpen(_false);
-      setResolutionForm({ _description: '', _followUpNeeded: _false });
+      setResolutionDialogOpen(false);
+      setResolutionForm({ _description: '', _followUpNeeded: false });
     } catch (_error) {
       console._error('Error resolving alert:', _error);
     }
@@ -246,7 +246,7 @@ const CrisisNotificationDashboard: React.FC = () => {
                 </div>
                 
                 <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => setCreateAlertDialogOpen(_false)}>
+                  <Button variant="outline" onClick={() => setCreateAlertDialogOpen(false)}>
                     Cancel
                   </Button>
                   <Button 
@@ -489,7 +489,7 @@ const CrisisNotificationDashboard: React.FC = () => {
                             </div>
                             
                             <div className="flex justify-end space-x-2">
-                              <Button variant="outline" onClick={() => setResponseDialogOpen(_false)}>
+                              <Button variant="outline" onClick={() => setResponseDialogOpen(false)}>
                                 Cancel
                               </Button>
                               <Button onClick={handleRespond} disabled={isResponding}>
@@ -538,7 +538,7 @@ const CrisisNotificationDashboard: React.FC = () => {
                             </div>
                             
                             <div className="flex justify-end space-x-2">
-                              <Button variant="outline" onClick={() => setEscalationDialogOpen(_false)}>
+                              <Button variant="outline" onClick={() => setEscalationDialogOpen(false)}>
                                 Cancel
                               </Button>
                               <Button 
@@ -585,7 +585,7 @@ const CrisisNotificationDashboard: React.FC = () => {
                               </div>
                               
                               <div className="flex justify-end space-x-2">
-                                <Button variant="outline" onClick={() => setResolutionDialogOpen(_false)}>
+                                <Button variant="outline" onClick={() => setResolutionDialogOpen(false)}>
                                   Cancel
                                 </Button>
                                 <Button 
@@ -718,7 +718,7 @@ const CrisisNotificationDashboard: React.FC = () => {
                   Your support network is ready when you need them.
                 </p>
                 <Button 
-                  onClick={() => setCreateAlertDialogOpen(_true)}
+                  onClick={() => setCreateAlertDialogOpen(true)}
                   className="bg-blue-600 hover:bg-blue-700"
                 >
                   <AlertTriangle className="h-4 w-4 mr-2" />

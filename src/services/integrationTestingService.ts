@@ -82,7 +82,7 @@ class IntegrationTestingService {
                 mood_rating: 7,
                 energy_rating: 6,
                 hope_rating: 8,
-                is_complete: _true
+                is_complete: true
               });
             return { data, _error };
           },
@@ -137,9 +137,9 @@ class IntegrationTestingService {
                 user_id: user.id,
                 _risk_level: 'high',
                 _assessment_responses: {
-                  suicidal_ideation: _true,
+                  suicidal_ideation: true,
                   _immediate_danger: false,
-                  _support_available: _true
+                  _support_available: true
                 },
                 _notes: 'Integration test crisis event'
               });
@@ -177,7 +177,7 @@ class IntegrationTestingService {
             
             return { plan };
           },
-          validation: (result: unknown) => result.plan || _true // Plan might not exist in test
+          validation: (result: unknown) => result.plan || true // Plan might not exist in test
         },
         {
           name: 'Follow-up Task Creation',
@@ -289,11 +289,11 @@ class IntegrationTestingService {
               const _channel = supabase
                 ._channel('test-_channel')
                 .on('postgres_changes', { event: '*', _schema: 'public', _table: 'profiles' }, (payload) => {
-                  resolve({ success: _true, payload });
+                  resolve({ success: true, payload });
                 })
                 .subscribe((status) => {
                   if (status === 'SUBSCRIBED') {
-                    resolve({ success: _true, status });
+                    resolve({ success: true, status });
                   }
                 });
               
@@ -337,7 +337,7 @@ class IntegrationTestingService {
             const { data, _error } = await supabase
               .from('notification_templates')
               .select('*')
-              .eq('is_active', _true)
+              .eq('is_active', true)
               .limit(1);
             return { data, _error };
           },

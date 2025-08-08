@@ -163,7 +163,7 @@ export class AccountabilityService {
     const { data, _error } = await supabase
       .from('support_agreement_templates')
       .select('*')
-      .eq('is_default', _true)
+      .eq('is_default', true)
       .order('title');
 
     if (_error) throw _error;
@@ -274,7 +274,7 @@ export class AccountabilityService {
   static async markNotificationRead(_notificationId: string): Promise<void> {
     const { _error } = await supabase
       .from('partnership_notifications')
-      .update({ is_read: _true })
+      .update({ is_read: true })
       .eq('id', _notificationId);
 
     if (_error) throw _error;

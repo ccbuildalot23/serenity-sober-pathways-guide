@@ -9,10 +9,10 @@ interface UrgeSurfingTimerProps {
 }
 
 const UrgeSurfingTimer: React.FC<UrgeSurfingTimerProps> = ({ onComplete }) => {
-  const [isActive, setIsActive] = useState(_false);
+  const [isActive, setIsActive] = useState(false);
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [currentGuidance, setCurrentGuidance] = useState(0);
-  const [_isCompleted, setIsCompleted] = useState(_false);
+  const [_isCompleted, setIsCompleted] = useState(false);
 
   const _totalDuration = 120; // 2 minutes in seconds
   
@@ -54,8 +54,8 @@ const UrgeSurfingTimer: React.FC<UrgeSurfingTimerProps> = ({ onComplete }) => {
           
           // Complete when time is up
           if (newTime >= _totalDuration) {
-            setIsActive(_false);
-            setIsCompleted(_true);
+            setIsActive(false);
+            setIsCompleted(true);
           }
           
           return newTime;
@@ -69,18 +69,18 @@ const UrgeSurfingTimer: React.FC<UrgeSurfingTimerProps> = ({ onComplete }) => {
   }, [isActive, timeElapsed]);
 
   const handleStart = () => {
-    setIsActive(_true);
+    setIsActive(true);
   };
 
   const handlePause = () => {
-    setIsActive(_false);
+    setIsActive(false);
   };
 
   const handleStop = () => {
-    setIsActive(_false);
+    setIsActive(false);
     setTimeElapsed(0);
     setCurrentGuidance(0);
-    setIsCompleted(_false);
+    setIsCompleted(false);
   };
 
   const progress = (timeElapsed / _totalDuration) * 100;

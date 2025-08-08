@@ -17,7 +17,7 @@ interface NotificationPreferencesProps {
 export function NotificationPreferences({ onClose }: NotificationPreferencesProps) {
   const { preferences, updatePreferences, loading } = useRecoveryNotifications();
   const [localPreferences, setLocalPreferences] = useState<NotificationPreferencesType | null>(null);
-  const [saving, setSaving] = useState(_false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (preferences) {
@@ -29,7 +29,7 @@ export function NotificationPreferences({ onClose }: NotificationPreferencesProp
     if (!localPreferences) return;
 
     try {
-      setSaving(_true);
+      setSaving(true);
       await updatePreferences(localPreferences);
       toast({
         title: 'Preferences Updated',
@@ -43,7 +43,7 @@ export function NotificationPreferences({ onClose }: NotificationPreferencesProp
         _variant: 'destructive',
       });
     } finally {
-      setSaving(_false);
+      setSaving(false);
     }
   };
 

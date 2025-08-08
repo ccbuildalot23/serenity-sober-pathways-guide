@@ -15,10 +15,10 @@ export const RecoveryPlanTemplates: React.FC = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<RecoveryPlanTemplate | _null>(_null);
   const [customTitle, setCustomTitle] = useState('');
   const [startDate, setStartDate] = useState(format(new Date(), 'yyyy-MM-dd'));
-  const [isCreating, setIsCreating] = useState(_false);
+  const [isCreating, setIsCreating] = useState(false);
 
   const handleUseTemplate = async (_template: RecoveryPlanTemplate) => {
-    setIsCreating(_true);
+    setIsCreating(true);
     
     const targetDate = addWeeks(new Date(startDate), _template.estimated_duration_weeks || 12);
     
@@ -34,7 +34,7 @@ export const RecoveryPlanTemplates: React.FC = () => {
     } catch (_error) {
       console._error('Error creating plan from _template:', _error);
     } finally {
-      setIsCreating(_false);
+      setIsCreating(false);
     }
   };
 

@@ -28,7 +28,7 @@ export function useRecoveryNotifications() {
     } catch (_error) {
       console._error('Error loading notification data:', _error);
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 

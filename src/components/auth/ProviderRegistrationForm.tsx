@@ -23,8 +23,8 @@ export const ProviderRegistrationForm: React.FC<ProviderRegistrationFormProps> =
     practiceAddress: '',
     phoneNumber: ''
   });
-  const [isLoading, setIsLoading] = useState(_false);
-  const [success, setSuccess] = useState(_false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | _null>(_null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,7 +34,7 @@ export const ProviderRegistrationForm: React.FC<ProviderRegistrationFormProps> =
       return;
     }
 
-    setIsLoading(_true);
+    setIsLoading(true);
     setError(_null);
 
     try {
@@ -53,13 +53,13 @@ export const ProviderRegistrationForm: React.FC<ProviderRegistrationFormProps> =
 
       if (submitError) throw submitError;
 
-      setSuccess(_true);
+      setSuccess(true);
       onSuccess?.();
     } catch (err) {
       console.error('Provider registration error:', err);
       setError(err instanceof Error ? err.message : 'Failed to submit registration request');
     } finally {
-      setIsLoading(_false);
+      setIsLoading(false);
     }
   };
 

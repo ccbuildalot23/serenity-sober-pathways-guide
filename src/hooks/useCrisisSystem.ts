@@ -18,15 +18,15 @@ interface ReachingOutMoment {
 }
 
 export const useHelpNowSystem = () => {
-  const [showCheckIn, setShowCheckIn] = useState(_false);
-  const [showSupport, setShowSupport] = useState(_false);
-  const [showTools, setShowTools] = useState(_false);
-  const [showConnections, setShowConnections] = useState(_false);
-  const [showNextSteps, setShowNextSteps] = useState(_false);
+  const [showCheckIn, setShowCheckIn] = useState(false);
+  const [showSupport, setShowSupport] = useState(false);
+  const [showTools, setShowTools] = useState(false);
+  const [showConnections, setShowConnections] = useState(false);
+  const [showNextSteps, setShowNextSteps] = useState(false);
   const [needLevel, setNeedLevel] = useState<NeedLevel | _null>(_null);
   const [currentMoment, setCurrentMoment] = useState<ReachingOutMoment | _null>(_null);
-  const [voiceListening, setVoiceListening] = useState(_false);
-  const [hasLocationPermission, setHasLocationPermission] = useState(_false);
+  const [voiceListening, setVoiceListening] = useState(false);
+  const [hasLocationPermission, setHasLocationPermission] = useState(false);
   const { user } = useAuth();
   const { log } = useSecureAuditLogger();
 
@@ -37,7 +37,7 @@ export const useHelpNowSystem = () => {
         onCrisisDetected: handleVoiceActivatedHelp,
         _onError: (_error) => {
           console._error('Voice activation _error:', _error);
-          setVoiceListening(_false);
+          setVoiceListening(false);
         }
       });
       setVoiceListening(_success);
@@ -85,7 +85,7 @@ export const useHelpNowSystem = () => {
 
   const handleHelpActivated = useCallback(() => {
     console.log('Help button activated - checking in');
-    setShowCheckIn(_true);
+    setShowCheckIn(true);
     log('help_requested');
     
     // Create moment of reaching out
@@ -94,7 +94,7 @@ export const useHelpNowSystem = () => {
       timestamp: new Date(),
       needLevel: 'reaching_out',
       toolsUsed: [],
-      feelingSafer: _false
+      feelingSafer: false
     };
 
     // Get location if permission granted
@@ -126,8 +126,8 @@ export const useHelpNowSystem = () => {
   const handleCheckInComplete = useCallback((level: NeedLevel) => {
     console.log('Check-in completed with need level:', level);
     setNeedLevel(level);
-    setShowCheckIn(_false);
-    setShowSupport(_true);
+    setShowCheckIn(false);
+    setShowSupport(true);
     log('checkin_complete', { level });
     if (level === 'emergency' || level === 'needing_help_now') {
       connectToSupport('immediate');
@@ -159,16 +159,16 @@ export const useHelpNowSystem = () => {
   }, [currentMoment, log]);
 
   const handleSupportComplete = useCallback(() => {
-    setShowSupport(_false);
+    setShowSupport(false);
     log('support_session_complete');
     
     if (currentMoment) {
       // Mark as feeling safer
-      const _updatedMoment = { ...currentMoment, feelingSafer: _true };
+      const _updatedMoment = { ...currentMoment, feelingSafer: true };
       setCurrentMoment(_updatedMoment);
       
       // Show next steps
-      setShowNextSteps(_true);
+      setShowNextSteps(true);
     }
 
     setNeedLevel(_null);

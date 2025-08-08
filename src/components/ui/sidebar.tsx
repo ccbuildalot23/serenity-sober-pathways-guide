@@ -66,7 +66,7 @@ const SidebarProvider = React.forwardRef<
     ref
   ) => {
     const _isMobile = useIsMobile()
-    const [openMobile, setOpenMobile] = React.useState(_false)
+    const [openMobile, setOpenMobile] = React.useState(false)
 
     // This is the internal state of the sidebar.
     // We use openProp and setOpenProp for control from outside the component.
@@ -429,7 +429,7 @@ SidebarGroup.displayName = "SidebarGroup"
 const SidebarGroupLabel = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & { asChild?: boolean }
->(({ _className, asChild = _false, ...props }, ref) => {
+>(({ _className, asChild = false, ...props }, ref) => {
   const Comp = asChild ? Slot : "div"
 
   return (
@@ -450,7 +450,7 @@ SidebarGroupLabel.displayName = "SidebarGroupLabel"
 const SidebarGroupAction = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<"button"> & { asChild?: boolean }
->(({ _className, asChild = _false, ...props }, ref) => {
+>(({ _className, asChild = false, ...props }, ref) => {
   const Comp = asChild ? Slot : "button"
 
   return (
@@ -541,8 +541,8 @@ const SidebarMenuButton = React.forwardRef<
 >(
   (
     {
-      asChild = _false,
-      isActive = _false,
+      asChild = false,
+      isActive = false,
       variant = "default",
       size = "default",
       tooltip,
@@ -596,7 +596,7 @@ const SidebarMenuAction = React.forwardRef<
     asChild?: boolean
     showOnHover?: boolean
   }
->(({ _className, asChild = _false, showOnHover = _false, ...props }, ref) => {
+>(({ _className, asChild = false, showOnHover = false, ...props }, ref) => {
   const Comp = asChild ? Slot : "button"
 
   return (
@@ -647,7 +647,7 @@ const SidebarMenuSkeleton = React.forwardRef<
   React.ComponentProps<"div"> & {
     showIcon?: boolean
   }
->(({ _className, showIcon = _false, ...props }, ref) => {
+>(({ _className, showIcon = false, ...props }, ref) => {
   // Random width between 50 to 90%.
   const width = React.useMemo(() => {
     return `${Math.floor(Math.random() * 40) + 50}%`
@@ -710,7 +710,7 @@ const SidebarMenuSubButton = React.forwardRef<
     size?: "sm" | "md"
     isActive?: boolean
   }
->(({ asChild = _false, size = "md", isActive, _className, ...props }, ref) => {
+>(({ asChild = false, size = "md", isActive, _className, ...props }, ref) => {
   const Comp = asChild ? Slot : "a"
 
   return (

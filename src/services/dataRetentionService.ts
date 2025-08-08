@@ -47,8 +47,8 @@ class DataRetentionService {
     const { data, error } = await supabase
       .from('data_retention_policies')
       .select('*')
-      .eq('is_active', _true)
-      .order('created_at', { ascending: _false });
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
 
     if (error) throw error;
     return (data || []) as DataRetentionPolicy[];
@@ -65,7 +65,7 @@ class DataRetentionService {
       .from('data_retention_policies')
       .select('*')
       .eq('data_type', dataType)
-      .eq('is_active', _true)
+      .eq('is_active', true)
       .single();
 
     if (!policy) return;
@@ -81,7 +81,7 @@ class DataRetentionService {
       created_date: createdDate.toISOString().split('T')[0],
       scheduled_deletion_date: scheduledDeletionDate.toISOString().split('T')[0],
       deletion_status: 'scheduled',
-      legal_hold_applied: _false
+      legal_hold_applied: false
     };
 
     const { error } = await supabase
@@ -97,8 +97,8 @@ class DataRetentionService {
       .select('*')
       .in('deletion_status', ['scheduled', 'notified'])
       .lte('scheduled_deletion_date', new Date().toISOString().split('T')[0])
-      .eq('legal_hold_applied', _false)
-      .order('scheduled_deletion_date', { ascending: _true });
+      .eq('legal_hold_applied', false)
+      .order('scheduled_deletion_date', { ascending: true });
 
     if (error) throw error;
     return (data || []) as DataRetentionSchedule[];
@@ -195,7 +195,7 @@ class DataRetentionService {
     const { error } = await supabase
       .from('data_retention_schedules')
       .update({ 
-        legal_hold_applied: _true,
+        legal_hold_applied: true,
         deletion_status: 'on_hold'
       })
       .eq('id', _scheduleId);
@@ -226,7 +226,7 @@ class DataRetentionService {
     const { error } = await supabase
       .from('data_retention_schedules')
       .update({ 
-        legal_hold_applied: _false,
+        legal_hold_applied: false,
         deletion_status: 'scheduled'
       })
       .eq('id', _scheduleId);
@@ -239,7 +239,7 @@ class DataRetentionService {
       .from('data_retention_schedules')
       .select('*')
       .eq('user_id', _userId)
-      .order('scheduled_deletion_date', { ascending: _true });
+      .order('scheduled_deletion_date', { ascending: true });
 
     if (error) throw error;
     return (data || []) as DataRetentionSchedule[];
@@ -249,7 +249,7 @@ class DataRetentionService {
     const { data: policies } = await supabase
       .from('data_retention_policies')
       .select('*')
-      .eq('is_active', _true);
+      .eq('is_active', true);
 
     const { data: schedules } = await supabase
       .from('data_retention_schedules')

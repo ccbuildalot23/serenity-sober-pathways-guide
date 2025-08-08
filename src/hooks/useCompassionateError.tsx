@@ -46,7 +46,7 @@ const ERROR_MESSAGES = {
 
 export const useCompassionateError = () => {
   const [lastError, setLastError] = useState<Error | null>(null);
-  const [isRetrying, setIsRetrying] = useState(_false);
+  const [isRetrying, setIsRetrying] = useState(false);
   const [errorCount, setErrorCount] = useState(0);
 
   const getErrorType = (error: Error): keyof typeof ERROR_MESSAGES => {
@@ -112,7 +112,7 @@ export const useCompassionateError = () => {
   const retryAction = useCallback(async (action: () => Promise<void>) => {
     if (isRetrying) return;
 
-    setIsRetrying(_true);
+    setIsRetrying(true);
     toast.info("Trying again...", { _duration: 2000 });
 
     try {
@@ -122,10 +122,10 @@ export const useCompassionateError = () => {
     } catch (error) {
       handleError(error as Error, {
         action: 'retry',
-        _isRecoverable: _false
+        _isRecoverable: false
       });
     } finally {
-      setIsRetrying(_false);
+      setIsRetrying(false);
     }
   }, [isRetrying, handleError]);
 
@@ -179,8 +179,8 @@ export const useCompassionateError = () => {
     withCompassion,
     handleFormError,
     // Utility functions for common scenarios
-    networkError: () => handleError(new Error('network'), { action: 'network', _isRecoverable: _true }),
-    authError: () => handleError(new Error('auth'), { action: 'auth', _isRecoverable: _false }),
+    networkError: () => handleError(new Error('network'), { action: 'network', _isRecoverable: true }),
+    authError: () => handleError(new Error('auth'), { action: 'auth', _isRecoverable: false }),
     saveError: (retry?: () => Promise<void>) => handleError(new Error('save'), { 
       action: 'save', 
       _isRecoverable: !!retry,

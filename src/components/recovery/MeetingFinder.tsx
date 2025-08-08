@@ -58,11 +58,11 @@ const MeetingFinder = () => {
   const { user } = useAuth();
   const [meetings, setMeetings] = useState<MeetingWithDetails[]>([]);
   const [filteredMeetings, setFilteredMeetings] = useState<MeetingWithDetails[]>([]);
-  const [loading, setLoading] = useState(_false);
+  const [loading, setLoading] = useState(false);
   const [searchLocation, setSearchLocation] = useState('');
   const [_currentLocation, setCurrentLocation] = useState<{lat: number, _lng: number} | null>(null);
   const [selectedMeeting, setSelectedMeeting] = useState<MeetingWithDetails | null>(null);
-  const [showFilters, setShowFilters] = useState(_false);
+  const [showFilters, setShowFilters] = useState(false);
   const [savedMeetings, setSavedMeetings] = useState<string[]>([]);
   const [attendanceHistory, setAttendanceHistory] = useState<Record<string, Date[]>>({});
   
@@ -73,7 +73,7 @@ const MeetingFinder = () => {
     _accessibility: [],
     _socialAnxietyLevel: 5,
     _maxDistance: 10,
-    newcomerFriendly: _false
+    newcomerFriendly: false
   });
 
   const mapRef = useRef<HTMLDivElement>(null);
@@ -90,7 +90,7 @@ const MeetingFinder = () => {
       description: 'A welcoming group specifically for people new to recovery. Very supportive environment.',
       _accessibility: ['wheelchair', 'hearing_loop'],
       group_size: 'small',
-      newcomer_friendly: _true,
+      newcomer_friendly: true,
       social_anxiety_rating: 2, // 1-5 scale, lower = more comfortable
       _format: 'discussion',
       distance: 0.8
@@ -105,7 +105,7 @@ const MeetingFinder = () => {
       description: 'Quick 45-minute meeting perfect for lunch break. Casual atmosphere.',
       _accessibility: ['wheelchair'],
       group_size: 'medium',
-      newcomer_friendly: _true,
+      newcomer_friendly: true,
       social_anxiety_rating: 3,
       _format: 'speaker',
       distance: 1.2
@@ -117,11 +117,11 @@ const MeetingFinder = () => {
       day: 'Fri',
       _time: '6:00 PM',
       location: 'Virtual',
-      virtual: _true,
+      virtual: true,
       link: 'https://zoom.us/meeting',
       description: 'Video meeting with camera optional. Great for social anxiety.',
       group_size: 'small',
-      newcomer_friendly: _true,
+      newcomer_friendly: true,
       social_anxiety_rating: 1, // Virtual = lowest anxiety
       _format: 'discussion',
       distance: 0
@@ -136,7 +136,7 @@ const MeetingFinder = () => {
       description: 'Women-only meeting with childcare available. Safe space to share.',
       _accessibility: ['childcare', 'wheelchair'],
       group_size: 'small',
-      newcomer_friendly: _true,
+      newcomer_friendly: true,
       social_anxiety_rating: 2,
       _format: 'sharing_circle',
       distance: 2.1
@@ -151,7 +151,7 @@ const MeetingFinder = () => {
       description: 'Ages 18-35. Casual meetup with coffee and donuts. Very relaxed.',
       _accessibility: ['coffee', 'informal_seating'],
       group_size: 'medium',
-      newcomer_friendly: _true,
+      newcomer_friendly: true,
       social_anxiety_rating: 3,
       _format: 'social',
       distance: 1.5
@@ -166,7 +166,7 @@ const MeetingFinder = () => {
       description: 'Begins with 20 minutes of silent meditation. Minimal speaking required.',
       _accessibility: ['quiet_space'],
       group_size: 'small',
-      newcomer_friendly: _false,
+      newcomer_friendly: false,
       social_anxiety_rating: 1, // Minimal speaking
       _format: 'meditation',
       distance: 2.8
@@ -205,7 +205,7 @@ const MeetingFinder = () => {
   };
 
   const loadMeetings = async () => {
-    setLoading(_true);
+    setLoading(true);
     try {
       // In a real app, this would fetch from an API with user's location
       setMeetings(_enhancedMeetings);
@@ -218,7 +218,7 @@ const MeetingFinder = () => {
       });
       toast.error('Failed to load meetings');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
@@ -476,7 +476,7 @@ const MeetingFinder = () => {
               className="border-purple-300 text-purple-700"
             >
               <Filter className="w-4 h-4 mr-2" />
-              Filters {Object.values(_filters).some(v => Array.isArray(v) ? v.length > 0 : v !== (typeof v === 'number' ? (v > 5 ? 10 : 5) : _false)) && '(Active)'}
+              Filters {Object.values(_filters).some(v => Array.isArray(v) ? v.length > 0 : v !== (typeof v === 'number' ? (v > 5 ? 10 : 5) : false)) && '(Active)'}
             </Button>
             {_currentLocation && (
               <Button
@@ -593,7 +593,7 @@ const MeetingFinder = () => {
                     _accessibility: [],
                     _socialAnxietyLevel: 5,
                     _maxDistance: 10,
-                    newcomerFriendly: _false
+                    newcomerFriendly: false
                   })}
                 >
                   Clear Filters
@@ -626,7 +626,7 @@ const MeetingFinder = () => {
                 <p className="text-gray-600 mb-2">No meetings found with your current _filters</p>
                 <Button 
                   variant="outline"
-                  onClick={() => setShowFilters(_true)}
+                  onClick={() => setShowFilters(true)}
                 >
                   Adjust Filters
                 </Button>

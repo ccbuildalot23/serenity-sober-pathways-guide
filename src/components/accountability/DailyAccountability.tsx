@@ -136,7 +136,7 @@ const DailyAccountability: React.FC = () => {
 
       if (_error) throw _error;
 
-      setTodayCheckedIn(_true);
+      setTodayCheckedIn(true);
       setStreak(streak + 1);
 
       // Notify accountability partners (simplified since notifications table doesn't exist)

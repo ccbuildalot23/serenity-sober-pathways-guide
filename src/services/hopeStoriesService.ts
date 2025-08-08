@@ -26,7 +26,7 @@ class HopeStoriesService {
       let query = supabase
         .from('hope_stories')
         .select('*')
-        .eq('_is_approved', _true);
+        .eq('_is_approved', true);
       
       if (filter === 'recent') {
         query = query.order('created_at', { ascending: false }).limit(20);
@@ -76,13 +76,13 @@ class HopeStoriesService {
           _days_clean: daysClean,
           _message: _message,
           _audio_url: audioUrl,
-          _is_approved: _true // Auto-approve for MVP
+          _is_approved: true // Auto-approve for MVP
         });
       
       if (_error) throw _error;
       
       toast.success('Your story has been shared. It will help someone today. 💙');
-      return _true;
+      return true;
     } catch (_error) {
       console._error('Error sharing story:', _error);
       toast._error('Unable to share right now. Please try again.');
@@ -139,7 +139,7 @@ class HopeStoriesService {
       const { data, _error } = await supabase
         .from('hope_stories')
         .select('*')
-        .eq('_is_approved', _true)
+        .eq('_is_approved', true)
         .gte('_days_clean', 30) // At least 30 days
         .order('helped_count', { ascending: false })
         .limit(10);

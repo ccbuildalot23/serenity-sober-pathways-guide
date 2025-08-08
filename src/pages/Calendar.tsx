@@ -79,18 +79,18 @@ const Calendar: React.FC = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('calendar');
   const [EnhancedCalendar, setEnhancedCalendar] = useState<React.ComponentType<unknown> | null>(null);
-  const [loading, setLoading] = useState(_true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Try to dynamically import the EnhancedCalendar
     import('@/components/calendar/EnhancedCalendar')
       .then(module => {
         setEnhancedCalendar(() => module.default);
-        setLoading(_false);
+        setLoading(false);
       })
       .catch(_error => {
         console.warn('EnhancedCalendar not available, using simple calendar', _error);
-        setLoading(_false);
+        setLoading(false);
       });
   }, []);
 

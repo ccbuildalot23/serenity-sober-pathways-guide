@@ -93,7 +93,7 @@ const TreatmentPlanTemplates: React.FC = () => {
     _additional_interventions: '',
     _notes: ''
   });
-  const [isCreating, setIsCreating] = useState(_false);
+  const [isCreating, setIsCreating] = useState(false);
 
   const handleCreatePlan = async () => {
     if (!selectedTemplate || !patientId) {
@@ -101,7 +101,7 @@ const TreatmentPlanTemplates: React.FC = () => {
       return;
     }
 
-    setIsCreating(_true);
+    setIsCreating(true);
     try {
       const _planData = {
         patient_id: patientId,
@@ -152,7 +152,7 @@ const TreatmentPlanTemplates: React.FC = () => {
       console.error('Error creating treatment plan:', error);
       toast.error('Failed to create treatment plan');
     } finally {
-      setIsCreating(_false);
+      setIsCreating(false);
     }
   };
 

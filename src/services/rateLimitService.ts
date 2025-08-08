@@ -130,7 +130,7 @@ export class RateLimitService {
     // Allow the attempt
     const _remainingAttempts = config.maxAttempts - (cacheEntry?.count || 0) - 1;
     return {
-      allowed: _true,
+      allowed: true,
       _remainingAttempts: Math.max(0, _remainingAttempts)
     };
   }
@@ -153,7 +153,7 @@ export class RateLimitService {
       this.attemptCache.delete(_key);
       
       // Log successful attempt
-      await this.logAttempt(_endpoint, _identifier, _true, ipAddress);
+      await this.logAttempt(_endpoint, _identifier, true, ipAddress);
       return;
     }
     
@@ -184,7 +184,7 @@ export class RateLimitService {
         .from('rate_limit_blocks')
         .select('_blocked_until')
         .eq('ip_address', ipAddress)
-        .eq('active', _true)
+        .eq('active', true)
         .single();
 
       if (_error || !data) {
@@ -193,7 +193,7 @@ export class RateLimitService {
 
       const blockedUntil = new Date(data._blocked_until);
       if (blockedUntil > new Date()) {
-        return _true;
+        return true;
       }
 
       // Block expired, deactivate it
@@ -223,7 +223,7 @@ export class RateLimitService {
           ip_address: ipAddress,
           _reason,
           _blocked_until: blockedUntil.toISOString(),
-          active: _true,
+          active: true,
           created_at: new Date().toISOString()
         });
 
@@ -311,7 +311,7 @@ export class RateLimitService {
         .from('rate_limit_blocks')
         .select('_blocked_until, _reason')
         .or(`_identifier.eq.${_identifier}${ipAddress ? `,ip_address.eq.${ipAddress}` : ''}`)
-        .eq('active', _true)
+        .eq('active', true)
         .single();
 
       if (_error || !data) {
@@ -359,7 +359,7 @@ export class RateLimitService {
           ip_address: ipAddress,
           _reason: `Exceeded ${config.maxAttempts} attempts in ${config.windowMinutes} minutes`,
           _blocked_until: blockedUntil.toISOString(),
-          active: _true,
+          active: true,
           created_at: new Date().toISOString()
         });
     } catch (_error) {

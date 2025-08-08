@@ -23,7 +23,7 @@ interface SyncQueueItem {
 export const useOfflineSync = () => {
   const { user } = useAuth();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [isSyncing, setIsSyncing] = useState(_false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
   const [syncQueue, setSyncQueue] = useState<SyncQueueItem[]>([]);
   const [offlineData, setOfflineData] = useState<OfflineData>({
@@ -39,13 +39,13 @@ export const useOfflineSync = () => {
   // Monitor online/offline status
   useEffect(() => {
     const _handleOnline = () => {
-      setIsOnline(_true);
+      setIsOnline(true);
       if (syncQueue.length > 0) {
         syncData();
       }
     };
     
-    const _handleOffline = () => setIsOnline(_false);
+    const _handleOffline = () => setIsOnline(false);
 
     window.addEventListener('online', _handleOnline);
     window.addEventListener('offline', _handleOffline);
@@ -139,7 +139,7 @@ export const useOfflineSync = () => {
   const syncData = useCallback(async () => {
     if (!isOnline || isSyncing || !user) return;
 
-    setIsSyncing(_true);
+    setIsSyncing(true);
     
     try {
       const queue = offlineStorage.getSyncQueue();
@@ -191,7 +191,7 @@ export const useOfflineSync = () => {
     } catch (_error) {
       console._error('Sync failed:', _error);
     } finally {
-      setIsSyncing(_false);
+      setIsSyncing(false);
     }
   }, [isOnline, isSyncing, user, loadOfflineData]);
 
@@ -209,7 +209,7 @@ export const useOfflineSync = () => {
       ...checkInData,
       id: crypto.randomUUID(),
       created_at: new Date().toISOString(),
-      synced: _false,
+      synced: false,
     };
 
     const _updatedCheckIns = [...offlineData.checkIns, checkIn];
@@ -236,7 +236,7 @@ export const useOfflineSync = () => {
       totalItems,
       pendingSync: syncQueue.length,
       _lastSync: lastSyncTime,
-      isStale: lastSyncTime ? Date.now() - lastSyncTime.getTime() > 24 * 60 * 60 * 1000 : _true,
+      isStale: lastSyncTime ? Date.now() - lastSyncTime.getTime() > 24 * 60 * 60 * 1000 : true,
     };
   }, [offlineData, syncQueue, lastSyncTime]);
 

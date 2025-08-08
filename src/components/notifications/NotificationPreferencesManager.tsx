@@ -87,8 +87,8 @@ const channels: { channel: NotificationChannel; _label: string; _icon: React.Rea
 
 export function NotificationPreferencesManager() {
   const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
-  const [_loading, setLoading] = useState(_true);
-  const [saving, setSaving] = useState(_false);
+  const [_loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -117,14 +117,14 @@ export function NotificationPreferencesManager() {
         _variant: 'destructive'
       });
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
   const savePreferences = async () => {
     if (!preferences) return;
 
-    setSaving(_true);
+    setSaving(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -144,7 +144,7 @@ export function NotificationPreferencesManager() {
         _variant: 'destructive'
       });
     } finally {
-      setSaving(_false);
+      setSaving(false);
     }
   };
 

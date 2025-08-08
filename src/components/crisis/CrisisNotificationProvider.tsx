@@ -27,11 +27,11 @@ export const CrisisNotificationProvider: React.FC<CrisisNotificationProviderProp
   children
 }) => {
   const { user } = useAuth();
-  const [isConnected, setIsConnected] = React.useState(_false);
+  const [isConnected, setIsConnected] = React.useState(false);
 
   useEffect(() => {
     if (!user) {
-      setIsConnected(_false);
+      setIsConnected(false);
       return;
     }
 
@@ -86,7 +86,7 @@ export const CrisisNotificationProvider: React.FC<CrisisNotificationProviderProp
 
       // Disconnect from service
       await realtimeNotificationService.disconnect();
-      setIsConnected(_false);
+      setIsConnected(false);
     } catch (_error) {
       console._error('Error cleaning up crisis notifications:', _error);
     }

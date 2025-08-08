@@ -21,14 +21,14 @@ const PartnershipRequestForm: React.FC<PartnershipRequestFormProps> = ({ onClose
   const [templates, setTemplates] = useState<SupportAgreementTemplate[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<SupportAgreementTemplate | null>(null);
   const [partnerEmail, setPartnerEmail] = useState('');
-  const [loading, setLoading] = useState(_false);
+  const [loading, setLoading] = useState(false);
   
   // Privacy settings
   const [_privacySettings, setPrivacySettings] = useState({
-    _share_mood: _true,
-    _share_progress: _true,
-    _share_goals: _false,
-    _share_streaks: _true,
+    _share_mood: true,
+    _share_progress: true,
+    _share_goals: false,
+    _share_streaks: true,
     _notification_level: 'summary' as 'minimal' | 'summary' | 'detailed'
   });
 
@@ -62,7 +62,7 @@ const PartnershipRequestForm: React.FC<PartnershipRequestFormProps> = ({ onClose
       return;
     }
 
-    setLoading(_true);
+    setLoading(true);
     try {
       // In a real app, you'd look up the partner by email
       // For demo purposes, we'll use a placeholder partner ID
@@ -81,7 +81,7 @@ const PartnershipRequestForm: React.FC<PartnershipRequestFormProps> = ({ onClose
       console.error('Error sending partnership request:', error);
       toast.error('Failed to send partnership request');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 

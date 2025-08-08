@@ -18,11 +18,11 @@ export const PlayTheTapeModal: React.FC<PlayTheTapeModalProps> = ({
 }) => {
   const [stage, setStage] = useState<'warning' | 'story' | 'reflection'>('warning');
   const [story, setStory] = useState<GeneratedStory | null>(null);
-  const [audioEnabled, setAudioEnabled] = useState(_true);
-  const [loading, setLoading] = useState(_false);
+  const [audioEnabled, setAudioEnabled] = useState(true);
+  const [loading, setLoading] = useState(false);
   
   const handleProceed = async () => {
-    setLoading(_true);
+    setLoading(true);
     try {
       const _generatedStory = await generateRelapseStory(_userData);
       setStory(_generatedStory);
@@ -31,7 +31,7 @@ export const PlayTheTapeModal: React.FC<PlayTheTapeModalProps> = ({
       console.error('Failed to generate story:', error);
       // TODO: Show error state
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
   

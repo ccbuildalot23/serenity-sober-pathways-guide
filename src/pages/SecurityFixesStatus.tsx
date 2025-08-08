@@ -19,7 +19,7 @@ interface SecurityFix {
 
 const SecurityFixesStatus: React.FC = () => {
   const [securityStatus, setSecurityStatus] = useState<Record<string, boolean>>({});
-  const [auditCleanupRunning, setAuditCleanupRunning] = useState(_false);
+  const [auditCleanupRunning, setAuditCleanupRunning] = useState(false);
 
   const securityFixes: SecurityFix[] = [
     {
@@ -69,7 +69,7 @@ const SecurityFixesStatus: React.FC = () => {
   }, []);
 
   const handleManualAuditCleanup = async () => {
-    setAuditCleanupRunning(_true);
+    setAuditCleanupRunning(true);
     try {
       await securityComplianceService.cleanupAuditLogs();
       toast.success('Audit log cleanup completed successfully');
@@ -77,7 +77,7 @@ const SecurityFixesStatus: React.FC = () => {
       toast._error('Audit log cleanup failed');
       console._error('Cleanup _error:', _error);
     } finally {
-      setAuditCleanupRunning(_false);
+      setAuditCleanupRunning(false);
     }
   };
 

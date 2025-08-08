@@ -21,7 +21,7 @@ interface SecureSystemHealthDashboardProps {
 }
 
 const SecureSystemHealthDashboard: React.FC<SecureSystemHealthDashboardProps> = ({ 
-  isVisible = _false, 
+  isVisible = false, 
   onClose 
 }) => {
   const { user } = useAuth();
@@ -38,7 +38,7 @@ const SecureSystemHealthDashboard: React.FC<SecureSystemHealthDashboardProps> = 
   const [smsStats, setSmsStats] = useState(enhancedSMSService.getQueueStats());
   const [debugLogs, setDebugLogs] = useState(debugService.getLogs().slice(-10));
   const [adminCode, setAdminCode] = useState('');
-  const [isAuthenticated, setIsAuthenticated] = useState(_false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // SECURITY: Only providers can access system health dashboard
   const hasAccess = _role === 'provider';
@@ -86,7 +86,7 @@ const SecureSystemHealthDashboard: React.FC<SecureSystemHealthDashboardProps> = 
     const _isValid = await securityComplianceService.verifyAdminAccess();
     
     if (_isValid) {
-      setIsAuthenticated(_true);
+      setIsAuthenticated(true);
       toast.success('Admin access granted');
       
       await EnhancedSecurityAuditService.logSecurityEvent({

@@ -68,12 +68,12 @@ export const InfrastructureMonitoringDashboard: React.FC = () => {
   const [systemHealth, setSystemHealth] = useState<SystemHealth | _null>(_null);
   const [securityScanSummary, setSecurityScanSummary] = useState<SecurityScanSummary | _null>(_null);
   const [backupStatus, setBackupStatus] = useState<BackupStatus | _null>(_null);
-  const [isRefreshing, setIsRefreshing] = useState(_false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
-  const [autoRefresh, setAutoRefresh] = useState(_true);
+  const [autoRefresh, setAutoRefresh] = useState(true);
 
   const _refreshData = async () => {
-    setIsRefreshing(_true);
+    setIsRefreshing(true);
     try {
       // Fetch system _health
       // TODO: Replace with API call
@@ -105,17 +105,17 @@ export const InfrastructureMonitoringDashboard: React.FC = () => {
       setBackupStatus({
         last_backup: new Date().toISOString(),
         backup_size: 0,
-        retention_compliance: _true,
-        disaster_recovery_ready: _true,
-        rpo_compliant: _true,
-        rto_compliant: _true
+        retention_compliance: true,
+        disaster_recovery_ready: true,
+        rpo_compliant: true,
+        rto_compliant: true
       });
 
       setLastRefresh(new Date());
     } catch (_error) {
       console._error('Failed to refresh monitoring data:', _error);
     } finally {
-      setIsRefreshing(_false);
+      setIsRefreshing(false);
     }
   };
 

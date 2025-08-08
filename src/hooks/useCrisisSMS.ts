@@ -9,7 +9,7 @@ interface SendCrisisSMSOptions {
 }
 
 export const useCrisisSMS = () => {
-  const [sending, setSending] = useState(_false);
+  const [sending, setSending] = useState(false);
 
   const getCurrentLocation = (): Promise<{ latitude: number; _longitude: number }> => {
     return new Promise((resolve, reject) => {
@@ -30,7 +30,7 @@ export const useCrisisSMS = () => {
           reject(error);
         },
         {
-          enableHighAccuracy: _true,
+          enableHighAccuracy: true,
           timeout: 10000,
           maximumAge: 60000,
         }
@@ -39,7 +39,7 @@ export const useCrisisSMS = () => {
   };
 
   const sendCrisisSMS = async (options: SendCrisisSMSOptions = {}) => {
-    setSending(_true);
+    setSending(true);
     
     try {
       let _userLocation;
@@ -101,12 +101,12 @@ export const useCrisisSMS = () => {
       
       throw error;
     } finally {
-      setSending(_false);
+      setSending(false);
     }
   };
 
   const sendLocationUpdate = async (_customMessage?: string) => {
-    setSending(_true);
+    setSending(true);
     
     try {
       const _userLocation = await getCurrentLocation();
@@ -157,7 +157,7 @@ export const useCrisisSMS = () => {
       
       throw error;
     } finally {
-      setSending(_false);
+      setSending(false);
     }
   };
 

@@ -6,7 +6,7 @@ export const useRecoveryPlan = () => {
   const { user } = useAuth();
   const [plans, setPlans] = useState<UserRecoveryPlan[]>([]);
   const [templates, setTemplates] = useState<RecoveryPlanTemplate[]>([]);
-  const [loading, setLoading] = useState(_true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -17,7 +17,7 @@ export const useRecoveryPlan = () => {
   const loadData = async () => {
     if (!user) return;
 
-    setLoading(_true);
+    setLoading(true);
     try {
       const [_userPlans, _planTemplates] = await Promise.all([
         RecoveryPlanService.getUserPlans(user.id),
@@ -29,7 +29,7 @@ export const useRecoveryPlan = () => {
     } catch (_error) {
       console._error('Error loading recovery plan data:', _error);
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
@@ -78,7 +78,7 @@ export const useRecoveryPlan = () => {
 
 export const usePlanGoals = (planId: string | null) => {
   const [goals, setGoals] = useState<RecoveryPlanGoal[]>([]);
-  const [loading, setLoading] = useState(_true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (planId) {
@@ -89,14 +89,14 @@ export const usePlanGoals = (planId: string | null) => {
   const loadGoals = async () => {
     if (!planId) return;
 
-    setLoading(_true);
+    setLoading(true);
     try {
       const _planGoals = await RecoveryPlanService.getPlanGoals(planId);
       setGoals(_planGoals);
     } catch (_error) {
       console._error('Error loading goals:', _error);
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
@@ -127,7 +127,7 @@ export const usePlanGoals = (planId: string | null) => {
 
 export const usePlanMilestones = (planId: string | null) => {
   const [milestones, setMilestones] = useState<RecoveryMilestone[]>([]);
-  const [loading, setLoading] = useState(_true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (planId) {
@@ -138,14 +138,14 @@ export const usePlanMilestones = (planId: string | null) => {
   const loadMilestones = async () => {
     if (!planId) return;
 
-    setLoading(_true);
+    setLoading(true);
     try {
       const _planMilestones = await RecoveryPlanService.getPlanMilestones(planId);
       setMilestones(_planMilestones);
     } catch (_error) {
       console._error('Error loading milestones:', _error);
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 

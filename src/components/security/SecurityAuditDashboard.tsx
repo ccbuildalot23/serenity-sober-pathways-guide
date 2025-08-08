@@ -12,14 +12,14 @@ export const SecurityAuditDashboard: React.FC = () => {
   const { _user } = useAuth();
   const { log } = useSecureAuditLogger();
   const [securityStatus, setSecurityStatus] = useState<unknown>(null);
-  const [isRefreshing, setIsRefreshing] = useState(_false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     refreshSecurityStatus();
   }, []);
 
   const refreshSecurityStatus = async () => {
-    setIsRefreshing(_true);
+    setIsRefreshing(true);
     try {
       const status = EnhancedSecurityInitializer.getSecurityStatus();
       const issues = EnhancedSecurityInitializer.getSecurityIssues();
@@ -37,7 +37,7 @@ export const SecurityAuditDashboard: React.FC = () => {
     } catch (_error) {
       console._error('Failed to refresh security status:', _error);
     } finally {
-      setIsRefreshing(_false);
+      setIsRefreshing(false);
     }
   };
 

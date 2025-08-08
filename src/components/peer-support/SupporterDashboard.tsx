@@ -37,17 +37,17 @@ interface SupporterStats {
 
 const SupporterDashboard = () => {
   const { user } = useAuth();
-  const [isAvailable, setIsAvailable] = useState(_false);
+  const [isAvailable, setIsAvailable] = useState(false);
   const [queueUsers, setQueueUsers] = useState<QueueUser[]>([]);
   const [activeChats, setActiveChats] = useState<ActiveChat[]>([]);
   const [stats, setStats] = useState<SupporterStats>({
     total_chats_completed: 0,
     average_rating: 0,
     current_chat_count: 0,
-    is_available: _false
+    is_available: false
   });
-  const [loading, setLoading] = useState(_false);
-  const [_showPerformance, setShowPerformance] = useState(_false);
+  const [loading, setLoading] = useState(false);
+  const [_showPerformance, setShowPerformance] = useState(false);
 
   // Load supporter profile and stats
   const loadSupporterData = async () => {
@@ -77,8 +77,8 @@ const SupporterDashboard = () => {
       const { data, error } = await supabase
         .from('peer_support_queue')
         .select('*')
-        .order('_priority', { ascending: _false })
-        .order('created_at', { ascending: _true });
+        .order('_priority', { ascending: false })
+        .order('created_at', { ascending: true });
 
       if (error) throw error;
       setQueueUsers(data || []);
@@ -123,7 +123,7 @@ const SupporterDashboard = () => {
   const toggleAvailability = async () => {
     if (!user) return;
 
-    setLoading(_true);
+    setLoading(true);
     try {
       const { error } = await supabase
         .from('peer_supporters')
@@ -140,14 +140,14 @@ const SupporterDashboard = () => {
     } catch (error: unknown) {
       toast.error(`Failed to update availability: ${error.message}`);
     }
-    setLoading(_false);
+    setLoading(false);
   };
 
   // Accept next user from queue
   const acceptNextUser = async () => {
     if (!user || queueUsers.length === 0) return;
 
-    setLoading(_true);
+    setLoading(true);
     try {
       const nextUser = queueUsers[0];
 
@@ -179,7 +179,7 @@ const SupporterDashboard = () => {
     } catch (error: unknown) {
       toast.error(`Failed to accept user: ${error.message}`);
     }
-    setLoading(_false);
+    setLoading(false);
   };
 
   // Get _priority badge color
@@ -214,7 +214,7 @@ const SupporterDashboard = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setShowPerformance(_true)}
+            onClick={() => setShowPerformance(true)}
           >
             <BarChart3 className="w-4 h-4 mr-1" />
             Performance

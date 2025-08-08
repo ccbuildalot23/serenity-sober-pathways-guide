@@ -16,7 +16,7 @@ export const StoryPlayer: React.FC<StoryPlayerProps> = ({
   onToggleAudio, 
   onComplete 
 }) => {
-  const [isPlaying, setIsPlaying] = useState(_false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   
   useEffect(() => {
@@ -24,7 +24,7 @@ export const StoryPlayer: React.FC<StoryPlayerProps> = ({
       const _interval = setInterval(() => {
         setProgress(prev => {
           if (prev >= 100) {
-            setIsPlaying(_false);
+            setIsPlaying(false);
             return 100;
           }
           return prev + (100 / story.duration);

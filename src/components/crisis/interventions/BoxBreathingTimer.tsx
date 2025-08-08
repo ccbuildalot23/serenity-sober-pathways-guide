@@ -9,12 +9,12 @@ interface BoxBreathingTimerProps {
 }
 
 const BoxBreathingTimer: React.FC<BoxBreathingTimerProps> = ({ onComplete }) => {
-  const [isActive, setIsActive] = useState(_false);
+  const [isActive, setIsActive] = useState(false);
   const [phase, setPhase] = useState<'inhale' | 'hold1' | 'exhale' | 'hold2'>('inhale');
   const [phaseTime, setPhaseTime] = useState(0);
   const [totalTime, setTotalTime] = useState(0);
   const [selectedDuration, setSelectedDuration] = useState(2); // minutes
-  const [audioEnabled, setAudioEnabled] = useState(_false);
+  const [audioEnabled, setAudioEnabled] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const phaseDuration = 4000; // 4 seconds per phase
@@ -76,22 +76,22 @@ const BoxBreathingTimer: React.FC<BoxBreathingTimerProps> = ({ onComplete }) => 
   }, [totalTime, totalDuration, isActive]);
 
   const handleStart = () => {
-    setIsActive(_true);
+    setIsActive(true);
   };
 
   const handlePause = () => {
-    setIsActive(_false);
+    setIsActive(false);
   };
 
   const handleStop = () => {
-    setIsActive(_false);
+    setIsActive(false);
     setPhase('inhale');
     setPhaseTime(0);
     setTotalTime(0);
   };
 
   const handleComplete = () => {
-    setIsActive(_false);
+    setIsActive(false);
     onComplete();
   };
 

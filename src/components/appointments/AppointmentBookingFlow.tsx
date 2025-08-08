@@ -28,13 +28,13 @@ export const AppointmentBookingFlow: React.FC<AppointmentBookingFlowProps> = ({
   const [_selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedSlot, setSelectedSlot] = useState<AppointmentSlot | null>(null);
   const [availableSlots, setAvailableSlots] = useState<AppointmentSlot[]>([]);
-  const [loading, setLoading] = useState(_false);
+  const [loading, setLoading] = useState(false);
   const [bookingData, setBookingData] = useState<Partial<BookingFormData>>({
     provider_id: provider.id,
     _appointment_type: 'consultation',
     _location_type: 'in_person',
     _duration_minutes: 60,
-    is_recurring: _false
+    is_recurring: false
   });
 
   const appointmentTypes = [
@@ -53,7 +53,7 @@ export const AppointmentBookingFlow: React.FC<AppointmentBookingFlowProps> = ({
 
   const loadAvailableSlots = async () => {
     try {
-      setLoading(_true);
+      setLoading(true);
       const _dateStr = format(_selectedDate, 'yyyy-MM-dd');
       const slots = await AppointmentService.getAvailableSlots(
         provider.id,
@@ -65,7 +65,7 @@ export const AppointmentBookingFlow: React.FC<AppointmentBookingFlowProps> = ({
       console.error('Error loading slots:', error);
       toast.error('Failed to load available slots');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
@@ -73,7 +73,7 @@ export const AppointmentBookingFlow: React.FC<AppointmentBookingFlowProps> = ({
     if (!selectedSlot) return;
 
     try {
-      setLoading(_true);
+      setLoading(true);
       
       const _appointmentData: BookingFormData = {
         provider_id: provider.id,
@@ -102,7 +102,7 @@ export const AppointmentBookingFlow: React.FC<AppointmentBookingFlowProps> = ({
         toast.error('Failed to book appointment. Please try again.');
       }
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 

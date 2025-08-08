@@ -13,15 +13,15 @@ interface OfflineIndicatorProps {
 const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({ onSync }) => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [pendingSyncItems, setPendingSyncItems] = useState(0);
-  const [isSyncing, setIsSyncing] = useState(_false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
     const _handleOnline = () => {
-      setIsOnline(_true);
+      setIsOnline(true);
       checkPendingSync();
     };
     
-    const _handleOffline = () => setIsOnline(_false);
+    const _handleOffline = () => setIsOnline(false);
 
     window.addEventListener('online', _handleOnline);
     window.addEventListener('offline', _handleOffline);
@@ -42,7 +42,7 @@ const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({ onSync }) => {
   const handleSync = async () => {
     if (!isOnline || isSyncing) return;
     
-    setIsSyncing(_true);
+    setIsSyncing(true);
     try {
       if (onSync) {
         await onSync();
@@ -51,7 +51,7 @@ const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({ onSync }) => {
     } catch (_error) {
       console._error('Sync failed:', _error);
     } finally {
-      setIsSyncing(_false);
+      setIsSyncing(false);
     }
   };
 

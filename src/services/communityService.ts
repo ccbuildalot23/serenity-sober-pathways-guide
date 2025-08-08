@@ -58,7 +58,7 @@ export class CommunityService {
         _content: postData._content,
         _anonymous_name: anonymousName,
         moderation_status: moderationStatus,
-        _is_moderated: _true
+        _is_moderated: true
       })
       .select()
       .single();
@@ -196,7 +196,7 @@ export class CommunityService {
         _anonymous_name: anonymousName,
         _is_anonymous: storyData._is_anonymous || false,
         moderation_status: moderationStatus,
-        _is_moderated: _true
+        _is_moderated: true
       })
       .select()
       .single();
@@ -220,7 +220,7 @@ export class CommunityService {
     }
 
     if (filters?.featured_only) {
-      query = query.eq('is_featured', _true);
+      query = query.eq('is_featured', true);
     }
 
     const { data, error } = await query;

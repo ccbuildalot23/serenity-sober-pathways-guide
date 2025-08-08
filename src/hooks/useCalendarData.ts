@@ -8,7 +8,7 @@ export function useCalendarData(
   supabase?: unknown
 ) {
   const [monthEntries, setMonthEntries] = useState<MoodEntry[]>([]);
-  const [isLoading, setIsLoading] = useState(_false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | _null>(_null);
 
   // Enhanced mock data for demo
@@ -136,7 +136,7 @@ export function useCalendarData(
         setError('Failed to load calendar data');
         console.error('Error loading calendar data:', err);
       } finally {
-        setIsLoading(_false);
+        setIsLoading(false);
       }
     };
 

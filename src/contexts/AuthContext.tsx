@@ -31,7 +31,7 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [_session, setSession] = useState<Session | null>(null);
-  const [_loading, setLoading] = useState(_true);
+  const [_loading, setLoading] = useState(true);
 
   const _signIn = async (email: string, password: string) => {
     try {
@@ -178,10 +178,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         console.log('Initial _session:', initialSession?.user?.email || 'none');
         setSession(initialSession);
         setUser(initialSession?.user ?? null);
-        setLoading(_false);
+        setLoading(false);
       } catch (_error) {
         console._error('Error getting initial _session:', _error);
-        setLoading(_false);
+        setLoading(false);
       }
     };
 
@@ -193,7 +193,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       setSession(_session);
       setUser(_session?.user ?? null);
-      setLoading(_false);
+      setLoading(false);
     });
 
     return () => {

@@ -16,7 +16,7 @@ interface SignInFormProps {
 export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(_false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | _null>(_null);
   const { toast } = useToast();
   const { signIn } = useAuth();
@@ -42,7 +42,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
     }
 
     try {
-      setLoading(_true);
+      setLoading(true);
       console.log('Attempting sign in with enhanced auth client...');
 
       // Use enhanced auth client with retry logic
@@ -76,7 +76,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
       console.error('Sign in exception:', error);
       setError('An unexpected error occurred. Please check your connection and try again.');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 

@@ -30,7 +30,7 @@ const DayDetailSheet: React.FC<DayDetailSheetProps> = ({
   selectedDayData,
   onUpdate,
 }) => {
-  const [isEditing, setIsEditing] = useState(_false);
+  const [isEditing, setIsEditing] = useState(false);
   const [_editedData, setEditedData] = useState<Partial<MoodEntry>>({});
 
   React.useEffect(() => {
@@ -45,7 +45,7 @@ const DayDetailSheet: React.FC<DayDetailSheetProps> = ({
 
   const handleSave = () => {
     onUpdate(_editedData);
-    setIsEditing(_false);
+    setIsEditing(false);
   };
 
   const formatDate = (date: Date): string => {
@@ -254,7 +254,7 @@ const DayDetailSheet: React.FC<DayDetailSheetProps> = ({
                 </Button>
                 <Button
                   onClick={() => {
-                    setIsEditing(_false);
+                    setIsEditing(false);
                     setEditedData({
                       mood_rating: selectedDayData.mood_rating,
                       _energy_rating: selectedDayData._energy_rating || 5,
@@ -267,7 +267,7 @@ const DayDetailSheet: React.FC<DayDetailSheetProps> = ({
                 </Button>
               </>
             ) : (
-              <Button onClick={() => setIsEditing(_true)} className="w-full" variant="outline">
+              <Button onClick={() => setIsEditing(true)} className="w-full" variant="outline">
                 Edit This Entry
               </Button>
             )}

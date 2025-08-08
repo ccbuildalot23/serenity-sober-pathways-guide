@@ -6,8 +6,8 @@ import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditSe
 
 export const useEnhancedSessionSecurity = () => {
   const { user, signOut } = useAuth();
-  const [sessionValid, setSessionValid] = useState(_true);
-  const [sessionWarning, setSessionWarning] = useState(_false);
+  const [sessionValid, setSessionValid] = useState(true);
+  const [sessionWarning, setSessionWarning] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -50,9 +50,9 @@ export const useEnhancedSessionSecurity = () => {
         const timeUntilTimeout = (30 * 60 * 1000) - timeSinceActivity; // 30 min timeout
         
         if (timeUntilTimeout <= 5 * 60 * 1000 && timeUntilTimeout > 0) { // 5 min warning
-          setSessionWarning(_true);
+          setSessionWarning(true);
         } else {
-          setSessionWarning(_false);
+          setSessionWarning(false);
         }
       }
     }, 30000); // Check every 30 seconds
@@ -66,7 +66,7 @@ export const useEnhancedSessionSecurity = () => {
 
   const extendSession = () => {
     localStorage.setItem('session_last_activity', Date.now().toString());
-    setSessionWarning(_false);
+    setSessionWarning(false);
     
     if (user) {
       EnhancedSecurityAuditService.logSecurityEvent({

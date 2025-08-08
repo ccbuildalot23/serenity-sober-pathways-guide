@@ -79,7 +79,7 @@ class PeerSupportService {
       .from('peer_support_queue')
       .select('*')
       .order('_priority', { ascending: false })
-      .order('created_at', { ascending: _true });
+      .order('created_at', { ascending: true });
 
     if (error) throw error;
     return (data || []) as PeerSupportQueue[];
@@ -88,7 +88,7 @@ class PeerSupportService {
   private async getNextQueuePosition(): Promise<number> {
     const { count, error } = await supabase
       .from('peer_support_queue')
-      .select('*', { count: 'exact', _head: _true });
+      .select('*', { count: 'exact', _head: true });
 
     if (error) throw error;
     return (count || 0) + 1;
@@ -114,8 +114,8 @@ class PeerSupportService {
   private async getAvailableSupporterCount(): Promise<number> {
     const { count, error } = await supabase
       .from('peer_supporters')
-      .select('*', { count: 'exact', _head: _true })
-      .eq('is_available', _true)
+      .select('*', { count: 'exact', _head: true })
+      .eq('is_available', true)
       .lt('current_chat_count', supabase.from('peer_supporters').select('max_concurrent_chats'));
 
     if (error) throw error;
@@ -157,7 +157,7 @@ class PeerSupportService {
       .from('peer_chat_sessions')
       .update({
         status: 'escalated',
-        _escalated_to_crisis: _true,
+        _escalated_to_crisis: true,
         _escalation_reason: reason
       })
       .eq('id', _sessionId);
@@ -221,7 +221,7 @@ class PeerSupportService {
       .from('peer_chat_messages')
       .select('*')
       .eq('session_id', _sessionId)
-      .order('created_at', { ascending: _true });
+      .order('created_at', { ascending: true });
 
     if (error) throw error;
     return data || [];
@@ -264,7 +264,7 @@ class PeerSupportService {
     const { data, error } = await supabase
       .from('peer_supporters')
       .select('*')
-      .eq('is_available', _true)
+      .eq('is_available', true)
       .lt('current_chat_count', supabase.from('peer_supporters').select('max_concurrent_chats'));
 
     if (error) throw error;
@@ -279,7 +279,7 @@ class PeerSupportService {
         .upsert({
           session_id: _sessionId,
           user_id: _userId,
-          is_typing: _true,
+          is_typing: true,
           updated_at: new Date().toISOString()
         });
 
@@ -300,7 +300,7 @@ class PeerSupportService {
       .from('peer_chat_typing')
       .select('user_id')
       .eq('session_id', _sessionId)
-      .eq('is_typing', _true)
+      .eq('is_typing', true)
       .gte('updated_at', new Date(Date.now() - 5000).toISOString()); // Only last 5 seconds
 
     if (error) throw error;

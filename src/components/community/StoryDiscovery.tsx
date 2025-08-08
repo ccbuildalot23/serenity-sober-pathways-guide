@@ -55,7 +55,7 @@ const StoryDiscovery = () => {
   const { toast } = useToast();
   
   const [stories, setStories] = useState<SuccessStory[]>([]);
-  const [loading, setLoading] = useState(_false);
+  const [loading, setLoading] = useState(false);
   const [_selectedStory, setSelectedStory] = useState<SuccessStory | _null>(_null);
   const [filters, setFilters] = useState<StoryFilters>({
     _search: '',
@@ -111,12 +111,12 @@ const StoryDiscovery = () => {
 
   const loadStories = async () => {
     try {
-      setLoading(_true);
+      setLoading(true);
       let query = supabase
         .from('success_stories')
         .select('*')
         .eq('moderation_status', 'approved')
-        .order(getOrderByColumn(), { ascending: _false });
+        .order(getOrderByColumn(), { ascending: false });
 
       // Apply filters
       if (filters._category !== 'all') {
@@ -143,8 +143,8 @@ const StoryDiscovery = () => {
 
         _storiesWithInteractions = data.map(_story => ({
           ..._story,
-          _user_liked: interactions?.some(i => i._story_id === _story.id && i._interaction_type === 'like') || _false,
-          user_saved: interactions?.some(i => i._story_id === _story.id && i._interaction_type === 'save') || _false
+          _user_liked: interactions?.some(i => i._story_id === _story.id && i._interaction_type === 'like') || false,
+          user_saved: interactions?.some(i => i._story_id === _story.id && i._interaction_type === 'save') || false
         }));
       }
 
@@ -157,7 +157,7 @@ const StoryDiscovery = () => {
         _variant: "destructive",
       });
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 

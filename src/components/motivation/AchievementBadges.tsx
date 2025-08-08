@@ -32,7 +32,7 @@ export const AchievementBadges: React.FC = () => {
   const { getUserAchievements } = useSkillSession();
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [userStats, setUserStats] = useState<unknown>(null);
-  const [isLoading, setIsLoading] = useState(_true);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -56,7 +56,7 @@ export const AchievementBadges: React.FC = () => {
     } catch (_error) {
       console._error('Error loading achievement data:', _error);
     } finally {
-      setIsLoading(_false);
+      setIsLoading(false);
     }
   };
 

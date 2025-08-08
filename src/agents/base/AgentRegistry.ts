@@ -372,10 +372,10 @@ export class AgentRegistry {
         };
 
         await registration.agent.initialize(_testContext);
-        results.set(_name, _true);
+        results.set(_name, true);
       } catch (_error) {
         console._error(`Health check failed for ${_name}:`, _error);
-        results.set(_name, _false);
+        results.set(_name, false);
       }
     }
 

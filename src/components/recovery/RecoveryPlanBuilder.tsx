@@ -37,9 +37,9 @@ export const RecoveryPlanBuilder: React.FC = () => {
   const { goals, createGoal } = usePlanGoals(_selectedPlan);
   const { milestones, createMilestone } = usePlanMilestones(_selectedPlan);
   
-  const [showNewPlanForm, setShowNewPlanForm] = useState(_false);
-  const [showGoalForm, setShowGoalForm] = useState(_false);
-  const [showMilestoneForm, setShowMilestoneForm] = useState(_false);
+  const [showNewPlanForm, setShowNewPlanForm] = useState(false);
+  const [showGoalForm, setShowGoalForm] = useState(false);
+  const [showMilestoneForm, setShowMilestoneForm] = useState(false);
   
   const [_newPlan, setNewPlan] = useState({
     _title: '',
@@ -69,7 +69,7 @@ export const RecoveryPlanBuilder: React.FC = () => {
     const plan = await createPlan(_newPlan);
     if (plan) {
       setSelectedPlan(plan.id);
-      setShowNewPlanForm(_false);
+      setShowNewPlanForm(false);
       setNewPlan({
         _title: '',
         _description: '',
@@ -81,7 +81,7 @@ export const RecoveryPlanBuilder: React.FC = () => {
 
   const handleCreateGoal = async () => {
     await createGoal(_newGoal);
-    setShowGoalForm(_false);
+    setShowGoalForm(false);
     setNewGoal({
       _title: '',
       _description: '',
@@ -94,7 +94,7 @@ export const RecoveryPlanBuilder: React.FC = () => {
 
   const handleCreateMilestone = async () => {
     await createMilestone(_newMilestone);
-    setShowMilestoneForm(_false);
+    setShowMilestoneForm(false);
     setNewMilestone({
       _title: '',
       _description: '',
@@ -125,7 +125,7 @@ export const RecoveryPlanBuilder: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             Select or Create a Plan
-            <Button onClick={() => setShowNewPlanForm(_true)} size="sm">
+            <Button onClick={() => setShowNewPlanForm(true)} size="sm">
               <Plus className="h-4 w-4 mr-2" />
               New Plan
             </Button>
@@ -171,7 +171,7 @@ export const RecoveryPlanBuilder: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               Create New Recovery Plan
-              <Button variant="ghost" size="sm" onClick={() => setShowNewPlanForm(_false)}>
+              <Button variant="ghost" size="sm" onClick={() => setShowNewPlanForm(false)}>
                 <X className="h-4 w-4" />
               </Button>
             </CardTitle>
@@ -221,7 +221,7 @@ export const RecoveryPlanBuilder: React.FC = () => {
             
             <div className="flex space-x-2">
               <Button onClick={handleCreatePlan}>Create Plan</Button>
-              <Button variant="outline" onClick={() => setShowNewPlanForm(_false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setShowNewPlanForm(false)}>Cancel</Button>
             </div>
           </CardContent>
         </Card>
@@ -238,7 +238,7 @@ export const RecoveryPlanBuilder: React.FC = () => {
                   <Target className="h-5 w-5" />
                   <span>Goals</span>
                 </div>
-                <Button size="sm" onClick={() => setShowGoalForm(_true)}>
+                <Button size="sm" onClick={() => setShowGoalForm(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add Goal
                 </Button>
@@ -306,7 +306,7 @@ export const RecoveryPlanBuilder: React.FC = () => {
                   <Trophy className="h-5 w-5" />
                   <span>Milestones</span>
                 </div>
-                <Button size="sm" onClick={() => setShowMilestoneForm(_true)}>
+                <Button size="sm" onClick={() => setShowMilestoneForm(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add Milestone
                 </Button>
@@ -355,7 +355,7 @@ export const RecoveryPlanBuilder: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               Add New Goal
-              <Button variant="ghost" size="sm" onClick={() => setShowGoalForm(_false)}>
+              <Button variant="ghost" size="sm" onClick={() => setShowGoalForm(false)}>
                 <X className="h-4 w-4" />
               </Button>
             </CardTitle>
@@ -443,7 +443,7 @@ export const RecoveryPlanBuilder: React.FC = () => {
             
             <div className="flex space-x-2">
               <Button onClick={handleCreateGoal}>Add Goal</Button>
-              <Button variant="outline" onClick={() => setShowGoalForm(_false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setShowGoalForm(false)}>Cancel</Button>
             </div>
           </CardContent>
         </Card>
@@ -455,7 +455,7 @@ export const RecoveryPlanBuilder: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               Add New Milestone
-              <Button variant="ghost" size="sm" onClick={() => setShowMilestoneForm(_false)}>
+              <Button variant="ghost" size="sm" onClick={() => setShowMilestoneForm(false)}>
                 <X className="h-4 w-4" />
               </Button>
             </CardTitle>
@@ -516,7 +516,7 @@ export const RecoveryPlanBuilder: React.FC = () => {
             
             <div className="flex space-x-2">
               <Button onClick={handleCreateMilestone}>Add Milestone</Button>
-              <Button variant="outline" onClick={() => setShowMilestoneForm(_false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setShowMilestoneForm(false)}>Cancel</Button>
             </div>
           </CardContent>
         </Card>

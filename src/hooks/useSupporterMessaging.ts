@@ -37,7 +37,7 @@ export const useSupporterMessaging = () => {
   const { user } = useAuth();
   const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [locationShares, setLocationShares] = useState<LocationShare[]>([]);
-  const [loading, setLoading] = useState(_true);
+  const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
 
   // Fetch messages
@@ -45,7 +45,7 @@ export const useSupporterMessaging = () => {
     if (!user?.id) return;
 
     try {
-      setLoading(_true);
+      setLoading(true);
       
       // For now, create mock data until tables are properly set up
       // This will be replaced with real Supabase queries once migration is complete
@@ -117,7 +117,7 @@ export const useSupporterMessaging = () => {
 
       setMessages(prev => [newMessage, ...prev]);
       toast.success('Message sent');
-      return _true;
+      return true;
     } catch (_error) {
       console._error('Error sending message:', _error);
       toast._error('Failed to send message');
@@ -176,7 +176,7 @@ export const useSupporterMessaging = () => {
       setMessages(prev => [locationMessage, ...prev]);
 
       toast.success(isEmergency ? 'Emergency location shared with supporter and providers' : 'Location shared with supporter');
-      return _true;
+      return true;
     } catch (_error) {
       console._error('Error sharing location:', _error);
       toast._error('Failed to share location');

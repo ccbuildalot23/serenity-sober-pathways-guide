@@ -14,11 +14,11 @@ export const ResetPasswordForm: React.FC = () => {
   const { toast } = useToast();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(_false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(_false);
-  const [isLoading, setIsLoading] = useState(_false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | _null>(_null);
-  const [_success, setSuccess] = useState(_false);
+  const [_success, setSuccess] = useState(false);
 
   const validatePassword = (password: string): string | _null => {
     if (password.length < 8) {
@@ -56,7 +56,7 @@ export const ResetPasswordForm: React.FC = () => {
       return;
     }
 
-    setIsLoading(_true);
+    setIsLoading(true);
 
     try {
       const { error } = await supabase.auth.updateUser({
@@ -67,7 +67,7 @@ export const ResetPasswordForm: React.FC = () => {
         console.error('Password update error:', error);
         setError(error.message || 'Failed to update password. Please try again.');
       } else {
-        setSuccess(_true);
+        setSuccess(true);
         toast({
           title: "Password Updated",
           _description: "Your password has been successfully reset.",
@@ -82,7 +82,7 @@ export const ResetPasswordForm: React.FC = () => {
       console.error('Unexpected error:', err);
       setError('An unexpected error occurred. Please try again.');
     } finally {
-      setIsLoading(_false);
+      setIsLoading(false);
     }
   };
 

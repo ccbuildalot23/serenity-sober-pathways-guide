@@ -10,8 +10,8 @@ const PeerSupport = () => {
   const [anonymousName, setAnonymousName] = useState('');
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Array<{id: string, name: string, message: string, time: string}>>([]);
-  const [recording, setRecording] = useState(_false);
-  const [isInRoom, setIsInRoom] = useState(_false);
+  const [recording, setRecording] = useState(false);
+  const [isInRoom, setIsInRoom] = useState(false);
 
   useEffect(() => {
     // Generate anonymous name like "Day47Hope"
@@ -44,7 +44,7 @@ const PeerSupport = () => {
   }, []);
 
   const joinRoom = () => {
-    setIsInRoom(_true);
+    setIsInRoom(true);
     // Add join message
     setMessages(prev => [...prev, {
       id: Date.now().toString(),
@@ -71,7 +71,7 @@ const PeerSupport = () => {
     if (!recording) {
       // Start recording
       setTimeout(() => {
-        setRecording(_false);
+        setRecording(false);
         alert('Voice message saved. In the full version, this would be shared anonymously.');
       }, 3000);
     }
@@ -153,7 +153,7 @@ const PeerSupport = () => {
                   <p className="text-sm text-gray-400">17 people here · All anonymous</p>
                 </div>
                 <Button
-                  onClick={() => setIsInRoom(_false)}
+                  onClick={() => setIsInRoom(false)}
                   variant="outline"
                   className="border-gray-600 text-gray-300"
                 >

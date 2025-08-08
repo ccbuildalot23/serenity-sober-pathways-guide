@@ -66,8 +66,8 @@ export const CrisisSystemVerification: React.FC = () => {
 
   // Monitor online _status
   useEffect(() => {
-    const _handleOnline = () => setIsOnline(_true);
-    const _handleOffline = () => setIsOnline(_false);
+    const _handleOnline = () => setIsOnline(true);
+    const _handleOffline = () => setIsOnline(false);
     
     window.addEventListener('online', _handleOnline);
     window.addEventListener('offline', _handleOffline);
@@ -124,7 +124,7 @@ export const CrisisSystemVerification: React.FC = () => {
           _phone_number: newContact._phone,
           _relationship: newContact._relationship || 'friend',
           _priority_order: contacts.length + 1,
-          _is_emergency_contact: _true
+          _is_emergency_contact: true
         })
         .select()
         .single();
@@ -176,7 +176,7 @@ export const CrisisSystemVerification: React.FC = () => {
       const { data, _error } = await supabase.functions.invoke('send-crisis-sms', {
         body: {
           _customMessage: testMessage,
-          _isTestMessage: _true,
+          _isTestMessage: true,
           _contactIds: contacts.filter(c => c._phone_number === testContact).map(c => c.id)
         }
       });
@@ -212,7 +212,7 @@ export const CrisisSystemVerification: React.FC = () => {
       const { data, _error } = await supabase.functions.invoke('send-crisis-sms', {
         body: {
           _customMessage: `🚨 CRISIS ALERT TEST 🚨\n\n${user?.email || 'User'} is testing the crisis support system. This is a REAL crisis flow test.`,
-          _includeLocation: _false
+          _includeLocation: false
         }
       });
 

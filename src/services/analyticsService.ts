@@ -188,7 +188,7 @@ class AnalyticsService {
         .from('crisis_prediction_patterns')
         .select('*')
         .eq('user_id', _userId)
-        .eq('is_active', _true)
+        .eq('is_active', true)
         .order('last_updated', { ascending: false });
 
       const { data: recentCheckIns } = await supabase

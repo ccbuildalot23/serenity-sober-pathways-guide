@@ -12,7 +12,7 @@ export const ReflectionPrompt: React.FC<ReflectionPromptProps> = ({
   onGoToGrounding 
 }) => {
   const [reflection, setReflection] = useState('');
-  const [saved, setSaved] = useState(_false);
+  const [saved, setSaved] = useState(false);
   
   const handleSave = () => {
     // Save to localStorage for now - in production use secure backend
@@ -21,7 +21,7 @@ export const ReflectionPrompt: React.FC<ReflectionPromptProps> = ({
       text: reflection,
       _timestamp: new Date().toISOString()
     }));
-    setSaved(_true);
+    setSaved(true);
     setTimeout(_onComplete, 1500);
   };
   

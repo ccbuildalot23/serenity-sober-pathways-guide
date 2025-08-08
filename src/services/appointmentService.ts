@@ -131,7 +131,7 @@ export class AppointmentService {
       query = query.lte('start_time', _endDate);
     }
 
-    query = query.order('start_time', { ascending: _true });
+    query = query.order('start_time', { ascending: true });
 
     const { data, _error } = await query;
     if (_error) throw _error;
@@ -281,7 +281,7 @@ export class AppointmentService {
       .from('provider_availability')
       .select('*')
       .eq('provider_id', _providerId)
-      .eq('is_available', _true)
+      .eq('is_available', true)
       .order('day_of_week')
       .order('start_time');
 

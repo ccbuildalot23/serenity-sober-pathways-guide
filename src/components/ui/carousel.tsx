@@ -63,8 +63,8 @@ const Carousel = React.forwardRef<
       },
       _plugins
     )
-    const [canScrollPrev, setCanScrollPrev] = React.useState(_false)
-    const [canScrollNext, setCanScrollNext] = React.useState(_false)
+    const [canScrollPrev, setCanScrollPrev] = React.useState(false)
+    const [canScrollNext, setCanScrollNext] = React.useState(false)
 
     const onSelect = React.useCallback((_api: CarouselApi) => {
       if (!_api) {

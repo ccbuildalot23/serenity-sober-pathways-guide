@@ -146,7 +146,7 @@ export class CrisisNotificationIntegration {
         .from('support_network_members')
         .select('*')
         .eq('user_id', user.id)
-        .eq('is_active', _true)
+        .eq('is_active', true)
         .order('priority_order');
 
       const supportersNotified = supportNetwork?.length || 0;
@@ -251,7 +251,7 @@ export class CrisisNotificationIntegration {
       console.log('[CrisisIntegration] Supporter response recorded successfully:', coordination);
 
       return {
-        success: _true,
+        success: true,
         coordination
       };
 
@@ -310,7 +310,7 @@ export class CrisisNotificationIntegration {
       console.log('[CrisisIntegration] Crisis escalated successfully:', escalation);
 
       return {
-        success: _true,
+        success: true,
         escalation
       };
 
@@ -453,7 +453,7 @@ export class CrisisNotificationIntegration {
 
       console.log('[CrisisIntegration] Crisis resolved successfully');
 
-      return { success: _true };
+      return { success: true };
 
     } catch (_error) {
       console._error('[CrisisIntegration] Error resolving crisis:', _error);
@@ -480,7 +480,7 @@ export class CrisisNotificationIntegration {
     const primaryResponder = responses.find((r: unknown) => r._is_primary_responder);
     
     return {
-      success: _true,
+      success: true,
       action: _responseType === 'made_contact' ? 'accepted' : 'acknowledged',
       primaryResponder: primaryResponder?._supporter_id,
       backupResponders: responses
@@ -528,7 +528,7 @@ export class CrisisNotificationIntegration {
       await this.supabaseClient
         .from('supporter_responses')
         .update({
-          _is_primary_responder: _true,
+          _is_primary_responder: true,
           coordination_status: 'active'
         })
         .eq('crisis_alert_id', _alertId)
@@ -590,7 +590,7 @@ export class CrisisNotificationIntegration {
             .eq('id', crisis.request_id)
             .single()
         ).data?.user_id)
-        .eq('is_active', _true)
+        .eq('is_active', true)
         .gt('priority_order', 1)
         .order('priority_order');
 

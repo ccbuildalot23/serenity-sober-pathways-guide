@@ -33,7 +33,7 @@ const SupporterPerformanceDashboard = () => {
   const [_flagDescription, setFlagDescription] = useState('');
   const [sessionSummary, setSessionSummary] = useState('');
   const [_dateRange, setDateRange] = useState('7'); // days
-  const [loading, setLoading] = useState(_false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -80,7 +80,7 @@ const SupporterPerformanceDashboard = () => {
           ended_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
           duration_minutes: 45,
           user_rating: 5,
-          escalated_to_crisis: _false,
+          escalated_to_crisis: false,
           _status: 'ended'
         },
         {
@@ -90,7 +90,7 @@ const SupporterPerformanceDashboard = () => {
           ended_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
           duration_minutes: 30,
           user_rating: 4,
-          escalated_to_crisis: _false,
+          escalated_to_crisis: false,
           _status: 'ended'
         },
         {
@@ -100,7 +100,7 @@ const SupporterPerformanceDashboard = () => {
           ended_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
           duration_minutes: 60,
           user_rating: 3,
-          escalated_to_crisis: _true,
+          escalated_to_crisis: true,
           _status: 'escalated'
         }
       ];
@@ -112,7 +112,7 @@ const SupporterPerformanceDashboard = () => {
   };
 
   const generateSessionSummary = async (_sessionId: string) => {
-    setLoading(_true);
+    setLoading(true);
     try {
       const summary = await enhancedPeerSupportService.generateSessionSummary(_sessionId);
       setSessionSummary(summary);
@@ -122,13 +122,13 @@ const SupporterPerformanceDashboard = () => {
       console._error('Failed to generate summary:', _error);
       toast._error('Failed to generate session summary');
     }
-    setLoading(_false);
+    setLoading(false);
   };
 
   const flagSession = async () => {
     if (!selectedSession || !flagType || !_flagDescription || !user) return;
 
-    setLoading(_true);
+    setLoading(true);
     try {
       await enhancedPeerSupportService.flagSession(
         selectedSession.id,
@@ -146,13 +146,13 @@ const SupporterPerformanceDashboard = () => {
       console._error('Failed to flag session:', _error);
       toast._error('Failed to flag session');
     }
-    setLoading(_false);
+    setLoading(false);
   };
 
   const updateMetrics = async () => {
     if (!user) return;
 
-    setLoading(_true);
+    setLoading(true);
     try {
       await enhancedPeerSupportService.updateSupporterMetrics(user.id);
       await loadMetrics();
@@ -161,7 +161,7 @@ const SupporterPerformanceDashboard = () => {
       console._error('Failed to update metrics:', _error);
       toast._error('Failed to update metrics');
     }
-    setLoading(_false);
+    setLoading(false);
   };
 
   const getStatusColor = (_status: string) => {

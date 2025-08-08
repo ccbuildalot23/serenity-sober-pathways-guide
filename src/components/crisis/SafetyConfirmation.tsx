@@ -27,10 +27,10 @@ const SafetyConfirmation = ({
   interventionsUsed,
   crisisStartTime
 }: SafetyConfirmationProps) => {
-  const [showEffectivenessRating, setShowEffectivenessRating] = useState(_false);
+  const [showEffectivenessRating, setShowEffectivenessRating] = useState(false);
   const [effectivenessRating, setEffectivenessRating] = useState([7]);
   const [additionalNotes, setAdditionalNotes] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(_false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   const handleSafetyConfirmation = async () => {
@@ -67,21 +67,21 @@ const SafetyConfirmation = ({
           time: '4_hours',
           type: 'automated_check_in',
           scheduled: new Date(Date.now() + 4 * 60 * 60 * 1000), // 4 hours from now
-          completed: _false
+          completed: false
         },
         {
           id: `${crisisResolution.id}-24h`,
           time: '24_hours',
           type: 'mood_assessment',
           scheduled: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours from now
-          completed: _false
+          completed: false
         },
         {
           id: `${crisisResolution.id}-1w`,
           time: '1_week',
           type: 'professional_follow_up',
           scheduled: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 1 week from now
-          completed: _false
+          completed: false
         }
       ];
 
@@ -117,7 +117,7 @@ const SafetyConfirmation = ({
         _variant: "destructive"
       });
     } finally {
-      setIsSubmitting(_false);
+      setIsSubmitting(false);
     }
   };
 

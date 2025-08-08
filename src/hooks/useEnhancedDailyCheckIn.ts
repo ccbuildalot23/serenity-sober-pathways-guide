@@ -23,11 +23,11 @@ export const useEnhancedDailyCheckIn = (): UseDailyCheckInReturn => {
     _energy: null,
     _hope: null,
     _sleep_quality: null,
-    _medication_taken: _false,
+    _medication_taken: false,
     _sobriety_confidence: null,
     _recovery_importance: null,
     _recovery_strength: null,
-    _support_needed: _false,
+    _support_needed: false,
     _phq2_q1: null,
     _phq2_q2: null,
     _gad2_q1: null,
@@ -39,15 +39,15 @@ export const useEnhancedDailyCheckIn = (): UseDailyCheckInReturn => {
   });
   
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
-  const [isSubmitting, setIsSubmitting] = useState(_false);
-  const [hasCheckedInToday, setHasCheckedInToday] = useState(_false);
-  const [loading, setLoading] = useState(_true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasCheckedInToday, setHasCheckedInToday] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Check if user has already checked in _today
   useEffect(() => {
     const checkTodayStatus = async () => {
       if (!user) {
-        setLoading(_false);
+        setLoading(false);
         return;
       }
 
@@ -58,11 +58,11 @@ export const useEnhancedDailyCheckIn = (): UseDailyCheckInReturn => {
           .select('*')
           .eq('user_id', user.id)
           .eq('checkin_date', _today)
-          .eq('is_complete', _true)
+          .eq('is_complete', true)
           .single();
 
         if (data && !_error) {
-          setHasCheckedInToday(_true);
+          setHasCheckedInToday(true);
           // Load existing responses if found
           setResponses({
             mood: data.mood_rating,
@@ -91,7 +91,7 @@ export const useEnhancedDailyCheckIn = (): UseDailyCheckInReturn => {
         console._error('Error checking _today status:', _error);
         loadDraft();
       } finally {
-        setLoading(_false);
+        setLoading(false);
       }
     };
 
@@ -178,7 +178,7 @@ export const useEnhancedDailyCheckIn = (): UseDailyCheckInReturn => {
   const handleComplete = async () => {
     if (!user || !canComplete() || isSubmitting) return;
 
-    setIsSubmitting(_true);
+    setIsSubmitting(true);
     try {
       const _today = new Date().toISOString().split('T')[0];
       
@@ -189,7 +189,7 @@ export const useEnhancedDailyCheckIn = (): UseDailyCheckInReturn => {
         energy_rating: responses._energy,
         hope_rating: responses._hope,
         _sleep_quality: responses._sleep_quality,
-        _medication_taken: responses._medication_taken || _false,
+        _medication_taken: responses._medication_taken || false,
         _sobriety_confidence: responses._sobriety_confidence,
         _recovery_importance: responses._recovery_importance,
         _recovery_strength: responses._recovery_strength,
@@ -201,7 +201,7 @@ export const useEnhancedDailyCheckIn = (): UseDailyCheckInReturn => {
         gad2_q2_response: responses._gad2_q2,
         gad2_score: (responses._gad2_q1 || 0) + (responses._gad2_q2 || 0),
         completed_sections: Array.from(completedSections).join(','),
-        is_complete: _true,
+        is_complete: true,
         _notes: responses._notes
       };
 
@@ -217,7 +217,7 @@ export const useEnhancedDailyCheckIn = (): UseDailyCheckInReturn => {
 
       // Clear draft on successful submission
       localStorage.removeItem(`checkin_draft_${user.id}`);
-      setHasCheckedInToday(_true);
+      setHasCheckedInToday(true);
       
       toast.success('Check-in completed successfully!', {
         description: 'Your responses have been saved.',
@@ -231,7 +231,7 @@ export const useEnhancedDailyCheckIn = (): UseDailyCheckInReturn => {
         _duration: 4000
       });
     } finally {
-      setIsSubmitting(_false);
+      setIsSubmitting(false);
     }
   };
 

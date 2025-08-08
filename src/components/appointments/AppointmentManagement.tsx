@@ -26,21 +26,21 @@ export const AppointmentManagement: React.FC<AppointmentManagementProps> = ({
 }) => {
   const { user } = useAuth();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [loading, setLoading] = useState(_true);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [_dateRange, setDateRange] = useState<string>('week');
-  const [showBookingFlow, setShowBookingFlow] = useState(_false);
+  const [showBookingFlow, setShowBookingFlow] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<unknown>(_null);
   const [changeRequestDialog, setChangeRequestDialog] = useState<{
     open: boolean;
     _appointmentId: string;
     _type: 'reschedule' | 'cancel';
-  }>({ open: _false, _appointmentId: '', _type: 'reschedule' });
+  }>({ open: false, _appointmentId: '', _type: 'reschedule' });
   const [telehealthSession, setTelehealthSession] = useState<{
     open: boolean;
     _appointmentId: string;
-  }>({ open: _false, _appointmentId: '' });
+  }>({ open: false, _appointmentId: '' });
 
   useEffect(() => {
     loadAppointments();
@@ -48,7 +48,7 @@ export const AppointmentManagement: React.FC<AppointmentManagementProps> = ({
 
   const loadAppointments = async () => {
     try {
-      setLoading(_true);
+      setLoading(true);
       
       let _startDate: string | undefined;
       let _endDate: string | undefined;
@@ -80,13 +80,13 @@ export const AppointmentManagement: React.FC<AppointmentManagementProps> = ({
       console.error('Error loading appointments:', error);
       toast.error('Failed to load appointments');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
   const handleReschedule = (_appointmentId: string) => {
     setChangeRequestDialog({
-      open: _true,
+      open: true,
       _appointmentId,
       _type: 'reschedule'
     });
@@ -94,7 +94,7 @@ export const AppointmentManagement: React.FC<AppointmentManagementProps> = ({
 
   const handleCancel = (_appointmentId: string) => {
     setChangeRequestDialog({
-      open: _true,
+      open: true,
       _appointmentId,
       _type: 'cancel'
     });
@@ -102,7 +102,7 @@ export const AppointmentManagement: React.FC<AppointmentManagementProps> = ({
 
   const handleJoinVideo = (_appointmentId: string) => {
     setTelehealthSession({
-      open: _true,
+      open: true,
       _appointmentId
     });
   };
@@ -137,7 +137,7 @@ export const AppointmentManagement: React.FC<AppointmentManagementProps> = ({
         (appointment as any).patient?.full_name?.toLowerCase().includes(_searchLower)
       );
     }
-    return _true;
+    return true;
   });
 
   const getTabCounts = () => {
@@ -156,13 +156,13 @@ export const AppointmentManagement: React.FC<AppointmentManagementProps> = ({
       <AppointmentBookingFlow
         provider={selectedProvider}
         onBookingComplete={(_appointmentId) => {
-          setShowBookingFlow(_false);
+          setShowBookingFlow(false);
           setSelectedProvider(_null);
           loadAppointments();
           toast.success('Appointment booked successfully!');
         }}
         onCancel={() => {
-          setShowBookingFlow(_false);
+          setShowBookingFlow(false);
           setSelectedProvider(_null);
         }}
       />
@@ -181,7 +181,7 @@ export const AppointmentManagement: React.FC<AppointmentManagementProps> = ({
         </div>
         
         {userRole === 'patient' && (
-          <Button onClick={() => setShowBookingFlow(_true)}>
+          <Button onClick={() => setShowBookingFlow(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Book Appointment
           </Button>
@@ -311,9 +311,9 @@ export const AppointmentManagement: React.FC<AppointmentManagementProps> = ({
         open={changeRequestDialog.open}
         _appointmentId={changeRequestDialog._appointmentId}
         requestType={changeRequestDialog._type}
-        onClose={() => setChangeRequestDialog({ open: _false, _appointmentId: '', _type: 'reschedule' })}
+        onClose={() => setChangeRequestDialog({ open: false, _appointmentId: '', _type: 'reschedule' })}
         onSuccess={() => {
-          setChangeRequestDialog({ open: _false, _appointmentId: '', _type: 'reschedule' });
+          setChangeRequestDialog({ open: false, _appointmentId: '', _type: 'reschedule' });
           loadAppointments();
         }}
       />
@@ -323,7 +323,7 @@ export const AppointmentManagement: React.FC<AppointmentManagementProps> = ({
         open={telehealthSession.open}
         _appointmentId={telehealthSession._appointmentId}
         userRole={userRole}
-        onClose={() => setTelehealthSession({ open: _false, _appointmentId: '' })}
+        onClose={() => setTelehealthSession({ open: false, _appointmentId: '' })}
       />
     </div>
   );

@@ -9,12 +9,12 @@ import { toast } from 'sonner';
 
 const CrisisResponseSystem = () => {
   const [crisisLevel, setCrisisLevel] = useState<'low' | 'medium' | 'high' | _null>(_null);
-  const [isInCrisis, setIsInCrisis] = useState(_false);
+  const [isInCrisis, setIsInCrisis] = useState(false);
   const [responseTime, setResponseTime] = useState<number | _null>(_null);
   const { user } = useAuth();
 
   const triggerCrisisProtocol = async (level: 'low' | 'medium' | 'high') => {
-    setIsInCrisis(_true);
+    setIsInCrisis(true);
     setCrisisLevel(level);
     const startTime = Date.now();
 

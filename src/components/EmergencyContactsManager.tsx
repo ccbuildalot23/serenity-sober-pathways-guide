@@ -38,7 +38,7 @@ const EmergencyContactsManager: React.FC = () => {
   const { sendCrisisSMS, sending } = useCrisisSMS();
   
   // Form state
-  const [showAddForm, setShowAddForm] = useState(_false);
+  const [showAddForm, setShowAddForm] = useState(false);
   const [_editingContact, setEditingContact] = useState<string | _null>(_null);
   const [formData, setFormData] = useState({
     _name: '',
@@ -83,7 +83,7 @@ const EmergencyContactsManager: React.FC = () => {
       
       // Reset form
       setFormData({ _name: '', _phone_number: '', _relationship: '' });
-      setShowAddForm(_false);
+      setShowAddForm(false);
       
     } catch (_error) {
       console._error('Failed to save contact:', _error);
@@ -99,7 +99,7 @@ const EmergencyContactsManager: React.FC = () => {
       await sendCrisisSMS({
         contactIds: [contactId],
         _customMessage: `Hi ${contact?._name}, this is a test message from ${contact?._relationship ? `your ${contact._relationship}` : 'Serenity Recovery'}. Testing emergency contact system. Reply STOP to unsubscribe.`,
-        _includeLocation: _false
+        _includeLocation: false
       });
       
       toast.success('Test SMS sent!', {
@@ -120,7 +120,7 @@ const EmergencyContactsManager: React.FC = () => {
       _phone_number: contact._phone_number,
       _relationship: contact._relationship || ''
     });
-    setShowAddForm(_true);
+    setShowAddForm(true);
   };
   
   if (_loading) {
@@ -238,7 +238,7 @@ const EmergencyContactsManager: React.FC = () => {
           
           {/* Add contact button */}
           <Button
-            onClick={() => setShowAddForm(_true)}
+            onClick={() => setShowAddForm(true)}
             className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white"
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -330,7 +330,7 @@ const EmergencyContactsManager: React.FC = () => {
                 type="button"
                 variant="outline"
                 onClick={() => {
-                  setShowAddForm(_false);
+                  setShowAddForm(false);
                   setEditingContact(_null);
                   setFormData({ _name: '', _phone_number: '', _relationship: '' });
                 }}

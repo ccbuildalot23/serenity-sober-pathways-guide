@@ -74,9 +74,9 @@ interface TemplateFormData {
 
 export function NotificationTemplateManager() {
   const [templates, setTemplates] = useState<NotificationTemplate[]>([]);
-  const [_loading, setLoading] = useState(_true);
+  const [_loading, setLoading] = useState(true);
   const [_editingTemplate, setEditingTemplate] = useState<NotificationTemplate | _null>(_null);
-  const [isDialogOpen, setIsDialogOpen] = useState(_false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [_formData, setFormData] = useState<TemplateFormData>({
     _name: '',
     _type: 'check_in',
@@ -84,10 +84,10 @@ export function NotificationTemplateManager() {
     _subject_template: '',
     _body_template: '',
     variables: [],
-    _is_active: _true,
+    _is_active: true,
     _language_code: 'en'
   });
-  const [previewMode, setPreviewMode] = useState(_false);
+  const [previewMode, setPreviewMode] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -96,7 +96,7 @@ export function NotificationTemplateManager() {
 
   const loadTemplates = async () => {
     try {
-      setLoading(_true);
+      setLoading(true);
       const _data = await comprehensiveNotificationService.getTemplates();
       setTemplates(_data);
     } catch (_error) {
@@ -107,7 +107,7 @@ export function NotificationTemplateManager() {
         _variant: 'destructive'
       });
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
@@ -119,7 +119,7 @@ export function NotificationTemplateManager() {
       _subject_template: '',
       _body_template: '',
       variables: [],
-      _is_active: _true,
+      _is_active: true,
       _language_code: 'en'
     });
     setEditingTemplate(_null);
@@ -127,7 +127,7 @@ export function NotificationTemplateManager() {
 
   const openCreateDialog = () => {
     resetForm();
-    setIsDialogOpen(_true);
+    setIsDialogOpen(true);
   };
 
   const openEditDialog = (template: NotificationTemplate) => {
@@ -142,12 +142,12 @@ export function NotificationTemplateManager() {
       _language_code: template._language_code
     });
     setEditingTemplate(template);
-    setIsDialogOpen(_true);
+    setIsDialogOpen(true);
   };
 
   const closeDialog = () => {
-    setIsDialogOpen(_false);
-    setPreviewMode(_false);
+    setIsDialogOpen(false);
+    setPreviewMode(false);
     resetForm();
   };
 
@@ -193,7 +193,7 @@ export function NotificationTemplateManager() {
       _language_code: template._language_code
     });
     setEditingTemplate(_null);
-    setIsDialogOpen(_true);
+    setIsDialogOpen(true);
   };
 
   const toggleVariable = (variable: string) => {

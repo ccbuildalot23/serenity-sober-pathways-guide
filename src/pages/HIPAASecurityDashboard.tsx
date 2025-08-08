@@ -234,16 +234,16 @@ const HIPAASecurityDashboard: React.FC = () => {
   };
 
   const complianceFeatures = [
-    { name: 'AES-256 Encryption at Rest', implemented: _true, critical: _true },
-    { name: 'TLS 1.3 for Data in Transit', implemented: _true, critical: _true },
-    { name: 'Comprehensive Audit Logging', implemented: _true, critical: _true },
-    { name: 'Role-based Access Controls', implemented: _true, critical: _true },
-    { name: 'Automatic Session Timeout (15 min)', implemented: _true, critical: _true },
-    { name: 'Device Fingerprinting', implemented: _true, critical: false },
-    { name: 'Enhanced Security Headers', implemented: _true, critical: false },
-    { name: 'PHI Access Monitoring', implemented: _true, critical: _true },
-    { name: 'Data Backup Procedures', implemented: _true, critical: _true },
-    { name: 'Incident Response System', implemented: _true, critical: false }
+    { name: 'AES-256 Encryption at Rest', implemented: true, critical: true },
+    { name: 'TLS 1.3 for Data in Transit', implemented: true, critical: true },
+    { name: 'Comprehensive Audit Logging', implemented: true, critical: true },
+    { name: 'Role-based Access Controls', implemented: true, critical: true },
+    { name: 'Automatic Session Timeout (15 min)', implemented: true, critical: true },
+    { name: 'Device Fingerprinting', implemented: true, critical: false },
+    { name: 'Enhanced Security Headers', implemented: true, critical: false },
+    { name: 'PHI Access Monitoring', implemented: true, critical: true },
+    { name: 'Data Backup Procedures', implemented: true, critical: true },
+    { name: 'Incident Response System', implemented: true, critical: false }
   ];
 
   return (
@@ -533,11 +533,11 @@ const HIPAASecurityDashboard: React.FC = () => {
                     </div>
                     <div className="flex items-center justify-between">
                       <span>Device Fingerprinting</span>
-                      {getStatusIcon(_true)}
+                      {getStatusIcon(true)}
                     </div>
                     <div className="flex items-center justify-between">
                       <span>Activity Monitoring</span>
-                      {getStatusIcon(_true)}
+                      {getStatusIcon(true)}
                     </div>
                   </div>
                   
@@ -622,15 +622,15 @@ const HIPAASecurityDashboard: React.FC = () => {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span>Automated Backups</span>
-                      {getStatusIcon(_true)}
+                      {getStatusIcon(true)}
                     </div>
                     <div className="flex items-center justify-between">
                       <span>Point-in-time Recovery</span>
-                      {getStatusIcon(_true)}
+                      {getStatusIcon(true)}
                     </div>
                     <div className="flex items-center justify-between">
                       <span>Geographic Redundancy</span>
-                      {getStatusIcon(_true)}
+                      {getStatusIcon(true)}
                     </div>
                   </div>
                   

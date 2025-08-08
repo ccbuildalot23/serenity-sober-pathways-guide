@@ -14,7 +14,7 @@ interface DailyQuoteCardProps {
 export const DailyQuoteCard: React.FC<DailyQuoteCardProps> = ({ className }) => {
   const { user } = useAuth();
   const [quote, setQuote] = useState<DailyQuote | null>(null);
-  const [_isLoading, setIsLoading] = useState(_true);
+  const [_isLoading, setIsLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export const DailyQuoteCard: React.FC<DailyQuoteCardProps> = ({ className }) => 
     });
 
     if (success) {
-      setIsSaved(_true);
+      setIsSaved(true);
     }
   };
 

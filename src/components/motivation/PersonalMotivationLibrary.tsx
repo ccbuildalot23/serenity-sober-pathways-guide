@@ -15,11 +15,11 @@ export const PersonalMotivationLibrary: React.FC = () => {
   const { user } = useAuth();
   const [motivations, setMotivations] = useState<PersonalMotivation[]>([]);
   const [filteredMotivations, setFilteredMotivations] = useState<PersonalMotivation[]>([]);
-  const [isLoading, setIsLoading] = useState(_true);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
-  const [_showFavoritesOnly, setShowFavoritesOnly] = useState(_false);
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(_false);
+  const [_showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   
   // Form state
   const [_newMotivation, setNewMotivation] = useState({
@@ -28,7 +28,7 @@ export const PersonalMotivationLibrary: React.FC = () => {
     _content: '',
     _source: '',
     _tags: [] as string[],
-    _is_favorite: _false
+    _is_favorite: false
   });
 
   useEffect(() => {
@@ -50,7 +50,7 @@ export const PersonalMotivationLibrary: React.FC = () => {
     } catch (_error) {
       console._error('Error loading motivations:', _error);
     } finally {
-      setIsLoading(_false);
+      setIsLoading(false);
     }
   };
 
@@ -82,14 +82,14 @@ export const PersonalMotivationLibrary: React.FC = () => {
     const _success = await motivationService.addPersonalMotivation(user._id, _newMotivation);
     
     if (_success) {
-      setIsAddDialogOpen(_false);
+      setIsAddDialogOpen(false);
       setNewMotivation({
         _content_type: 'affirmation',
         _title: '',
         _content: '',
         _source: '',
         _tags: [],
-        _is_favorite: _false
+        _is_favorite: false
       });
       loadMotivations();
     }
@@ -198,7 +198,7 @@ export const PersonalMotivationLibrary: React.FC = () => {
                 </div>
 
                 <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setIsAddDialogOpen(_false)}>
+                  <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                     Cancel
                   </Button>
                   <Button onClick={handleAddMotivation} disabled={!_newMotivation._content.trim()}>

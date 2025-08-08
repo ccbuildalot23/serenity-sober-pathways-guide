@@ -25,12 +25,12 @@ interface RecoverySystemIntegratorProps {
 const RecoverySystemIntegrator: React.FC<RecoverySystemIntegratorProps> = ({ children }) => {
   const { user } = useAuth();
   const { handleCrisisActivated } = useCrisisSystem();
-  const [isMonitoring, setIsMonitoring] = useState(_false);
+  const [isMonitoring, setIsMonitoring] = useState(false);
 
   useEffect(() => {
     if (user && !isMonitoring) {
       setupCrisisIntegration();
-      setIsMonitoring(_true);
+      setIsMonitoring(true);
     }
   }, [user]);
 
@@ -90,7 +90,7 @@ const RecoverySystemIntegrator: React.FC<RecoverySystemIntegratorProps> = ({ chi
               _trigger_data: {
                 intensity_before: session.intensity_before,
                 _duration: session._duration,
-                _gave_up: _true
+                _gave_up: true
               },
               _severity: 'high'
             });
@@ -174,7 +174,7 @@ const RecoverySystemIntegrator: React.FC<RecoverySystemIntegratorProps> = ({ chi
       supabase.removeChannel(_cravingChannel);
       supabase.removeChannel(_playingForwardChannel);
       supabase.removeChannel(_peerChatChannel);
-      setIsMonitoring(_false);
+      setIsMonitoring(false);
     };
   };
 
@@ -195,7 +195,7 @@ const RecoverySystemIntegrator: React.FC<RecoverySystemIntegratorProps> = ({ chi
           _trigger_data: eventData._trigger_data,
           _severity: eventData._severity,
           _crisis_system_activated: eventData._severity === 'crisis' || eventData._severity === 'high',
-          _support_network_notified: _false,
+          _support_network_notified: false,
           _response_actions: []
         });
 
@@ -254,16 +254,16 @@ const RecoverySystemIntegrator: React.FC<RecoverySystemIntegratorProps> = ({ chi
 
   const determineCrisisResponse = async (eventData: unknown) => {
     const responses = {
-      activateCrisisSystem: _false,
-      notifySupportNetwork: _false,
+      activateCrisisSystem: false,
+      notifySupportNetwork: false,
       userNotification: null as any
     };
 
     switch (eventData._trigger_source) {
       case 'halt_assessment':
         if (eventData._severity === 'crisis') {
-          responses.activateCrisisSystem = _true;
-          responses.notifySupportNetwork = _true;
+          responses.activateCrisisSystem = true;
+          responses.notifySupportNetwork = true;
           responses.userNotification = {
             type: 'warning',
             title: 'Multiple HALT warning signs detected',
@@ -275,8 +275,8 @@ const RecoverySystemIntegrator: React.FC<RecoverySystemIntegratorProps> = ({ chi
 
       case 'craving_timer':
         if (eventData._trigger_data.intensity_before >= 8 && eventData._trigger_data._gave_up) {
-          responses.activateCrisisSystem = _true;
-          responses.notifySupportNetwork = _true;
+          responses.activateCrisisSystem = true;
+          responses.notifySupportNetwork = true;
           responses.userNotification = {
             type: 'warning',
             title: 'High-intensity craving detected',
@@ -289,8 +289,8 @@ const RecoverySystemIntegrator: React.FC<RecoverySystemIntegratorProps> = ({ chi
       case 'peer_chat':
         if (eventData._trigger_data._detected_keywords.some((k: string) => 
           ['kill myself', 'end it all', 'hurt myself'].includes(k))) {
-          responses.activateCrisisSystem = _true;
-          responses.notifySupportNetwork = _true;
+          responses.activateCrisisSystem = true;
+          responses.notifySupportNetwork = true;
           responses.userNotification = {
             type: 'warning',
             title: 'Crisis support activated',
@@ -302,7 +302,7 @@ const RecoverySystemIntegrator: React.FC<RecoverySystemIntegratorProps> = ({ chi
 
       case 'playing_forward':
         if (eventData._trigger_data._is_vulnerable) {
-          responses.notifySupportNetwork = _true;
+          responses.notifySupportNetwork = true;
           responses.userNotification = {
             type: 'info',
             title: 'Support network notified',

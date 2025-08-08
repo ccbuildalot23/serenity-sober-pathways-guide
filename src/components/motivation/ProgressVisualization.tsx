@@ -29,7 +29,7 @@ export const ProgressVisualization: React.FC = () => {
   const [recoveryStats, setRecoveryStats] = useState<RecoveryStats | null>(null);
   const [userStats, setUserStats] = useState<unknown>(null);
   const [timeRange, setTimeRange] = useState<'7' | '30' | '90'>('30');
-  const [isLoading, setIsLoading] = useState(_true);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -62,7 +62,7 @@ export const ProgressVisualization: React.FC = () => {
     } catch (_error) {
       console._error('Error loading progress data:', _error);
     } finally {
-      setIsLoading(_false);
+      setIsLoading(false);
     }
   };
 

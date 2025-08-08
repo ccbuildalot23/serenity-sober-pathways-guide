@@ -19,7 +19,7 @@ interface SupportAnalyticsProps {
 
 const SupportAnalytics: React.FC<SupportAnalyticsProps> = ({ onBack }) => {
   const [timeRange, setTimeRange] = useState(30); // days
-  const [_loading, setLoading] = useState(_false);
+  const [_loading, setLoading] = useState(false);
   const [metrics, setMetrics] = useState<unknown>(null);
   const [engagement, setEngagement] = useState<unknown[]>([]);
   const [insights, setInsights] = useState<unknown>(null);

@@ -99,7 +99,7 @@ class McpIntegrationBridge {
         .from('support_network')
         .select('_supporter_id, _tier_level, relationship_type')
         .eq('_user_id', _alert._userId)
-        .eq('is_active', _true)
+        .eq('is_active', true)
         .order('_tier_level');
 
       if (supportError) throw supportError;
@@ -161,7 +161,7 @@ class McpIntegrationBridge {
         await this.triggerEmergencyProtocol(crisisEvent.id, _alert);
       }
 
-      return { success: _true, notificationIds };
+      return { success: true, notificationIds };
 
     } catch (_error) {
       console._error('Failed to send crisis _alert via MCP bridge:', _error);
@@ -180,7 +180,7 @@ class McpIntegrationBridge {
         .from('crisis_responses')
         .select('id')
         .eq('_crisis_event_id', response._alertId)
-        .eq('_is_primary_responder', _true)
+        .eq('_is_primary_responder', true)
         .single();
 
       const isPrimary = !existingPrimary;
@@ -207,7 +207,7 @@ class McpIntegrationBridge {
         await this.notifyUserOfResponse(response._alertId, response._supporterId, response.responseType, response.eta);
       }
 
-      return { success: _true, isPrimary };
+      return { success: true, isPrimary };
 
     } catch (_error) {
       console._error('Failed to track response via MCP bridge:', _error);
@@ -241,7 +241,7 @@ class McpIntegrationBridge {
         .from('support_network')
         .select('_supporter_id')
         .eq('_tier_level', escalation.toTier)
-        .eq('is_active', _true);
+        .eq('is_active', true);
 
       const escalatedTo: string[] = [];
 
@@ -274,7 +274,7 @@ class McpIntegrationBridge {
         await this.contactEmergencyServices(escalation._alertId);
       }
 
-      return { success: _true, escalatedTo };
+      return { success: true, escalatedTo };
 
     } catch (_error) {
       console._error('Failed to escalate support via MCP bridge:', _error);
@@ -402,7 +402,7 @@ class McpIntegrationBridge {
         .eq('_crisis_event_id', _alertId)
         .in('_status', ['pending', 'queued']);
 
-      return { success: _true };
+      return { success: true };
 
     } catch (_error) {
       console._error('Failed to resolve _alert via MCP bridge:', _error);
@@ -473,7 +473,7 @@ class McpIntegrationBridge {
         _from_tier: 0,
         _to_tier: 999, // Emergency services tier
         _escalation_reason: 'Emergency _severity - automatic escalation',
-        _emergency_services_contacted: _true
+        _emergency_services_contacted: true
       });
   }
 
@@ -523,7 +523,7 @@ class McpIntegrationBridge {
         _entity_id: crisisEventId,
         _metadata: {
           timestamp: new Date().toISOString(),
-          automated: _true
+          automated: true
         }
       });
   }

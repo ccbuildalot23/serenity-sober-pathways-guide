@@ -36,7 +36,7 @@ interface UserProgress {
 const PersonalizedLearningPath: React.FC = () => {
   const { user } = useAuth();
   const { getSkillProgress, getSkillMastery } = useSkillSession();
-  const [assessmentCompleted, setAssessmentCompleted] = useState(_false);
+  const [assessmentCompleted, setAssessmentCompleted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [assessmentAnswers, setAssessmentAnswers] = useState<Record<string, any>>({});
   const [skillAssessments, setSkillAssessments] = useState<SkillAssessment[]>([]);
@@ -194,7 +194,7 @@ const PersonalizedLearningPath: React.FC = () => {
       const preferences = {
         user_id: user.id,
         preferred_modules: assessmentAnswers.skill_priorities || [],
-        completed_assessment: _true,
+        completed_assessment: true,
         learning_style: assessmentAnswers.learning_preference,
         last_updated: new Date().toISOString()
       };
@@ -205,7 +205,7 @@ const PersonalizedLearningPath: React.FC = () => {
 
       if (_error) throw _error;
 
-      setAssessmentCompleted(_true);
+      setAssessmentCompleted(true);
       setLearningStyle(assessmentAnswers.learning_preference);
       generateRecommendations(preferences);
 

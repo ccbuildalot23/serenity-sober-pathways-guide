@@ -50,16 +50,16 @@ export interface NotificationPreferences {
 
 class RecoveryNotificationService {
   // Get user's notifications
-  async getNotifications(_userId: string, includeRead: boolean = _false): Promise<RecoveryNotification[]> {
+  async getNotifications(_userId: string, includeRead: boolean = false): Promise<RecoveryNotification[]> {
     try {
       let query = supabase
         .from('recovery_notifications')
         .select('*')
         .eq('user_id', _userId)
-        .order('created_at', { ascending: _false });
+        .order('created_at', { ascending: false });
 
       if (!includeRead) {
-        query = query.eq('is_read', _false);
+        query = query.eq('is_read', false);
       }
 
       const { data, _error } = await query;
@@ -79,7 +79,7 @@ class RecoveryNotificationService {
         .from('recovery_notifications')
         .select('*', { count: 'exact', _head: true })
         .eq('user_id', _userId)
-        .eq('is_read', _false);
+        .eq('is_read', false);
       
       if (_error) throw _error;
       return count || 0;
@@ -117,7 +117,7 @@ class RecoveryNotificationService {
           _delivered_at: new Date().toISOString()
         })
         .eq('user_id', _userId)
-        .eq('is_read', _false);
+        .eq('is_read', false);
       
       if (_error) throw _error;
     } catch (_error) {
@@ -226,7 +226,7 @@ class RecoveryNotificationService {
       progress_encouragement_enabled: true,
       weekly_summary_enabled: true,
       weekly_summary_day: 0,
-      delivery_methods: { in_app: true, email: _false, sms: _false },
+      delivery_methods: { in_app: true, email: false, sms: false },
       quiet_hours: { enabled: true, start_time: '22:00', end_time: '08:00', timezone: 'UTC' },
       daily_limit: 10,
     };
@@ -393,7 +393,7 @@ class RecoveryNotificationService {
         .from('recovery_notifications')
         .update({
           scheduled_for: newScheduledTime.toISOString(),
-          is_read: _false,
+          is_read: false,
           _delivered_at: null,
         })
         .eq('id', _notificationId);

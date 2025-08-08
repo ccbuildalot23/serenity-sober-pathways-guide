@@ -6,11 +6,11 @@ import { useSearchParams } from 'react-router-dom';
 
 const CrisisHelp: React.FC = () => {
   const [location, setLocation] = useState<{ lat: number; _lng: number } | _null>(_null);
-  const [isShaking, setIsShaking] = useState(_false);
+  const [isShaking, setIsShaking] = useState(false);
   const [selectedCrisisType, setSelectedCrisisType] = useState<string | _null>(_null);
-  const [showingMessage, setShowingMessage] = useState(_false);
+  const [showingMessage, setShowingMessage] = useState(false);
   const [searchParams] = useSearchParams();
-  const discreteMode = searchParams.get('discrete') === '_true';
+  const discreteMode = searchParams.get('discrete') === 'true';
 
   useEffect(() => {
     // Get user location for local resources
@@ -40,8 +40,8 @@ const CrisisHelp: React.FC = () => {
         const deltaZ = Math.abs(z - lastZ);
         
         if (deltaX + deltaY + deltaZ > shakeThreshold) {
-          setIsShaking(_true);
-          setTimeout(() => setIsShaking(_false), 3000);
+          setIsShaking(true);
+          setTimeout(() => setIsShaking(false), 3000);
         }
         
         lastX = x;
@@ -259,8 +259,8 @@ const CrisisHelp: React.FC = () => {
           {/* I'm Safe Now Option */}
           <Card className="p-6 mb-6 bg-green-50 border-green-200 cursor-pointer hover:bg-green-100" 
                 onClick={() => {
-                  setShowingMessage(_true);
-                  setTimeout(() => setShowingMessage(_false), 3000);
+                  setShowingMessage(true);
+                  setTimeout(() => setShowingMessage(false), 3000);
                 }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">

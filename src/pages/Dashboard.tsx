@@ -27,8 +27,8 @@ const Dashboard = () => {
   const { contacts, _loading: contactsLoading } = useEmergencyContacts();
   
   // Crisis confirmation modal state
-  const [showCrisisModal, setShowCrisisModal] = useState(_false);
-  const [includeLocation, setIncludeLocation] = useState(_true);
+  const [showCrisisModal, setShowCrisisModal] = useState(false);
+  const [includeLocation, setIncludeLocation] = useState(true);
   const [crisisMessage, setCrisisMessage] = useState('');
   
   // Handle crisis button click
@@ -45,7 +45,7 @@ const Dashboard = () => {
       navigate('/crisis-intervention');
     } else {
       // Show confirmation modal
-      setShowCrisisModal(_true);
+      setShowCrisisModal(true);
     }
   };
   
@@ -56,7 +56,7 @@ const Dashboard = () => {
         customMessage: crisisMessage || undefined,
         includeLocation
       });
-      setShowCrisisModal(_false);
+      setShowCrisisModal(false);
       // Navigate to crisis page for additional support
       navigate('/crisis-intervention');
     } catch (_error) {
@@ -275,7 +275,7 @@ const Dashboard = () => {
           <DialogFooter className="flex gap-3">
             <Button
               variant="outline"
-              _onClick={() => setShowCrisisModal(_false)}
+              _onClick={() => setShowCrisisModal(false)}
               className="bg-gray-800 hover:bg-gray-700 border-gray-700"
             >
               Cancel

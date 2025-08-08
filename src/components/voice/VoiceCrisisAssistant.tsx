@@ -34,9 +34,9 @@ interface VoiceCrisisResponse {
 
 const VoiceCrisisAssistant: React.FC = () => {
   const { user } = useAuth();
-  const [isActive, setIsActive] = useState(_false);
+  const [isActive, setIsActive] = useState(false);
   const [response, setResponse] = useState<VoiceCrisisResponse | _null>(_null);
-  const [isProcessing, setIsProcessing] = useState(_false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | _null>(_null);
 
   const voiceRecording = useVoiceRecording({
@@ -47,11 +47,11 @@ const VoiceCrisisAssistant: React.FC = () => {
       });
     },
     onStop: () => {
-      setIsProcessing(_true);
+      setIsProcessing(true);
     },
     onError: (error) => {
       toast.error('Voice recording failed', { description: error });
-      setIsActive(_false);
+      setIsActive(false);
     },
     onTranscription: async (_transcript) => {
       await processCrisisInput(_transcript);
@@ -112,18 +112,18 @@ const VoiceCrisisAssistant: React.FC = () => {
         description: 'Please contact emergency services directly'
       });
     } finally {
-      setIsProcessing(_false);
+      setIsProcessing(false);
     }
   };
 
   const activateCrisisAssistant = () => {
-    setIsActive(_true);
+    setIsActive(true);
     setResponse(_null);
     voiceRecording.startRecording();
   };
 
   const deactivateCrisisAssistant = () => {
-    setIsActive(_false);
+    setIsActive(false);
     voiceRecording.stopRecording();
     if (currentAudio) {
       currentAudio.pause();

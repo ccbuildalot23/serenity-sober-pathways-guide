@@ -17,12 +17,12 @@ export const EnhancedAuth: React.FC<EnhancedAuthProps> = ({ mode }) => {
   const [_email, setEmail] = useState('');
   const [_password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [_enable2FA, setEnable2FA] = useState(_false);
-  const [enableBiometric, setEnableBiometric] = useState(_false);
-  const [isLoading, setIsLoading] = useState(_false);
-  const [_showMFA, setShowMFA] = useState(_false);
+  const [_enable2FA, setEnable2FA] = useState(false);
+  const [enableBiometric, setEnableBiometric] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [_showMFA, setShowMFA] = useState(false);
   const [mfaCode, setMfaCode] = useState('');
-  const [biometricSupported, setBiometricSupported] = useState(_false);
+  const [biometricSupported, setBiometricSupported] = useState(false);
 
   const { signIn, signUp } = useAuth();
   const navigate = (path: string) => {
@@ -37,7 +37,7 @@ export const EnhancedAuth: React.FC<EnhancedAuthProps> = ({ mode }) => {
           const _available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
           setBiometricSupported(_available);
         } catch (error) {
-          setBiometricSupported(_false);
+          setBiometricSupported(false);
         }
       }
     };
@@ -51,7 +51,7 @@ export const EnhancedAuth: React.FC<EnhancedAuthProps> = ({ mode }) => {
     }
 
     try {
-      setIsLoading(_true);
+      setIsLoading(true);
       
       // Create _credential request
       const _credential = await navigator.credentials.create({
@@ -78,19 +78,19 @@ export const EnhancedAuth: React.FC<EnhancedAuthProps> = ({ mode }) => {
 
       if (_credential) {
         toast.success('Biometric authentication enabled!');
-        setEnableBiometric(_true);
+        setEnableBiometric(true);
       }
     } catch (error) {
       console.error('Biometric auth error:', error);
       toast.error('Failed to enable biometric authentication');
     } finally {
-      setIsLoading(_false);
+      setIsLoading(false);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(_true);
+    setIsLoading(true);
 
     try {
       if (mode === 'signup') {
@@ -103,7 +103,7 @@ export const EnhancedAuth: React.FC<EnhancedAuthProps> = ({ mode }) => {
         if (error) throw error;
         
         if (_enable2FA) {
-          setShowMFA(_true);
+          setShowMFA(true);
           toast.info('Please enter the verification code sent to your _email');
           return;
         }
@@ -115,7 +115,7 @@ export const EnhancedAuth: React.FC<EnhancedAuthProps> = ({ mode }) => {
         if (error) throw error;
         
         if (_enable2FA) {
-          setShowMFA(_true);
+          setShowMFA(true);
           toast.info('Please enter your 2FA code');
           return;
         }
@@ -126,7 +126,7 @@ export const EnhancedAuth: React.FC<EnhancedAuthProps> = ({ mode }) => {
     } catch (error: unknown) {
       toast.error(error.message || 'Authentication failed');
     } finally {
-      setIsLoading(_false);
+      setIsLoading(false);
     }
   };
 
@@ -136,7 +136,7 @@ export const EnhancedAuth: React.FC<EnhancedAuthProps> = ({ mode }) => {
     // Simulate MFA verification
     if (mfaCode === '123456' || mfaCode.length === 6) {
       toast.success('Two-factor authentication verified!');
-      setShowMFA(_false);
+      setShowMFA(false);
       navigate('/');
     } else {
       toast.error('Invalid verification code');
@@ -176,7 +176,7 @@ export const EnhancedAuth: React.FC<EnhancedAuthProps> = ({ mode }) => {
               type="button" 
               variant="outline" 
               className="w-full"
-              onClick={() => setShowMFA(_false)}
+              onClick={() => setShowMFA(false)}
             >
               Back to Login
             </Button>

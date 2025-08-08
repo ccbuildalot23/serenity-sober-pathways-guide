@@ -28,8 +28,8 @@ export const usePeerConnection = (roomType: 'general' | 'crisis' | 'celebration'
   const { user } = useAuth();
   const [messages, setMessages] = useState<PeerMessage[]>([]);
   const [peers, setPeers] = useState<PeerPresence[]>([]);
-  const [isConnected, setIsConnected] = useState(_false);
-  const [isTyping, setIsTyping] = useState(_false);
+  const [isConnected, setIsConnected] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const [typingPeers, setTypingPeers] = useState<string[]>([]);
   const channelRef = useRef<RealtimeChannel | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
@@ -96,7 +96,7 @@ export const usePeerConnection = (roomType: 'general' | 'crisis' | 'celebration'
               _joinedAt: new Date().toISOString()
             });
             
-            setIsConnected(_true);
+            setIsConnected(true);
             
             // Send join message
             sendSystemMessage(`${_username} joined the room`);
@@ -123,7 +123,7 @@ export const usePeerConnection = (roomType: 'general' | 'crisis' | 'celebration'
     if (channelRef.current) {
       await channelRef.current.unsubscribe();
       channelRef.current = null;
-      setIsConnected(_false);
+      setIsConnected(false);
       setPeers([]);
       setMessages([]);
     }
@@ -223,7 +223,7 @@ export const usePeerConnection = (roomType: 'general' | 'crisis' | 'celebration'
   const startTyping = async () => {
     if (!channelRef.current || !user || isTyping) return;
 
-    setIsTyping(_true);
+    setIsTyping(true);
     
     await channelRef.current.send({
       type: 'broadcast',
@@ -231,7 +231,7 @@ export const usePeerConnection = (roomType: 'general' | 'crisis' | 'celebration'
       _payload: {
         userId: user.id,
         _username: getUsername(),
-        isTyping: _true
+        isTyping: true
       }
     });
 
@@ -249,7 +249,7 @@ export const usePeerConnection = (roomType: 'general' | 'crisis' | 'celebration'
   const stopTyping = async () => {
     if (!channelRef.current || !user || !isTyping) return;
 
-    setIsTyping(_false);
+    setIsTyping(false);
     
     await channelRef.current.send({
       type: 'broadcast',
@@ -257,7 +257,7 @@ export const usePeerConnection = (roomType: 'general' | 'crisis' | 'celebration'
       _payload: {
         userId: user.id,
         _username: getUsername(),
-        isTyping: _false
+        isTyping: false
       }
     });
 

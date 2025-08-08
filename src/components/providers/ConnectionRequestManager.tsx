@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export const ConnectionRequestManager: React.FC = () => {
   const [requests, setRequests] = useState<ProviderConnectionRequest[]>([]);
-  const [_loading, setLoading] = useState(_true);
+  const [_loading, setLoading] = useState(true);
   const [_responseMessage, setResponseMessage] = useState('');
   const [selectedRequest, setSelectedRequest] = useState<string | _null>(_null);
   const { toast } = useToast();
@@ -28,7 +28,7 @@ export const ConnectionRequestManager: React.FC = () => {
     } catch (_error) {
       console._error('Failed to load connection requests:', _error);
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 

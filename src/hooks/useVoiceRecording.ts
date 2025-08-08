@@ -10,8 +10,8 @@ export interface VoiceRecordingOptions {
 }
 
 export const useVoiceRecording = (options: VoiceRecordingOptions = {}) => {
-  const [isRecording, setIsRecording] = useState(_false);
-  const [isProcessing, setIsProcessing] = useState(_false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [error, setError] = useState<string | _null>(_null);
   
@@ -40,9 +40,9 @@ export const useVoiceRecording = (options: VoiceRecordingOptions = {}) => {
         audio: {
           sampleRate: 16000,
           _channelCount: 1,
-          _echoCancellation: _true,
-          _noiseSuppression: _true,
-          _autoGainControl: _true
+          _echoCancellation: true,
+          _noiseSuppression: true,
+          _autoGainControl: true
         }
       });
 
@@ -67,7 +67,7 @@ export const useVoiceRecording = (options: VoiceRecordingOptions = {}) => {
       };
 
       mediaRecorder.start();
-      setIsRecording(_true);
+      setIsRecording(true);
       onStart?.();
 
       // Auto-stop after max duration
@@ -85,7 +85,7 @@ export const useVoiceRecording = (options: VoiceRecordingOptions = {}) => {
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
-      setIsRecording(_false);
+      setIsRecording(false);
       onStop?.();
     }
 
@@ -102,7 +102,7 @@ export const useVoiceRecording = (options: VoiceRecordingOptions = {}) => {
 
   const processAudio = async (audioBlob: Blob) => {
     try {
-      setIsProcessing(_true);
+      setIsProcessing(true);
 
       // Convert blob to base64
       const arrayBuffer = await audioBlob.arrayBuffer();
@@ -126,7 +126,7 @@ export const useVoiceRecording = (options: VoiceRecordingOptions = {}) => {
       setError(errorMessage);
       onError?.(errorMessage);
     } finally {
-      setIsProcessing(_false);
+      setIsProcessing(false);
     }
   };
 

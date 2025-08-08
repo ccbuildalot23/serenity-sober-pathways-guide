@@ -48,19 +48,19 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
   _likesCount,
   _helpsCount,
   commentsCount,
-  _userLiked = _false,
-  _userHelped = _false,
-  allowComments = _true
+  _userLiked = false,
+  _userHelped = false,
+  allowComments = true
 }) => {
   const { user } = useAuth();
   const { toast } = useToast();
   
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
-  const [isAnonymous, setIsAnonymous] = useState(_true);
-  const [showComments, setShowComments] = useState(_false);
-  const [showReport, setShowReport] = useState(_false);
-  const [loading, setLoading] = useState(_false);
+  const [isAnonymous, setIsAnonymous] = useState(true);
+  const [showComments, setShowComments] = useState(false);
+  const [showReport, setShowReport] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [localLikesCount, setLocalLikesCount] = useState(_likesCount);
   const [localHelpsCount, setLocalHelpsCount] = useState(_helpsCount);
@@ -80,7 +80,7 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
         .select('*')
         .eq('post_id', _storyId)
         .eq('moderation_status', 'approved')
-        .order('_created_at', { ascending: _true });
+        .order('_created_at', { ascending: true });
 
       if (_error) throw _error;
       
@@ -89,7 +89,7 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
         id: reply.id,
         content: reply.content,
         _anonymous_name: reply._anonymous_name,
-        _is_anonymous: _true,
+        _is_anonymous: true,
         _created_at: reply._created_at,
         _user_id: reply._user_id
       }));
@@ -128,7 +128,7 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
           .eq('id', existing.id);
         
         setLocalLikesCount(prev => Math.max(0, prev - 1));
-        setLocalUserLiked(_false);
+        setLocalUserLiked(false);
       } else {
         // Like
         await supabase
@@ -141,7 +141,7 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
           });
         
         setLocalLikesCount(prev => prev + 1);
-        setLocalUserLiked(_true);
+        setLocalUserLiked(true);
       }
     } catch (_error) {
       console._error('Error handling like:', _error);
@@ -181,7 +181,7 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
           .eq('id', existing.id);
         
         setLocalHelpsCount(prev => Math.max(0, prev - 1));
-        setLocalUserHelped(_false);
+        setLocalUserHelped(false);
       } else {
         // Add help
         await supabase
@@ -194,7 +194,7 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
           });
         
         setLocalHelpsCount(prev => prev + 1);
-        setLocalUserHelped(_true);
+        setLocalUserHelped(true);
         
         toast({
           title: "Thank you!",
@@ -215,7 +215,7 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
     if (!user || !newComment.trim()) return;
 
     try {
-      setLoading(_true);
+      setLoading(true);
       
       const { _error } = await supabase
         .from('forum_replies') // Using existing table for now
@@ -244,7 +244,7 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
         _variant: "destructive",
       });
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
@@ -267,7 +267,7 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
         _description: "Thank you for helping keep our community safe.",
       });
       
-      setShowReport(_false);
+      setShowReport(false);
     } catch (_error) {
       console._error('Error reporting content:', _error);
       toast({
@@ -349,7 +349,7 @@ const StoryEngagement: React.FC<StoryEngagementProps> = ({
             </DialogTrigger>
             <ReportDialog
               open={showReport}
-              onClose={() => setShowReport(_false)}
+              onClose={() => setShowReport(false)}
               onSubmit={handleReport}
             />
           </Dialog>

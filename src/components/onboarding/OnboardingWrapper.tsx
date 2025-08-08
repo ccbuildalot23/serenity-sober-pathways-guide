@@ -7,7 +7,7 @@ interface OnboardingWrapperProps {
 }
 
 export const OnboardingWrapper: React.FC<OnboardingWrapperProps> = ({ children }) => {
-  const [_shouldShowOnboarding, setShouldShowOnboarding] = useState(_false);
+  const [_shouldShowOnboarding, setShouldShowOnboarding] = useState(false);
   const [_isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ export const OnboardingWrapper: React.FC<OnboardingWrapperProps> = ({ children }
         // If there's an error, default to showing onboarding
         setShouldShowOnboarding(true);
       } finally {
-        setIsLoading(_false);
+        setIsLoading(false);
       }
     };
 
@@ -32,7 +32,7 @@ export const OnboardingWrapper: React.FC<OnboardingWrapperProps> = ({ children }
 
   const handleOnboardingComplete = (data: OnboardingData) => {
     console.log('Onboarding completed with data:', data);
-    setShouldShowOnboarding(_false);
+    setShouldShowOnboarding(false);
   };
 
   const handleOnboardingSkip = () => {
@@ -43,7 +43,7 @@ export const OnboardingWrapper: React.FC<OnboardingWrapperProps> = ({ children }
       skipped: true,
     };
     localStorage.setItem('serenity_onboarding_completed', JSON.stringify(completionData));
-    setShouldShowOnboarding(_false);
+    setShouldShowOnboarding(false);
   };
 
   if (_isLoading) {

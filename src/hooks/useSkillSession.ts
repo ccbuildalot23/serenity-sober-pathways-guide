@@ -24,7 +24,7 @@ interface Achievement {
 
 export const useSkillSession = () => {
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(_false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const recordSkillSession = async (sessionData: SkillSessionData) => {
     if (!user) return { error: 'User not authenticated' };
@@ -41,7 +41,7 @@ export const useSkillSession = () => {
           _session_duration_minutes: sessionData.sessionDurationMinutes,
           _effectiveness_rating: sessionData.effectivenessRating,
           _notes: sessionData._notes,
-          _real_world_applied: sessionData.realWorldApplied || _false
+          _real_world_applied: sessionData.realWorldApplied || false
         });
 
       if (error) throw error;
@@ -58,7 +58,7 @@ export const useSkillSession = () => {
       console.error('Error recording skill session:', error);
       return { error: 'Failed to record skill session' };
     } finally {
-      setIsLoading(_false);
+      setIsLoading(false);
     }
   };
 
@@ -109,7 +109,7 @@ export const useSkillSession = () => {
         .from('skill_sessions')
         .select('*')
         .eq('user_id', user.id)
-        .order('completed_at', { ascending: _false });
+        .order('completed_at', { ascending: false });
 
       if (skillCategory) {
         query = query.eq('_skill_category', skillCategory);
@@ -133,7 +133,7 @@ export const useSkillSession = () => {
         .from('user_achievements')
         .select('*')
         .eq('user_id', user.id)
-        .order('earned_at', { ascending: _false });
+        .order('earned_at', { ascending: false });
 
       if (error) throw error;
       return { data, error: null };

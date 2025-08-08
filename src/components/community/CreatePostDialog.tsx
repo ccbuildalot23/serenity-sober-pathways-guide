@@ -26,7 +26,7 @@ export const CreatePostDialog: React.FC<CreatePostDialogProps> = ({
   const [content, setContent] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [_newTag, setNewTag] = useState('');
-  const [loading, setLoading] = useState(_false);
+  const [loading, setLoading] = useState(false);
 
   const commonTags = [
     'Support', 'Advice', 'Recovery', 'Relapse', 'Family', 'Work', 'Anxiety', 
@@ -41,7 +41,7 @@ export const CreatePostDialog: React.FC<CreatePostDialogProps> = ({
     }
 
     try {
-      setLoading(_true);
+      setLoading(true);
       await CommunityService.createPost({
         forum_id: forumId,
         _title: _title.trim(),
@@ -59,7 +59,7 @@ export const CreatePostDialog: React.FC<CreatePostDialogProps> = ({
       console.error('Error creating post:', error);
       toast.error('Failed to create post');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 

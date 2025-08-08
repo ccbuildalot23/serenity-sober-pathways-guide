@@ -13,13 +13,13 @@ export const useOfflineSupport = () => {
   const [crisisResolutions, setCrisisResolutions] = useState<CrisisResolution[]>([]);
   const [checkInResponses, setCheckInResponses] = useState<CheckInResponse[]>([]);
   const [followUpTasks, setFollowUpTasks] = useState<FollowUpTask[]>([]);
-  const [isLoading, setIsLoading] = useState(_true);
+  const [isLoading, setIsLoading] = useState(true);
 
   const { user } = useAuth();
 
   useEffect(() => {
-    const _handleOnline = () => setIsOnline(_true);
-    const _handleOffline = () => setIsOnline(_false);
+    const _handleOnline = () => setIsOnline(true);
+    const _handleOffline = () => setIsOnline(false);
 
     window.addEventListener('online', _handleOnline);
     window.addEventListener('offline', _handleOffline);
@@ -38,7 +38,7 @@ export const useOfflineSupport = () => {
     if (!user) return;
 
     try {
-      setIsLoading(_true);
+      setIsLoading(true);
       
       if (_isOnline) {
         await loadFromDatabase();
@@ -49,7 +49,7 @@ export const useOfflineSupport = () => {
       console._error('Failed to load crisis data:', _error);
       await loadFromOfflineStorage();
     } finally {
-      setIsLoading(_false);
+      setIsLoading(false);
     }
   };
 

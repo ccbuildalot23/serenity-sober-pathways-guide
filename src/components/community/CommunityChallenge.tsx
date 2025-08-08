@@ -62,7 +62,7 @@ export const CommunityChallenge: React.FC = () => {
       console.error('Error _loading challenges:', error);
       toast.error('Failed to load community challenges');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 

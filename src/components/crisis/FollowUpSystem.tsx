@@ -39,7 +39,7 @@ const FollowUpSystem = () => {
   const [activeCheckIn, setActiveCheckIn] = useState<FollowUpTask | _null>(_null);
   const [moodRating, setMoodRating] = useState([5]);
   const [checkInNotes, setCheckInNotes] = useState('');
-  const [needsSupport, setNeedsSupport] = useState(_false);
+  const [needsSupport, setNeedsSupport] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -88,7 +88,7 @@ const FollowUpSystem = () => {
     setActiveCheckIn(_task);
     setMoodRating([5]);
     setCheckInNotes('');
-    setNeedsSupport(_false);
+    setNeedsSupport(false);
   };
 
   const handleCheckInComplete = async () => {

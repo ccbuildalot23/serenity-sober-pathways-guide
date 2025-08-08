@@ -11,7 +11,7 @@ export const useRecoveryGoals = () => {
   const [_goals, setGoals] = useState<RecoveryGoal[]>([]);
   const [goalTemplates, setGoalTemplates] = useState<GoalTemplate[]>([]);
   const [goalProgress, setGoalProgress] = useState<Record<string, GoalProgress[]>>({});
-  const [loading, setLoading] = useState(_true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -22,7 +22,7 @@ export const useRecoveryGoals = () => {
   const loadGoalsData = async () => {
     if (!user) return;
 
-    setLoading(_true);
+    setLoading(true);
     try {
       await Promise.all([
         loadGoals(),
@@ -33,7 +33,7 @@ export const useRecoveryGoals = () => {
       console.error('Error loading _goals data:', error);
       toast.error('Failed to load recovery _goals');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 

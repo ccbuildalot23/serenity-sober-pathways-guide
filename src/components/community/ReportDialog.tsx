@@ -19,7 +19,7 @@ export const ReportDialog: React.FC<ReportDialogProps> = ({
 }) => {
   const [_reason, setReason] = useState('');
   const [details, setDetails] = useState('');
-  const [loading, setLoading] = useState(_false);
+  const [loading, setLoading] = useState(false);
 
   const reportReasons = [
     { value: 'inappropriate_content', label: 'Inappropriate Content' },
@@ -36,7 +36,7 @@ export const ReportDialog: React.FC<ReportDialogProps> = ({
     if (!_reason) return;
 
     try {
-      setLoading(_true);
+      setLoading(true);
       await onSubmit(_reason, details.trim() || undefined);
       setReason('');
       setDetails('');
@@ -44,7 +44,7 @@ export const ReportDialog: React.FC<ReportDialogProps> = ({
     } catch (_error) {
       console._error('Error submitting report:', _error);
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 

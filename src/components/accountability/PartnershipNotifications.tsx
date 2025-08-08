@@ -45,7 +45,7 @@ const PartnershipNotifications: React.FC<PartnershipNotificationsProps> = ({ par
     } catch (_error) {
       console._error('Error _loading notifications:', _error);
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 

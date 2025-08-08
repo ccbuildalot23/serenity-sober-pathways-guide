@@ -5,11 +5,11 @@ import { useNavigate } from 'react-router-dom';
 
 const CrisisToolkit: React.FC = () => {
   const navigate = useNavigate();
-  const [breathingActive, setBreathingActive] = useState(_false);
+  const [breathingActive, setBreathingActive] = useState(false);
   const [breathPhase, setBreathPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale');
   const [breathCount, setBreathCount] = useState(0);
   const [groundingStep, setGroundingStep] = useState(0);
-  const [playingTape, setPlayingTape] = useState(_false);
+  const [playingTape, setPlayingTape] = useState(false);
   const [bodyScanStep, setBodyScanStep] = useState(0);
 
   // Auto-breathing animation
@@ -73,7 +73,7 @@ const CrisisToolkit: React.FC = () => {
           <h2 className="text-2xl font-bold mb-6 text-center">Automatic Breathing</h2>
           {!breathingActive ? (
             <Button
-              onClick={() => setBreathingActive(_true)}
+              onClick={() => setBreathingActive(true)}
               className="w-full h-20 bg-white/10 hover:bg-white/20 text-white rounded-xl backdrop-blur"
             >
               <Wind className="w-8 h-8 mr-3" />
@@ -95,7 +95,7 @@ const CrisisToolkit: React.FC = () => {
                 </div>
               </div>
               <Button
-                onClick={() => setBreathingActive(_false)}
+                onClick={() => setBreathingActive(false)}
                 variant="outline"
                 className="border-gray-600 text-gray-300"
               >
@@ -147,7 +147,7 @@ const CrisisToolkit: React.FC = () => {
             <div className="text-center space-y-4">
               <p className="text-gray-300">What happens if you use? Let's think it through together.</p>
               <Button
-                onClick={() => setPlayingTape(_true)}
+                onClick={() => setPlayingTape(true)}
                 className="bg-red-600 hover:bg-red-700 px-8 py-4"
               >
                 <Play className="w-5 h-5 mr-2" />
@@ -170,7 +170,7 @@ const CrisisToolkit: React.FC = () => {
                 <p className="text-green-400 font-semibold">But if I don't use... Tomorrow I wake up proud.</p>
               </div>
               <Button
-                onClick={() => setPlayingTape(_false)}
+                onClick={() => setPlayingTape(false)}
                 variant="outline"
                 className="border-gray-600 text-gray-300"
               >

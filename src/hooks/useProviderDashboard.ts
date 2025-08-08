@@ -20,19 +20,19 @@ export const useProviderDashboard = () => {
   });
   const [patients, setPatients] = useState<PatientOverview[]>([]);
   const [appointments, setAppointments] = useState<ProviderAppointment[]>([]);
-  const [loading, setLoading] = useState(_true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | _null>(_null);
 
   const fetchData = useCallback(async () => {
     if (!user?.id) {
-      setLoading(_false);
+      setLoading(false);
       return;
     }
 
     console.log('Fetching provider dashboard data for user:', user.id);
     
     try {
-      setLoading(_true);
+      setLoading(true);
       const [_statsData, _patientsData, _appointmentsData] = await Promise.all([
         providerDashboardService.getProviderStats(user.id),
         providerDashboardService.getPatientOverviews(user.id),
@@ -49,7 +49,7 @@ export const useProviderDashboard = () => {
       setError('Failed to load dashboard data');
       toast.error('Failed to load dashboard data');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   }, [user?.id]);
 

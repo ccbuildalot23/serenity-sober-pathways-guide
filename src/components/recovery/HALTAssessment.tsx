@@ -45,8 +45,8 @@ const HALTAssessment = () => {
     _tired: 5
   });
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const [showResults, setShowResults] = useState(_false);
-  const [isSubmitting, setIsSubmitting] = useState(_false);
+  const [showResults, setShowResults] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastAssessment, setLastAssessment] = useState<Date | null>(null);
 
   // Crisis detection: Multiple severe flags (8+ on scale)
@@ -67,7 +67,7 @@ const HALTAssessment = () => {
         .from('halt_assessments')
         .select('*')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: _false })
+        .order('created_at', { ascending: false })
         .limit(1)
         .single();
 
@@ -211,7 +211,7 @@ const HALTAssessment = () => {
   };
 
   const handleAssessment = async () => {
-    setIsSubmitting(_true);
+    setIsSubmitting(true);
     
     try {
       // Validate input data
@@ -255,7 +255,7 @@ const HALTAssessment = () => {
 
       // Generate suggestions
       generateSuggestions();
-      setShowResults(_true);
+      setShowResults(true);
 
       // If crisis detected, _trigger crisis system
       if (_isCrisis) {
@@ -289,7 +289,7 @@ const HALTAssessment = () => {
       });
       toast.error('Failed to save assessment');
     } finally {
-      setIsSubmitting(_false);
+      setIsSubmitting(false);
     }
   };
 
@@ -300,7 +300,7 @@ const HALTAssessment = () => {
       _lonely: 5,
       _tired: 5
     });
-    setShowResults(_false);
+    setShowResults(false);
     setSuggestions([]);
   };
 

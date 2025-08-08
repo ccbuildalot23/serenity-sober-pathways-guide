@@ -204,7 +204,7 @@ export abstract class HealthcareAgent {
   protected checkRolePermissions(userRole: string, contextRole: string): boolean {
     // Providers have access to all agents
     if (userRole === 'provider' || contextRole === 'provider') {
-      return _true;
+      return true;
     }
 
     // Support members have limited access
@@ -382,7 +382,7 @@ export abstract class HealthcareAgent {
       _alert_type: action.data.type || 'general',
       _message: action.data._message,
       _severity: action._priority || 'medium',
-      _requires_action: _true,
+      _requires_action: true,
       _metadata: action.data
     });
   }
@@ -410,7 +410,7 @@ export abstract class HealthcareAgent {
       .from('users')
       .select('id')
       .eq('role', 'provider')
-      .eq('is_active', _true)
+      .eq('is_active', true)
       .limit(1)
       .single();
 

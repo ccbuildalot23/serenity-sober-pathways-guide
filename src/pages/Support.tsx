@@ -24,8 +24,8 @@ import TriggerManagementToolkit from '@/components/triggers/TriggerManagementToo
 
 const Support = () => {
   const [activeView, setActiveView] = useState<'main' | 'analytics' | 'network' | 'settings' | 'supporter'>('main');
-  const [showMeetingFinder, setShowMeetingFinder] = useState(_false);
-  const [loadingMeetings, setLoadingMeetings] = useState(_false);
+  const [showMeetingFinder, setShowMeetingFinder] = useState(false);
+  const [loadingMeetings, setLoadingMeetings] = useState(false);
   const [nearbyMeetings, setNearbyMeetings] = useState<unknown[]>([]);
 
   const navigate = useNavigate();
@@ -55,8 +55,8 @@ const Support = () => {
 
   // Meeting finder _modal
   const handleMeetingFinder = async () => {
-    setShowMeetingFinder(_true);
-    setLoadingMeetings(_true);
+    setShowMeetingFinder(true);
+    setLoadingMeetings(true);
 
     try {
       navigator.geolocation.getCurrentPosition(
@@ -67,18 +67,18 @@ const Support = () => {
             _radius: 10
           });
           setNearbyMeetings(meetings);
-          setLoadingMeetings(_false);
+          setLoadingMeetings(false);
         },
         async () => {
           const meetings = await meetingFinderService.searchMeetings({});
           setNearbyMeetings(meetings);
-          setLoadingMeetings(_false);
+          setLoadingMeetings(false);
         }
       );
     } catch (error) {
       console.error('Error loading meetings:', error);
       toast.error('Failed to load meetings');
-      setLoadingMeetings(_false);
+      setLoadingMeetings(false);
     }
   };
 
@@ -400,7 +400,7 @@ const Support = () => {
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-bold">Recovery Meetings Near You</h2>
                   <Button
-                    onClick={() => setShowMeetingFinder(_false)}
+                    onClick={() => setShowMeetingFinder(false)}
                     variant="ghost"
                     size="sm"
                   >

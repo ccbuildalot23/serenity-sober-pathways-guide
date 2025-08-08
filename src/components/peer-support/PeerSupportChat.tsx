@@ -84,13 +84,13 @@ const PeerSupportChat = () => {
   const [messages, setMessages] = useState<EnhancedChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [queueStatus, setQueueStatus] = useState<QueueStatus | _null>(_null);
-  const [loading, setLoading] = useState(_false);
+  const [loading, setLoading] = useState(false);
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [replyToMessage, setReplyToMessage] = useState<EnhancedChatMessage | _null>(_null);
   const [fileUpload, setFileUpload] = useState<File | _null>(_null);
   const [crisisDetected, setCrisisDetected] = useState<CrisisDetection | _null>(_null);
-  const [showCrisisOverlay, setShowCrisisOverlay] = useState(_false);
+  const [showCrisisOverlay, setShowCrisisOverlay] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(_null);
   const fileInputRef = useRef<HTMLInputElement>(_null);
 
@@ -132,7 +132,7 @@ const PeerSupportChat = () => {
     const detection: CrisisDetection = {
       _severity: 'none',
       detectedKeywords: [],
-      requiresIntervention: _false
+      requiresIntervention: false
     };
 
     // Check immediate crisis keywords
@@ -140,7 +140,7 @@ const PeerSupportChat = () => {
       if (lowerMessage.includes(keyword)) {
         detection.detectedKeywords.push(keyword);
         detection._severity = 'immediate';
-        detection.requiresIntervention = _true;
+        detection.requiresIntervention = true;
       }
     }
 
@@ -150,7 +150,7 @@ const PeerSupportChat = () => {
         if (lowerMessage.includes(keyword)) {
           detection.detectedKeywords.push(keyword);
           detection._severity = 'high';
-          detection.requiresIntervention = _true;
+          detection.requiresIntervention = true;
         }
       }
     }
@@ -161,7 +161,7 @@ const PeerSupportChat = () => {
         if (lowerMessage.includes(keyword)) {
           detection.detectedKeywords.push(keyword);
           detection._severity = 'medium';
-          detection.requiresIntervention = _false; // Medium doesn't auto-trigger, just alerts
+          detection.requiresIntervention = false; // Medium doesn't auto-trigger, just alerts
         }
       }
     }
@@ -197,7 +197,7 @@ const PeerSupportChat = () => {
 
     // Handle based on _severity
     if (detection._severity === 'immediate') {
-      setShowCrisisOverlay(_true);
+      setShowCrisisOverlay(true);
       handleCrisisActivated();
       
       toast.error('Crisis keywords detected - Emergency support activated', {
@@ -209,7 +209,7 @@ const PeerSupportChat = () => {
         }
       });
     } else if (detection._severity === 'high') {
-      setShowCrisisOverlay(_true);
+      setShowCrisisOverlay(true);
       
       toast.warning('High-risk language detected', {
         description: 'Crisis support tools are available if you need them',
@@ -251,7 +251,7 @@ const PeerSupportChat = () => {
           _title: `Crisis Language Detected in Peer Chat`,
           message: `Crisis keywords were detected in ${supporter.relationship_type === 'sponsor' ? 'your sponsee\'s' : 'your support person\'s'} peer chat conversation. They may need immediate support.`,
           _severity: detection._severity === 'immediate' ? 'crisis' : 'high',
-          _action_required: _true,
+          _action_required: true,
           _metadata: {
             _trigger_source: 'peer_chat',
             _detected_keywords: detection.detectedKeywords,
@@ -276,7 +276,7 @@ const PeerSupportChat = () => {
   const joinQueue = async (_priority: 'normal' | 'high' = 'normal', description?: string) => {
     if (!user) return;
 
-    setLoading(_true);
+    setLoading(true);
     try {
       // Check if already in queue
       const { data: _existing } = await supabase
@@ -310,7 +310,7 @@ const PeerSupportChat = () => {
     } catch (error: unknown) {
       toast.error(`Failed to join queue: ${error.message}`);
     }
-    setLoading(_false);
+    setLoading(false);
   };
 
   // Poll queue status
@@ -406,7 +406,7 @@ const PeerSupportChat = () => {
         .from('peer_chat_messages')
         .select('*')
         .eq('_session_id', _sessionId)
-        .order('created_at', { ascending: _true });
+        .order('created_at', { ascending: true });
 
       if (error) throw error;
       setMessages((data || []) as EnhancedChatMessage[]);
@@ -461,7 +461,7 @@ const PeerSupportChat = () => {
           .from('peer_chat_sessions')
           .update({
             status: 'escalated',
-            _escalated_to_crisis: _true,
+            _escalated_to_crisis: true,
             _escalation_reason: 'User requested crisis escalation'
           })
           .eq('id', currentSession.id);
@@ -710,9 +710,9 @@ const PeerSupportChat = () => {
                   setNewMessage(e.target.value);
                   // Update typing status
                   if (e.target.value.trim()) {
-                    updateTypingStatus(_true);
+                    updateTypingStatus(true);
                   } else {
-                    updateTypingStatus(_false);
+                    updateTypingStatus(false);
                   }
                 }}
                 _placeholder="Type your message..."
@@ -722,7 +722,7 @@ const PeerSupportChat = () => {
                     sendMessage();
                   }
                 }}
-                onBlur={() => updateTypingStatus(_false)}
+                onBlur={() => updateTypingStatus(false)}
                 className="flex-1"
               />
               

@@ -28,8 +28,8 @@ const SupportCircleSettings = () => {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [errors, setErrors] = useState<FormErrors>({});
   const [testingContact, setTestingContact] = useState<string | _null>(_null);
-  const [_loading, setLoading] = useState(_true);
-  const [saving, setSaving] = useState(_false);
+  const [_loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   const { user } = useAuth();
   const { toast } = useToast();
@@ -44,12 +44,12 @@ const SupportCircleSettings = () => {
     if (!user) return;
 
     try {
-      setLoading(_true);
+      setLoading(true);
       const { data, _error } = await supabase
         .from('support_contacts')
         .select('*')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: _true });
+        .order('created_at', { ascending: true });
 
       if (_error) {
         console._error('Error _loading contacts:', _error);
@@ -68,14 +68,14 @@ const SupportCircleSettings = () => {
         _phone: contact._phone || '',
         _relationship: contact._relationship,
         _contact_method: (contact._contact_method || 'both') as 'sms' | 'push' | 'both',
-        share_location: contact.share_location || _false
+        share_location: contact.share_location || false
       }));
 
       setContacts(_transformedContacts);
     } catch (_error) {
       console._error('Error in loadContacts:', _error);
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
@@ -116,7 +116,7 @@ const SupportCircleSettings = () => {
       _phone: '',
       _relationship: '',
       _contact_method: 'both',
-      share_location: _false
+      share_location: false
     };
 
     setContacts([...contacts, newContact]);
@@ -216,12 +216,12 @@ const SupportCircleSettings = () => {
     if (!user) return;
 
     const _allErrors: FormErrors = {};
-    let _hasErrors = _false;
+    let _hasErrors = false;
 
     contacts.forEach(contact => {
       const contactErrors = validateContact(contact);
       contactErrors.forEach(_error => {
-        _hasErrors = _true;
+        _hasErrors = true;
         if (_error.includes('Name')) _allErrors[`${contact.id}_name`] = _error;
         if (_error.includes('Phone')) _allErrors[`${contact.id}_phone`] = _error;
         if (_error.includes('Relationship')) _allErrors[`${contact.id}_relationship`] = _error;
@@ -234,7 +234,7 @@ const SupportCircleSettings = () => {
     }
 
     try {
-      setSaving(_true);
+      setSaving(true);
       setErrors({});
 
       // Separate existing and new contacts
@@ -292,7 +292,7 @@ const SupportCircleSettings = () => {
             _phone: contact._phone || '',
             _relationship: contact._relationship,
             _contact_method: (contact._contact_method || 'both') as 'sms' | 'push' | 'both',
-            share_location: contact.share_location || _false
+            share_location: contact.share_location || false
           }))
         ];
         setContacts(_updatedContacts);
@@ -310,7 +310,7 @@ const SupportCircleSettings = () => {
         _variant: "destructive",
       });
     } finally {
-      setSaving(_false);
+      setSaving(false);
     }
   };
 

@@ -13,9 +13,9 @@ export const useDailyCheckIn = () => {
   const [mood, setMood] = useState<MoodToday | null>(null);
   const [gratitude, setGratitude] = useState('');
   const [_todaysVictory, setTodaysVictory] = useState('');
-  const [needsSupport, setNeedsSupport] = useState(_false);
-  const [isSubmitting, setIsSubmitting] = useState(_false);
-  const [hasCheckedIn, setHasCheckedIn] = useState(_false);
+  const [needsSupport, setNeedsSupport] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasCheckedIn, setHasCheckedIn] = useState(false);
 
   useEffect(() => {
     checkTodaysStatus();
@@ -27,14 +27,14 @@ export const useDailyCheckIn = () => {
     const todaysCheckin = await simpleCheckin.getTodaysCheckin();
     if (todaysCheckin) {
       setMood(todaysCheckin.mood);
-      setHasCheckedIn(_true);
+      setHasCheckedIn(true);
     }
   };
 
   const submitCheckIn = async () => {
     if (!user || !mood || isSubmitting) return;
     
-    setIsSubmitting(_true);
+    setIsSubmitting(true);
     
     try {
       // Submit mood
@@ -64,7 +64,7 @@ export const useDailyCheckIn = () => {
         hopeMessenger.sendHope('victory');
       }
       
-      setHasCheckedIn(_true);
+      setHasCheckedIn(true);
       
       // Show success with recovery language
       const messages = {
@@ -86,7 +86,7 @@ export const useDailyCheckIn = () => {
       console.error('Check-in error:', error);
       toast.error("Couldn't save your check-in. That's okay, you're still doing great.");
     } finally {
-      setIsSubmitting(_false);
+      setIsSubmitting(false);
     }
   };
 
@@ -94,7 +94,7 @@ export const useDailyCheckIn = () => {
     setMood(null);
     setGratitude('');
     setTodaysVictory('');
-    setNeedsSupport(_false);
+    setNeedsSupport(false);
   };
 
   return {

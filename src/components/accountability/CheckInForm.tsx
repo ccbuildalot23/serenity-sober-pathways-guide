@@ -19,11 +19,11 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ partnership, onCheckInComplet
   const [energyLevel, setEnergyLevel] = useState([7]);
   const [challengesToday, setChallengesToday] = useState('');
   const [accomplishments, setAccomplishments] = useState('');
-  const [needsSupport, setNeedsSupport] = useState(_false);
+  const [needsSupport, setNeedsSupport] = useState(false);
   const [supportMessage, setSupportMessage] = useState('');
   const [privateNotes, setPrivateNotes] = useState('');
-  const [loading, setLoading] = useState(_false);
-  const [showPreview, setShowPreview] = useState(_false);
+  const [loading, setLoading] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   const getMoodLabel = (value: number) => {
     if (value <= 2) return 'Very Low';
@@ -58,12 +58,12 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ partnership, onCheckInComplet
       }
       
       if (challengesToday.trim()) {
-        summary.had_challenges = _true;
+        summary.had_challenges = true;
       }
     }
 
     if (needsSupport && supportMessage.trim()) {
-      summary.support_requested = _true;
+      summary.support_requested = true;
       summary.support_type = 'general'; // Don't share specific details
     }
 
@@ -88,7 +88,7 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ partnership, onCheckInComplet
   };
 
   const handleSubmit = async () => {
-    setLoading(_true);
+    setLoading(true);
     
     try {
       const _sensitiveData = generateSensitiveData();
@@ -107,7 +107,7 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ partnership, onCheckInComplet
       setEnergyLevel([7]);
       setChallengesToday('');
       setAccomplishments('');
-      setNeedsSupport(_false);
+      setNeedsSupport(false);
       setSupportMessage('');
       setPrivateNotes('');
       
@@ -116,7 +116,7 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ partnership, onCheckInComplet
       console.error('Error submitting check-in:', error);
       toast.error('Failed to submit check-in');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 

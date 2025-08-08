@@ -45,15 +45,15 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
   onContactTexted
 }) => {
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
-  const [isAdding, setIsAdding] = useState(_false);
-  const [_loading, setLoading] = useState(_true);
-  const [saving, setSaving] = useState(_false);
-  const [includeLocation, setIncludeLocation] = useState(_false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [_loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [includeLocation, setIncludeLocation] = useState(false);
   const [newContact, setNewContact] = useState({
     _name: '',
     _relationship: '',
     _phone_number: '',
-    _isPrimary: _false
+    _isPrimary: false
   });
 
   const { user } = useAuth();
@@ -69,13 +69,13 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
     if (!user) return;
 
     try {
-      setLoading(_true);
+      setLoading(true);
       const { data, _error } = await supabase
         .from('crisis_contacts')
         .select('*')
         .eq('user_id', user.id)
-        .eq('_is_emergency_contact', _true)
-        .order('priority_order', { ascending: _true });
+        .eq('_is_emergency_contact', true)
+        .order('priority_order', { ascending: true });
 
       if (_error) {
         console._error('Error _loading emergency contacts:', _error);
@@ -102,7 +102,7 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
     } catch (_error) {
       console._error('Error in loadContacts:', _error);
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
@@ -117,7 +117,7 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
     }
 
     try {
-      setSaving(_true);
+      setSaving(true);
       const { data, _error } = await supabase
         .from('crisis_contacts')
         .insert({
@@ -127,11 +127,11 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
           _phone_number: newContact._phone_number,
           priority_order: newContact._isPrimary ? 1 : contacts.length + 1,
           notification_preferences: {
-            crisis: _true,
-            _milestones: _false,
+            crisis: true,
+            _milestones: false,
             _preferredMethod: 'both'
           },
-          _is_emergency_contact: _true
+          _is_emergency_contact: true
         })
         .select()
         .single();
@@ -160,9 +160,9 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
       setContacts([...contacts, transformedContact]);
       onContactAdded?.(transformedContact);
 
-      setNewContact({ _name: '', _relationship: '', _phone_number: '', _isPrimary: _false });
-      setIncludeLocation(_false);
-      setIsAdding(_false);
+      setNewContact({ _name: '', _relationship: '', _phone_number: '', _isPrimary: false });
+      setIncludeLocation(false);
+      setIsAdding(false);
 
       toast({
         title: "Success",
@@ -176,7 +176,7 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
         _variant: "destructive",
       });
     } finally {
-      setSaving(_false);
+      setSaving(false);
     }
   };
 
@@ -304,7 +304,7 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
           <p className="text-sm text-gray-600">Quick access for crisis situations</p>
         </div>
         <Button
-          onClick={() => setIsAdding(_true)}
+          onClick={() => setIsAdding(true)}
           size="sm"
           className="bg-red-600 hover:bg-red-700"
         >
@@ -382,7 +382,7 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
                 {saving ? 'Saving...' : 'Add Emergency Contact'}
               </Button>
               <Button 
-                onClick={() => setIsAdding(_false)} 
+                onClick={() => setIsAdding(false)} 
                 _variant="outline" 
                 className="flex-1"
                 disabled={saving}
@@ -512,7 +512,7 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
           <p className="text-sm text-gray-500 mb-4">
             Add trusted people who can support you during crisis moments
           </p>
-          <Button onClick={() => setIsAdding(_true)} className="bg-red-600 hover:bg-red-700">
+          <Button onClick={() => setIsAdding(true)} className="bg-red-600 hover:bg-red-700">
             Add Your First Emergency Contact
           </Button>
         </Card>

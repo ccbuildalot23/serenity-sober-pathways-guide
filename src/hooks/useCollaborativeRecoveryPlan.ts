@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 export function useCollaborativeRecoveryPlan() {
   const { user } = useAuth();
   const [plans, setPlans] = useState<CollaborativeRecoveryPlan[]>([]);
-  const [loading, setLoading] = useState(_true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -17,7 +17,7 @@ export function useCollaborativeRecoveryPlan() {
   const loadPlans = async () => {
     if (!user) return;
     
-    setLoading(_true);
+    setLoading(true);
     try {
       const _userPlans = await CollaborativeRecoveryPlanService.getUserPlans(user.id);
       setPlans(_userPlans);
@@ -25,7 +25,7 @@ export function useCollaborativeRecoveryPlan() {
       console.error('Error loading plans:', error);
       toast.error('Failed to load recovery plans');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
@@ -57,12 +57,12 @@ export function useCollaborativeRecoveryPlan() {
     } catch (error) {
       console.error('Error updating plan:', error);
       toast.error('Failed to update plan');
-      return _false;
+      return false;
     }
   };
 
   const shareWithProvider = async (_planId: string, _providerEmail: string, _accessLevel: 'read' | 'write') => {
-    if (!user) return _false;
+    if (!user) return false;
     
     try {
       const success = await CollaborativeRecoveryPlanService.shareWithProvider(
@@ -79,7 +79,7 @@ export function useCollaborativeRecoveryPlan() {
     } catch (error) {
       console.error('Error sharing plan:', error);
       toast.error('Failed to share plan with provider');
-      return _false;
+      return false;
     }
   };
 
@@ -95,7 +95,7 @@ export function useCollaborativeRecoveryPlan() {
 
 export function usePlanCollaborators(_planId: string | null) {
   const [collaborators, setCollaborators] = useState<PlanCollaborator[]>([]);
-  const [loading, setLoading] = useState(_false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (_planId) {
@@ -106,7 +106,7 @@ export function usePlanCollaborators(_planId: string | null) {
   const loadCollaborators = async () => {
     if (!_planId) return;
     
-    setLoading(_true);
+    setLoading(true);
     try {
       const _planCollaborators = await CollaborativeRecoveryPlanService.getCollaborators(_planId);
       setCollaborators(_planCollaborators);
@@ -114,12 +114,12 @@ export function usePlanCollaborators(_planId: string | null) {
       console.error('Error loading collaborators:', error);
       toast.error('Failed to load collaborators');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
   const respondToInvitation = async (_collaboratorId: string, response: 'accepted' | 'declined') => {
-    if (!_planId) return _false;
+    if (!_planId) return false;
     
     try {
       const success = await CollaborativeRecoveryPlanService.respondToInvitation(
@@ -135,7 +135,7 @@ export function usePlanCollaborators(_planId: string | null) {
     } catch (error) {
       console.error('Error responding to invitation:', error);
       toast.error('Failed to respond to invitation');
-      return _false;
+      return false;
     }
   };
 
@@ -149,7 +149,7 @@ export function usePlanCollaborators(_planId: string | null) {
 
 export function usePlanComments(_planId: string | null) {
   const [comments, setComments] = useState<PlanComment[]>([]);
-  const [loading, setLoading] = useState(_false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (_planId) {
@@ -160,7 +160,7 @@ export function usePlanComments(_planId: string | null) {
   const loadComments = async () => {
     if (!_planId) return;
     
-    setLoading(_true);
+    setLoading(true);
     try {
       const _planComments = await CollaborativeRecoveryPlanService.getComments(_planId);
       setComments(_planComments);
@@ -168,7 +168,7 @@ export function usePlanComments(_planId: string | null) {
       console.error('Error loading comments:', error);
       toast.error('Failed to load comments');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
@@ -203,14 +203,14 @@ export function usePlanComments(_planId: string | null) {
 
 export function useProviderTemplates() {
   const [templates, setTemplates] = useState<unknown[]>([]);
-  const [loading, setLoading] = useState(_false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadTemplates();
   }, []);
 
   const loadTemplates = async () => {
-    setLoading(_true);
+    setLoading(true);
     try {
       const _providerTemplates = await CollaborativeRecoveryPlanService.getProviderTemplates();
       setTemplates(_providerTemplates);
@@ -218,7 +218,7 @@ export function useProviderTemplates() {
       console.error('Error loading templates:', error);
       toast.error('Failed to load provider templates');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 

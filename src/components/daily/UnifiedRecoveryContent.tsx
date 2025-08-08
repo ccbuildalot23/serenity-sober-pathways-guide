@@ -45,7 +45,7 @@ export const UnifiedRecoveryContent = () => {
   const { user } = useAuth();
   const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'error'>('synced');
   const [offlineMode, setOfflineMode] = useState(!navigator.onLine);
-  const [voiceEnabled, setVoiceEnabled] = useState(_false);
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [selectedTab, setSelectedTab] = useState('integrated');
   const [personalNote, setPersonalNote] = useState('');
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -54,7 +54,7 @@ export const UnifiedRecoveryContent = () => {
   // Handle offline/online transitions
   useEffect(() => {
     const _handleOnline = async () => {
-      setOfflineMode(_false);
+      setOfflineMode(false);
       setSyncStatus('syncing');
       
       try {
@@ -68,7 +68,7 @@ export const UnifiedRecoveryContent = () => {
     };
     
     const _handleOffline = () => {
-      setOfflineMode(_true);
+      setOfflineMode(true);
       toast.info("You're offline. Data will sync when connected.");
     };
     
@@ -123,7 +123,7 @@ export const UnifiedRecoveryContent = () => {
         user_id: user?.id,
         type,
         date: new Date(),
-        completed: _true,
+        completed: true,
         _note
       };
       
@@ -151,10 +151,10 @@ export const UnifiedRecoveryContent = () => {
         },
         onError: (error) => {
           toast.error(`Voice error: ${error}`);
-          setVoiceEnabled(_false);
+          setVoiceEnabled(false);
         }
       });
-      setVoiceEnabled(_true);
+      setVoiceEnabled(true);
       
       // Read current content
       if (todaysContent && 'speechSynthesis' in window) {
@@ -168,7 +168,7 @@ export const UnifiedRecoveryContent = () => {
     } else {
       voiceActivationService.stopListening();
       speechSynthesis.cancel();
-      setVoiceEnabled(_false);
+      setVoiceEnabled(false);
     }
   };
 
@@ -517,8 +517,8 @@ function getDefaultDailyFocus() {
   return {
     id: 'default',
     text: focuses[Math.floor(Math.random() * focuses.length)],
-    actionable: _true,
-    completed: _false,
+    actionable: true,
+    completed: false,
     date: new Date().toISOString()
   };
 }

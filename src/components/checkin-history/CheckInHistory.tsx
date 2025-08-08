@@ -53,7 +53,7 @@ export interface FilterOptions {
 const CheckInHistory = () => {
   const { user } = useAuth();
   const [data, setData] = useState<CheckinHistoryData[]>([]);
-  const [_loading, setLoading] = useState(_true);
+  const [_loading, setLoading] = useState(true);
   const [_filters, setFilters] = useState<FilterOptions>({
     dateRange: {
       start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
@@ -61,7 +61,7 @@ const CheckInHistory = () => {
       preset: '30d'
     },
     assessmentTypes: ['mood', 'phq2', 'gad2'],
-    compareMode: _false
+    compareMode: false
   });
   const [insights, setInsights] = useState<unknown>(null);
 
@@ -81,7 +81,7 @@ const CheckInHistory = () => {
   const loadCheckinData = async () => {
     if (!user) return;
     
-    setLoading(_true);
+    setLoading(true);
     try {
       const days = Math.ceil((_filters.dateRange.end.getTime() - _filters.dateRange.start.getTime()) / (1000 * 60 * 60 * 24));
       const checkinHistory = await enhancedCheckinService.loadCheckinHistory(user.id, days + 7); // Extra buffer
@@ -97,7 +97,7 @@ const CheckInHistory = () => {
       console.error('Error _loading check-in history:', error);
       toast.error('Failed to load check-in history');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 

@@ -53,7 +53,7 @@ export const SupportNetworkDashboard: React.FC = () => {
   const [activeCrisis, setActiveCrisis] = useState<CrisisSession | null>(null);
   const [supporters, setSupporters] = useState<SupporterStatus[]>([]);
   const [userRole, setUserRole] = useState<'person_in_crisis' | 'supporter' | null>(null);
-  const [showDashboard, setShowDashboard] = useState(_false);
+  const [showDashboard, setShowDashboard] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -91,7 +91,7 @@ export const SupportNetworkDashboard: React.FC = () => {
             relationship: 'Therapist',
             _status: 'available',
             tier: 'primary',
-            isPrimary: _false
+            isPrimary: false
           },
           {
             id: '3',
@@ -100,7 +100,7 @@ export const SupportNetworkDashboard: React.FC = () => {
             _status: 'unavailable',
             lastSeen: '30 minutes ago',
             tier: 'secondary',
-            isPrimary: _false
+            isPrimary: false
           },
           {
             id: '4',
@@ -108,7 +108,7 @@ export const SupportNetworkDashboard: React.FC = () => {
             relationship: 'Psychiatrist',
             _status: 'available',
             tier: 'emergency',
-            isPrimary: _false
+            isPrimary: false
           }
         ]);
 
@@ -324,7 +324,7 @@ export const SupportNetworkDashboard: React.FC = () => {
           {/* Resolution Button */}
           <Button
             size="sm"
-            onClick={() => setShowDashboard(_false)}
+            onClick={() => setShowDashboard(false)}
             variant="outline"
             className="w-full text-xs"
           >

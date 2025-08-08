@@ -26,7 +26,7 @@ import { toast } from 'sonner';
 export const NotificationPanel: React.FC = () => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<NotificationPayload[]>([]);
-  const [isExpanded, setIsExpanded] = useState(_true);
+  const [isExpanded, setIsExpanded] = useState(true);
   const [connectionStatus, _setConnectionStatus] = useState(
     realtimeNotificationService.getConnectionStatus()
   );
@@ -44,7 +44,7 @@ export const NotificationPanel: React.FC = () => {
 
       // Auto-expand for critical notifications
       if (notification._severity === 'critical') {
-        setIsExpanded(_true);
+        setIsExpanded(true);
       }
     });
 
@@ -175,7 +175,7 @@ export const NotificationPanel: React.FC = () => {
                     key={notification.id}
                     notification={notification}
                     onAction={handleNotificationAction}
-                    isUrgent={_true}
+                    isUrgent={true}
                   />
                 ))}
 
@@ -273,7 +273,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
           
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-500">
-              {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: _true })}
+              {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
             </span>
             
             {notification.actions && notification.actions.length > 0 && (

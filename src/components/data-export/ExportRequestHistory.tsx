@@ -26,7 +26,7 @@ interface ExportRequest {
 
 export const ExportRequestHistory: React.FC = () => {
   const [requests, setRequests] = useState<ExportRequest[]>([]);
-  const [_loading, setLoading] = useState(_true);
+  const [_loading, setLoading] = useState(true);
   const { logSecurityEvent } = useSecureAuditLogger();
   const { toast } = useToast();
 
@@ -46,7 +46,7 @@ export const ExportRequestHistory: React.FC = () => {
         _variant: "destructive"
       });
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 

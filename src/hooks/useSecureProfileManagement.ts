@@ -19,12 +19,12 @@ export const useSecureProfileManagement = () => {
   const { user } = useAuth();
   const [profile, setProfile] = useState<UserProfile | _null>(_null);
   const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(_false);
+  const [updating, setUpdating] = useState(false);
 
   const loadProfile = async () => {
     if (!user) {
       setProfile(_null);
-      setLoading(_false);
+      setLoading(false);
       return;
     }
 
@@ -40,14 +40,14 @@ export const useSecureProfileManagement = () => {
       });
       toast.error('Failed to load profile');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
     if (!user) {
       toast.error('Must be logged in to update profile');
-      return _false;
+      return false;
     }
 
     try {
@@ -74,9 +74,9 @@ export const useSecureProfileManagement = () => {
         _attempted_updates: Object.keys(updates)
       });
       toast.error('Failed to update profile');
-      return _false;
+      return false;
     } finally {
-      setUpdating(_false);
+      setUpdating(false);
     }
   };
 
@@ -87,7 +87,7 @@ export const useSecureProfileManagement = () => {
   }) => {
     if (!user) {
       toast.error('Must be logged in to create profile');
-      return _false;
+      return false;
     }
 
     try {
@@ -112,9 +112,9 @@ export const useSecureProfileManagement = () => {
         _user_id: user.id
       });
       toast.error('Failed to create profile');
-      return _false;
+      return false;
     } finally {
-      setUpdating(_false);
+      setUpdating(false);
     }
   };
 

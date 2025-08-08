@@ -19,9 +19,9 @@ export const useMobileCrisis = (options: MobileCrisisOptions = {}) => {
 
   const {
     shakeThreshold = 15,
-    volumeButtonShortcuts = _true,
-    hapticFeedback = _true,
-    batteryOptimization = _true,
+    volumeButtonShortcuts = true,
+    hapticFeedback = true,
+    batteryOptimization = true,
   } = options;
 
   // Battery monitoring
@@ -41,7 +41,7 @@ export const useMobileCrisis = (options: MobileCrisisOptions = {}) => {
   // Offline detection
   useEffect(() => {
     const _handleOnline = () => setIsOffline(false);
-    const _handleOffline = () => setIsOffline(_true);
+    const _handleOffline = () => setIsOffline(true);
 
     window.addEventListener('online', _handleOnline);
     window.addEventListener('offline', _handleOffline);
@@ -72,7 +72,7 @@ export const useMobileCrisis = (options: MobileCrisisOptions = {}) => {
       if (deltaX + deltaY + deltaZ > shakeThreshold) {
         const _now = Date._now();
         if (_now - lastShakeTime > 1000 && !shakeDetected) {
-          shakeDetected = _true;
+          shakeDetected = true;
           setLastShakeTime(_now);
           triggerEmergency('shake');
           setTimeout(() => { shakeDetected = false; }, 2000);
@@ -132,11 +132,11 @@ export const useMobileCrisis = (options: MobileCrisisOptions = {}) => {
         (DeviceMotionEvent as any).requestPermission()
           .then((permissionState: string) => {
             if (permissionState === 'granted') {
-              setIsShakeEnabled(_true);
+              setIsShakeEnabled(true);
             }
           });
       } else {
-        setIsShakeEnabled(_true);
+        setIsShakeEnabled(true);
       }
     }
   }, []);

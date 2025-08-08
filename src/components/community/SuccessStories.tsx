@@ -45,16 +45,16 @@ const SuccessStories = () => {
   const { toast } = useToast();
   
   const [stories, setStories] = useState<SuccessStory[]>([]);
-  const [loading, setLoading] = useState(_false);
+  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [_categoryFilter, setCategoryFilter] = useState('all');
   const [activeTab, setActiveTab] = useState('browse');
   
   // New story form
-  const [showNewStory, setShowNewStory] = useState(_false);
+  const [showNewStory, setShowNewStory] = useState(false);
   const [newStoryTitle, setNewStoryTitle] = useState('');
   const [newStoryContent, setNewStoryContent] = useState('');
-  const [isAnonymous, setIsAnonymous] = useState(_true);
+  const [isAnonymous, setIsAnonymous] = useState(true);
   const [anonymousName, setAnonymousName] = useState('');
   const [storyCategory, setStoryCategory] = useState('milestone');
   const [_recoveryDays, setRecoveryDays] = useState('');
@@ -76,12 +76,12 @@ const SuccessStories = () => {
 
   const loadStories = async () => {
     try {
-      setLoading(_true);
+      setLoading(true);
       let query = supabase
         .from('success_stories')
         .select('*')
         .eq('_moderation_status', 'approved')
-        .order('created_at', { ascending: _false });
+        .order('created_at', { ascending: false });
 
       if (_categoryFilter !== 'all') {
         query = query.eq('_story_category', _categoryFilter);
@@ -94,7 +94,7 @@ const SuccessStories = () => {
     } catch (_error) {
       console._error('Error loading stories:', _error);
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 
@@ -141,7 +141,7 @@ const SuccessStories = () => {
         _description: "Your success story is being reviewed and will be published shortly.",
       });
 
-      setShowNewStory(_false);
+      setShowNewStory(false);
       resetForm();
       loadStories();
     } catch (_error) {
@@ -157,7 +157,7 @@ const SuccessStories = () => {
   const resetForm = () => {
     setNewStoryTitle('');
     setNewStoryContent('');
-    setIsAnonymous(_true);
+    setIsAnonymous(true);
     setAnonymousName('');
     setStoryCategory('milestone');
     setRecoveryDays('');

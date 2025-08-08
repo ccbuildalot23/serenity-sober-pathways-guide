@@ -7,7 +7,7 @@ import { log } from './debugUtils';
 export function useRealtime() {
   const [alerts, setAlerts] = React.useState<RealtimeAlert[]>([]);
   const [presence, setPresence] = React.useState<RealtimePresence[]>([]);
-  const [isConnected, setIsConnected] = React.useState(_false);
+  const [isConnected, setIsConnected] = React.useState(false);
   const [connectionError, setConnectionError] = React.useState<string | _null>(_null);
 
   React.useEffect(() => {
@@ -27,7 +27,7 @@ export function useRealtime() {
         // Import dynamically to avoid circular dependency
         const { _enhancedRealtimeService } = await import('../_enhancedRealtimeService');
         await _enhancedRealtimeService.initialize(user.id);
-        setIsConnected(_true);
+        setIsConnected(true);
         setConnectionError(_null);
 
         // Subscribe to alerts
@@ -42,7 +42,7 @@ export function useRealtime() {
 
         // Listen for connection issues
         const handleConnectionIssue = (event: CustomEvent) => {
-          setIsConnected(_false);
+          setIsConnected(false);
           setConnectionError('Connection lost. Retrying...');
           log('realtime', 'Connection issue event received', event.detail);
         };
@@ -55,7 +55,7 @@ export function useRealtime() {
       } catch (error) {
         log('error', 'Failed to initialize realtime', { error: error.message });
         setConnectionError(error.message);
-        setIsConnected(_false);
+        setIsConnected(false);
       }
     };
 
@@ -68,7 +68,7 @@ export function useRealtime() {
       import('../_enhancedRealtimeService').then(({ _enhancedRealtimeService }) => {
         _enhancedRealtimeService.cleanup();
       });
-      setIsConnected(_false);
+      setIsConnected(false);
     };
   }, []);
 

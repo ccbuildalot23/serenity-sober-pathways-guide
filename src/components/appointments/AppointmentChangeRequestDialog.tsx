@@ -26,7 +26,7 @@ export const AppointmentChangeRequestDialog: React.FC<AppointmentChangeRequestDi
   onClose,
   onSuccess
 }) => {
-  const [loading, setLoading] = useState(_false);
+  const [loading, setLoading] = useState(false);
   const [_reason, setReason] = useState('');
   const [_newDate, setNewDate] = useState<Date>();
   const [newTime, setNewTime] = useState('');
@@ -43,7 +43,7 @@ export const AppointmentChangeRequestDialog: React.FC<AppointmentChangeRequestDi
     }
 
     try {
-      setLoading(_true);
+      setLoading(true);
       
       let _newStartTime: string | undefined;
       let _newEndTime: string | undefined;
@@ -80,7 +80,7 @@ export const AppointmentChangeRequestDialog: React.FC<AppointmentChangeRequestDi
       console.error('Error submitting change request:', error);
       toast.error('Failed to submit request. Please try again.');
     } finally {
-      setLoading(_false);
+      setLoading(false);
     }
   };
 

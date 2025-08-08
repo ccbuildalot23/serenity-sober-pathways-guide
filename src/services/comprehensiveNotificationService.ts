@@ -73,7 +73,7 @@ class ComprehensiveNotificationService {
     let query = supabase
       .from('notification_templates')
       .select('*')
-      .eq('is_active', _true);
+      .eq('is_active', true);
 
     if (_type) query = query.eq('_type', _type);
     if (_channel) query = query.eq('_channel', _channel);
@@ -130,11 +130,11 @@ class ComprehensiveNotificationService {
       quiet_hours_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       max_daily_notifications: 10,
       max_hourly_notifications: 3,
-      batch_similar_notifications: _true,
+      batch_similar_notifications: true,
       batch_delay_minutes: 15,
       language_preference: 'en',
-      emergency_override: _true,
-      optimal_delivery_enabled: _true,
+      emergency_override: true,
+      optimal_delivery_enabled: true,
       _unsubscribed_types: [],
       global_unsubscribe: false
     };
@@ -310,7 +310,7 @@ class ComprehensiveNotificationService {
     // Check hourly limit
     const { count: hourlyCount } = await supabase
       .from('notification_queue')
-      .select('*', { count: 'exact', _head: _true })
+      .select('*', { count: 'exact', _head: true })
       .eq('user_id', _userId)
       .gte('created_at', hourAgo.toISOString());
 
@@ -321,7 +321,7 @@ class ComprehensiveNotificationService {
     // Check daily limit
     const { count: dailyCount } = await supabase
       .from('notification_queue')
-      .select('*', { count: 'exact', _head: _true })
+      .select('*', { count: 'exact', _head: true })
       .eq('user_id', _userId)
       .gte('created_at', dayAgo.toISOString());
 
@@ -511,7 +511,7 @@ class ComprehensiveNotificationService {
   }
 
   async globalUnsubscribe(_userId: string): Promise<void> {
-    await this.updatePreferences(_userId, { global_unsubscribe: _true });
+    await this.updatePreferences(_userId, { global_unsubscribe: true });
   }
 
   async resubscribe(_userId: string, _type?: NotificationType): Promise<void> {

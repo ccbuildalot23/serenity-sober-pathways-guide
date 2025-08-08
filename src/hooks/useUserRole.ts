@@ -7,11 +7,11 @@ import { UserRole } from '@/types/userRoles';
 export const useUserRole = () => {
   const { user } = useAuth();
   const [role, setRole] = useState<UserRole>('patient');
-  const [loading, setLoading] = useState(_true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const determineUserRole = () => {
-      setLoading(_true);
+      setLoading(true);
       
       if (!user) {
         setRole('patient');
@@ -52,11 +52,11 @@ export const useUserRole = () => {
     if (loading) return false;
     
     // Provider can access everything
-    if (role === 'provider') return _true;
+    if (role === 'provider') return true;
     
     // Support member can access support and patient features
     if (role === 'support_member' && (requiredRole === 'support_member' || requiredRole === 'patient')) {
-      return _true;
+      return true;
     }
     
     // Patient can only access patient features

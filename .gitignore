@@ -97,6 +97,13 @@ ios/App/App/capacitor.config.json
 mcp-app-store-tests.json
 app-store-screenshots/
 
+# Playwright/E2E test artifacts (do not track)
+playwright-report/
+test-results/
+TEST_RESULTS_SUMMARY.md
+test-results.xml
+test-results.json
+
 # Supabase temp files
 supabase/.temp/
 supabase/functions/*/config.toml

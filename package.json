@@ -92,6 +92,8 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
     "@playwright/test": "^1.54.2",
     "@types/node": "^20.10.6",
     "@types/react": "^18.2.46",

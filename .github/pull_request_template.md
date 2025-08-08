@@ -1,3 +1,33 @@
+## Summary
+
+Describe the change and why it’s needed.
+
+## Related Issues/Docs
+
+- Closes #
+- ADR: docs/adr/0001-ignore-playwright-artifacts.md
+
+## Type of change
+
+- [ ] feat
+- [ ] fix
+- [ ] chore
+- [ ] docs
+- [ ] refactor
+
+## Test Plan
+
+- [ ] Unit/logic covered (if applicable)
+- [ ] E2E: ran `npx playwright test` locally
+- [ ] Screenshots (UI changes)
+
+## Checklist
+
+- [ ] Follows conventional commits (`feat:`, `fix:`, `chore:`)
+- [ ] Updates tests where needed
+- [ ] No secrets/PHI added; `.env` untouched
+- [ ] CI is green
+
 ## Description
 <!-- Provide a brief description of the changes in this PR -->
 

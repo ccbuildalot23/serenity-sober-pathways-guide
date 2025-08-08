@@ -21,18 +21,18 @@ interface SessionData {
   duration_minutes?: number;
   user_rating?: number;
   escalated_to_crisis: boolean;
-  status: string;
+  _status: string;
 }
 
 const SupporterPerformanceDashboard = () => {
   const { user } = useAuth();
-  const [metrics, setMetrics] = useState<any>(null);
+  const [metrics, setMetrics] = useState<unknown>(_null);
   const [recentSessions, setRecentSessions] = useState<SessionData[]>([]);
-  const [selectedSession, setSelectedSession] = useState<SessionData | null>(null);
+  const [selectedSession, setSelectedSession] = useState<SessionData | _null>(_null);
   const [flagType, setFlagType] = useState<string>('');
-  const [flagDescription, setFlagDescription] = useState('');
+  const [_flagDescription, setFlagDescription] = useState('');
   const [sessionSummary, setSessionSummary] = useState('');
-  const [dateRange, setDateRange] = useState('7'); // days
+  const [_dateRange, setDateRange] = useState('7'); // days
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -40,7 +40,7 @@ const SupporterPerformanceDashboard = () => {
       loadMetrics();
       loadRecentSessions();
     }
-  }, [user, dateRange]);
+  }, [user, _dateRange]);
 
   const loadMetrics = async () => {
     if (!user) return;
@@ -48,7 +48,7 @@ const SupporterPerformanceDashboard = () => {
     try {
       const endDate = new Date();
       const startDate = new Date();
-      startDate.setDate(startDate.getDate() - parseInt(dateRange));
+      startDate.setDate(startDate.getDate() - parseInt(_dateRange));
 
       const metricsData = await enhancedPeerSupportService.getSupporterMetrics(user.id, {
         start: startDate,
@@ -56,8 +56,8 @@ const SupporterPerformanceDashboard = () => {
       });
       
       setMetrics(metricsData[0] || {});
-    } catch (error) {
-      console.error('Failed to load metrics:', error);
+    } catch (_error) {
+      console._error('Failed to load metrics:', _error);
     }
   };
 
@@ -72,7 +72,7 @@ const SupporterPerformanceDashboard = () => {
       });
       
       // Simulate some session data
-      const mockSessions: SessionData[] = [
+      const _mockSessions: SessionData[] = [
         {
           id: '1',
           user_id: 'user1',
@@ -81,7 +81,7 @@ const SupporterPerformanceDashboard = () => {
           duration_minutes: 45,
           user_rating: 5,
           escalated_to_crisis: false,
-          status: 'ended'
+          _status: 'ended'
         },
         {
           id: '2',
@@ -91,7 +91,7 @@ const SupporterPerformanceDashboard = () => {
           duration_minutes: 30,
           user_rating: 4,
           escalated_to_crisis: false,
-          status: 'ended'
+          _status: 'ended'
         },
         {
           id: '3',
@@ -101,32 +101,32 @@ const SupporterPerformanceDashboard = () => {
           duration_minutes: 60,
           user_rating: 3,
           escalated_to_crisis: true,
-          status: 'escalated'
+          _status: 'escalated'
         }
       ];
       
-      setRecentSessions(mockSessions);
-    } catch (error) {
-      console.error('Failed to load recent sessions:', error);
+      setRecentSessions(_mockSessions);
+    } catch (_error) {
+      console._error('Failed to load recent sessions:', _error);
     }
   };
 
-  const generateSessionSummary = async (sessionId: string) => {
+  const generateSessionSummary = async (_sessionId: string) => {
     setLoading(true);
     try {
-      const summary = await enhancedPeerSupportService.generateSessionSummary(sessionId);
+      const summary = await enhancedPeerSupportService.generateSessionSummary(_sessionId);
       setSessionSummary(summary);
-      await enhancedPeerSupportService.saveSesssionSummary(sessionId, summary);
+      await enhancedPeerSupportService.saveSesssionSummary(_sessionId, summary);
       toast.success('Session summary generated');
-    } catch (error) {
-      console.error('Failed to generate summary:', error);
-      toast.error('Failed to generate session summary');
+    } catch (_error) {
+      console._error('Failed to generate summary:', _error);
+      toast._error('Failed to generate session summary');
     }
     setLoading(false);
   };
 
   const flagSession = async () => {
-    if (!selectedSession || !flagType || !flagDescription || !user) return;
+    if (!selectedSession || !flagType || !_flagDescription || !user) return;
 
     setLoading(true);
     try {
@@ -134,17 +134,17 @@ const SupporterPerformanceDashboard = () => {
         selectedSession.id,
         flagType as any,
         'medium',
-        flagDescription,
+        _flagDescription,
         user.id
       );
       
       toast.success('Session flagged for review');
       setFlagType('');
       setFlagDescription('');
-      setSelectedSession(null);
-    } catch (error) {
-      console.error('Failed to flag session:', error);
-      toast.error('Failed to flag session');
+      setSelectedSession(_null);
+    } catch (_error) {
+      console._error('Failed to flag session:', _error);
+      toast._error('Failed to flag session');
     }
     setLoading(false);
   };
@@ -157,15 +157,15 @@ const SupporterPerformanceDashboard = () => {
       await enhancedPeerSupportService.updateSupporterMetrics(user.id);
       await loadMetrics();
       toast.success('Metrics updated');
-    } catch (error) {
-      console.error('Failed to update metrics:', error);
-      toast.error('Failed to update metrics');
+    } catch (_error) {
+      console._error('Failed to update metrics:', _error);
+      toast._error('Failed to update metrics');
     }
     setLoading(false);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
+  const getStatusColor = (_status: string) => {
+    switch (_status) {
       case 'ended': return 'bg-green-500';
       case 'escalated': return 'bg-red-500';
       case 'active': return 'bg-blue-500';
@@ -283,8 +283,8 @@ const SupporterPerformanceDashboard = () => {
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <Badge className={`${getStatusColor(session.status)} text-white`}>
-                        {session.status}
+                      <Badge className={`${getStatusColor(session._status)} text-white`}>
+                        {session._status}
                       </Badge>
                       {session.escalated_to_crisis && (
                         <Badge variant="destructive">Crisis</Badge>
@@ -359,14 +359,14 @@ const SupporterPerformanceDashboard = () => {
 
                     <Textarea
                       placeholder="Describe the issue..."
-                      value={flagDescription}
+                      value={_flagDescription}
                       onChange={(e) => setFlagDescription(e.target.value)}
                       rows={3}
                     />
 
                     <Button
                       onClick={flagSession}
-                      disabled={!flagType || !flagDescription || loading}
+                      disabled={!flagType || !_flagDescription || loading}
                       variant="destructive"
                       className="w-full"
                     >

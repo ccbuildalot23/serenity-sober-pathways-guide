@@ -57,7 +57,7 @@ const VoiceAccessibilityCenter: React.FC = () => {
 
         <TabsContent value="interface" className="space-y-4">
           <VoiceInterface
-            placeholder="Your voice input will appear here. Use this for creating posts, replies, or any text input."
+            placeholder="Your voice input will appear here. Use this for creating posts, _replies, or any text input."
             showTextToSpeech={true}
             onTextGenerated={(text) => {
               console.log('Generated text:', text);

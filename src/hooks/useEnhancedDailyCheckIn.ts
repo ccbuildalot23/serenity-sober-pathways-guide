@@ -20,21 +20,21 @@ export const useEnhancedDailyCheckIn = (): UseDailyCheckInReturn => {
   const { user } = useAuth();
   const [responses, setResponses] = useState<CheckinResponses>({
     mood: null,
-    energy: null,
-    hope: null,
-    sleep_quality: null,
-    medication_taken: false,
-    sobriety_confidence: null,
-    recovery_importance: null,
-    recovery_strength: null,
-    support_needed: false,
-    phq2_q1: null,
-    phq2_q2: null,
-    gad2_q1: null,
-    gad2_q2: null,
-    notes: '',
-    mood_triggers: [],
-    gratitude_entries: [],
+    _energy: null,
+    _hope: null,
+    _sleep_quality: null,
+    _medication_taken: false,
+    _sobriety_confidence: null,
+    _recovery_importance: null,
+    _recovery_strength: null,
+    _support_needed: false,
+    _phq2_q1: null,
+    _phq2_q2: null,
+    _gad2_q1: null,
+    _gad2_q2: null,
+    _notes: '',
+    _mood_triggers: [],
+    _gratitude_entries: [],
     coping_strategies: []
   });
   
@@ -43,7 +43,7 @@ export const useEnhancedDailyCheckIn = (): UseDailyCheckInReturn => {
   const [hasCheckedInToday, setHasCheckedInToday] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Check if user has already checked in today
+  // Check if user has already checked in _today
   useEffect(() => {
     const checkTodayStatus = async () => {
       if (!user) {
@@ -52,43 +52,43 @@ export const useEnhancedDailyCheckIn = (): UseDailyCheckInReturn => {
       }
 
       try {
-        const today = new Date().toISOString().split('T')[0];
-        const { data, error } = await supabase
+        const _today = new Date().toISOString().split('T')[0];
+        const { data, _error } = await supabase
           .from('daily_checkins')
           .select('*')
           .eq('user_id', user.id)
-          .eq('checkin_date', today)
+          .eq('checkin_date', _today)
           .eq('is_complete', true)
           .single();
 
-        if (data && !error) {
+        if (data && !_error) {
           setHasCheckedInToday(true);
           // Load existing responses if found
           setResponses({
             mood: data.mood_rating,
-            energy: data.energy_rating,
-            hope: data.hope_rating,
-            sleep_quality: data.sleep_quality,
-            medication_taken: data.medication_taken,
-            sobriety_confidence: data.sobriety_confidence,
-            recovery_importance: data.recovery_importance,
-            recovery_strength: data.recovery_strength,
-            support_needed: data.support_needed === 'yes',
-            phq2_q1: data.phq2_q1_response,
-            phq2_q2: data.phq2_q2_response,
-            gad2_q1: data.gad2_q1_response,
-            gad2_q2: data.gad2_q2_response,
-            notes: data.notes || '',
-            mood_triggers: [],
-            gratitude_entries: [],
+            _energy: data.energy_rating,
+            _hope: data.hope_rating,
+            _sleep_quality: data._sleep_quality,
+            _medication_taken: data._medication_taken,
+            _sobriety_confidence: data._sobriety_confidence,
+            _recovery_importance: data._recovery_importance,
+            _recovery_strength: data._recovery_strength,
+            _support_needed: data._support_needed === 'yes',
+            _phq2_q1: data.phq2_q1_response,
+            _phq2_q2: data.phq2_q2_response,
+            _gad2_q1: data.gad2_q1_response,
+            _gad2_q2: data.gad2_q2_response,
+            _notes: data._notes || '',
+            _mood_triggers: [],
+            _gratitude_entries: [],
             coping_strategies: []
           });
         } else {
           // Load draft if exists
           loadDraft();
         }
-      } catch (error) {
-        console.error('Error checking today status:', error);
+      } catch (_error) {
+        console._error('Error checking _today status:', _error);
         loadDraft();
       } finally {
         setLoading(false);
@@ -107,8 +107,8 @@ export const useEnhancedDailyCheckIn = (): UseDailyCheckInReturn => {
         setResponses(parsed.responses || responses);
         setCompletedSections(new Set(parsed.completedSections || []));
       }
-    } catch (error) {
-      console.error('Error loading draft:', error);
+    } catch (_error) {
+      console._error('Error loading draft:', _error);
     }
   };
 
@@ -123,8 +123,8 @@ export const useEnhancedDailyCheckIn = (): UseDailyCheckInReturn => {
         timestamp: new Date().toISOString()
       };
       localStorage.setItem(`checkin_draft_${user.id}`, JSON.stringify(draft));
-    } catch (error) {
-      console.error('Error saving draft:', error);
+    } catch (_error) {
+      console._error('Error saving draft:', _error);
     }
   }, [responses, completedSections, user]);
 
@@ -137,31 +137,31 @@ export const useEnhancedDailyCheckIn = (): UseDailyCheckInReturn => {
 
   // Validate section completion
   useEffect(() => {
-    const newCompletedSections = new Set<string>();
+    const _newCompletedSections = new Set<string>();
 
     // Mood section
     if (responses.mood !== null) {
-      newCompletedSections.add('mood');
+      _newCompletedSections.add('mood');
     }
 
     // Wellness section
-    if (responses.energy !== null && 
-        responses.hope !== null && 
-        responses.sobriety_confidence !== null && 
-        responses.recovery_importance !== null && 
-        responses.recovery_strength !== null) {
-      newCompletedSections.add('wellness');
+    if (responses._energy !== null && 
+        responses._hope !== null && 
+        responses._sobriety_confidence !== null && 
+        responses._recovery_importance !== null && 
+        responses._recovery_strength !== null) {
+      _newCompletedSections.add('wellness');
     }
 
     // Assessments section
-    if (responses.phq2_q1 !== null && 
-        responses.phq2_q2 !== null && 
-        responses.gad2_q1 !== null && 
-        responses.gad2_q2 !== null) {
-      newCompletedSections.add('assessments');
+    if (responses._phq2_q1 !== null && 
+        responses._phq2_q2 !== null && 
+        responses._gad2_q1 !== null && 
+        responses._gad2_q2 !== null) {
+      _newCompletedSections.add('assessments');
     }
 
-    setCompletedSections(newCompletedSections);
+    setCompletedSections(_newCompletedSections);
   }, [responses]);
 
   const markSectionComplete = (section: string) => {
@@ -180,39 +180,39 @@ export const useEnhancedDailyCheckIn = (): UseDailyCheckInReturn => {
 
     setIsSubmitting(true);
     try {
-      const today = new Date().toISOString().split('T')[0];
+      const _today = new Date().toISOString().split('T')[0];
       
-      const checkinData = {
+      const _checkinData = {
         user_id: user.id,
-        checkin_date: today,
+        checkin_date: _today,
         mood_rating: responses.mood,
-        energy_rating: responses.energy,
-        hope_rating: responses.hope,
-        sleep_quality: responses.sleep_quality,
-        medication_taken: responses.medication_taken || false,
-        sobriety_confidence: responses.sobriety_confidence,
-        recovery_importance: responses.recovery_importance,
-        recovery_strength: responses.recovery_strength,
-        support_needed: responses.support_needed ? 'yes' : 'no',
-        phq2_q1_response: responses.phq2_q1,
-        phq2_q2_response: responses.phq2_q2,
-        phq2_score: (responses.phq2_q1 || 0) + (responses.phq2_q2 || 0),
-        gad2_q1_response: responses.gad2_q1,
-        gad2_q2_response: responses.gad2_q2,
-        gad2_score: (responses.gad2_q1 || 0) + (responses.gad2_q2 || 0),
+        energy_rating: responses._energy,
+        hope_rating: responses._hope,
+        _sleep_quality: responses._sleep_quality,
+        _medication_taken: responses._medication_taken || false,
+        _sobriety_confidence: responses._sobriety_confidence,
+        _recovery_importance: responses._recovery_importance,
+        _recovery_strength: responses._recovery_strength,
+        _support_needed: responses._support_needed ? 'yes' : 'no',
+        phq2_q1_response: responses._phq2_q1,
+        phq2_q2_response: responses._phq2_q2,
+        phq2_score: (responses._phq2_q1 || 0) + (responses._phq2_q2 || 0),
+        gad2_q1_response: responses._gad2_q1,
+        gad2_q2_response: responses._gad2_q2,
+        gad2_score: (responses._gad2_q1 || 0) + (responses._gad2_q2 || 0),
         completed_sections: Array.from(completedSections).join(','),
         is_complete: true,
-        notes: responses.notes
+        _notes: responses._notes
       };
 
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('daily_checkins')
-        .upsert(checkinData, {
+        .upsert(_checkinData, {
           onConflict: 'user_id,checkin_date'
         });
 
-      if (error) {
-        throw error;
+      if (_error) {
+        throw _error;
       }
 
       // Clear draft on successful submission
@@ -221,14 +221,14 @@ export const useEnhancedDailyCheckIn = (): UseDailyCheckInReturn => {
       
       toast.success('Check-in completed successfully!', {
         description: 'Your responses have been saved.',
-        duration: 4000
+        _duration: 4000
       });
 
-    } catch (error) {
-      console.error('Error completing check-in:', error);
-      toast.error('Failed to complete check-in', {
+    } catch (_error) {
+      console._error('Error completing check-in:', _error);
+      toast._error('Failed to complete check-in', {
         description: 'Please try again.',
-        duration: 4000
+        _duration: 4000
       });
     } finally {
       setIsSubmitting(false);

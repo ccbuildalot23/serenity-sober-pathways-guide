@@ -19,41 +19,41 @@ interface SupportAnalyticsProps {
 
 const SupportAnalytics: React.FC<SupportAnalyticsProps> = ({ onBack }) => {
   const [timeRange, setTimeRange] = useState(30); // days
-  const [loading, setLoading] = useState(false);
-  const [metrics, setMetrics] = useState<any>(null);
-  const [engagement, setEngagement] = useState<any[]>([]);
-  const [insights, setInsights] = useState<any>(null);
+  const [_loading, setLoading] = useState(false);
+  const [metrics, setMetrics] = useState<unknown>(null);
+  const [engagement, setEngagement] = useState<unknown[]>([]);
+  const [insights, setInsights] = useState<unknown>(null);
 
   React.useEffect(() => {
     // Mock data for now - in a real app this would load from analytics service
     setMetrics({
       supportNetworkHealth: 85,
-      totalContacts: 5,
-      activeContacts: 4,
-      alertsSent: 3,
-      alertsAcknowledged: 2,
+      _totalContacts: 5,
+      _activeContacts: 4,
+      _alertsSent: 3,
+      _alertsAcknowledged: 2,
       averageResponseTime: 15,
-      crisisEventsResolved: 2
+      _crisisEventsResolved: 2
     });
     setEngagement([
       { contactId: '1', contactName: 'Sarah (Sister)', supportScore: 92, interactionCount: 15, averageResponseTime: 8 },
-      { contactId: '2', contactName: 'Mike (Sponsor)', supportScore: 88, interactionCount: 12, averageResponseTime: 12 },
+      { contactId: '2', contactName: 'Mike (_Sponsor)', supportScore: 88, interactionCount: 12, averageResponseTime: 12 },
     ]);
     setInsights({
       mostActiveTime: '6:00 PM - 8:00 PM',
-      preferredContactMethod: 'sms',
-      recoveryProgress: [
+      _preferredContactMethod: 'sms',
+      _recoveryProgress: [
         { date: '2024-01-15', score: 75 },
         { date: '2024-01-22', score: 82 },
         { date: '2024-01-29', score: 85 }
       ],
-      crisisPatterns: [
-        { time: 'Sunday Evenings', frequency: 2, triggers: ['loneliness', 'stress'] }
+      _crisisPatterns: [
+        { time: 'Sunday Evenings', _frequency: 2, _triggers: ['loneliness', 'stress'] }
       ]
     });
   }, [timeRange]);
 
-  if (loading) {
+  if (_loading) {
     return (
       <div className="space-y-6">
         <div className="text-center py-12">
@@ -154,11 +154,11 @@ const SupportAnalytics: React.FC<SupportAnalyticsProps> = ({ onBack }) => {
               
               <div className="grid grid-cols-2 gap-4 pt-4">
                 <div className="text-center p-3 bg-white rounded-lg">
-                  <p className="heading-large text-gray-800">{metrics.totalContacts}</p>
+                  <p className="heading-large text-gray-800">{metrics._totalContacts}</p>
                   <p className="text-sm text-gray-600">Total Contacts</p>
                 </div>
                 <div className="text-center p-3 bg-white rounded-lg">
-                  <p className="heading-large text-green-600">{metrics.activeContacts}</p>
+                  <p className="heading-large text-green-600">{metrics._activeContacts}</p>
                   <p className="text-sm text-gray-600">Active Contacts</p>
                 </div>
               </div>
@@ -178,7 +178,7 @@ const SupportAnalytics: React.FC<SupportAnalyticsProps> = ({ onBack }) => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="heading-large">{metrics.alertsSent}</p>
+              <p className="heading-large">{metrics._alertsSent}</p>
               <p className="text-xs text-gray-600">Last {timeRange} days</p>
             </CardContent>
           </Card>
@@ -192,12 +192,12 @@ const SupportAnalytics: React.FC<SupportAnalyticsProps> = ({ onBack }) => {
             </CardHeader>
             <CardContent>
               <p className="heading-large">
-                {metrics.alertsSent > 0 
-                  ? Math.round((metrics.alertsAcknowledged / metrics.alertsSent) * 100)
+                {metrics._alertsSent > 0 
+                  ? Math.round((metrics._alertsAcknowledged / metrics._alertsSent) * 100)
                   : 0}%
               </p>
               <p className="text-xs text-gray-600">
-                {metrics.alertsAcknowledged} of {metrics.alertsSent}
+                {metrics._alertsAcknowledged} of {metrics._alertsSent}
               </p>
             </CardContent>
           </Card>
@@ -225,7 +225,7 @@ const SupportAnalytics: React.FC<SupportAnalyticsProps> = ({ onBack }) => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="heading-large">{metrics.crisisEventsResolved}</p>
+              <p className="heading-large">{metrics._crisisEventsResolved}</p>
               <p className="text-xs text-gray-600">Successfully managed</p>
             </CardContent>
           </Card>
@@ -301,9 +301,9 @@ const SupportAnalytics: React.FC<SupportAnalyticsProps> = ({ onBack }) => {
               <div>
                 <p className="text-sm text-gray-600 mb-1">Preferred Contact Method</p>
                 <div className="flex items-center">
-                  {insights.preferredContactMethod === 'sms' && <MessageSquare className="w-5 h-5 mr-2" />}
-                  {insights.preferredContactMethod === 'call' && <Phone className="w-5 h-5 mr-2" />}
-                  <p className="text-xl font-semibold capitalize">{insights.preferredContactMethod}</p>
+                  {insights._preferredContactMethod === 'sms' && <MessageSquare className="w-5 h-5 mr-2" />}
+                  {insights._preferredContactMethod === 'call' && <Phone className="w-5 h-5 mr-2" />}
+                  <p className="text-xl font-semibold capitalize">{insights._preferredContactMethod}</p>
                 </div>
               </div>
             </CardContent>
@@ -317,9 +317,9 @@ const SupportAnalytics: React.FC<SupportAnalyticsProps> = ({ onBack }) => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {insights.recoveryProgress && insights.recoveryProgress.length > 0 ? (
+              {insights._recoveryProgress && insights._recoveryProgress.length > 0 ? (
                 <div className="space-y-2">
-                  {insights.recoveryProgress.slice(-3).map((progress, index) => (
+                  {insights._recoveryProgress.slice(-3).map((progress, index) => (
                     <div key={index} className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">{progress.date}</span>
                       <div className="flex items-center">
@@ -327,7 +327,7 @@ const SupportAnalytics: React.FC<SupportAnalyticsProps> = ({ onBack }) => {
                           {progress.score}%
                         </span>
                         {index > 0 && (
-                          insights.recoveryProgress[index].score > insights.recoveryProgress[index - 1].score
+                          insights._recoveryProgress[index].score > insights._recoveryProgress[index - 1].score
                             ? <ArrowUp className="w-4 h-4 ml-1 text-green-600" />
                             : <ArrowDown className="w-4 h-4 ml-1 text-red-600" />
                         )}
@@ -344,7 +344,7 @@ const SupportAnalytics: React.FC<SupportAnalyticsProps> = ({ onBack }) => {
       )}
 
       {/* Crisis Patterns */}
-      {insights && insights.crisisPatterns && insights.crisisPatterns.length > 0 && (
+      {insights && insights._crisisPatterns && insights._crisisPatterns.length > 0 && (
         <Card className="border-orange-200 bg-orange-50">
           <CardHeader>
             <CardTitle className="flex items-center text-orange-800">
@@ -354,17 +354,17 @@ const SupportAnalytics: React.FC<SupportAnalyticsProps> = ({ onBack }) => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {insights.crisisPatterns.map((pattern, index) => (
+              {insights._crisisPatterns.map((pattern, index) => (
                 <div key={index} className="p-3 bg-white rounded-lg">
                   <div className="flex items-center justify-between">
                     <span className="font-medium">{pattern.time}</span>
                     <Badge variant="outline" className="bg-orange-100">
-                      {pattern.frequency} events
+                      {pattern._frequency} events
                     </Badge>
                   </div>
-                  {pattern.triggers && pattern.triggers.length > 0 && (
+                  {pattern._triggers && pattern._triggers.length > 0 && (
                     <p className="text-sm text-gray-600 mt-1">
-                      Common triggers: {pattern.triggers.join(', ')}
+                      Common _triggers: {pattern._triggers.join(', ')}
                     </p>
                   )}
                 </div>
@@ -384,13 +384,13 @@ const SupportAnalytics: React.FC<SupportAnalyticsProps> = ({ onBack }) => {
         </CardHeader>
         <CardContent>
           <ul className="space-y-2">
-            {metrics && metrics.totalContacts < 3 && (
+            {metrics && metrics._totalContacts < 3 && (
               <li className="flex items-start">
                 <span className="text-blue-600 mr-2">•</span>
                 <span>Add more support contacts (aim for at least 3-5)</span>
               </li>
             )}
-            {metrics && metrics.alertsSent > 0 && (metrics.alertsAcknowledged / metrics.alertsSent) < 0.5 && (
+            {metrics && metrics._alertsSent > 0 && (metrics._alertsAcknowledged / metrics._alertsSent) < 0.5 && (
               <li className="flex items-start">
                 <span className="text-blue-600 mr-2">•</span>
                 <span>Consider reaching out to contacts who haven't been responsive</span>
@@ -402,7 +402,7 @@ const SupportAnalytics: React.FC<SupportAnalyticsProps> = ({ onBack }) => {
                 <span>Re-engage with contacts who have low support scores</span>
               </li>
             )}
-            {insights && insights.crisisPatterns && insights.crisisPatterns.length > 0 && (
+            {insights && insights._crisisPatterns && insights._crisisPatterns.length > 0 && (
               <li className="flex items-start">
                 <span className="text-blue-600 mr-2">•</span>
                 <span>Plan extra support during your vulnerable times</span>

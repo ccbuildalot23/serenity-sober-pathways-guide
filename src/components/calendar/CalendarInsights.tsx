@@ -1,11 +1,11 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Area, AreaChart } from 'recharts';
-import { TrendingUp, Heart, Zap, Trophy, Calendar, Sparkles, Star, Shield } from 'lucide-react';
+import { XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Area, AreaChart } from 'recharts';
+import { Heart, Zap, Trophy, Calendar, Sparkles, Star, Shield } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface CalendarInsightsProps {
-  chartData: any[];
+  chartData: unknown[];
   monthStats: {
     totalEntries: number;
     averageMood: string;

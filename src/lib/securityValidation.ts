@@ -17,7 +17,7 @@ export class SecurityValidation {
   static validateEnvironmentSecurity(): void {
     this.FORBIDDEN_CLIENT_KEYS.forEach(key => {
       if (import.meta.env[`VITE_${key}`]) {
-        console.error(`CRITICAL SECURITY ERROR: ${key} must NEVER be exposed to client-side code`);
+        console._error(`CRITICAL SECURITY ERROR: ${key} must NEVER be exposed to client-side code`);
         this.logSecurityViolation('CLIENT_SIDE_KEY_EXPOSURE', { key });
         throw new Error(`Security violation: ${key} exposed to client`);
       }
@@ -38,7 +38,7 @@ export class SecurityValidation {
   static preventClientSideEncryption(): void {
     // Check if the vulnerable secureEncryption service is being used
     if (typeof window !== 'undefined' && (window as any).secureEncryption) {
-      console.error('SECURITY VIOLATION: Client-side encryption detected');
+      console._error('SECURITY VIOLATION: Client-side encryption detected');
       this.logSecurityViolation('CLIENT_SIDE_ENCRYPTION_DETECTED', {});
       throw new Error('Client-side encryption is prohibited');
     }
@@ -49,7 +49,7 @@ export class SecurityValidation {
    */
   static validateSecureContext(): boolean {
     if (import.meta.env.PROD && !this.isSecureContext()) {
-      console.error('SECURITY WARNING: Production environment must use HTTPS');
+      console._error('SECURITY WARNING: Production environment must use HTTPS');
       this.logSecurityEvent('PRODUCTION_INSECURE_CONTEXT');
       return false;
     }
@@ -59,8 +59,8 @@ export class SecurityValidation {
   /**
    * Validates database access patterns for RLS compliance
    */
-  static async validateDatabaseAccess(operation: string, table: string, userRequired: boolean = true): Promise<boolean> {
-    if (userRequired) {
+  static async validateDatabaseAccess(operation: string, _table: string, _userRequired: boolean = true): Promise<boolean> {
+    if (_userRequired) {
       // Import dynamically to avoid circular dependencies
       const { supabase } = await import('@/integrations/supabase/client');
       const { data: { user } } = await supabase.auth.getUser();
@@ -68,8 +68,8 @@ export class SecurityValidation {
       if (!user) {
         this.logSecurityViolation('DATABASE_ACCESS_WITHOUT_AUTH', {
           operation,
-          table,
-          timestamp: new Date().toISOString()
+          _table,
+          _timestamp: new Date().toISOString()
         });
         return false;
       }
@@ -81,7 +81,7 @@ export class SecurityValidation {
   /**
    * Validates user input for potential security issues
    */
-  static validateUserInput(input: string, maxLength: number = 1000): boolean {
+  static validateUserInput(input: string, _maxLength: number = 1000): boolean {
     if (!input || typeof input !== 'string') {
       return true; // Empty/null input is valid
     }
@@ -125,10 +125,10 @@ export class SecurityValidation {
     }
 
     // Check length
-    if (input.length > maxLength) {
+    if (input.length > _maxLength) {
       this.logSecurityViolation('INPUT_LENGTH_EXCEEDED', {
         actual_length: input.length,
-        max_length: maxLength
+        _max_length: _maxLength
       });
       return false;
     }
@@ -143,35 +143,35 @@ export class SecurityValidation {
            window.location.hostname === '127.0.0.1';
   }
 
-  private static logSecurityEvent(event: string, details: any = {}) {
-    const securityEvent = {
+  private static logSecurityEvent(event: string, details: unknown = {}) {
+    const _securityEvent = {
       event,
-      timestamp: new Date().toISOString(),
+      _timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent.substring(0, 100),
       url: window.location.href,
       severity: 'info',
       ...details
     };
 
-    console.log(`Security Event: ${event}`, securityEvent);
-    this.storeSecurityEvent(securityEvent);
+    console.log(`Security Event: ${event}`, _securityEvent);
+    this.storeSecurityEvent(_securityEvent);
   }
 
-  private static logSecurityViolation(violation: string, details: any = {}) {
-    const securityEvent = {
+  private static logSecurityViolation(violation: string, details: unknown = {}) {
+    const _securityEvent = {
       event: violation,
-      timestamp: new Date().toISOString(),
+      _timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent.substring(0, 100),
       url: window.location.href,
       severity: 'critical',
       ...details
     };
 
-    console.error(`SECURITY VIOLATION: ${violation}`, securityEvent);
-    this.storeSecurityEvent(securityEvent);
+    console._error(`SECURITY VIOLATION: ${violation}`, _securityEvent);
+    this.storeSecurityEvent(_securityEvent);
   }
 
-  private static storeSecurityEvent(event: any) {
+  private static storeSecurityEvent(event: unknown) {
     try {
       const securityLogs = JSON.parse(localStorage.getItem('security_events') || '[]');
       securityLogs.push(event);
@@ -182,8 +182,8 @@ export class SecurityValidation {
       }
       
       localStorage.setItem('security_events', JSON.stringify(securityLogs));
-    } catch (error) {
-      console.warn('Could not store security event:', error);
+    } catch (_error) {
+      console.warn('Could not store security event:', _error);
     }
   }
 
@@ -198,10 +198,10 @@ export class SecurityValidation {
     console.log('🔒 Enhanced security validation system initialized');
   }
 
-  static getSecurityEvents(): any[] {
+  static getSecurityEvents(): unknown[] {
     try {
       return JSON.parse(localStorage.getItem('security_events') || '[]');
-    } catch (error) {
+    } catch (_error) {
       return [];
     }
   }

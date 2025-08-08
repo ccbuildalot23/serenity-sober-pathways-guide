@@ -14,19 +14,19 @@ interface ExportRequest {
   request_reason: string;
   export_format: string;
   data_categories: string[];
-  status: 'pending' | 'processing' | 'completed' | 'failed';
+  _status: 'pending' | 'processing' | 'completed' | 'failed';
   secure_download_token: string;
   download_expires_at: string;
   downloaded_at?: string;
   created_at: string;
   completed_at?: string;
   file_size_bytes?: number;
-  export_metadata?: any;
+  export_metadata?: unknown;
 }
 
 export const ExportRequestHistory: React.FC = () => {
   const [requests, setRequests] = useState<ExportRequest[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const { logSecurityEvent } = useSecureAuditLogger();
   const { toast } = useToast();
 
@@ -36,14 +36,14 @@ export const ExportRequestHistory: React.FC = () => {
 
   const loadExportRequests = async () => {
     try {
-      const data = await HIPAADataExportService.getUserExportRequests();
-      setRequests(data);
-    } catch (error) {
-      console.error('Failed to load export requests:', error);
+      const _data = await HIPAADataExportService.getUserExportRequests();
+      setRequests(_data);
+    } catch (_error) {
+      console._error('Failed to load export requests:', _error);
       toast({
         title: "Loading Failed",
-        description: "Failed to load export request history.",
-        variant: "destructive"
+        _description: "Failed to load export request history.",
+        _variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -56,17 +56,17 @@ export const ExportRequestHistory: React.FC = () => {
       if (new Date() > new Date(request.download_expires_at)) {
         toast({
           title: "Download Expired",
-          description: "This download link has expired. Please submit a new export request.",
-          variant: "destructive"
+          _description: "This download link has expired. Please submit a new export request.",
+          _variant: "destructive"
         });
         return;
       }
 
-      if (request.status !== 'completed') {
+      if (request._status !== 'completed') {
         toast({
           title: "Export Not Ready",
-          description: "This export is still being processed. Please check back later.",
-          variant: "destructive"
+          _description: "This export is still being processed. Please check back later.",
+          _variant: "destructive"
         });
         return;
       }
@@ -74,7 +74,7 @@ export const ExportRequestHistory: React.FC = () => {
       // Log the download attempt
       await logSecurityEvent('DATA_EXPORT_DOWNLOAD_INITIATED', {
         requestId: request.id,
-        downloadToken: request.secure_download_token
+        _downloadToken: request.secure_download_token
       });
 
       // In a real implementation, this would trigger the actual download
@@ -85,24 +85,24 @@ export const ExportRequestHistory: React.FC = () => {
 
       toast({
         title: "Download Started",
-        description: `Downloading ${downloadInfo.fileName} (${Math.round(downloadInfo.fileSize / 1024)} KB)`,
+        _description: `Downloading ${downloadInfo.fileName} (${Math.round(downloadInfo.fileSize / 1024)} KB)`,
       });
 
       // Refresh the list to update download timestamp
       await loadExportRequests();
 
-    } catch (error) {
-      console.error('Download failed:', error);
+    } catch (_error) {
+      console._error('Download failed:', _error);
       toast({
         title: "Download Failed",
-        description: error.message || "Failed to download export file.",
-        variant: "destructive"
+        _description: _error.message || "Failed to download export file.",
+        _variant: "destructive"
       });
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
+  const getStatusIcon = (_status: string) => {
+    switch (_status) {
       case 'pending':
         return <Clock className="w-4 h-4" />;
       case 'processing':
@@ -116,8 +116,8 @@ export const ExportRequestHistory: React.FC = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
+  const getStatusColor = (_status: string) => {
+    switch (_status) {
       case 'pending':
         return 'secondary';
       case 'processing':
@@ -144,7 +144,7 @@ export const ExportRequestHistory: React.FC = () => {
     ).join(', ');
   };
 
-  if (loading) {
+  if (_loading) {
     return (
       <Card>
         <CardContent className="py-8">
@@ -168,7 +168,7 @@ export const ExportRequestHistory: React.FC = () => {
             <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground">No export requests found.</p>
             <p className="text-sm text-muted-foreground mt-2">
-              Submit your first data export request to see it here.
+              Submit your first _data export request to see it here.
             </p>
           </div>
         </CardContent>
@@ -184,7 +184,7 @@ export const ExportRequestHistory: React.FC = () => {
           Export Request History
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          View and download your data export requests
+          View and download your _data export requests
         </p>
       </CardHeader>
       <CardContent>
@@ -221,9 +221,9 @@ export const ExportRequestHistory: React.FC = () => {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={getStatusColor(request.status) as any} className="flex items-center gap-1 w-fit">
-                      {getStatusIcon(request.status)}
-                      {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                    <Badge _variant={getStatusColor(request._status) as any} className="flex items-center gap-1 w-fit">
+                      {getStatusIcon(request._status)}
+                      {request._status.charAt(0).toUpperCase() + request._status.slice(1)}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -232,7 +232,7 @@ export const ExportRequestHistory: React.FC = () => {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">
+                    <Badge _variant="outline">
                       {request.export_format.toUpperCase()}
                     </Badge>
                   </TableCell>
@@ -250,7 +250,7 @@ export const ExportRequestHistory: React.FC = () => {
                     </div>
                   </TableCell>
                   <TableCell>
-                    {request.status === 'completed' && (
+                    {request._status === 'completed' && (
                       <div className="text-sm">
                         {new Date() > new Date(request.download_expires_at) ? (
                           <span className="text-destructive">Expired</span>
@@ -266,10 +266,10 @@ export const ExportRequestHistory: React.FC = () => {
                     )}
                   </TableCell>
                   <TableCell>
-                    {request.status === 'completed' && (
+                    {request._status === 'completed' && (
                       <Button
                         size="sm"
-                        variant="outline"
+                        _variant="outline"
                         onClick={() => handleDownload(request)}
                         disabled={new Date() > new Date(request.download_expires_at)}
                         className="flex items-center gap-1"
@@ -278,10 +278,10 @@ export const ExportRequestHistory: React.FC = () => {
                         {request.downloaded_at ? 'Re-download' : 'Download'}
                       </Button>
                     )}
-                    {request.status === 'processing' && (
+                    {request._status === 'processing' && (
                       <div className="text-sm text-muted-foreground">Processing...</div>
                     )}
-                    {request.status === 'failed' && (
+                    {request._status === 'failed' && (
                       <div className="text-sm text-destructive">Failed</div>
                     )}
                   </TableCell>

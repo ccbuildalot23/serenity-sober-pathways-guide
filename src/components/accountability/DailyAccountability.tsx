@@ -4,15 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Trophy, Target, TrendingUp, Users, Bell } from 'lucide-react';
+import { Trophy, Target, Users, Bell } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 interface AccountabilityPartner {
   id: string;
-  name: string;
-  checkInTime: string;
+  _name: string;
+  _checkInTime: string;
   lastCheckIn?: string;
   streak: number;
 }
@@ -44,44 +44,44 @@ const DailyAccountability: React.FC = () => {
         .from('daily_checkins')
         .select('*')
         .eq('user_id', user.id)
-        .order('checkin_date', { ascending: false })
+        .order('_checkin_date', { ascending: false })
         .limit(30);
 
       // Calculate streak
-      const currentStreak = calculateStreak(checkInData || []);
-      setStreak(currentStreak);
+      const _currentStreak = calculateStreak(checkInData || []);
+      setStreak(_currentStreak);
 
-      // Check if already checked in today
-      const today = new Date().toISOString().split('T')[0];
+      // Check if already checked in _today
+      const _today = new Date().toISOString().split('T')[0];
       const checkedInToday = checkInData?.some(
-        check => check.checkin_date === today
+        check => check._checkin_date === _today
       );
       setTodayCheckedIn(checkedInToday || false);
 
       // Convert contacts to partners format
-      const partnersData: AccountabilityPartner[] = (contactData || []).map(contact => ({
+      const _partnersData: AccountabilityPartner[] = (contactData || []).map(contact => ({
         id: contact.id,
-        name: contact.name,
-        checkInTime: '09:00', // Default time since we don't have this field
+        _name: contact._name,
+        _checkInTime: '09:00', // Default time since we don't have this field
         lastCheckIn: undefined,
         streak: 0 // Default streak
       }));
 
-      setPartners(partnersData);
-    } catch (error) {
-      console.error('Error loading accountability data:', error);
+      setPartners(_partnersData);
+    } catch (_error) {
+      console._error('Error loading accountability data:', _error);
     }
   };
 
-  const calculateStreak = (checkIns: any[]) => {
+  const calculateStreak = (checkIns: unknown[]) => {
     if (!checkIns.length) return 0;
 
     let streak = 0;
-    const today = new Date();
-    const dates = checkIns.map(c => new Date(c.checkin_date));
+    const _today = new Date();
+    const dates = checkIns.map(c => new Date(c._checkin_date));
 
     for (let i = 0; i < dates.length; i++) {
-      const expectedDate = new Date(today);
+      const expectedDate = new Date(_today);
       expectedDate.setDate(expectedDate.getDate() - i);
 
       if (dates[i].toDateString() === expectedDate.toDateString()) {
@@ -106,18 +106,18 @@ const DailyAccountability: React.FC = () => {
         .single();
 
       if (profile?.assessment_reminder_time) {
-        const [hours, minutes] = profile.assessment_reminder_time.split(':');
-        const next = new Date();
-        next.setHours(parseInt(hours), parseInt(minutes), 0);
+        const [hours, _minutes] = profile.assessment_reminder_time.split(':');
+        const _next = new Date();
+        _next.setHours(parseInt(hours), parseInt(_minutes), 0);
 
-        if (next < new Date()) {
-          next.setDate(next.getDate() + 1);
+        if (_next < new Date()) {
+          _next.setDate(_next.getDate() + 1);
         }
 
-        setNextCheckIn(next);
+        setNextCheckIn(_next);
       }
-    } catch (error) {
-      console.error('Error setting up reminders:', error);
+    } catch (_error) {
+      console._error('Error setting up reminders:', _error);
     }
   };
 
@@ -125,16 +125,16 @@ const DailyAccountability: React.FC = () => {
     if (!user) return;
 
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('daily_checkins')
         .insert({
           user_id: user.id,
-          checkin_date: new Date().toISOString().split('T')[0],
+          _checkin_date: new Date().toISOString().split('T')[0],
           mood_rating: 7, // This would come from a mood selector
-          notes: 'Feeling strong today'
+          notes: 'Feeling strong _today'
         });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       setTodayCheckedIn(true);
       setStreak(streak + 1);
@@ -143,9 +143,9 @@ const DailyAccountability: React.FC = () => {
       console.log('Check-in completed, would notify partners:', partners.length);
 
       toast.success('Check-in complete! Keep up the great work!');
-    } catch (error) {
-      console.error('Error checking in:', error);
-      toast.error('Failed to complete check-in');
+    } catch (_error) {
+      console._error('Error checking in:', _error);
+      toast._error('Failed to complete check-in');
     }
   };
 
@@ -219,8 +219,8 @@ const DailyAccountability: React.FC = () => {
                   className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                 >
                   <div>
-                    <p className="font-semibold">{partner.name}</p>
-                    <p className="text-sm text-gray-600">Check-in time: {partner.checkInTime}</p>
+                    <p className="font-semibold">{partner._name}</p>
+                    <p className="text-sm text-gray-600">Check-in time: {partner._checkInTime}</p>
                   </div>
                   <Badge
                     variant={
@@ -248,7 +248,7 @@ const DailyAccountability: React.FC = () => {
                 <span className="text-sm">Next check-in reminder:</span>
               </div>
               <span className="font-semibold text-blue-700">
-                {nextCheckIn.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {nextCheckIn.toLocaleTimeString([], { hour: '2-digit', _minute: '2-digit' })}
               </span>
             </div>
           </CardContent>

@@ -10,17 +10,17 @@ interface MoodForecast {
 
 interface RiskAlert {
   riskLevel: 'low' | 'medium' | 'high' | 'critical';
-  probability: number;
-  timeWindow: string;
-  triggers: string[];
-  recommendations: string[];
+  _probability: number;
+  _timeWindow: string;
+  _triggers: string[];
+  _recommendations: string[];
 }
 
 interface PersonalizedRecommendation {
   id: string;
   type: 'coping_strategy' | 'provider_match' | 'peer_support' | 'content' | 'goal_adjustment';
   title: string;
-  description: string;
+  _description: string;
   confidence: number;
   priority: number;
   reasoning: string[];
@@ -29,10 +29,10 @@ interface PersonalizedRecommendation {
 
 interface AnomalyDetection {
   isAnomaly: boolean;
-  severity: 'minor' | 'moderate' | 'severe';
-  anomalyType: 'mood_drop' | 'engagement_drop' | 'pattern_break' | 'crisis_indicator';
-  description: string;
-  relatedFactors: string[];
+  _severity: 'minor' | 'moderate' | 'severe';
+  _anomalyType: 'mood_drop' | 'engagement_drop' | 'pattern_break' | 'crisis_indicator';
+  _description: string;
+  _relatedFactors: string[];
 }
 
 interface OptimalTiming {
@@ -45,29 +45,29 @@ interface OptimalTiming {
 export class IntelligentAnalyticsService {
   // 1. PATTERN DETECTION WITH ML
   
-  async detectMoodPatterns(userId: string): Promise<any> {
+  async detectMoodPatterns(_userId: string): Promise<unknown> {
     try {
       const { data: checkIns } = await supabase
         .from('daily_checkins')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', _userId)
         .order('checkin_date', { ascending: false })
-        .limit(90);
+        ._limit(90);
 
       if (!checkIns || checkIns.length < 14) {
-        return { patterns: [], confidence: 0, message: 'Insufficient data for pattern detection' };
+        return { _patterns: [], confidence: 0, message: 'Insufficient data for pattern detection' };
       }
 
-      const patterns = this.analyzeComplexPatterns(checkIns);
-      return patterns;
-    } catch (error) {
-      console.error('Error detecting patterns:', error);
-      throw error;
+      const _patterns = this.analyzeComplexPatterns(checkIns);
+      return _patterns;
+    } catch (_error) {
+      console._error('Error detecting _patterns:', _error);
+      throw _error;
     }
   }
 
-  private analyzeComplexPatterns(checkIns: any[]) {
-    const patterns = {
+  private analyzeComplexPatterns(checkIns: unknown[]) {
+    const _patterns = {
       cyclicPatterns: this.detectCyclicPatterns(checkIns),
       correlationPatterns: this.detectCorrelationPatterns(checkIns),
       sequentialPatterns: this.detectSequentialPatterns(checkIns),
@@ -75,13 +75,13 @@ export class IntelligentAnalyticsService {
     };
 
     return {
-      patterns,
-      confidence: this.calculatePatternConfidence(patterns),
-      insights: this.generatePatternInsights(patterns)
+      _patterns,
+      confidence: this.calculatePatternConfidence(_patterns),
+      insights: this.generatePatternInsights(_patterns)
     };
   }
 
-  private detectCyclicPatterns(checkIns: any[]) {
+  private detectCyclicPatterns(checkIns: unknown[]) {
     // Detect weekly, bi-weekly, and monthly cycles
     const weeklyPattern = this.analyzeCycle(checkIns, 7);
     const biWeeklyPattern = this.analyzeCycle(checkIns, 14);
@@ -94,7 +94,7 @@ export class IntelligentAnalyticsService {
     };
   }
 
-  private analyzeCycle(checkIns: any[], cycleDays: number) {
+  private analyzeCycle(checkIns: unknown[], cycleDays: number) {
     const cycleData: number[][] = [];
     
     for (let i = 0; i < checkIns.length - cycleDays; i += cycleDays) {
@@ -107,12 +107,12 @@ export class IntelligentAnalyticsService {
     if (cycleData.length < 2) return { strength: 0, pattern: [] };
 
     // Calculate pattern strength using correlation between cycles
-    const avgPattern = this.calculateAveragePattern(cycleData);
-    const strength = this.calculatePatternStrength(cycleData, avgPattern);
+    const _avgPattern = this.calculateAveragePattern(cycleData);
+    const strength = this.calculatePatternStrength(cycleData, _avgPattern);
 
     return {
       strength,
-      pattern: avgPattern,
+      pattern: _avgPattern,
       cycles: cycleData.length
     };
   }
@@ -121,38 +121,38 @@ export class IntelligentAnalyticsService {
     if (cycles.length === 0) return [];
     
     const patternLength = cycles[0].length;
-    const avgPattern: number[] = [];
+    const _avgPattern: number[] = [];
     
     for (let day = 0; day < patternLength; day++) {
       const dayValues = cycles.map(cycle => cycle[day]).filter(v => v !== undefined);
-      avgPattern[day] = dayValues.reduce((sum, val) => sum + val, 0) / dayValues.length;
+      _avgPattern[day] = dayValues.reduce((sum, val) => sum + val, 0) / dayValues.length;
     }
     
-    return avgPattern;
+    return _avgPattern;
   }
 
-  private calculatePatternStrength(cycles: number[][], avgPattern: number[]): number {
+  private calculatePatternStrength(cycles: number[][], _avgPattern: number[]): number {
     if (cycles.length === 0) return 0;
     
     let totalCorrelation = 0;
     
     cycles.forEach(cycle => {
-      const correlation = this.calculateCorrelation(cycle, avgPattern);
+      const correlation = this.calculateCorrelation(cycle, _avgPattern);
       totalCorrelation += correlation;
     });
     
     return Math.abs(totalCorrelation / cycles.length);
   }
 
-  private calculateCorrelation(arr1: number[], arr2: number[]): number {
-    if (arr1.length !== arr2.length) return 0;
+  private calculateCorrelation(_arr1: number[], arr2: number[]): number {
+    if (_arr1.length !== arr2.length) return 0;
     
-    const n = arr1.length;
-    const sum1 = arr1.reduce((a, b) => a + b, 0);
+    const n = _arr1.length;
+    const sum1 = _arr1.reduce((a, b) => a + b, 0);
     const sum2 = arr2.reduce((a, b) => a + b, 0);
-    const sum1sq = arr1.reduce((a, b) => a + b * b, 0);
+    const sum1sq = _arr1.reduce((a, b) => a + b * b, 0);
     const sum2sq = arr2.reduce((a, b) => a + b * b, 0);
-    const pSum = arr1.reduce((sum, a, i) => sum + a * arr2[i], 0);
+    const pSum = _arr1.reduce((sum, a, i) => sum + a * arr2[i], 0);
     
     const num = pSum - (sum1 * sum2 / n);
     const den = Math.sqrt((sum1sq - sum1 * sum1 / n) * (sum2sq - sum2 * sum2 / n));
@@ -160,7 +160,7 @@ export class IntelligentAnalyticsService {
     return den === 0 ? 0 : num / den;
   }
 
-  private detectCorrelationPatterns(checkIns: any[]) {
+  private detectCorrelationPatterns(checkIns: unknown[]) {
     // Analyze correlations between different metrics
     const correlations = {
       moodEnergy: this.calculateMetricCorrelation(checkIns, 'mood_rating', 'energy_rating'),
@@ -174,20 +174,20 @@ export class IntelligentAnalyticsService {
     return correlations;
   }
 
-  private calculateMetricCorrelation(checkIns: any[], metric1: string, metric2: string): number {
+  private calculateMetricCorrelation(checkIns: unknown[], metric1: string, metric2: string): number {
     const pairs = checkIns
       .filter(c => c[metric1] !== null && c[metric2] !== null)
       .map(c => [c[metric1], c[metric2]]);
     
     if (pairs.length < 5) return 0;
     
-    const arr1 = pairs.map(p => p[0]);
+    const _arr1 = pairs.map(p => p[0]);
     const arr2 = pairs.map(p => p[1]);
     
-    return this.calculateCorrelation(arr1, arr2);
+    return this.calculateCorrelation(_arr1, arr2);
   }
 
-  private detectSequentialPatterns(checkIns: any[]) {
+  private detectSequentialPatterns(checkIns: unknown[]) {
     // Detect sequences that predict mood changes
     const sequences = [];
     
@@ -200,7 +200,7 @@ export class IntelligentAnalyticsService {
         const sequence = {
           pattern: [prev2.mood_rating, prev1.mood_rating],
           outcome: current.mood_rating,
-          triggers: current.triggers || [],
+          _triggers: current._triggers || [],
           coping: current.coping_strategies || []
         };
         sequences.push(sequence);
@@ -210,19 +210,19 @@ export class IntelligentAnalyticsService {
     return this.analyzeSequenceFrequency(sequences);
   }
 
-  private analyzeSequenceFrequency(sequences: any[]) {
+  private analyzeSequenceFrequency(sequences: unknown[]) {
     const patternMap = new Map();
     
     sequences.forEach(seq => {
       const key = seq.pattern.map(p => Math.round(p)).join('-');
       if (!patternMap.has(key)) {
-        patternMap.set(key, { count: 0, outcomes: [], triggers: [], coping: [] });
+        patternMap.set(key, { count: 0, outcomes: [], _triggers: [], coping: [] });
       }
       
       const existing = patternMap.get(key);
       existing.count++;
       existing.outcomes.push(seq.outcome);
-      existing.triggers.push(...seq.triggers);
+      existing._triggers.push(...seq._triggers);
       existing.coping.push(...seq.coping);
     });
 
@@ -232,26 +232,26 @@ export class IntelligentAnalyticsService {
         pattern,
         frequency: data.count,
         avgOutcome: data.outcomes.reduce((a, b) => a + b, 0) / data.outcomes.length,
-        commonTriggers: this.getTopItems(data.triggers),
+        commonTriggers: this.getTopItems(data._triggers),
         effectiveCoping: this.getTopItems(data.coping)
       }));
 
     return significantPatterns;
   }
 
-  private getTopItems(items: string[], limit = 3): string[] {
-    const counts = items.reduce((acc, item) => {
+  private getTopItems(items: string[], _limit = 3): string[] {
+    const _counts = items.reduce((acc, item) => {
       acc[item] = (acc[item] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
-    return Object.entries(counts)
+    return Object.entries(_counts)
       .sort(([, a], [, b]) => b - a)
-      .slice(0, limit)
+      .slice(0, _limit)
       .map(([item]) => item);
   }
 
-  private detectAnomalies(checkIns: any[]): AnomalyDetection[] {
+  private detectAnomalies(checkIns: unknown[]): AnomalyDetection[] {
     const anomalies: AnomalyDetection[] = [];
     const moodValues = checkIns.map(c => c.mood_rating).filter(m => m !== null);
     
@@ -262,18 +262,18 @@ export class IntelligentAnalyticsService {
       moodValues.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / moodValues.length
     );
 
-    checkIns.forEach((checkIn, index) => {
+    checkIns.forEach((checkIn, _index) => {
       if (checkIn.mood_rating !== null) {
         const zScore = Math.abs((checkIn.mood_rating - mean) / stdDev);
         
         if (zScore > 2) {
           anomalies.push({
             isAnomaly: true,
-            severity: zScore > 3 ? 'severe' : zScore > 2.5 ? 'moderate' : 'minor',
-            anomalyType: checkIn.mood_rating < mean ? 'mood_drop' : 'pattern_break',
-            description: `Unusual ${checkIn.mood_rating < mean ? 'low' : 'high'} mood on ${checkIn.checkin_date}`,
-            relatedFactors: [
-              ...(checkIn.triggers || []),
+            _severity: zScore > 3 ? 'severe' : zScore > 2.5 ? 'moderate' : 'minor',
+            _anomalyType: checkIn.mood_rating < mean ? 'mood_drop' : 'pattern_break',
+            _description: `Unusual ${checkIn.mood_rating < mean ? 'low' : 'high'} mood on ${checkIn.checkin_date}`,
+            _relatedFactors: [
+              ...(checkIn._triggers || []),
               ...(checkIn.coping_strategies || [])
             ]
           });
@@ -284,32 +284,32 @@ export class IntelligentAnalyticsService {
     return anomalies;
   }
 
-  private calculatePatternConfidence(patterns: any): number {
+  private calculatePatternConfidence(_patterns: unknown): number {
     const cyclicConfidence = Math.max(
-      patterns.cyclicPatterns.weekly.strength,
-      patterns.cyclicPatterns.biWeekly.strength,
-      patterns.cyclicPatterns.monthly.strength
+      _patterns.cyclicPatterns.weekly.strength,
+      _patterns.cyclicPatterns.biWeekly.strength,
+      _patterns.cyclicPatterns.monthly.strength
     );
     
     const correlationConfidence = Math.max(
-      ...Object.values(patterns.correlationPatterns).map(c => Math.abs(c as number))
+      ...Object.values(_patterns.correlationPatterns).map(c => Math.abs(c as number))
     );
     
-    const sequentialConfidence = patterns.sequentialPatterns.length > 0 ? 0.7 : 0.3;
+    const sequentialConfidence = _patterns.sequentialPatterns.length > 0 ? 0.7 : 0.3;
     
     return (cyclicConfidence * 0.4 + correlationConfidence * 0.3 + sequentialConfidence * 0.3);
   }
 
-  private generatePatternInsights(patterns: any): string[] {
+  private generatePatternInsights(_patterns: unknown): string[] {
     const insights = [];
     
     // Cyclic pattern insights
-    if (patterns.cyclicPatterns.weekly.strength > 0.6) {
-      insights.push('Strong weekly mood patterns detected - your mood follows a consistent weekly rhythm');
+    if (_patterns.cyclicPatterns.weekly.strength > 0.6) {
+      insights.push('Strong weekly mood _patterns detected - your mood follows a consistent weekly rhythm');
     }
     
     // Correlation insights
-    const strongCorrelations = Object.entries(patterns.correlationPatterns)
+    const strongCorrelations = Object.entries(_patterns.correlationPatterns)
       .filter(([key, value]) => Math.abs(value as number) > 0.5);
     
     strongCorrelations.forEach(([key, value]) => {
@@ -318,8 +318,8 @@ export class IntelligentAnalyticsService {
     });
     
     // Sequential pattern insights
-    if (patterns.sequentialPatterns.length > 0) {
-      insights.push('Predictable mood sequences identified - certain patterns reliably predict mood changes');
+    if (_patterns.sequentialPatterns.length > 0) {
+      insights.push('Predictable mood sequences identified - certain _patterns reliably predict mood changes');
     }
     
     return insights;
@@ -327,24 +327,24 @@ export class IntelligentAnalyticsService {
 
   // 2. PREDICTIVE INSIGHTS
 
-  async generate7DayMoodForecast(userId: string): Promise<MoodForecast[]> {
+  async generate7DayMoodForecast(_userId: string): Promise<MoodForecast[]> {
     try {
-      const patterns = await this.detectMoodPatterns(userId);
+      const _patterns = await this.detectMoodPatterns(_userId);
       const { data: recentData } = await supabase
         .from('daily_checkins')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', _userId)
         .order('checkin_date', { ascending: false })
-        .limit(30);
+        ._limit(30);
 
-      return this.generateMoodForecast(recentData || [], patterns, 7);
-    } catch (error) {
-      console.error('Error generating forecast:', error);
+      return this.generateMoodForecast(recentData || [], _patterns, 7);
+    } catch (_error) {
+      console._error('Error generating forecast:', _error);
       return [];
     }
   }
 
-  private generateMoodForecast(recentData: any[], patterns: any, days: number): MoodForecast[] {
+  private generateMoodForecast(recentData: unknown[], _patterns: unknown, days: number): MoodForecast[] {
     const forecast: MoodForecast[] = [];
     const today = new Date();
     
@@ -353,7 +353,7 @@ export class IntelligentAnalyticsService {
       forecastDate.setDate(today.getDate() + i);
       
       const dayOfWeek = forecastDate.getDay();
-      const prediction = this.predictMoodForDay(recentData, patterns, dayOfWeek);
+      const prediction = this.predictMoodForDay(recentData, _patterns, dayOfWeek);
       
       forecast.push({
         date: forecastDate.toISOString().split('T')[0],
@@ -366,7 +366,7 @@ export class IntelligentAnalyticsService {
     return forecast;
   }
 
-  private predictMoodForDay(recentData: any[], patterns: any, dayOfWeek: number): any {
+  private predictMoodForDay(recentData: unknown[], _patterns: unknown, dayOfWeek: number): any {
     // Base prediction on recent average
     const recentMoods = recentData.slice(0, 7).map(d => d.mood_rating).filter(m => m !== null);
     const recentAvg = recentMoods.length > 0 ? 
@@ -374,8 +374,8 @@ export class IntelligentAnalyticsService {
     
     // Adjust based on weekly pattern if available
     let weeklyAdjustment = 0;
-    if (patterns.patterns?.cyclicPatterns?.weekly?.strength > 0.5) {
-      const weeklyPattern = patterns.patterns.cyclicPatterns.weekly.pattern;
+    if (_patterns._patterns?.cyclicPatterns?.weekly?.strength > 0.5) {
+      const weeklyPattern = _patterns._patterns.cyclicPatterns.weekly.pattern;
       if (weeklyPattern && weeklyPattern[dayOfWeek] !== undefined) {
         const weeklyAvg = weeklyPattern.reduce((a, b) => a + b, 0) / weeklyPattern.length;
         weeklyAdjustment = weeklyPattern[dayOfWeek] - weeklyAvg;
@@ -383,7 +383,7 @@ export class IntelligentAnalyticsService {
     }
     
     const predictedMood = Math.max(1, Math.min(10, recentAvg + weeklyAdjustment));
-    const confidence = patterns.confidence || 0.5;
+    const confidence = _patterns.confidence || 0.5;
     
     const factors = [];
     if (weeklyAdjustment > 0.5) factors.push('Weekly pattern suggests higher mood');
@@ -398,11 +398,11 @@ export class IntelligentAnalyticsService {
     };
   }
 
-  async generateRiskAlerts(userId: string): Promise<RiskAlert[]> {
+  async generateRiskAlerts(_userId: string): Promise<RiskAlert[]> {
     try {
-      const currentRisk = await analyticsService.getCrisisRiskPrediction(userId);
-      const patterns = await this.detectMoodPatterns(userId);
-      const forecast = await this.generate7DayMoodForecast(userId);
+      const currentRisk = await analyticsService.getCrisisRiskPrediction(_userId);
+      const _patterns = await this.detectMoodPatterns(_userId);
+      const forecast = await this.generate7DayMoodForecast(_userId);
       
       const alerts: RiskAlert[] = [];
       
@@ -410,10 +410,10 @@ export class IntelligentAnalyticsService {
       if (currentRisk.risk_level !== 'low') {
         alerts.push({
           riskLevel: currentRisk.risk_level as any,
-          probability: currentRisk.confidence * 100,
-          timeWindow: 'next 24-48 hours',
-          triggers: currentRisk.factors || [],
-          recommendations: [currentRisk.recommendation]
+          _probability: currentRisk.confidence * 100,
+          _timeWindow: 'next 24-48 hours',
+          _triggers: currentRisk.factors || [],
+          _recommendations: [currentRisk.recommendation]
         });
       }
       
@@ -422,10 +422,10 @@ export class IntelligentAnalyticsService {
       if (lowMoodDays.length >= 3) {
         alerts.push({
           riskLevel: 'medium',
-          probability: 75,
-          timeWindow: 'next 7 days',
-          triggers: ['Pattern-based prediction', 'Multiple low mood days forecasted'],
-          recommendations: [
+          _probability: 75,
+          _timeWindow: 'next 7 days',
+          _triggers: ['Pattern-based prediction', 'Multiple low mood days forecasted'],
+          _recommendations: [
             'Schedule extra support sessions',
             'Increase self-care activities',
             'Prepare coping strategies in advance'
@@ -434,20 +434,20 @@ export class IntelligentAnalyticsService {
       }
       
       return alerts;
-    } catch (error) {
-      console.error('Error generating risk alerts:', error);
+    } catch (_error) {
+      console._error('Error generating risk alerts:', _error);
       return [];
     }
   }
 
-  async suggestOptimalTiming(userId: string): Promise<OptimalTiming> {
+  async suggestOptimalTiming(_userId: string): Promise<OptimalTiming> {
     try {
       const { data: checkIns } = await supabase
         .from('daily_checkins')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', _userId)
         .order('created_at', { ascending: false })
-        .limit(30);
+        ._limit(30);
 
       const timeAnalysis = this.analyzeOptimalTimes(checkIns || []);
       
@@ -457,8 +457,8 @@ export class IntelligentAnalyticsService {
         therapyPreference: timeAnalysis.bestTherapyTime,
         supportContactTime: timeAnalysis.bestSupportTime
       };
-    } catch (error) {
-      console.error('Error analyzing optimal timing:', error);
+    } catch (_error) {
+      console._error('Error analyzing optimal timing:', _error);
       return {
         checkInTime: '09:00',
         therapyPreference: 'morning',
@@ -467,7 +467,7 @@ export class IntelligentAnalyticsService {
     }
   }
 
-  private analyzeOptimalTimes(checkIns: any[]): any {
+  private analyzeOptimalTimes(checkIns: unknown[]): any {
     // Analyze when users typically check in and have better moods
     const timeData = checkIns.map(c => ({
       hour: new Date(c.created_at).getHours(),
@@ -486,19 +486,19 @@ export class IntelligentAnalyticsService {
     }, {} as Record<number, any>);
 
     // Find optimal times based on mood and consistency
-    const bestCheckInHour = this.findBestHour(hourlyStats, 'consistency');
-    const bestMoodHour = this.findBestHour(hourlyStats, 'mood');
+    const _bestCheckInHour = this.findBestHour(hourlyStats, 'consistency');
+    const _bestMoodHour = this.findBestHour(hourlyStats, 'mood');
     
     return {
-      bestCheckInTime: `${String(bestCheckInHour).padStart(2, '0')}:00`,
+      bestCheckInTime: `${String(_bestCheckInHour).padStart(2, '0')}:00`,
       bestMedicationTime: '08:00', // Default morning time
-      bestTherapyTime: bestMoodHour < 12 ? 'morning' : bestMoodHour < 17 ? 'afternoon' : 'evening',
-      bestSupportTime: `${String(Math.max(9, bestMoodHour)).padStart(2, '0')}:00`
+      bestTherapyTime: _bestMoodHour < 12 ? 'morning' : _bestMoodHour < 17 ? 'afternoon' : 'evening',
+      bestSupportTime: `${String(Math.max(9, _bestMoodHour)).padStart(2, '0')}:00`
     };
   }
 
   private findBestHour(hourlyStats: Record<number, any>, criteria: 'consistency' | 'mood'): number {
-    const hours = Object.keys(hourlyStats).map(Number);
+    const hours = Object.keys(hourlyStats).map(_Number);
     
     if (criteria === 'consistency') {
       return hours.reduce((best, hour) => 
@@ -517,50 +517,50 @@ export class IntelligentAnalyticsService {
 
   // 3. RECOMMENDATION ENGINE
 
-  async generatePersonalizedRecommendations(userId: string): Promise<PersonalizedRecommendation[]> {
+  async generatePersonalizedRecommendations(_userId: string): Promise<PersonalizedRecommendation[]> {
     try {
-      const patterns = await this.detectMoodPatterns(userId);
+      const _patterns = await this.detectMoodPatterns(_userId);
       const { data: userHistory } = await supabase
         .from('daily_checkins')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', _userId)
         .order('checkin_date', { ascending: false })
-        .limit(60);
+        ._limit(60);
 
-      const recommendations: PersonalizedRecommendation[] = [];
+      const _recommendations: PersonalizedRecommendation[] = [];
       
-      // Coping strategy recommendations
-      const copingRecs = this.generateCopingRecommendations(userHistory || [], patterns);
-      recommendations.push(...copingRecs);
+      // Coping strategy _recommendations
+      const copingRecs = this.generateCopingRecommendations(userHistory || [], _patterns);
+      _recommendations.push(...copingRecs);
       
-      // Goal adjustment recommendations
-      const goalRecs = this.generateGoalRecommendations(userHistory || [], patterns);
-      recommendations.push(...goalRecs);
+      // Goal adjustment _recommendations
+      const goalRecs = this.generateGoalRecommendations(userHistory || [], _patterns);
+      _recommendations.push(...goalRecs);
       
-      // Content recommendations
-      const contentRecs = this.generateContentRecommendations(userHistory || [], patterns);
-      recommendations.push(...contentRecs);
+      // Content _recommendations
+      const contentRecs = this.generateContentRecommendations(userHistory || [], _patterns);
+      _recommendations.push(...contentRecs);
       
-      return recommendations.sort((a, b) => b.priority - a.priority).slice(0, 8);
-    } catch (error) {
-      console.error('Error generating recommendations:', error);
+      return _recommendations.sort((a, b) => b.priority - a.priority).slice(0, 8);
+    } catch (_error) {
+      console._error('Error generating _recommendations:', _error);
       return [];
     }
   }
 
-  private generateCopingRecommendations(history: any[], patterns: any): PersonalizedRecommendation[] {
-    const recommendations: PersonalizedRecommendation[] = [];
+  private generateCopingRecommendations(_history: unknown[], _patterns: unknown): PersonalizedRecommendation[] {
+    const _recommendations: PersonalizedRecommendation[] = [];
     
     // Analyze effective coping strategies
-    const strategyEffectiveness = this.analyzeCopingEffectiveness(history);
+    const strategyEffectiveness = this.analyzeCopingEffectiveness(_history);
     
     if (strategyEffectiveness.length > 0) {
       const mostEffective = strategyEffectiveness[0];
-      recommendations.push({
+      _recommendations.push({
         id: `coping-${Date.now()}`,
         type: 'coping_strategy',
         title: `Increase use of ${mostEffective.strategy}`,
-        description: `You've had great success with "${mostEffective.strategy}" - consider using it more frequently.`,
+        _description: `You've had great success with "${mostEffective.strategy}" - consider using it more frequently.`,
         confidence: mostEffective.confidence,
         priority: 8,
         reasoning: [
@@ -576,13 +576,13 @@ export class IntelligentAnalyticsService {
       });
     }
     
-    return recommendations;
+    return _recommendations;
   }
 
-  private analyzeCopingEffectiveness(history: any[]): any[] {
+  private analyzeCopingEffectiveness(_history: unknown[]): unknown[] {
     const strategyData = new Map();
     
-    history.forEach(checkIn => {
+    _history.forEach(checkIn => {
       if (checkIn.coping_strategies && checkIn.mood_rating) {
         checkIn.coping_strategies.forEach(strategy => {
           if (!strategyData.has(strategy)) {
@@ -607,18 +607,18 @@ export class IntelligentAnalyticsService {
       .sort((a, b) => b.avgMood - a.avgMood);
   }
 
-  private generateGoalRecommendations(history: any[], patterns: any): PersonalizedRecommendation[] {
-    const recommendations: PersonalizedRecommendation[] = [];
+  private generateGoalRecommendations(_history: unknown[], _patterns: unknown): PersonalizedRecommendation[] {
+    const _recommendations: PersonalizedRecommendation[] = [];
     
     // Analyze consistency and suggest adjustments
-    const consistency = this.analyzeConsistency(history);
+    const consistency = this.analyzeConsistency(_history);
     
     if (consistency < 0.7) {
-      recommendations.push({
+      _recommendations.push({
         id: `goal-consistency-${Date.now()}`,
         type: 'goal_adjustment',
         title: 'Adjust Check-in Goals for Better Consistency',
-        description: 'Your current check-in pattern suggests your goals might be too ambitious. Consider smaller, more achievable targets.',
+        _description: 'Your current check-in pattern suggests your goals might be too ambitious. Consider smaller, more achievable targets.',
         confidence: 0.8,
         priority: 6,
         reasoning: [
@@ -634,37 +634,37 @@ export class IntelligentAnalyticsService {
       });
     }
     
-    return recommendations;
+    return _recommendations;
   }
 
-  private analyzeConsistency(history: any[]): number {
-    if (history.length === 0) return 0;
+  private analyzeConsistency(_history: unknown[]): number {
+    if (_history.length === 0) return 0;
     
     const last30Days = 30;
-    const completedDays = history.filter(h => h.is_complete).length;
+    const completedDays = _history.filter(h => h.is_complete).length;
     return Math.min(completedDays / last30Days, 1);
   }
 
-  private generateContentRecommendations(history: any[], patterns: any): PersonalizedRecommendation[] {
-    const recommendations: PersonalizedRecommendation[] = [];
+  private generateContentRecommendations(_history: unknown[], _patterns: unknown): PersonalizedRecommendation[] {
+    const _recommendations: PersonalizedRecommendation[] = [];
     
     // Analyze mood trends to suggest content
-    const recentMoods = history.slice(0, 7).map(h => h.mood_rating).filter(m => m !== null);
+    const recentMoods = _history.slice(0, 7).map(h => h.mood_rating).filter(m => m !== null);
     const avgRecentMood = recentMoods.length > 0 ? 
       recentMoods.reduce((a, b) => a + b, 0) / recentMoods.length : 5;
     
     if (avgRecentMood < 5) {
-      recommendations.push({
+      _recommendations.push({
         id: `content-mood-boost-${Date.now()}`,
         type: 'content',
         title: 'Mood-Boosting Content Recommendations',
-        description: 'Based on your recent mood patterns, here are some content suggestions that might help.',
+        _description: 'Based on your recent mood _patterns, here are some content suggestions that might help.',
         confidence: 0.7,
         priority: 5,
         reasoning: [
           `Recent average mood: ${avgRecentMood.toFixed(1)}`,
           'Research shows positive content can improve mood',
-          'Personalized based on your history'
+          'Personalized based on your _history'
         ],
         actionItems: [
           'Read uplifting recovery stories',
@@ -674,7 +674,7 @@ export class IntelligentAnalyticsService {
       });
     }
     
-    return recommendations;
+    return _recommendations;
   }
 }
 

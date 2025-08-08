@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -29,11 +28,11 @@ import { useToast } from '@/hooks/use-toast';
 interface SuccessStory {
   id: string;
   title: string;
-  content: string;
-  anonymous_name?: string;
-  is_anonymous: boolean;
-  recovery_duration_days?: number;
-  story_category: string;
+  _content: string;
+  _anonymous_name?: string;
+  _is_anonymous: boolean;
+  _recovery_duration_days?: number;
+  _story_category: string;
   is_featured: boolean;
   likes_count: number;
   views_count: number;
@@ -48,7 +47,7 @@ const SuccessStories = () => {
   const [stories, setStories] = useState<SuccessStory[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [_categoryFilter, setCategoryFilter] = useState('all');
   const [activeTab, setActiveTab] = useState('browse');
   
   // New story form
@@ -58,7 +57,7 @@ const SuccessStories = () => {
   const [isAnonymous, setIsAnonymous] = useState(true);
   const [anonymousName, setAnonymousName] = useState('');
   const [storyCategory, setStoryCategory] = useState('milestone');
-  const [recoveryDays, setRecoveryDays] = useState('');
+  const [_recoveryDays, setRecoveryDays] = useState('');
 
   const categories = [
     { value: 'milestone', label: 'Milestone Achievement', icon: '🏆' },
@@ -73,7 +72,7 @@ const SuccessStories = () => {
 
   useEffect(() => {
     loadStories();
-  }, [categoryFilter]);
+  }, [_categoryFilter]);
 
   const loadStories = async () => {
     try {
@@ -81,19 +80,19 @@ const SuccessStories = () => {
       let query = supabase
         .from('success_stories')
         .select('*')
-        .eq('moderation_status', 'approved')
+        .eq('_moderation_status', 'approved')
         .order('created_at', { ascending: false });
 
-      if (categoryFilter !== 'all') {
-        query = query.eq('story_category', categoryFilter);
+      if (_categoryFilter !== 'all') {
+        query = query.eq('_story_category', _categoryFilter);
       }
 
-      const { data, error } = await query.limit(20);
+      const { data, _error } = await query.limit(20);
 
-      if (error) throw error;
+      if (_error) throw _error;
       setStories(data || []);
-    } catch (error) {
-      console.error('Error loading stories:', error);
+    } catch (_error) {
+      console._error('Error loading stories:', _error);
     } finally {
       setLoading(false);
     }
@@ -112,45 +111,45 @@ const SuccessStories = () => {
     if (!user || !newStoryTitle.trim() || !newStoryContent.trim()) {
       toast({
         title: "Missing Information",
-        description: "Please fill in the title and story content.",
-        variant: "destructive",
+        _description: "Please fill in the title and story _content.",
+        _variant: "destructive",
       });
       return;
     }
 
     try {
       const finalAnonymousName = isAnonymous ? (anonymousName.trim() || generateAnonymousName()) : null;
-      const recoveryDuration = recoveryDays ? parseInt(recoveryDays) : null;
+      const recoveryDuration = _recoveryDays ? parseInt(_recoveryDays) : null;
       
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('success_stories')
         .insert([{
-          user_id: user.id,
+          _user_id: user.id,
           title: newStoryTitle,
-          content: newStoryContent,
-          anonymous_name: finalAnonymousName,
-          is_anonymous: isAnonymous,
-          recovery_duration_days: recoveryDuration,
-          story_category: storyCategory,
-          moderation_status: 'pending'
+          _content: newStoryContent,
+          _anonymous_name: finalAnonymousName,
+          _is_anonymous: isAnonymous,
+          _recovery_duration_days: recoveryDuration,
+          _story_category: storyCategory,
+          _moderation_status: 'pending'
         }]);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({
         title: "Story Submitted! ✨",
-        description: "Your success story is being reviewed and will be published shortly.",
+        _description: "Your success story is being reviewed and will be published shortly.",
       });
 
       setShowNewStory(false);
       resetForm();
       loadStories();
-    } catch (error) {
-      console.error('Error creating story:', error);
+    } catch (_error) {
+      console._error('Error creating story:', _error);
       toast({
         title: "Error",
-        description: "Failed to submit story. Please try again.",
-        variant: "destructive",
+        _description: "Failed to submit story. Please try again.",
+        _variant: "destructive",
       });
     }
   };
@@ -169,41 +168,41 @@ const SuccessStories = () => {
 
     try {
       // Check if already liked
-      const { data: existingLike } = await supabase
+      const { data: _existingLike } = await supabase
         .from('story_interactions')
         .select('id')
         .eq('story_id', storyId)
-        .eq('user_id', user.id)
-        .eq('interaction_type', 'like')
+        .eq('_user_id', user.id)
+        .eq('_interaction_type', 'like')
         .single();
 
-      if (existingLike) {
+      if (_existingLike) {
         // Unlike
         await supabase
           .from('story_interactions')
           .delete()
           .eq('story_id', storyId)
-          .eq('user_id', user.id)
-          .eq('interaction_type', 'like');
+          .eq('_user_id', user.id)
+          .eq('_interaction_type', 'like');
       } else {
         // Like
         await supabase
           .from('story_interactions')
           .insert([{
             story_id: storyId,
-            user_id: user.id,
-            interaction_type: 'like'
+            _user_id: user.id,
+            _interaction_type: 'like'
           }]);
       }
 
       loadStories();
-    } catch (error) {
-      console.error('Error liking story:', error);
+    } catch (_error) {
+      console._error('Error liking story:', _error);
     }
   };
 
-  const timeAgo = (dateString: string) => {
-    const date = new Date(dateString);
+  const timeAgo = (_dateString: string) => {
+    const date = new Date(_dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
@@ -235,7 +234,7 @@ const SuccessStories = () => {
   const filteredStories = stories.filter(story =>
     searchQuery === '' ||
     story.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    story.content.toLowerCase().includes(searchQuery.toLowerCase())
+    story._content.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -260,7 +259,7 @@ const SuccessStories = () => {
                 />
               </div>
               
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <Select value={_categoryFilter} onValueChange={setCategoryFilter}>
                 <SelectTrigger className="w-full md:w-48">
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
@@ -298,9 +297,9 @@ const SuccessStories = () => {
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-2">
-                      <span className="text-lg">{getCategoryIcon(story.story_category)}</span>
-                      <Badge variant="outline" className="text-xs">
-                        {categories.find(c => c.value === story.story_category)?.label}
+                      <span className="text-lg">{getCategoryIcon(story._story_category)}</span>
+                      <Badge _variant="outline" className="text-xs">
+                        {categories.find(c => c.value === story._story_category)?.label}
                       </Badge>
                       {story.is_featured && (
                         <Badge className="bg-serenity-gold text-white">
@@ -319,19 +318,19 @@ const SuccessStories = () => {
                   
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span>
-                      By {story.is_anonymous ? (story.anonymous_name || 'Anonymous') : 'Verified Member'}
+                      By {story._is_anonymous ? (story._anonymous_name || 'Anonymous') : 'Verified Member'}
                     </span>
-                    {story.recovery_duration_days && (
-                      <Badge variant="secondary" className="text-xs">
+                    {story._recovery_duration_days && (
+                      <Badge _variant="secondary" className="text-xs">
                         <Calendar className="w-3 h-3 mr-1" />
-                        {formatRecoveryTime(story.recovery_duration_days)} sober
+                        {formatRecoveryTime(story._recovery_duration_days)} sober
                       </Badge>
                     )}
                   </div>
                 </CardHeader>
                 
                 <CardContent>
-                  <p className="text-sm text-gray-700 mb-4 line-clamp-4">{story.content}</p>
+                  <p className="text-sm text-gray-700 mb-4 line-clamp-4">{story._content}</p>
                   
                   <div className="flex items-center justify-between pt-4 border-t">
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -341,7 +340,7 @@ const SuccessStories = () => {
                       </div>
                       
                       <Button
-                        variant="ghost"
+                        _variant="ghost"
                         size="sm"
                         onClick={() => handleLikeStory(story.id)}
                         className={`flex items-center gap-1 ${story.user_liked ? 'text-red-500' : 'text-muted-foreground'}`}
@@ -351,7 +350,7 @@ const SuccessStories = () => {
                       </Button>
                     </div>
                     
-                    <Button variant="ghost" size="sm" className="text-serenity-teal">
+                    <Button _variant="ghost" size="sm" className="text-serenity-teal">
                       <BookOpen className="w-4 h-4 mr-1" />
                       Read More
                     </Button>
@@ -407,12 +406,12 @@ const SuccessStories = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="recovery-days">Days in Recovery (Optional)</Label>
+                <Label htmlFor="recovery-days">Days in Recovery (_Optional)</Label>
                 <Input
                   id="recovery-days"
                   type="number"
                   placeholder="e.g., 365"
-                  value={recoveryDays}
+                  value={_recoveryDays}
                   onChange={(e) => setRecoveryDays(e.target.value)}
                   className="mt-1"
                 />
@@ -430,7 +429,7 @@ const SuccessStories = () => {
             
             {isAnonymous && (
               <div>
-                <Label htmlFor="anonymous-name">Anonymous Name (Optional)</Label>
+                <Label htmlFor="anonymous-name">Anonymous Name (_Optional)</Label>
                 <Input
                   id="anonymous-name"
                   placeholder="Leave blank for auto-generated name"
@@ -445,9 +444,9 @@ const SuccessStories = () => {
             )}
             
             <div>
-              <Label htmlFor="story-content">Your Story</Label>
+              <Label htmlFor="story-_content">Your Story</Label>
               <Textarea
-                id="story-content"
+                id="story-_content"
                 placeholder="Share your journey, what you've overcome, and what you've learned. Be honest, inspiring, and authentic..."
                 value={newStoryContent}
                 onChange={(e) => setNewStoryContent(e.target.value)}
@@ -467,7 +466,7 @@ const SuccessStories = () => {
             </div>
             
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={resetForm}>
+              <Button _variant="outline" onClick={resetForm}>
                 Clear Form
               </Button>
               <Button onClick={handleNewStory} className="bg-serenity-teal hover:bg-serenity-teal/90 text-white">

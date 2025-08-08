@@ -1,0 +1,5 @@
+packages:
+  # Main React application
+  - '.'
+  # MCP server (kept separate)
+  - 'serenity-crisis-mcp'

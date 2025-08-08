@@ -5,21 +5,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, DollarSign, Trophy, Clock, Target, TrendingUp, RefreshCw, Heart } from 'lucide-react';
+import { Calendar, DollarSign, Trophy, Clock, Target, TrendingUp, RefreshCw, Heart, Award, Star, Zap } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import confetti from 'canvas-confetti';
 import CrisisMilestoneDialog from '@/components/milestones/CrisisMilestoneDialog';
 
-interface SobrietyRecord {
-  id?: string;
-  user_id: string;
-  start_date: string;
-  daily_cost: number;
-  created_at?: string;
-  is_active: boolean;
-}
+// interface SobrietyRecord {
+//   id?: string;
+//   user_id: string;
+//   start_date: string;
+//   daily_cost: number;
+//   created_at?: string;
+//   is_active: boolean;
+// }
 
 interface MilestoneData {
   days: number;
@@ -31,29 +31,34 @@ interface MilestoneData {
 const SobrietyTracker = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [sobrietyDate, setSobrietyDate] = useState<string>('');
+  const [_sobrietyDate, setSobrietyDate] = useState<string>('');
   const [dailyCost, setDailyCost] = useState<string>('15');
   const [days, setDays] = useState<number>(0);
   const [hours, setHours] = useState<number>(0);
   const [minutes, setMinutes] = useState<number>(0);
+  const [seconds, setSeconds] = useState<number>(0);
   const [moneySaved, setMoneySaved] = useState<number>(0);
+  const [totalHours, setTotalHours] = useState<number>(0);
+  const [achievements, setAchievements] = useState<string[]>([]);
+  const [newAchievement, setNewAchievement] = useState<string | _null>(_null);
   const [showMilestone, setShowMilestone] = useState(false);
-  const [currentMilestone, setCurrentMilestone] = useState<MilestoneData | null>(null);
-  const [crisisData, setCrisisData] = useState<any[]>([]);
-  const [relapseHistory, setRelapseHistory] = useState<any[]>([]);
+  const [currentMilestone, setCurrentMilestone] = useState<MilestoneData | _null>(_null);
+  const [crisisData, setCrisisData] = useState<unknown[]>([]);
+  const [relapseHistory, setRelapseHistory] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(false);
-  const [analyticsData, setAnalyticsData] = useState<any>(null);
+  const [analyticsData, setAnalyticsData] = useState<unknown>(_null);
 
-  // Real-time counter update
+  // Real-time counter update (every second for more granular tracking)
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (sobrietyDate) {
+    const _interval = setInterval(() => {
+      if (_sobrietyDate) {
         calculateRealTimeProgress();
+        checkForNewAchievements();
       }
-    }, 60000); // Update every minute
+    }, 1000); // Update every second
 
-    return () => clearInterval(interval);
-  }, [sobrietyDate]);
+    return () => clearInterval(_interval);
+  }, [_sobrietyDate, totalHours]);
 
   // Load data from database
   useEffect(() => {
@@ -87,15 +92,15 @@ const SobrietyTracker = () => {
     // Confetti celebration
     confetti({
       particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 }
+      _spread: 70,
+      _origin: { y: 0.6 }
     });
     
     // Toast notification
     toast({
       title: `🎉 ${milestone.title}!`,
-      description: milestone.message,
-      duration: 5000,
+      _description: milestone.message,
+      _duration: 5000,
     });
   };
 
@@ -114,8 +119,8 @@ const SobrietyTracker = () => {
         setSobrietyDate(profile.recovery_start_date);
         calculateRealTimeProgress(profile.recovery_start_date);
       }
-    } catch (error) {
-      console.error('Error loading sobriety data:', error);
+    } catch (_error) {
+      console._error('Error loading sobriety data:', _error);
     }
   };
 
@@ -127,12 +132,12 @@ const SobrietyTracker = () => {
         .from('recovery_goals')
         .select('*')
         .eq('user_id', user.id)
-        .eq('category', 'sobriety')
+        .eq('_category', 'sobriety')
         .order('created_at', { ascending: false });
 
       setRelapseHistory(data || []);
-    } catch (error) {
-      console.error('Error loading relapse history:', error);
+    } catch (_error) {
+      console._error('Error loading relapse history:', _error);
     }
   };
 
@@ -144,85 +149,89 @@ const SobrietyTracker = () => {
         .rpc('get_recovery_streak', { user_uuid: user.id });
 
       setAnalyticsData(data);
-    } catch (error) {
-      console.error('Error loading analytics:', error);
+    } catch (_error) {
+      console._error('Error loading analytics:', _error);
     }
   };
 
-  const loadCrisisData = async () => {
+  const _loadCrisisData = async () => {
     if (!user?.id) return;
 
     try {
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('crisis_events')
         .select('id, created_at as crisis_start_time')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(10);
 
-      if (error) {
-        console.error('Error loading crisis data:', error);
+      if (_error) {
+        console._error('Error loading crisis data:', _error);
         return;
       }
 
       setCrisisData(data || []);
-    } catch (error) {
-      console.error('Error in loadCrisisData:', error);
+    } catch (_error) {
+      console._error('Error in loadCrisisData:', _error);
     }
   };
 
   const calculateRealTimeProgress = (startDate?: string) => {
-    const dateToUse = startDate || sobrietyDate;
-    if (!dateToUse) return;
+    const _dateToUse = startDate || _sobrietyDate;
+    if (!_dateToUse) return;
     
-    const start = new Date(dateToUse);
+    const start = new Date(_dateToUse);
     const now = new Date();
     const diffTime = now.getTime() - start.getTime();
     
     const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    const totalHours = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const totalMinutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
+    const _totalHoursInDay = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const _totalMinutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
+    const _totalSeconds = Math.floor((diffTime % (1000 * 60)) / 1000);
+    const _totalHoursOverall = Math.floor(diffTime / (1000 * 60 * 60));
     
     setDays(totalDays);
-    setHours(totalHours);
-    setMinutes(totalMinutes);
+    setHours(_totalHoursInDay);
+    setMinutes(_totalMinutes);
+    setSeconds(_totalSeconds);
+    setTotalHours(_totalHoursOverall);
     setMoneySaved(totalDays * parseFloat(dailyCost));
   };
 
-  const handleDateChange = async (newDate: string) => {
+  const handleDateChange = async (_newDate: string) => {
     setLoading(true);
-    setSobrietyDate(newDate);
+    setSobrietyDate(_newDate);
     
     try {
       // Update profile with new start date
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('profiles')
-        .update({ recovery_start_date: newDate })
+        .update({ recovery_start_date: _newDate })
         .eq('id', user?.id);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
-      calculateRealTimeProgress(newDate);
+      calculateRealTimeProgress(_newDate);
       
       toast({
         title: "Journey Updated",
-        description: "Your sobriety start date has been saved.",
+        _description: "Your sobriety start date has been saved.",
       });
-    } catch (error) {
-      console.error('Error updating sobriety date:', error);
+    } catch (_error) {
+      console._error('Error updating sobriety date:', _error);
       toast({
         title: "Error",
-        description: "Failed to update start date. Please try again.",
-        variant: "destructive",
+        _description: "Failed to update start date. Please try again.",
+        _variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCostChange = (newCost: string) => {
-    setDailyCost(newCost);
-    if (sobrietyDate) {
+  const handleCostChange = (_newCost: string) => {
+    setDailyCost(_newCost);
+    if (_sobrietyDate) {
       calculateRealTimeProgress();
     }
   };
@@ -238,24 +247,24 @@ const SobrietyTracker = () => {
         .insert({
           user_id: user.id,
           title: 'Recovery Reset',
-          description: 'Starting fresh with renewed commitment',
-          category: 'sobriety',
-          priority: 'high',
-          target_date: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          _description: 'Starting fresh with renewed commitment',
+          _category: 'sobriety',
+          _priority: 'high',
+          _target_date: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
           status: 'active'
         });
 
-      // Reset counter to today
-      const today = new Date().toISOString().split('T')[0];
-      await handleDateChange(today);
+      // Reset counter to _today
+      const _today = new Date().toISOString().split('T')[0];
+      await handleDateChange(_today);
       
       toast({
         title: "Fresh Start 💪",
-        description: "Every journey has bumps. You're brave for starting again. This moment is your strength.",
-        duration: 6000,
+        _description: "Every journey has bumps. You're brave for starting again. This moment is your strength.",
+        _duration: 6000,
       });
-    } catch (error) {
-      console.error('Error handling relapse:', error);
+    } catch (_error) {
+      console._error('Error handling relapse:', _error);
     } finally {
       setLoading(false);
     }
@@ -273,10 +282,37 @@ const SobrietyTracker = () => {
   const getProgressToNextMilestone = () => {
     const milestones = [1, 7, 30, 90, 180, 365, 730, 1095]; // Up to 3 years
     const nextMilestone = milestones.find(m => m > days);
-    if (!nextMilestone) return null;
+    if (!nextMilestone) return _null;
     
     const progress = (days / nextMilestone) * 100;
     return { next: nextMilestone, progress, remaining: nextMilestone - days };
+  };
+
+  const checkForNewAchievements = () => {
+    const hourlyMilestones = [
+      { hours: 24, title: "First Full Day", icon: "🌅" },
+      { hours: 72, title: "Three Days Strong", icon: "💪" },
+      { hours: 168, title: "First Week", icon: "🔥" },
+      { hours: 336, title: "Two Weeks", icon: "⭐" },
+      { hours: 720, title: "One Month", icon: "🏆" },
+      { hours: 2160, title: "Three Months", icon: "💎" },
+      { hours: 4320, title: "Six Months", icon: "🌈" },
+      { hours: 8760, title: "One Year", icon: "👑" },
+      { hours: 17520, title: "Two Years", icon: "🎯" },
+      { hours: 26280, title: "Three Years", icon: "🌟" }
+    ];
+
+    const newMilestone = hourlyMilestones.find(m => 
+      totalHours >= m.hours && !achievements.includes(m.title)
+    );
+
+    if (newMilestone) {
+      setAchievements(prev => [...prev, newMilestone.title]);
+      setNewAchievement(`${newMilestone.icon} ${newMilestone.title}`);
+      
+      // Show achievement notification
+      setTimeout(() => setNewAchievement(_null), 5000);
+    }
   };
 
   const progressData = getProgressToNextMilestone();
@@ -295,20 +331,33 @@ const SobrietyTracker = () => {
             <>
               {/* Real-time Counter */}
               <div className="mb-6">
-                <div className="grid grid-cols-3 gap-4 mb-4">
+                <div className="grid grid-cols-4 gap-3 mb-4">
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-serenity-emerald">{days}</div>
-                    <div className="text-sm text-muted-foreground">Days</div>
+                    <div className="text-2xl font-bold text-serenity-emerald">{days}</div>
+                    <div className="text-xs text-muted-foreground">Days</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-serenity-teal">{hours}</div>
-                    <div className="text-sm text-muted-foreground">Hours</div>
+                    <div className="text-2xl font-bold text-serenity-teal">{hours}</div>
+                    <div className="text-xs text-muted-foreground">Hours</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-serenity-sage">{minutes}</div>
-                    <div className="text-sm text-muted-foreground">Minutes</div>
+                    <div className="text-2xl font-bold text-serenity-sage">{minutes}</div>
+                    <div className="text-xs text-muted-foreground">Minutes</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-serenity-gold">{seconds}</div>
+                    <div className="text-xs text-muted-foreground">Seconds</div>
                   </div>
                 </div>
+                
+                {/* Total Hours Badge */}
+                <div className="flex justify-center mb-4">
+                  <Badge _variant="outline" className="px-4 py-2 text-lg">
+                    <Clock className="w-4 h-4 mr-2" />
+                    {totalHours.toLocaleString()} Total Hours Clean
+                  </Badge>
+                </div>
+                
                 <div className="text-lg text-serenity-navy font-medium">{getStreakMessage()}</div>
               </div>
 
@@ -317,7 +366,7 @@ const SobrietyTracker = () => {
                 <div className="mb-6 p-4 bg-white/50 rounded-lg border border-serenity-sage/20">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium text-serenity-navy">Next Milestone</span>
-                    <Badge variant="outline" className="border-serenity-teal text-serenity-teal">
+                    <Badge _variant="outline" className="border-serenity-teal text-serenity-teal">
                       {progressData.next} days
                     </Badge>
                   </div>
@@ -328,20 +377,49 @@ const SobrietyTracker = () => {
                 </div>
               )}
               
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="glass-card p-4 text-center">
-                  <Calendar className="w-6 h-6 text-serenity-teal mx-auto mb-2" />
-                  <div className="text-sm text-muted-foreground">Days Clean</div>
-                  <div className="text-xl font-bold text-serenity-navy">{days}</div>
+              {/* Enhanced Stats Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="glass-card p-3 text-center">
+                  <Calendar className="w-5 h-5 text-serenity-teal mx-auto mb-1" />
+                  <div className="text-xs text-muted-foreground">Days Clean</div>
+                  <div className="text-lg font-bold text-serenity-navy">{days}</div>
                 </div>
                 
-                <div className="glass-card p-4 text-center">
-                  <DollarSign className="w-6 h-6 text-serenity-emerald mx-auto mb-2" />
-                  <div className="text-sm text-muted-foreground">Money Saved</div>
-                  <div className="text-xl font-bold text-serenity-emerald">${moneySaved.toFixed(0)}</div>
+                <div className="glass-card p-3 text-center">
+                  <Clock className="w-5 h-5 text-serenity-sage mx-auto mb-1" />
+                  <div className="text-xs text-muted-foreground">Total Hours</div>
+                  <div className="text-lg font-bold text-serenity-sage">{totalHours.toLocaleString()}</div>
+                </div>
+                
+                <div className="glass-card p-3 text-center">
+                  <DollarSign className="w-5 h-5 text-serenity-emerald mx-auto mb-1" />
+                  <div className="text-xs text-muted-foreground">Money Saved</div>
+                  <div className="text-lg font-bold text-serenity-emerald">${moneySaved.toFixed(0)}</div>
+                </div>
+                
+                <div className="glass-card p-3 text-center">
+                  <Award className="w-5 h-5 text-serenity-gold mx-auto mb-1" />
+                  <div className="text-xs text-muted-foreground">Achievements</div>
+                  <div className="text-lg font-bold text-serenity-gold">{achievements.length}</div>
                 </div>
               </div>
+              
+              {/* Recent Achievements Display */}
+              {achievements.length > 0 && (
+                <div className="mt-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border border-yellow-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Star className="w-4 h-4 text-yellow-600" />
+                    <h4 className="text-sm font-medium text-yellow-800">Recent Achievements</h4>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {achievements.slice(-3).map((achievement, index) => (
+                      <Badge key={index} className="bg-yellow-500 text-white text-xs">
+                        {achievement}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
             </>
           ) : (
             <div className="text-muted-foreground mb-6">
@@ -367,7 +445,7 @@ const SobrietyTracker = () => {
               </label>
               <Input
                 type="date"
-                value={sobrietyDate}
+                value={_sobrietyDate}
                 onChange={(e) => handleDateChange(e.target.value)}
                 disabled={loading}
                 className="w-full"
@@ -397,7 +475,7 @@ const SobrietyTracker = () => {
                   Recovery isn't linear. If you need to reset your counter, that's okay. You're still strong.
                 </p>
                 <Button 
-                  variant="outline" 
+                  _variant="outline" 
                   onClick={handleRelapse}
                   disabled={loading}
                   className="w-full border-serenity-coral text-serenity-coral hover:bg-serenity-coral/10"
@@ -428,14 +506,14 @@ const SobrietyTracker = () => {
               
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">Longest Streak</span>
-                <Badge variant="outline" className="border-serenity-gold text-serenity-gold">
+                <Badge _variant="outline" className="border-serenity-gold text-serenity-gold">
                   {analyticsData.longest_streak_days} days
                 </Badge>
               </div>
               
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">30-Day Rate</span>
-                <Badge variant="outline" className="border-serenity-teal text-serenity-teal">
+                <Badge _variant="outline" className="border-serenity-teal text-serenity-teal">
                   {analyticsData.completion_rate_30_days}%
                 </Badge>
               </div>
@@ -471,6 +549,19 @@ const SobrietyTracker = () => {
             Thank You
           </Button>
         </Card>
+      )}
+
+      {/* New Achievement Notification */}
+      {newAchievement && (
+        <div className="fixed top-4 right-4 z-50 bg-gradient-to-r from-yellow-400 to-orange-500 text-white p-4 rounded-lg shadow-lg animate-bounce">
+          <div className="flex items-center gap-2">
+            <Zap className="w-5 h-5" />
+            <div>
+              <div className="font-bold">New Achievement!</div>
+              <div className="text-sm">{newAchievement}</div>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Crisis Milestone Dialog */}

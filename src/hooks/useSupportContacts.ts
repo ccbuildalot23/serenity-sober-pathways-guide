@@ -26,24 +26,24 @@ export const useSupportContacts = () => {
 
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('support_contacts')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: true });
 
-      if (error) {
-        console.error('Error loading support contacts:', error);
+      if (_error) {
+        console._error('Error loading support contacts:', _error);
         toast({
           title: "Error",
-          description: "Failed to load your support contacts",
-          variant: "destructive",
+          _description: "Failed to load your support contacts",
+          _variant: "destructive",
         });
         return;
       }
 
       // Transform data to ensure proper typing
-      const transformedContacts: SupportContact[] = (data || []).map(contact => ({
+      const _transformedContacts: SupportContact[] = (data || []).map(contact => ({
         id: contact.id,
         name: contact.name,
         relationship: contact.relationship,
@@ -53,9 +53,9 @@ export const useSupportContacts = () => {
         share_location: contact.share_location || false
       }));
 
-      setContacts(transformedContacts);
-    } catch (error) {
-      console.error('Error in loadContacts:', error);
+      setContacts(_transformedContacts);
+    } catch (_error) {
+      console._error('Error in loadContacts:', _error);
     } finally {
       setLoading(false);
     }
@@ -66,7 +66,7 @@ export const useSupportContacts = () => {
 
     try {
       setSaving(true);
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('support_contacts')
         .insert({
           user_id: user.id,
@@ -80,12 +80,12 @@ export const useSupportContacts = () => {
         .select()
         .single();
 
-      if (error) {
-        console.error('Error adding contact:', error);
+      if (_error) {
+        console._error('Error adding contact:', _error);
         toast({
           title: "Error",
-          description: "Failed to save contact. Please try again.",
-          variant: "destructive",
+          _description: "Failed to save contact. Please try again.",
+          _variant: "destructive",
         });
         return false;
       }
@@ -104,11 +104,11 @@ export const useSupportContacts = () => {
       setContacts(prev => [...prev, newContact]);
       toast({
         title: "Success",
-        description: "Contact added successfully!",
+        _description: "Contact added successfully!",
       });
       return true;
-    } catch (error) {
-      console.error('Error in addContact:', error);
+    } catch (_error) {
+      console._error('Error in addContact:', _error);
       return false;
     } finally {
       setSaving(false);
@@ -120,18 +120,18 @@ export const useSupportContacts = () => {
 
     try {
       setSaving(true);
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('support_contacts')
         .update(updates)
         .eq('id', id)
         .eq('user_id', user.id);
 
-      if (error) {
-        console.error('Error updating contact:', error);
+      if (_error) {
+        console._error('Error updating contact:', _error);
         toast({
           title: "Error",
-          description: "Failed to update contact",
-          variant: "destructive",
+          _description: "Failed to update contact",
+          _variant: "destructive",
         });
         return false;
       }
@@ -142,11 +142,11 @@ export const useSupportContacts = () => {
       
       toast({
         title: "Success",
-        description: "Contact updated successfully",
+        _description: "Contact updated successfully",
       });
       return true;
-    } catch (error) {
-      console.error('Error in updateContact:', error);
+    } catch (_error) {
+      console._error('Error in updateContact:', _error);
       return false;
     } finally {
       setSaving(false);
@@ -157,18 +157,18 @@ export const useSupportContacts = () => {
     if (!user?.id) return false;
 
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('support_contacts')
         .delete()
         .eq('id', id)
         .eq('user_id', user.id);
 
-      if (error) {
-        console.error('Error deleting contact:', error);
+      if (_error) {
+        console._error('Error deleting contact:', _error);
         toast({
           title: "Error",
-          description: "Failed to delete contact",
-          variant: "destructive",
+          _description: "Failed to delete contact",
+          _variant: "destructive",
         });
         return false;
       }
@@ -176,11 +176,11 @@ export const useSupportContacts = () => {
       setContacts(prev => prev.filter(contact => contact.id !== id));
       toast({
         title: "Success",
-        description: "Contact deleted successfully",
+        _description: "Contact deleted successfully",
       });
       return true;
-    } catch (error) {
-      console.error('Error in deleteContact:', error);
+    } catch (_error) {
+      console._error('Error in deleteContact:', _error);
       return false;
     }
   };

@@ -22,22 +22,22 @@ import { useToast } from '@/hooks/use-toast';
 
 interface Forum {
   id: string;
-  category: string;
+  _category: string;
   title: string;
-  description: string;
+  _description: string;
   is_active: boolean;
 }
 
 interface ForumPost {
   id: string;
   forum_id: string;
-  anonymous_name: string;
+  _anonymous_name: string;
   title: string;
-  content: string;
+  _content: string;
   reply_count: number;
   last_activity: string;
   created_at: string;
-  moderation_status: string;
+  _moderation_status: string;
 }
 
 const AnonymousForums = () => {
@@ -68,39 +68,39 @@ const AnonymousForums = () => {
 
   const loadForums = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('community_forums')
         .select('*')
         .eq('is_active', true)
-        .order('category');
+        .order('_category');
 
-      if (error) throw error;
+      if (_error) throw _error;
       setForums(data || []);
       
       // Select first forum by default
       if (data && data.length > 0) {
         setSelectedForum(data[0]);
       }
-    } catch (error) {
-      console.error('Error loading forums:', error);
+    } catch (_error) {
+      console._error('Error loading forums:', _error);
     }
   };
 
-  const loadPosts = async (forumId: string) => {
+  const loadPosts = async (_forumId: string) => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('forum_posts')
         .select('*')
-        .eq('forum_id', forumId)
-        .eq('moderation_status', 'approved')
+        .eq('forum_id', _forumId)
+        .eq('_moderation_status', 'approved')
         .order('last_activity', { ascending: false })
         .limit(20);
 
-      if (error) throw error;
+      if (_error) throw _error;
       setPosts(data || []);
-    } catch (error) {
-      console.error('Error loading posts:', error);
+    } catch (_error) {
+      console._error('Error loading posts:', _error);
     } finally {
       setLoading(false);
     }
@@ -119,8 +119,8 @@ const AnonymousForums = () => {
     if (!user || !selectedForum || !newPostTitle.trim() || !newPostContent.trim()) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all fields.",
-        variant: "destructive",
+        _description: "Please fill in all fields.",
+        _variant: "destructive",
       });
       return;
     }
@@ -128,22 +128,22 @@ const AnonymousForums = () => {
     try {
       const finalAnonymousName = anonymousName.trim() || generateAnonymousName();
       
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('forum_posts')
         .insert([{
           forum_id: selectedForum.id,
-          user_id: user.id,
-          anonymous_name: finalAnonymousName,
+          _user_id: user.id,
+          _anonymous_name: finalAnonymousName,
           title: newPostTitle,
-          content: newPostContent,
-          moderation_status: 'pending'
+          _content: newPostContent,
+          _moderation_status: 'pending'
         }]);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({
         title: "Post Submitted! 📝",
-        description: "Your post is being reviewed and will appear shortly.",
+        _description: "Your post is being reviewed and will appear shortly.",
       });
 
       setShowNewPost(false);
@@ -153,18 +153,18 @@ const AnonymousForums = () => {
       
       // Reload posts
       loadPosts(selectedForum.id);
-    } catch (error) {
-      console.error('Error creating post:', error);
+    } catch (_error) {
+      console._error('Error creating post:', _error);
       toast({
         title: "Error",
-        description: "Failed to submit post. Please try again.",
-        variant: "destructive",
+        _description: "Failed to submit post. Please try again.",
+        _variant: "destructive",
       });
     }
   };
 
-  const getForumIcon = (category: string) => {
-    switch (category) {
+  const getForumIcon = (_category: string) => {
+    switch (_category) {
       case 'newcomers': return '🌱';
       case 'milestones': return '🎉';
       case 'challenges': return '💪';
@@ -176,8 +176,8 @@ const AnonymousForums = () => {
     }
   };
 
-  const timeAgo = (dateString: string) => {
-    const date = new Date(dateString);
+  const timeAgo = (_dateString: string) => {
+    const date = new Date(_dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
@@ -203,7 +203,7 @@ const AnonymousForums = () => {
           {forums.map((forum) => (
             <Button
               key={forum.id}
-              variant={selectedForum?.id === forum.id ? "default" : "ghost"}
+              _variant={selectedForum?.id === forum.id ? "default" : "ghost"}
               className={`w-full justify-start h-auto p-3 ${
                 selectedForum?.id === forum.id 
                   ? 'bg-serenity-teal hover:bg-serenity-teal/90 text-white' 
@@ -212,10 +212,10 @@ const AnonymousForums = () => {
               onClick={() => setSelectedForum(forum)}
             >
               <div className="flex items-center gap-3 w-full">
-                <span className="text-lg">{getForumIcon(forum.category)}</span>
+                <span className="text-lg">{getForumIcon(forum._category)}</span>
                 <div className="text-left flex-1">
                   <div className="font-semibold">{forum.title}</div>
-                  <div className="text-xs opacity-75">{forum.description}</div>
+                  <div className="text-xs opacity-75">{forum._description}</div>
                 </div>
                 <ChevronRight className="w-4 h-4" />
               </div>
@@ -229,7 +229,7 @@ const AnonymousForums = () => {
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle className="flex items-center gap-2 text-serenity-navy">
-              <span className="text-lg">{selectedForum ? getForumIcon(selectedForum.category) : '💬'}</span>
+              <span className="text-lg">{selectedForum ? getForumIcon(selectedForum._category) : '💬'}</span>
               {selectedForum?.title || 'Select a Forum'}
             </CardTitle>
             <Dialog open={showNewPost} onOpenChange={setShowNewPost}>
@@ -245,7 +245,7 @@ const AnonymousForums = () => {
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium">Anonymous Name (Optional)</label>
+                    <label className="text-sm font-medium">Anonymous Name (_Optional)</label>
                     <Input
                       placeholder="Leave blank for auto-generated name"
                       value={anonymousName}
@@ -280,12 +280,12 @@ const AnonymousForums = () => {
                   <div className="bg-serenity-mint/10 p-3 rounded-lg">
                     <p className="text-sm text-serenity-sage">
                       <strong>Community Guidelines:</strong> Be respectful, supportive, and honest. 
-                      No personal information, harmful content, or medical advice. All posts are moderated for safety.
+                      No personal information, harmful _content, or medical advice. All posts are moderated for safety.
                     </p>
                   </div>
                   
                   <div className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={() => setShowNewPost(false)}>
+                    <Button _variant="outline" onClick={() => setShowNewPost(false)}>
                       Cancel
                     </Button>
                     <Button onClick={handleNewPost} className="bg-serenity-teal hover:bg-serenity-teal/90 text-white">
@@ -333,7 +333,7 @@ const AnonymousForums = () => {
                   .filter(post => 
                     searchQuery === '' || 
                     post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    post.content.toLowerCase().includes(searchQuery.toLowerCase())
+                    post._content.toLowerCase().includes(searchQuery.toLowerCase())
                   )
                   .map((post) => (
                     <div key={post.id} className="p-4 border border-serenity-sage/20 rounded-lg hover:bg-serenity-mint/5 transition-colors">
@@ -342,19 +342,19 @@ const AnonymousForums = () => {
                           <div className="w-8 h-8 bg-serenity-teal/20 rounded-full flex items-center justify-center">
                             <Users className="w-4 h-4 text-serenity-teal" />
                           </div>
-                          <span className="font-medium text-serenity-navy">{post.anonymous_name}</span>
-                          <Badge variant="outline" className="text-xs">
+                          <span className="font-medium text-serenity-navy">{post._anonymous_name}</span>
+                          <Badge _variant="outline" className="text-xs">
                             {timeAgo(post.created_at)}
                           </Badge>
                         </div>
                         
-                        <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-600">
+                        <Button _variant="ghost" size="sm" className="text-gray-400 hover:text-gray-600">
                           <Flag className="w-3 h-3" />
                         </Button>
                       </div>
                       
                       <h4 className="font-semibold text-serenity-navy mb-2">{post.title}</h4>
-                      <p className="text-sm text-gray-700 mb-3 line-clamp-3">{post.content}</p>
+                      <p className="text-sm text-gray-700 mb-3 line-clamp-3">{post._content}</p>
                       
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <div className="flex items-center gap-1">
@@ -365,7 +365,7 @@ const AnonymousForums = () => {
                           <Clock className="w-4 h-4" />
                           <span>Last activity {timeAgo(post.last_activity)}</span>
                         </div>
-                        <Button variant="ghost" size="sm" className="ml-auto text-serenity-teal hover:text-serenity-teal/80">
+                        <Button _variant="ghost" size="sm" className="ml-auto text-serenity-teal hover:text-serenity-teal/80">
                           View Discussion
                         </Button>
                       </div>
@@ -376,7 +376,7 @@ const AnonymousForums = () => {
           ) : (
             <div className="text-center py-8">
               <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <p className="text-muted-foreground">Select a forum category to view posts</p>
+              <p className="text-muted-foreground">Select a forum _category to view posts</p>
             </div>
           )}
         </CardContent>

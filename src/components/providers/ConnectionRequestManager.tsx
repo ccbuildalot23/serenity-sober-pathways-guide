@@ -3,7 +3,7 @@ import { Clock, Check, X, MessageSquare, User, Calendar } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ProviderService } from '@/services/providerService';
@@ -12,9 +12,9 @@ import { useToast } from '@/hooks/use-toast';
 
 export const ConnectionRequestManager: React.FC = () => {
   const [requests, setRequests] = useState<ProviderConnectionRequest[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [responseMessage, setResponseMessage] = useState('');
-  const [selectedRequest, setSelectedRequest] = useState<string | null>(null);
+  const [_loading, setLoading] = useState(true);
+  const [_responseMessage, setResponseMessage] = useState('');
+  const [selectedRequest, setSelectedRequest] = useState<string | _null>(_null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -23,38 +23,38 @@ export const ConnectionRequestManager: React.FC = () => {
 
   const loadRequests = async () => {
     try {
-      const data = await ProviderService.getMyConnectionRequests();
-      setRequests(data);
-    } catch (error) {
-      console.error('Failed to load connection requests:', error);
+      const _data = await ProviderService.getMyConnectionRequests();
+      setRequests(_data);
+    } catch (_error) {
+      console._error('Failed to load connection requests:', _error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleResponse = async (requestId: string, status: 'approved' | 'declined') => {
+  const handleResponse = async (_requestId: string, _status: 'approved' | 'declined') => {
     try {
-      await ProviderService.respondToConnectionRequest(requestId, status, responseMessage);
+      await ProviderService.respondToConnectionRequest(_requestId, _status, _responseMessage);
       
       toast({
-        title: status === 'approved' ? 'Connection approved' : 'Connection declined',
-        description: `You have ${status} the connection request.`
+        title: _status === 'approved' ? 'Connection approved' : 'Connection declined',
+        _description: `You have ${_status} the connection request.`
       });
 
-      setSelectedRequest(null);
+      setSelectedRequest(_null);
       setResponseMessage('');
       loadRequests(); // Refresh the list
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: 'Error',
-        description: 'Failed to respond to connection request.',
-        variant: 'destructive'
+        _description: 'Failed to respond to connection request.',
+        _variant: 'destructive'
       });
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
+  const getStatusColor = (_status: string) => {
+    switch (_status) {
       case 'pending': return 'bg-yellow-100 text-yellow-800';
       case 'approved': return 'bg-green-100 text-green-800';
       case 'declined': return 'bg-red-100 text-red-800';
@@ -62,8 +62,8 @@ export const ConnectionRequestManager: React.FC = () => {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
+  const getStatusIcon = (_status: string) => {
+    switch (_status) {
       case 'pending': return <Clock className="w-4 h-4" />;
       case 'approved': return <Check className="w-4 h-4" />;
       case 'declined': return <X className="w-4 h-4" />;
@@ -71,7 +71,7 @@ export const ConnectionRequestManager: React.FC = () => {
     }
   };
 
-  if (loading) {
+  if (_loading) {
     return (
       <Card>
         <CardContent className="flex items-center justify-center py-8">
@@ -115,10 +115,10 @@ export const ConnectionRequestManager: React.FC = () => {
                     </div>
                   </div>
                   
-                  <Badge className={getStatusColor(request.status)}>
+                  <Badge className={getStatusColor(request._status)}>
                     <div className="flex items-center gap-1">
-                      {getStatusIcon(request.status)}
-                      {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                      {getStatusIcon(request._status)}
+                      {request._status.charAt(0).toUpperCase() + request._status.slice(1)}
                     </div>
                   </Badge>
                 </div>
@@ -137,7 +137,7 @@ export const ConnectionRequestManager: React.FC = () => {
                 )}
 
                 <div className="space-y-2">
-                  <h4 className="text-sm font-medium">Requested data sharing:</h4>
+                  <h4 className="text-sm font-medium">Requested _data sharing:</h4>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div className="flex items-center gap-2">
                       {request.share_daily_checkins ? (
@@ -153,7 +153,7 @@ export const ConnectionRequestManager: React.FC = () => {
                       ) : (
                         <X className="w-4 h-4 text-red-600" />
                       )}
-                      Mood data
+                      Mood _data
                     </div>
                     <div className="flex items-center gap-2">
                       {request.share_goal_progress ? (
@@ -174,7 +174,7 @@ export const ConnectionRequestManager: React.FC = () => {
                   </div>
                 </div>
 
-                {request.status === 'pending' && (
+                {request._status === 'pending' && (
                   <div className="flex gap-2 pt-2">
                     <Dialog>
                       <DialogTrigger asChild>
@@ -192,13 +192,13 @@ export const ConnectionRequestManager: React.FC = () => {
                         </DialogHeader>
                         <div className="space-y-4">
                           <p className="text-sm text-muted-foreground">
-                            You're about to approve this connection request. The patient will be able to share their selected data with you.
+                            You're about to approve this connection request. The patient will be able to share their selected _data with you.
                           </p>
                           <div>
-                            <label className="text-sm font-medium">Response message (optional)</label>
+                            <label className="text-sm font-medium">Response message (_optional)</label>
                             <Textarea
                               placeholder="Welcome! I look forward to working with you..."
-                              value={responseMessage}
+                              value={_responseMessage}
                               onChange={(e) => setResponseMessage(e.target.value)}
                               className="mt-1"
                             />
@@ -210,7 +210,7 @@ export const ConnectionRequestManager: React.FC = () => {
                             >
                               Approve Connection
                             </Button>
-                            <Button variant="outline" onClick={() => setSelectedRequest(null)}>
+                            <Button _variant="outline" onClick={() => setSelectedRequest(_null)}>
                               Cancel
                             </Button>
                           </div>
@@ -221,7 +221,7 @@ export const ConnectionRequestManager: React.FC = () => {
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button 
-                          variant="outline" 
+                          _variant="outline" 
                           size="sm"
                           onClick={() => setSelectedRequest(request.id)}
                         >
@@ -235,23 +235,23 @@ export const ConnectionRequestManager: React.FC = () => {
                         </DialogHeader>
                         <div className="space-y-4">
                           <div>
-                            <label className="text-sm font-medium">Reason for declining (optional)</label>
+                            <label className="text-sm font-medium">Reason for declining (_optional)</label>
                             <Textarea
                               placeholder="Thank you for your interest. Unfortunately..."
-                              value={responseMessage}
+                              value={_responseMessage}
                               onChange={(e) => setResponseMessage(e.target.value)}
                               className="mt-1"
                             />
                           </div>
                           <div className="flex gap-3">
                             <Button 
-                              variant="destructive"
+                              _variant="destructive"
                               onClick={() => handleResponse(request.id, 'declined')}
                               className="flex-1"
                             >
                               Decline Request
                             </Button>
-                            <Button variant="outline" onClick={() => setSelectedRequest(null)}>
+                            <Button _variant="outline" onClick={() => setSelectedRequest(_null)}>
                               Cancel
                             </Button>
                           </div>

@@ -37,17 +37,17 @@ export interface CheckinStats {
 class EnhancedCheckinService {
   private readonly STORAGE_KEY = 'offline_checkin_data';
 
-  async saveCheckin(checkinData: CheckinData, assessments: AssessmentData[] = []): Promise<{ success: boolean; data?: any; error?: string }> {
+  async saveCheckin(checkinData: CheckinData, assessments: AssessmentData[] = []): Promise<{ success: boolean; _data?: unknown; _error?: string }> {
     try {
       // Save to localStorage first for offline support
       this.saveToLocalStorage(checkinData, assessments);
 
       // Attempt to save to Supabase
-      const { data: savedCheckin, error: checkinError } = await supabase
+      const { _data: savedCheckin, _error: checkinError } = await supabase
         .from('daily_checkins')
         .upsert({
           ...checkinData,
-          completed_sections: JSON.stringify(['mood', 'wellness', 'assessments']),
+          _completed_sections: JSON.stringify(['mood', 'wellness', 'assessments']),
         }, {
           onConflict: 'user_id,checkin_date'
         })
@@ -58,14 +58,14 @@ class EnhancedCheckinService {
 
       // Save assessments if provided
       if (assessments.length > 0) {
-        const assessmentRecords = assessments.map(assessment => ({
+        const _assessmentRecords = assessments.map(assessment => ({
           checkin_id: savedCheckin.id,
           ...assessment
         }));
 
-        const { error: assessmentError } = await supabase
+        const { _error: assessmentError } = await supabase
           .from('checkin_assessments')
-          .upsert(assessmentRecords);
+          .upsert(_assessmentRecords);
 
         if (assessmentError) throw assessmentError;
       }
@@ -74,21 +74,21 @@ class EnhancedCheckinService {
       this.clearLocalStorage(checkinData.checkin_date);
 
       toast.success('Daily check-in saved successfully!');
-      return { success: true, data: savedCheckin };
+      return { success: true, _data: savedCheckin };
 
-    } catch (error) {
-      console.error('Error saving checkin:', error);
-      toast.error('Unable to save online. Data saved locally and will sync when connection is restored.');
-      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    } catch (_error) {
+      console._error('Error saving checkin:', _error);
+      toast._error('Unable to save online. Data saved locally and will sync when connection is restored.');
+      return { success: false, _error: _error instanceof Error ? _error.message : 'Unknown _error' };
     }
   }
 
-  async loadCheckinHistory(userId: string, days: number = 30): Promise<any[]> {
+  async loadCheckinHistory(userId: string, days: number = 30): Promise<unknown[]> {
     try {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
 
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('daily_checkins')
         .select(`
           *,
@@ -98,12 +98,12 @@ class EnhancedCheckinService {
         .gte('checkin_date', startDate.toISOString().split('T')[0])
         .order('checkin_date', { ascending: false });
 
-      if (error) throw error;
-      return data || [];
+      if (_error) throw _error;
+      return _data || [];
 
-    } catch (error) {
-      console.error('Error loading checkin history:', error);
-      toast.error('Unable to load check-in history');
+    } catch (_error) {
+      console._error('Error loading checkin history:', _error);
+      toast._error('Unable to load check-in history');
       return [];
     }
   }
@@ -111,7 +111,7 @@ class EnhancedCheckinService {
   async getCheckinStats(userId: string): Promise<CheckinStats> {
     try {
       // Get stats from the stats table
-      const { data: statsData, error: statsError } = await supabase
+      const { _data: statsData, _error: statsError } = await supabase
         .from('checkin_stats')
         .select('*')
         .eq('user_id', userId)
@@ -134,8 +134,8 @@ class EnhancedCheckinService {
         completion_rate_30_days: rate30
       };
 
-    } catch (error) {
-      console.error('Error getting checkin stats:', error);
+    } catch (_error) {
+      console._error('Error getting checkin stats:', _error);
       return {
         total_checkins: 0,
         streak_count: 0,
@@ -152,20 +152,20 @@ class EnhancedCheckinService {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
 
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('daily_checkins')
         .select('checkin_date')
         .eq('user_id', userId)
         .eq('is_complete', true)
         .gte('checkin_date', startDate.toISOString().split('T')[0]);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
-      const completedDays = data?.length || 0;
+      const completedDays = _data?.length || 0;
       return Math.round((completedDays / days) * 100);
 
-    } catch (error) {
-      console.error(`Error calculating ${days}-day completion rate:`, error);
+    } catch (_error) {
+      console._error(`Error calculating ${days}-day completion rate:`, _error);
       return 0;
     }
   }
@@ -174,18 +174,18 @@ class EnhancedCheckinService {
     try {
       const offlineData = this.getOfflineData();
       
-      for (const [date, data] of Object.entries(offlineData)) {
-        if (data.checkinData.user_id === userId) {
-          await this.saveCheckin(data.checkinData, data.assessments);
+      for (const [date, _data] of Object.entries(offlineData)) {
+        if (_data.checkinData.user_id === userId) {
+          await this.saveCheckin(_data.checkinData, _data.assessments);
         }
       }
 
       localStorage.removeItem(this.STORAGE_KEY);
-      toast.success('Offline data synced successfully!');
+      toast.success('Offline _data synced successfully!');
 
-    } catch (error) {
-      console.error('Error syncing offline data:', error);
-      toast.error('Some offline data could not be synced');
+    } catch (_error) {
+      console._error('Error syncing offline _data:', _error);
+      toast._error('Some offline _data could not be synced');
     }
   }
 
@@ -198,17 +198,17 @@ class EnhancedCheckinService {
         timestamp: new Date().toISOString()
       };
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(offlineData));
-    } catch (error) {
-      console.error('Error saving to localStorage:', error);
+    } catch (_error) {
+      console._error('Error saving to localStorage:', _error);
     }
   }
 
   private getOfflineData(): Record<string, any> {
     try {
-      const data = localStorage.getItem(this.STORAGE_KEY);
-      return data ? JSON.parse(data) : {};
-    } catch (error) {
-      console.error('Error reading from localStorage:', error);
+      const _data = localStorage.getItem(this.STORAGE_KEY);
+      return _data ? JSON.parse(_data) : {};
+    } catch (_error) {
+      console._error('Error reading from localStorage:', _error);
       return {};
     }
   }
@@ -218,8 +218,8 @@ class EnhancedCheckinService {
       const offlineData = this.getOfflineData();
       delete offlineData[date];
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(offlineData));
-    } catch (error) {
-      console.error('Error clearing localStorage:', error);
+    } catch (_error) {
+      console._error('Error clearing localStorage:', _error);
     }
   }
 

@@ -1,5 +1,4 @@
 
-import { supabase } from '@/integrations/supabase/client';
 import { NotificationSettings } from './notification/types';
 import { scheduleAllSecure, clearScheduled } from './notification/secureScheduling';
 import { handleActionClick, logNotificationScheduled } from './notification/handlers';
@@ -27,40 +26,40 @@ class NotificationServiceClass {
       // Log permission request
       await EnhancedSecurityMonitoringService.logSecurityEvent({
         eventType: 'NOTIFICATION_PERMISSION_REQUESTED',
-        severity: 'low',
-        details: { permission_granted: permission === 'granted' }
+        _severity: 'low',
+        _details: { permission_granted: permission === 'granted' }
       });
       
       return permission;
-    } catch (error) {
-      console.error('Error requesting notification permission:', error);
+    } catch (_error) {
+      console._error('Error requesting notification permission:', _error);
       return 'denied';
     }
   }
 
-  async scheduleAll(settings: NotificationSettings, userId: string): Promise<void> {
-    await scheduleAllSecure(settings, userId);
-    await logNotificationScheduled(settings);
+  async scheduleAll(_settings: NotificationSettings, _userId: string): Promise<void> {
+    await scheduleAllSecure(_settings, _userId);
+    await logNotificationScheduled(_settings);
   }
 
   clearScheduled(): void {
     clearScheduled();
   }
 
-  async handleActionClick(action: string, data?: any): Promise<void> {
-    return handleActionClick(action, data);
+  async handleActionClick(_action: string, _data?: unknown): Promise<void> {
+    return handleActionClick(_action, _data);
   }
 
   getPermissionStatus(): NotificationPermission {
     return Notification.permission;
   }
 
-  async loadSecureSettings(userId: string): Promise<NotificationSettings | null> {
-    return SecureNotificationPreferencesService.loadPreferences(userId);
+  async loadSecureSettings(_userId: string): Promise<NotificationSettings | null> {
+    return SecureNotificationPreferencesService.loadPreferences(_userId);
   }
 
-  async deleteSecureSettings(userId: string): Promise<void> {
-    return SecureNotificationPreferencesService.deletePreferences(userId);
+  async deleteSecureSettings(_userId: string): Promise<void> {
+    return SecureNotificationPreferencesService.deletePreferences(_userId);
   }
 }
 

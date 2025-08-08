@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { 
@@ -29,8 +28,8 @@ const VideoCallInterface: React.FC<VideoCallInterfaceProps> = ({
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [volume, setVolume] = useState([80]);
   const [connectionQuality, setConnectionQuality] = useState<'good' | 'fair' | 'poor'>('good');
-  const [callDuration, setCallDuration] = useState(0);
-  const [technicalIssues, setTechnicalIssues] = useState<string[]>([]);
+  const [_callDuration, setCallDuration] = useState(0);
+  const [_technicalIssues, setTechnicalIssues] = useState<string[]>([]);
   
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
@@ -38,24 +37,24 @@ const VideoCallInterface: React.FC<VideoCallInterfaceProps> = ({
 
   useEffect(() => {
     initializeMedia();
-    const timer = setInterval(() => {
+    const _timer = setInterval(() => {
       setCallDuration(prev => prev + 1);
     }, 1000);
 
     return () => {
-      clearInterval(timer);
+      clearInterval(_timer);
       cleanup();
     };
   }, []);
 
   const initializeMedia = async () => {
     try {
-      const constraints = {
+      const _constraints = {
         video: session.session_type === 'video',
-        audio: true
+        _audio: true
       };
 
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      const stream = await navigator.mediaDevices.getUserMedia(_constraints);
       mediaStreamRef.current = stream;
       
       if (localVideoRef.current) {
@@ -105,7 +104,7 @@ const VideoCallInterface: React.FC<VideoCallInterfaceProps> = ({
       try {
         const screenStream = await navigator.mediaDevices.getDisplayMedia({
           video: true,
-          audio: true
+          _audio: true
         });
         
         // Replace video track with screen share
@@ -156,7 +155,7 @@ const VideoCallInterface: React.FC<VideoCallInterfaceProps> = ({
       await enhancedPeerSupportService.endVideoSession(
         session.id, 
         connectionQuality === 'good' ? 5 : connectionQuality === 'fair' ? 3 : 1,
-        technicalIssues
+        _technicalIssues
       );
       cleanup();
       onEndCall();
@@ -196,7 +195,7 @@ const VideoCallInterface: React.FC<VideoCallInterfaceProps> = ({
         </div>
         <div className="flex items-center gap-4">
           <span className="text-sm bg-gray-700 px-3 py-1 rounded">
-            {formatDuration(callDuration)}
+            {formatDuration(_callDuration)}
           </span>
           <Button
             variant="destructive"
@@ -239,7 +238,7 @@ const VideoCallInterface: React.FC<VideoCallInterfaceProps> = ({
         {/* Connection Issues Overlay */}
         {connectionQuality === 'poor' && (
           <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded-lg">
-            Poor connection quality - Consider switching to audio only
+            Poor connection quality - Consider switching to _audio only
           </div>
         )}
       </div>

@@ -1,5 +1,5 @@
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Filter, AlertCircle, Heart, Phone, Plus, Users, BarChart } from 'lucide-react';
 import { ProviderCard } from '@/components/clinical/ProviderCard';
@@ -17,7 +17,7 @@ import { sampleClinicians } from '@/data/sampleClinicians';
 export default function ClinicalDirectory() {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState<FilterType>({
+  const [_filters, setFilters] = useState<FilterType>({
     searchTerm: '',
     state: '',
     specialty: '',
@@ -35,15 +35,15 @@ export default function ClinicalDirectory() {
   useEffect(() => {
     loadProviders();
     loadSavedProviders();
-  }, [filters]);
+  }, [_filters]);
 
   const loadProviders = async () => {
     try {
       setLoading(true);
-      const data = await ProviderService.searchProviders(filters);
+      const data = await ProviderService.searchProviders(_filters);
       setProviders(data);
-    } catch (error) {
-      console.error('Failed to load providers:', error);
+    } catch (_error) {
+      console._error('Failed to load providers:', _error);
       // Fallback to sample data
       setProviders(sampleClinicians as any);
     } finally {
@@ -55,7 +55,7 @@ export default function ClinicalDirectory() {
     try {
       const saved = await ProviderService.getSavedProviders();
       setSavedProviders(saved.map(p => p.id));
-    } catch (error) {
+    } catch (_error) {
       // Fallback to localStorage
       const saved = localStorage.getItem('savedClinicians');
       setSavedProviders(saved ? JSON.parse(saved) : []);
@@ -68,7 +68,7 @@ export default function ClinicalDirectory() {
       setSavedProviders(prev => 
         isSaved ? [...prev, id] : prev.filter(p => p !== id)
       );
-    } catch (error) {
+    } catch (_error) {
       // Fallback to localStorage
       setSavedProviders(prev => {
         const updated = prev.includes(id) 
@@ -156,7 +156,7 @@ export default function ClinicalDirectory() {
 
           <TabsContent value="search" className="space-y-6">
             <ProviderSearchFilters
-              filters={filters}
+              _filters={_filters}
               onFiltersChange={setFilters}
               resultsCount={providers.length}
               showFilters={showFilters}
@@ -195,7 +195,7 @@ export default function ClinicalDirectory() {
                     <CardContent className="text-center py-12">
                       <Search className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                       <p className="text-muted-foreground">
-                        No providers found matching your criteria. Try adjusting your filters.
+                        No providers found matching your criteria. Try adjusting your _filters.
                       </p>
                     </CardContent>
                   </Card>

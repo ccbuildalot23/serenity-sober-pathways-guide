@@ -1,11 +1,10 @@
 
 import { debugService } from './debugService';
-import { enhancedSMSService } from './enhancedSMSService';
 
 export interface EmergencyProcedure {
   id: string;
   type: 'system_failure' | 'mass_alert' | 'data_breach' | 'service_degradation';
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  _severity: 'low' | 'medium' | 'high' | 'critical';
   description: string;
   steps: string[];
   estimatedDuration: number; // minutes
@@ -16,7 +15,7 @@ export interface EmergencyResponse {
   procedureId: string;
   startTime: Date;
   status: 'initiated' | 'in_progress' | 'completed' | 'failed';
-  completedSteps: number;
+  _completedSteps: number;
   notifications: string[];
   logs: string[];
 }
@@ -27,7 +26,7 @@ class EmergencyProceduresService {
     {
       id: 'system_failure_complete',
       type: 'system_failure',
-      severity: 'critical',
+      _severity: 'critical',
       description: 'Complete system failure - all services down',
       steps: [
         'Switch to static emergency page',
@@ -43,11 +42,11 @@ class EmergencyProceduresService {
     {
       id: 'mass_alert_scenario',
       type: 'mass_alert',
-      severity: 'high',
+      _severity: 'high',
       description: 'Multiple crisis alerts triggered simultaneously',
       steps: [
         'Implement queue system',
-        'Prioritize based on severity',
+        'Prioritize based on _severity',
         'Use batch sending',
         'Monitor delivery rates',
         'Scale SMS capacity',
@@ -59,7 +58,7 @@ class EmergencyProceduresService {
     {
       id: 'data_breach_response',
       type: 'data_breach',
-      severity: 'critical',
+      _severity: 'critical',
       description: 'Potential data breach detected',
       steps: [
         'Immediately revoke affected tokens',
@@ -76,7 +75,7 @@ class EmergencyProceduresService {
     {
       id: 'service_degradation',
       type: 'service_degradation',
-      severity: 'medium',
+      _severity: 'medium',
       description: 'Service performance degradation detected',
       steps: [
         'Enable performance monitoring',
@@ -90,18 +89,18 @@ class EmergencyProceduresService {
     }
   ];
 
-  async triggerEmergencyProcedure(procedureId: string, metadata?: any): Promise<string> {
+  async triggerEmergencyProcedure(procedureId: string, metadata?: unknown): Promise<string> {
     const procedure = this.procedures.find(p => p.id === procedureId);
     if (!procedure) {
       throw new Error(`Unknown emergency procedure: ${procedureId}`);
     }
 
-    const responseId = `emergency_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const _responseId = `emergency_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
     debugService.log('critical', 'Emergency procedure triggered', {
       procedureId,
-      responseId,
-      severity: procedure.severity,
+      _responseId,
+      _severity: procedure._severity,
       metadata
     });
 
@@ -109,30 +108,30 @@ class EmergencyProceduresService {
       procedureId,
       startTime: new Date(),
       status: 'initiated',
-      completedSteps: 0,
+      _completedSteps: 0,
       notifications: [],
       logs: [`Emergency procedure ${procedureId} initiated at ${new Date().toISOString()}`]
     };
 
-    this.activeProcedures.set(responseId, response);
+    this.activeProcedures.set(_responseId, response);
 
     if (procedure.requiresApproval) {
-      await this.requestApproval(procedure, responseId);
+      await this.requestApproval(procedure, _responseId);
     } else {
-      await this.executeProcedure(responseId);
+      await this.executeProcedure(_responseId);
     }
 
-    return responseId;
+    return _responseId;
   }
 
-  private async requestApproval(procedure: EmergencyProcedure, responseId: string): Promise<void> {
+  private async requestApproval(procedure: EmergencyProcedure, _responseId: string): Promise<void> {
     debugService.log('critical', 'Emergency procedure requires approval', {
       procedureId: procedure.id,
-      responseId
+      _responseId
     });
 
     // In a real implementation, this would send notifications to designated approvers
-    const response = this.activeProcedures.get(responseId)!;
+    const response = this.activeProcedures.get(_responseId)!;
     response.notifications.push(`Approval requested for ${procedure.description}`);
     response.logs.push(`Approval requested at ${new Date().toISOString()}`);
 
@@ -140,27 +139,27 @@ class EmergencyProceduresService {
     setTimeout(() => {
       if (response.status === 'initiated') {
         debugService.log('critical', 'Auto-approving emergency procedure due to timeout', {
-          responseId
+          _responseId
         });
-        this.executeProcedure(responseId);
+        this.executeProcedure(_responseId);
       }
     }, 5 * 60 * 1000);
   }
 
-  async approveProcedure(responseId: string): Promise<void> {
-    const response = this.activeProcedures.get(responseId);
+  async approveProcedure(_responseId: string): Promise<void> {
+    const response = this.activeProcedures.get(_responseId);
     if (!response || response.status !== 'initiated') {
       throw new Error('Invalid or already processed emergency response');
     }
 
-    debugService.log('critical', 'Emergency procedure approved', { responseId });
+    debugService.log('critical', 'Emergency procedure approved', { _responseId });
     response.logs.push(`Procedure approved at ${new Date().toISOString()}`);
     
-    await this.executeProcedure(responseId);
+    await this.executeProcedure(_responseId);
   }
 
-  private async executeProcedure(responseId: string): Promise<void> {
-    const response = this.activeProcedures.get(responseId)!;
+  private async executeProcedure(_responseId: string): Promise<void> {
+    const response = this.activeProcedures.get(_responseId)!;
     const procedure = this.procedures.find(p => p.id === response.procedureId)!;
 
     response.status = 'in_progress';
@@ -168,24 +167,24 @@ class EmergencyProceduresService {
 
     debugService.log('critical', 'Executing emergency procedure', {
       procedureId: procedure.id,
-      responseId,
-      totalSteps: procedure.steps.length
+      _responseId,
+      _totalSteps: procedure.steps.length
     });
 
     try {
       for (let i = 0; i < procedure.steps.length; i++) {
-        const step = procedure.steps[i];
+        const _step = procedure.steps[i];
         
-        debugService.log('critical', 'Executing emergency step', {
-          responseId,
-          stepIndex: i + 1,
-          step
+        debugService.log('critical', 'Executing emergency _step', {
+          _responseId,
+          _stepIndex: i + 1,
+          _step
         });
 
-        await this.executeStep(procedure.type, step);
+        await this.executeStep(procedure.type, _step);
         
-        response.completedSteps = i + 1;
-        response.logs.push(`Step ${i + 1} completed: ${step}`);
+        response._completedSteps = i + 1;
+        response.logs.push(`Step ${i + 1} completed: ${_step}`);
 
         // Small delay between steps
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -195,9 +194,9 @@ class EmergencyProceduresService {
       response.logs.push(`Procedure completed at ${new Date().toISOString()}`);
       
       debugService.log('critical', 'Emergency procedure completed successfully', {
-        responseId,
-        totalSteps: procedure.steps.length,
-        duration: Date.now() - response.startTime.getTime()
+        _responseId,
+        _totalSteps: procedure.steps.length,
+        _duration: Date.now() - response.startTime.getTime()
       });
 
     } catch (error) {
@@ -205,34 +204,34 @@ class EmergencyProceduresService {
       response.logs.push(`Procedure failed: ${error.message}`);
       
       debugService.log('critical', 'Emergency procedure failed', {
-        responseId,
+        _responseId,
         error: error.message,
-        completedSteps: response.completedSteps
+        _completedSteps: response._completedSteps
       });
       
       throw error;
     }
   }
 
-  private async executeStep(procedureType: EmergencyProcedure['type'], step: string): Promise<void> {
-    switch (procedureType) {
+  private async executeStep(_procedureType: EmergencyProcedure['type'], _step: string): Promise<void> {
+    switch (_procedureType) {
       case 'system_failure':
-        await this.executeSystemFailureStep(step);
+        await this.executeSystemFailureStep(_step);
         break;
       case 'mass_alert':
-        await this.executeMassAlertStep(step);
+        await this.executeMassAlertStep(_step);
         break;
       case 'data_breach':
-        await this.executeDataBreachStep(step);
+        await this.executeDataBreachStep(_step);
         break;
       case 'service_degradation':
-        await this.executeServiceDegradationStep(step);
+        await this.executeServiceDegradationStep(_step);
         break;
     }
   }
 
-  private async executeSystemFailureStep(step: string): Promise<void> {
-    switch (step) {
+  private async executeSystemFailureStep(_step: string): Promise<void> {
+    switch (_step) {
       case 'Switch to static emergency page':
         // In a real implementation, this would switch to a static fallback
         debugService.log('critical', 'Switched to emergency mode');
@@ -255,12 +254,12 @@ class EmergencyProceduresService {
     }
   }
 
-  private async executeMassAlertStep(step: string): Promise<void> {
-    switch (step) {
+  private async executeMassAlertStep(_step: string): Promise<void> {
+    switch (_step) {
       case 'Implement queue system':
         debugService.log('critical', 'SMS queue system activated');
         break;
-      case 'Prioritize based on severity':
+      case 'Prioritize based on _severity':
         debugService.log('critical', 'Alert prioritization enabled');
         break;
       case 'Use batch sending':
@@ -272,8 +271,8 @@ class EmergencyProceduresService {
     }
   }
 
-  private async executeDataBreachStep(step: string): Promise<void> {
-    switch (step) {
+  private async executeDataBreachStep(_step: string): Promise<void> {
+    switch (_step) {
       case 'Immediately revoke affected tokens':
         debugService.log('critical', 'Revoking authentication tokens');
         break;
@@ -289,8 +288,8 @@ class EmergencyProceduresService {
     }
   }
 
-  private async executeServiceDegradationStep(step: string): Promise<void> {
-    switch (step) {
+  private async executeServiceDegradationStep(_step: string): Promise<void> {
+    switch (_step) {
       case 'Enable performance monitoring':
         debugService.log('critical', 'Enhanced performance monitoring enabled');
         break;
@@ -349,8 +348,8 @@ class EmergencyProceduresService {
     return Array.from(this.activeProcedures.values());
   }
 
-  getProcedureStatus(responseId: string): EmergencyResponse | null {
-    return this.activeProcedures.get(responseId) || null;
+  getProcedureStatus(_responseId: string): EmergencyResponse | null {
+    return this.activeProcedures.get(_responseId) || null;
   }
 
   async triggerSystemFailure(): Promise<string> {

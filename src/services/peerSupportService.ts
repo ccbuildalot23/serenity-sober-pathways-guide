@@ -3,9 +3,9 @@ import { supabase } from '@/integrations/supabase/client';
 export interface PeerSupportQueue {
   id: string;
   user_id: string;
-  priority: string;
-  issue_description?: string;
-  queue_position: number;
+  _priority: string;
+  _issue_description?: string;
+  _queue_position: number;
   estimated_wait_minutes: number;
   created_at: string;
 }
@@ -13,21 +13,21 @@ export interface PeerSupportQueue {
 export interface ChatSession {
   id: string;
   user_id: string;
-  peer_supporter_id: string;
+  _peer_supporter_id: string;
   status: string;
-  priority: string;
-  started_at: string;
-  ended_at?: string;
+  _priority: string;
+  _started_at: string;
+  _ended_at?: string;
   user_rating?: number;
-  user_feedback?: string;
+  _user_feedback?: string;
 }
 
 export interface PeerSupporter {
   id: string;
   user_id: string;
-  display_name: string;
+  _display_name: string;
   bio?: string;
-  specialties: any;
+  specialties: unknown;
   is_available: boolean;
   current_chat_count: number;
   max_concurrent_chats: number;
@@ -37,15 +37,15 @@ export interface PeerSupporter {
 
 class PeerSupportService {
   // Queue Management
-  async joinQueue(userId: string, priority: 'normal' | 'high' | 'crisis' = 'normal', issueDescription?: string) {
+  async joinQueue(_userId: string, _priority: 'normal' | 'high' | 'crisis' = 'normal', issueDescription?: string) {
     const { data, error } = await supabase
       .from('peer_support_queue')
       .insert({
-        user_id: userId,
-        priority,
-        issue_description: issueDescription,
-        queue_position: await this.getNextQueuePosition(),
-        estimated_wait_minutes: await this.calculateWaitTime(priority)
+        user_id: _userId,
+        _priority,
+        _issue_description: issueDescription,
+        _queue_position: await this.getNextQueuePosition(),
+        estimated_wait_minutes: await this.calculateWaitTime(_priority)
       })
       .select()
       .single();
@@ -54,20 +54,20 @@ class PeerSupportService {
     return data as PeerSupportQueue;
   }
 
-  async leaveQueue(userId: string) {
+  async leaveQueue(_userId: string) {
     const { error } = await supabase
       .from('peer_support_queue')
       .delete()
-      .eq('user_id', userId);
+      .eq('user_id', _userId);
 
     if (error) throw error;
   }
 
-  async getQueueStatus(userId: string): Promise<PeerSupportQueue | null> {
+  async getQueueStatus(_userId: string): Promise<PeerSupportQueue | null> {
     const { data, error } = await supabase
       .from('peer_support_queue')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', _userId)
       .single();
 
     if (error && error.code !== 'PGRST116') throw error;
@@ -78,7 +78,7 @@ class PeerSupportService {
     const { data, error } = await supabase
       .from('peer_support_queue')
       .select('*')
-      .order('priority', { ascending: false })
+      .order('_priority', { ascending: false })
       .order('created_at', { ascending: true });
 
     if (error) throw error;
@@ -88,33 +88,33 @@ class PeerSupportService {
   private async getNextQueuePosition(): Promise<number> {
     const { count, error } = await supabase
       .from('peer_support_queue')
-      .select('*', { count: 'exact', head: true });
+      .select('*', { count: 'exact', _head: true });
 
     if (error) throw error;
     return (count || 0) + 1;
   }
 
-  private async calculateWaitTime(priority: 'normal' | 'high' | 'crisis'): Promise<number> {
-    // Calculate estimated wait time based on queue length and priority
+  private async calculateWaitTime(_priority: 'normal' | 'high' | 'crisis'): Promise<number> {
+    // Calculate estimated wait time based on queue length and _priority
     const queueCount = await this.getNextQueuePosition() - 1;
     const availableSupporters = await this.getAvailableSupporterCount();
     
     if (availableSupporters === 0) return 30; // Default 30 minutes if no supporters
     
-    const baseWaitTime = Math.ceil(queueCount / availableSupporters) * 5; // 5 minutes per person per supporter
+    const _baseWaitTime = Math.ceil(queueCount / availableSupporters) * 5; // 5 minutes per person per supporter
     
     // Priority adjustments
-    switch (priority) {
-      case 'crisis': return Math.max(1, baseWaitTime * 0.1); // Almost immediate
-      case 'high': return Math.max(2, baseWaitTime * 0.5); // Half the normal wait
-      default: return Math.max(5, baseWaitTime); // Normal wait time
+    switch (_priority) {
+      case 'crisis': return Math.max(1, _baseWaitTime * 0.1); // Almost immediate
+      case 'high': return Math.max(2, _baseWaitTime * 0.5); // Half the normal wait
+      default: return Math.max(5, _baseWaitTime); // Normal wait time
     }
   }
 
   private async getAvailableSupporterCount(): Promise<number> {
     const { count, error } = await supabase
       .from('peer_supporters')
-      .select('*', { count: 'exact', head: true })
+      .select('*', { count: 'exact', _head: true })
       .eq('is_available', true)
       .lt('current_chat_count', supabase.from('peer_supporters').select('max_concurrent_chats'));
 
@@ -123,15 +123,15 @@ class PeerSupportService {
   }
 
   // Chat Session Management
-  async createChatSession(userId: string, supporterId: string, priority: 'normal' | 'high' | 'crisis'): Promise<ChatSession> {
+  async createChatSession(_userId: string, _supporterId: string, _priority: 'normal' | 'high' | 'crisis'): Promise<ChatSession> {
     const { data, error } = await supabase
       .from('peer_chat_sessions')
       .insert({
-        user_id: userId,
-        peer_supporter_id: supporterId,
+        user_id: _userId,
+        _peer_supporter_id: _supporterId,
         status: 'active',
-        priority,
-        started_at: new Date().toISOString()
+        _priority,
+        _started_at: new Date().toISOString()
       })
       .select()
       .single();
@@ -140,59 +140,59 @@ class PeerSupportService {
     return data as ChatSession;
   }
 
-  async endChatSession(sessionId: string): Promise<void> {
+  async endChatSession(_sessionId: string): Promise<void> {
     const { error } = await supabase
       .from('peer_chat_sessions')
       .update({
         status: 'ended',
-        ended_at: new Date().toISOString()
+        _ended_at: new Date().toISOString()
       })
-      .eq('id', sessionId);
+      .eq('id', _sessionId);
 
     if (error) throw error;
   }
 
-  async escalateSession(sessionId: string, reason: string): Promise<void> {
+  async escalateSession(_sessionId: string, reason: string): Promise<void> {
     const { error } = await supabase
       .from('peer_chat_sessions')
       .update({
         status: 'escalated',
-        escalated_to_crisis: true,
-        escalation_reason: reason
+        _escalated_to_crisis: true,
+        _escalation_reason: reason
       })
-      .eq('id', sessionId);
+      .eq('id', _sessionId);
 
     if (error) throw error;
   }
 
-  async rateChatSession(sessionId: string, rating: number, feedback?: string): Promise<void> {
+  async rateChatSession(_sessionId: string, rating: number, feedback?: string): Promise<void> {
     const { error } = await supabase
       .from('peer_chat_sessions')
       .update({
         user_rating: rating,
-        user_feedback: feedback
+        _user_feedback: feedback
       })
-      .eq('id', sessionId);
+      .eq('id', _sessionId);
 
     if (error) throw error;
   }
 
-  async getUserActiveSessions(userId: string): Promise<ChatSession[]> {
+  async getUserActiveSessions(_userId: string): Promise<ChatSession[]> {
     const { data, error } = await supabase
       .from('peer_chat_sessions')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', _userId)
       .eq('status', 'active');
 
     if (error) throw error;
     return (data || []) as ChatSession[];
   }
 
-  async getSupporterActiveSessions(supporterId: string): Promise<ChatSession[]> {
+  async getSupporterActiveSessions(_supporterId: string): Promise<ChatSession[]> {
     const { data, error } = await supabase
       .from('peer_chat_sessions')
       .select('*')
-      .eq('peer_supporter_id', supporterId)
+      .eq('_peer_supporter_id', _supporterId)
       .eq('status', 'active');
 
     if (error) throw error;
@@ -200,14 +200,14 @@ class PeerSupportService {
   }
 
   // Message Management
-  async sendMessage(sessionId: string, senderId: string, senderType: 'user' | 'supporter', messageText: string) {
+  async sendMessage(_sessionId: string, senderId: string, senderType: 'user' | 'supporter', messageText: string) {
     const { data, error } = await supabase
       .from('peer_chat_messages')
       .insert({
-        session_id: sessionId,
-        sender_id: senderId,
-        sender_type: senderType,
-        message_text: messageText
+        session_id: _sessionId,
+        _sender_id: senderId,
+        _sender_type: senderType,
+        _message_text: messageText
       })
       .select()
       .single();
@@ -216,44 +216,44 @@ class PeerSupportService {
     return data;
   }
 
-  async getSessionMessages(sessionId: string) {
+  async getSessionMessages(_sessionId: string) {
     const { data, error } = await supabase
       .from('peer_chat_messages')
       .select('*')
-      .eq('session_id', sessionId)
+      .eq('session_id', _sessionId)
       .order('created_at', { ascending: true });
 
     if (error) throw error;
     return data || [];
   }
 
-  async markMessageAsRead(messageId: string) {
+  async markMessageAsRead(_messageId: string) {
     const { error } = await supabase
       .from('peer_chat_messages')
       .update({ read_at: new Date().toISOString() })
-      .eq('id', messageId);
+      .eq('id', _messageId);
 
     if (error) throw error;
   }
 
   // Supporter Management
-  async updateSupporterAvailability(userId: string, isAvailable: boolean) {
+  async updateSupporterAvailability(_userId: string, isAvailable: boolean) {
     const { error } = await supabase
       .from('peer_supporters')
       .upsert({
-        user_id: userId,
+        user_id: _userId,
         is_available: isAvailable,
-        display_name: 'Peer Supporter' // Default name, can be updated
+        _display_name: 'Peer Supporter' // Default name, can be updated
       });
 
     if (error) throw error;
   }
 
-  async getSupporterProfile(userId: string): Promise<PeerSupporter | null> {
+  async getSupporterProfile(_userId: string): Promise<PeerSupporter | null> {
     const { data, error } = await supabase
       .from('peer_supporters')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', _userId)
       .single();
 
     if (error && error.code !== 'PGRST116') throw error;
@@ -272,13 +272,13 @@ class PeerSupportService {
   }
 
   // Typing Indicators
-  async updateTypingStatus(sessionId: string, userId: string, isTyping: boolean) {
-    if (isTyping) {
+  async updateTypingStatus(_sessionId: string, _userId: string, _isTyping: boolean) {
+    if (_isTyping) {
       const { error } = await supabase
         .from('peer_chat_typing')
         .upsert({
-          session_id: sessionId,
-          user_id: userId,
+          session_id: _sessionId,
+          user_id: _userId,
           is_typing: true,
           updated_at: new Date().toISOString()
         });
@@ -288,18 +288,18 @@ class PeerSupportService {
       const { error } = await supabase
         .from('peer_chat_typing')
         .delete()
-        .eq('session_id', sessionId)
-        .eq('user_id', userId);
+        .eq('session_id', _sessionId)
+        .eq('user_id', _userId);
 
       if (error) throw error;
     }
   }
 
-  async getTypingUsers(sessionId: string) {
+  async getTypingUsers(_sessionId: string) {
     const { data, error } = await supabase
       .from('peer_chat_typing')
       .select('user_id')
-      .eq('session_id', sessionId)
+      .eq('session_id', _sessionId)
       .eq('is_typing', true)
       .gte('updated_at', new Date(Date.now() - 5000).toISOString()); // Only last 5 seconds
 
@@ -307,14 +307,14 @@ class PeerSupportService {
     return data?.map(item => item.user_id) || [];
   }
 
-  // Video Sessions (placeholder)
-  async scheduleVideoSession(userId: string, supporterId: string, scheduledAt: Date) {
+  // Video Sessions (_placeholder)
+  async scheduleVideoSession(_userId: string, _supporterId: string, scheduledAt: Date) {
     const { data, error } = await supabase
       .from('peer_video_sessions')
       .insert({
-        user_id: userId,
-        peer_supporter_id: supporterId,
-        scheduled_at: scheduledAt.toISOString(),
+        user_id: _userId,
+        _peer_supporter_id: _supporterId,
+        _scheduled_at: scheduledAt.toISOString(),
         status: 'scheduled'
       })
       .select()
@@ -325,50 +325,50 @@ class PeerSupportService {
   }
 
   // Real-time subscriptions
-  subscribeToQueueUpdates(userId: string, callback: (payload: any) => void) {
+  subscribeToQueueUpdates(_userId: string, _callback: (payload: unknown) => void) {
     return supabase
-      .channel(`queue-${userId}`)
+      .channel(`queue-${_userId}`)
       .on(
         'postgres_changes',
         {
           event: '*',
-          schema: 'public',
-          table: 'peer_support_queue',
-          filter: `user_id=eq.${userId}`
+          _schema: 'public',
+          _table: 'peer_support_queue',
+          _filter: `user_id=eq.${_userId}`
         },
-        callback
+        _callback
       )
       .subscribe();
   }
 
-  subscribeToSessionMessages(sessionId: string, callback: (payload: any) => void) {
+  subscribeToSessionMessages(_sessionId: string, _callback: (payload: unknown) => void) {
     return supabase
-      .channel(`messages-${sessionId}`)
+      .channel(`messages-${_sessionId}`)
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
-          schema: 'public',
-          table: 'peer_chat_messages',
-          filter: `session_id=eq.${sessionId}`
+          _schema: 'public',
+          _table: 'peer_chat_messages',
+          _filter: `session_id=eq.${_sessionId}`
         },
-        callback
+        _callback
       )
       .subscribe();
   }
 
-  subscribeToSessionUpdates(sessionId: string, callback: (payload: any) => void) {
+  subscribeToSessionUpdates(_sessionId: string, _callback: (payload: unknown) => void) {
     return supabase
-      .channel(`session-${sessionId}`)
+      .channel(`session-${_sessionId}`)
       .on(
         'postgres_changes',
         {
           event: 'UPDATE',
-          schema: 'public',
-          table: 'peer_chat_sessions',
-          filter: `id=eq.${sessionId}`
+          _schema: 'public',
+          _table: 'peer_chat_sessions',
+          _filter: `id=eq.${_sessionId}`
         },
-        callback
+        _callback
       )
       .subscribe();
   }

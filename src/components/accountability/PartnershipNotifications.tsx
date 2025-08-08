@@ -12,7 +12,7 @@ interface Notification {
   sender_id: string;
   notification_type: string;
   message: string;
-  is_read: boolean;
+  _is_read: boolean;
   created_at: string;
 }
 
@@ -22,7 +22,7 @@ interface PartnershipNotificationsProps {
 
 const PartnershipNotifications: React.FC<PartnershipNotificationsProps> = ({ partnership }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -37,13 +37,13 @@ const PartnershipNotifications: React.FC<PartnershipNotificationsProps> = ({ par
       const data = await AccountabilityService.getUnreadNotifications(user.id);
       
       // Filter notifications for this partnership
-      const partnershipNotifications = data.filter(
+      const _partnershipNotifications = data.filter(
         (notification: Notification) => notification.partnership_id === partnership.id
       );
       
-      setNotifications(partnershipNotifications);
-    } catch (error) {
-      console.error('Error loading notifications:', error);
+      setNotifications(_partnershipNotifications);
+    } catch (_error) {
+      console._error('Error _loading notifications:', _error);
     } finally {
       setLoading(false);
     }
@@ -55,17 +55,17 @@ const PartnershipNotifications: React.FC<PartnershipNotificationsProps> = ({ par
       setNotifications(prev => 
         prev.map(notification => 
           notification.id === notificationId 
-            ? { ...notification, is_read: true }
+            ? { ...notification, _is_read: true }
             : notification
         )
       );
-    } catch (error) {
-      console.error('Error marking notification as read:', error);
+    } catch (_error) {
+      console._error('Error marking notification as read:', _error);
     }
   };
 
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
+  const getNotificationIcon = (_type: string) => {
+    switch (_type) {
       case 'checkin_completed':
         return <CheckCircle className="w-4 h-4 text-green-600" />;
       case 'checkin_reminder':
@@ -81,8 +81,8 @@ const PartnershipNotifications: React.FC<PartnershipNotificationsProps> = ({ par
     }
   };
 
-  const getNotificationVariant = (type: string) => {
-    switch (type) {
+  const getNotificationVariant = (_type: string) => {
+    switch (_type) {
       case 'checkin_completed':
         return 'default';
       case 'checkin_reminder':
@@ -96,9 +96,9 @@ const PartnershipNotifications: React.FC<PartnershipNotificationsProps> = ({ par
     }
   };
 
-  const formatTimeAgo = (timestamp: string) => {
+  const formatTimeAgo = (_timestamp: string) => {
     const now = new Date();
-    const time = new Date(timestamp);
+    const time = new Date(_timestamp);
     const diffInMinutes = Math.floor((now.getTime() - time.getTime()) / (1000 * 60));
 
     if (diffInMinutes < 60) {
@@ -110,7 +110,7 @@ const PartnershipNotifications: React.FC<PartnershipNotificationsProps> = ({ par
     }
   };
 
-  if (loading) {
+  if (_loading) {
     return (
       <Card>
         <CardContent className="p-6">
@@ -133,9 +133,9 @@ const PartnershipNotifications: React.FC<PartnershipNotificationsProps> = ({ par
               <Bell className="w-5 h-5 mr-2" />
               Partnership Updates
             </span>
-            {notifications.filter(n => !n.is_read).length > 0 && (
+            {notifications.filter(n => !n._is_read).length > 0 && (
               <Badge variant="destructive">
-                {notifications.filter(n => !n.is_read).length} unread
+                {notifications.filter(n => !n._is_read).length} unread
               </Badge>
             )}
           </CardTitle>
@@ -155,7 +155,7 @@ const PartnershipNotifications: React.FC<PartnershipNotificationsProps> = ({ par
                 <div
                   key={notification.id}
                   className={`p-4 rounded-lg border transition-all ${
-                    notification.is_read 
+                    notification._is_read 
                       ? 'bg-gray-50 border-gray-200' 
                       : 'bg-white border-blue-200 shadow-sm'
                   }`}
@@ -180,14 +180,14 @@ const PartnershipNotifications: React.FC<PartnershipNotificationsProps> = ({ par
                         </div>
                         
                         <p className={`text-sm ${
-                          notification.is_read ? 'text-gray-600' : 'text-gray-900 font-medium'
+                          notification._is_read ? 'text-gray-600' : 'text-gray-900 font-medium'
                         }`}>
                           {notification.message}
                         </p>
                       </div>
                     </div>
 
-                    {!notification.is_read && (
+                    {!notification._is_read && (
                       <Button
                         variant="ghost"
                         size="sm"

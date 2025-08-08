@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Users, 
@@ -29,26 +29,26 @@ import { useToast } from '@/hooks/use-toast';
 interface SponsorProfile {
   id: string;
   user_id: string;
-  display_name: string;
-  years_sober: number;
-  program_type: string;
-  recovery_approach?: string;
-  bio?: string;
-  location_general?: string;
+  _display_name: string;
+  _years_sober: number;
+  _program_type: string;
+  _recovery_approach?: string;
+  _bio?: string;
+  _location_general?: string;
   is_available: boolean;
-  max_sponsees: number;
+  _max_sponsees: number;
   current_sponsees: number;
-  meeting_preference: string;
-  communication_style?: string;
+  _meeting_preference: string;
+  _communication_style?: string;
   created_at: string;
 }
 
 interface SponsorMatch {
   id: string;
-  sponsor_user_id: string;
-  match_score: number;
-  status: string;
-  matched_criteria: any;
+  _sponsor_user_id: string;
+  _match_score: number;
+  _status: string;
+  _matched_criteria: unknown;
   created_at: string;
 }
 
@@ -63,27 +63,27 @@ const SponsorMatching = () => {
   const [userProfile, setUserProfile] = useState<SponsorProfile | null>(null);
   
   // Find sponsor filters
-  const [programFilter, setProgramFilter] = useState('all');
+  const [_programFilter, setProgramFilter] = useState('all');
   const [locationFilter, setLocationFilter] = useState('');
-  const [meetingPreferenceFilter, setMeetingPreferenceFilter] = useState('all');
+  const [_meetingPreferenceFilter, setMeetingPreferenceFilter] = useState('all');
   
   // Sponsor profile form
   const [showCreateProfile, setShowCreateProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({
-    display_name: '',
-    years_sober: '',
-    program_type: 'AA',
-    recovery_approach: '',
-    bio: '',
-    location_general: '',
-    max_sponsees: '3',
-    meeting_preference: 'both',
-    communication_style: ''
+    _display_name: '',
+    _years_sober: '',
+    _program_type: '_AA',
+    _recovery_approach: '',
+    _bio: '',
+    _location_general: '',
+    _max_sponsees: '3',
+    _meeting_preference: 'both',
+    _communication_style: ''
   });
 
   const programTypes = [
-    { value: 'AA', label: 'Alcoholics Anonymous (AA)' },
-    { value: 'NA', label: 'Narcotics Anonymous (NA)' },
+    { value: '_AA', label: 'Alcoholics Anonymous (_AA)' },
+    { value: '_NA', label: 'Narcotics Anonymous (_NA)' },
     { value: 'SMART', label: 'SMART Recovery' },
     { value: 'LifeRing', label: 'LifeRing Secular Recovery' },
     { value: 'WFS', label: 'Women for Sobriety' },
@@ -118,7 +118,7 @@ const SponsorMatching = () => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('sponsor_profiles')
         .select('*')
         .eq('user_id', user.id)
@@ -128,7 +128,7 @@ const SponsorMatching = () => {
         setUserProfile(data);
         setActiveTab('profile');
       }
-    } catch (error) {
+    } catch (_error) {
       // User doesn't have a sponsor profile yet
     }
   };
@@ -143,20 +143,20 @@ const SponsorMatching = () => {
         .neq('user_id', user?.id || '')
         .order('created_at', { ascending: false });
 
-      if (programFilter !== 'all') {
-        query = query.eq('program_type', programFilter);
+      if (_programFilter !== 'all') {
+        query = query.eq('_program_type', _programFilter);
       }
 
-      if (meetingPreferenceFilter !== 'all') {
-        query = query.eq('meeting_preference', meetingPreferenceFilter);
+      if (_meetingPreferenceFilter !== 'all') {
+        query = query.eq('_meeting_preference', _meetingPreferenceFilter);
       }
 
-      const { data, error } = await query.limit(20);
+      const { data, _error } = await query.limit(20);
 
-      if (error) throw error;
+      if (_error) throw _error;
       setSponsors(data || []);
-    } catch (error) {
-      console.error('Error loading sponsors:', error);
+    } catch (_error) {
+      console._error('Error loading sponsors:', _error);
     } finally {
       setLoading(false);
     }
@@ -166,60 +166,60 @@ const SponsorMatching = () => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('sponsor_matches')
         .select('*')
         .eq('sponsee_user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (_error) throw _error;
       setMatches(data || []);
-    } catch (error) {
-      console.error('Error loading matches:', error);
+    } catch (_error) {
+      console._error('Error loading matches:', _error);
     }
   };
 
   const createSponsorProfile = async () => {
-    if (!user || !profileForm.display_name.trim() || !profileForm.years_sober) {
+    if (!user || !profileForm._display_name.trim() || !profileForm._years_sober) {
       toast({
         title: "Missing Information",
-        description: "Please fill in the required fields.",
-        variant: "destructive",
+        _description: "Please fill in the required fields.",
+        _variant: "destructive",
       });
       return;
     }
 
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('sponsor_profiles')
         .insert([{
           user_id: user.id,
-          display_name: profileForm.display_name,
-          years_sober: parseInt(profileForm.years_sober),
-          program_type: profileForm.program_type,
-          recovery_approach: profileForm.recovery_approach,
-          bio: profileForm.bio,
-          location_general: profileForm.location_general,
-          max_sponsees: parseInt(profileForm.max_sponsees),
-          meeting_preference: profileForm.meeting_preference,
-          communication_style: profileForm.communication_style
+          _display_name: profileForm._display_name,
+          _years_sober: parseInt(profileForm._years_sober),
+          _program_type: profileForm._program_type,
+          _recovery_approach: profileForm._recovery_approach,
+          _bio: profileForm._bio,
+          _location_general: profileForm._location_general,
+          _max_sponsees: parseInt(profileForm._max_sponsees),
+          _meeting_preference: profileForm._meeting_preference,
+          _communication_style: profileForm._communication_style
         }]);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({
         title: "Profile Created! 🎉",
-        description: "Your sponsor profile is now live and available to potential sponsees.",
+        _description: "Your sponsor profile is now live and available to potential sponsees.",
       });
 
       setShowCreateProfile(false);
       loadUserProfile();
-    } catch (error) {
-      console.error('Error creating profile:', error);
+    } catch (_error) {
+      console._error('Error creating profile:', _error);
       toast({
         title: "Error",
-        description: "Failed to create profile. Please try again.",
-        variant: "destructive",
+        _description: "Failed to create profile. Please try again.",
+        _variant: "destructive",
       });
     }
   };
@@ -234,40 +234,40 @@ const SponsorMatching = () => {
 
       const matchScore = Math.random() * 0.4 + 0.6; // 60-100% match for demo
 
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('sponsor_matches')
         .insert([{
           sponsee_user_id: user.id,
-          sponsor_user_id: sponsorId,
-          match_score: matchScore,
-          status: 'contacted',
-          matched_criteria: {
+          _sponsor_user_id: sponsorId,
+          _match_score: matchScore,
+          _status: 'contacted',
+          _matched_criteria: {
             program_match: true,
-            meeting_preference: true,
-            communication_style: true
+            _meeting_preference: true,
+            _communication_style: true
           }
         }]);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({
         title: "Connection Request Sent! 📨",
-        description: "The sponsor will be notified of your interest. Check your matches for updates.",
+        _description: "The sponsor will be notified of your interest. Check your matches for updates.",
       });
 
       loadMatches();
-    } catch (error) {
-      console.error('Error contacting sponsor:', error);
+    } catch (_error) {
+      console._error('Error contacting sponsor:', _error);
       toast({
         title: "Error",
-        description: "Failed to send connection request. Please try again.",
-        variant: "destructive",
+        _description: "Failed to send connection request. Please try again.",
+        _variant: "destructive",
       });
     }
   };
 
-  const getMatchStatusIcon = (status: string) => {
-    switch (status) {
+  const getMatchStatusIcon = (_status: string) => {
+    switch (_status) {
       case 'contacted': return <Clock className="w-4 h-4 text-yellow-500" />;
       case 'accepted': return <CheckCircle className="w-4 h-4 text-green-500" />;
       case 'declined': return <AlertCircle className="w-4 h-4 text-red-500" />;
@@ -275,8 +275,8 @@ const SponsorMatching = () => {
     }
   };
 
-  const timeAgo = (dateString: string) => {
-    const date = new Date(dateString);
+  const timeAgo = (_dateString: string) => {
+    const date = new Date(_dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
@@ -300,7 +300,7 @@ const SponsorMatching = () => {
         <Card>
           <CardContent className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Select value={programFilter} onValueChange={setProgramFilter}>
+              <Select value={_programFilter} onValueChange={setProgramFilter}>
                 <SelectTrigger>
                   <SelectValue placeholder="All Programs" />
                 </SelectTrigger>
@@ -314,7 +314,7 @@ const SponsorMatching = () => {
                 </SelectContent>
               </Select>
               
-              <Select value={meetingPreferenceFilter} onValueChange={setMeetingPreferenceFilter}>
+              <Select value={_meetingPreferenceFilter} onValueChange={setMeetingPreferenceFilter}>
                 <SelectTrigger>
                   <SelectValue placeholder="Meeting Preference" />
                 </SelectTrigger>
@@ -329,7 +329,7 @@ const SponsorMatching = () => {
               </Select>
               
               <Input
-                placeholder="Location (city, state)"
+                placeholder="Location (_city, _state)"
                 value={locationFilter}
                 onChange={(e) => setLocationFilter(e.target.value)}
               />
@@ -351,7 +351,7 @@ const SponsorMatching = () => {
           <div className="text-center py-8">
             <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-muted-foreground mb-4">No sponsors found matching your criteria.</p>
-            <Button onClick={loadSponsors} variant="outline">
+            <Button onClick={loadSponsors} _variant="outline">
               Try Different Filters
             </Button>
           </div>
@@ -366,14 +366,14 @@ const SponsorMatching = () => {
                         <User className="w-6 h-6 text-serenity-teal" />
                       </div>
                       <div>
-                        <CardTitle className="text-lg text-serenity-navy">{sponsor.display_name}</CardTitle>
-                        <Badge variant="outline">{sponsor.program_type}</Badge>
+                        <CardTitle className="text-lg text-serenity-navy">{sponsor._display_name}</CardTitle>
+                        <Badge _variant="outline">{sponsor._program_type}</Badge>
                       </div>
                     </div>
                     
                     <div className="text-right">
                       <div className="text-sm font-semibold text-serenity-navy">
-                        {sponsor.years_sober} {sponsor.years_sober === 1 ? 'year' : 'years'}
+                        {sponsor._years_sober} {sponsor._years_sober === 1 ? 'year' : 'years'}
                       </div>
                       <div className="text-xs text-muted-foreground">sober</div>
                     </div>
@@ -381,42 +381,42 @@ const SponsorMatching = () => {
                 </CardHeader>
                 
                 <CardContent>
-                  {sponsor.bio && (
-                    <p className="text-sm text-gray-700 mb-3 line-clamp-3">{sponsor.bio}</p>
+                  {sponsor._bio && (
+                    <p className="text-sm text-gray-700 mb-3 line-clamp-3">{sponsor._bio}</p>
                   )}
                   
                   <div className="space-y-2 mb-4">
-                    {sponsor.location_general && (
+                    {sponsor._location_general && (
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <MapPin className="w-3 h-3" />
-                        <span>{sponsor.location_general}</span>
+                        <span>{sponsor._location_general}</span>
                       </div>
                     )}
                     
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      {sponsor.meeting_preference === 'in_person' && <Users className="w-3 h-3" />}
-                      {sponsor.meeting_preference === 'virtual' && <Video className="w-3 h-3" />}
-                      {sponsor.meeting_preference === 'both' && <MessageSquare className="w-3 h-3" />}
-                      <span>{meetingPreferences.find(p => p.value === sponsor.meeting_preference)?.label}</span>
+                      {sponsor._meeting_preference === 'in_person' && <Users className="w-3 h-3" />}
+                      {sponsor._meeting_preference === 'virtual' && <Video className="w-3 h-3" />}
+                      {sponsor._meeting_preference === 'both' && <MessageSquare className="w-3 h-3" />}
+                      <span>{meetingPreferences.find(p => p.value === sponsor._meeting_preference)?.label}</span>
                     </div>
                     
-                    {sponsor.communication_style && (
+                    {sponsor._communication_style && (
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <MessageSquare className="w-3 h-3" />
-                        <span>{sponsor.communication_style}</span>
+                        <span>{sponsor._communication_style}</span>
                       </div>
                     )}
                   </div>
                   
                   <div className="flex justify-between items-center pt-3 border-t">
                     <div className="text-xs text-muted-foreground">
-                      {sponsor.current_sponsees}/{sponsor.max_sponsees} sponsees
+                      {sponsor.current_sponsees}/{sponsor._max_sponsees} sponsees
                     </div>
                     
                     <Button
                       size="sm"
                       onClick={() => contactSponsor(sponsor.user_id)}
-                      disabled={sponsor.current_sponsees >= sponsor.max_sponsees}
+                      disabled={sponsor.current_sponsees >= sponsor._max_sponsees}
                       className="bg-serenity-teal hover:bg-serenity-teal/90 text-white"
                     >
                       <Heart className="w-3 h-3 mr-1" />
@@ -462,27 +462,27 @@ const SponsorMatching = () => {
                         </div>
                         <div>
                           <h4 className="font-semibold text-serenity-navy">
-                            Sponsor #{match.sponsor_user_id.slice(-4)}
+                            Sponsor #{match._sponsor_user_id.slice(-4)}
                           </h4>
                           <div className="flex items-center gap-2">
-                            <Badge variant="outline">Sponsor</Badge>
+                            <Badge _variant="outline">Sponsor</Badge>
                             <div className="flex items-center gap-1">
                               <Star className="w-3 h-3 text-serenity-gold" />
-                              <span className="text-xs">{Math.round(match.match_score * 100)}% match</span>
+                              <span className="text-xs">{Math.round(match._match_score * 100)}% match</span>
                             </div>
                           </div>
                         </div>
                       </div>
                       
                       <div className="flex items-center gap-2">
-                        {getMatchStatusIcon(match.status)}
-                        <span className="text-sm capitalize">{match.status}</span>
+                        {getMatchStatusIcon(match._status)}
+                        <span className="text-sm capitalize">{match._status}</span>
                       </div>
                     </div>
                     
                     <div className="flex justify-between items-center text-sm text-muted-foreground">
                       <span>Connected {timeAgo(match.created_at)}</span>
-                      <Button variant="ghost" size="sm" className="text-serenity-teal">
+                      <Button _variant="ghost" size="sm" className="text-serenity-teal">
                         View Details
                       </Button>
                     </div>
@@ -512,31 +512,31 @@ const SponsorMatching = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium">Display Name</label>
-                    <p className="text-serenity-navy">{userProfile.display_name}</p>
+                    <p className="text-serenity-navy">{userProfile._display_name}</p>
                   </div>
                   
                   <div>
                     <label className="text-sm font-medium">Years Sober</label>
-                    <p className="text-serenity-navy">{userProfile.years_sober} years</p>
+                    <p className="text-serenity-navy">{userProfile._years_sober} years</p>
                   </div>
                   
                   <div>
                     <label className="text-sm font-medium">Program</label>
-                    <p className="text-serenity-navy">{userProfile.program_type}</p>
+                    <p className="text-serenity-navy">{userProfile._program_type}</p>
                   </div>
                   
                   <div>
                     <label className="text-sm font-medium">Meeting Preference</label>
                     <p className="text-serenity-navy">
-                      {meetingPreferences.find(p => p.value === userProfile.meeting_preference)?.label}
+                      {meetingPreferences.find(p => p.value === userProfile._meeting_preference)?.label}
                     </p>
                   </div>
                 </div>
                 
-                {userProfile.bio && (
+                {userProfile._bio && (
                   <div>
                     <label className="text-sm font-medium">Bio</label>
-                    <p className="text-serenity-navy">{userProfile.bio}</p>
+                    <p className="text-serenity-navy">{userProfile._bio}</p>
                   </div>
                 )}
                 
@@ -544,7 +544,7 @@ const SponsorMatching = () => {
                   <div className="text-sm text-muted-foreground">
                     Profile created {timeAgo(userProfile.created_at)}
                   </div>
-                  <Button variant="outline">
+                  <Button _variant="outline">
                     Edit Profile
                   </Button>
                 </div>
@@ -594,8 +594,8 @@ const SponsorMatching = () => {
                   <label className="text-sm font-medium">Display Name *</label>
                   <Input
                     placeholder="How you'd like to be known"
-                    value={profileForm.display_name}
-                    onChange={(e) => setProfileForm({...profileForm, display_name: e.target.value})}
+                    value={profileForm._display_name}
+                    onChange={(e) => setProfileForm({...profileForm, _display_name: e.target.value})}
                     className="mt-1"
                   />
                 </div>
@@ -606,8 +606,8 @@ const SponsorMatching = () => {
                     type="number"
                     min="1"
                     placeholder="e.g., 5"
-                    value={profileForm.years_sober}
-                    onChange={(e) => setProfileForm({...profileForm, years_sober: e.target.value})}
+                    value={profileForm._years_sober}
+                    onChange={(e) => setProfileForm({...profileForm, _years_sober: e.target.value})}
                     className="mt-1"
                   />
                 </div>
@@ -616,7 +616,7 @@ const SponsorMatching = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium">Primary Program *</label>
-                  <Select value={profileForm.program_type} onValueChange={(value) => setProfileForm({...profileForm, program_type: value})}>
+                  <Select value={profileForm._program_type} onValueChange={(value) => setProfileForm({...profileForm, _program_type: value})}>
                     <SelectTrigger className="mt-1">
                       <SelectValue />
                     </SelectTrigger>
@@ -632,7 +632,7 @@ const SponsorMatching = () => {
                 
                 <div>
                   <label className="text-sm font-medium">Meeting Preference</label>
-                  <Select value={profileForm.meeting_preference} onValueChange={(value) => setProfileForm({...profileForm, meeting_preference: value})}>
+                  <Select value={profileForm._meeting_preference} onValueChange={(value) => setProfileForm({...profileForm, _meeting_preference: value})}>
                     <SelectTrigger className="mt-1">
                       <SelectValue />
                     </SelectTrigger>
@@ -648,18 +648,18 @@ const SponsorMatching = () => {
               </div>
               
               <div>
-                <label className="text-sm font-medium">Location (City, State)</label>
+                <label className="text-sm font-medium">Location (_City, _State)</label>
                 <Input
                   placeholder="e.g., San Francisco, CA"
-                  value={profileForm.location_general}
-                  onChange={(e) => setProfileForm({...profileForm, location_general: e.target.value})}
+                  value={profileForm._location_general}
+                  onChange={(e) => setProfileForm({...profileForm, _location_general: e.target.value})}
                   className="mt-1"
                 />
               </div>
               
               <div>
                 <label className="text-sm font-medium">Communication Style</label>
-                <Select value={profileForm.communication_style} onValueChange={(value) => setProfileForm({...profileForm, communication_style: value})}>
+                <Select value={profileForm._communication_style} onValueChange={(value) => setProfileForm({...profileForm, _communication_style: value})}>
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Select your approach" />
                   </SelectTrigger>
@@ -677,14 +677,14 @@ const SponsorMatching = () => {
                 <label className="text-sm font-medium">Bio</label>
                 <Textarea
                   placeholder="Share your recovery journey, approach to sponsorship, and what you can offer..."
-                  value={profileForm.bio}
-                  onChange={(e) => setProfileForm({...profileForm, bio: e.target.value})}
+                  value={profileForm._bio}
+                  onChange={(e) => setProfileForm({...profileForm, _bio: e.target.value})}
                   className="mt-1 min-h-24"
                 />
               </div>
               
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setShowCreateProfile(false)}>
+                <Button _variant="outline" onClick={() => setShowCreateProfile(false)}>
                   Cancel
                 </Button>
                 <Button onClick={createSponsorProfile} className="bg-serenity-teal hover:bg-serenity-teal/90 text-white">

@@ -16,26 +16,26 @@ import CalendarLoadingState from './CalendarLoadingState';
 import CalendarLegend from './CalendarLegend';
 import NotificationToast from './NotificationToast';
 import { Card, CardContent } from '@/components/ui/card';
-import { Sparkles, Heart, TrendingUp } from 'lucide-react';
+import { Sparkles, Heart } from 'lucide-react';
 
 // Main Calendar Component
 const EnhancedCalendar: React.FC<{
-  user?: { id: string };
-  supabase?: any;
+  _user?: { id: string };
+  supabase?: unknown;
   onTabChange?: () => void;
   showLayout?: boolean;
-}> = ({ user, supabase, onTabChange, showLayout = true }) => {
+}> = ({ _user, supabase, onTabChange, showLayout = true }) => {
   const [selectedDate, setSelectedDate] = useState<Date>();
-  const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
+  const [_selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   const [isDayDetailOpen, setIsDayDetailOpen] = useState(false);
-  const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | _null>(_null);
   const [showFilters, setShowFilters] = useState(false);
 
   // Use custom hooks
-  const { monthEntries, isLoading, error } = useCalendarData(selectedMonth, user, supabase);
-  const { filters, setFilters, filteredEntries } = useCalendarFilters(monthEntries);
+  const { monthEntries, _isLoading, error } = useCalendarData(_selectedMonth, _user, supabase);
+  const { filters, setFilters, _filteredEntries } = useCalendarFilters(monthEntries);
   const { handleExport } = useCalendarExport();
-  const monthStats = useCalendarStats(filteredEntries);
+  const monthStats = useCalendarStats(_filteredEntries);
 
   // Get available triggers for filter
   const availableTriggers = Array.from(new Set(monthEntries.flatMap(e => e.triggers || [])));
@@ -43,11 +43,11 @@ const EnhancedCalendar: React.FC<{
   // Simple notification system
   const showNotification = (type: 'success' | 'error', message: string) => {
     setNotification({ type, message });
-    setTimeout(() => setNotification(null), 3000);
+    setTimeout(() => setNotification(_null), 3000);
   };
 
   // Update entry
-  const handleUpdate = async (updates: Partial<MoodEntry>) => {
+  const handleUpdate = async (_updates: Partial<MoodEntry>) => {
     if (!supabase || !selectedDate) {
       showNotification('success', 'Entry updated (demo mode)');
       return;
@@ -63,14 +63,14 @@ const EnhancedCalendar: React.FC<{
   };
 
   // Process filtered data
-  const dayDataMap = groupEntriesByDay(filteredEntries);
+  const dayDataMap = groupEntriesByDay(_filteredEntries);
   const chartData = prepareChartData(dayDataMap);
-  const monthlyTrends = calculateMonthlyTrends(filteredEntries);
+  const monthlyTrends = calculateMonthlyTrends(_filteredEntries);
 
   const handleDayClick = (date: Date) => {
     setSelectedDate(date);
-    const dateKey = formatDate(date, 'yyyy-MM-dd');
-    const dayData = dayDataMap.get(dateKey);
+    const _dateKey = formatDate(date, 'yyyy-MM-dd');
+    const dayData = dayDataMap.get(_dateKey);
     if (dayData && dayData.entries.length > 0) {
       setIsDayDetailOpen(true);
     } else {
@@ -81,8 +81,8 @@ const EnhancedCalendar: React.FC<{
   const selectedDayData = selectedDate ? dayDataMap.get(formatDate(selectedDate, 'yyyy-MM-dd'))?.entries[0] : undefined;
 
   // Enhanced export functionality
-  const onExport = async (format: 'csv' | 'json' = 'csv') => {
-    const result = await handleExport(filteredEntries, selectedMonth, format);
+  const onExport = async (_format: 'csv' | 'json' = 'csv') => {
+    const result = await handleExport(_filteredEntries, _selectedMonth, _format);
     showNotification(result.success ? 'success' : 'error', result.message);
   };
 
@@ -94,7 +94,7 @@ const EnhancedCalendar: React.FC<{
     return "Every day is a new opportunity to grow 🌅";
   };
 
-  if (isLoading) {
+  if (_isLoading) {
     return <CalendarLoadingState />;
   }
 
@@ -170,7 +170,7 @@ const EnhancedCalendar: React.FC<{
           <div className="animate-fade-in-up animation-delay-100">
             <CalendarGrid
               selectedDate={selectedDate}
-              selectedMonth={selectedMonth}
+              _selectedMonth={_selectedMonth}
               dayDataMap={dayDataMap}
               onDateSelect={setSelectedDate}
               onMonthChange={setSelectedMonth}

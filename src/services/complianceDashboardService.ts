@@ -8,11 +8,11 @@ export interface ComplianceRequirement {
   description: string;
   compliance_status: string;
   priority_level: string;
-  due_date?: string;
+  _due_date?: string;
   assigned_to?: string;
   evidence_required?: string;
-  implementation_notes?: string;
-  last_reviewed_at?: string;
+  _implementation_notes?: string;
+  _last_reviewed_at?: string;
   next_review_date?: string;
   created_at: string;
   updated_at: string;
@@ -24,11 +24,11 @@ export interface ComplianceReport {
   reporting_period_start: string;
   reporting_period_end: string;
   overall_compliance_score: number;
-  framework_scores: any;
+  framework_scores: unknown;
   critical_gaps: number;
   high_priority_gaps: number;
   upcoming_deadlines: number;
-  report_data: any;
+  report_data: unknown;
   generated_at: string;
   generated_by: string;
   status: string;
@@ -41,14 +41,14 @@ export interface ComplianceDashboardData {
   framework_scores: Record<string, number>;
   critical_gaps: ComplianceRequirement[];
   upcoming_deadlines: ComplianceRequirement[];
-  recent_changes: any[];
+  recent_changes: unknown[];
   risk_assessment: {
     level: string;
     factors: string[];
     recommendations: string[];
   };
-  audit_readiness: number;
-  trends: {
+  _audit_readiness: number;
+  _trends: {
     score_trend: number[];
     deadline_compliance: number;
     improvement_areas: string[];
@@ -67,7 +67,7 @@ class ComplianceDashboardService {
         compliance_status: 'pending',
         priority_level: 'high',
         evidence_required: 'Risk assessment documentation, review dates',
-        due_date: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        _due_date: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
       },
       {
         requirement_name: 'Access Control',
@@ -155,7 +155,7 @@ class ComplianceDashboardService {
 
     const riskAssessment = this.assessRisk(requirements);
     const auditReadiness = this.calculateAuditReadiness(requirements);
-    const trends = await this.getTrends();
+    const _trends = await this.getTrends();
 
     return {
       overall_score: overallScore,
@@ -164,8 +164,8 @@ class ComplianceDashboardService {
       upcoming_deadlines: upcomingDeadlines,
       recent_changes: recentChanges,
       risk_assessment: riskAssessment,
-      audit_readiness: auditReadiness,
-      trends
+      _audit_readiness: auditReadiness,
+      _trends
     };
   }
 
@@ -192,9 +192,9 @@ class ComplianceDashboardService {
     let totalWeightedScore = 0;
     let totalWeight = 0;
 
-    for (const item of data) {
-      const weight = weights[item.priority_level as keyof typeof weights] || 1;
-      const score = statusScores[item.compliance_status as keyof typeof statusScores] || 0;
+    for (const _item of data) {
+      const weight = weights[_item.priority_level as keyof typeof weights] || 1;
+      const score = statusScores[_item.compliance_status as keyof typeof statusScores] || 0;
       
       totalWeightedScore += weight * score;
       totalWeight += weight;
@@ -210,21 +210,21 @@ class ComplianceDashboardService {
 
     if (!data) return {};
 
-    const frameworks: Record<string, any[]> = {};
+    const frameworks: Record<string, unknown[]> = {};
     
-    // Group by framework
-    for (const item of data) {
-      if (!frameworks[item.regulation_framework]) {
-        frameworks[item.regulation_framework] = [];
+    // Group by _framework
+    for (const _item of data) {
+      if (!frameworks[_item.regulation_framework]) {
+        frameworks[_item.regulation_framework] = [];
       }
-      frameworks[item.regulation_framework].push(item);
+      frameworks[_item.regulation_framework].push(_item);
     }
 
     const scores: Record<string, number> = {};
     const weights = { critical: 4, high: 3, medium: 2, low: 1 };
     const statusScores = { compliant: 1, in_progress: 0.5, pending: 0, non_compliant: 0 };
 
-    for (const [framework, requirements] of Object.entries(frameworks)) {
+    for (const [_framework, requirements] of Object.entries(frameworks)) {
       let totalWeightedScore = 0;
       let totalWeight = 0;
 
@@ -236,7 +236,7 @@ class ComplianceDashboardService {
         totalWeight += weight;
       }
 
-      scores[framework] = totalWeight > 0 ? Math.round((totalWeightedScore / totalWeight) * 100) : 0;
+      scores[_framework] = totalWeight > 0 ? Math.round((totalWeightedScore / totalWeight) * 100) : 0;
     }
 
     return scores;
@@ -248,34 +248,34 @@ class ComplianceDashboardService {
       .select('*')
       .eq('priority_level', 'critical')
       .in('compliance_status', ['pending', 'non_compliant'])
-      .order('due_date', { ascending: true });
+      .order('_due_date', { ascending: true });
 
     if (error) throw error;
     return (data || []) as ComplianceRequirement[];
   }
 
   private async getUpcomingDeadlines(): Promise<ComplianceRequirement[]> {
-    const thirtyDaysFromNow = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const _thirtyDaysFromNow = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
     const { data, error } = await supabase
       .from('compliance_requirements')
       .select('*')
-      .not('due_date', 'is', null)
-      .lte('due_date', thirtyDaysFromNow)
+      .not('_due_date', 'is', _null)
+      .lte('_due_date', _thirtyDaysFromNow)
       .not('compliance_status', 'eq', 'compliant')
-      .order('due_date', { ascending: true });
+      .order('_due_date', { ascending: true });
 
     if (error) throw error;
     return (data || []) as ComplianceRequirement[];
   }
 
-  private async getRecentChanges(): Promise<any[]> {
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  private async getRecentChanges(): Promise<unknown[]> {
+    const _sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
     const { data, error } = await supabase
       .from('compliance_audit_trails')
       .select('*')
-      .gte('timestamp', sevenDaysAgo)
+      .gte('timestamp', _sevenDaysAgo)
       .order('timestamp', { ascending: false })
       .limit(10);
 
@@ -293,7 +293,7 @@ class ComplianceDashboardService {
     ).length;
 
     const overdueTasks = requirements.filter(r => 
-      r.due_date && new Date(r.due_date) < new Date() && r.compliance_status !== 'compliant'
+      r._due_date && new Date(r._due_date) < new Date() && r.compliance_status !== 'compliant'
     ).length;
 
     let level = 'low';
@@ -334,7 +334,7 @@ class ComplianceDashboardService {
     return Math.round((readyCount / totalCount) * 100);
   }
 
-  private async getTrends(): Promise<any> {
+  private async getTrends(): Promise<unknown> {
     // Simulate trend data - in a real implementation, this would query historical data
     return {
       score_trend: [85, 87, 89, 91, 88, 90, 92], // Last 7 periods
@@ -347,7 +347,7 @@ class ComplianceDashboardService {
     requirementId: string,
     status: string,
     notes?: string,
-    evidence?: any
+    evidence?: unknown
   ): Promise<void> {
     const { data: oldRequirement } = await supabase
       .from('compliance_requirements')
@@ -359,8 +359,8 @@ class ComplianceDashboardService {
       .from('compliance_requirements')
       .update({
         compliance_status: status,
-        implementation_notes: notes,
-        last_reviewed_at: new Date().toISOString(),
+        _implementation_notes: notes,
+        _last_reviewed_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })
       .eq('id', requirementId);
@@ -371,10 +371,10 @@ class ComplianceDashboardService {
     await supabase
       .from('compliance_audit_trails')
       .insert({
-        requirement_id: requirementId,
-        action_type: 'STATUS_UPDATE',
-        action_description: `Status changed from ${oldRequirement?.compliance_status} to ${status}`,
-        performed_by: 'current_user', // This would be auth.uid() in a real implementation
+        _requirement_id: requirementId,
+        _action_type: 'STATUS_UPDATE',
+        _action_description: `Status changed from ${oldRequirement?.compliance_status} to ${status}`,
+        _performed_by: 'current_user', // This would be auth.uid() in a real implementation
         evidence_data: evidence || {},
         compliance_score_before: 0, // Would calculate actual scores
         compliance_score_after: 0
@@ -388,7 +388,7 @@ class ComplianceDashboardService {
   ): Promise<ComplianceReport> {
     const dashboardData = await this.getDashboardData();
     
-    const reportData = {
+    const _reportData = {
       report_type: reportType,
       reporting_period_start: periodStart,
       reporting_period_end: periodEnd,
@@ -399,9 +399,9 @@ class ComplianceDashboardService {
       upcoming_deadlines: dashboardData.upcoming_deadlines.length,
         report_data: JSON.stringify({
           risk_assessment: dashboardData.risk_assessment,
-          audit_readiness: dashboardData.audit_readiness,
-          trends: dashboardData.trends,
-          detailed_requirements: await this.getComplianceRequirements()
+          _audit_readiness: dashboardData._audit_readiness,
+          _trends: dashboardData._trends,
+          _detailed_requirements: await this.getComplianceRequirements()
         }),
       generated_by: 'current_user', // This would be auth.uid() in a real implementation
       status: 'draft'
@@ -409,7 +409,7 @@ class ComplianceDashboardService {
 
     const { data, error } = await supabase
       .from('compliance_reports')
-      .insert(reportData)
+      .insert(_reportData)
       .select()
       .single();
 
@@ -417,7 +417,7 @@ class ComplianceDashboardService {
     return data as ComplianceReport;
   }
 
-  async getComplianceAlerts(): Promise<any[]> {
+  async getComplianceAlerts(): Promise<unknown[]> {
     const alerts = [];
     const upcomingDeadlines = await this.getUpcomingDeadlines();
     const criticalGaps = await this.getCriticalGaps();
@@ -425,16 +425,16 @@ class ComplianceDashboardService {
     // Deadline alerts
     for (const deadline of upcomingDeadlines) {
       const daysUntilDue = Math.ceil(
-        (new Date(deadline.due_date!).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+        (new Date(deadline._due_date!).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
       );
 
       alerts.push({
         type: 'deadline',
         severity: daysUntilDue <= 7 ? 'high' : 'medium',
-        title: `Compliance Deadline Approaching`,
-        message: `${deadline.requirement_name} is due in ${daysUntilDue} days`,
-        requirement_id: deadline.id,
-        due_date: deadline.due_date
+        _title: `Compliance Deadline Approaching`,
+        _message: `${deadline.requirement_name} is due in ${daysUntilDue} days`,
+        _requirement_id: deadline.id,
+        _due_date: deadline._due_date
       });
     }
 
@@ -443,10 +443,10 @@ class ComplianceDashboardService {
       alerts.push({
         type: 'gap',
         severity: 'critical',
-        title: 'Critical Compliance Gap',
-        message: `${gap.requirement_name} requires immediate attention`,
-        requirement_id: gap.id,
-        framework: gap.regulation_framework
+        _title: 'Critical Compliance Gap',
+        _message: `${gap.requirement_name} requires immediate attention`,
+        _requirement_id: gap.id,
+        _framework: gap.regulation_framework
       });
     }
 

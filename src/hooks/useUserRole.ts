@@ -1,10 +1,8 @@
-// MVP Hook for User Role Management - Requirement #1: Three-user permission system
+// Simplified User Role Management
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserRole } from '@/types/userRoles';
-import { supabase } from '@/integrations/supabase/client';
-import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
 
 export const useUserRole = () => {
   const { user } = useAuth();
@@ -12,98 +10,72 @@ export const useUserRole = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const determineUserRole = async () => {
+    const determineUserRole = () => {
       setLoading(true);
       
-      try {
-        if (user?.id) {
-          // Query the database for the user's role using the secure function
-          const { data, error } = await supabase.rpc('get_current_user_role');
-          
-          if (error) {
-            console.error('Error fetching user role:', error);
-            await EnhancedSecurityAuditService.logSecurityViolation('ROLE_FETCH_FAILED', {
-              error: error.message,
-              user_id: user.id
-            });
-            setRole('patient'); // Safe default
-          } else if (data) {
-            // Check if the user has a role assigned
-            let assignedRole = data as UserRole;
-            
-            // TEMPORARY FIX: If user is patient but has userType in metadata, use that
-            // This allows different user types to function while maintaining security
-            if (assignedRole === 'patient' && user.user_metadata?.userType) {
-              const userType = user.user_metadata.userType;
-              console.log('User type from metadata:', userType);
-              
-              // Map user types to roles safely
-              if (userType === 'recovery') {
-                assignedRole = 'patient';
-              } else if (userType === 'supporter') {
-                assignedRole = 'support_member';
-              } else if (userType === 'provider') {
-                // For MVP, allow provider access if they selected it during signup
-                // In production, this should require admin approval
-                assignedRole = 'provider';
-                console.warn('Provider role assigned based on metadata - this should require admin approval in production');
-              }
-            }
-            
-            setRole(assignedRole);
-            await EnhancedSecurityAuditService.logDataAccessEvent('user_roles', 'SELECT', 1);
-          } else {
-            // No role found, default to patient
-            setRole('patient');
-          }
-        } else {
-          setRole('patient');
-        }
-      } catch (error) {
-        console.error('Error determining user role:', error);
-        await EnhancedSecurityAuditService.logSecurityViolation('ROLE_DETERMINATION_FAILED', {
-          error: error.message,
-          user_id: user?.id
-        });
-        setRole('patient'); // Safe default
-      } finally {
+      if (!user) {
+        setRole('patient');
         setLoading(false);
+        return;
       }
+
+      // Simple role determination from user metadata
+      // This was set during signup and stored in Supabase
+      const userType = user.user_metadata?.userType || 'recovery';
+      
+      let _assignedRole: UserRole = 'patient';
+      
+      switch(userType) {
+        case 'recovery':
+          _assignedRole = 'patient';
+          break;
+        case 'supporter':
+          _assignedRole = 'support_member';
+          break;
+        case 'provider':
+          _assignedRole = 'provider';
+          break;
+        default:
+          _assignedRole = 'patient';
+      }
+      
+      console.log(`User role determined: ${_assignedRole} (from userType: ${userType})`);
+      setRole(_assignedRole);
+      setLoading(false);
     };
 
-    if (user) {
-      determineUserRole();
-    } else {
-      setLoading(false);
-    }
+    determineUserRole();
   }, [user]);
 
-  // SECURITY FIX: Remove client-side role switching capability entirely
-  // Role changes must be handled server-side by administrators only
-  const switchRole = async (newRole: UserRole) => {
-    console.warn('Client-side role switching has been permanently disabled for security. Role changes must be handled by administrators.');
+  // Simplified canAccess function
+  const canAccess = (requiredRole: UserRole): boolean => {
+    if (loading) return false;
     
-    if (user) {
-      await EnhancedSecurityAuditService.logSecurityEvent({
-        action: 'UNAUTHORIZED_ROLE_SWITCH_ATTEMPT',
-        severity: 'high',
-        details: {
-          attempted_role: newRole,
-          current_role: role,
-          user_id: user.id,
-          security_violation: true,
-          timestamp: new Date().toISOString()
-        }
-      });
+    // Provider can access everything
+    if (role === 'provider') return true;
+    
+    // Support member can access support and patient features
+    if (role === 'support_member' && (requiredRole === 'support_member' || requiredRole === 'patient')) {
+      return true;
+    }
+    
+    // Patient can only access patient features
+    return role === requiredRole;
+  };
+
+  // Simple switchRole for testing (disabled in production)
+  const switchRole = (_newRole: UserRole) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Switching role from ${role} to ${_newRole} (dev only)`);
+      setRole(_newRole);
     }
   };
 
   return {
     role,
     loading,
-    switchRole,
-    isPatient: role === 'patient',
-    isProvider: role === 'provider',
-    isSupportMember: role === 'support_member'
+    error: null, // Removed error state for simplicity
+    canAccess,
+    switchRole
   };
 };

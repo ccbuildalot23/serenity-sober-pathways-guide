@@ -8,7 +8,7 @@ import { getGoalsByCategory, getActiveGoals, getGoalsNeedingAttention } from '@/
 
 export const useRecoveryGoals = () => {
   const { user } = useAuth();
-  const [goals, setGoals] = useState<RecoveryGoal[]>([]);
+  const [_goals, setGoals] = useState<RecoveryGoal[]>([]);
   const [goalTemplates, setGoalTemplates] = useState<GoalTemplate[]>([]);
   const [goalProgress, setGoalProgress] = useState<Record<string, GoalProgress[]>>({});
   const [loading, setLoading] = useState(true);
@@ -30,8 +30,8 @@ export const useRecoveryGoals = () => {
         loadGoalProgress()
       ]);
     } catch (error) {
-      console.error('Error loading goals data:', error);
-      toast.error('Failed to load recovery goals');
+      console.error('Error loading _goals data:', error);
+      toast.error('Failed to load recovery _goals');
     } finally {
       setLoading(false);
     }
@@ -39,13 +39,13 @@ export const useRecoveryGoals = () => {
 
   const loadGoals = async () => {
     if (!user) return;
-    const goals = await GoalService.loadGoals(user.id);
-    setGoals(goals);
+    const _goals = await GoalService.loadGoals(user.id);
+    setGoals(_goals);
   };
 
   const loadGoalTemplates = async () => {
-    const templates = await GoalService.loadGoalTemplates();
-    setGoalTemplates(templates);
+    const _templates = await GoalService.loadGoalTemplates();
+    setGoalTemplates(_templates);
   };
 
   const loadGoalProgress = async () => {
@@ -54,50 +54,50 @@ export const useRecoveryGoals = () => {
     setGoalProgress(progress);
   };
 
-  const createGoal = async (goalData: CreateGoalData) => {
+  const createGoal = async (_goalData: CreateGoalData) => {
     if (!user) return { error: 'User not authenticated' };
     
-    const result = await GoalService.createGoal(user.id, goalData);
+    const result = await GoalService.createGoal(user.id, _goalData);
     if (result.success) {
       await loadGoals();
     }
     return result;
   };
 
-  const updateGoalProgress = async (goalId: string, progressData: UpdateProgressData) => {
+  const updateGoalProgress = async (_goalId: string, _progressData: UpdateProgressData) => {
     if (!user) return { error: 'User not authenticated' };
     
-    const result = await GoalService.updateGoalProgress(user.id, goalId, progressData, goals);
+    const result = await GoalService.updateGoalProgress(user.id, _goalId, _progressData, _goals);
     if (result.success) {
       await loadGoalsData();
     }
     return result;
   };
 
-  const pauseGoal = async (goalId: string, reason?: string) => {
+  const pauseGoal = async (_goalId: string, _reason?: string) => {
     if (!user) return { error: 'User not authenticated' };
     
-    const result = await GoalService.pauseGoal(goalId, reason);
+    const result = await GoalService.pauseGoal(_goalId, _reason);
     if (result.success) {
       await loadGoals();
     }
     return result;
   };
 
-  const resumeGoal = async (goalId: string) => {
+  const resumeGoal = async (_goalId: string) => {
     if (!user) return { error: 'User not authenticated' };
     
-    const result = await GoalService.resumeGoal(goalId);
+    const result = await GoalService.resumeGoal(_goalId);
     if (result.success) {
       await loadGoals();
     }
     return result;
   };
 
-  const deleteGoal = async (goalId: string) => {
+  const deleteGoal = async (_goalId: string) => {
     if (!user) return { error: 'User not authenticated' };
     
-    const result = await GoalService.deleteGoal(goalId);
+    const result = await GoalService.deleteGoal(_goalId);
     if (result.success) {
       await loadGoals();
     }
@@ -105,26 +105,26 @@ export const useRecoveryGoals = () => {
   };
 
   const createGoalFromTemplate = async (template: GoalTemplate, customizations: {
-    target_date: string;
-    target_value?: number;
-    accountability_partner_id?: string;
+    _target_date: string;
+    _target_value?: number;
+    _accountability_partner_id?: string;
   }) => {
     return await createGoal({
       title: template.title,
-      description: template.description,
-      category: template.category,
-      priority: 'medium',
-      target_date: customizations.target_date,
-      target_value: customizations.target_value,
-      milestones: template.suggested_milestones,
-      tags: template.tags,
-      accountability_partner_id: customizations.accountability_partner_id,
-      reminder_frequency: 'weekly'
+      _description: template._description,
+      _category: template._category,
+      _priority: 'medium',
+      _target_date: customizations._target_date,
+      _target_value: customizations._target_value,
+      _milestones: template.suggested_milestones,
+      _tags: template._tags,
+      _accountability_partner_id: customizations._accountability_partner_id,
+      _reminder_frequency: 'weekly'
     });
   };
 
   return {
-    goals,
+    _goals,
     goalTemplates,
     goalProgress,
     loading,
@@ -134,9 +134,9 @@ export const useRecoveryGoals = () => {
     resumeGoal,
     deleteGoal,
     createGoalFromTemplate,
-    getGoalsByCategory: (category: RecoveryGoal['category']) => getGoalsByCategory(goals, category),
-    getActiveGoals: () => getActiveGoals(goals),
-    getGoalsNeedingAttention: () => getGoalsNeedingAttention(goals),
+    getGoalsByCategory: (_category: RecoveryGoal['_category']) => getGoalsByCategory(_goals, _category),
+    getActiveGoals: () => getActiveGoals(_goals),
+    getGoalsNeedingAttention: () => getGoalsNeedingAttention(_goals),
     refreshData: loadGoalsData
   };
 };

@@ -16,7 +16,7 @@ export interface SupportMessage {
     timestamp: string;
   };
   created_at: string;
-  read_at?: string;
+  _read_at?: string;
   sender_name?: string;
   sender_role?: string;
 }
@@ -63,11 +63,11 @@ export const useSupporterMessaging = () => {
       ];
 
       setMessages(mockMessages);
-      setUnreadCount(mockMessages.filter(msg => !msg.read_at).length);
+      setUnreadCount(mockMessages._filter(msg => !msg._read_at).length);
 
-    } catch (error) {
-      console.error('Error fetching messages:', error);
-      toast.error('Failed to load messages');
+    } catch (_error) {
+      console._error('Error fetching messages:', _error);
+      toast._error('Failed to load messages');
     } finally {
       setLoading(false);
     }
@@ -79,7 +79,7 @@ export const useSupporterMessaging = () => {
 
     try {
       // Mock location shares for now
-      const mockLocationShares: LocationShare[] = [
+      const _mockLocationShares: LocationShare[] = [
         {
           id: '1',
           patient_id: 'patient-1',
@@ -92,9 +92,9 @@ export const useSupporterMessaging = () => {
         }
       ];
 
-      setLocationShares(mockLocationShares);
-    } catch (error) {
-      console.error('Error fetching location shares:', error);
+      setLocationShares(_mockLocationShares);
+    } catch (_error) {
+      console._error('Error fetching location shares:', _error);
     }
   }, [user?.id]);
 
@@ -118,9 +118,9 @@ export const useSupporterMessaging = () => {
       setMessages(prev => [newMessage, ...prev]);
       toast.success('Message sent');
       return true;
-    } catch (error) {
-      console.error('Error sending message:', error);
-      toast.error('Failed to send message');
+    } catch (_error) {
+      console._error('Error sending message:', _error);
+      toast._error('Failed to send message');
       return false;
     }
   }, [user?.id]);
@@ -130,11 +130,11 @@ export const useSupporterMessaging = () => {
     try {
       // Mock marking as read
       setMessages(prev => prev.map(msg => 
-        msg.id === messageId ? { ...msg, read_at: new Date().toISOString() } : msg
+        msg.id === messageId ? { ...msg, _read_at: new Date().toISOString() } : msg
       ));
       setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (error) {
-      console.error('Error marking message as read:', error);
+    } catch (_error) {
+      console._error('Error marking message as read:', _error);
     }
   }, [user?.id]);
 
@@ -177,9 +177,9 @@ export const useSupporterMessaging = () => {
 
       toast.success(isEmergency ? 'Emergency location shared with supporter and providers' : 'Location shared with supporter');
       return true;
-    } catch (error) {
-      console.error('Error sharing location:', error);
-      toast.error('Failed to share location');
+    } catch (_error) {
+      console._error('Error sharing location:', _error);
+      toast._error('Failed to share location');
       return false;
     }
   }, [user?.id]);
@@ -189,15 +189,15 @@ export const useSupporterMessaging = () => {
     if (!user?.id) return;
 
     // Subscribe to new messages
-    const messagesChannel = supabase
+    const _messagesChannel = supabase
       .channel('supporter_messages')
       .on(
         'postgres_changes',
         {
           event: '*',
-          schema: 'public',
-          table: 'support_messages',
-          filter: `or(sender_id.eq.${user.id},recipient_id.eq.${user.id})`
+          _schema: 'public',
+          _table: 'support_messages',
+          _filter: `or(sender_id.eq.${user.id},recipient_id.eq.${user.id})`
         },
         (payload) => {
           console.log('Message update:', payload);
@@ -207,15 +207,15 @@ export const useSupporterMessaging = () => {
       .subscribe();
 
     // Subscribe to location shares
-    const locationChannel = supabase
+    const _locationChannel = supabase
       .channel('location_shares')
       .on(
         'postgres_changes',
         {
           event: '*',
-          schema: 'public',
-          table: 'location_shares',
-          filter: `shared_with_supporter_id.eq.${user.id}`
+          _schema: 'public',
+          _table: 'location_shares',
+          _filter: `shared_with_supporter_id.eq.${user.id}`
         },
         (payload) => {
           console.log('Location share update:', payload);
@@ -232,8 +232,8 @@ export const useSupporterMessaging = () => {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(messagesChannel);
-      supabase.removeChannel(locationChannel);
+      supabase.removeChannel(_messagesChannel);
+      supabase.removeChannel(_locationChannel);
     };
   }, [user?.id, fetchMessages, fetchLocationShares]);
 

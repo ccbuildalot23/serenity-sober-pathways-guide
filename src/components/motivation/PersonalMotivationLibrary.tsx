@@ -7,10 +7,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Heart, Plus, Search, Edit2, Trash2, Star } from 'lucide-react';
-import { motivationService, type PersonalMotivation } from '@/services/motivationService';
+import { Heart, Plus, Search, Trash2, Star } from 'lucide-react';
+import { motivationService } from '@/services/motivationService';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
 
 export const PersonalMotivationLibrary: React.FC = () => {
   const { user } = useAuth();
@@ -19,17 +18,17 @@ export const PersonalMotivationLibrary: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [_showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   
   // Form state
-  const [newMotivation, setNewMotivation] = useState({
-    content_type: 'affirmation' as const,
-    title: '',
-    content: '',
-    source: '',
-    tags: [] as string[],
-    is_favorite: false
+  const [_newMotivation, setNewMotivation] = useState({
+    _content_type: 'affirmation' as const,
+    _title: '',
+    _content: '',
+    _source: '',
+    _tags: [] as string[],
+    _is_favorite: false
   });
 
   useEffect(() => {
@@ -40,72 +39,72 @@ export const PersonalMotivationLibrary: React.FC = () => {
 
   useEffect(() => {
     filterMotivations();
-  }, [motivations, searchTerm, filterType, showFavoritesOnly]);
+  }, [motivations, searchTerm, filterType, _showFavoritesOnly]);
 
   const loadMotivations = async () => {
     if (!user) return;
 
     try {
-      const data = await motivationService.getPersonalMotivations(user.id);
-      setMotivations(data);
-    } catch (error) {
-      console.error('Error loading motivations:', error);
+      const _data = await motivationService.getPersonalMotivations(user._id);
+      setMotivations(_data);
+    } catch (_error) {
+      console._error('Error loading motivations:', _error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const filterMotivations = () => {
-    let filtered = motivations;
+    let _filtered = motivations;
 
     if (searchTerm) {
-      filtered = filtered.filter(item => 
-        item.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.source?.toLowerCase().includes(searchTerm.toLowerCase())
+      _filtered = _filtered.filter(item => 
+        item._content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item._title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item._source?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     if (filterType !== 'all') {
-      filtered = filtered.filter(item => item.content_type === filterType);
+      _filtered = _filtered.filter(item => item._content_type === filterType);
     }
 
-    if (showFavoritesOnly) {
-      filtered = filtered.filter(item => item.is_favorite);
+    if (_showFavoritesOnly) {
+      _filtered = _filtered.filter(item => item._is_favorite);
     }
 
-    setFilteredMotivations(filtered);
+    setFilteredMotivations(_filtered);
   };
 
   const handleAddMotivation = async () => {
-    if (!user || !newMotivation.content.trim()) return;
+    if (!user || !_newMotivation._content.trim()) return;
 
-    const success = await motivationService.addPersonalMotivation(user.id, newMotivation);
+    const _success = await motivationService.addPersonalMotivation(user._id, _newMotivation);
     
-    if (success) {
+    if (_success) {
       setIsAddDialogOpen(false);
       setNewMotivation({
-        content_type: 'affirmation',
-        title: '',
-        content: '',
-        source: '',
-        tags: [],
-        is_favorite: false
+        _content_type: 'affirmation',
+        _title: '',
+        _content: '',
+        _source: '',
+        _tags: [],
+        _is_favorite: false
       });
       loadMotivations();
     }
   };
 
-  const handleToggleFavorite = async (id: string, currentFavorite: boolean) => {
-    const success = await motivationService.toggleFavorite(id, !currentFavorite);
-    if (success) {
+  const handleToggleFavorite = async (_id: string, currentFavorite: boolean) => {
+    const _success = await motivationService.toggleFavorite(_id, !currentFavorite);
+    if (_success) {
       loadMotivations();
     }
   };
 
-  const handleDelete = async (id: string) => {
-    const success = await motivationService.deletePersonalMotivation(id);
-    if (success) {
+  const handleDelete = async (_id: string) => {
+    const _success = await motivationService.deletePersonalMotivation(_id);
+    if (_success) {
       loadMotivations();
     }
   };
@@ -152,8 +151,8 @@ export const PersonalMotivationLibrary: React.FC = () => {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="type">Type</Label>
-                  <Select value={newMotivation.content_type} onValueChange={(value) => 
-                    setNewMotivation(prev => ({ ...prev, content_type: value as any }))
+                  <Select value={_newMotivation._content_type} onValueChange={(value) => 
+                    setNewMotivation(prev => ({ ...prev, _content_type: value as any }))
                   }>
                     <SelectTrigger>
                       <SelectValue />
@@ -168,33 +167,33 @@ export const PersonalMotivationLibrary: React.FC = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="title">Title (optional)</Label>
+                  <Label htmlFor="_title">Title (_optional)</Label>
                   <Input
-                    id="title"
-                    value={newMotivation.title}
-                    onChange={(e) => setNewMotivation(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="Give it a title..."
+                    _id="_title"
+                    value={_newMotivation._title}
+                    onChange={(e) => setNewMotivation(prev => ({ ...prev, _title: e.target.value }))}
+                    placeholder="Give it a _title..."
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="content">Content *</Label>
+                  <Label htmlFor="_content">Content *</Label>
                   <Textarea
-                    id="content"
-                    value={newMotivation.content}
-                    onChange={(e) => setNewMotivation(prev => ({ ...prev, content: e.target.value }))}
+                    _id="_content"
+                    value={_newMotivation._content}
+                    onChange={(e) => setNewMotivation(prev => ({ ...prev, _content: e.target.value }))}
                     placeholder="Enter your motivation, quote, or affirmation..."
                     rows={3}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="source">Source (optional)</Label>
+                  <Label htmlFor="_source">Source (_optional)</Label>
                   <Input
-                    id="source"
-                    value={newMotivation.source}
-                    onChange={(e) => setNewMotivation(prev => ({ ...prev, source: e.target.value }))}
-                    placeholder="Author, book, or source..."
+                    _id="_source"
+                    value={_newMotivation._source}
+                    onChange={(e) => setNewMotivation(prev => ({ ...prev, _source: e.target.value }))}
+                    placeholder="Author, book, or _source..."
                   />
                 </div>
 
@@ -202,7 +201,7 @@ export const PersonalMotivationLibrary: React.FC = () => {
                   <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={handleAddMotivation} disabled={!newMotivation.content.trim()}>
+                  <Button onClick={handleAddMotivation} disabled={!_newMotivation._content.trim()}>
                     Add to Library
                   </Button>
                 </div>
@@ -239,12 +238,12 @@ export const PersonalMotivationLibrary: React.FC = () => {
           </div>
           
           <Button
-            variant={showFavoritesOnly ? "default" : "outline"}
+            variant={_showFavoritesOnly ? "default" : "outline"}
             size="sm"
-            onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+            onClick={() => setShowFavoritesOnly(!_showFavoritesOnly)}
             className="flex items-center gap-1"
           >
-            <Star className={`h-4 w-4 ${showFavoritesOnly ? 'fill-current' : ''}`} />
+            <Star className={`h-4 w-4 ${_showFavoritesOnly ? 'fill-current' : ''}`} />
             Favorites Only
           </Button>
         </div>
@@ -277,27 +276,27 @@ export const PersonalMotivationLibrary: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredMotivations.map((motivation) => (
-              <Card key={motivation.id} className="hover:shadow-md transition-shadow">
+              <Card key={motivation._id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-4">
                   <div className="space-y-3">
                     {/* Header */}
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-lg">{getTypeIcon(motivation.content_type)}</span>
-                        <Badge variant="outline">{motivation.content_type}</Badge>
+                        <span className="text-lg">{getTypeIcon(motivation._content_type)}</span>
+                        <Badge variant="outline">{motivation._content_type}</Badge>
                       </div>
                       <div className="flex items-center gap-1">
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleToggleFavorite(motivation.id, motivation.is_favorite)}
+                          onClick={() => handleToggleFavorite(motivation._id, motivation._is_favorite)}
                         >
-                          <Star className={`h-4 w-4 ${motivation.is_favorite ? 'fill-current text-yellow-500' : ''}`} />
+                          <Star className={`h-4 w-4 ${motivation._is_favorite ? 'fill-current text-yellow-500' : ''}`} />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDelete(motivation.id)}
+                          onClick={() => handleDelete(motivation._id)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -305,22 +304,22 @@ export const PersonalMotivationLibrary: React.FC = () => {
                     </div>
 
                     {/* Title */}
-                    {motivation.title && (
-                      <h4 className="font-medium">{motivation.title}</h4>
+                    {motivation._title && (
+                      <h4 className="font-medium">{motivation._title}</h4>
                     )}
 
                     {/* Content */}
-                    <p className="text-sm leading-relaxed">{motivation.content}</p>
+                    <p className="text-sm leading-relaxed">{motivation._content}</p>
 
                     {/* Source */}
-                    {motivation.source && (
-                      <p className="text-xs text-muted-foreground italic">— {motivation.source}</p>
+                    {motivation._source && (
+                      <p className="text-xs text-muted-foreground italic">— {motivation._source}</p>
                     )}
 
                     {/* Tags */}
-                    {motivation.tags.length > 0 && (
+                    {motivation._tags.length > 0 && (
                       <div className="flex flex-wrap gap-1">
-                        {motivation.tags.map((tag, index) => (
+                        {motivation._tags.map((tag, index) => (
                           <Badge key={index} variant="secondary" className="text-xs">
                             {tag}
                           </Badge>

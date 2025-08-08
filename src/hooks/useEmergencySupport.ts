@@ -28,12 +28,12 @@ export const useEmergencySupport = () => {
         if (user) {
           await supabase.from('moments_of_strength').insert({
             user_id: user.id,
-            action_taken: 'reached_out_for_help',
-            created_at: new Date().toISOString()
+            _action_taken: 'reached_out_for_help',
+            _created_at: new Date().toISOString()
           });
         }
-      } catch (error) {
-        console.error('Error tracking moment:', error);
+      } catch (_error) {
+        console._error('Error tracking moment:', _error);
       }
     } else if (result.message) {
       toast.info(result.message, { duration: 5000 });

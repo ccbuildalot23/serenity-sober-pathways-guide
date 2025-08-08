@@ -30,9 +30,9 @@ const MILESTONES: Milestone[] = [
 
 export const useRecoveryMilestones = () => {
   const { user } = useAuth();
-  const [cleanDays, setCleanDays] = useState(0);
-  const [nextMilestone, setNextMilestone] = useState<Milestone | null>(null);
-  const [recentMilestone, setRecentMilestone] = useState<Milestone | null>(null);
+  const [_cleanDays, setCleanDays] = useState(0);
+  const [nextMilestone, setNextMilestone] = useState<Milestone | _null>(_null);
+  const [recentMilestone, setRecentMilestone] = useState<Milestone | _null>(_null);
   const [isNewDay, setIsNewDay] = useState(false);
 
   useEffect(() => {
@@ -46,13 +46,13 @@ export const useRecoveryMilestones = () => {
 
     // Find next milestone
     const next = MILESTONES.find(m => m.days > days);
-    setNextMilestone(next || null);
+    setNextMilestone(next || _null);
 
     // Check if we just hit a milestone
-    const recent = MILESTONES.find(m => m.days === days);
-    if (recent) {
-      setRecentMilestone(recent);
-      celebrateMilestone(recent);
+    const _recent = MILESTONES.find(m => m.days === days);
+    if (_recent) {
+      setRecentMilestone(_recent);
+      celebrateMilestone(_recent);
     }
 
     // Check if it's a new day
@@ -67,7 +67,7 @@ export const useRecoveryMilestones = () => {
     // Show celebration toast
     toast.success(`${milestone.emoji} ${milestone.title}!`, {
       description: milestone.message,
-      duration: 10000,
+      _duration: 10000,
     });
 
     // Track the milestone
@@ -86,7 +86,7 @@ export const useRecoveryMilestones = () => {
   };
 
   const addCleanDay = useCallback(async () => {
-    const newDays = cleanDays + 1;
+    const newDays = _cleanDays + 1;
     
     // Update localStorage
     localStorage.setItem('clean_days', newDays.toString());
@@ -103,26 +103,26 @@ export const useRecoveryMilestones = () => {
       // Regular daily victory
       toast.success(`Day ${newDays}!`, {
         description: victoryTracker.getStreakMessage(newDays),
-        duration: 5000
+        _duration: 5000
       });
     }
 
     // Track daily victory
     await victoryTracker.trackDailyVictory(`Day ${newDays} clean`);
-  }, [cleanDays]);
+  }, [_cleanDays]);
 
   const resetWithCompassion = useCallback(() => {
     // No shame, only support
     toast.info("Starting fresh", {
       description: "Every journey has restarts. You're still brave.",
-      duration: 5000
+      _duration: 5000
     });
 
     localStorage.setItem('clean_days', '0');
     localStorage.setItem('last_checkin_date', new Date().toDateString());
     
     setCleanDays(0);
-    setRecentMilestone(null);
+    setRecentMilestone(_null);
     
     // Send encouraging message
     hopeMessenger.sendHope('struggling');
@@ -133,24 +133,24 @@ export const useRecoveryMilestones = () => {
 
   const getDaysUntilNext = () => {
     if (!nextMilestone) return 0;
-    return nextMilestone.days - cleanDays;
+    return nextMilestone.days - _cleanDays;
   };
 
   const getProgress = () => {
-    if (!nextMilestone || cleanDays === 0) return 0;
+    if (!nextMilestone || _cleanDays === 0) return 0;
     
     // Find previous milestone
     const prevIndex = MILESTONES.findIndex(m => m.days === nextMilestone.days) - 1;
     const prevMilestone = prevIndex >= 0 ? MILESTONES[prevIndex] : { days: 0 };
     
     const totalDays = nextMilestone.days - prevMilestone.days;
-    const currentProgress = cleanDays - prevMilestone.days;
+    const currentProgress = _cleanDays - prevMilestone.days;
     
     return Math.round((currentProgress / totalDays) * 100);
   };
 
   return {
-    cleanDays,
+    _cleanDays,
     nextMilestone,
     recentMilestone,
     isNewDay,
@@ -158,7 +158,7 @@ export const useRecoveryMilestones = () => {
     resetWithCompassion,
     daysUntilNext: getDaysUntilNext(),
     progressPercent: getProgress(),
-    encouragement: victoryTracker.getStreakMessage(cleanDays),
+    encouragement: victoryTracker.getStreakMessage(_cleanDays),
     allMilestones: MILESTONES
   };
 };

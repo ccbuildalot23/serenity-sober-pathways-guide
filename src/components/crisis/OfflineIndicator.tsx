@@ -16,21 +16,21 @@ const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({ onSync }) => {
   const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
-    const handleOnline = () => {
+    const _handleOnline = () => {
       setIsOnline(true);
       checkPendingSync();
     };
     
-    const handleOffline = () => setIsOnline(false);
+    const _handleOffline = () => setIsOnline(false);
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', _handleOnline);
+    window.addEventListener('offline', _handleOffline);
 
     checkPendingSync();
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', _handleOnline);
+      window.removeEventListener('offline', _handleOffline);
     };
   }, []);
 
@@ -48,8 +48,8 @@ const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({ onSync }) => {
         await onSync();
       }
       checkPendingSync();
-    } catch (error) {
-      console.error('Sync failed:', error);
+    } catch (_error) {
+      console._error('Sync failed:', _error);
     } finally {
       setIsSyncing(false);
     }

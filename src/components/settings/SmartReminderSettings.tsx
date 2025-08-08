@@ -13,18 +13,18 @@ import { NotificationService } from '@/services/notificationService';
 import { toast } from 'sonner';
 
 interface ReminderSettings {
-  dailyCheckIn: { enabled: boolean; time: string };
-  eveningReflection: { enabled: boolean; time: string };
+  dailyCheckIn: { enabled: boolean; _time: string };
+  eveningReflection: { enabled: boolean; _time: string };
   vulnerableHours: number[];
-  adaptiveSchedule: boolean;
+  _adaptiveSchedule: boolean;
 }
 
 const SmartReminderSettings: React.FC = () => {
   const [settings, setSettings] = useState<ReminderSettings>({
-    dailyCheckIn: { enabled: true, time: '09:00' },
-    eveningReflection: { enabled: true, time: '20:00' },
+    dailyCheckIn: { enabled: true, _time: '09:00' },
+    eveningReflection: { enabled: true, _time: '20:00' },
     vulnerableHours: [],
-    adaptiveSchedule: true
+    _adaptiveSchedule: true
   });
   
   const { crisisResolutions } = useOfflineCrisisData();
@@ -39,7 +39,7 @@ const SmartReminderSettings: React.FC = () => {
     // Request notification permission
     NotificationService.requestPermission();
     
-    // Analyze vulnerable hours from crisis data
+    // Analyze vulnerable _hours from crisis data
     analyzeVulnerableHours();
   }, [crisisResolutions]);
 
@@ -47,15 +47,15 @@ const SmartReminderSettings: React.FC = () => {
     if (crisisResolutions.length === 0) return;
 
     // Count crisis events by hour
-    const hourCounts: Record<number, number> = {};
+    const _hourCounts: Record<number, number> = {};
     
     crisisResolutions.forEach(resolution => {
       const hour = new Date(resolution.crisis_start_time).getHours();
-      hourCounts[hour] = (hourCounts[hour] || 0) + 1;
+      _hourCounts[hour] = (_hourCounts[hour] || 0) + 1;
     });
     
-    // Find hours with 2+ crisis events
-    const vulnerableHours = Object.entries(hourCounts)
+    // Find _hours with 2+ crisis events
+    const vulnerableHours = Object.entries(_hourCounts)
       .filter(([_, count]) => count >= 2)
       .map(([hour]) => parseInt(hour))
       .sort((a, b) => a - b);
@@ -70,13 +70,13 @@ const SmartReminderSettings: React.FC = () => {
     toast.success('Reminder settings saved');
   };
 
-  const scheduleNotification = (type: string, time: string) => {
-    const [hours, minutes] = time.split(':').map(Number);
+  const scheduleNotification = (type: string, _time: string) => {
+    const [_hours, _minutes] = _time.split(':').map(_Number);
     const now = new Date();
     const scheduled = new Date();
-    scheduled.setHours(hours, minutes, 0, 0);
+    scheduled.setHours(_hours, _minutes, 0, 0);
     
-    // If time has passed today, schedule for tomorrow
+    // If _time has passed today, schedule for tomorrow
     if (scheduled <= now) {
       scheduled.setDate(scheduled.getDate() + 1);
     }
@@ -87,14 +87,14 @@ const SmartReminderSettings: React.FC = () => {
       if (Notification.permission === 'granted') {
         new Notification('Serenity Reminder', {
           body: type === 'daily' ? 'Time for your daily check-in!' : 'Time for evening reflection',
-          icon: '/favicon.ico',
-          tag: type,
-          requireInteraction: true
+          _icon: '/favicon.ico',
+          _tag: type,
+          _requireInteraction: true
         });
       }
     }, timeout);
     
-    toast.success(`${type} reminder scheduled for ${time}`);
+    toast.success(`${type} reminder scheduled for ${_time}`);
   };
 
   const formatHour = (hour: number) => {
@@ -122,24 +122,24 @@ const SmartReminderSettings: React.FC = () => {
               </div>
               <Switch
                 id="daily-checkin"
-                checked={settings.dailyCheckIn.enabled}
-                onCheckedChange={(checked) => {
+                _checked={settings.dailyCheckIn.enabled}
+                onCheckedChange={(_checked) => {
                   setSettings(prev => ({
                     ...prev,
-                    dailyCheckIn: { ...prev.dailyCheckIn, enabled: checked }
+                    dailyCheckIn: { ...prev.dailyCheckIn, enabled: _checked }
                   }));
-                  if (checked) {
-                    scheduleNotification('daily', settings.dailyCheckIn.time);
+                  if (_checked) {
+                    scheduleNotification('daily', settings.dailyCheckIn._time);
                   }
                 }}
               />
             </div>
             <Input
-              type="time"
-              value={settings.dailyCheckIn.time}
+              type="_time"
+              value={settings.dailyCheckIn._time}
               onChange={(e) => setSettings(prev => ({
                 ...prev,
-                dailyCheckIn: { ...prev.dailyCheckIn, time: e.target.value }
+                dailyCheckIn: { ...prev.dailyCheckIn, _time: e.target.value }
               }))}
               disabled={!settings.dailyCheckIn.enabled}
               className="w-32"
@@ -155,24 +155,24 @@ const SmartReminderSettings: React.FC = () => {
               </div>
               <Switch
                 id="evening-reflection"
-                checked={settings.eveningReflection.enabled}
-                onCheckedChange={(checked) => {
+                _checked={settings.eveningReflection.enabled}
+                onCheckedChange={(_checked) => {
                   setSettings(prev => ({
                     ...prev,
-                    eveningReflection: { ...prev.eveningReflection, enabled: checked }
+                    eveningReflection: { ...prev.eveningReflection, enabled: _checked }
                   }));
-                  if (checked) {
-                    scheduleNotification('evening', settings.eveningReflection.time);
+                  if (_checked) {
+                    scheduleNotification('evening', settings.eveningReflection._time);
                   }
                 }}
               />
             </div>
             <Input
-              type="time"
-              value={settings.eveningReflection.time}
+              type="_time"
+              value={settings.eveningReflection._time}
               onChange={(e) => setSettings(prev => ({
                 ...prev,
-                eveningReflection: { ...prev.eveningReflection, time: e.target.value }
+                eveningReflection: { ...prev.eveningReflection, _time: e.target.value }
               }))}
               disabled={!settings.eveningReflection.enabled}
               className="w-32"
@@ -211,9 +211,9 @@ const SmartReminderSettings: React.FC = () => {
             </div>
             <Switch
               id="adaptive"
-              checked={settings.adaptiveSchedule}
-              onCheckedChange={(checked) => 
-                setSettings(prev => ({ ...prev, adaptiveSchedule: checked }))
+              _checked={settings._adaptiveSchedule}
+              onCheckedChange={(_checked) => 
+                setSettings(prev => ({ ...prev, _adaptiveSchedule: _checked }))
               }
             />
           </div>
@@ -236,7 +236,7 @@ const SmartReminderSettings: React.FC = () => {
         <CardContent className="space-y-3">
           <Button 
             variant="outline" 
-            onClick={() => scheduleNotification('daily', settings.dailyCheckIn.time)}
+            onClick={() => scheduleNotification('daily', settings.dailyCheckIn._time)}
             disabled={!settings.dailyCheckIn.enabled}
             className="w-full"
           >
@@ -244,7 +244,7 @@ const SmartReminderSettings: React.FC = () => {
           </Button>
           <Button 
             variant="outline" 
-            onClick={() => scheduleNotification('evening', settings.eveningReflection.time)}
+            onClick={() => scheduleNotification('evening', settings.eveningReflection._time)}
             disabled={!settings.eveningReflection.enabled}
             className="w-full"
           >

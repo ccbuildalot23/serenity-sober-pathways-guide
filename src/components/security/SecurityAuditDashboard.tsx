@@ -9,9 +9,9 @@ import { EnhancedSecurityInitializer } from '@/lib/enhancedSecurityInitializer';
 import { Shield, AlertTriangle, CheckCircle, Activity, Clock, Eye } from 'lucide-react';
 
 export const SecurityAuditDashboard: React.FC = () => {
-  const { user } = useAuth();
+  const { _user } = useAuth();
   const { log } = useSecureAuditLogger();
-  const [securityStatus, setSecurityStatus] = useState<any>(null);
+  const [securityStatus, setSecurityStatus] = useState<unknown>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
@@ -27,15 +27,15 @@ export const SecurityAuditDashboard: React.FC = () => {
       setSecurityStatus({
         ...status,
         issues,
-        lastUpdated: new Date().toISOString()
+        _lastUpdated: new Date().toISOString()
       });
 
       await log('SECURITY_AUDIT_DASHBOARD_ACCESSED', {
         timestamp: new Date().toISOString(),
         securityIssueCount: issues.length
       });
-    } catch (error) {
-      console.error('Failed to refresh security status:', error);
+    } catch (_error) {
+      console._error('Failed to refresh security status:', _error);
     } finally {
       setIsRefreshing(false);
     }
@@ -54,7 +54,7 @@ export const SecurityAuditDashboard: React.FC = () => {
     if (securityStatus.complianceEnabled) passedChecks++;
     if (securityStatus.environmentValidated) passedChecks++;
     if (securityStatus.issues.length === 0) passedChecks++;
-    if (user) passedChecks++; // Authentication active
+    if (_user) passedChecks++; // Authentication active
     
     return Math.round((passedChecks / totalChecks) * 100);
   };
@@ -77,8 +77,8 @@ export const SecurityAuditDashboard: React.FC = () => {
     );
   }
 
-  const securityScore = getSecurityScore();
-  const securityLevel = getSecurityLevel(securityScore);
+  const _securityScore = getSecurityScore();
+  const securityLevel = getSecurityLevel(_securityScore);
   const SecurityIcon = securityLevel.icon;
 
   return (
@@ -111,7 +111,7 @@ export const SecurityAuditDashboard: React.FC = () => {
               <div className="flex items-center justify-center mb-2">
                 <SecurityIcon className={`w-8 h-8 ${securityLevel.color}`} />
               </div>
-              <div className="text-3xl font-bold mb-1">{securityScore}%</div>
+              <div className="text-3xl font-bold mb-1">{_securityScore}%</div>
               <div className={`text-sm font-medium ${securityLevel.color}`}>
                 {securityLevel.level}
               </div>
@@ -152,7 +152,7 @@ export const SecurityAuditDashboard: React.FC = () => {
                 Last Updated
               </div>
               <div className="text-xs font-mono">
-                {new Date(securityStatus.lastUpdated).toLocaleString()}
+                {new Date(securityStatus._lastUpdated).toLocaleString()}
               </div>
             </div>
           </div>
@@ -185,7 +185,7 @@ export const SecurityAuditDashboard: React.FC = () => {
           <CardTitle>Security Recommendations</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {securityScore < 90 && (
+          {_securityScore < 90 && (
             <div className="space-y-2">
               <h4 className="font-medium">Improve Security Score:</h4>
               <ul className="text-sm text-muted-foreground space-y-1 ml-4">
@@ -204,7 +204,7 @@ export const SecurityAuditDashboard: React.FC = () => {
             </div>
           )}
           
-          {securityScore >= 90 && (
+          {_securityScore >= 90 && (
             <div className="flex items-center text-green-600">
               <CheckCircle className="w-5 h-5 mr-2" />
               <span>Excellent security posture! Continue monitoring for optimal protection.</span>

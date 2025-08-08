@@ -1,6 +1,6 @@
 import React from 'react';
 import Layout from '@/components/Layout';
-import FunctionalCrisisButton from '@/components/crisis/FunctionalCrisisButton';
+import EnhancedCrisisSystem from '@/components/crisis/EnhancedCrisisSystem';
 import { EmergencyContactsSetup } from '@/components/crisis/EmergencyContactsSetup';
 
 const CrisisSupport = () => {
@@ -16,7 +16,7 @@ const CrisisSupport = () => {
 
         <div className="grid gap-6 md:grid-cols-2">
           <div>
-            <FunctionalCrisisButton />
+            <EnhancedCrisisSystem />
           </div>
           
           <div>

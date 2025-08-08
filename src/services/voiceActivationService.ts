@@ -2,18 +2,18 @@
 // Add type declarations for speech recognition
 declare global {
   interface Window {
-    SpeechRecognition: any;
-    webkitSpeechRecognition: any;
+    SpeechRecognition: unknown;
+    webkitSpeechRecognition: unknown;
   }
 }
 
 interface VoiceActivationOptions {
   onCrisisDetected: () => void;
-  onError?: (error: string) => void;
+  onError?: (_error: string) => void;
 }
 
 class VoiceActivationService {
-  private recognition: any = null;
+  private recognition: unknown = null;
   private isListening = false;
   private options: VoiceActivationOptions | null = null;
 
@@ -32,10 +32,10 @@ class VoiceActivationService {
     this.recognition.interimResults = false;
     this.recognition.lang = 'en-US';
 
-    this.recognition.onresult = (event: any) => {
+    this.recognition.onresult = (event: unknown) => {
       const transcript = Array.from(event.results)
-        .map((result: any) => result[0])
-        .map((result: any) => result.transcript)
+        .map((result: unknown) => result[0])
+        .map((result: unknown) => result.transcript)
         .join('');
 
       console.log('Voice input detected:', transcript);
@@ -60,9 +60,9 @@ class VoiceActivationService {
       }
     };
 
-    this.recognition.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
-      this.options?.onError?.(event.error);
+    this.recognition.onerror = (event: unknown) => {
+      console._error('Speech recognition _error:', event._error);
+      this.options?.onError?.(event._error);
     };
 
     this.recognition.onend = () => {
@@ -94,8 +94,8 @@ class VoiceActivationService {
       this.recognition.start();
       console.log('Voice activation started');
       return true;
-    } catch (error) {
-      console.error('Failed to start voice recognition:', error);
+    } catch (_error) {
+      console._error('Failed to start voice recognition:', _error);
       this.isListening = false;
       options.onError?.('Failed to start voice recognition');
       return false;

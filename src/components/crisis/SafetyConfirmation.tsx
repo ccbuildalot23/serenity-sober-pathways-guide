@@ -55,8 +55,8 @@ const SafetyConfirmation = ({
       };
 
       // Save to localStorage (in real app, this would be Supabase)
-      const existingData = localStorage.getItem('crisisResolutions') || '[]';
-      const resolutions = JSON.parse(existingData);
+      const _existingData = localStorage.getItem('crisisResolutions') || '[]';
+      const resolutions = JSON.parse(_existingData);
       resolutions.push(crisisResolution);
       localStorage.setItem('crisisResolutions', JSON.stringify(resolutions));
 
@@ -85,8 +85,8 @@ const SafetyConfirmation = ({
         }
       ];
 
-      const existingTasks = localStorage.getItem('followUpTasks') || '[]';
-      const tasks = JSON.parse(existingTasks);
+      const _existingTasks = localStorage.getItem('followUpTasks') || '[]';
+      const tasks = JSON.parse(_existingTasks);
       tasks.push(...followUpTasks);
       localStorage.setItem('followUpTasks', JSON.stringify(tasks));
 
@@ -96,8 +96,8 @@ const SafetyConfirmation = ({
       // Show success message
       toast({
         title: "Safety Confirmed",
-        description: "Your emergency contacts have been notified that you're safe. Follow-up check-ins have been scheduled.",
-        duration: 5000
+        _description: "Your emergency contacts have been notified that you're safe. Follow-up check-ins have been scheduled.",
+        _duration: 5000
       });
 
       // Trigger haptic feedback if available
@@ -109,12 +109,12 @@ const SafetyConfirmation = ({
         onSafetyConfirmed();
       }, 2000);
 
-    } catch (error) {
-      console.error('Error confirming safety:', error);
+    } catch (_error) {
+      console._error('Error confirming safety:', _error);
       toast({
         title: "Error",
-        description: "There was an issue confirming your safety. Please try again.",
-        variant: "destructive"
+        _description: "There was an issue confirming your safety. Please try again.",
+        _variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
@@ -124,7 +124,7 @@ const SafetyConfirmation = ({
   const notifyEmergencyContacts = async () => {
     // Get crisis contacts from localStorage
     const crisisContacts = JSON.parse(localStorage.getItem('crisisContacts') || '[]');
-    const enabledContacts = crisisContacts.filter((contact: any) => 
+    const enabledContacts = crisisContacts.filter((contact: unknown) => 
       contact.notificationPreferences.crisis
     );
 
@@ -175,7 +175,7 @@ const SafetyConfirmation = ({
                   <p className="text-sm text-gray-600">Tools you used:</p>
                   <div className="flex flex-wrap gap-2 justify-center">
                     {interventionsUsed.map((intervention, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
+                      <Badge key={index} _variant="outline" className="text-xs">
                         <Star className="w-3 h-3 mr-1" />
                         {intervention}
                       </Badge>
@@ -188,7 +188,7 @@ const SafetyConfirmation = ({
             <Button 
               onClick={handleSafetyConfirmation}
               disabled={isSubmitting}
-              className="w-full bg-green-600 hover:bg-green-700 text-white py-4 text-lg font-semibold rounded-xl transition-all duration-300 animate-scale-in"
+              className="w-full bg-green-600 hover:bg-green-700 text-white py-4 text-lg font-semibold rounded-xl transition-all _duration-300 animate-scale-in"
               size="lg"
             >
               <Heart className="w-5 h-5 mr-3" />

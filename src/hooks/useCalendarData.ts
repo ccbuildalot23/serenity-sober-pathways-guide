@@ -3,13 +3,13 @@ import { MoodEntry } from '@/types/calendar';
 import { formatDate, startOfMonth, endOfMonth } from '@/components/calendar/utils/calendarHelpers';
 
 export function useCalendarData(
-  selectedMonth: Date,
+  _selectedMonth: Date,
   user?: { id: string },
-  supabase?: any
+  supabase?: unknown
 ) {
   const [monthEntries, setMonthEntries] = useState<MoodEntry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | _null>(_null);
 
   // Enhanced mock data for demo
   const getMockData = (): MoodEntry[] => {
@@ -28,7 +28,7 @@ export function useCalendarData(
       'Sober another day', 'Feeling stronger', 'Made progress', 'Self-care time'
     ];
     
-    const notes = [
+    const _notes = [
       'Felt really good today. The meditation practice is helping.',
       'Tough day but I pushed through. Proud of myself for not giving up.',
       'Had some cravings but used my coping strategies. It worked!',
@@ -40,10 +40,10 @@ export function useCalendarData(
     ];
     
     // Generate entries for the current month
-    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    const _daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
     const currentDay = today.getDate();
     
-    for (let i = 1; i <= Math.min(currentDay, daysInMonth); i++) {
+    for (let i = 1; i <= Math.min(currentDay, _daysInMonth); i++) {
       const date = new Date(today.getFullYear(), today.getMonth(), i);
       
       // Create a more realistic mood pattern (generally improving over time with some fluctuations)
@@ -51,11 +51,11 @@ export function useCalendarData(
       const dailyVariation = Math.sin(i * 0.5) * 2; // Natural ups and downs
       const trendUpward = baselineProgress * 2; // General upward trend
       
-      const moodBase = Math.min(Math.max(4 + trendUpward + dailyVariation, 3), 10);
-      const mood = Math.round(moodBase);
+      const _moodBase = Math.min(Math.max(4 + trendUpward + dailyVariation, 3), 10);
+      const mood = Math.round(_moodBase);
       
-      const energyBase = Math.min(Math.max(3 + trendUpward + Math.cos(i * 0.7) * 2, 2), 10);
-      const energy = Math.round(energyBase);
+      const _energyBase = Math.min(Math.max(3 + trendUpward + Math.cos(i * 0.7) * 2, 2), 10);
+      const energy = Math.round(_energyBase);
       
       // More likely to have triggers on lower mood days
       const hasTriggers = mood < 6 && Math.random() > 0.5;
@@ -69,19 +69,19 @@ export function useCalendarData(
         ? gratitudes.filter(() => Math.random() > 0.7).slice(0, 3)
         : [];
       
-      // Add notes sometimes
+      // Add _notes sometimes
       const hasNotes = Math.random() > 0.6;
-      const dayNotes = hasNotes ? notes[Math.floor(Math.random() * notes.length)] : '';
+      const dayNotes = hasNotes ? _notes[Math.floor(Math.random() * _notes.length)] : '';
       
       entries.push({
         id: `mock-${i}`,
         date: date,
-        mood_rating: mood,
-        energy_rating: energy,
+        _mood_rating: mood,
+        _energy_rating: energy,
         triggers: dayTriggers,
         gratitude: dayGratitude,
-        notes: dayNotes,
-        created_at: date
+        _notes: dayNotes,
+        _created_at: date
       });
     }
     
@@ -97,7 +97,7 @@ export function useCalendarData(
       }
 
       setIsLoading(true);
-      setError(null);
+      setError(_null);
 
       try {
         const { data: checkins, error } = await supabase
@@ -114,24 +114,24 @@ export function useCalendarData(
             )
           `)
           .eq('user_id', user.id)
-          .gte('checkin_date', formatDate(startOfMonth(selectedMonth), 'yyyy-MM-dd'))
-          .lte('checkin_date', formatDate(endOfMonth(selectedMonth), 'yyyy-MM-dd'))
+          .gte('checkin_date', formatDate(startOfMonth(_selectedMonth), 'yyyy-MM-dd'))
+          .lte('checkin_date', formatDate(endOfMonth(_selectedMonth), 'yyyy-MM-dd'))
           .order('checkin_date', { ascending: true });
 
         if (error) throw error;
         
-        const transformedData = (checkins || []).map((entry: any): MoodEntry => ({
+        const _transformedData = (checkins || []).map((entry: unknown): MoodEntry => ({
           id: entry.id,
           date: new Date(entry.checkin_date),
-          mood_rating: entry.mood_rating || 5,
-          energy_rating: entry.energy_rating || 5,
-          triggers: entry.mood_triggers?.map((t: any) => t.trigger_name) || [],
-          gratitude: entry.gratitude_entries?.map((g: any) => g.gratitude_text) || [],
-          notes: entry.notes || entry.support_needed || '',
-          created_at: new Date(entry.created_at)
+          _mood_rating: entry._mood_rating || 5,
+          _energy_rating: entry._energy_rating || 5,
+          triggers: entry.mood_triggers?.map((t: unknown) => t.trigger_name) || [],
+          gratitude: entry.gratitude_entries?.map((g: unknown) => g.gratitude_text) || [],
+          _notes: entry._notes || entry.support_needed || '',
+          _created_at: new Date(entry._created_at)
         }));
 
-        setMonthEntries(transformedData);
+        setMonthEntries(_transformedData);
       } catch (err) {
         setError('Failed to load calendar data');
         console.error('Error loading calendar data:', err);
@@ -141,7 +141,7 @@ export function useCalendarData(
     };
 
     fetchData();
-  }, [selectedMonth, user?.id, supabase]);
+  }, [_selectedMonth, user?.id, supabase]);
 
   return {
     monthEntries,

@@ -6,7 +6,7 @@ export class SecureMonitoring {
   private static readonly MAX_FAILED_ATTEMPTS = 10;
   private static readonly RATE_LIMIT_WINDOW = 30 * 60 * 1000; // 30 minutes
   private static failedAttempts = new Map<string, number[]>();
-  private static suspiciousActivity = new Map<string, any[]>();
+  private static suspiciousActivity = new Map<string, unknown[]>();
 
   static trackAuthAttempt(email: string, success: boolean) {
     const key = `auth_${email}`;
@@ -38,7 +38,7 @@ export class SecureMonitoring {
     return true; // Allow attempt
   }
 
-  static trackSuspiciousActivity(type: string, details: any = {}) {
+  static trackSuspiciousActivity(type: string, details: unknown = {}) {
     const key = `suspicious_${type}`;
     const now = Date.now();
     
@@ -83,7 +83,7 @@ export class SecureMonitoring {
     }
 
     // Detect console manipulation attempts with less aggressive checking
-    let devtools = { open: false, orientation: null };
+    const devtools = { open: false, orientation: null };
     const threshold = 160;
 
     const checkDevTools = () => {
@@ -109,7 +109,7 @@ export class SecureMonitoring {
     setInterval(checkDevTools, 5000);
   }
 
-  private static logSecurityEvent(event: string, details: any = {}) {
+  private static logSecurityEvent(event: string, details: unknown = {}) {
     // Only log critical events in production to reduce noise
     if (import.meta.env.PROD && !event.includes('THREAT') && !event.includes('VIOLATION')) {
       return;
@@ -135,7 +135,7 @@ export class SecureMonitoring {
     }
   }
 
-  private static logSecurityThreat(threat: string, details: any = {}) {
+  private static logSecurityThreat(threat: string, details: unknown = {}) {
     console.warn(`SECURITY THREAT DETECTED: ${threat}`, details);
     this.logSecurityEvent(`THREAT_${threat}`, details);
     

@@ -13,8 +13,8 @@ const OutcomeMeasurementDashboard: React.FC = () => {
   const { user } = useAuth();
   const [analytics, setAnalytics] = useState<UserAnalytics[]>([]);
   const [outcomeMeasures, setOutcomeMeasures] = useState<OutcomeMeasure[]>([]);
-  const [crisisRisk, setCrisisRisk] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [crisisRisk, setCrisisRisk] = useState<unknown>(null);
+  const [_loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -30,19 +30,19 @@ const OutcomeMeasurementDashboard: React.FC = () => {
       await analyticsService.generateUserAnalytics(user!.id);
       
       // Load analytics data
-      const analyticsData = await analyticsService.getUserAnalytics(user!.id, 30);
-      setAnalytics(analyticsData);
+      const _analyticsData = await analyticsService.getUserAnalytics(user!.id, 30);
+      setAnalytics(_analyticsData);
       
       // Load outcome measures
-      const measuresData = await analyticsService.getOutcomeMeasures(user!.id);
-      setOutcomeMeasures(measuresData);
+      const _measuresData = await analyticsService.getOutcomeMeasures(user!.id);
+      setOutcomeMeasures(_measuresData);
       
       // Get crisis risk prediction
-      const riskData = await analyticsService.getCrisisRiskPrediction(user!.id);
-      setCrisisRisk(riskData);
+      const _riskData = await analyticsService.getCrisisRiskPrediction(user!.id);
+      setCrisisRisk(_riskData);
       
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
+      console.error('Error _loading dashboard data:', error);
       toast.error('Failed to load analytics data');
     } finally {
       setLoading(false);
@@ -57,8 +57,8 @@ const OutcomeMeasurementDashboard: React.FC = () => {
     risk: a.crisis_risk_score
   }));
 
-  const getRiskBadgeColor = (riskLevel: string) => {
-    switch (riskLevel) {
+  const getRiskBadgeColor = (_riskLevel: string) => {
+    switch (_riskLevel) {
       case 'high': return 'destructive';
       case 'medium': return 'secondary';
       case 'low': return 'default';
@@ -66,7 +66,7 @@ const OutcomeMeasurementDashboard: React.FC = () => {
     }
   };
 
-  if (loading) {
+  if (_loading) {
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

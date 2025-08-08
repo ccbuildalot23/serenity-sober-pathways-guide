@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { EnhancedSecurityAuditService } from './enhancedSecurityAuditService';
+import { EnhancedSecurityAuditService } from './EnhancedSecurityAuditService';
 
 /**
  * Secure User Data Service
@@ -11,7 +11,7 @@ export class SecureUserDataService {
     full_name?: string;
     recovery_start_date?: string;
     timezone?: string;
-  }): Promise<any> {
+  }): Promise<unknown> {
     try {
       // Get current user
       const { data: { user } } = await supabase.auth.getUser();
@@ -29,8 +29,8 @@ export class SecureUserDataService {
           id: user.id, // Required for RLS policy
           email: user.email,
           ...profileData,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          _created_at: new Date().toISOString(),
+          _updated_at: new Date().toISOString()
         })
         .select()
         .single();
@@ -47,7 +47,7 @@ export class SecureUserDataService {
     }
   }
 
-  static async updateUserProfile(updates: Record<string, any>): Promise<any> {
+  static async updateUserProfile(updates: Record<string, any>): Promise<unknown> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -61,7 +61,7 @@ export class SecureUserDataService {
         .from('profiles')
         .update({
           ...updates,
-          updated_at: new Date().toISOString()
+          _updated_at: new Date().toISOString()
         })
         .eq('id', user.id) // RLS will ensure user can only update their own profile
         .select()
@@ -79,7 +79,7 @@ export class SecureUserDataService {
     }
   }
 
-  static async getUserProfile(): Promise<any> {
+  static async getUserProfile(): Promise<unknown> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       

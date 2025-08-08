@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { 
@@ -20,7 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 interface FollowUpTask {
   id: string;
   time: string;
-  type: 'automated_check_in' | 'mood_assessment' | 'professional_follow_up';
+  _type: 'automated_check_in' | 'mood_assessment' | 'professional_follow_up';
   scheduled: Date;
   completed: boolean;
   crisisId: string;
@@ -37,7 +36,7 @@ interface CheckInResponse {
 
 const FollowUpSystem = () => {
   const [pendingTasks, setPendingTasks] = useState<FollowUpTask[]>([]);
-  const [activeCheckIn, setActiveCheckIn] = useState<FollowUpTask | null>(null);
+  const [activeCheckIn, setActiveCheckIn] = useState<FollowUpTask | _null>(_null);
   const [moodRating, setMoodRating] = useState([5]);
   const [checkInNotes, setCheckInNotes] = useState('');
   const [needsSupport, setNeedsSupport] = useState(false);
@@ -47,18 +46,18 @@ const FollowUpSystem = () => {
     loadPendingTasks();
     
     // Check for due tasks every minute
-    const interval = setInterval(checkForDueTasks, 60000);
+    const _interval = setInterval(checkForDueTasks, 60000);
     
-    return () => clearInterval(interval);
+    return () => clearInterval(_interval);
   }, []);
 
   const loadPendingTasks = () => {
     const tasks = JSON.parse(localStorage.getItem('followUpTasks') || '[]');
     const now = new Date();
     
-    const pending = tasks.filter((task: FollowUpTask) => {
-      const scheduledTime = new Date(task.scheduled);
-      return !task.completed && scheduledTime <= now;
+    const pending = tasks.filter((_task: FollowUpTask) => {
+      const scheduledTime = new Date(_task.scheduled);
+      return !_task.completed && scheduledTime <= now;
     });
     
     setPendingTasks(pending);
@@ -68,25 +67,25 @@ const FollowUpSystem = () => {
     const tasks = JSON.parse(localStorage.getItem('followUpTasks') || '[]');
     const now = new Date();
     
-    const dueTasks = tasks.filter((task: FollowUpTask) => {
-      const scheduledTime = new Date(task.scheduled);
-      return !task.completed && scheduledTime <= now;
+    const _dueTasks = tasks.filter((_task: FollowUpTask) => {
+      const scheduledTime = new Date(_task.scheduled);
+      return !_task.completed && scheduledTime <= now;
     });
     
-    if (dueTasks.length > 0 && pendingTasks.length === 0) {
-      setPendingTasks(dueTasks);
+    if (_dueTasks.length > 0 && pendingTasks.length === 0) {
+      setPendingTasks(_dueTasks);
       
-      // Show notification for first due task
+      // Show notification for first due _task
       toast({
         title: "Follow-up Check-in",
-        description: "It's time for your scheduled check-in. How are you feeling?",
-        duration: 10000
+        _description: "It's time for your scheduled check-in. How are you feeling?",
+        _duration: 10000
       });
     }
   };
 
-  const handleCheckInStart = (task: FollowUpTask) => {
-    setActiveCheckIn(task);
+  const handleCheckInStart = (_task: FollowUpTask) => {
+    setActiveCheckIn(_task);
     setMoodRating([5]);
     setCheckInNotes('');
     setNeedsSupport(false);
@@ -105,41 +104,41 @@ const FollowUpSystem = () => {
     };
 
     // Save response
-    const existingResponses = localStorage.getItem('checkInResponses') || '[]';
-    const responses = JSON.parse(existingResponses);
+    const _existingResponses = localStorage.getItem('checkInResponses') || '[]';
+    const responses = JSON.parse(_existingResponses);
     responses.push(response);
     localStorage.setItem('checkInResponses', JSON.stringify(responses));
 
-    // Mark task as completed
+    // Mark _task as completed
     const tasks = JSON.parse(localStorage.getItem('followUpTasks') || '[]');
-    const updatedTasks = tasks.map((task: FollowUpTask) => 
-      task.id === activeCheckIn.id ? { ...task, completed: true } : task
+    const updatedTasks = tasks.map((_task: FollowUpTask) => 
+      _task.id === activeCheckIn.id ? { ..._task, completed: true } : _task
     );
     localStorage.setItem('followUpTasks', JSON.stringify(updatedTasks));
 
     // Remove from pending tasks
-    setPendingTasks(prev => prev.filter(task => task.id !== activeCheckIn.id));
+    setPendingTasks(prev => prev.filter(_task => _task.id !== activeCheckIn.id));
 
     // Show appropriate response based on mood and support needs
     if (moodRating[0] <= 3 || needsSupport) {
       toast({
         title: "We're here for you",
-        description: "Consider reaching out to your support network or professional help.",
-        duration: 8000
+        _description: "Consider reaching out to your support network or professional help.",
+        _duration: 8000
       });
     } else {
       toast({
         title: "Great to hear!",
-        description: "Keep up the positive momentum. Remember we're here if you need us.",
-        duration: 5000
+        _description: "Keep up the positive momentum. Remember we're here if you need us.",
+        _duration: 5000
       });
     }
 
-    setActiveCheckIn(null);
+    setActiveCheckIn(_null);
   };
 
-  const getTaskIcon = (type: string) => {
-    switch (type) {
+  const getTaskIcon = (_type: string) => {
+    switch (_type) {
       case 'automated_check_in':
         return <Heart className="w-4 h-4" />;
       case 'mood_assessment':
@@ -151,8 +150,8 @@ const FollowUpSystem = () => {
     }
   };
 
-  const getTaskTitle = (type: string) => {
-    switch (type) {
+  const getTaskTitle = (_type: string) => {
+    switch (_type) {
       case 'automated_check_in':
         return 'Check-in Time';
       case 'mood_assessment':
@@ -164,8 +163,8 @@ const FollowUpSystem = () => {
     }
   };
 
-  const getTaskDescription = (type: string) => {
-    switch (type) {
+  const getTaskDescription = (_type: string) => {
+    switch (_type) {
       case 'automated_check_in':
         return 'A quick check on how you\'re doing';
       case 'mood_assessment':
@@ -190,13 +189,13 @@ const FollowUpSystem = () => {
       <Card className="border-blue-200">
         <CardHeader className="text-center">
           <div className="w-12 h-12 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-3">
-            {getTaskIcon(activeCheckIn.type)}
+            {getTaskIcon(activeCheckIn._type)}
           </div>
           <CardTitle className="text-blue-600">
-            {getTaskTitle(activeCheckIn.type)}
+            {getTaskTitle(activeCheckIn._type)}
           </CardTitle>
           <p className="text-sm text-gray-600">
-            {getTaskDescription(activeCheckIn.type)}
+            {getTaskDescription(activeCheckIn._type)}
           </p>
         </CardHeader>
 
@@ -242,7 +241,7 @@ const FollowUpSystem = () => {
 
             <div className="flex items-center space-x-3">
               <input
-                type="checkbox"
+                _type="checkbox"
                 id="needsSupport"
                 checked={needsSupport}
                 onChange={(e) => setNeedsSupport(e.target.checked)}
@@ -309,32 +308,32 @@ const FollowUpSystem = () => {
         Follow-up Check-ins
       </h3>
       
-      {pendingTasks.map((task) => (
-        <Card key={task.id} className="border-blue-200 animate-fade-in">
+      {pendingTasks.map((_task) => (
+        <Card key={_task.id} className="border-blue-200 animate-fade-in">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  {getTaskIcon(task.type)}
+                  {getTaskIcon(_task._type)}
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900">
-                    {getTaskTitle(task.type)}
+                    {getTaskTitle(_task._type)}
                   </h4>
                   <p className="text-sm text-gray-600">
-                    {getTaskDescription(task.type)}
+                    {getTaskDescription(_task._type)}
                   </p>
                   <div className="flex items-center space-x-2 mt-1">
                     <Calendar className="w-3 h-3 text-gray-400" />
                     <span className="text-xs text-gray-500">
-                      Scheduled: {new Date(task.scheduled).toLocaleString()}
+                      Scheduled: {new Date(_task.scheduled).toLocaleString()}
                     </span>
                   </div>
                 </div>
               </div>
               
               <Button
-                onClick={() => handleCheckInStart(task)}
+                onClick={() => handleCheckInStart(_task)}
                 size="sm"
                 className="bg-blue-600 hover:bg-blue-700"
               >

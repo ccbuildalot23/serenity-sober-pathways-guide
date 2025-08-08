@@ -1,6 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { serverSideEncryption } from '@/lib/serverSideEncryption';
-import { EnhancedSecurityAuditService } from './enhancedSecurityAuditService';
+import { EnhancedSecurityAuditService } from './EnhancedSecurityAuditService';
 
 export interface ExportRequest {
   id?: string;
@@ -10,19 +10,19 @@ export interface ExportRequest {
     start: string;
     end: string;
   };
-  categories: string[];
+  _categories: string[];
   requiresApproval?: boolean;
 }
 
 export interface ExportData {
-  profile?: any;
-  dailyCheckins?: any[];
-  crisisEvents?: any[];
-  auditLogs?: any[];
-  assessments?: any[];
-  goals?: any[];
-  contacts?: any[];
-  [key: string]: any;
+  profile?: unknown;
+  dailyCheckins?: unknown[];
+  crisisEvents?: unknown[];
+  auditLogs?: unknown[];
+  assessments?: unknown[];
+  goals?: unknown[];
+  contacts?: unknown[];
+  [key: string]: unknown;
 }
 
 /**
@@ -43,9 +43,9 @@ export class HIPAADataExportService {
       // Log the export request initiation
       await EnhancedSecurityAuditService.logSecurityEvent({
         action: 'DATA_EXPORT_REQUESTED',
-        details: {
+        _details: {
           format: request.format,
-          categories: request.categories,
+          _categories: request._categories,
           dateRange: request.dateRange,
           reason: request.reason
         }
@@ -55,13 +55,13 @@ export class HIPAADataExportService {
         .from('data_export_requests')
         .insert({
           user_id: user.id,
-          request_reason: request.reason,
-          export_format: request.format,
-          date_range_start: request.dateRange?.start,
-          date_range_end: request.dateRange?.end,
-          data_categories: request.categories,
-          admin_approval_required: request.requiresApproval || false,
-          download_expires_at: new Date(Date.now() + this.DOWNLOAD_EXPIRY_HOURS * 60 * 60 * 1000).toISOString()
+          _request_reason: request.reason,
+          _export_format: request.format,
+          _date_range_start: request.dateRange?.start,
+          _date_range_end: request.dateRange?.end,
+          _data_categories: request._categories,
+          _admin_approval_required: request.requiresApproval || false,
+          _download_expires_at: new Date(Date.now() + this.DOWNLOAD_EXPIRY_HOURS * 60 * 60 * 1000).toISOString()
         })
         .select()
         .single();
@@ -83,7 +83,7 @@ export class HIPAADataExportService {
    */
   private static async processExportRequest(requestId: string): Promise<void> {
     try {
-      // Get request details
+      // Get request _details
       const { data: request, error: requestError } = await supabase
         .from('data_export_requests')
         .select('*')
@@ -95,23 +95,23 @@ export class HIPAADataExportService {
       // Log processing start
       await supabase.rpc('log_export_activity', {
         request_id: requestId,
-        activity_action: 'PROCESSING_STARTED'
+        _activity_action: 'PROCESSING_STARTED'
       });
 
       // Compile all user data
-      const categories = Array.isArray(request.data_categories) 
-        ? request.data_categories.map(cat => String(cat))
-        : [String(request.data_categories)].filter(Boolean);
+      const _categories = Array.isArray(request._data_categories) 
+        ? request._data_categories.map(cat => String(cat))
+        : [String(request._data_categories)].filter(_Boolean);
         
-      const exportData = await this.compileUserData(
+      const _exportData = await this.compileUserData(
         request.user_id,
-        categories,
-        request.date_range_start,
-        request.date_range_end
+        _categories,
+        request._date_range_start,
+        request._date_range_end
       );
 
       // Format data based on requested format
-      const formattedData = await this.formatExportData(exportData, request.export_format);
+      const formattedData = await this.formatExportData(_exportData, request._export_format);
 
       // Encrypt the export data
       const encryptedData = await serverSideEncryption.encrypt(JSON.stringify(formattedData));
@@ -119,18 +119,18 @@ export class HIPAADataExportService {
       // Calculate checksum
       const checksum = await this.calculateChecksum(formattedData);
 
-      // Update request with completion details
+      // Update request with completion _details
       await supabase
         .from('data_export_requests')
         .update({
           status: 'completed',
-          completed_at: new Date().toISOString(),
+          _completed_at: new Date().toISOString(),
           file_size_bytes: new Blob([JSON.stringify(formattedData)]).size,
           checksum,
-          export_metadata: {
-            recordCounts: this.getRecordCounts(exportData),
+          _export_metadata: {
+            recordCounts: this.getRecordCounts(_exportData),
             generatedAt: new Date().toISOString(),
-            format: request.export_format
+            format: request._export_format
           }
         })
         .eq('id', requestId);
@@ -138,8 +138,8 @@ export class HIPAADataExportService {
       // Log completion
       await supabase.rpc('log_export_activity', {
         request_id: requestId,
-        activity_action: 'PROCESSING_COMPLETED',
-        activity_details: { file_size: new Blob([JSON.stringify(formattedData)]).size }
+        _activity_action: 'PROCESSING_COMPLETED',
+        _activity_details: { file_size: new Blob([JSON.stringify(formattedData)]).size }
       });
 
     } catch (error) {
@@ -150,15 +150,15 @@ export class HIPAADataExportService {
         .from('data_export_requests')
         .update({
           status: 'failed',
-          export_metadata: { error: error.message }
+          _export_metadata: { error: error.message }
         })
         .eq('id', requestId);
 
       // Log failure
       await supabase.rpc('log_export_activity', {
         request_id: requestId,
-        activity_action: 'PROCESSING_FAILED',
-        activity_details: { error: error.message }
+        _activity_action: 'PROCESSING_FAILED',
+        _activity_details: { error: error.message }
       });
     }
   }
@@ -167,106 +167,106 @@ export class HIPAADataExportService {
    * Compile all user data from various tables
    */
   private static async compileUserData(
-    userId: string,
-    categories: string[],
-    startDate?: string,
-    endDate?: string
+    _userId: string,
+    _categories: string[],
+    _startDate?: string,
+    _endDate?: string
   ): Promise<ExportData> {
-    const exportData: ExportData = {};
+    const _exportData: ExportData = {};
 
     // Profile data
-    if (categories.includes('profile')) {
+    if (_categories.includes('profile')) {
       const { data } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', userId)
+        .eq('id', _userId)
         .single();
-      exportData.profile = data;
+      _exportData.profile = data;
     }
 
     // Daily check-ins
-    if (categories.includes('checkins')) {
+    if (_categories.includes('checkins')) {
       let query = supabase
         .from('daily_checkins')
         .select('*')
-        .eq('user_id', userId);
+        .eq('user_id', _userId);
 
-      if (startDate) query = query.gte('checkin_date', startDate);
-      if (endDate) query = query.lte('checkin_date', endDate);
+      if (_startDate) query = query.gte('checkin_date', _startDate);
+      if (_endDate) query = query.lte('checkin_date', _endDate);
 
       const { data } = await query;
-      exportData.dailyCheckins = data || [];
+      _exportData.dailyCheckins = data || [];
     }
 
     // Crisis events
-    if (categories.includes('crisis')) {
+    if (_categories.includes('crisis')) {
       let query = supabase
         .from('crisis_events')
         .select('*')
-        .eq('user_id', userId);
+        .eq('user_id', _userId);
 
-      if (startDate) query = query.gte('created_at', startDate);
-      if (endDate) query = query.lte('created_at', endDate);
+      if (_startDate) query = query.gte('created_at', _startDate);
+      if (_endDate) query = query.lte('created_at', _endDate);
 
       const { data } = await query;
-      exportData.crisisEvents = data || [];
+      _exportData.crisisEvents = data || [];
     }
 
     // Audit logs
-    if (categories.includes('audit')) {
+    if (_categories.includes('audit')) {
       let query = supabase
         .from('audit_logs')
         .select('*')
-        .eq('user_id', userId);
+        .eq('user_id', _userId);
 
-      if (startDate) query = query.gte('timestamp', startDate);
-      if (endDate) query = query.lte('timestamp', endDate);
+      if (_startDate) query = query.gte('timestamp', _startDate);
+      if (_endDate) query = query.lte('timestamp', _endDate);
 
       const { data } = await query;
-      exportData.auditLogs = data || [];
+      _exportData.auditLogs = data || [];
     }
 
     // Clinical assessments
-    if (categories.includes('assessments')) {
+    if (_categories.includes('assessments')) {
       let query = supabase
         .from('clinical_assessments')
         .select('*')
-        .eq('user_id', userId);
+        .eq('user_id', _userId);
 
-      if (startDate) query = query.gte('created_at', startDate);
-      if (endDate) query = query.lte('created_at', endDate);
+      if (_startDate) query = query.gte('created_at', _startDate);
+      if (_endDate) query = query.lte('created_at', _endDate);
 
       const { data } = await query;
-      exportData.assessments = data || [];
+      _exportData.assessments = data || [];
     }
 
     // Recovery goals
-    if (categories.includes('goals')) {
+    if (_categories.includes('goals')) {
       const { data: goals } = await supabase
         .from('recovery_goals')
         .select('*, goal_progress(*)')
-        .eq('user_id', userId);
+        .eq('user_id', _userId);
 
-      exportData.goals = goals || [];
+      _exportData.goals = goals || [];
     }
 
     // Emergency contacts
-    if (categories.includes('contacts')) {
+    if (_categories.includes('contacts')) {
       const { data } = await supabase
         .from('crisis_contacts')
         .select('*')
-        .eq('user_id', userId);
+        .eq('user_id', _userId);
 
-      exportData.contacts = data || [];
+      _exportData.contacts = data || [];
     }
 
-    return exportData;
+    return _exportData;
   }
 
   /**
    * Format export data based on requested format
    */
-  private static async formatExportData(data: ExportData, format: string): Promise<any> {
+  private static async formatExportData(data: ExportData, format: string): Promise<unknown> {
     switch (format) {
       case 'json':
         return {
@@ -308,11 +308,11 @@ export class HIPAADataExportService {
         
         records.forEach(record => {
           const values = headers.map(header => {
-            const value = record[header];
-            if (typeof value === 'string' && value.includes(',')) {
-              return `"${value.replace(/"/g, '""')}"`;
+            const _value = record[header];
+            if (typeof _value === 'string' && _value.includes(',')) {
+              return `"${_value.replace(/"/g, '""')}"`;
             }
-            return value || '';
+            return _value || '';
           });
           csv += values.join(',') + '\n';
         });
@@ -372,10 +372,10 @@ export class HIPAADataExportService {
    */
   private static getRecordCounts(data: ExportData): Record<string, number> {
     const counts: Record<string, number> = {};
-    Object.entries(data).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
-        counts[key] = value.length;
-      } else if (value) {
+    Object.entries(data).forEach(([key, _value]) => {
+      if (Array.isArray(_value)) {
+        counts[key] = _value.length;
+      } else if (_value) {
         counts[key] = 1;
       }
     });
@@ -385,11 +385,11 @@ export class HIPAADataExportService {
   /**
    * Calculate checksum for data integrity
    */
-  private static async calculateChecksum(data: any): Promise<string> {
+  private static async calculateChecksum(data: unknown): Promise<string> {
     const encoder = new TextEncoder();
-    const dataString = JSON.stringify(data);
-    const dataArray = encoder.encode(dataString);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', dataArray);
+    const _dataString = JSON.stringify(data);
+    const _dataArray = encoder.encode(_dataString);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', _dataArray);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   }
@@ -397,7 +397,7 @@ export class HIPAADataExportService {
   /**
    * Get user's export requests
    */
-  static async getUserExportRequests(): Promise<any[]> {
+  static async getUserExportRequests(): Promise<unknown[]> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User must be authenticated');
 
@@ -414,14 +414,14 @@ export class HIPAADataExportService {
   /**
    * Download export data (logs the access)
    */
-  static async downloadExport(requestId: string, downloadToken: string): Promise<any> {
+  static async downloadExport(requestId: string, _downloadToken: string): Promise<unknown> {
     try {
       // Verify token and get request
       const { data: request, error } = await supabase
         .from('data_export_requests')
         .select('*')
         .eq('id', requestId)
-        .eq('secure_download_token', downloadToken)
+        .eq('secure_download_token', _downloadToken)
         .single();
 
       if (error || !request) {
@@ -429,14 +429,14 @@ export class HIPAADataExportService {
       }
 
       // Check if download link has expired
-      if (new Date() > new Date(request.download_expires_at)) {
+      if (new Date() > new Date(request._download_expires_at)) {
         throw new Error('Download link has expired');
       }
 
       // Log the download access
       await supabase.rpc('log_export_activity', {
         request_id: requestId,
-        activity_action: 'DATA_DOWNLOADED'
+        _activity_action: 'DATA_DOWNLOADED'
       });
 
       // Update download timestamp
@@ -448,7 +448,7 @@ export class HIPAADataExportService {
       // In a real implementation, this would return the encrypted file
       // For now, return the request metadata
       return {
-        fileName: `health_data_export_${request.export_format}.${request.export_format}`,
+        fileName: `health_data_export_${request._export_format}.${request._export_format}`,
         fileSize: request.file_size_bytes,
         checksum: request.checksum,
         downloadUrl: `#download-${requestId}` // Placeholder

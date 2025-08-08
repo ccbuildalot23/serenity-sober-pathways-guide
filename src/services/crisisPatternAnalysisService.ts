@@ -1,9 +1,9 @@
 
 import { UltraSecureCrisisDataService } from './ultraSecureCrisisDataService';
-import type { CrisisResolution } from '@/types/crisisData';
+import type { CrisisResolution } from '@/types/_crisisData';
 
 interface CrisisPattern {
-  timeOfDay: { hour: number; frequency: number }[];
+  timeOfDay: { _hour: number; frequency: number }[];
   triggers: { trigger: string; frequency: number }[];
   interventionEffectiveness: { intervention: string; avgRating: number }[];
   moodTrajectory: { beforeCrisis: number; afterResolution: number }[];
@@ -17,21 +17,21 @@ interface RiskFactors {
 }
 
 export class CrisisPatternAnalysisService {
-  static async predictCrisisRisk(userId: string): Promise<number> {
+  static async predictCrisisRisk(_userId: string): Promise<number> {
     try {
-      const crisisData = await UltraSecureCrisisDataService.loadCrisisResolutions(userId);
+      const _crisisData = await UltraSecureCrisisDataService.loadCrisisResolutions(_userId);
       
-      if (crisisData.length === 0) {
+      if (_crisisData.length === 0) {
         return 0.1; // Low baseline risk with no history
       }
 
-      const patterns = this.analyzeCrisisPatterns(crisisData);
-      const riskFactors = this.calculateRiskFactors(patterns);
+      const _patterns = this.analyzeCrisisPatterns(_crisisData);
+      const _riskFactors = this.calculateRiskFactors(_patterns);
       
-      return this.calculateCompositeRiskScore(riskFactors);
-    } catch (error) {
-      console.error('Failed to predict crisis risk:', error);
-      return 0.5; // Default moderate risk on error
+      return this.calculateCompositeRiskScore(_riskFactors);
+    } catch (_error) {
+      console._error('Failed to predict crisis risk:', _error);
+      return 0.5; // Default moderate risk on _error
     }
   }
 
@@ -45,20 +45,20 @@ export class CrisisPatternAnalysisService {
   }
 
   private static analyzeCrisisTimePatterns(data: CrisisResolution[]) {
-    const hourCounts: { [hour: number]: number } = {};
+    const _hourCounts: { [_hour: number]: number } = {};
     
     data.forEach(crisis => {
-      const hour = crisis.crisis_start_time.getHours();
-      hourCounts[hour] = (hourCounts[hour] || 0) + 1;
+      const _hour = crisis.crisis_start_time.getHours();
+      _hourCounts[_hour] = (_hourCounts[_hour] || 0) + 1;
     });
 
-    return Object.entries(hourCounts)
-      .map(([hour, frequency]) => ({ hour: parseInt(hour), frequency }))
+    return Object.entries(_hourCounts)
+      .map(([_hour, frequency]) => ({ _hour: parseInt(_hour), frequency }))
       .sort((a, b) => b.frequency - a.frequency);
   }
 
   private static analyzeCrisisTriggers(data: CrisisResolution[]) {
-    const triggerCounts: { [trigger: string]: number } = {};
+    const _triggerCounts: { [trigger: string]: number } = {};
     
     data.forEach(crisis => {
       if (crisis.additional_notes) {
@@ -66,32 +66,32 @@ export class CrisisPatternAnalysisService {
         const commonTriggers = ['stress', 'isolation', 'conflict', 'financial', 'health', 'family'];
         commonTriggers.forEach(trigger => {
           if (crisis.additional_notes!.toLowerCase().includes(trigger)) {
-            triggerCounts[trigger] = (triggerCounts[trigger] || 0) + 1;
+            _triggerCounts[trigger] = (_triggerCounts[trigger] || 0) + 1;
           }
         });
       }
     });
 
-    return Object.entries(triggerCounts)
+    return Object.entries(_triggerCounts)
       .map(([trigger, frequency]) => ({ trigger, frequency }))
       .sort((a, b) => b.frequency - a.frequency);
   }
 
   private static analyzeInterventionSuccess(data: CrisisResolution[]) {
-    const interventionRatings: { [intervention: string]: number[] } = {};
+    const _interventionRatings: { [intervention: string]: number[] } = {};
     
     data.forEach(crisis => {
       crisis.interventions_used.forEach(intervention => {
-        if (!interventionRatings[intervention]) {
-          interventionRatings[intervention] = [];
+        if (!_interventionRatings[intervention]) {
+          _interventionRatings[intervention] = [];
         }
         if (crisis.effectiveness_rating) {
-          interventionRatings[intervention].push(crisis.effectiveness_rating);
+          _interventionRatings[intervention].push(crisis.effectiveness_rating);
         }
       });
     });
 
-    return Object.entries(interventionRatings)
+    return Object.entries(_interventionRatings)
       .map(([intervention, ratings]) => ({
         intervention,
         avgRating: ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
@@ -108,23 +108,23 @@ export class CrisisPatternAnalysisService {
     }));
   }
 
-  private static calculateRiskFactors(patterns: CrisisPattern): RiskFactors {
+  private static calculateRiskFactors(_patterns: CrisisPattern): RiskFactors {
     const currentHour = new Date().getHours();
     
     // Calculate time-based risk
-    const timeRisk = patterns.timeOfDay.find(t => t.hour === currentHour);
+    const timeRisk = _patterns.timeOfDay.find(t => t._hour === currentHour);
     const timeBasedRisk = timeRisk ? Math.min(timeRisk.frequency / 10, 1) : 0.1;
 
-    // Calculate trigger risk (simplified)
-    const triggerRisk = patterns.triggers.length > 0 ? 
-      Math.min(patterns.triggers[0].frequency / 5, 1) : 0.2;
+    // Calculate trigger risk (_simplified)
+    const triggerRisk = _patterns.triggers.length > 0 ? 
+      Math.min(_patterns.triggers[0].frequency / 5, 1) : 0.2;
 
     // Calculate intervention confidence
-    const interventionConfidence = patterns.interventionEffectiveness.length > 0 ?
-      patterns.interventionEffectiveness[0].avgRating / 10 : 0.5;
+    const interventionConfidence = _patterns.interventionEffectiveness.length > 0 ?
+      _patterns.interventionEffectiveness[0].avgRating / 10 : 0.5;
 
     // Overall pattern analysis
-    const overallPattern = patterns.moodTrajectory.length > 3 ? 0.3 : 0.5;
+    const overallPattern = _patterns.moodTrajectory.length > 3 ? 0.3 : 0.5;
 
     return {
       timeBasedRisk,
@@ -135,29 +135,29 @@ export class CrisisPatternAnalysisService {
   }
 
   private static calculateCompositeRiskScore(factors: RiskFactors): number {
-    // Weighted composite score (0-1 scale)
-    const score = (
+    // Weighted composite _score (0-1 scale)
+    const _score = (
       factors.timeBasedRisk * 0.25 +
       factors.triggerRisk * 0.35 +
       (1 - factors.interventionConfidence) * 0.25 + // Lower confidence = higher risk
       factors.overallPattern * 0.15
     );
 
-    return Math.max(0.05, Math.min(0.95, score)); // Clamp between 5-95%
+    return Math.max(0.05, Math.min(0.95, _score)); // Clamp between 5-95%
   }
 
-  static async getPersonalizedInterventions(userId: string): Promise<string[]> {
+  static async getPersonalizedInterventions(_userId: string): Promise<string[]> {
     try {
-      const crisisData = await UltraSecureCrisisDataService.loadCrisisResolutions(userId);
-      const patterns = this.analyzeCrisisPatterns(crisisData);
+      const _crisisData = await UltraSecureCrisisDataService.loadCrisisResolutions(_userId);
+      const _patterns = this.analyzeCrisisPatterns(_crisisData);
       
       // Return most effective interventions based on history
-      return patterns.interventionEffectiveness
+      return _patterns.interventionEffectiveness
         .filter(intervention => intervention.avgRating >= 7)
         .slice(0, 3)
         .map(intervention => intervention.intervention);
-    } catch (error) {
-      console.error('Failed to get personalized interventions:', error);
+    } catch (_error) {
+      console._error('Failed to get personalized interventions:', _error);
       return ['breathing_exercise', 'support_contact', 'grounding_technique'];
     }
   }

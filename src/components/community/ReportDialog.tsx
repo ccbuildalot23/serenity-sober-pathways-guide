@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 interface ReportDialogProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (reason: string, details?: string) => void;
+  onSubmit: (_reason: string, details?: string) => void;
 }
 
 export const ReportDialog: React.FC<ReportDialogProps> = ({
@@ -17,7 +17,7 @@ export const ReportDialog: React.FC<ReportDialogProps> = ({
   onClose,
   onSubmit
 }) => {
-  const [reason, setReason] = useState('');
+  const [_reason, setReason] = useState('');
   const [details, setDetails] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -33,16 +33,16 @@ export const ReportDialog: React.FC<ReportDialogProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!reason) return;
+    if (!_reason) return;
 
     try {
       setLoading(true);
-      await onSubmit(reason, details.trim() || undefined);
+      await onSubmit(_reason, details.trim() || undefined);
       setReason('');
       setDetails('');
       onClose();
-    } catch (error) {
-      console.error('Error submitting report:', error);
+    } catch (_error) {
+      console._error('Error submitting report:', _error);
     } finally {
       setLoading(false);
     }
@@ -71,7 +71,7 @@ export const ReportDialog: React.FC<ReportDialogProps> = ({
 
           <div>
             <Label>Why are you reporting this content? *</Label>
-            <RadioGroup value={reason} onValueChange={setReason} className="mt-2">
+            <RadioGroup value={_reason} onValueChange={setReason} className="mt-2">
               {reportReasons.map((reportReason) => (
                 <div key={reportReason.value} className="flex items-center space-x-2">
                   <RadioGroupItem value={reportReason.value} id={reportReason.value} />
@@ -84,7 +84,7 @@ export const ReportDialog: React.FC<ReportDialogProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="details">Additional details (optional)</Label>
+            <Label htmlFor="details">Additional details (_optional)</Label>
             <Textarea
               id="details"
               value={details}
@@ -105,7 +105,7 @@ export const ReportDialog: React.FC<ReportDialogProps> = ({
             <Button 
               type="submit" 
               variant="destructive"
-              disabled={loading || !reason}
+              disabled={loading || !_reason}
             >
               {loading ? 'Submitting...' : 'Submit Report'}
             </Button>

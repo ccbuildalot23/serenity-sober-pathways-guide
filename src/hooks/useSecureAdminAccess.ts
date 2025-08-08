@@ -26,7 +26,7 @@ export const useSecureAdminAccess = () => {
         // Log unauthorized admin access attempt
         await supabase.rpc('log_security_violation', {
           violation_type: 'UNAUTHORIZED_ADMIN_ACCESS_ATTEMPT',
-          details: {
+          _details: {
             user_id: user.id,
             timestamp: new Date().toISOString(),
             user_agent: navigator.userAgent
@@ -53,7 +53,7 @@ export const useSecureAdminAccess = () => {
     try {
       await supabase.rpc('log_admin_access', {
         action_type: actionType,
-        details: { timestamp: new Date().toISOString() }
+        _details: { timestamp: new Date().toISOString() }
       });
       
       await action();

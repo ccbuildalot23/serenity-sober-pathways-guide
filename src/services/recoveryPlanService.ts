@@ -3,10 +3,10 @@ import { toast } from 'sonner';
 
 export interface RecoveryPlanTemplate {
   id: string;
-  title: string;
-  description: string | null;
-  category: string;
-  template_data: any;
+  _title: string;
+  _description: string | null;
+  _category: string;
+  template_data: unknown;
   estimated_duration_weeks: number | null;
   evidence_based_source: string | null;
   created_at: string;
@@ -18,18 +18,18 @@ export interface RecoveryPlanTemplate {
 
 export interface UserRecoveryPlan {
   id: string;
-  user_id: string;
-  template_id: string | null;
-  title: string;
-  description: string | null;
-  status: string;
-  start_date: string | null;
-  target_completion_date: string | null;
-  completion_percentage: number | null;
-  plan_data: any;
-  clinical_notes: string | null;
-  shared_with_provider: boolean | null;
-  shared_with_partners: any | null;
+  _user_id: string;
+  _template_id: string | null;
+  _title: string;
+  _description: string | null;
+  _status: string;
+  _start_date: string | null;
+  _target_completion_date: string | null;
+  _completion_percentage: number | null;
+  _plan_data: unknown;
+  _clinical_notes: string | null;
+  _shared_with_provider: boolean | null;
+  _shared_with_partners: any | null;
   created_at: string;
   updated_at: string;
 }
@@ -37,22 +37,22 @@ export interface UserRecoveryPlan {
 export interface RecoveryPlanGoal {
   id: string;
   plan_id: string;
-  user_id: string;
-  title: string;
-  description: string | null;
-  category: string | null;
-  goal_type: string;
-  target_value: number | null;
-  current_value: number | null;
-  unit_of_measure: string | null;
-  status: string;
-  due_date: string | null;
-  reminder_frequency: string | null;
-  notes: string | null;
-  priority_order: number | null;
+  _user_id: string;
+  _title: string;
+  _description: string | null;
+  _category: string | null;
+  _goal_type: string;
+  _target_value: number | null;
+  _current_value: number | null;
+  _unit_of_measure: string | null;
+  _status: string;
+  _due_date: string | null;
+  _reminder_frequency: string | null;
+  _notes: string | null;
+  _priority_order: number | null;
   completion_date: string | null;
   next_reminder_date: string | null;
-  smart_criteria: any;
+  smart_criteria: unknown;
   created_at: string;
   updated_at: string;
 }
@@ -60,16 +60,16 @@ export interface RecoveryPlanGoal {
 export interface RecoveryMilestone {
   id: string;
   plan_id: string;
-  user_id: string;
-  goal_id: string | null;
-  title: string;
-  description: string | null;
-  milestone_date: string;
+  _user_id: string;
+  _goal_id: string | null;
+  _title: string;
+  _description: string | null;
+  _milestone_date: string;
   is_achieved: boolean | null;
-  achieved_date: string | null;
-  celebration_type: string | null;
-  celebration_data: any | null;
-  achievement_criteria: string | null;
+  _achieved_date: string | null;
+  _celebration_type: string | null;
+  _celebration_data: any | null;
+  _achievement_criteria: string | null;
   created_at: string;
 }
 
@@ -79,11 +79,11 @@ export class RecoveryPlanService {
     return [];
   }
 
-  static async getUserPlans(userId: string) {
+  static async getUserPlans(_userId: string) {
     const { data, error } = await supabase
       .from('user_recovery_plans')
       .select('*')
-      .eq('user_id', userId)
+      .eq('_user_id', _userId)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -95,22 +95,22 @@ export class RecoveryPlanService {
     return data || [];
   }
 
-  static async createPlan(userId: string, planData: any) {
+  static async createPlan(_userId: string, planData: unknown) {
     const { data, error } = await supabase
       .from('user_recovery_plans')
       .insert({
-        user_id: userId,
-        title: planData.title || 'New Recovery Plan',
-        description: planData.description,
-        start_date: planData.start_date,
-        target_completion_date: planData.target_completion_date,
-        template_id: planData.template_id,
-        completion_percentage: 0,
-        status: 'draft',
-        clinical_notes: '',
-        plan_data: planData.plan_data || {},
-        shared_with_provider: false,
-        shared_with_partners: null
+        _user_id: _userId,
+        _title: planData._title || 'New Recovery Plan',
+        _description: planData._description,
+        _start_date: planData._start_date,
+        _target_completion_date: planData._target_completion_date,
+        _template_id: planData._template_id,
+        _completion_percentage: 0,
+        _status: 'draft',
+        _clinical_notes: '',
+        _plan_data: planData._plan_data || {},
+        _shared_with_provider: false,
+        _shared_with_partners: null
       })
       .select()
       .single();
@@ -125,11 +125,11 @@ export class RecoveryPlanService {
     return data;
   }
 
-  static async updatePlan(planId: string, updates: any) {
+  static async updatePlan(_planId: string, _updates: unknown) {
     const { error } = await supabase
       .from('user_recovery_plans')
-      .update(updates)
-      .eq('id', planId);
+      .update(_updates)
+      .eq('id', _planId);
 
     if (error) {
       console.error('Error updating plan:', error);
@@ -141,12 +141,12 @@ export class RecoveryPlanService {
     return true;
   }
 
-  static async getPlanGoals(planId: string) {
+  static async getPlanGoals(_planId: string) {
     const { data, error } = await supabase
       .from('recovery_plan_goals')
       .select('*')
-      .eq('plan_id', planId)
-      .order('priority_order', { ascending: false })
+      .eq('plan_id', _planId)
+      .order('_priority_order', { ascending: false })
       .order('created_at');
 
     if (error) {
@@ -157,24 +157,24 @@ export class RecoveryPlanService {
     return data || [];
   }
 
-  static async createGoal(goalData: any) {
+  static async createGoal(goalData: unknown) {
     const { data, error } = await supabase
       .from('recovery_plan_goals')
       .insert({
         plan_id: goalData.plan_id,
-        user_id: goalData.user_id,
-        title: goalData.title,
-        description: goalData.description,
-        category: goalData.category,
-        goal_type: goalData.goal_type || 'general',
-        target_value: goalData.target_value,
-        current_value: goalData.current_value || 0,
-        unit_of_measure: goalData.unit_of_measure,
-        status: goalData.status || 'pending',
-        due_date: goalData.due_date,
-        reminder_frequency: goalData.reminder_frequency || 'weekly',
-        notes: goalData.notes,
-        priority_order: goalData.priority_order || 1,
+        _user_id: goalData._user_id,
+        _title: goalData._title,
+        _description: goalData._description,
+        _category: goalData._category,
+        _goal_type: goalData._goal_type || 'general',
+        _target_value: goalData._target_value,
+        _current_value: goalData._current_value || 0,
+        _unit_of_measure: goalData._unit_of_measure,
+        _status: goalData._status || 'pending',
+        _due_date: goalData._due_date,
+        _reminder_frequency: goalData._reminder_frequency || 'weekly',
+        _notes: goalData._notes,
+        _priority_order: goalData._priority_order || 1,
         smart_criteria: goalData.smart_criteria || {}
       })
       .select()
@@ -190,11 +190,11 @@ export class RecoveryPlanService {
     return data;
   }
 
-  static async updateGoal(goalId: string, updates: any) {
+  static async updateGoal(_goalId: string, _updates: unknown) {
     const { error } = await supabase
       .from('recovery_plan_goals')
-      .update(updates)
-      .eq('id', goalId);
+      .update(_updates)
+      .eq('id', _goalId);
 
     if (error) {
       console.error('Error updating goal:', error);
@@ -205,12 +205,12 @@ export class RecoveryPlanService {
     return true;
   }
 
-  static async getPlanMilestones(planId: string) {
+  static async getPlanMilestones(_planId: string) {
     const { data, error } = await supabase
       .from('recovery_milestones')
       .select('*')
-      .eq('plan_id', planId)
-      .order('milestone_date');
+      .eq('plan_id', _planId)
+      .order('_milestone_date');
 
     if (error) {
       console.error('Error fetching milestones:', error);
@@ -220,20 +220,20 @@ export class RecoveryPlanService {
     return data || [];
   }
 
-  static async createMilestone(milestoneData: any) {
+  static async createMilestone(milestoneData: unknown) {
     const { data, error } = await supabase
       .from('recovery_milestones')
       .insert({
         plan_id: milestoneData.plan_id,
-        user_id: milestoneData.user_id,
-        title: milestoneData.title,
-        description: milestoneData.description,
-        milestone_date: milestoneData.milestone_date,
-        goal_id: milestoneData.goal_id,
+        _user_id: milestoneData._user_id,
+        _title: milestoneData._title,
+        _description: milestoneData._description,
+        _milestone_date: milestoneData._milestone_date,
+        _goal_id: milestoneData._goal_id,
         is_achieved: false,
-        celebration_type: milestoneData.celebration_type || 'notification',
-        celebration_data: milestoneData.celebration_data || {},
-        achievement_criteria: milestoneData.achievement_criteria
+        _celebration_type: milestoneData._celebration_type || 'notification',
+        _celebration_data: milestoneData._celebration_data || {},
+        _achievement_criteria: milestoneData._achievement_criteria
       })
       .select()
       .single();
@@ -247,14 +247,14 @@ export class RecoveryPlanService {
     return data;
   }
 
-  static async completeMilestone(milestoneId: string) {
+  static async completeMilestone(_milestoneId: string) {
     const { error } = await supabase
       .from('recovery_milestones')
       .update({
         is_achieved: true,
-        achieved_date: new Date().toISOString()
+        _achieved_date: new Date().toISOString()
       })
-      .eq('id', milestoneId);
+      .eq('id', _milestoneId);
 
     if (error) {
       console.error('Error completing milestone:', error);
@@ -266,15 +266,15 @@ export class RecoveryPlanService {
     return true;
   }
 
-  static async shareWithProvider(planId: string, providerEmail: string, accessLevel: string, userId: string) {
+  static async shareWithProvider(_planId: string, providerEmail: string, accessLevel: string, _userId: string) {
     const { error } = await supabase
       .from('provider_plan_access')
       .insert({
-        plan_id: planId,
-        user_id: userId,
-        provider_email: providerEmail,
-        access_level: accessLevel,
-        invitation_sent_at: new Date().toISOString()
+        plan_id: _planId,
+        _user_id: _userId,
+        _provider_email: providerEmail,
+        _access_level: accessLevel,
+        _invitation_sent_at: new Date().toISOString()
       });
 
     if (error) {
@@ -287,14 +287,14 @@ export class RecoveryPlanService {
     return true;
   }
 
-  static async calculateProgress(planId: string) {
-    const goals = await this.getPlanGoals(planId);
-    const milestones = await this.getPlanMilestones(planId);
+  static async calculateProgress(_planId: string) {
+    const goals = await this.getPlanGoals(_planId);
+    const milestones = await this.getPlanMilestones(_planId);
 
     if (goals.length === 0 && milestones.length === 0) return 0;
 
-    const completedGoals = goals.filter((g: any) => g.status === 'completed').length;
-    const completedMilestones = milestones.filter((m: any) => m.is_achieved).length;
+    const completedGoals = goals.filter((g: unknown) => g._status === 'completed').length;
+    const completedMilestones = milestones.filter((m: unknown) => m.is_achieved).length;
     
     const goalProgress = goals.length > 0 ? (completedGoals / goals.length) * 0.7 : 0;
     const milestoneProgress = milestones.length > 0 ? (completedMilestones / milestones.length) * 0.3 : 0;
@@ -302,10 +302,10 @@ export class RecoveryPlanService {
     return Math.round((goalProgress + milestoneProgress) * 100);
   }
 
-  static async createPlanFromTemplate(userId: string, templateId: string, customizations: {
-    title?: string;
-    start_date: string;
-    target_completion_date: string;
+  static async createPlanFromTemplate(_userId: string, _templateId: string, _customizations: {
+    _title?: string;
+    _start_date: string;
+    _target_completion_date: string;
   }) {
     // For now, return null since templates don't exist yet
     toast.error('Templates not available yet');

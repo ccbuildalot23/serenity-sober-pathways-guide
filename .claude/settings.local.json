@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__ruv-swarm",
+      "mcp__claude-flow",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git pull:*)",
+      "Bash(git push:*)",
+      "Bash(git checkout:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr checks:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh pr close:*)",
+      "Bash(git branch:*)",
+      "Bash(gh pr list:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npx eslint:*)",
+      "Bash(node:*)",
+      "Bash(npm run lighthouse:validate:*)",
+      "Bash(grep:*)",
+      "Bash(npx:*)",
+      "Bash(gh run list:*)",
+      "Bash(mkdir:*)",
+      "Bash(gh workflow list:*)",
+      "Bash(git reset:*)",
+      "Bash(gh api:*)",
+      "Bash(find:*)",
+      "Bash(npm:*)",
+      "Bash(gh pr status:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(git fetch:*)",
+      "Bash(rm:*)",
+      "Bash(git merge:*)",
+      "Bash(cat:*)",
+      "Bash(timeout:*)",
+      "Bash(curl:*)"
+    ],
+    "deny": []
+  }
+}

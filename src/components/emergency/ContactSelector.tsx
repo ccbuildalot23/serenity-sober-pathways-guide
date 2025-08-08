@@ -26,7 +26,7 @@ interface CrisisContact {
 
 interface ContactSelectorProps {
   contacts: Contact[];
-  phoneContacts: any[];
+  phoneContacts: unknown[];
   selectedContacts: string[];
   onContactToggle: (contactId: string) => void;
   isLoadingPhoneContacts: boolean;
@@ -41,8 +41,8 @@ const ContactSelector = ({
 }: ContactSelectorProps) => {
   // Load crisis contacts from localStorage
   const getCrisisContacts = (): CrisisContact[] => {
-    const saved = localStorage.getItem('crisisContacts');
-    return saved ? JSON.parse(saved) : [];
+    const _saved = localStorage.getItem('crisisContacts');
+    return _saved ? JSON.parse(_saved) : [];
   };
 
   const crisisContacts = getCrisisContacts()

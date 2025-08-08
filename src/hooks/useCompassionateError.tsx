@@ -7,7 +7,7 @@ import { hopeMessenger } from '@/services/hopeMessengerService';
 
 interface ErrorContext {
   action: string;
-  isRecoverable: boolean;
+  _isRecoverable: boolean;
   retry?: () => Promise<void>;
 }
 
@@ -61,7 +61,7 @@ export const useCompassionateError = () => {
     return 'general';
   };
 
-  const handleError = useCallback((error: Error, context?: ErrorContext) => {
+  const handleError = useCallback((error: Error, _context?: ErrorContext) => {
     console.error('Compassionate error handler:', error);
     setLastError(error);
     setErrorCount(prev => prev + 1);
@@ -75,9 +75,9 @@ export const useCompassionateError = () => {
         <div className="space-y-2">
           <p>{errorInfo.message}</p>
           <p className="text-xs opacity-80">{errorInfo.suggestion}</p>
-          {context?.isRecoverable && context.retry && (
+          {_context?._isRecoverable && _context.retry && (
             <button
-              onClick={() => retryAction(context.retry!)}
+              onClick={() => retryAction(_context.retry!)}
               className="mt-2 px-3 py-1 bg-white/10 rounded-md text-xs hover:bg-white/20 transition-colors"
             >
               Try Again
@@ -85,7 +85,7 @@ export const useCompassionateError = () => {
           )}
         </div>
       ),
-      duration: 6000,
+      _duration: 6000,
     });
 
     // Send encouragement if user is having multiple errors
@@ -93,7 +93,7 @@ export const useCompassionateError = () => {
       setTimeout(() => {
         toast.info("Technology can be frustrating", {
           description: "You're handling this so well. Take a breath.",
-          duration: 4000
+          _duration: 4000
         });
         hopeMessenger.sendHope('struggling');
       }, 2000);
@@ -103,8 +103,8 @@ export const useCompassionateError = () => {
     if (process.env.NODE_ENV === 'development') {
       console.log('Error details:', {
         type: errorType,
-        context,
-        stack: error.stack
+        _context,
+        _stack: error._stack
       });
     }
   }, [errorCount]);
@@ -113,16 +113,16 @@ export const useCompassionateError = () => {
     if (isRetrying) return;
 
     setIsRetrying(true);
-    toast.info("Trying again...", { duration: 2000 });
+    toast.info("Trying again...", { _duration: 2000 });
 
     try {
       await action();
-      toast.success("That worked! Nice job being patient.", { duration: 3000 });
+      toast.success("That worked! Nice job being patient.", { _duration: 3000 });
       setErrorCount(0); // Reset on success
     } catch (error) {
       handleError(error as Error, {
         action: 'retry',
-        isRecoverable: false
+        _isRecoverable: false
       });
     } finally {
       setIsRetrying(false);
@@ -140,30 +140,30 @@ export const useCompassionateError = () => {
   // Wrapper for async operations with built-in error handling
   const withCompassion = useCallback(async <T,>(
     operation: () => Promise<T>,
-    context: ErrorContext
+    _context: ErrorContext
   ): Promise<T | null> => {
     try {
       return await operation();
     } catch (error) {
-      handleError(error as Error, context);
+      handleError(error as Error, _context);
       return null;
     }
   }, [handleError]);
 
   // Special handling for form errors
-  const handleFormError = useCallback((fieldErrors: Record<string, string>) => {
-    const errorCount = Object.keys(fieldErrors).length;
+  const handleFormError = useCallback((_fieldErrors: Record<string, string>) => {
+    const errorCount = Object.keys(_fieldErrors).length;
     
     if (errorCount === 1) {
-      const [field, message] = Object.entries(fieldErrors)[0];
+      const [field, message] = Object.entries(_fieldErrors)[0];
       toast.error("Just one small thing", {
         description: `${field}: ${message}`,
-        duration: 4000
+        _duration: 4000
       });
     } else {
       toast.error("A few things need adjusting", {
         description: "No worries, we'll go through them together",
-        duration: 4000
+        _duration: 4000
       });
     }
   }, []);
@@ -179,11 +179,11 @@ export const useCompassionateError = () => {
     withCompassion,
     handleFormError,
     // Utility functions for common scenarios
-    networkError: () => handleError(new Error('network'), { action: 'network', isRecoverable: true }),
-    authError: () => handleError(new Error('auth'), { action: 'auth', isRecoverable: false }),
+    networkError: () => handleError(new Error('network'), { action: 'network', _isRecoverable: true }),
+    authError: () => handleError(new Error('auth'), { action: 'auth', _isRecoverable: false }),
     saveError: (retry?: () => Promise<void>) => handleError(new Error('save'), { 
       action: 'save', 
-      isRecoverable: !!retry,
+      _isRecoverable: !!retry,
       retry 
     })
   };

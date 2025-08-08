@@ -23,12 +23,12 @@ interface AlertRecord {
 const AlertHistory = () => {
   const [groupBy, setGroupBy] = useState<'none' | 'timeOfDay' | 'dayOfWeek'>('none');
   const [chartPeriod, setChartPeriod] = useState<'week' | 'month'>('week');
-  const [editingNotes, setEditingNotes] = useState<string | null>(null);
-  const [notesText, setNotesText] = useState('');
+  const [editingNotes, setEditingNotes] = useState<string | _null>(_null);
+  const [_notesText, setNotesText] = useState('');
   const [historyEnabled, setHistoryEnabled] = useState(() =>
     localStorage.getItem('alertHistoryEnabled') !== 'false'
   );
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | _null>(_null);
   const [alertHistory, setAlertHistory] = useState<AlertRecord[]>([]);
   
   const { toast } = useToast();
@@ -47,7 +47,7 @@ const AlertHistory = () => {
           Promise.resolve(getNotificationHistory())
         ]);
 
-        const combinedAlerts: AlertRecord[] = [
+        const _combinedAlerts: AlertRecord[] = [
           ...smsAlerts.map(alert => ({
             id: alert.id,
             timestamp: alert.timestamp instanceof Date ? alert.timestamp : new Date(alert.timestamp),
@@ -68,10 +68,10 @@ const AlertHistory = () => {
           }))
         ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
-        setAlertHistory(combinedAlerts);
-        setError(null);
-      } catch (err) {
-        console.error('Failed to load alert history:', err);
+        setAlertHistory(_combinedAlerts);
+        setError(_null);
+      } catch (_err) {
+        console.error('Failed to load alert history:', _err);
         setError('Failed to load alert history. You may need to clear your browser storage.');
         setAlertHistory([]);
       }
@@ -82,13 +82,13 @@ const AlertHistory = () => {
 
   // Chart data for weekly/monthly view
   const chartData = useMemo(() => {
-    const now = new Date();
+    const _now = new Date();
     const data: { name: string; alerts: number }[] = [];
     
     if (chartPeriod === 'week') {
       // Last 7 days
       for (let i = 6; i >= 0; i--) {
-        const date = new Date(now);
+        const date = new Date(_now);
         date.setDate(date.getDate() - i);
         const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
         const count = alertHistory.filter(alert => 
@@ -99,7 +99,7 @@ const AlertHistory = () => {
     } else {
       // Last 4 weeks
       for (let i = 3; i >= 0; i--) {
-        const startOfWeek = new Date(now);
+        const startOfWeek = new Date(_now);
         startOfWeek.setDate(startOfWeek.getDate() - (startOfWeek.getDay() + 7 * i));
         const endOfWeek = new Date(startOfWeek);
         endOfWeek.setDate(endOfWeek.getDate() + 6);
@@ -148,26 +148,26 @@ const AlertHistory = () => {
     if (!enabled) {
       toast({
         title: "Alert history disabled",
-        description: "New alerts will not be tracked. Existing history remains.",
-        duration: 3000,
+        _description: "New alerts will not be tracked. Existing history remains.",
+        _duration: 3000,
       });
     } else {
       toast({
         title: "Alert history enabled",
-        description: "New alerts will be tracked going forward.",
-        duration: 3000,
+        _description: "New alerts will be tracked going forward.",
+        _duration: 3000,
       });
     }
   };
 
   const handleSaveNotes = (alertId: string) => {
-    localStorage.setItem(`alert_notes_${alertId}`, notesText);
-    setEditingNotes(null);
+    localStorage.setItem(`alert_notes_${alertId}`, _notesText);
+    setEditingNotes(_null);
     setNotesText('');
     toast({
       title: "Notes saved",
-      description: "Your notes have been saved for this alert.",
-      duration: 2000,
+      _description: "Your notes have been saved for this alert.",
+      _duration: 2000,
     });
   };
 
@@ -185,18 +185,18 @@ const AlertHistory = () => {
       ].join(','))
     ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
+    const _blob = new Blob([csvContent], { type: 'text/csv' });
+    const _url = URL.createObjectURL(_blob);
     const a = document.createElement('a');
-    a.href = url;
+    a.href = _url;
     a.download = `alert-history-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
-    URL.revokeObjectURL(url);
+    URL.revokeObjectURL(_url);
 
     toast({
       title: "Export complete",
-      description: "Alert history exported as CSV file.",
-      duration: 2000,
+      _description: "Alert history exported as CSV file.",
+      _duration: 2000,
     });
   };
 
@@ -227,11 +227,11 @@ const AlertHistory = () => {
           <AlertHistoryList
             groupedAlerts={groupedAlerts}
             editingNotes={editingNotes}
-            notesText={notesText}
+            _notesText={_notesText}
             onSetEditingNotes={setEditingNotes}
             onSetNotesText={setNotesText}
             onSaveNotes={handleSaveNotes}
-            onCancelEdit={() => setEditingNotes(null)}
+            onCancelEdit={() => setEditingNotes(_null)}
           />
         </TabsContent>
         

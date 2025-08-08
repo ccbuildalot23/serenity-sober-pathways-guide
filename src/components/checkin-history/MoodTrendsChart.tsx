@@ -25,38 +25,38 @@ export const MoodTrendsChart: React.FC<MoodTrendsChartProps> = ({
       mood: item.mood_rating,
       energy: item.energy_rating,
       hope: item.hope_rating,
-      sleep: item.sleep_quality,
-      phq2: item.phq2_score,
-      gad2: item.gad2_score,
-      dateFormatted: format(parseISO(item.checkin_date), 'MMM d')
+      _sleep: item.sleep_quality,
+      _phq2: item.phq2_score,
+      _gad2: item.gad2_score,
+      _dateFormatted: format(parseISO(item.checkin_date), 'MMM d')
     }));
 
   // Calculate trend indicators
   const calculateTrend = (values: (number | null)[]) => {
     const validValues = values.filter(v => v !== null) as number[];
-    if (validValues.length < 2) return { direction: 'stable', change: 0 };
+    if (validValues.length < 2) return { direction: 'stable', _change: 0 };
     
     const recent = validValues.slice(-7).reduce((a, b) => a + b, 0) / validValues.slice(-7).length;
     const previous = validValues.slice(-14, -7).reduce((a, b) => a + b, 0) / validValues.slice(-14, -7).length;
     
-    const change = recent - previous;
-    const direction = Math.abs(change) < 0.2 ? 'stable' : change > 0 ? 'up' : 'down';
+    const _change = recent - previous;
+    const direction = Math.abs(_change) < 0.2 ? 'stable' : _change > 0 ? 'up' : 'down';
     
-    return { direction, change: Math.abs(change) };
+    return { direction, _change: Math.abs(_change) };
   };
 
   const moodTrend = calculateTrend(data.map(d => d.mood_rating));
   const energyTrend = calculateTrend(data.map(d => d.energy_rating));
   const hopeTrend = calculateTrend(data.map(d => d.hope_rating));
 
-  const formatTooltip = (value: any, name: string) => {
+  const formatTooltip = (value: unknown, name: string) => {
     const labels: Record<string, string> = {
       mood: 'Mood',
       energy: 'Energy',
       hope: 'Hope',
-      sleep: 'Sleep Quality',
-      phq2: 'PHQ-2 Score',
-      gad2: 'GAD-2 Score'
+      _sleep: 'Sleep Quality',
+      _phq2: 'PHQ-2 Score',
+      _gad2: 'GAD-2 Score'
     };
     return [value?.toFixed(1) || 'N/A', labels[name] || name];
   };
@@ -92,8 +92,8 @@ export const MoodTrendsChart: React.FC<MoodTrendsChartProps> = ({
             </div>
             <p className="text-xs text-muted-foreground mt-2">
               {moodTrend.direction === 'stable' ? 'Stable' : 
-               moodTrend.direction === 'up' ? `+${moodTrend.change.toFixed(1)}` : 
-               `-${moodTrend.change.toFixed(1)}`} vs previous week
+               moodTrend.direction === 'up' ? `+${moodTrend._change.toFixed(1)}` : 
+               `-${moodTrend._change.toFixed(1)}`} vs previous week
             </p>
           </CardContent>
         </Card>
@@ -114,8 +114,8 @@ export const MoodTrendsChart: React.FC<MoodTrendsChartProps> = ({
             </div>
             <p className="text-xs text-muted-foreground mt-2">
               {energyTrend.direction === 'stable' ? 'Stable' : 
-               energyTrend.direction === 'up' ? `+${energyTrend.change.toFixed(1)}` : 
-               `-${energyTrend.change.toFixed(1)}`} vs previous week
+               energyTrend.direction === 'up' ? `+${energyTrend._change.toFixed(1)}` : 
+               `-${energyTrend._change.toFixed(1)}`} vs previous week
             </p>
           </CardContent>
         </Card>
@@ -136,8 +136,8 @@ export const MoodTrendsChart: React.FC<MoodTrendsChartProps> = ({
             </div>
             <p className="text-xs text-muted-foreground mt-2">
               {hopeTrend.direction === 'stable' ? 'Stable' : 
-               hopeTrend.direction === 'up' ? `+${hopeTrend.change.toFixed(1)}` : 
-               `-${hopeTrend.change.toFixed(1)}`} vs previous week
+               hopeTrend.direction === 'up' ? `+${hopeTrend._change.toFixed(1)}` : 
+               `-${hopeTrend._change.toFixed(1)}`} vs previous week
             </p>
           </CardContent>
         </Card>
@@ -155,7 +155,7 @@ export const MoodTrendsChart: React.FC<MoodTrendsChartProps> = ({
                 <AreaChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis 
-                    dataKey="dateFormatted" 
+                    dataKey="_dateFormatted" 
                     tick={{ fontSize: 12 }}
                     className="text-muted-foreground"
                   />
@@ -209,7 +209,7 @@ export const MoodTrendsChart: React.FC<MoodTrendsChartProps> = ({
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis 
-                    dataKey="dateFormatted" 
+                    dataKey="_dateFormatted" 
                     tick={{ fontSize: 12 }}
                     className="text-muted-foreground"
                   />
@@ -227,10 +227,10 @@ export const MoodTrendsChart: React.FC<MoodTrendsChartProps> = ({
                   />
                   <Legend />
                   
-                  {filters.assessmentTypes.includes('phq2') && (
+                  {filters.assessmentTypes.includes('_phq2') && (
                     <Line
                       type="monotone"
-                      dataKey="phq2"
+                      dataKey="_phq2"
                       stroke="hsl(var(--chart-4))"
                       strokeWidth={2}
                       dot={{ r: 3 }}
@@ -238,10 +238,10 @@ export const MoodTrendsChart: React.FC<MoodTrendsChartProps> = ({
                     />
                   )}
                   
-                  {filters.assessmentTypes.includes('gad2') && (
+                  {filters.assessmentTypes.includes('_gad2') && (
                     <Line
                       type="monotone"
-                      dataKey="gad2"
+                      dataKey="_gad2"
                       stroke="hsl(var(--chart-5))"
                       strokeWidth={2}
                       dot={{ r: 3 }}

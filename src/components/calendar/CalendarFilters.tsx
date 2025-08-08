@@ -9,12 +9,12 @@ import { Search, Filter } from 'lucide-react';
 
 interface CalendarFiltersProps {
   filters: {
-    minMood: number;
-    maxMood: number;
-    triggers: string[];
-    searchTerm: string;
+    _minMood: number;
+    _maxMood: number;
+    _triggers: string[];
+    _searchTerm: string;
   };
-  onFiltersChange: (filters: any) => void;
+  onFiltersChange: (filters: unknown) => void;
   availableTriggers: string[];
 }
 
@@ -41,9 +41,9 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({
               id="search"
               type="text"
               placeholder="Search..."
-              value={filters.searchTerm}
+              value={filters._searchTerm}
               onChange={(e) =>
-                onFiltersChange({ ...filters, searchTerm: e.target.value })
+                onFiltersChange({ ...filters, _searchTerm: e.target.value })
               }
               className="pl-8"
             />
@@ -52,12 +52,12 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({
 
         {/* Mood Range */}
         <div className="space-y-2">
-          <Label>Mood Range: {filters.minMood} - {filters.maxMood}</Label>
+          <Label>Mood Range: {filters._minMood} - {filters._maxMood}</Label>
           <div className="px-2">
             <Slider
-              value={[filters.minMood, filters.maxMood]}
+              value={[filters._minMood, filters._maxMood]}
               onValueChange={([min, max]) =>
-                onFiltersChange({ ...filters, minMood: min, maxMood: max })
+                onFiltersChange({ ...filters, _minMood: min, _maxMood: max })
               }
               min={1}
               max={10}
@@ -70,18 +70,18 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({
         {/* Trigger Filter */}
         {availableTriggers.length > 0 && (
           <div className="space-y-2">
-            <Label>Filter by triggers</Label>
+            <Label>Filter by _triggers</Label>
             <div className="flex flex-wrap gap-2">
               {availableTriggers.map((trigger) => (
                 <Badge
                   key={trigger}
-                  variant={filters.triggers.includes(trigger) ? 'default' : 'outline'}
+                  variant={filters._triggers.includes(trigger) ? 'default' : 'outline'}
                   className="cursor-pointer"
                   onClick={() => {
-                    const newTriggers = filters.triggers.includes(trigger)
-                      ? filters.triggers.filter((t) => t !== trigger)
-                      : [...filters.triggers, trigger];
-                    onFiltersChange({ ...filters, triggers: newTriggers });
+                    const newTriggers = filters._triggers.includes(trigger)
+                      ? filters._triggers.filter((t) => t !== trigger)
+                      : [...filters._triggers, trigger];
+                    onFiltersChange({ ...filters, _triggers: newTriggers });
                   }}
                 >
                   {trigger}
@@ -92,14 +92,14 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({
         )}
 
         {/* Clear Filters */}
-        {(filters.searchTerm || filters.minMood > 1 || filters.maxMood < 10 || filters.triggers.length > 0) && (
+        {(filters._searchTerm || filters._minMood > 1 || filters._maxMood < 10 || filters._triggers.length > 0) && (
           <button
             onClick={() =>
               onFiltersChange({
-                minMood: 1,
-                maxMood: 10,
-                triggers: [],
-                searchTerm: '',
+                _minMood: 1,
+                _maxMood: 10,
+                _triggers: [],
+                _searchTerm: '',
               })
             }
             className="text-sm text-blue-600 hover:text-blue-800"

@@ -5,13 +5,18 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEnhancedSessionSecurity } from '@/hooks/useEnhancedSessionSecurity';
 import SessionWarningDialog from '@/components/security/SessionWarningDialog';
-import FloatingCrisisButton from './FloatingCrisisButton';
+// Floating button functionality integrated directly
 import CrisisAssessmentModal from './CrisisAssessmentModal';
 import CrisisResponseModal from './CrisisResponseModal';
 import { useCrisisSystem } from '@/hooks/useCrisisSystem';
 import { VoiceActivationStatus } from './VoiceActivationStatus';
 import { CrisisModals } from './CrisisModals';
 import { CrisisDebugInfo } from './CrisisDebugInfo';
+// New notification UI components
+import { CrisisAlertButton } from './CrisisAlertButton';
+import { NotificationPanel } from './NotificationPanel';
+import { SupportNetworkDashboard } from './SupportNetworkDashboard';
+import { CrisisNotificationToasts } from './CrisisNotificationToasts';
 
 /**
  * DEDUPLICATION: Replaces `CrisisInterventionSystem`.
@@ -42,7 +47,7 @@ const EnhancedCrisisSystem: React.FC = () => {
     handleInterventionComplete
   } = useCrisisSystem();
 
-  const handleEmergencyContactAdded = (contact: any) => {
+  const handleEmergencyContactAdded = (contact: unknown) => {
     toast.success(`${contact.name} added to emergency contacts`);
   };
 
@@ -62,8 +67,17 @@ const EnhancedCrisisSystem: React.FC = () => {
         onSignOut={handleSessionLogout}
       />
 
-      {/* Floating Crisis Button */}
-      <FloatingCrisisButton onCrisisActivated={handleCrisisActivated} />
+      {/* Enhanced Crisis Alert Button */}
+      <CrisisAlertButton onCrisisActivated={handleCrisisActivated} />
+      
+      {/* Crisis Notification Toasts */}
+      <CrisisNotificationToasts />
+      
+      {/* Notification Panel for active alerts */}
+      <NotificationPanel />
+      
+      {/* Support Network Dashboard for supporters */}
+      <SupportNetworkDashboard />
       
       {/* Crisis Assessment Modal */}
       <CrisisAssessmentModal

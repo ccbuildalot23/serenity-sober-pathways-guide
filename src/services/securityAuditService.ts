@@ -7,7 +7,7 @@ export interface SecurityTest {
   severity: 'low' | 'medium' | 'high' | 'critical';
   status: 'pending' | 'running' | 'passed' | 'failed';
   description: string;
-  result?: any;
+  result?: unknown;
   error?: string;
 }
 
@@ -113,14 +113,14 @@ class SecurityAuditService {
   async runSecurityAudit(): Promise<SecurityAuditReport> {
     console.log('Starting comprehensive security audit...');
     
-    const testPromises = this.tests.map(test => this.runTest(test));
-    const results = await Promise.all(testPromises);
+    const _testPromises = this.tests.map(test => this.runTest(test));
+    const _results = await Promise.all(_testPromises);
     
-    return this.generateReport(results);
+    return this.generateReport(_results);
   }
 
   private async runTest(test: SecurityTest): Promise<SecurityTest> {
-    let updatedTest = { ...test, status: 'running' as const };
+    const updatedTest = { ...test, status: 'running' as const };
     
     try {
       switch (test.id) {
@@ -206,7 +206,7 @@ class SecurityAuditService {
       }
 
       // Try to access data with explicit filter for another user
-      // This should return empty results due to RLS
+      // This should return empty _results due to RLS
       const fakeUserId = '00000000-0000-0000-0000-000000000000';
       const { data, error } = await supabase
         .from('daily_checkins')
@@ -317,8 +317,8 @@ class SecurityAuditService {
         .from('audit_logs')
         .insert({
           user_id: user.id,
-          action: 'SECURITY_AUDIT_TEST',
-          details_encrypted: JSON.stringify({ test: 'audit logging test' })
+          _action: 'SECURITY_AUDIT_TEST',
+          _details_encrypted: JSON.stringify({ test: 'audit logging test' })
         })
         .select();
 
@@ -358,14 +358,14 @@ class SecurityAuditService {
     try {
       // Test if rate limiting is in place by making rapid requests
       const startTime = Date.now();
-      const promises = Array(10).fill(null).map(() => 
+      const _promises = Array(10).fill(_null).map(() => 
         supabase.from('profiles').select('count').limit(1)
       );
       
-      const results = await Promise.allSettled(promises);
+      const _results = await Promise.allSettled(_promises);
       const endTime = Date.now();
       
-      const failures = results.filter(r => r.status === 'rejected').length;
+      const failures = _results.filter(r => r.status === 'rejected').length;
       const duration = endTime - startTime;
       
       return {

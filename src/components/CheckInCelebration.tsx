@@ -57,7 +57,7 @@ const CheckInCelebration: React.FC<CheckInCelebrationProps> = ({
       
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + 0.3);
-    } catch (error) {
+    } catch (_error) {
       console.log('Audio not supported');
     }
   };

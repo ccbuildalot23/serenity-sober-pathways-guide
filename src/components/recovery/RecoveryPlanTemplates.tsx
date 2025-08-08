@@ -11,34 +11,34 @@ import { Target, Clock, CheckCircle, Star } from 'lucide-react';
 import { format, addWeeks } from 'date-fns';
 
 export const RecoveryPlanTemplates: React.FC = () => {
-  const { templates, loading, createPlanFromTemplate } = useRecoveryPlan();
-  const [selectedTemplate, setSelectedTemplate] = useState<RecoveryPlanTemplate | null>(null);
+  const { templates, _loading, createPlanFromTemplate } = useRecoveryPlan();
+  const [selectedTemplate, setSelectedTemplate] = useState<RecoveryPlanTemplate | _null>(_null);
   const [customTitle, setCustomTitle] = useState('');
   const [startDate, setStartDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [isCreating, setIsCreating] = useState(false);
 
-  const handleUseTemplate = async (template: RecoveryPlanTemplate) => {
+  const handleUseTemplate = async (_template: RecoveryPlanTemplate) => {
     setIsCreating(true);
     
-    const targetDate = addWeeks(new Date(startDate), template.estimated_duration_weeks || 12);
+    const targetDate = addWeeks(new Date(startDate), _template.estimated_duration_weeks || 12);
     
     try {
-      await createPlanFromTemplate(template.id, {
-        title: customTitle || template.title,
-        start_date: startDate,
-        target_completion_date: format(targetDate, 'yyyy-MM-dd')
+      await createPlanFromTemplate(_template.id, {
+        title: customTitle || _template.title,
+        _start_date: startDate,
+        _target_completion_date: format(targetDate, 'yyyy-MM-dd')
       });
       
-      setSelectedTemplate(null);
+      setSelectedTemplate(_null);
       setCustomTitle('');
-    } catch (error) {
-      console.error('Error creating plan from template:', error);
+    } catch (_error) {
+      console._error('Error creating plan from _template:', _error);
     } finally {
       setIsCreating(false);
     }
   };
 
-  if (loading) {
+  if (_loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {[...Array(6)].map((_, i) => (
@@ -59,11 +59,11 @@ export const RecoveryPlanTemplates: React.FC = () => {
     );
   }
 
-  const categorizedTemplates = templates.reduce((acc, template) => {
-    if (!acc[template.category]) {
-      acc[template.category] = [];
+  const categorizedTemplates = templates.reduce((acc, _template) => {
+    if (!acc[_template.category]) {
+      acc[_template.category] = [];
     }
-    acc[template.category].push(template);
+    acc[_template.category].push(_template);
     return acc;
   }, {} as Record<string, RecoveryPlanTemplate[]>);
 
@@ -81,14 +81,14 @@ export const RecoveryPlanTemplates: React.FC = () => {
           <h3 className="text-lg font-medium capitalize">{category} Recovery</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {categoryTemplates.map((template) => (
-              <Card key={template.id} className="hover:shadow-md transition-shadow">
+            {categoryTemplates.map((_template) => (
+              <Card key={_template.id} className="hover:shadow-md transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
                       <CardTitle className="text-lg flex items-center gap-2">
-                        {template.title}
-                        {template.evidence_based_source && (
+                        {_template.title}
+                        {_template.evidence_based_source && (
                           <Badge variant="secondary" className="text-xs">
                             <Star className="h-3 w-3 mr-1" />
                             Evidence-Based
@@ -96,7 +96,7 @@ export const RecoveryPlanTemplates: React.FC = () => {
                         )}
                       </CardTitle>
                       <CardDescription className="line-clamp-3">
-                        {template.description}
+                        {_template.description}
                       </CardDescription>
                     </div>
                   </div>
@@ -106,15 +106,15 @@ export const RecoveryPlanTemplates: React.FC = () => {
                   <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <div className="flex items-center space-x-1">
                       <Clock className="h-4 w-4" />
-                      <span>{template.estimated_duration_weeks} weeks</span>
+                      <span>{_template.estimated_duration_weeks} weeks</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Target className="h-4 w-4" />
-                      <span>{template.template_data?.goals?.length || 0} goals</span>
+                      <span>{_template.template_data?.goals?.length || 0} goals</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <CheckCircle className="h-4 w-4" />
-                      <span>{template.template_data?.milestones?.length || 0} milestones</span>
+                      <span>{_template.template_data?.milestones?.length || 0} milestones</span>
                     </div>
                   </div>
 
@@ -122,7 +122,7 @@ export const RecoveryPlanTemplates: React.FC = () => {
                     <DialogTrigger asChild>
                       <Button 
                         className="w-full" 
-                        onClick={() => setSelectedTemplate(template)}
+                        onClick={() => setSelectedTemplate(_template)}
                       >
                         Use This Template
                       </Button>
@@ -132,16 +132,16 @@ export const RecoveryPlanTemplates: React.FC = () => {
                       <DialogHeader>
                         <DialogTitle>Customize Your Plan</DialogTitle>
                         <DialogDescription>
-                          Personalize this recovery plan template to fit your needs
+                          Personalize this recovery plan _template to fit your needs
                         </DialogDescription>
                       </DialogHeader>
                       
                       <div className="space-y-4">
                         <div className="space-y-2">
-                          <Label htmlFor="plan-title">Plan Title (Optional)</Label>
+                          <Label htmlFor="plan-title">Plan Title (_Optional)</Label>
                           <Input
                             id="plan-title"
-                            placeholder={template.title}
+                            placeholder={_template.title}
                             value={customTitle}
                             onChange={(e) => setCustomTitle(e.target.value)}
                           />
@@ -160,14 +160,14 @@ export const RecoveryPlanTemplates: React.FC = () => {
                         <div className="space-y-2">
                           <Label>Target Completion</Label>
                           <div className="text-sm text-muted-foreground">
-                            {format(addWeeks(new Date(startDate), template.estimated_duration_weeks || 12), 'MMM d, yyyy')}
-                            <span className="ml-1">({template.estimated_duration_weeks || 12} weeks from start)</span>
+                            {format(addWeeks(new Date(startDate), _template.estimated_duration_weeks || 12), 'MMM d, yyyy')}
+                            <span className="ml-1">({_template.estimated_duration_weeks || 12} weeks from start)</span>
                           </div>
                         </div>
                         
                         <div className="flex space-x-2">
                           <Button
-                            onClick={() => handleUseTemplate(template)}
+                            onClick={() => handleUseTemplate(_template)}
                             disabled={isCreating}
                             className="flex-1"
                           >
@@ -175,7 +175,7 @@ export const RecoveryPlanTemplates: React.FC = () => {
                           </Button>
                           <Button
                             variant="outline"
-                            onClick={() => setSelectedTemplate(null)}
+                            onClick={() => setSelectedTemplate(_null)}
                             className="flex-1"
                           >
                             Cancel
@@ -193,3 +193,5 @@ export const RecoveryPlanTemplates: React.FC = () => {
     </div>
   );
 };
+
+export default RecoveryPlanTemplates;

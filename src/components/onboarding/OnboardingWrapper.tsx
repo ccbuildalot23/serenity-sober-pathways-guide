@@ -7,8 +7,8 @@ interface OnboardingWrapperProps {
 }
 
 export const OnboardingWrapper: React.FC<OnboardingWrapperProps> = ({ children }) => {
-  const [shouldShowOnboarding, setShouldShowOnboarding] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [_shouldShowOnboarding, setShouldShowOnboarding] = useState(false);
+  const [_isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Check if onboarding has been completed
@@ -46,7 +46,7 @@ export const OnboardingWrapper: React.FC<OnboardingWrapperProps> = ({ children }
     setShouldShowOnboarding(false);
   };
 
-  if (isLoading) {
+  if (_isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center space-y-4">
@@ -59,7 +59,7 @@ export const OnboardingWrapper: React.FC<OnboardingWrapperProps> = ({ children }
     );
   }
 
-  if (shouldShowOnboarding) {
+  if (_shouldShowOnboarding) {
     return (
       <OnboardingFlow
         onComplete={handleOnboardingComplete}

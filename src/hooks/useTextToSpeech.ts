@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export interface TextToSpeechOptions {
   voice?: 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';
-  autoPlay?: boolean;
+  _autoPlay?: boolean;
   onStart?: () => void;
   onEnd?: () => void;
   onError?: (error: string) => void;
@@ -12,10 +12,10 @@ export interface TextToSpeechOptions {
 export const useTextToSpeech = (options: TextToSpeechOptions = {}) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | _null>(_null);
   
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const { voice = 'alloy', autoPlay = true, onStart, onEnd, onError } = options;
+  const audioRef = useRef<HTMLAudioElement | _null>(_null);
+  const { voice = 'alloy', _autoPlay = true, onStart, onEnd, onError } = options;
 
   useEffect(() => {
     return () => {
@@ -25,7 +25,7 @@ export const useTextToSpeech = (options: TextToSpeechOptions = {}) => {
 
   const speak = async (text: string) => {
     try {
-      setError(null);
+      setError(_null);
       setIsLoading(true);
 
       // Generate speech
@@ -58,7 +58,7 @@ export const useTextToSpeech = (options: TextToSpeechOptions = {}) => {
         onError?.(errorMessage);
       };
 
-      if (autoPlay) {
+      if (_autoPlay) {
         await audio.play();
       }
 
@@ -103,6 +103,6 @@ export const useTextToSpeech = (options: TextToSpeechOptions = {}) => {
     isSpeaking,
     isLoading,
     error,
-    clearError: () => setError(null)
+    clearError: () => setError(_null)
   };
 };

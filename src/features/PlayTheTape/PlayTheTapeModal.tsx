@@ -8,12 +8,12 @@ import { StoryPlayer } from './components/StoryPlayer';
 import { ReflectionPrompt } from './components/ReflectionPrompt';
 
 interface PlayTheTapeModalProps {
-  userData: UserData;
+  _userData: UserData;
   onClose: () => void;
 }
 
 export const PlayTheTapeModal: React.FC<PlayTheTapeModalProps> = ({ 
-  userData, 
+  _userData, 
   onClose 
 }) => {
   const [stage, setStage] = useState<'warning' | 'story' | 'reflection'>('warning');
@@ -24,8 +24,8 @@ export const PlayTheTapeModal: React.FC<PlayTheTapeModalProps> = ({
   const handleProceed = async () => {
     setLoading(true);
     try {
-      const generatedStory = await generateRelapseStory(userData);
-      setStory(generatedStory);
+      const _generatedStory = await generateRelapseStory(_userData);
+      setStory(_generatedStory);
       setStage('story');
     } catch (error) {
       console.error('Failed to generate story:', error);

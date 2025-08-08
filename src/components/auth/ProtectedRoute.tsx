@@ -4,8 +4,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { UserRole } from '@/types/userRoles';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
+import { useUserRole } from '@/hooks/useUserRole';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -13,7 +12,8 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const { role, loading: roleLoading, canAccess } = useUserRole();
   const location = useLocation();
   const [bypassAuth, setBypassAuth] = React.useState(false);
 
@@ -22,7 +22,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
   const shouldBypass = isDev && (bypassAuth || localStorage.getItem('dev_bypass_auth') === 'true');
 
   // Show loading state while checking auth
-  if (loading && !shouldBypass) {
+  if (authLoading || roleLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-4">
@@ -81,6 +81,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  // Allow access if authenticated or bypassed in dev mode
+  // Enforce role-based access if a role is required
+  if (requiredRole && !canAccess(requiredRole)) {
+    return <Navigate to="/auth" state={{ from: location, reason: 'forbidden' }} replace />;
+  }
+
   return <>{children}</>;
 };

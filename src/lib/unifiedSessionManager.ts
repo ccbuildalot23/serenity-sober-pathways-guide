@@ -28,7 +28,7 @@ interface SecurityFingerprint {
 
 interface SessionState {
   isValid: boolean;
-  lastActivity: number;
+  _lastActivity: number;
   fingerprint: string;
   warningShown: boolean;
   securityEvents: string[];
@@ -56,7 +56,7 @@ export class UnifiedSessionManager {
 
     this.sessionState = {
       isValid: false,
-      lastActivity: Date.now(),
+      _lastActivity: Date.now(),
       fingerprint: '',
       warningShown: false,
       securityEvents: []
@@ -100,9 +100,9 @@ export class UnifiedSessionManager {
       this.sessionState.isValid = true;
       this.emit('sessionInitialized', { timestamp: Date.now() });
 
-    } catch (error) {
-      console.error('Failed to initialize session:', error);
-      this.logSecurityEvent('SESSION_INIT_FAILED', { error: error.message });
+    } catch (_error) {
+      console._error('Failed to initialize session:', _error);
+      this.logSecurityEvent('SESSION_INIT_FAILED', { _error: _error.message });
     }
   }
 
@@ -123,13 +123,13 @@ export class UnifiedSessionManager {
     };
 
     // Create deterministic hash
-    const fingerprintString = Object.values(fingerprint).join('|');
-    const hash = btoa(fingerprintString).substring(0, 32);
+    const _fingerprintString = Object.values(fingerprint).join('|');
+    const hash = btoa(_fingerprintString).substring(0, 32);
 
     // Store securely
     await SecureStorage.setItem('device_fingerprint', fingerprint, {
       encrypt: true,
-      ttl: 7 * 24 * 60 * 60 * 1000 // 7 days
+      _ttl: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
     return hash;
@@ -149,13 +149,13 @@ export class UnifiedSessionManager {
       if (!isValid) {
         this.logSecurityEvent('FINGERPRINT_MISMATCH', {
           stored: storedFingerprint ? 'exists' : 'missing',
-          current: currentFingerprint.substring(0, 8)
+          _current: currentFingerprint.substring(0, 8)
         });
       }
 
       return isValid;
-    } catch (error) {
-      console.error('Fingerprint validation failed:', error);
+    } catch (_error) {
+      console._error('Fingerprint validation failed:', _error);
       return false;
     }
   }
@@ -170,14 +170,14 @@ export class UnifiedSessionManager {
       this.updateActivity();
     }, 1000);
 
-    activityEvents.forEach(event => {
-      document.addEventListener(event, activityHandler as EventListener, { passive: true });
+    activityEvents.forEach(_event => {
+      document.addEventListener(_event, activityHandler as EventListener, { passive: true });
     });
 
     // Store cleanup function
     this.listeners.set('activity', () => {
-      activityEvents.forEach(event => {
-        document.removeEventListener(event, activityHandler as EventListener);
+      activityEvents.forEach(_event => {
+        document.removeEventListener(_event, activityHandler as EventListener);
       });
     });
   }
@@ -200,7 +200,7 @@ export class UnifiedSessionManager {
     // Monitor for automation patterns
     let keySequence = '';
     const keyHandler = (e: KeyboardEvent) => {
-      keySequence += e.key;
+      keySequence += e._key;
       if (keySequence.length > 50) {
         keySequence = keySequence.slice(-50);
       }
@@ -223,13 +223,13 @@ export class UnifiedSessionManager {
    * Update activity timestamp and reset timers
    */
   private updateActivity(): void {
-    this.sessionState.lastActivity = Date.now();
+    this.sessionState._lastActivity = Date.now();
     this.sessionState.warningShown = false;
     this.resetSessionTimers();
 
     // Store activity securely
-    SecureStorage.setItem('last_activity', this.sessionState.lastActivity, {
-      ttl: 24 * 60 * 60 * 1000 // 24 hours
+    SecureStorage.setItem('last_activity', this.sessionState._lastActivity, {
+      _ttl: 24 * 60 * 60 * 1000 // 24 hours
     });
   }
 
@@ -238,16 +238,16 @@ export class UnifiedSessionManager {
    */
   private resetSessionTimers(): void {
     // Clear existing timers
-    Object.values(this.timers).forEach(timer => {
-      if (timer) clearTimeout(timer);
+    Object.values(this.timers).forEach(_timer => {
+      if (_timer) clearTimeout(_timer);
     });
 
-    // Set warning timer
+    // Set warning _timer
     this.timers.warning = setTimeout(() => {
       this.showSessionWarning();
     }, (this.config.timeoutMinutes - this.config.warningMinutes) * 60 * 1000);
 
-    // Set timeout timer
+    // Set timeout _timer
     this.timers.timeout = setTimeout(() => {
       this.handleSessionTimeout();
     }, this.config.timeoutMinutes * 60 * 1000);
@@ -261,7 +261,7 @@ export class UnifiedSessionManager {
       this.sessionState.warningShown = true;
       this.emit('sessionWarning', {
         timeRemaining: this.config.warningMinutes * 60,
-        canExtend: true
+        _canExtend: true
       });
     }
   }
@@ -272,7 +272,7 @@ export class UnifiedSessionManager {
   private async handleSessionTimeout(): Promise<void> {
     this.logSecurityEvent('SESSION_TIMEOUT', {
       duration: this.config.timeoutMinutes,
-      lastActivity: this.sessionState.lastActivity
+      _lastActivity: this.sessionState._lastActivity
     });
 
     await this.secureSignOut();
@@ -297,24 +297,24 @@ export class UnifiedSessionManager {
   async secureSignOut(): Promise<void> {
     try {
       // Clear all timers
-      Object.values(this.timers).forEach(timer => {
-        if (timer) clearTimeout(timer);
+      Object.values(this.timers).forEach(_timer => {
+        if (_timer) clearTimeout(_timer);
       });
 
       // Clear secure storage
       SecureStorage.clear();
 
       // Clear regular localStorage auth data
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('supabase.auth') || key.includes('sb-')) {
-          localStorage.removeItem(key);
+      Object.keys(localStorage).forEach(_key => {
+        if (_key.startsWith('supabase.auth') || _key.includes('sb-')) {
+          localStorage.removeItem(_key);
         }
       });
 
       // Sign out from Supabase
       await supabase.auth.signOut({ scope: 'global' });
 
-      // Clean up event listeners
+      // Clean up _event listeners
       this.listeners.forEach(cleanup => cleanup());
       this.listeners.clear();
 
@@ -323,8 +323,8 @@ export class UnifiedSessionManager {
 
       // Force redirect
       window.location.href = '/auth';
-    } catch (error) {
-      console.error('Error during secure sign out:', error);
+    } catch (_error) {
+      console._error('Error during secure sign out:', _error);
       window.location.href = '/auth';
     }
   }
@@ -342,53 +342,53 @@ export class UnifiedSessionManager {
   /**
    * Detect automation patterns
    */
-  private detectAutomationPattern(sequence: string): boolean {
-    const repeatedChar = /(.)\1{10,}/.test(sequence);
-    const repeatedSequence = /(.{2,})\1{5,}/.test(sequence);
+  private detectAutomationPattern(_sequence: string): boolean {
+    const repeatedChar = /(.)\1{10,}/.test(_sequence);
+    const repeatedSequence = /(.{2,})\1{5,}/.test(_sequence);
     return repeatedChar || repeatedSequence;
   }
 
   /**
    * Log security events
    */
-  private logSecurityEvent(eventType: string, data?: any): void {
-    const event = {
-      type: eventType,
+  private logSecurityEvent(_eventType: string, data?: unknown): void {
+    const _event = {
+      type: _eventType,
       timestamp: Date.now(),
       fingerprint: this.sessionState.fingerprint.substring(0, 8),
       data
     };
 
-    this.sessionState.securityEvents.push(eventType);
+    this.sessionState.securityEvents.push(_eventType);
     
     // Keep only recent events
     if (this.sessionState.securityEvents.length > 50) {
       this.sessionState.securityEvents = this.sessionState.securityEvents.slice(-25);
     }
 
-    this.emit('securityEvent', event);
+    this.emit('securityEvent', _event);
   }
 
   /**
    * Event emitter functionality
    */
-  private emit(event: string, data?: any): void {
-    const customEvent = new CustomEvent(event, { detail: data });
-    window.dispatchEvent(customEvent);
+  private emit(_event: string, data?: unknown): void {
+    const _customEvent = new CustomEvent(_event, { detail: data });
+    window.dispatchEvent(_customEvent);
   }
 
   /**
    * Debounce utility
    */
-  private debounce(func: Function, wait: number): Function {
+  private debounce(func: Function, _wait: number): Function {
     let timeout: NodeJS.Timeout;
-    return function executedFunction(...args: any[]) {
-      const later = () => {
+    return function executedFunction(..._args: unknown[]) {
+      const _later = () => {
         clearTimeout(timeout);
-        func.apply(this, args);
+        func.apply(this, _args);
       };
       clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
+      timeout = setTimeout(_later, _wait);
     };
   }
 
@@ -401,7 +401,7 @@ export class UnifiedSessionManager {
 
   isSessionValid(): boolean {
     const now = Date.now();
-    const timeSinceActivity = now - this.sessionState.lastActivity;
+    const timeSinceActivity = now - this.sessionState._lastActivity;
     const maxInactivity = this.config.maxInactivityMinutes * 60 * 1000;
     
     return this.sessionState.isValid && timeSinceActivity < maxInactivity;
@@ -413,8 +413,8 @@ export class UnifiedSessionManager {
   }
 
   destroy(): void {
-    Object.values(this.timers).forEach(timer => {
-      if (timer) clearTimeout(timer);
+    Object.values(this.timers).forEach(_timer => {
+      if (_timer) clearTimeout(_timer);
     });
     
     this.listeners.forEach(cleanup => cleanup());

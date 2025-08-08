@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
 import { useEnhancedSessionSecurity } from '@/hooks/useEnhancedSessionSecurity';
-import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
+import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Shield, 
@@ -34,9 +34,9 @@ import {
 
 interface SecurityMetrics {
   encryptionStatus: 'active' | 'inactive';
-  auditLogsCount: number;
+  _auditLogsCount: number;
   sessionTimeout: number;
-  lastActivity: string;
+  _lastActivity: string;
   failedAttempts: number;
   dataBackupStatus: 'current' | 'outdated' | 'failed';
   tlsVersion: string;
@@ -49,18 +49,18 @@ interface AuditLog {
   timestamp: string;
   risk_level: string;
   user_id?: string;
-  metadata?: any;
+  metadata?: unknown;
 }
 
 const HIPAASecurityDashboard: React.FC = () => {
   const { toast } = useToast();
   const { user, signOut } = useAuth();
-  const { sessionValid, sessionWarning, extendSession } = useEnhancedSessionSecurity();
+  const { _sessionValid, sessionWarning, extendSession } = useEnhancedSessionSecurity();
   const [securityMetrics, setSecurityMetrics] = useState<SecurityMetrics>({
     encryptionStatus: 'active',
-    auditLogsCount: 0,
+    _auditLogsCount: 0,
     sessionTimeout: 15,
-    lastActivity: new Date().toISOString(),
+    _lastActivity: new Date().toISOString(),
     failedAttempts: 0,
     dataBackupStatus: 'current',
     tlsVersion: '1.3',
@@ -79,46 +79,46 @@ const HIPAASecurityDashboard: React.FC = () => {
   const loadSecurityMetrics = async () => {
     try {
       // Get recent audit logs count
-      const { data: logs, error } = await supabase
+      const { data: logs, _error } = await supabase
         .from('security_audit_logs')
         .select('id')
         .eq('user_id', user?.id)
         .gte('timestamp', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
 
-      if (!error && logs) {
+      if (!_error && logs) {
         setSecurityMetrics(prev => ({
           ...prev,
-          auditLogsCount: logs.length,
-          lastActivity: localStorage.getItem('session_last_activity') || new Date().toISOString()
+          _auditLogsCount: logs.length,
+          _lastActivity: localStorage.getItem('session_last_activity') || new Date().toISOString()
         }));
       }
 
-      // Calculate compliance score based on implemented features
+      // Calculate compliance _score based on implemented features
       calculateComplianceScore();
-    } catch (error) {
-      console.error('Error loading security metrics:', error);
+    } catch (_error) {
+      console._error('Error loading security metrics:', _error);
     }
   };
 
   const loadAuditLogs = async () => {
     try {
-      const { data: logs, error } = await supabase
+      const { data: logs, _error } = await supabase
         .from('security_audit_logs')
         .select('*')
         .eq('user_id', user?.id)
         .order('timestamp', { ascending: false })
         .limit(10);
 
-      if (!error && logs) {
+      if (!_error && logs) {
         setAuditLogs(logs);
       }
-    } catch (error) {
-      console.error('Error loading audit logs:', error);
+    } catch (_error) {
+      console._error('Error loading audit logs:', _error);
     }
   };
 
   const calculateComplianceScore = () => {
-    let score = 0;
+    let _score = 0;
     const totalFeatures = 20;
 
     // Check implemented features
@@ -131,8 +131,8 @@ const HIPAASecurityDashboard: React.FC = () => {
       'Backup Procedures', 'Access Reviews', 'Incident Response'
     ];
 
-    score = Math.round((implementedFeatures.length / totalFeatures) * 100);
-    setComplianceScore(score);
+    _score = Math.round((implementedFeatures.length / totalFeatures) * 100);
+    setComplianceScore(_score);
   };
 
   const testEncryption = async () => {
@@ -140,7 +140,7 @@ const HIPAASecurityDashboard: React.FC = () => {
       const testData = 'HIPAA Test Data: Patient Information';
       
       // Test server-side encryption
-      const { data: encryptResult, error: encryptError } = await supabase.functions.invoke('encrypt-data', {
+      const { data: encryptResult, _error: encryptError } = await supabase.functions.invoke('encrypt-data', {
         body: { data: testData }
       });
 
@@ -149,7 +149,7 @@ const HIPAASecurityDashboard: React.FC = () => {
       }
 
       // Test decryption
-      const { data: decryptResult, error: decryptError } = await supabase.functions.invoke('decrypt-data', {
+      const { data: decryptResult, _error: decryptError } = await supabase.functions.invoke('decrypt-data', {
         body: { encryptedData: encryptResult.encryptedData }
       });
 
@@ -160,24 +160,24 @@ const HIPAASecurityDashboard: React.FC = () => {
       if (decryptResult.decryptedData === testData) {
         toast({
           title: "Encryption Test Successful",
-          description: "AES-256-GCM encryption is working correctly.",
+          _description: "AES-256-GCM encryption is working correctly.",
         });
         
         // Log the security test
         await EnhancedSecurityAuditService.logSecurityEvent({
           action: 'ENCRYPTION_TEST_SUCCESS',
-          severity: 'low',
-          details: { test_type: 'end_to_end_encryption' }
+          _severity: 'low',
+          _details: { test_type: 'end_to_end_encryption' }
         });
       } else {
         throw new Error('Decryption mismatch');
       }
-    } catch (error) {
-      console.error('Encryption test failed:', error);
+    } catch (_error) {
+      console._error('Encryption test failed:', _error);
       toast({
         title: "Encryption Test Failed",
-        description: "There may be an issue with the encryption system.",
-        variant: "destructive",
+        _description: "There may be an issue with the encryption system.",
+        _variant: "destructive",
       });
     }
   };
@@ -185,14 +185,14 @@ const HIPAASecurityDashboard: React.FC = () => {
   const forceLogout = async () => {
     await EnhancedSecurityAuditService.logSecurityEvent({
       action: 'MANUAL_LOGOUT',
-      severity: 'low',
-      details: { reason: 'admin_initiated' }
+      _severity: 'low',
+      _details: { reason: 'admin_initiated' }
     });
     
     // Clear all session data
-    Object.keys(localStorage).forEach((key) => {
-      if (key.startsWith('supabase.auth.') || key.includes('sb-') || key.includes('session')) {
-        localStorage.removeItem(key);
+    Object.keys(localStorage).forEach((_key) => {
+      if (_key.startsWith('supabase.auth.') || _key.includes('sb-') || _key.includes('session')) {
+        localStorage.removeItem(_key);
       }
     });
     
@@ -205,23 +205,23 @@ const HIPAASecurityDashboard: React.FC = () => {
       
       toast({
         title: "Security Report Generated",
-        description: "Comprehensive security audit report has been created.",
+        _description: "Comprehensive security audit report has been created.",
       });
 
       // In a real implementation, this would download or display the report
       console.log('Security Report:', report);
-    } catch (error) {
-      console.error('Error generating security report:', error);
+    } catch (_error) {
+      console._error('Error generating security report:', _error);
       toast({
         title: "Report Generation Failed",
-        description: "Could not generate security report.",
-        variant: "destructive",
+        _description: "Could not generate security report.",
+        _variant: "destructive",
       });
     }
   };
 
-  const getRiskLevelColor = (level: string) => {
-    switch (level) {
+  const getRiskLevelColor = (_level: string) => {
+    switch (_level) {
       case 'critical': return 'text-red-600';
       case 'high': return 'text-orange-600';
       case 'medium': return 'text-yellow-600';
@@ -260,9 +260,9 @@ const HIPAASecurityDashboard: React.FC = () => {
 
       {/* Security Status Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card className={sessionValid ? "border-green-500" : "border-red-500"}>
+        <Card className={_sessionValid ? "border-green-500" : "border-red-500"}>
           <CardContent className="p-6 text-center">
-            <Shield className={`w-8 h-8 mx-auto mb-2 ${sessionValid ? 'text-green-600' : 'text-red-600'}`} />
+            <Shield className={`w-8 h-8 mx-auto mb-2 ${_sessionValid ? 'text-green-600' : 'text-red-600'}`} />
             <p className="text-2xl font-bold">{complianceScore}%</p>
             <p className="text-sm text-muted-foreground">HIPAA Compliance</p>
           </CardContent>
@@ -279,7 +279,7 @@ const HIPAASecurityDashboard: React.FC = () => {
         <Card>
           <CardContent className="p-6 text-center">
             <Activity className="w-8 h-8 mx-auto mb-2 text-purple-600" />
-            <p className="text-2xl font-bold">{securityMetrics.auditLogsCount}</p>
+            <p className="text-2xl font-bold">{securityMetrics._auditLogsCount}</p>
             <p className="text-sm text-muted-foreground">Audit Events (24h)</p>
           </CardContent>
         </Card>
@@ -356,9 +356,9 @@ const HIPAASecurityDashboard: React.FC = () => {
                     <div className="text-sm text-muted-foreground">
                       <p><strong>Encryption Details:</strong></p>
                       <ul className="mt-2 space-y-1">
-                        <li>• PBKDF2 key derivation (100,000 iterations)</li>
+                        <li>• PBKDF2 _key derivation (100,000 iterations)</li>
                         <li>• Random IV generation for each operation</li>
-                        <li>• Salt-based key strengthening</li>
+                        <li>• Salt-based _key strengthening</li>
                         <li>• Server-side encryption only (keys never leave server)</li>
                       </ul>
                     </div>
@@ -378,11 +378,11 @@ const HIPAASecurityDashboard: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-center justify-between p-3 border rounded">
                     <span>encrypt-data</span>
-                    <Badge variant="outline">Active</Badge>
+                    <Badge _variant="outline">Active</Badge>
                   </div>
                   <div className="flex items-center justify-between p-3 border rounded">
                     <span>decrypt-data</span>
-                    <Badge variant="outline">Active</Badge>
+                    <Badge _variant="outline">Active</Badge>
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-4">
@@ -411,7 +411,7 @@ const HIPAASecurityDashboard: React.FC = () => {
                     <h4 className="font-semibold">Recent Security Events</h4>
                     <p className="text-sm text-muted-foreground">Last 10 audit log entries</p>
                   </div>
-                  <Button onClick={generateSecurityReport} variant="outline">
+                  <Button onClick={generateSecurityReport} _variant="outline">
                     <FileText className="w-4 h-4 mr-2" />
                     Generate Report
                   </Button>
@@ -420,14 +420,14 @@ const HIPAASecurityDashboard: React.FC = () => {
                 <div className="space-y-2">
                   {auditLogs.length > 0 ? (
                     auditLogs.map((log) => (
-                      <div key={log.id} className="flex items-center justify-between p-3 border rounded">
+                      <div _key={log.id} className="flex items-center justify-between p-3 border rounded">
                         <div>
                           <span className="font-medium">{log.event_type}</span>
                           <p className="text-sm text-muted-foreground">
                             {new Date(log.timestamp).toLocaleString()}
                           </p>
                         </div>
-                        <Badge variant="outline" className={getRiskLevelColor(log.risk_level)}>
+                        <Badge _variant="outline" className={getRiskLevelColor(log.risk_level)}>
                           {log.risk_level}
                         </Badge>
                       </div>
@@ -497,7 +497,7 @@ const HIPAASecurityDashboard: React.FC = () => {
                 <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded border border-blue-200 dark:border-blue-800">
                   <h4 className="font-semibold text-blue-900 dark:text-blue-100">Access Control Features</h4>
                   <ul className="mt-2 text-sm text-blue-800 dark:text-blue-200 space-y-1">
-                    <li>• Row-Level Security (RLS) policies on all tables</li>
+                    <li>• Row-Level Security (_RLS) policies on all tables</li>
                     <li>• Minimum necessary principle enforcement</li>
                     <li>• Real-time permission validation</li>
                     <li>• Audit logging for all access attempts</li>
@@ -529,7 +529,7 @@ const HIPAASecurityDashboard: React.FC = () => {
                     </div>
                     <div className="flex items-center justify-between">
                       <span>Session Valid</span>
-                      {getStatusIcon(sessionValid)}
+                      {getStatusIcon(_sessionValid)}
                     </div>
                     <div className="flex items-center justify-between">
                       <span>Device Fingerprinting</span>
@@ -548,7 +548,7 @@ const HIPAASecurityDashboard: React.FC = () => {
                         {new Date(parseInt(localStorage.getItem('session_last_activity') || '0')).toLocaleString()}
                       </p>
                     </div>
-                    <Button onClick={forceLogout} variant="outline" className="w-full">
+                    <Button onClick={forceLogout} _variant="outline" className="w-full">
                       <LogOut className="w-4 h-4 mr-2" />
                       Force Logout
                     </Button>
@@ -594,13 +594,13 @@ const HIPAASecurityDashboard: React.FC = () => {
                   
                   <div className="space-y-3">
                     {complianceFeatures.map((feature, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 border rounded">
+                      <div _key={index} className="flex items-center justify-between p-3 border rounded">
                         <div className="flex items-center gap-2">
                           {getStatusIcon(feature.implemented)}
                           <span className={feature.critical ? 'font-semibold' : ''}>{feature.name}</span>
-                          {feature.critical && <Badge variant="destructive">Critical</Badge>}
+                          {feature.critical && <Badge _variant="destructive">Critical</Badge>}
                         </div>
-                        <Badge variant={feature.implemented ? "default" : "destructive"}>
+                        <Badge _variant={feature.implemented ? "default" : "destructive"}>
                           {feature.implemented ? "Implemented" : "Pending"}
                         </Badge>
                       </div>
@@ -637,15 +637,15 @@ const HIPAASecurityDashboard: React.FC = () => {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span>Last Backup</span>
-                      <Badge variant="outline">2 hours ago</Badge>
+                      <Badge _variant="outline">2 hours ago</Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span>Recovery Time Objective</span>
-                      <Badge variant="outline">&lt; 4 hours</Badge>
+                      <Badge _variant="outline">&lt; 4 hours</Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span>Recovery Point Objective</span>
-                      <Badge variant="outline">&lt; 1 hour</Badge>
+                      <Badge _variant="outline">&lt; 1 hour</Badge>
                     </div>
                   </div>
                 </div>

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Brain, Heart, Target, Users, Award, Star, TrendingUp, BookOpen, Trophy, Lightbulb } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -43,8 +43,8 @@ const EnhancedCBTSkillsLibrary: React.FC = () => {
   const { user } = useAuth();
   const { getUserAchievements, getSkillProgress } = useSkillSession();
   const [activeModule, setActiveModule] = useState<string>('overview');
-  const [achievements, setAchievements] = useState<any[]>([]);
-  const [skillProgress, setSkillProgress] = useState<any[]>([]);
+  const [achievements, setAchievements] = useState<unknown[]>([]);
+  const [skillProgress, setSkillProgress] = useState<unknown[]>([]);
   const [weeklyGoal, setWeeklyGoal] = useState(3); // Skills practiced per week
   const [currentStreak, setCurrentStreak] = useState(0);
 
@@ -115,34 +115,34 @@ const EnhancedCBTSkillsLibrary: React.FC = () => {
 
     try {
       // Load achievements
-      const { data: achievementsData } = await getUserAchievements();
-      if (achievementsData) {
-        setAchievements(achievementsData);
+      const { data: _achievementsData } = await getUserAchievements();
+      if (_achievementsData) {
+        setAchievements(_achievementsData);
       }
 
       // Load skill progress for all categories
-      const progressPromises = skillModules.map(module => 
+      const _progressPromises = skillModules.map(module => 
         getSkillProgress(module.id)
       );
       
-      const progressResults = await Promise.all(progressPromises);
-      const formattedProgress = progressResults.map((result, index) => ({
+      const progressResults = await Promise.all(_progressPromises);
+      const _formattedProgress = progressResults.map((result, index) => ({
         category: skillModules[index].id,
         sessions: result.data || [],
         totalSessions: result.data?.length || 0,
         averageEffectiveness: result.data?.length > 0 
-          ? result.data.reduce((sum: number, session: any) => sum + (session.effectiveness_rating || 0), 0) / result.data.length
+          ? result.data.reduce((sum: number, session: unknown) => sum + (session.effectiveness_rating || 0), 0) / result.data.length
           : 0
       }));
 
-      setSkillProgress(formattedProgress);
+      setSkillProgress(_formattedProgress);
 
       // Calculate streak (simplified - consecutive days with practice)
       // This would be more sophisticated in a real implementation
       setCurrentStreak(Math.floor(Math.random() * 10) + 1); // Placeholder
 
-    } catch (error) {
-      console.error('Error loading user data:', error);
+    } catch (_error) {
+      console._error('Error loading user data:', _error);
     }
   };
 
@@ -152,7 +152,7 @@ const EnhancedCBTSkillsLibrary: React.FC = () => {
 
   const getWeeklyProgress = () => {
     const thisWeekSessions = skillProgress.reduce((sum, progress) => {
-      const weekSessions = progress.sessions.filter((session: any) => {
+      const weekSessions = progress.sessions.filter((session: unknown) => {
         const sessionDate = new Date(session.completed_at);
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
@@ -167,12 +167,12 @@ const EnhancedCBTSkillsLibrary: React.FC = () => {
   const prepareModulesForProgress = () => {
     return skillModules.map(module => {
       const progress = skillProgress.find(p => p.category === module.id);
-      const completionPercentage = progress ? Math.min((progress.totalSessions / 10) * 100, 100) : 0;
+      const _completionPercentage = progress ? Math.min((progress.totalSessions / 10) * 100, 100) : 0;
       
       return {
         id: module.id,
         title: module.name,
-        progress: Math.round(completionPercentage),
+        progress: Math.round(_completionPercentage),
         badgesEarned: achievements.filter(a => a.badge_name.toLowerCase().includes(module.id)).length,
         totalBadges: 3, // Default badges per module
         color: module.color
@@ -280,7 +280,7 @@ const EnhancedCBTSkillsLibrary: React.FC = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {skillModules.map((module) => {
             const progress = skillProgress.find(p => p.category === module.id);
-            const completionPercentage = progress ? Math.min((progress.totalSessions / 10) * 100, 100) : 0;
+            const _completionPercentage = progress ? Math.min((progress.totalSessions / 10) * 100, 100) : 0;
             
             return (
               <Card key={module.id} className="hover:shadow-lg transition-shadow cursor-pointer border-l-4" 
@@ -307,9 +307,9 @@ const EnhancedCBTSkillsLibrary: React.FC = () => {
                     <div className="space-y-1">
                       <div className="flex justify-between text-sm">
                         <span>Progress:</span>
-                        <span>{Math.round(completionPercentage)}%</span>
+                        <span>{Math.round(_completionPercentage)}%</span>
                       </div>
-                      <Progress value={completionPercentage} className="h-2" />
+                      <Progress value={_completionPercentage} className="h-2" />
                     </div>
                     
                     <div className="flex flex-wrap gap-1">

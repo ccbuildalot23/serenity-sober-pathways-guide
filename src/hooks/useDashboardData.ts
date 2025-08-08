@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { dashboardDataService, DashboardStats, UserProfile } from '@/services/dashboardDataService';
-import { toast } from 'sonner';
+import { dashboardDataService, UserProfile } from '@/services/dashboardDataService';
 import { victoryTracker } from '@/services/victoryTrackerService';
 import { hopeMessenger } from '@/services/hopeMessengerService';
 
@@ -10,13 +9,13 @@ export const useVictoryDashboard = () => {
   const { user } = useAuth();
   const [victories, setVictories] = useState({
     cleanDays: 0,
-    dailyWins: 0,
-    momentsOfStrength: [],
-    recentVictories: [],
-    supportGiven: 0,
-    supportReceived: 0,
-    toolsUsed: [],
-    nextMilestone: { days: 0, message: '' }
+    _dailyWins: 0,
+    _momentsOfStrength: [],
+    _recentVictories: [],
+    _supportGiven: 0,
+    _supportReceived: 0,
+    _toolsUsed: [],
+    _nextMilestone: { days: 0, _message: '' }
   });
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -33,46 +32,46 @@ export const useVictoryDashboard = () => {
     try {
       // Get clean days from localStorage
       const cleanDays = parseInt(localStorage.getItem('clean_days') || '0');
-      const dailyWins = await victoryTracker.getTodaysVictories();
-      const recentVictories = await victoryTracker.getRecentVictories(7);
+      const _dailyWins = await victoryTracker.getTodaysVictories();
+      const _recentVictories = await victoryTracker.getRecentVictories(7);
       
       // Calculate next milestone
-      const nextMilestone = victoryTracker.getNextMilestone(cleanDays);
+      const _nextMilestone = victoryTracker.getNextMilestone(cleanDays);
       
       // Get user profile
-      const profileData = await dashboardDataService.getUserProfile(user.id);
+      const _profileData = await dashboardDataService.getUserProfile(user.id);
       
       setVictories({
         cleanDays,
-        dailyWins: dailyWins.length,
-        momentsOfStrength: recentVictories.filter(v => v.type === 'strength'),
-        recentVictories,
-        supportGiven: recentVictories.filter(v => v.type === 'helped_someone').length,
-        supportReceived: recentVictories.filter(v => v.type === 'asked_for_help').length,
-        toolsUsed: [...new Set(recentVictories.map(v => v.tool).filter(Boolean))],
-        nextMilestone
+        _dailyWins: _dailyWins.length,
+        _momentsOfStrength: _recentVictories.filter(v => v.type === 'strength'),
+        _recentVictories,
+        _supportGiven: _recentVictories.filter(v => v.type === 'helped_someone').length,
+        _supportReceived: _recentVictories.filter(v => v.type === 'asked_for_help').length,
+        _toolsUsed: [...new Set(_recentVictories.map(v => v.tool).filter(_Boolean))],
+        _nextMilestone
       });
       
-      setProfile(profileData);
+      setProfile(_profileData);
       
       // Get personalized encouragement
-      const message = await hopeMessenger.getPersonalizedMessage(cleanDays > 0 ? 'victory' : 'struggling');
-      setEncouragement(message);
+      const _message = await hopeMessenger.getPersonalizedMessage(cleanDays > 0 ? 'victory' : 'struggling');
+      setEncouragement(_message);
       
-    } catch (err) {
-      console.error('Error loading victories:', err);
+    } catch (_err) {
+      console.error('Error loading victories:', _err);
       
       // Set default victories to show something positive
       const cleanDays = parseInt(localStorage.getItem('clean_days') || '0');
       setVictories({
         cleanDays,
-        dailyWins: 0,
-        momentsOfStrength: [],
-        recentVictories: [],
-        supportGiven: 0,
-        supportReceived: 0,
-        toolsUsed: [],
-        nextMilestone: victoryTracker.getNextMilestone(cleanDays)
+        _dailyWins: 0,
+        _momentsOfStrength: [],
+        _recentVictories: [],
+        _supportGiven: 0,
+        _supportReceived: 0,
+        _toolsUsed: [],
+        _nextMilestone: victoryTracker.getNextMilestone(cleanDays)
       });
       
       setEncouragement("You're here. That's a victory.");

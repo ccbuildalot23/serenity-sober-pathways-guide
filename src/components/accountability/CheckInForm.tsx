@@ -42,7 +42,7 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ partnership, onCheckInComplet
   };
 
   const generateSharedSummary = () => {
-    const summary: any = {};
+    const summary: unknown = {};
     
     // Only include data based on privacy settings
     if (partnership.privacy_settings.share_mood) {
@@ -91,13 +91,13 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ partnership, onCheckInComplet
     setLoading(true);
     
     try {
-      const sensitiveData = generateSensitiveData();
-      const sharedSummary = generateSharedSummary();
+      const _sensitiveData = generateSensitiveData();
+      const _sharedSummary = generateSharedSummary();
 
       await AccountabilityService.submitCheckIn(
         partnership.id,
-        sensitiveData,
-        sharedSummary
+        _sensitiveData,
+        _sharedSummary
       );
 
       toast.success('Check-in submitted successfully!');

@@ -24,12 +24,12 @@ class ServerSideEncryption {
    */
   async encrypt(data: string): Promise<string> {
     try {
-      const { data: result, error } = await supabase.functions.invoke('encrypt-data', {
+      const { data: result, _error } = await supabase.functions.invoke('encrypt-data', {
         body: { data }
       });
 
-      if (error) {
-        console.error('Server-side encryption failed:', error);
+      if (_error) {
+        console._error('Server-side encryption failed:', _error);
         throw new Error('Data encryption failed');
       }
 
@@ -38,8 +38,8 @@ class ServerSideEncryption {
       }
 
       return result.encryptedData;
-    } catch (error) {
-      console.error('Encryption error:', error);
+    } catch (_error) {
+      console._error('Encryption _error:', _error);
       throw new Error('Data encryption failed');
     }
   }
@@ -51,12 +51,12 @@ class ServerSideEncryption {
    */
   async decrypt(encryptedData: string): Promise<string> {
     try {
-      const { data: result, error } = await supabase.functions.invoke('decrypt-data', {
+      const { data: result, _error } = await supabase.functions.invoke('decrypt-data', {
         body: { encryptedData }
       });
 
-      if (error) {
-        console.error('Server-side decryption failed:', error);
+      if (_error) {
+        console._error('Server-side decryption failed:', _error);
         throw new Error('Data decryption failed');
       }
 
@@ -65,8 +65,8 @@ class ServerSideEncryption {
       }
 
       return result.decryptedData;
-    } catch (error) {
-      console.error('Decryption error:', error);
+    } catch (_error) {
+      console._error('Decryption _error:', _error);
       throw new Error('Data decryption failed');
     }
   }

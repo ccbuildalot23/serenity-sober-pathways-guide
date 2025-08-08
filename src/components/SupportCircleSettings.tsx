@@ -13,10 +13,10 @@ import { useToast } from '@/hooks/use-toast';
 
 interface Contact {
   id: string;
-  name: string;
-  phone: string;
-  relationship: string;
-  contact_method: 'sms' | 'push' | 'both';
+  _name: string;
+  _phone: string;
+  _relationship: string;
+  _contact_method: 'sms' | 'push' | 'both';
   share_location: boolean;
 }
 
@@ -27,8 +27,8 @@ interface FormErrors {
 const SupportCircleSettings = () => {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [testingContact, setTestingContact] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [testingContact, setTestingContact] = useState<string | _null>(_null);
+  const [_loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const { user } = useAuth();
@@ -45,59 +45,59 @@ const SupportCircleSettings = () => {
 
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('support_contacts')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: true });
 
-      if (error) {
-        console.error('Error loading contacts:', error);
+      if (_error) {
+        console._error('Error _loading contacts:', _error);
         toast({
           title: "Error",
-          description: "Failed to load your support contacts",
-          variant: "destructive",
+          _description: "Failed to load your support contacts",
+          _variant: "destructive",
         });
         return;
       }
 
       // Transform data to match component interface
-      const transformedContacts = (data || []).map(contact => ({
+      const _transformedContacts = (data || []).map(contact => ({
         id: contact.id,
-        name: contact.name,
-        phone: contact.phone || '',
-        relationship: contact.relationship,
-        contact_method: (contact.contact_method || 'both') as 'sms' | 'push' | 'both',
+        _name: contact._name,
+        _phone: contact._phone || '',
+        _relationship: contact._relationship,
+        _contact_method: (contact._contact_method || 'both') as 'sms' | 'push' | 'both',
         share_location: contact.share_location || false
       }));
 
-      setContacts(transformedContacts);
-    } catch (error) {
-      console.error('Error in loadContacts:', error);
+      setContacts(_transformedContacts);
+    } catch (_error) {
+      console._error('Error in loadContacts:', _error);
     } finally {
       setLoading(false);
     }
   };
 
-  const validatePhone = (phone: string): boolean => {
+  const validatePhone = (_phone: string): boolean => {
     const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-    return phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''));
+    return phoneRegex.test(_phone.replace(/[\s\-\(\)]/g, ''));
   };
 
   const validateContact = (contact: Contact): string[] => {
     const contactErrors: string[] = [];
     
-    if (!contact.name.trim()) {
+    if (!contact._name.trim()) {
       contactErrors.push('Name is required');
     }
     
-    if (!contact.phone.trim()) {
+    if (!contact._phone.trim()) {
       contactErrors.push('Phone number is required');
-    } else if (!validatePhone(contact.phone)) {
-      contactErrors.push('Please enter a valid phone number');
+    } else if (!validatePhone(contact._phone)) {
+      contactErrors.push('Please enter a valid _phone number');
     }
     
-    if (!contact.relationship.trim()) {
+    if (!contact._relationship.trim()) {
       contactErrors.push('Relationship is required');
     }
     
@@ -112,10 +112,10 @@ const SupportCircleSettings = () => {
 
     const newContact: Contact = {
       id: `temp_${Date.now()}`,
-      name: '',
-      phone: '',
-      relationship: '',
-      contact_method: 'both',
+      _name: '',
+      _phone: '',
+      _relationship: '',
+      _contact_method: 'both',
       share_location: false
     };
 
@@ -123,17 +123,17 @@ const SupportCircleSettings = () => {
     setErrors({});
   };
 
-  const updateContact = (id: string, field: keyof Contact, value: any) => {
-    const updatedContacts = contacts.map(contact =>
+  const updateContact = (id: string, field: keyof Contact, value: unknown) => {
+    const _updatedContacts = contacts.map(contact =>
       contact.id === id ? { ...contact, [field]: value } : contact
     );
-    setContacts(updatedContacts);
+    setContacts(_updatedContacts);
     
     // Clear field-specific errors when user starts typing
     if (errors[`${id}_${field}`]) {
-      const newErrors = { ...errors };
-      delete newErrors[`${id}_${field}`];
-      setErrors(newErrors);
+      const _newErrors = { ...errors };
+      delete _newErrors[`${id}_${field}`];
+      setErrors(_newErrors);
     }
   };
 
@@ -142,46 +142,46 @@ const SupportCircleSettings = () => {
 
     // If it's a temporary contact (not saved yet), just remove from state
     if (id.startsWith('temp_')) {
-      const updatedContacts = contacts.filter(contact => contact.id !== id);
-      setContacts(updatedContacts);
+      const _updatedContacts = contacts.filter(contact => contact.id !== id);
+      setContacts(_updatedContacts);
       return;
     }
 
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('support_contacts')
         .delete()
         .eq('id', id)
         .eq('user_id', user.id);
 
-      if (error) {
-        console.error('Error deleting contact:', error);
+      if (_error) {
+        console._error('Error deleting contact:', _error);
         toast({
           title: "Error",
-          description: "Failed to delete contact",
-          variant: "destructive",
+          _description: "Failed to delete contact",
+          _variant: "destructive",
         });
         return;
       }
 
-      const updatedContacts = contacts.filter(contact => contact.id !== id);
-      setContacts(updatedContacts);
+      const _updatedContacts = contacts.filter(contact => contact.id !== id);
+      setContacts(_updatedContacts);
       
       // Clear any errors for this contact
-      const newErrors = { ...errors };
-      Object.keys(newErrors).forEach(key => {
+      const _newErrors = { ...errors };
+      Object.keys(_newErrors).forEach(key => {
         if (key.startsWith(id)) {
-          delete newErrors[key];
+          delete _newErrors[key];
         }
       });
-      setErrors(newErrors);
+      setErrors(_newErrors);
 
       toast({
         title: "Success",
-        description: "Contact deleted successfully",
+        _description: "Contact deleted successfully",
       });
-    } catch (error) {
-      console.error('Error in removeContact:', error);
+    } catch (_error) {
+      console._error('Error in removeContact:', _error);
     }
   };
 
@@ -189,13 +189,13 @@ const SupportCircleSettings = () => {
     const contactErrors = validateContact(contact);
     
     if (contactErrors.length > 0) {
-      const newErrors: FormErrors = {};
-      contactErrors.forEach(error => {
-        if (error.includes('Name')) newErrors[`${contact.id}_name`] = error;
-        if (error.includes('Phone')) newErrors[`${contact.id}_phone`] = error;
-        if (error.includes('Relationship')) newErrors[`${contact.id}_relationship`] = error;
+      const _newErrors: FormErrors = {};
+      contactErrors.forEach(_error => {
+        if (_error.includes('Name')) _newErrors[`${contact.id}_name`] = _error;
+        if (_error.includes('Phone')) _newErrors[`${contact.id}_phone`] = _error;
+        if (_error.includes('Relationship')) _newErrors[`${contact.id}_relationship`] = _error;
       });
-      setErrors(newErrors);
+      setErrors(_newErrors);
       return;
     }
 
@@ -203,11 +203,11 @@ const SupportCircleSettings = () => {
     
     // Simulate API call
     setTimeout(() => {
-      setTestingContact(null);
-      console.log(`Test alert sent to ${contact.name} (${contact.phone}) via ${contact.contact_method}`);
+      setTestingContact(_null);
+      console.log(`Test alert sent to ${contact._name} (${contact._phone}) via ${contact._contact_method}`);
       toast({
         title: "Test Alert Sent",
-        description: `Alert sent to ${contact.name} via ${contact.contact_method}`,
+        _description: `Alert sent to ${contact._name} via ${contact._contact_method}`,
       });
     }, 2000);
   };
@@ -215,21 +215,21 @@ const SupportCircleSettings = () => {
   const saveAllContacts = async () => {
     if (!user) return;
 
-    const allErrors: FormErrors = {};
-    let hasErrors = false;
+    const _allErrors: FormErrors = {};
+    let _hasErrors = false;
 
     contacts.forEach(contact => {
       const contactErrors = validateContact(contact);
-      contactErrors.forEach(error => {
-        hasErrors = true;
-        if (error.includes('Name')) allErrors[`${contact.id}_name`] = error;
-        if (error.includes('Phone')) allErrors[`${contact.id}_phone`] = error;
-        if (error.includes('Relationship')) allErrors[`${contact.id}_relationship`] = error;
+      contactErrors.forEach(_error => {
+        _hasErrors = true;
+        if (_error.includes('Name')) _allErrors[`${contact.id}_name`] = _error;
+        if (_error.includes('Phone')) _allErrors[`${contact.id}_phone`] = _error;
+        if (_error.includes('Relationship')) _allErrors[`${contact.id}_relationship`] = _error;
       });
     });
 
-    if (hasErrors) {
-      setErrors(allErrors);
+    if (_hasErrors) {
+      setErrors(_allErrors);
       return;
     }
 
@@ -243,78 +243,78 @@ const SupportCircleSettings = () => {
 
       // Update existing contacts
       for (const contact of existingContacts) {
-        const { error } = await supabase
+        const { _error } = await supabase
           .from('support_contacts')
           .update({
-            name: contact.name,
-            relationship: contact.relationship,
-            phone: contact.phone || null,
-            contact_method: contact.contact_method,
+            _name: contact._name,
+            _relationship: contact._relationship,
+            _phone: contact._phone || _null,
+            _contact_method: contact._contact_method,
             share_location: contact.share_location,
-            updated_at: new Date().toISOString()
+            _updated_at: new Date().toISOString()
           })
           .eq('id', contact.id)
           .eq('user_id', user.id);
 
-        if (error) {
-          console.error('Error updating contact:', error);
-          throw error;
+        if (_error) {
+          console._error('Error updating contact:', _error);
+          throw _error;
         }
       }
 
       // Insert new contacts
       if (newContacts.length > 0) {
-        const { data, error } = await supabase
+        const { data, _error } = await supabase
           .from('support_contacts')
           .insert(
             newContacts.map(contact => ({
               user_id: user.id,
-              name: contact.name,
-              relationship: contact.relationship,
-              phone: contact.phone || null,
-              contact_method: contact.contact_method,
+              _name: contact._name,
+              _relationship: contact._relationship,
+              _phone: contact._phone || _null,
+              _contact_method: contact._contact_method,
               share_location: contact.share_location
             }))
           )
           .select();
 
-        if (error) {
-          console.error('Error inserting contacts:', error);
-          throw error;
+        if (_error) {
+          console._error('Error inserting contacts:', _error);
+          throw _error;
         }
 
         // Update the state with the real IDs from the database
-        const updatedContacts = [
+        const _updatedContacts = [
           ...existingContacts,
           ...(data || []).map(contact => ({
             id: contact.id,
-            name: contact.name,
-            phone: contact.phone || '',
-            relationship: contact.relationship,
-            contact_method: (contact.contact_method || 'both') as 'sms' | 'push' | 'both',
+            _name: contact._name,
+            _phone: contact._phone || '',
+            _relationship: contact._relationship,
+            _contact_method: (contact._contact_method || 'both') as 'sms' | 'push' | 'both',
             share_location: contact.share_location || false
           }))
         ];
-        setContacts(updatedContacts);
+        setContacts(_updatedContacts);
       }
 
       toast({
         title: "Success",
-        description: "All contacts saved successfully!",
+        _description: "All contacts saved successfully!",
       });
-    } catch (error) {
-      console.error('Error saving contacts:', error);
+    } catch (_error) {
+      console._error('Error saving contacts:', _error);
       toast({
         title: "Error",
-        description: "Failed to save contacts. Please try again.",
-        variant: "destructive",
+        _description: "Failed to save contacts. Please try again.",
+        _variant: "destructive",
       });
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) {
+  if (_loading) {
     return (
       <div className="space-y-6">
         <div className="text-center">
@@ -353,7 +353,7 @@ const SupportCircleSettings = () => {
               </div>
               <Button
                 onClick={() => removeContact(contact.id)}
-                variant="outline"
+                _variant="outline"
                 size="sm"
                 className="text-red-600 hover:text-red-700"
               >
@@ -366,9 +366,9 @@ const SupportCircleSettings = () => {
                 <Label htmlFor={`name_${contact.id}`}>Name *</Label>
                 <Input
                   id={`name_${contact.id}`}
-                  value={contact.name}
-                  onChange={(e) => updateContact(contact.id, 'name', e.target.value)}
-                  placeholder="Enter contact name"
+                  value={contact._name}
+                  onChange={(e) => updateContact(contact.id, '_name', e.target.value)}
+                  placeholder="Enter contact _name"
                   className={errors[`${contact.id}_name`] ? 'border-red-500' : ''}
                 />
                 {errors[`${contact.id}_name`] && (
@@ -380,9 +380,9 @@ const SupportCircleSettings = () => {
                 <Label htmlFor={`phone_${contact.id}`}>Phone Number *</Label>
                 <Input
                   id={`phone_${contact.id}`}
-                  value={contact.phone}
-                  onChange={(e) => updateContact(contact.id, 'phone', e.target.value)}
-                  placeholder="Enter phone number"
+                  value={contact._phone}
+                  onChange={(e) => updateContact(contact.id, '_phone', e.target.value)}
+                  placeholder="Enter _phone number"
                   type="tel"
                   className={errors[`${contact.id}_phone`] ? 'border-red-500' : ''}
                 />
@@ -395,8 +395,8 @@ const SupportCircleSettings = () => {
                 <Label htmlFor={`relationship_${contact.id}`}>Relationship *</Label>
                 <Input
                   id={`relationship_${contact.id}`}
-                  value={contact.relationship}
-                  onChange={(e) => updateContact(contact.id, 'relationship', e.target.value)}
+                  value={contact._relationship}
+                  onChange={(e) => updateContact(contact.id, '_relationship', e.target.value)}
                   placeholder="e.g., Sponsor, Family, Friend"
                   className={errors[`${contact.id}_relationship`] ? 'border-red-500' : ''}
                 />
@@ -408,9 +408,9 @@ const SupportCircleSettings = () => {
               <div>
                 <Label htmlFor={`contact_method_${contact.id}`}>Preferred Contact Method</Label>
                 <Select 
-                  value={contact.contact_method} 
+                  value={contact._contact_method} 
                   onValueChange={(value: 'sms' | 'push' | 'both') => 
-                    updateContact(contact.id, 'contact_method', value)
+                    updateContact(contact.id, '_contact_method', value)
                   }
                 >
                   <SelectTrigger>
@@ -428,8 +428,8 @@ const SupportCircleSettings = () => {
                 <div className="flex items-center space-x-2">
                   <Switch
                     id={`location_${contact.id}`}
-                    checked={contact.share_location}
-                    onCheckedChange={(checked) => updateContact(contact.id, 'share_location', checked)}
+                    _checked={contact.share_location}
+                    onCheckedChange={(_checked) => updateContact(contact.id, 'share_location', _checked)}
                   />
                   <Label htmlFor={`location_${contact.id}`}>Share location with this contact</Label>
                 </div>
@@ -438,7 +438,7 @@ const SupportCircleSettings = () => {
               <Button
                 onClick={() => sendTestAlert(contact)}
                 disabled={testingContact === contact.id}
-                variant="outline"
+                _variant="outline"
                 className="w-full"
               >
                 {testingContact === contact.id ? (

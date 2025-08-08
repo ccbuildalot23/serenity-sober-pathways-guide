@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { SecureUserDataService } from '@/services/secureUserDataService';
-import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
+import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
 import { toast } from 'sonner';
 
 interface UserProfile {
@@ -17,26 +17,26 @@ interface UserProfile {
 
 export const useSecureProfileManagement = () => {
   const { user } = useAuth();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profile, setProfile] = useState<UserProfile | _null>(_null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
   const loadProfile = async () => {
     if (!user) {
-      setProfile(null);
+      setProfile(_null);
       setLoading(false);
       return;
     }
 
     try {
       setLoading(true);
-      const profileData = await SecureUserDataService.getUserProfile();
-      setProfile(profileData);
+      const _profileData = await SecureUserDataService.getUserProfile();
+      setProfile(_profileData);
     } catch (error) {
       console.error('Failed to load profile:', error);
       await EnhancedSecurityAuditService.logSecurityViolation('PROFILE_LOAD_FAILED', {
         error: error.message,
-        user_id: user.id
+        _user_id: user.id
       });
       toast.error('Failed to load profile');
     } finally {
@@ -52,15 +52,15 @@ export const useSecureProfileManagement = () => {
 
     try {
       setUpdating(true);
-      const updatedProfile = await SecureUserDataService.updateUserProfile(updates);
-      setProfile(updatedProfile);
+      const _updatedProfile = await SecureUserDataService.updateUserProfile(updates);
+      setProfile(_updatedProfile);
       
       await EnhancedSecurityAuditService.logSecurityEvent({
         action: 'PROFILE_UPDATED',
-        severity: 'low',
-        details: {
+        _severity: 'low',
+        _details: {
           fields_updated: Object.keys(updates),
-          user_id: user.id
+          _user_id: user.id
         }
       });
       
@@ -70,8 +70,8 @@ export const useSecureProfileManagement = () => {
       console.error('Failed to update profile:', error);
       await EnhancedSecurityAuditService.logSecurityViolation('PROFILE_UPDATE_FAILED', {
         error: error.message,
-        user_id: user.id,
-        attempted_updates: Object.keys(updates)
+        _user_id: user.id,
+        _attempted_updates: Object.keys(updates)
       });
       toast.error('Failed to update profile');
       return false;
@@ -80,7 +80,7 @@ export const useSecureProfileManagement = () => {
     }
   };
 
-  const createProfile = async (profileData: {
+  const createProfile = async (_profileData: {
     full_name?: string;
     recovery_start_date?: string;
     timezone?: string;
@@ -92,14 +92,14 @@ export const useSecureProfileManagement = () => {
 
     try {
       setUpdating(true);
-      const newProfile = await SecureUserDataService.createUserProfile(profileData);
-      setProfile(newProfile);
+      const _newProfile = await SecureUserDataService.createUserProfile(_profileData);
+      setProfile(_newProfile);
       
       await EnhancedSecurityAuditService.logSecurityEvent({
         action: 'PROFILE_CREATED',
-        severity: 'low',
-        details: {
-          user_id: user.id
+        _severity: 'low',
+        _details: {
+          _user_id: user.id
         }
       });
       
@@ -109,7 +109,7 @@ export const useSecureProfileManagement = () => {
       console.error('Failed to create profile:', error);
       await EnhancedSecurityAuditService.logSecurityViolation('PROFILE_CREATION_FAILED', {
         error: error.message,
-        user_id: user.id
+        _user_id: user.id
       });
       toast.error('Failed to create profile');
       return false;

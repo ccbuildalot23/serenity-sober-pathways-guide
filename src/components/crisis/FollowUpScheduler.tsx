@@ -19,18 +19,18 @@ import { toast } from 'sonner';
 
 interface FollowUpEvent {
   id: string;
-  type: '4_hours' | '24_hours' | '1_week';
+  _type: '4_hours' | '24_hours' | '1_week';
   scheduledAt: Date;
   completed: boolean;
   crisisEventId: string;
-  reminderSent: boolean;
-  responseReceived: boolean;
+  _reminderSent: boolean;
+  _responseReceived: boolean;
   safetyStatus?: 'safe' | 'need_support' | 'crisis';
 }
 
 interface FollowUpSchedulerProps {
   crisisEventId: string;
-  onFollowUpComplete?: (followUp: FollowUpEvent) => void;
+  onFollowUpComplete?: (_followUp: FollowUpEvent) => void;
   emergencyContacts?: Array<{ id: string; name: string; phone: string; }>;
 }
 
@@ -45,10 +45,10 @@ const FollowUpScheduler: React.FC<FollowUpSchedulerProps> = ({
 
   useEffect(() => {
     // Load existing follow-ups for this crisis event
-    const savedFollowUps = localStorage.getItem(`followUps_${crisisEventId}`);
-    if (savedFollowUps) {
-      const parsed = JSON.parse(savedFollowUps);
-      setFollowUps(parsed.map((f: any) => ({
+    const _savedFollowUps = localStorage.getItem(`followUps_${crisisEventId}`);
+    if (_savedFollowUps) {
+      const parsed = JSON.parse(_savedFollowUps);
+      setFollowUps(parsed.map((f: unknown) => ({
         ...f,
         scheduledAt: new Date(f.scheduledAt)
       })));
@@ -63,30 +63,30 @@ const FollowUpScheduler: React.FC<FollowUpSchedulerProps> = ({
     const schedule: FollowUpEvent[] = [
       {
         id: `${crisisEventId}_4h`,
-        type: '4_hours',
+        _type: '4_hours',
         scheduledAt: new Date(now.getTime() + 4 * 60 * 60 * 1000), // 4 hours
         completed: false,
         crisisEventId,
-        reminderSent: false,
-        responseReceived: false
+        _reminderSent: false,
+        _responseReceived: false
       },
       {
         id: `${crisisEventId}_24h`,
-        type: '24_hours',
+        _type: '24_hours',
         scheduledAt: new Date(now.getTime() + 24 * 60 * 60 * 1000), // 24 hours
         completed: false,
         crisisEventId,
-        reminderSent: false,
-        responseReceived: false
+        _reminderSent: false,
+        _responseReceived: false
       },
       {
         id: `${crisisEventId}_1w`,
-        type: '1_week',
+        _type: '1_week',
         scheduledAt: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000), // 1 week
         completed: false,
         crisisEventId,
-        reminderSent: false,
-        responseReceived: false
+        _reminderSent: false,
+        _responseReceived: false
       }
     ];
 
@@ -105,53 +105,53 @@ const FollowUpScheduler: React.FC<FollowUpSchedulerProps> = ({
   };
 
   const scheduleReminders = (schedule: FollowUpEvent[]) => {
-    schedule.forEach((followUp) => {
-      const timeUntilReminder = followUp.scheduledAt.getTime() - Date.now();
+    schedule.forEach((_followUp) => {
+      const timeUntilReminder = _followUp.scheduledAt.getTime() - Date.now();
       
       if (timeUntilReminder > 0) {
         setTimeout(() => {
-          if (autoReminders && !followUp.completed) {
-            sendReminder(followUp);
+          if (autoReminders && !_followUp.completed) {
+            sendReminder(_followUp);
           }
         }, timeUntilReminder);
       }
     });
   };
 
-  const sendReminder = (followUp: FollowUpEvent) => {
+  const sendReminder = (_followUp: FollowUpEvent) => {
     // Send browser notification if permission granted
     if (Notification.permission === 'granted') {
       new Notification('Serenity - Follow-up Check', {
-        body: getFollowUpMessage(followUp.type),
+        body: getFollowUpMessage(_followUp._type),
         icon: '/favicon.ico',
         badge: '/favicon.ico'
       });
     }
 
     // Show toast notification
-    toast.info(getFollowUpMessage(followUp.type), {
+    toast.info(getFollowUpMessage(_followUp._type), {
       duration: 10000,
       action: {
         label: 'Check In',
-        onClick: () => completeFollowUp(followUp.id, 'safe')
+        onClick: () => completeFollowUp(_followUp.id, 'safe')
       }
     });
 
     // Mark reminder as sent
     const updatedFollowUps = followUps.map(f => 
-      f.id === followUp.id ? { ...f, reminderSent: true } : f
+      f.id === _followUp.id ? { ...f, _reminderSent: true } : f
     );
     setFollowUps(updatedFollowUps);
     saveFollowUps(updatedFollowUps);
 
     // Notify emergency contacts if enabled
     if (notifyContacts && emergencyContacts.length > 0) {
-      notifyEmergencyContacts(followUp);
+      notifyEmergencyContacts(_followUp);
     }
   };
 
-  const getFollowUpMessage = (type: FollowUpEvent['type']) => {
-    switch (type) {
+  const getFollowUpMessage = (_type: FollowUpEvent['_type']) => {
+    switch (_type) {
       case '4_hours':
         return 'How are you feeling 4 hours after your crisis? Please check in with us.';
       case '24_hours':
@@ -169,7 +169,7 @@ const FollowUpScheduler: React.FC<FollowUpSchedulerProps> = ({
         ? { 
             ...f, 
             completed: true, 
-            responseReceived: true, 
+            _responseReceived: true, 
             safetyStatus 
           } 
         : f
@@ -200,8 +200,8 @@ const FollowUpScheduler: React.FC<FollowUpSchedulerProps> = ({
     }
   };
 
-  const notifyEmergencyContacts = (followUp: FollowUpEvent) => {
-    const message = `Follow-up reminder for crisis support: ${getFollowUpMessage(followUp.type)}`;
+  const notifyEmergencyContacts = (_followUp: FollowUpEvent) => {
+    const message = `Follow-up reminder for crisis support: ${getFollowUpMessage(_followUp._type)}`;
     
     emergencyContacts.forEach(contact => {
       // This would typically integrate with SMS service
@@ -220,9 +220,9 @@ const FollowUpScheduler: React.FC<FollowUpSchedulerProps> = ({
     }
   };
 
-  const getStatusColor = (followUp: FollowUpEvent) => {
-    if (followUp.completed) {
-      switch (followUp.safetyStatus) {
+  const getStatusColor = (_followUp: FollowUpEvent) => {
+    if (_followUp.completed) {
+      switch (_followUp.safetyStatus) {
         case 'safe':
           return 'bg-green-500';
         case 'need_support':
@@ -234,13 +234,13 @@ const FollowUpScheduler: React.FC<FollowUpSchedulerProps> = ({
       }
     }
     
-    const isPast = followUp.scheduledAt < new Date();
+    const isPast = _followUp.scheduledAt < new Date();
     return isPast ? 'bg-orange-500' : 'bg-blue-500';
   };
 
-  const getStatusText = (followUp: FollowUpEvent) => {
-    if (followUp.completed) {
-      switch (followUp.safetyStatus) {
+  const getStatusText = (_followUp: FollowUpEvent) => {
+    if (_followUp.completed) {
+      switch (_followUp.safetyStatus) {
         case 'safe':
           return 'Safe & Well';
         case 'need_support':
@@ -252,12 +252,12 @@ const FollowUpScheduler: React.FC<FollowUpSchedulerProps> = ({
       }
     }
     
-    const isPast = followUp.scheduledAt < new Date();
+    const isPast = _followUp.scheduledAt < new Date();
     return isPast ? 'Overdue' : 'Scheduled';
   };
 
-  const formatTime = (type: FollowUpEvent['type']) => {
-    switch (type) {
+  const formatTime = (_type: FollowUpEvent['_type']) => {
+    switch (_type) {
       case '4_hours':
         return '4 Hours';
       case '24_hours':
@@ -317,13 +317,13 @@ const FollowUpScheduler: React.FC<FollowUpSchedulerProps> = ({
 
       {/* Follow-up Timeline */}
       <div className="space-y-3">
-        {followUps.map((followUp, index) => (
-          <Card key={followUp.id} className="overflow-hidden">
+        {followUps.map((_followUp, _index) => (
+          <Card key={_followUp.id} className="overflow-hidden">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className={`w-10 h-10 rounded-full ${getStatusColor(followUp)} flex items-center justify-center text-white`}>
-                    {followUp.completed ? (
+                  <div className={`w-10 h-10 rounded-full ${getStatusColor(_followUp)} flex items-center justify-center text-white`}>
+                    {_followUp.completed ? (
                       <CheckCircle className="w-5 h-5" />
                     ) : (
                       <Clock className="w-5 h-5" />
@@ -332,25 +332,25 @@ const FollowUpScheduler: React.FC<FollowUpSchedulerProps> = ({
                   
                   <div>
                     <div className="flex items-center space-x-2">
-                      <h4 className="font-medium">{formatTime(followUp.type)} Follow-up</h4>
-                      <Badge className={getStatusColor(followUp)}>
-                        {getStatusText(followUp)}
+                      <h4 className="font-medium">{formatTime(_followUp._type)} Follow-up</h4>
+                      <Badge className={getStatusColor(_followUp)}>
+                        {getStatusText(_followUp)}
                       </Badge>
                     </div>
                     <p className="text-sm text-gray-600">
-                      Scheduled: {followUp.scheduledAt.toLocaleDateString()} at {followUp.scheduledAt.toLocaleTimeString()}
+                      Scheduled: {_followUp.scheduledAt.toLocaleDateString()} at {_followUp.scheduledAt.toLocaleTimeString()}
                     </p>
                     <p className="text-sm text-gray-500">
-                      {getFollowUpMessage(followUp.type)}
+                      {getFollowUpMessage(_followUp._type)}
                     </p>
                   </div>
                 </div>
 
-                {!followUp.completed && (
+                {!_followUp.completed && (
                   <div className="flex flex-col space-y-1">
                     <Button
                       size="sm"
-                      onClick={() => completeFollowUp(followUp.id, 'safe')}
+                      onClick={() => completeFollowUp(_followUp.id, 'safe')}
                       className="bg-green-600 hover:bg-green-700 text-xs"
                     >
                       <Heart className="w-3 h-3 mr-1" />
@@ -359,7 +359,7 @@ const FollowUpScheduler: React.FC<FollowUpSchedulerProps> = ({
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => completeFollowUp(followUp.id, 'need_support')}
+                      onClick={() => completeFollowUp(_followUp.id, 'need_support')}
                       className="text-orange-600 hover:text-orange-700 text-xs"
                     >
                       Need Support
@@ -367,7 +367,7 @@ const FollowUpScheduler: React.FC<FollowUpSchedulerProps> = ({
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => completeFollowUp(followUp.id, 'crisis')}
+                      onClick={() => completeFollowUp(_followUp.id, 'crisis')}
                       className="text-red-600 hover:text-red-700 text-xs"
                     >
                       <AlertTriangle className="w-3 h-3 mr-1" />
@@ -377,10 +377,10 @@ const FollowUpScheduler: React.FC<FollowUpSchedulerProps> = ({
                 )}
               </div>
 
-              {followUp.completed && followUp.safetyStatus && (
+              {_followUp.completed && _followUp.safetyStatus && (
                 <div className="mt-3 p-3 bg-gray-50 rounded-lg">
                   <p className="text-sm text-gray-700">
-                    Response: <strong>{getStatusText(followUp)}</strong>
+                    Response: <strong>{getStatusText(_followUp)}</strong>
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
                     Completed at: {new Date().toLocaleString()}

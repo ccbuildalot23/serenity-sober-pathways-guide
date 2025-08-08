@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   BarChart, 
@@ -85,13 +84,13 @@ export function NotificationAnalyticsDashboard() {
   const [channelMetrics, setChannelMetrics] = useState<ChannelMetric[]>([]);
   const [timeSeriesData, setTimeSeriesData] = useState<TimeSeriesData[]>([]);
   const [typeMetrics, setTypeMetrics] = useState<TypeMetric[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [dateRange, setDateRange] = useState('7d');
-  const [selectedChannel, setSelectedChannel] = useState<string>('all');
+  const [_loading, setLoading] = useState(true);
+  const [_dateRange, setDateRange] = useState('7d');
+  const [_selectedChannel, setSelectedChannel] = useState<string>('all');
 
   useEffect(() => {
     loadAnalytics();
-  }, [dateRange, selectedChannel]);
+  }, [_dateRange, _selectedChannel]);
 
   const loadAnalytics = async () => {
     try {
@@ -99,60 +98,60 @@ export function NotificationAnalyticsDashboard() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const startDate = getStartDate(dateRange);
+      const startDate = getStartDate(_dateRange);
       const endDate = new Date();
 
       // Load overall analytics
-      const overallAnalytics = await comprehensiveNotificationService.getNotificationAnalytics(
+      const _overallAnalytics = await comprehensiveNotificationService.getNotificationAnalytics(
         user.id,
         startDate,
         endDate
       );
-      setAnalytics(overallAnalytics);
+      setAnalytics(_overallAnalytics);
 
       // Load detailed analytics from database
       await loadDetailedAnalytics(user.id, startDate, endDate);
-    } catch (error) {
-      console.error('Failed to load analytics:', error);
+    } catch (_error) {
+      console._error('Failed to load analytics:', _error);
     } finally {
       setLoading(false);
     }
   };
 
-  const loadDetailedAnalytics = async (userId: string, startDate: Date, endDate: Date) => {
+  const loadDetailedAnalytics = async (_userId: string, startDate: Date, endDate: Date) => {
     try {
       let query = supabase
         .from('notification_analytics')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', _userId)
         .gte('timestamp', startDate.toISOString())
         .lte('timestamp', endDate.toISOString());
 
-      if (selectedChannel !== 'all') {
-        query = query.eq('channel', selectedChannel);
+      if (_selectedChannel !== 'all') {
+        query = query.eq('channel', _selectedChannel);
       }
 
-      const { data: analyticsData } = await query;
+      const { data: _analyticsData } = await query;
 
-      if (analyticsData) {
+      if (_analyticsData) {
         // Process channel metrics
-        const channelStats = processChannelMetrics(analyticsData);
-        setChannelMetrics(channelStats);
+        const _channelStats = processChannelMetrics(_analyticsData);
+        setChannelMetrics(_channelStats);
 
         // Process time series data
-        const timeStats = processTimeSeriesData(analyticsData);
-        setTimeSeriesData(timeStats);
+        const _timeStats = processTimeSeriesData(_analyticsData);
+        setTimeSeriesData(_timeStats);
 
         // Process type metrics
-        const typeStats = processTypeMetrics(analyticsData);
-        setTypeMetrics(typeStats);
+        const _typeStats = processTypeMetrics(_analyticsData);
+        setTypeMetrics(_typeStats);
       }
-    } catch (error) {
-      console.error('Failed to load detailed analytics:', error);
+    } catch (_error) {
+      console._error('Failed to load detailed analytics:', _error);
     }
   };
 
-  const processChannelMetrics = (data: any[]): ChannelMetric[] => {
+  const processChannelMetrics = (data: unknown[]): ChannelMetric[] => {
     const channels = ['in_app', 'email', 'sms', 'push'];
     
     return channels.map(channel => {
@@ -175,7 +174,7 @@ export function NotificationAnalyticsDashboard() {
     }).filter(metric => metric.sent > 0);
   };
 
-  const processTimeSeriesData = (data: any[]): TimeSeriesData[] => {
+  const processTimeSeriesData = (data: unknown[]): TimeSeriesData[] => {
     const dateMap = new Map<string, TimeSeriesData>();
     
     data.forEach(item => {
@@ -203,10 +202,10 @@ export function NotificationAnalyticsDashboard() {
     return Array.from(dateMap.values()).sort((a, b) => a.date.localeCompare(b.date));
   };
 
-  const processTypeMetrics = (data: any[]): TypeMetric[] => {
+  const processTypeMetrics = (data: unknown[]): TypeMetric[] => {
     const types = ['check_in', 'goal_deadline', 'appointment', 'crisis', 'community', 'provider', 'system'];
     
-    return types.map((type, index) => {
+    return types.map((type, _index) => {
       const typeData = data.filter(d => d.type === type);
       const sent = typeData.filter(d => d.event_type === 'sent').length;
       const engaged = typeData.filter(d => ['opened', 'clicked'].includes(d.event_type)).length;
@@ -215,14 +214,14 @@ export function NotificationAnalyticsDashboard() {
         type,
         count: sent,
         engagement: sent > 0 ? (engaged / sent) * 100 : 0,
-        color: COLORS[index % COLORS.length]
+        color: COLORS[_index % COLORS.length]
       };
     }).filter(metric => metric.count > 0);
   };
 
-  const getStartDate = (range: string): Date => {
+  const getStartDate = (_range: string): Date => {
     const now = new Date();
-    switch (range) {
+    switch (_range) {
       case '1d':
         return new Date(now.getTime() - 24 * 60 * 60 * 1000);
       case '7d':
@@ -247,7 +246,7 @@ export function NotificationAnalyticsDashboard() {
     return `${num.toFixed(1)}%`;
   };
 
-  if (loading) {
+  if (_loading) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -268,7 +267,7 @@ export function NotificationAnalyticsDashboard() {
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
-              <Select value={dateRange} onValueChange={setDateRange}>
+              <Select value={_dateRange} onValueChange={setDateRange}>
                 <SelectTrigger className="w-32">
                   <SelectValue />
                 </SelectTrigger>
@@ -279,7 +278,7 @@ export function NotificationAnalyticsDashboard() {
                   <SelectItem value="90d">Last 3 Months</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={selectedChannel} onValueChange={setSelectedChannel}>
+              <Select value={_selectedChannel} onValueChange={setSelectedChannel}>
                 <SelectTrigger className="w-32">
                   <SelectValue />
                 </SelectTrigger>
@@ -399,15 +398,15 @@ export function NotificationAnalyticsDashboard() {
                       fill="#8884d8"
                       dataKey="count"
                     >
-                      {typeMetrics.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      {typeMetrics.map((entry, _index) => (
+                        <Cell key={`cell-${_index}`} fill={entry.color} />
                       ))}
                     </Pie>
                     <Tooltip />
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="flex flex-wrap gap-2 mt-4">
-                  {typeMetrics.map((metric, index) => (
+                  {typeMetrics.map((metric, _index) => (
                     <div key={metric.type} className="flex items-center gap-2">
                       <div 
                         className="w-3 h-3 rounded-full" 

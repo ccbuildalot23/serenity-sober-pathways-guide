@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Calendar, Download, TrendingUp, Brain, Activity } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { enhancedCheckinService } from '@/services/enhancedCheckinService';
@@ -54,8 +53,8 @@ export interface FilterOptions {
 const CheckInHistory = () => {
   const { user } = useAuth();
   const [data, setData] = useState<CheckinHistoryData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState<FilterOptions>({
+  const [_loading, setLoading] = useState(true);
+  const [_filters, setFilters] = useState<FilterOptions>({
     dateRange: {
       start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
       end: new Date(),
@@ -64,38 +63,38 @@ const CheckInHistory = () => {
     assessmentTypes: ['mood', 'phq2', 'gad2'],
     compareMode: false
   });
-  const [insights, setInsights] = useState<any>(null);
+  const [insights, setInsights] = useState<unknown>(null);
 
   useEffect(() => {
     if (user) {
       loadCheckinData();
     }
-  }, [user, filters.dateRange, filters.assessmentTypes]);
+  }, [user, _filters.dateRange, _filters.assessmentTypes]);
 
   useEffect(() => {
     if (data.length > 0) {
-      const analysisResults = analyzeCheckinData(data, filters);
-      setInsights(analysisResults);
+      const _analysisResults = analyzeCheckinData(data, _filters);
+      setInsights(_analysisResults);
     }
-  }, [data, filters]);
+  }, [data, _filters]);
 
   const loadCheckinData = async () => {
     if (!user) return;
     
     setLoading(true);
     try {
-      const days = Math.ceil((filters.dateRange.end.getTime() - filters.dateRange.start.getTime()) / (1000 * 60 * 60 * 24));
+      const days = Math.ceil((_filters.dateRange.end.getTime() - _filters.dateRange.start.getTime()) / (1000 * 60 * 60 * 24));
       const checkinHistory = await enhancedCheckinService.loadCheckinHistory(user.id, days + 7); // Extra buffer
       
       // Filter data to exact date range
-      const filteredData = checkinHistory.filter(item => {
+      const _filteredData = checkinHistory.filter(item => {
         const itemDate = new Date(item.checkin_date);
-        return itemDate >= filters.dateRange.start && itemDate <= filters.dateRange.end;
+        return itemDate >= _filters.dateRange.start && itemDate <= _filters.dateRange.end;
       });
       
-      setData(filteredData);
+      setData(_filteredData);
     } catch (error) {
-      console.error('Error loading check-in history:', error);
+      console.error('Error _loading check-in history:', error);
       toast.error('Failed to load check-in history');
     } finally {
       setLoading(false);
@@ -104,7 +103,7 @@ const CheckInHistory = () => {
 
   const handleExport = async () => {
     try {
-      await exportCheckinData(data, filters);
+      await exportCheckinData(data, _filters);
       toast.success('Data exported successfully');
     } catch (error) {
       console.error('Export error:', error);
@@ -116,7 +115,7 @@ const CheckInHistory = () => {
     setFilters(prev => ({ ...prev, ...newFilters }));
   };
 
-  if (loading) {
+  if (_loading) {
     return (
       <div className="space-y-4">
         <div className="h-8 bg-muted animate-pulse rounded" />
@@ -153,18 +152,18 @@ const CheckInHistory = () => {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <DateRangeFilter
-              value={filters.dateRange}
+              value={_filters.dateRange}
               onChange={(dateRange) => handleFilterChange({ dateRange })}
             />
             <AssessmentTypeFilter
-              value={filters.assessmentTypes}
+              value={_filters.assessmentTypes}
               onChange={(assessmentTypes) => handleFilterChange({ assessmentTypes })}
             />
             <div className="flex items-center space-x-2">
               <input
                 type="checkbox"
                 id="compare-mode"
-                checked={filters.compareMode}
+                checked={_filters.compareMode}
                 onChange={(e) => handleFilterChange({ compareMode: e.target.checked })}
                 className="rounded border-border"
               />
@@ -231,7 +230,7 @@ const CheckInHistory = () => {
               <div className="space-y-1">
                 <p className="text-sm font-medium leading-none">Days Tracked</p>
                 <p className="text-2xl font-bold">
-                  {Math.ceil((filters.dateRange.end.getTime() - filters.dateRange.start.getTime()) / (1000 * 60 * 60 * 24))}
+                  {Math.ceil((_filters.dateRange.end.getTime() - _filters.dateRange.start.getTime()) / (1000 * 60 * 60 * 24))}
                 </p>
               </div>
             </div>
@@ -251,22 +250,22 @@ const CheckInHistory = () => {
         <TabsContent value="trends" className="space-y-4">
           <MoodTrendsChart 
             data={data} 
-            filters={filters}
-            compareMode={filters.compareMode}
+            _filters={_filters}
+            compareMode={_filters.compareMode}
           />
         </TabsContent>
 
         <TabsContent value="calendar" className="space-y-4">
           <CheckInHeatMap 
             data={data} 
-            filters={filters}
+            _filters={_filters}
           />
         </TabsContent>
 
         <TabsContent value="correlation" className="space-y-4">
           <CorrelationAnalysis 
             data={data} 
-            filters={filters}
+            _filters={_filters}
           />
         </TabsContent>
 
@@ -274,7 +273,7 @@ const CheckInHistory = () => {
           <InsightsPanel 
             data={data} 
             insights={insights}
-            filters={filters}
+            _filters={_filters}
           />
         </TabsContent>
       </Tabs>

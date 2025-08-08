@@ -27,10 +27,10 @@ export function useCalendarFilters(entries: MoodEntry[]) {
 
       // Search filter
       if (filters.searchTerm) {
-        const searchLower = filters.searchTerm.toLowerCase();
-        const matchesNotes = (entry.notes || '').toLowerCase().includes(searchLower);
+        const _searchLower = filters.searchTerm.toLowerCase();
+        const matchesNotes = (entry.notes || '').toLowerCase().includes(_searchLower);
         const matchesGratitude = (entry.gratitude || []).some(g =>
-          g.toLowerCase().includes(searchLower)
+          g.toLowerCase().includes(_searchLower)
         );
         if (!matchesNotes && !matchesGratitude) return false;
       }

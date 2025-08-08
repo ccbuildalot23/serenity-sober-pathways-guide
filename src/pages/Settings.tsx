@@ -7,7 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { 
   Settings as SettingsIcon, Bell, Shield, Accessibility, Database, 
-  User, LogOut, Download, Trash2, Eye
+  User, LogOut, Download, Trash2, Eye, Phone
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import Layout from '@/components/Layout';
 import SmartReminderSettings from '@/components/settings/SmartReminderSettings';
 import { CrisisAccessibilitySettings } from '@/components/settings/CrisisAccessibilitySettings';
+import EmergencyContactsManager from '@/components/EmergencyContactsManager';
 
 // Additional settings components defined inline for now
 const NotificationPreferences = () => {
@@ -111,7 +112,7 @@ const DataManagement = () => {
 export default function Settings() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('general');
+  const [activeTab, setActiveTab] = useState('emergency');
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleSignOut = async () => {
@@ -181,7 +182,10 @@ export default function Settings() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="emergency" className="bg-red-50 data-[state=active]:bg-red-600 data-[state=active]:text-white">
+              <Phone className="w-4 h-4" />
+            </TabsTrigger>
             <TabsTrigger value="general">
               <SettingsIcon className="w-4 h-4" />
             </TabsTrigger>
@@ -198,6 +202,10 @@ export default function Settings() {
               <Database className="w-4 h-4" />
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="emergency" className="space-y-6">
+            <EmergencyContactsManager />
+          </TabsContent>
 
           <TabsContent value="general" className="space-y-6">
             {/* Profile Section */}

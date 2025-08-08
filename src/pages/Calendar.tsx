@@ -8,7 +8,7 @@ import { Calendar as CalendarIcon, TrendingUp, Heart } from 'lucide-react';
 // Simple fallback calendar component
 const SimpleCalendar = () => {
   const today = new Date();
-  const monthYear = today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const monthYear = today.toLocaleDateString('en-US', { month: 'long', _year: 'numeric' });
   
   return (
     <div className="p-4 max-w-4xl mx-auto space-y-6">
@@ -78,7 +78,7 @@ const SimpleCalendar = () => {
 const Calendar: React.FC = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('calendar');
-  const [EnhancedCalendar, setEnhancedCalendar] = useState<React.ComponentType<any> | null>(null);
+  const [EnhancedCalendar, setEnhancedCalendar] = useState<React.ComponentType<unknown> | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -88,8 +88,8 @@ const Calendar: React.FC = () => {
         setEnhancedCalendar(() => module.default);
         setLoading(false);
       })
-      .catch(error => {
-        console.warn('EnhancedCalendar not available, using simple calendar', error);
+      .catch(_error => {
+        console.warn('EnhancedCalendar not available, using simple calendar', _error);
         setLoading(false);
       });
   }, []);

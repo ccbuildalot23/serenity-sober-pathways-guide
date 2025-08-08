@@ -3,12 +3,12 @@ import { supabase } from '@/integrations/supabase/client';
 export interface ForumPost {
   id: string;
   forum_id: string;
-  user_id: string;
-  title: string;
-  content: string;
-  anonymous_name: string;
+  _user_id: string;
+  _title: string;
+  _content: string;
+  _anonymous_name: string;
   flagged_count: number | null;
-  is_moderated: boolean | null;
+  _is_moderated: boolean | null;
   moderation_status: string | null;
   reply_count: number | null;
   created_at: string;
@@ -17,14 +17,14 @@ export interface ForumPost {
 
 export interface SuccessStory {
   id: string;
-  user_id: string;
-  title: string;
-  content: string;
+  _user_id: string;
+  _title: string;
+  _content: string;
   story_category: string;
-  anonymous_name: string | null;
-  is_anonymous: boolean | null;
+  _anonymous_name: string | null;
+  _is_anonymous: boolean | null;
   is_featured: boolean | null;
-  is_moderated: boolean | null;
+  _is_moderated: boolean | null;
   likes_count: number | null;
   views_count: number | null;
   moderation_status: string | null;
@@ -36,8 +36,8 @@ export class CommunityService {
   // Forum functions
   static async createPost(postData: {
     forum_id: string;
-    title: string;
-    content: string;
+    _title: string;
+    _content: string;
     tags?: string[];
   }): Promise<ForumPost> {
     const { data: { user } } = await supabase.auth.getUser();
@@ -47,18 +47,18 @@ export class CommunityService {
     const anonymousName = await this.getAnonymousUsername(user.id, postData.forum_id);
 
     // Perform basic moderation
-    const moderationStatus = this.moderateContent(postData.content);
+    const moderationStatus = this.moderateContent(postData._content);
 
     const { data, error } = await supabase
       .from('forum_posts')
       .insert({
         forum_id: postData.forum_id,
-        user_id: user.id,
-        title: postData.title,
-        content: postData.content,
-        anonymous_name: anonymousName,
+        _user_id: user.id,
+        _title: postData._title,
+        _content: postData._content,
+        _anonymous_name: anonymousName,
         moderation_status: moderationStatus,
-        is_moderated: true
+        _is_moderated: true
       })
       .select()
       .single();
@@ -68,7 +68,7 @@ export class CommunityService {
   }
 
   static async getForumPosts(
-    forumId: string,
+    _forumId: string,
     filters?: {
       sort?: 'recent' | 'popular';
       search?: string;
@@ -77,11 +77,11 @@ export class CommunityService {
     let query = supabase
       .from('forum_posts')
       .select('*')
-      .eq('forum_id', forumId)
+      .eq('forum_id', _forumId)
       .or('moderation_status.eq.approved,moderation_status.is.null');
 
     if (filters?.search) {
-      query = query.or(`title.ilike.%${filters.search}%,content.ilike.%${filters.search}%`);
+      query = query.or(`_title.ilike.%${filters.search}%,_content.ilike.%${filters.search}%`);
     }
 
     // Apply sorting
@@ -106,10 +106,10 @@ export class CommunityService {
     const { data: existingReaction } = await supabase
       .from('content_reactions')
       .select('*')
-      .eq('user_id', user.id)
-      .eq('content_id', postId)
-      .eq('content_type', 'post')
-      .eq('reaction_type', reactionType)
+      .eq('_user_id', user.id)
+      .eq('_content_id', postId)
+      .eq('_content_type', 'post')
+      .eq('_reaction_type', reactionType)
       .single();
 
     if (existingReaction) {
@@ -123,10 +123,10 @@ export class CommunityService {
       await supabase
         .from('content_reactions')
         .insert({
-          user_id: user.id,
-          content_id: postId,
-          content_type: 'post',
-          reaction_type: reactionType
+          _user_id: user.id,
+          _content_id: postId,
+          _content_type: 'post',
+          _reaction_type: reactionType
         });
     }
   }
@@ -134,8 +134,8 @@ export class CommunityService {
   static async reportContent(
     contentType: 'post' | 'reply' | 'story',
     contentId: string,
-    reason: string,
-    details?: string
+    _reason: string,
+    _details?: string
   ): Promise<void> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
@@ -144,10 +144,10 @@ export class CommunityService {
       .from('content_reports')
       .insert({
         reported_by: user.id,
-        content_type: contentType,
-        content_id: contentId,
-        reason: reason,
-        details: details || null
+        _content_type: contentType,
+        _content_id: contentId,
+        _reason: _reason,
+        _details: _details || null
       });
 
     if (error) throw error;
@@ -161,7 +161,7 @@ export class CommunityService {
       .from('user_blocks')
       .insert({
         blocker_id: user.id,
-        blocked_id: blockedUserId
+        _blocked_id: blockedUserId
       });
 
     if (error && !error.message.includes('duplicate')) {
@@ -171,32 +171,32 @@ export class CommunityService {
 
   // Success Stories functions
   static async createSuccessStory(storyData: {
-    title: string;
-    content: string;
+    _title: string;
+    _content: string;
     story_category: string;
-    is_anonymous?: boolean;
+    _is_anonymous?: boolean;
   }): Promise<SuccessStory> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
     // Get anonymous username if needed
-    const anonymousName = storyData.is_anonymous 
+    const anonymousName = storyData._is_anonymous 
       ? await this.getAnonymousUsername(user.id) 
       : null;
 
-    const moderationStatus = this.moderateContent(storyData.content);
+    const moderationStatus = this.moderateContent(storyData._content);
 
     const { data, error } = await supabase
       .from('success_stories')
       .insert({
-        user_id: user.id,
-        title: storyData.title,
-        content: storyData.content,
+        _user_id: user.id,
+        _title: storyData._title,
+        _content: storyData._content,
         story_category: storyData.story_category,
-        anonymous_name: anonymousName,
-        is_anonymous: storyData.is_anonymous || false,
+        _anonymous_name: anonymousName,
+        _is_anonymous: storyData._is_anonymous || false,
         moderation_status: moderationStatus,
-        is_moderated: true
+        _is_moderated: true
       })
       .select()
       .single();
@@ -240,9 +240,9 @@ export class CommunityService {
       await supabase
         .from('story_interactions')
         .insert({
-          user_id: user.id,
-          story_id: storyId,
-          interaction_type: interactionType
+          _user_id: user.id,
+          _story_id: storyId,
+          _interaction_type: interactionType
         });
       return;
     }
@@ -251,9 +251,9 @@ export class CommunityService {
     const { data: existingInteraction } = await supabase
       .from('story_interactions')
       .select('*')
-      .eq('user_id', user.id)
-      .eq('story_id', storyId)
-      .eq('interaction_type', interactionType)
+      .eq('_user_id', user.id)
+      .eq('_story_id', storyId)
+      .eq('_interaction_type', interactionType)
       .single();
 
     if (existingInteraction) {
@@ -267,15 +267,15 @@ export class CommunityService {
       await supabase
         .from('story_interactions')
         .insert({
-          user_id: user.id,
-          story_id: storyId,
-          interaction_type: interactionType
+          _user_id: user.id,
+          _story_id: storyId,
+          _interaction_type: interactionType
         });
     }
   }
 
   // Reputation functions
-  static async getUserReputation(userId: string): Promise<{
+  static async getUserReputation(_userId: string): Promise<{
     total_karma: number;
     post_karma: number;
     comment_karma: number;
@@ -285,7 +285,7 @@ export class CommunityService {
     const { data } = await supabase
       .from('user_reputation')
       .select('*')
-      .eq('user_id', userId)
+      .eq('_user_id', _userId)
       .single();
 
     if (!data) {
@@ -293,7 +293,7 @@ export class CommunityService {
       const { data: newReputation } = await supabase
         .from('user_reputation')
         .insert({
-          user_id: userId,
+          _user_id: _userId,
           total_karma: 0,
           post_karma: 0,
           comment_karma: 0,
@@ -321,7 +321,7 @@ export class CommunityService {
   }
 
   static async updateKarma(
-    userId: string, 
+    _userId: string, 
     karmaType: 'post' | 'comment' | 'helpful',
     amount: number
   ): Promise<void> {
@@ -329,7 +329,7 @@ export class CommunityService {
     const { data: current } = await supabase
       .from('user_reputation')
       .select('*')
-      .eq('user_id', userId)
+      .eq('_user_id', _userId)
       .single();
 
     if (!current) {
@@ -337,7 +337,7 @@ export class CommunityService {
       await supabase
         .from('user_reputation')
         .insert({
-          user_id: userId,
+          _user_id: _userId,
           total_karma: amount,
           post_karma: karmaType === 'post' ? amount : 0,
           comment_karma: karmaType === 'comment' ? amount : 0,
@@ -345,22 +345,22 @@ export class CommunityService {
         });
     } else {
       // Update existing record
-      const updates: any = {
+      const _updates: unknown = {
         total_karma: current.total_karma + amount
       };
 
       if (karmaType === 'post') {
-        updates.post_karma = current.post_karma + amount;
+        _updates.post_karma = current.post_karma + amount;
       } else if (karmaType === 'comment') {
-        updates.comment_karma = current.comment_karma + amount;
+        _updates.comment_karma = current.comment_karma + amount;
       } else if (karmaType === 'helpful') {
-        updates.helpful_votes = current.helpful_votes + amount;
+        _updates.helpful_votes = current.helpful_votes + amount;
       }
 
       await supabase
         .from('user_reputation')
-        .update(updates)
-        .eq('user_id', userId);
+        .update(_updates)
+        .eq('_user_id', _userId);
     }
   }
 
@@ -373,7 +373,7 @@ export class CommunityService {
   }
 
   // Helper functions
-  private static async getAnonymousUsername(userId: string, forumId?: string): Promise<string> {
+  private static async getAnonymousUsername(_userId: string, _forumId?: string): Promise<string> {
     // Generate a simple anonymous username for now - will be replaced with DB lookup once types are updated
     const adjectives = ['Hopeful', 'Strong', 'Brave', 'Kind', 'Wise', 'Gentle', 'Peaceful'];
     const nouns = ['Warrior', 'Journey', 'Spirit', 'Heart', 'Soul', 'Friend', 'Guide'];
@@ -385,7 +385,7 @@ export class CommunityService {
     return `${adjective}${noun}${number}`;
   }
 
-  private static moderateContent(content: string): string {
+  private static moderateContent(_content: string): string {
     // Crisis keywords
     const crisisKeywords = [
       'suicide', 'kill myself', 'end it all', 'give up', 'can\'t go on',
@@ -398,7 +398,7 @@ export class CommunityService {
       'connect me', 'hook up', 'score some'
     ];
 
-    const contentLower = content.toLowerCase();
+    const contentLower = _content.toLowerCase();
     const crisisFlagged = crisisKeywords.some(keyword => contentLower.includes(keyword));
     const substanceFlagged = substanceKeywords.some(keyword => contentLower.includes(keyword));
 

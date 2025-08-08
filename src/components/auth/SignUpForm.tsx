@@ -1,12 +1,13 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { authClient } from '@/integrations/supabase/auth-client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Mail, Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import { Loader2, Mail, Lock, Eye, EyeOff, CheckCircle, AlertCircle, WifiOff } from 'lucide-react';
 
 interface SignUpFormProps {
   onSuccess?: () => void;
@@ -15,67 +16,67 @@ interface SignUpFormProps {
 
 export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) => {
   const { signUp } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [_email, setEmail] = useState('');
+  const [_password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | _null>(_null);
+  const [_success, setSuccess] = useState(false);
 
-  const validatePassword = (password: string): string | null => {
-    if (password.length < 8) {
+  const validatePassword = (_password: string): string | _null => {
+    if (_password.length < 8) {
       return 'Password must be at least 8 characters long';
     }
-    if (!/[A-Z]/.test(password)) {
+    if (!/[A-Z]/.test(_password)) {
       return 'Password must contain at least one uppercase letter';
     }
-    if (!/[a-z]/.test(password)) {
+    if (!/[a-z]/.test(_password)) {
       return 'Password must contain at least one lowercase letter';
     }
-    if (!/\d/.test(password)) {
+    if (!/\d/.test(_password)) {
       return 'Password must contain at least one number';
     }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(_password)) {
       return 'Password must contain at least one special character';
     }
     
     // Check for common passwords
-    const commonPasswords = ['password', '12345678', 'password123', 'admin', 'qwerty'];
-    if (commonPasswords.includes(password.toLowerCase())) {
-      return 'Password is too common. Please choose a stronger password';
+    const commonPasswords = ['_password', '12345678', 'password123', 'admin', 'qwerty'];
+    if (commonPasswords.includes(_password.toLowerCase())) {
+      return 'Password is too common. Please choose a stronger _password';
     }
     
-    return null;
+    return _null;
   };
 
   const handleSubmit = async () => {
-    setError(null);
+    setError(_null);
     setSuccess(false);
 
     // Basic validation
-    if (!email || !password || !confirmPassword) {
+    if (!_email || !_password || !confirmPassword) {
       setError('Please fill in all fields');
       return;
     }
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError('Please enter a valid email address');
+    if (!emailRegex.test(_email)) {
+      setError('Please enter a valid _email address');
       return;
     }
 
     // Password validation
-    const passwordError = validatePassword(password);
-    if (passwordError) {
-      setError(passwordError);
+    const _passwordError = validatePassword(_password);
+    if (_passwordError) {
+      setError(_passwordError);
       return;
     }
 
-    // Confirm password match
-    if (password !== confirmPassword) {
+    // Confirm _password match
+    if (_password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
@@ -83,27 +84,15 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
     setIsLoading(true);
 
     try {
-      // Include user type in metadata for role assignment
-      const { error } = await signUp(email, password, {
-        data: {
-          userType: userType || 'recovery'
-        }
-      });
+      // Use enhanced auth client with retry logic
+      const result = await authClient.signUp(_email, _password, userType || 'recovery');
       
-      if (error) {
-        // Handle specific Supabase errors
-        if (error.message?.includes('User already registered')) {
-          setError('An account with this email already exists. Please sign in instead.');
-        } else if (error.message?.includes('Invalid email')) {
-          setError('Please enter a valid email address');
-        } else if (error.message?.includes('Database error')) {
-          setError('We\'re experiencing technical difficulties. The database configuration needs to be updated. Please try again later or use the development mode options.');
-        } else if (error.message?.includes('recursion')) {
-          setError('Database configuration error detected. Please contact support for assistance.');
-        } else if (error.message?.includes('weak')) {
-          setError('Password is too weak. Please use a stronger password with at least 8 characters, including uppercase, lowercase, numbers, and special characters.');
-        } else {
-          setError(error.message || 'Failed to create account. Please try again.');
+      if (!result._success) {
+        setError(result.message);
+        
+        // Add visual hint for network errors
+        if (result.message.includes('Network')) {
+          console.error('Network error detected during signup');
         }
       } else {
         setSuccess(true);
@@ -119,7 +108,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
       }
     } catch (err) {
       console.error('Sign up error:', err);
-      setError('An unexpected error occurred. Please try again.');
+      setError('An unexpected error occurred. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -131,7 +120,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
     }
   };
 
-  if (success) {
+  if (_success) {
     return (
       <Card className="w-full">
         <CardContent className="pt-6">
@@ -141,7 +130,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
             </div>
             <h3 className="text-lg font-semibold text-green-800">Account Created!</h3>
             <p className="text-sm text-gray-600">
-              Please check your email to verify your account before signing in.
+              Please check your _email to verify your account before signing in.
             </p>
           </div>
         </CardContent>
@@ -157,43 +146,57 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
       <CardContent>
         <div className="space-y-4">
           {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
+            <Alert variant={error.includes('Network') ? 'default' : 'destructive'}>
+              {error.includes('Network') && <WifiOff className="h-4 w-4 mr-2" />}
+              {!error.includes('Network') && <AlertCircle className="h-4 w-4 mr-2" />}
+              <AlertDescription>
+                {error}
+                {error.includes('Network') && (
+                  <div className="mt-2 text-sm">
+                    <strong>Troubleshooting tips:</strong>
+                    <ul className="list-disc list-inside mt-1">
+                      <li>Check your internet connection</li>
+                      <li>Try refreshing the page</li>
+                      <li>Disable ad blockers or VPN</li>
+                    </ul>
+                  </div>
+                )}
+              </AlertDescription>
             </Alert>
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="signup-email">Email</Label>
+            <Label htmlFor="signup-_email">Email</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
-                id="signup-email"
-                type="email"
+                id="signup-_email"
+                type="_email"
                 placeholder="you@example.com"
-                value={email}
+                value={_email}
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={isLoading}
                 className="pl-10"
-                autoComplete="email"
+                autoComplete="_email"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="signup-password">Password</Label>
+            <Label htmlFor="signup-_password">Password</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
-                id="signup-password"
-                type={showPassword ? 'text' : 'password'}
+                id="signup-_password"
+                type={showPassword ? 'text' : '_password'}
                 placeholder="••••••••"
-                value={password}
+                value={_password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={isLoading}
                 className="pl-10 pr-10"
-                autoComplete="new-password"
+                autoComplete="new-_password"
               />
               <button
                 type="button"
@@ -210,19 +213,19 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="signup-confirm-password">Confirm Password</Label>
+            <Label htmlFor="signup-confirm-_password">Confirm Password</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
-                id="signup-confirm-password"
-                type={showConfirmPassword ? 'text' : 'password'}
+                id="signup-confirm-_password"
+                type={showConfirmPassword ? 'text' : '_password'}
                 placeholder="••••••••"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={isLoading}
                 className="pl-10 pr-10"
-                autoComplete="new-password"
+                autoComplete="new-_password"
               />
               <button
                 type="button"

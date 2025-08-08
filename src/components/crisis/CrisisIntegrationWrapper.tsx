@@ -25,7 +25,7 @@ export const CrisisIntegrationWrapper: React.FC<CrisisIntegrationWrapperProps> =
 
   // Monitor online/offline status
   useEffect(() => {
-    const handleOnline = () => {
+    const _handleOnline = () => {
       setIsOffline(false);
       toast.success("Back online - crisis data will now sync");
       
@@ -38,23 +38,23 @@ export const CrisisIntegrationWrapper: React.FC<CrisisIntegrationWrapperProps> =
       }
     };
 
-    const handleOffline = () => {
+    const _handleOffline = () => {
       setIsOffline(true);
       toast.warning("You're offline - crisis tools will work with cached data");
     };
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', _handleOnline);
+    window.addEventListener('offline', _handleOffline);
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', _handleOnline);
+      window.removeEventListener('offline', _handleOffline);
     };
   }, []);
 
   // Keyboard shortcuts for crisis access
   useEffect(() => {
-    const handleKeydown = (event: KeyboardEvent) => {
+    const _handleKeydown = (event: KeyboardEvent) => {
       // Ctrl/Cmd + E for emergency
       if ((event.ctrlKey || event.metaKey) && event.key === 'e') {
         event.preventDefault();
@@ -68,8 +68,8 @@ export const CrisisIntegrationWrapper: React.FC<CrisisIntegrationWrapperProps> =
       }
     };
 
-    window.addEventListener('keydown', handleKeydown);
-    return () => window.removeEventListener('keydown', handleKeydown);
+    window.addEventListener('keydown', _handleKeydown);
+    return () => window.removeEventListener('keydown', _handleKeydown);
   }, [navigate]);
 
   if (!user) {

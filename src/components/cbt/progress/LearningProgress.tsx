@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Trophy, Star, Target, Calendar, TrendingUp } from 'lucide-react';
+import { Trophy, Star, Target, TrendingUp } from 'lucide-react';
 import { useSkillSession } from '@/hooks/useSkillSession';
 
 interface SkillModule {
@@ -21,8 +21,8 @@ interface LearningProgressProps {
 
 const LearningProgress: React.FC<LearningProgressProps> = ({ modules = [] }) => {
   const { getUserAchievements, getSkillProgress } = useSkillSession();
-  const [achievements, setAchievements] = useState<any[]>([]);
-  const [skillProgress, setSkillProgress] = useState<any[]>([]);
+  const [achievements, setAchievements] = useState<unknown[]>([]);
+  const [skillProgress, setSkillProgress] = useState<unknown[]>([]);
 
   // Default modules if none provided
   const defaultModules: SkillModule[] = [
@@ -77,18 +77,18 @@ const LearningProgress: React.FC<LearningProgressProps> = ({ modules = [] }) => 
   const loadProgressData = async () => {
     try {
       // Load achievements
-      const { data: achievementsData } = await getUserAchievements();
-      if (achievementsData) {
-        setAchievements(achievementsData);
+      const { data: _achievementsData } = await getUserAchievements();
+      if (_achievementsData) {
+        setAchievements(_achievementsData);
       }
 
       // Load skill progress
-      const { data: progressData } = await getSkillProgress();
-      if (progressData) {
-        setSkillProgress(progressData);
+      const { data: _progressData } = await getSkillProgress();
+      if (_progressData) {
+        setSkillProgress(_progressData);
       }
-    } catch (error) {
-      console.error('Error loading progress data:', error);
+    } catch (_error) {
+      console._error('Error loading progress data:', _error);
     }
   };
 

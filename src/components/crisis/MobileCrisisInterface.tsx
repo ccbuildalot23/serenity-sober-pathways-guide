@@ -13,7 +13,7 @@ import {
   Volume2,
   Contrast
 } from 'lucide-react';
-import MobileCrisisButton from './MobileCrisisButton';
+// import MobileCrisisButton from './MobileCrisisButton'; // Functionality integrated into EnhancedCrisisSystem
 import OfflineModeBanner from './OfflineModeBanner';
 import { useMobileCrisis } from '@/hooks/useMobileCrisis';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
@@ -62,8 +62,8 @@ const MobileCrisisInterface: React.FC = () => {
             setLocation(`${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`);
             setIsLocationLoading(false);
           },
-          (error) => {
-            console.error('Location error:', error);
+          (_error) => {
+            console._error('Location _error:', _error);
             setIsLocationLoading(false);
           },
           { enableHighAccuracy: true, timeout: 10000 }
@@ -83,7 +83,7 @@ const MobileCrisisInterface: React.FC = () => {
   };
 
   if (!isMobile) {
-    return <MobileCrisisButton />;
+    return null; // Mobile crisis button functionality is handled by EnhancedCrisisSystem
   }
 
   return (
@@ -263,11 +263,7 @@ const MobileCrisisInterface: React.FC = () => {
         </Card>
       </div>
 
-      {/* Floating Crisis Button */}
-      <MobileCrisisButton 
-        onCrisisActivated={() => console.log('Crisis activated')}
-        size="large" 
-      />
+      {/* Floating Crisis Button - Handled by EnhancedCrisisSystem */}
     </>
   );
 };

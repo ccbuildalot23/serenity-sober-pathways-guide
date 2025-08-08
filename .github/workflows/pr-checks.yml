@@ -1,0 +1,402 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  label:
+    name: Auto Label
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/labeler@v5
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+
+  size:
+    name: PR Size Check
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: codelytv/pr-size-labeler@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          xs_label: 'size/xs'
+          xs_max_size: '10'
+          s_label: 'size/s'
+          s_max_size: '100'
+          m_label: 'size/m'
+          m_max_size: '500'
+          l_label: 'size/l'
+          l_max_size: '1000'
+          xl_label: 'size/xl'
+
+  lighthouse:
+    name: Lighthouse CI
+    runs-on: ubuntu-latest
+    needs: preview
+    permissions:
+      pull-requests: write
+      checks: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Wait for Vercel deployment
+        id: vercel-url
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            
+            const vercelComment = comments.find(comment => 
+              comment.body.includes('Preview Deployment') && 
+              comment.body.includes('vercel.app')
+            );
+            
+            if (!vercelComment) {
+              throw new Error('No Vercel preview URL found');
+            }
+            
+            const urlMatch = vercelComment.body.match(/https:\/\/[^\s]+\.vercel\.app/);
+            if (!urlMatch) {
+              throw new Error('Could not extract Vercel URL from comment');
+            }
+            
+            const url = urlMatch[0];
+            console.log('Found Vercel URL:', url);
+            
+            // Wait for deployment to be ready
+            let attempts = 0;
+            const maxAttempts = 30;
+            
+            while (attempts < maxAttempts) {
+              try {
+                const response = await fetch(url);
+                if (response.ok) {
+                  console.log('Deployment is ready');
+                  return url;
+                }
+              } catch (error) {
+                console.log(`Attempt ${attempts + 1}: Deployment not ready yet`);
+              }
+              
+              await new Promise(resolve => setTimeout(resolve, 10000)); // Wait 10 seconds
+              attempts++;
+            }
+            
+            throw new Error('Deployment did not become ready within timeout period');
+        
+      - name: Create Lighthouse CI config
+        run: |
+          cat > lighthouserc.js << 'EOF'
+          module.exports = {
+            ci: {
+              collect: {
+                url: ['${{ steps.vercel-url.outputs.result }}'],
+                numberOfRuns: 3,
+                settings: {
+                  chromeFlags: '--no-sandbox --disable-dev-shm-usage --disable-gpu',
+                  preset: 'desktop',
+                  throttling: {
+                    rttMs: 40,
+                    throughputKbps: 10240,
+                    cpuSlowdownMultiplier: 1,
+                    requestLatencyMs: 0,
+                    downloadThroughputKbps: 0,
+                    uploadThroughputKbps: 0
+                  }
+                }
+              },
+              assert: {
+                assertions: {
+                  'categories:performance': ['warn', {minScore: 0.8}],
+                  'categories:accessibility': ['error', {minScore: 0.95}],
+                  'categories:best-practices': ['warn', {minScore: 0.9}],
+                  'categories:seo': ['warn', {minScore: 0.9}],
+                  'categories:pwa': 'off',
+                  
+                  // Core Web Vitals
+                  'largest-contentful-paint': ['warn', {maxNumericValue: 2500}],
+                  'first-contentful-paint': ['warn', {maxNumericValue: 1800}],
+                  'cumulative-layout-shift': ['error', {maxNumericValue: 0.1}],
+                  'total-blocking-time': ['warn', {maxNumericValue: 300}],
+                  
+                  // Accessibility specific
+                  'color-contrast': 'error',
+                  'heading-order': 'error',
+                  'html-has-lang': 'error',
+                  'image-alt': 'error',
+                  'label': 'error',
+                  'link-name': 'error',
+                  'aria-valid-attr': 'error',
+                  'button-name': 'error',
+                  'form-field-multiple-labels': 'error',
+                  'focus-traps': 'error',
+                  
+                  // Best practices
+                  'uses-https': 'error',
+                  'no-vulnerable-libraries': 'warn',
+                  'csp-xss': 'warn',
+                  'errors-in-console': 'warn'
+                }
+              },
+              upload: {
+                target: 'temporary-public-storage'
+              }
+            }
+          };
+          EOF
+          
+      - name: Run Lighthouse CI
+        id: lighthouse
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: './lighthouserc.js'
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Parse Lighthouse results
+        id: lighthouse-results
+        uses: actions/github-script@v7
+        if: always()
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Find the latest manifest file
+            const lhciDir = '.lighthouseci';
+            if (!fs.existsSync(lhciDir)) {
+              console.log('No Lighthouse CI results found');
+              return;
+            }
+            
+            const manifestPath = path.join(lhciDir, 'manifest.json');
+            if (!fs.existsSync(manifestPath)) {
+              console.log('No manifest file found');
+              return;
+            }
+            
+            const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+            const results = manifest[0];
+            
+            if (!results || !results.summary) {
+              console.log('No results summary found');
+              return;
+            }
+            
+            const scores = {
+              performance: Math.round(results.summary.performance * 100),
+              accessibility: Math.round(results.summary.accessibility * 100),
+              bestPractices: Math.round(results.summary['best-practices'] * 100),
+              seo: Math.round(results.summary.seo * 100)
+            };
+            
+            // Set outputs for use in next step
+            core.setOutput('performance', scores.performance);
+            core.setOutput('accessibility', scores.accessibility);
+            core.setOutput('best-practices', scores.bestPractices);
+            core.setOutput('seo', scores.seo);
+            core.setOutput('report-url', results.url);
+            
+            return scores;
+            
+      - name: Update PR comment with Lighthouse scores
+        uses: actions/github-script@v7
+        if: always()
+        with:
+          script: |
+            const performance = '${{ steps.lighthouse-results.outputs.performance }}' || 'N/A';
+            const accessibility = '${{ steps.lighthouse-results.outputs.accessibility }}' || 'N/A';
+            const bestPractices = '${{ steps.lighthouse-results.outputs.best-practices }}' || 'N/A';
+            const seo = '${{ steps.lighthouse-results.outputs.seo }}' || 'N/A';
+            const reportUrl = '${{ steps.lighthouse-results.outputs.report-url }}' || '';
+            
+            function getScoreEmoji(score) {
+              if (score === 'N/A') return '⏳';
+              const num = parseInt(score);
+              if (num >= 90) return '🟢';
+              if (num >= 50) return '🟡';
+              return '🔴';
+            }
+            
+            function getScoreStatus(score, threshold) {
+              if (score === 'N/A') return 'Pending';
+              const num = parseInt(score);
+              return num >= threshold ? 'PASS' : 'FAIL';
+            }
+            
+            const lighthouseResults = `
+            ### 🔍 Lighthouse Audit Results
+            
+            | Category | Score | Status | Threshold |
+            |----------|-------|--------|----------|
+            | Performance | ${getScoreEmoji(performance)} ${performance} | ${getScoreStatus(performance, 80)} | 80+ |
+            | Accessibility | ${getScoreEmoji(accessibility)} ${accessibility} | ${getScoreStatus(accessibility, 95)} | 95+ |
+            | Best Practices | ${getScoreEmoji(bestPractices)} ${bestPractices} | ${getScoreStatus(bestPractices, 90)} | 90+ |
+            | SEO | ${getScoreEmoji(seo)} ${seo} | ${getScoreStatus(seo, 90)} | 90+ |
+            
+            ${reportUrl ? `📊 [View detailed report](${reportUrl})` : ''}
+            
+            **Core Web Vitals thresholds:**
+            - LCP (Largest Contentful Paint): ≤ 2.5s
+            - CLS (Cumulative Layout Shift): ≤ 0.1
+            - TBT (Total Blocking Time): ≤ 300ms
+            `;
+            
+            // Find existing comment to update
+            const { data: comments } = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            
+            const existingComment = comments.find(comment => 
+              comment.body.includes('Preview Deployment') ||
+              comment.body.includes('Lighthouse Audit Results')
+            );
+            
+            if (existingComment) {
+              // Update existing comment
+              let newBody = existingComment.body;
+              
+              // Replace or add Lighthouse section
+              if (newBody.includes('### 🔍 Lighthouse Audit Results')) {
+                newBody = newBody.replace(
+                  /### 🔍 Lighthouse Audit Results[\s\S]*?(?=\n### |$)/,
+                  lighthouseResults
+                );
+              } else if (newBody.includes('#### Lighthouse Scores')) {
+                newBody = newBody.replace(
+                  /#### Lighthouse Scores[\s\S]*?(?=\n#### |$)/,
+                  lighthouseResults
+                );
+              } else {
+                newBody += '\n' + lighthouseResults;
+              }
+              
+              await github.rest.issues.updateComment({
+                comment_id: existingComment.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: newBody
+              });
+            } else {
+              // Create new comment if none exists
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: lighthouseResults
+              });
+            }
+            
+      - name: Fail on accessibility violations
+        if: steps.lighthouse-results.outputs.accessibility != '' && steps.lighthouse-results.outputs.accessibility < 95
+        run: |
+          echo "❌ Accessibility score (${{ steps.lighthouse-results.outputs.accessibility }}) is below the required threshold of 95"
+          echo "This is a blocking failure for accessibility compliance"
+          exit 1
+
+  bundle-size:
+    name: Bundle Size Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build and analyze bundle
+        run: |
+          npm run build
+          npx vite-bundle-visualizer dist/stats.html
+          
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bundle-analysis
+          path: dist/stats.html
+
+  preview:
+    name: Deploy Preview
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build application
+        run: npm run build
+        
+      - name: Deploy preview to Vercel
+        id: deploy
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          github-comment: true
+          
+      - name: Comment preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const deployUrl = '${{ steps.deploy.outputs.url }}';
+            const commentBody = `### 🔗 Preview Deployment
+            
+            ✅ Your changes have been deployed to: ${deployUrl}
+            
+            ### 🔍 Lighthouse Audit Results
+            
+            | Category | Score | Status | Threshold |
+            |----------|-------|--------|----------|
+            | Performance | ⏳ Pending | - | 80+ |
+            | Accessibility | ⏳ Pending | - | 95+ |
+            | Best Practices | ⏳ Pending | - | 90+ |
+            | SEO | ⏳ Pending | - | 90+ |
+            
+            🔄 Lighthouse audit is running... Results will be updated shortly.
+            
+            **Note:** Accessibility score below 95 will fail the build to ensure HIPAA compliance.`;
+            
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: commentBody
+            })

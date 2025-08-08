@@ -59,7 +59,7 @@ const SupportDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" data-testid="supporter-dashboard">
       {/* Header */}
       <div className="bg-card shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">

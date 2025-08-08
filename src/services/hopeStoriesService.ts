@@ -5,10 +5,10 @@ import { toast } from 'sonner';
 
 export interface HopeStory {
   id: string;
-  anonymous_name: string; // Like "Day892Hope"
-  days_clean: number;
-  message: string;
-  audio_url?: string;
+  _anonymous_name: string; // Like "Day892Hope"
+  _days_clean: number;
+  _message: string;
+  _audio_url?: string;
   created_at: string;
   helped_count: number;
   is_mine?: boolean;
@@ -26,7 +26,7 @@ class HopeStoriesService {
       let query = supabase
         .from('hope_stories')
         .select('*')
-        .eq('is_approved', true);
+        .eq('_is_approved', true);
       
       if (filter === 'recent') {
         query = query.order('created_at', { ascending: false }).limit(20);
@@ -37,55 +37,55 @@ class HopeStoriesService {
         const userDays = parseInt(localStorage.getItem('clean_days') || '0');
         const range = userDays < 30 ? 10 : userDays < 90 ? 30 : 90;
         query = query
-          .gte('days_clean', Math.max(0, userDays - range))
-          .lte('days_clean', userDays + range)
+          .gte('_days_clean', Math.max(0, userDays - range))
+          .lte('_days_clean', userDays + range)
           .order('created_at', { ascending: false })
           .limit(20);
       }
       
-      const { data, error } = await query;
+      const { data, _error } = await query;
       
-      if (error) throw error;
+      if (_error) throw _error;
       
       return (data || []).map(story => ({
         ...story,
-        anonymous_name: this.generateAnonymousName(story.days_clean),
+        _anonymous_name: this.generateAnonymousName(story._days_clean),
         is_mine: story.user_id === (await supabase.auth.getUser()).data.user?.id
       }));
-    } catch (error) {
-      console.error('Error loading hope stories:', error);
+    } catch (_error) {
+      console._error('Error loading hope stories:', _error);
       return [];
     }
   }
   
   // Share your story
-  async shareHope(message: string, audioUrl?: string): Promise<boolean> {
+  async shareHope(_message: string, audioUrl?: string): Promise<boolean> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast.error('Please sign in to share your story');
+        toast._error('Please sign in to share your story');
         return false;
       }
       
       const daysClean = parseInt(localStorage.getItem('clean_days') || '0');
       
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('hope_stories')
         .insert({
           user_id: user.id,
-          days_clean: daysClean,
-          message: message,
-          audio_url: audioUrl,
-          is_approved: true // Auto-approve for MVP
+          _days_clean: daysClean,
+          _message: _message,
+          _audio_url: audioUrl,
+          _is_approved: true // Auto-approve for MVP
         });
       
-      if (error) throw error;
+      if (_error) throw _error;
       
       toast.success('Your story has been shared. It will help someone today. 💙');
       return true;
-    } catch (error) {
-      console.error('Error sharing story:', error);
-      toast.error('Unable to share right now. Please try again.');
+    } catch (_error) {
+      console._error('Error sharing story:', _error);
+      toast._error('Unable to share right now. Please try again.');
       return false;
     }
   }
@@ -120,8 +120,8 @@ class HopeStoriesService {
       };
       
       toast.success(messages[reaction]);
-    } catch (error) {
-      console.error('Error reacting to story:', error);
+    } catch (_error) {
+      console._error('Error reacting to story:', _error);
     }
   }
   
@@ -136,24 +136,24 @@ class HopeStoriesService {
   async getStoryForStruggling(): Promise<HopeStory | null> {
     try {
       // Get stories from people who made it through early recovery
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('hope_stories')
         .select('*')
-        .eq('is_approved', true)
-        .gte('days_clean', 30) // At least 30 days
+        .eq('_is_approved', true)
+        .gte('_days_clean', 30) // At least 30 days
         .order('helped_count', { ascending: false })
         .limit(10);
       
-      if (error || !data || data.length === 0) return null;
+      if (_error || !data || data.length === 0) return null;
       
       // Return random story from top helpful ones
       const story = data[Math.floor(Math.random() * data.length)];
       return {
         ...story,
-        anonymous_name: this.generateAnonymousName(story.days_clean)
+        _anonymous_name: this.generateAnonymousName(story._days_clean)
       };
-    } catch (error) {
-      console.error('Error getting story for struggling:', error);
+    } catch (_error) {
+      console._error('Error getting story for struggling:', _error);
       return null;
     }
   }
@@ -164,27 +164,27 @@ export const hopeStories = new HopeStoriesService();
 // Default stories for when database is empty
 export const defaultHopeStories: Omit<HopeStory, 'id' | 'created_at'>[] = [
   {
-    anonymous_name: "Day1095Free",
-    days_clean: 1095,
-    message: "3 years ago I was sleeping under a bridge. Today I have a job, an apartment, and people who love me. If you're reading this on Day 1, I promise you it gets better. Just don't use today.",
+    _anonymous_name: "Day1095Free",
+    _days_clean: 1095,
+    _message: "3 years ago I was sleeping under a bridge. Today I have a job, an apartment, and people who love me. If you're reading this on Day 1, I promise you it gets better. Just don't use today.",
     helped_count: 427
   },
   {
-    anonymous_name: "Day30Brave", 
-    days_clean: 30,
-    message: "Made it to 30 days! The cravings are still there but they're getting quieter. What helped me most was calling someone every time I wanted to use. You're not bothering them - that's what they're there for.",
+    _anonymous_name: "Day30Brave", 
+    _days_clean: 30,
+    _message: "Made it to 30 days! The cravings are still there but they're getting quieter. What helped me most was calling someone every time I wanted to use. You're not bothering them - that's what they're there for.",
     helped_count: 892
   },
   {
-    anonymous_name: "Day7Fighter",
-    days_clean: 7,
-    message: "One week clean. I can't believe I made it. The first 3 days were hell but I'm still here. If you're on Day 1, just know that I was there last week. We can do this together.",
+    _anonymous_name: "Day7Fighter",
+    _days_clean: 7,
+    _message: "One week clean. I can't believe I made it. The first 3 days were hell but I'm still here. If you're on Day 1, just know that I was there last week. We can do this together.",
     helped_count: 1243
   },
   {
-    anonymous_name: "Day365Miracle",
-    days_clean: 365,
-    message: "One year ago I tried to end it all. Recovery gave me a life I never thought possible. To anyone struggling: your pain has a purpose. Your story will save lives. Mine already has.",
+    _anonymous_name: "Day365Miracle",
+    _days_clean: 365,
+    _message: "One year ago I tried to end it all. Recovery gave me a life I never thought possible. To anyone struggling: your pain has a purpose. Your story will save lives. Mine already has.",
     helped_count: 3421
   }
 ];

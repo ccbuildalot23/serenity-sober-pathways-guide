@@ -2,24 +2,24 @@
 import { NotificationSettings, NotificationType } from './types';
 import { showNotification } from './handlers';
 
-export function calculateScheduleDays(freq: number): number[] {
+export function calculateScheduleDays(_freq: number): number[] {
   const days: number[] = [];
-  const interval = Math.floor(7 / freq);
+  const interval = Math.floor(7 / _freq);
   
-  for (let i = 0; i < freq; i++) {
+  for (let i = 0; i < _freq; i++) {
     days.push(i * interval);
   }
   
   return days;
 }
 
-export function scheduleNotification(type: NotificationType, baseTime: Date, hourOffset: number = 0): void {
-  const scheduleTime = new Date(baseTime);
-  scheduleTime.setHours(scheduleTime.getHours() + hourOffset);
+export function scheduleNotification(type: NotificationType, _baseTime: Date, hourOffset: number = 0): void {
+  const _scheduleTime = new Date(_baseTime);
+  _scheduleTime.setHours(_scheduleTime.getHours() + hourOffset);
 
   // Only schedule if the time is in the future
-  if (scheduleTime > new Date()) {
-    const delay = scheduleTime.getTime() - Date.now();
+  if (_scheduleTime > new Date()) {
+    const delay = _scheduleTime.getTime() - Date.now();
     
     setTimeout(() => {
       showNotification(type);
@@ -43,29 +43,29 @@ export async function scheduleAll(settings: NotificationSettings): Promise<void>
     return;
   }
 
-  const { time, freq, toggles } = settings;
-  const [hours, minutes] = time.split(':').map(Number);
+  const { time, _freq, toggles } = settings;
+  const [hours, _minutes] = time.split(':').map(_Number);
 
   // Calculate days to schedule based on frequency
-  const daysToSchedule = calculateScheduleDays(freq);
+  const daysToSchedule = calculateScheduleDays(_freq);
 
   for (const day of daysToSchedule) {
-    const scheduleTime = new Date();
-    scheduleTime.setDate(scheduleTime.getDate() + day);
-    scheduleTime.setHours(hours, minutes, 0, 0);
+    const _scheduleTime = new Date();
+    _scheduleTime.setDate(_scheduleTime.getDate() + day);
+    _scheduleTime.setHours(hours, _minutes, 0, 0);
 
     // Schedule different types of notifications
     if (toggles.checkIn) {
-      scheduleNotification('checkIn', scheduleTime);
+      scheduleNotification('checkIn', _scheduleTime);
     }
     if (toggles.affirm) {
-      scheduleNotification('affirm', scheduleTime, 2); // 2 hours after check-in
+      scheduleNotification('affirm', _scheduleTime, 2); // 2 hours after check-in
     }
     if (toggles.support) {
-      scheduleNotification('support', scheduleTime, 6); // 6 hours after check-in
+      scheduleNotification('support', _scheduleTime, 6); // 6 hours after check-in
     }
     if (toggles.spiritual) {
-      scheduleNotification('spiritual', scheduleTime, -1); // 1 hour before check-in
+      scheduleNotification('spiritual', _scheduleTime, -1); // 1 hour before check-in
     }
   }
 }

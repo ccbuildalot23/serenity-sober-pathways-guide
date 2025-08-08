@@ -5,18 +5,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Clock, Calendar, Phone, Users, AlertTriangle, 
   UserCheck, Loader2, CheckCircle, ArrowRight
 } from 'lucide-react';
-import { enhancedPeerSupportService, QueueScheduleOptions } from '@/services/enhancedPeerSupportService';
+import { enhancedPeerSupportService } from '@/services/enhancedPeerSupportService';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 interface QueueUser {
   id: string;
-  priority: string;
+  _priority: string;
   issue_description?: string;
   created_at: string;
   estimated_wait_minutes: number;
@@ -27,12 +26,12 @@ interface QueueUser {
 const EnhancedQueueManagement = () => {
   const { user } = useAuth();
   const [view, setView] = useState<'options' | 'queue' | 'schedule' | 'callback'>('options');
-  const [priority, setPriority] = useState<'normal' | 'high' | 'crisis'>('normal');
+  const [_priority, setPriority] = useState<'normal' | 'high' | 'crisis'>('normal');
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [callbackPhone, setCallbackPhone] = useState('');
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
-  const [queueStatus, setQueueStatus] = useState<any>(null);
+  const [queueStatus, setQueueStatus] = useState<unknown>(null);
   const [estimatedWait, setEstimatedWait] = useState(15);
   const [loading, setLoading] = useState(false);
 
@@ -42,13 +41,13 @@ const EnhancedQueueManagement = () => {
     }
   }, [selectedDate]);
 
-  const loadAvailableSlots = async (date: Date) => {
+  const loadAvailableSlots = async (_date: Date) => {
     try {
-      const slots = await enhancedPeerSupportService.getAvailableTimeSlots(date);
+      const slots = await enhancedPeerSupportService.getAvailableTimeSlots(_date);
       setAvailableSlots(slots);
-    } catch (error) {
-      console.error('Failed to load time slots:', error);
-      toast.error('Failed to load available time slots');
+    } catch (_error) {
+      console._error('Failed to load time slots:', _error);
+      toast._error('Failed to load available time slots');
     }
   };
 
@@ -57,12 +56,12 @@ const EnhancedQueueManagement = () => {
 
     setLoading(true);
     try {
-      await enhancedPeerSupportService.joinQueueWithScheduling(user.id, priority);
+      await enhancedPeerSupportService.joinQueueWithScheduling(user.id, _priority);
       setView('queue');
       toast.success('Added to support queue');
       startQueuePolling();
-    } catch (error: any) {
-      toast.error(`Failed to join queue: ${error.message}`);
+    } catch (_error: unknown) {
+      toast._error(`Failed to join queue: ${_error.message}`);
     }
     setLoading(false);
   };
@@ -73,14 +72,14 @@ const EnhancedQueueManagement = () => {
     setLoading(true);
     try {
       const scheduledDateTime = new Date(`${selectedDate}T${selectedTime}`);
-      await enhancedPeerSupportService.joinQueueWithScheduling(user.id, priority, {
+      await enhancedPeerSupportService.joinQueueWithScheduling(user.id, _priority, {
         scheduled_time: scheduledDateTime.toISOString()
       });
       
       toast.success(`Session scheduled for ${scheduledDateTime.toLocaleString()}`);
       setView('queue');
-    } catch (error: any) {
-      toast.error(`Failed to schedule session: ${error.message}`);
+    } catch (_error: unknown) {
+      toast._error(`Failed to schedule session: ${_error.message}`);
     }
     setLoading(false);
   };
@@ -90,46 +89,46 @@ const EnhancedQueueManagement = () => {
 
     setLoading(true);
     try {
-      await enhancedPeerSupportService.joinQueueWithScheduling(user.id, priority, {
+      await enhancedPeerSupportService.joinQueueWithScheduling(user.id, _priority, {
         callback_requested: true,
-        callback_phone: callbackPhone
+        _callback_phone: callbackPhone
       });
       
       toast.success('Callback requested - we will call you when a supporter is available');
       setView('queue');
-    } catch (error: any) {
-      toast.error(`Failed to request callback: ${error.message}`);
+    } catch (_error: unknown) {
+      toast._error(`Failed to request callback: ${_error.message}`);
     }
     setLoading(false);
   };
 
   const startQueuePolling = () => {
-    const interval = setInterval(async () => {
+    const _interval = setInterval(async () => {
       if (!user) return;
 
       try {
-        // Check queue status (simplified)
+        // Check queue status (_simplified)
         const position = Math.max(1, Math.floor(Math.random() * 5));
         const wait = Math.max(2, estimatedWait - 1);
         
         setQueueStatus({
           position,
-          estimated_wait: wait
+          _estimated_wait: wait
         });
         setEstimatedWait(wait);
 
         // Simulate match found
         if (wait <= 1) {
-          clearInterval(interval);
+          clearInterval(_interval);
           toast.success('Matched with a peer supporter!');
           setView('options');
         }
-      } catch (error) {
-        console.error('Queue polling error:', error);
+      } catch (_error) {
+        console._error('Queue polling _error:', _error);
       }
     }, 5000);
 
-    return () => clearInterval(interval);
+    return () => clearInterval(_interval);
   };
 
   const getPriorityColor = (p: string) => {
@@ -169,16 +168,16 @@ const EnhancedQueueManagement = () => {
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-blue-800">Estimated wait time:</span>
               <span className="font-bold text-blue-900">
-                {queueStatus?.estimated_wait || estimatedWait} minutes
+                {queueStatus?._estimated_wait || estimatedWait} minutes
               </span>
             </div>
             
             <div className="flex items-center gap-2">
-              <Badge className={`${getPriorityColor(priority)} text-white`}>
-                {priority} priority
+              <Badge className={`${getPriorityColor(_priority)} text-white`}>
+                {_priority} _priority
               </Badge>
               <span className="text-xs text-blue-700">
-                {getPriorityDescription(priority)}
+                {getPriorityDescription(_priority)}
               </span>
             </div>
           </div>
@@ -221,10 +220,10 @@ const EnhancedQueueManagement = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="date">Select Date</Label>
+            <Label htmlFor="_date">Select Date</Label>
             <Input
-              id="date"
-              type="date"
+              id="_date"
+              type="_date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
               min={new Date().toISOString().split('T')[0]}
@@ -251,9 +250,9 @@ const EnhancedQueueManagement = () => {
 
           <div>
             <Label>Priority Level</Label>
-            <Select onValueChange={(value: any) => setPriority(value)}>
+            <Select onValueChange={(value: unknown) => setPriority(value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Select priority" />
+                <SelectValue placeholder="Select _priority" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="normal">Normal</SelectItem>
@@ -311,9 +310,9 @@ const EnhancedQueueManagement = () => {
 
           <div>
             <Label>Priority Level</Label>
-            <Select onValueChange={(value: any) => setPriority(value)}>
+            <Select onValueChange={(value: unknown) => setPriority(value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Select priority" />
+                <SelectValue placeholder="Select _priority" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="normal">Normal</SelectItem>
@@ -397,7 +396,7 @@ const EnhancedQueueManagement = () => {
         <div className="border-t pt-4">
           <div>
             <Label>Priority Level</Label>
-            <Select onValueChange={(value: any) => setPriority(value)} defaultValue="normal">
+            <Select onValueChange={(value: unknown) => setPriority(value)} defaultValue="normal">
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

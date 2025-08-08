@@ -22,10 +22,10 @@ export const CreatePostDialog: React.FC<CreatePostDialogProps> = ({
   onClose,
   onSuccess
 }) => {
-  const [title, setTitle] = useState('');
+  const [_title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tags, setTags] = useState<string[]>([]);
-  const [newTag, setNewTag] = useState('');
+  const [_newTag, setNewTag] = useState('');
   const [loading, setLoading] = useState(false);
 
   const commonTags = [
@@ -35,7 +35,7 @@ export const CreatePostDialog: React.FC<CreatePostDialogProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !content.trim()) {
+    if (!_title.trim() || !content.trim()) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -44,7 +44,7 @@ export const CreatePostDialog: React.FC<CreatePostDialogProps> = ({
       setLoading(true);
       await CommunityService.createPost({
         forum_id: forumId,
-        title: title.trim(),
+        _title: _title.trim(),
         content: content.trim(),
         tags
       });
@@ -86,10 +86,10 @@ export const CreatePostDialog: React.FC<CreatePostDialogProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="title">Title *</Label>
+            <Label htmlFor="_title">Title *</Label>
             <Input
-              id="title"
-              value={title}
+              id="_title"
+              value={_title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="What would you like to discuss?"
               maxLength={200}
@@ -112,7 +112,7 @@ export const CreatePostDialog: React.FC<CreatePostDialogProps> = ({
           </div>
 
           <div>
-            <Label>Tags (optional)</Label>
+            <Label>Tags (_optional)</Label>
             <div className="flex flex-wrap gap-2 mb-2">
               {tags.map(tag => (
                 <Badge
@@ -128,22 +128,22 @@ export const CreatePostDialog: React.FC<CreatePostDialogProps> = ({
             
             <div className="flex gap-2 mb-2">
               <Input
-                value={newTag}
+                value={_newTag}
                 onChange={(e) => setNewTag(e.target.value)}
                 placeholder="Add a tag..."
                 maxLength={20}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
-                    addTag(newTag);
+                    addTag(_newTag);
                   }
                 }}
               />
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => addTag(newTag)}
-                disabled={!newTag || tags.includes(newTag) || tags.length >= 5}
+                onClick={() => addTag(_newTag)}
+                disabled={!_newTag || tags.includes(_newTag) || tags.length >= 5}
               >
                 <Tag className="h-4 w-4" />
               </Button>
@@ -167,7 +167,7 @@ export const CreatePostDialog: React.FC<CreatePostDialogProps> = ({
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={loading || !title.trim() || !content.trim()}>
+            <Button type="submit" disabled={loading || !_title.trim() || !content.trim()}>
               {loading ? 'Creating...' : 'Create Post'}
             </Button>
           </div>

@@ -8,7 +8,7 @@ interface PhoneEmergencyContact {
 }
 
 // Mock phone emergency contacts
-const mockPhoneContacts: PhoneEmergencyContact[] = [
+const _mockPhoneContacts: PhoneEmergencyContact[] = [
   {
     id: 'phone-1',
     name: 'Emergency Contact - John',
@@ -30,7 +30,7 @@ export const getPhoneEmergencyContacts = async (): Promise<PhoneEmergencyContact
   return new Promise((resolve) => {
     setTimeout(() => {
       console.log('Mock: Fetching phone emergency contacts');
-      resolve(mockPhoneContacts);
+      resolve(_mockPhoneContacts);
     }, 1000);
   });
 };

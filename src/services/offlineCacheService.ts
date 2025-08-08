@@ -5,8 +5,8 @@ interface CacheConfig {
 }
 
 interface CacheItem {
-  key: string;
-  data: any;
+  _key: string;
+  data: unknown;
   timestamp: number;
   size: number;
   priority: 'high' | 'medium' | 'low';
@@ -43,14 +43,14 @@ class OfflineCacheService {
 
   private loadCacheFromStorage() {
     try {
-      const stored = localStorage.getItem('offline-cache');
-      if (stored) {
-        const data = JSON.parse(stored);
+      const _stored = localStorage.getItem('offline-cache');
+      if (_stored) {
+        const data = JSON.parse(_stored);
         this.cache = new Map(data.cache);
         this.currentCacheSize = data.size || 0;
       }
-    } catch (error) {
-      console.error('Failed to load cache from storage:', error);
+    } catch (_error) {
+      console._error('Failed to load cache from storage:', _error);
     }
   }
 
@@ -61,8 +61,8 @@ class OfflineCacheService {
         size: this.currentCacheSize,
       };
       localStorage.setItem('offline-cache', JSON.stringify(data));
-    } catch (error) {
-      console.error('Failed to save cache to storage:', error);
+    } catch (_error) {
+      console._error('Failed to save cache to storage:', _error);
       // If storage is full, clear some low-priority items
       this.clearLowPriorityItems();
     }
@@ -75,12 +75,12 @@ class OfflineCacheService {
     }, 5 * 60 * 1000);
   }
 
-  private getItemSize(data: any): number {
+  private getItemSize(data: unknown): number {
     return new Blob([JSON.stringify(data)]).size;
   }
 
   private isExpired(item: CacheItem): boolean {
-    const config = this.cacheConfigs[item.key.split(':')[0]];
+    const config = this.cacheConfigs[item._key.split(':')[0]];
     if (!config || config.maxAge === Infinity) return false;
     
     return Date.now() - item.timestamp > config.maxAge;
@@ -91,8 +91,8 @@ class OfflineCacheService {
       .filter(([, item]) => item.priority === 'low')
       .sort((a, b) => a[1].lastAccessed - b[1].lastAccessed);
 
-    for (const [key, item] of lowPriorityItems) {
-      this.cache.delete(key);
+    for (const [_key, item] of lowPriorityItems) {
+      this.cache.delete(_key);
       this.currentCacheSize -= item.size;
       
       // Stop when we've freed up enough space
@@ -101,9 +101,9 @@ class OfflineCacheService {
   }
 
   private cleanExpiredItems() {
-    for (const [key, item] of this.cache.entries()) {
+    for (const [_key, item] of this.cache.entries()) {
       if (this.isExpired(item)) {
-        this.cache.delete(key);
+        this.cache.delete(_key);
         this.currentCacheSize -= item.size;
       }
     }
@@ -128,24 +128,24 @@ class OfflineCacheService {
         return a[1].lastAccessed - b[1].lastAccessed;
       });
 
-    for (const [key, item] of items) {
+    for (const [_key, item] of items) {
       // Never remove high-priority items
       if (item.priority === 'high') continue;
       
-      this.cache.delete(key);
+      this.cache.delete(_key);
       this.currentCacheSize -= item.size;
       
       if (this.currentCacheSize + requiredSize <= this.maxCacheSize) break;
     }
   }
 
-  set(key: string, data: any, category: string = 'default'): void {
+  set(_key: string, data: unknown, category: string = 'default'): void {
     const size = this.getItemSize(data);
     const config = this.cacheConfigs[category] || { maxAge: 60 * 60 * 1000, maxSize: 1024 * 1024, priority: 'medium' as const };
     
     // Check if item is too large
     if (size > config.maxSize) {
-      console.warn(`Item too large for cache: ${key} (${size} bytes)`);
+      console.warn(`Item too large for cache: ${_key} (${size} bytes)`);
       return;
     }
 
@@ -153,13 +153,13 @@ class OfflineCacheService {
     this.makeSpace(size);
 
     // Remove existing item if it exists
-    if (this.cache.has(key)) {
-      const existing = this.cache.get(key)!;
+    if (this.cache.has(_key)) {
+      const existing = this.cache.get(_key)!;
       this.currentCacheSize -= existing.size;
     }
 
     const item: CacheItem = {
-      key,
+      _key,
       data,
       timestamp: Date.now(),
       size,
@@ -167,18 +167,18 @@ class OfflineCacheService {
       lastAccessed: Date.now(),
     };
 
-    this.cache.set(key, item);
+    this.cache.set(_key, item);
     this.currentCacheSize += size;
     this.saveCacheToStorage();
   }
 
-  get(key: string): any | null {
-    const item = this.cache.get(key);
+  get(_key: string): any | null {
+    const item = this.cache.get(_key);
     
     if (!item) return null;
     
     if (this.isExpired(item)) {
-      this.cache.delete(key);
+      this.cache.delete(_key);
       this.currentCacheSize -= item.size;
       this.saveCacheToStorage();
       return null;
@@ -186,19 +186,19 @@ class OfflineCacheService {
 
     // Update last accessed time
     item.lastAccessed = Date.now();
-    this.cache.set(key, item);
+    this.cache.set(_key, item);
     
     return item.data;
   }
 
-  has(key: string): boolean {
-    return this.get(key) !== null;
+  has(_key: string): boolean {
+    return this.get(_key) !== null;
   }
 
-  delete(key: string): boolean {
-    const item = this.cache.get(key);
+  delete(_key: string): boolean {
+    const item = this.cache.get(_key);
     if (item) {
-      this.cache.delete(key);
+      this.cache.delete(_key);
       this.currentCacheSize -= item.size;
       this.saveCacheToStorage();
       return true;
@@ -232,7 +232,7 @@ class OfflineCacheService {
 
   // Preload critical data for offline use
   async preloadCriticalData() {
-    const criticalKeys = [
+    const _criticalKeys = [
       'crisis-contacts',
       'emergency-resources',
       'coping-strategies',
@@ -240,16 +240,16 @@ class OfflineCacheService {
     ];
 
     // This would be implemented to fetch and cache critical data
-    console.log('Preloading critical data for offline use:', criticalKeys);
+    console.log('Preloading critical data for offline use:', _criticalKeys);
   }
 
   // Predictive caching based on user behavior
-  async predictiveCache(userBehavior: { frequentlyAccessed: string[], timeOfDay: number, dayOfWeek: number }) {
+  async predictiveCache(userBehavior: { frequentlyAccessed: string[], _timeOfDay: number, _dayOfWeek: number }) {
     // Cache frequently accessed data
-    for (const key of userBehavior.frequentlyAccessed) {
-      if (!this.has(key)) {
+    for (const _key of userBehavior.frequentlyAccessed) {
+      if (!this.has(_key)) {
         // Fetch and cache the data
-        console.log('Predictively caching:', key);
+        console.log('Predictively caching:', _key);
       }
     }
   }

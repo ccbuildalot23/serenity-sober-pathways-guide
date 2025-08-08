@@ -1,11 +1,10 @@
-// Dashboard Router - Routes users to appropriate dashboard based on role
+// Simplified Dashboard Router - Routes users to appropriate dashboard based on role
 
 import React from 'react';
 import { useUserRole } from '@/hooks/useUserRole';
 import PatientDashboard from '@/pages/PatientDashboard';
-import SupportDashboard from '@/pages/SupportDashboard';
-import ProviderDashboard from '@/pages/ProviderDashboard';
 import SupporterDashboard from '@/components/supporter/SupporterDashboard';
+import ProviderDashboard from '@/pages/ProviderDashboard';
 
 const DashboardRouter = () => {
   const { role, loading } = useUserRole();
@@ -21,13 +20,13 @@ const DashboardRouter = () => {
     );
   }
 
+  // Simple role-based routing
   switch (role) {
-    case 'patient':
-      return <PatientDashboard />;
-    case 'support_member':
-      return <SupporterDashboard />;
     case 'provider':
       return <ProviderDashboard />;
+    case 'support_member':
+      return <SupporterDashboard />;
+    case 'patient':
     default:
       return <PatientDashboard />;
   }

@@ -5,17 +5,17 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Heart, Users, Mic } from 'lucide-react';
+import { Send, Users, Mic } from 'lucide-react';
 import { usePeerConnection } from '@/hooks/usePeerConnection';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 interface AnonymousChatProps {
-  roomType?: 'general' | 'crisis' | 'celebration';
+  _roomType?: 'general' | 'crisis' | 'celebration';
 }
 
-export const AnonymousChat: React.FC<AnonymousChatProps> = ({ roomType = 'general' }) => {
-  const [message, setMessage] = useState('');
+export const AnonymousChat: React.FC<AnonymousChatProps> = ({ _roomType = 'general' }) => {
+  const [_message, setMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   
@@ -29,16 +29,16 @@ export const AnonymousChat: React.FC<AnonymousChatProps> = ({ roomType = 'genera
     startTyping,
     quickEncouragements,
     roomInfo
-  } = usePeerConnection(roomType);
+  } = usePeerConnection(_roomType);
 
-  // Auto-scroll to latest message
+  // Auto-scroll to latest _message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const handleSend = () => {
-    if (message.trim()) {
-      sendMessage(message);
+    if (_message.trim()) {
+      sendMessage(_message);
       setMessage('');
       inputRef.current?.focus();
     }
@@ -52,7 +52,7 @@ export const AnonymousChat: React.FC<AnonymousChatProps> = ({ roomType = 'genera
   };
 
   const getRoomTitle = () => {
-    switch (roomType) {
+    switch (_roomType) {
       case 'crisis':
         return "Crisis Support Room";
       case 'celebration':
@@ -63,7 +63,7 @@ export const AnonymousChat: React.FC<AnonymousChatProps> = ({ roomType = 'genera
   };
 
   const getRoomDescription = () => {
-    switch (roomType) {
+    switch (_roomType) {
       case 'crisis':
         return "Everyone here understands. No judgment.";
       case 'celebration':
@@ -124,11 +124,11 @@ export const AnonymousChat: React.FC<AnonymousChatProps> = ({ roomType = 'genera
                     {msg.username}
                   </p>
                 )}
-                <p className="text-sm">{msg.message}</p>
+                <p className="text-sm">{msg._message}</p>
                 <p className="text-xs opacity-60 mt-1">
                   {new Date(msg.timestamp).toLocaleTimeString([], { 
                     hour: '2-digit', 
-                    minute: '2-digit' 
+                    _minute: '2-digit' 
                   })}
                 </p>
               </div>
@@ -178,16 +178,16 @@ export const AnonymousChat: React.FC<AnonymousChatProps> = ({ roomType = 'genera
         <div className="flex gap-2">
           <Input
             ref={inputRef}
-            value={message}
+            value={_message}
             onChange={(e) => {
               setMessage(e.target.value);
               startTyping();
             }}
             onKeyPress={handleKeyPress}
             placeholder={
-              roomType === 'crisis' 
+              _roomType === 'crisis' 
                 ? "Share what's on your mind..." 
-                : "Type your message..."
+                : "Type your _message..."
             }
             className="flex-1 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
             disabled={!isConnected}
@@ -195,13 +195,13 @@ export const AnonymousChat: React.FC<AnonymousChatProps> = ({ roomType = 'genera
           
           <Button
             onClick={handleSend}
-            disabled={!message.trim() || !isConnected}
+            disabled={!_message.trim() || !isConnected}
             className="bg-purple-600 hover:bg-purple-700"
           >
             <Send className="w-4 h-4" />
           </Button>
           
-          {/* Voice message button (future feature) */}
+          {/* Voice _message button (future feature) */}
           <Button
             variant="outline"
             className="border-gray-700 hover:bg-gray-800"

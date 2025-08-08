@@ -13,12 +13,12 @@ export const useVoiceRecording = (options: VoiceRecordingOptions = {}) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | _null>(_null);
   
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | _null>(_null);
+  const streamRef = useRef<MediaStream | _null>(_null);
   const chunksRef = useRef<Blob[]>([]);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | _null>(_null);
 
   const { maxDuration = 60, onStart, onStop, onError, onTranscription } = options;
 
@@ -33,23 +33,23 @@ export const useVoiceRecording = (options: VoiceRecordingOptions = {}) => {
 
   const startRecording = async () => {
     try {
-      setError(null);
+      setError(_null);
       
       // Request microphone permission
-      const stream = await navigator.mediaDevices.getUserMedia({
+      const _stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           sampleRate: 16000,
-          channelCount: 1,
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true
+          _channelCount: 1,
+          _echoCancellation: true,
+          _noiseSuppression: true,
+          _autoGainControl: true
         }
       });
 
-      streamRef.current = stream;
+      streamRef.current = _stream;
       chunksRef.current = [];
 
-      const mediaRecorder = new MediaRecorder(stream, {
+      const mediaRecorder = new MediaRecorder(_stream, {
         mimeType: 'audio/webm;codecs=opus'
       });
 
@@ -91,12 +91,12 @@ export const useVoiceRecording = (options: VoiceRecordingOptions = {}) => {
 
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
+      timeoutRef.current = _null;
     }
 
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
+      streamRef.current = _null;
     }
   };
 
@@ -138,6 +138,6 @@ export const useVoiceRecording = (options: VoiceRecordingOptions = {}) => {
     startRecording,
     stopRecording,
     clearTranscript: () => setTranscript(''),
-    clearError: () => setError(null)
+    clearError: () => setError(_null)
   };
 };

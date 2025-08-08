@@ -18,6 +18,7 @@ import { PresenceIndicator } from './PresenceIndicator';
 import { useRealtimePeerChat } from '@/hooks/useRealtimePeerChat';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCrisisSystem } from '@/hooks/useCrisisSystem';
 import { toast } from 'sonner';
 
 interface EnhancedChatMessage {
@@ -49,33 +50,49 @@ interface PeerSupporter {
 interface ChatSession {
   id: string;
   status: string;
-  priority: string;
+  _priority: string;
   peer_supporter_id?: string;
   supporter?: PeerSupporter;
   started_at: string;
-  ended_at?: string;
+  _ended_at?: string;
 }
 
 interface QueueStatus {
   queue_position: number;
-  estimated_wait_minutes: number;
+  _estimated_wait_minutes: number;
+}
+
+// Crisis keyword detection configuration
+const CRISIS_KEYWORDS = {
+  immediate: ['kill myself', 'end it all', 'hurt myself', 'overdose', 'suicide', 'die'],
+  high: ['want to use', 'thinking about using', 'can\'t do this', 'give up', 'relapse', 'using tonight'],
+  medium: ['struggling', 'having thoughts', 'feeling overwhelmed', 'really hard', 'want to drink', 'want to get high']
+};
+
+interface CrisisDetection {
+  _severity: 'none' | 'medium' | 'high' | 'immediate';
+  detectedKeywords: string[];
+  requiresIntervention: boolean;
 }
 
 const PeerSupportChat = () => {
   const { user } = useAuth();
+  const { handleCrisisActivated } = useCrisisSystem();
   const [view, setView] = useState<'main' | 'queue' | 'chat' | 'rating' | 'video'>('main');
-  const [videoSession, setVideoSession] = useState<any>(null);
-  const [currentSession, setCurrentSession] = useState<ChatSession | null>(null);
+  const [videoSession, setVideoSession] = useState<unknown>(_null);
+  const [currentSession, setCurrentSession] = useState<ChatSession | _null>(_null);
   const [messages, setMessages] = useState<EnhancedChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [queueStatus, setQueueStatus] = useState<QueueStatus | null>(null);
+  const [queueStatus, setQueueStatus] = useState<QueueStatus | _null>(_null);
   const [loading, setLoading] = useState(false);
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
-  const [replyToMessage, setReplyToMessage] = useState<EnhancedChatMessage | null>(null);
-  const [fileUpload, setFileUpload] = useState<File | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [replyToMessage, setReplyToMessage] = useState<EnhancedChatMessage | _null>(_null);
+  const [fileUpload, setFileUpload] = useState<File | _null>(_null);
+  const [crisisDetected, setCrisisDetected] = useState<CrisisDetection | _null>(_null);
+  const [showCrisisOverlay, setShowCrisisOverlay] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(_null);
+  const fileInputRef = useRef<HTMLInputElement>(_null);
 
   // Real-time chat hook
   const {
@@ -92,16 +109,16 @@ const PeerSupportChat = () => {
     updateTypingStatus,
     updatePresence
   } = useRealtimePeerChat({
-    sessionId: currentSession?.id || null,
-    onMessageReceived: (message) => {
+    _sessionId: currentSession?.id || _null,
+    _onMessageReceived: (message) => {
       setMessages(prev => [...prev, message]);
       // Mark as read if not from current user
       if (message.sender_id !== user?.id) {
         markMessageAsRead(message.id);
       }
     },
-    onTypingUpdate: (users) => {
-      console.log('Typing users:', users);
+    onTypingUpdate: (_users) => {
+      console.log('Typing _users:', _users);
     }
   });
 
@@ -109,24 +126,166 @@ const PeerSupportChat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Crisis keyword detection function
+  const detectCrisisKeywords = (message: string): CrisisDetection => {
+    const lowerMessage = message.toLowerCase();
+    const detection: CrisisDetection = {
+      _severity: 'none',
+      detectedKeywords: [],
+      requiresIntervention: false
+    };
+
+    // Check immediate crisis keywords
+    for (const keyword of CRISIS_KEYWORDS.immediate) {
+      if (lowerMessage.includes(keyword)) {
+        detection.detectedKeywords.push(keyword);
+        detection._severity = 'immediate';
+        detection.requiresIntervention = true;
+      }
+    }
+
+    // Check high-risk keywords if not immediate
+    if (detection._severity === 'none') {
+      for (const keyword of CRISIS_KEYWORDS.high) {
+        if (lowerMessage.includes(keyword)) {
+          detection.detectedKeywords.push(keyword);
+          detection._severity = 'high';
+          detection.requiresIntervention = true;
+        }
+      }
+    }
+
+    // Check medium-risk keywords if not higher _severity
+    if (detection._severity === 'none') {
+      for (const keyword of CRISIS_KEYWORDS.medium) {
+        if (lowerMessage.includes(keyword)) {
+          detection.detectedKeywords.push(keyword);
+          detection._severity = 'medium';
+          detection.requiresIntervention = false; // Medium doesn't auto-trigger, just alerts
+        }
+      }
+    }
+
+    return detection;
+  };
+
+  // Handle crisis detection in messages
+  const handleCrisisDetection = async (detection: CrisisDetection, _messageText: string) => {
+    if (detection._severity === 'none') return;
+
+    setCrisisDetected(detection);
+
+    // Log crisis event
+    try {
+      await supabase
+        .from('crisis_integration_events')
+        .insert({
+          user_id: user?.id,
+          _trigger_source: 'peer_chat',
+          _trigger_data: {
+            message_text: _messageText,
+            _detected_keywords: detection.detectedKeywords,
+            _severity: detection._severity
+          },
+          _severity: detection._severity === 'immediate' ? 'crisis' : detection._severity,
+          _crisis_system_activated: detection.requiresIntervention,
+          _support_network_notified: detection.requiresIntervention
+        });
+    } catch (error) {
+      console.error('Error logging crisis event:', error);
+    }
+
+    // Handle based on _severity
+    if (detection._severity === 'immediate') {
+      setShowCrisisOverlay(true);
+      handleCrisisActivated();
+      
+      toast.error('Crisis keywords detected - Emergency support activated', {
+        description: 'Professional help is being contacted immediately',
+        _duration: 10000,
+        _action: {
+          label: 'Call 988 Now',
+          _onClick: () => window.open('tel:988', '_self')
+        }
+      });
+    } else if (detection._severity === 'high') {
+      setShowCrisisOverlay(true);
+      
+      toast.warning('High-risk language detected', {
+        description: 'Crisis support tools are available if you need them',
+        _duration: 8000,
+        _action: {
+          label: 'Get Help',
+          _onClick: () => handleCrisisActivated()
+        }
+      });
+    } else if (detection._severity === 'medium') {
+      toast.info('It sounds like you\'re going through a tough time', {
+        description: 'Your peer supporter is here to help, and crisis support is available',
+        _duration: 5000
+      });
+    }
+
+    // Notify support network for high and immediate risks
+    if (detection.requiresIntervention) {
+      await notifySupportNetwork(detection, _messageText);
+    }
+  };
+
+  // Notify support network of crisis
+  const notifySupportNetwork = async (detection: CrisisDetection, _messageText: string) => {
+    if (!user) return;
+
+    try {
+      const { data: supportNetwork } = await supabase
+        .from('support_network')
+        .select('_supporter_id, _supporter_name, relationship_type')
+        .eq('user_id', user.id)
+        .eq('status', 'active');
+
+      if (supportNetwork && supportNetwork.length > 0) {
+        const _notifications = supportNetwork.map(supporter => ({
+          user_id: user.id,
+          _supporter_id: supporter._supporter_id,
+          _notification_type: 'crisis_alert',
+          _title: `Crisis Language Detected in Peer Chat`,
+          message: `Crisis keywords were detected in ${supporter.relationship_type === 'sponsor' ? 'your sponsee\'s' : 'your support person\'s'} peer chat conversation. They may need immediate support.`,
+          _severity: detection._severity === 'immediate' ? 'crisis' : 'high',
+          _action_required: true,
+          _metadata: {
+            _trigger_source: 'peer_chat',
+            _detected_keywords: detection.detectedKeywords,
+            _session_id: currentSession?.id
+          }
+        }));
+
+        await supabase
+          .from('support_network_notifications')
+          .insert(_notifications);
+      }
+    } catch (error) {
+      console.error('Error notifying support network:', error);
+    }
+  };
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
   // Join chat queue
-  const joinQueue = async (priority: 'normal' | 'high' = 'normal', description?: string) => {
+  const joinQueue = async (_priority: 'normal' | 'high' = 'normal', description?: string) => {
     if (!user) return;
 
     setLoading(true);
     try {
       // Check if already in queue
-      const { data: existing } = await supabase
+      const { data: _existing } = await supabase
         .from('peer_support_queue')
         .select('*')
         .eq('user_id', user.id)
         .single();
 
-      if (existing) {
+      if (_existing) {
         toast.info('You are already in the support queue');
         setView('queue');
         return;
@@ -137,8 +296,8 @@ const PeerSupportChat = () => {
         .from('peer_support_queue')
         .insert({
           user_id: user.id,
-          priority,
-          issue_description: description
+          _priority,
+          _issue_description: description
         });
 
       if (error) throw error;
@@ -148,7 +307,7 @@ const PeerSupportChat = () => {
       
       // Start polling for queue updates
       pollQueueStatus();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(`Failed to join queue: ${error.message}`);
     }
     setLoading(false);
@@ -156,7 +315,7 @@ const PeerSupportChat = () => {
 
   // Poll queue status
   const pollQueueStatus = () => {
-    const interval = setInterval(async () => {
+    const _interval = setInterval(async () => {
       if (!user) return;
 
       // Check if session started
@@ -172,7 +331,7 @@ const PeerSupportChat = () => {
       if (session) {
         setCurrentSession(session as ChatSession);
         setView('chat');
-        clearInterval(interval);
+        clearInterval(_interval);
         toast.success('Connected with peer supporter');
         return;
       }
@@ -187,25 +346,35 @@ const PeerSupportChat = () => {
       if (queue) {
         setQueueStatus({
           queue_position: queue.queue_position || 1,
-          estimated_wait_minutes: queue.estimated_wait_minutes || 5
+          _estimated_wait_minutes: queue._estimated_wait_minutes || 5
         });
       } else {
-        clearInterval(interval);
+        clearInterval(_interval);
       }
     }, 3000);
 
-    return () => clearInterval(interval);
+    return () => clearInterval(_interval);
   };
 
-  // Send message with enhanced features
+  // Send message with enhanced features and crisis detection
   const sendMessage = async () => {
     if (!newMessage.trim() && !fileUpload) return;
 
     try {
-      let fileData;
+      const _messageText = newMessage.trim();
+      
+      // Check for crisis keywords if sending text message
+      if (_messageText) {
+        const _crisisDetection = detectCrisisKeywords(_messageText);
+        if (_crisisDetection._severity !== 'none') {
+          await handleCrisisDetection(_crisisDetection, _messageText);
+        }
+      }
+
+      let _fileData;
       if (fileUpload) {
         // In a real app, you'd upload to storage first
-        fileData = {
+        _fileData = {
           url: URL.createObjectURL(fileUpload),
           type: fileUpload.type,
           size: fileUpload.size
@@ -213,35 +382,35 @@ const PeerSupportChat = () => {
       }
 
       await sendRealtimeMessage(
-        newMessage.trim() || `Shared ${fileUpload?.name}`,
+        _messageText || `Shared ${fileUpload?.name}`,
         fileUpload ? 'file' : 'text',
         replyToMessage?.id,
-        fileData
+        _fileData
       );
 
       setNewMessage('');
-      setReplyToMessage(null);
-      setFileUpload(null);
+      setReplyToMessage(_null);
+      setFileUpload(_null);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(`Failed to send message: ${error.message}`);
     }
   };
 
   // Load chat messages
-  const loadMessages = async (sessionId: string) => {
+  const loadMessages = async (_sessionId: string) => {
     try {
       const { data, error } = await supabase
         .from('peer_chat_messages')
         .select('*')
-        .eq('session_id', sessionId)
+        .eq('_session_id', _sessionId)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
       setMessages((data || []) as EnhancedChatMessage[]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(`Failed to load messages: ${error.message}`);
     }
   };
@@ -252,15 +421,15 @@ const PeerSupportChat = () => {
 
     loadMessages(currentSession.id);
 
-    const channel = supabase
-      .channel(`chat-${currentSession.id}`)
+    const _channel = supabase
+      ._channel(`chat-${currentSession.id}`)
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
-          schema: 'public',
-          table: 'peer_chat_messages',
-          filter: `session_id=eq.${currentSession.id}`
+          _schema: 'public',
+          _table: 'peer_chat_messages',
+          _filter: `_session_id=eq.${currentSession.id}`
         },
         (payload) => {
           const newMessage = payload.new as EnhancedChatMessage;
@@ -274,7 +443,7 @@ const PeerSupportChat = () => {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(_channel);
     };
   }, [currentSession]);
 
@@ -282,18 +451,18 @@ const PeerSupportChat = () => {
   const escalateToEmergency = async () => {
     if (!currentSession) return;
 
-    const confirmed = window.confirm(
+    const _confirmed = window.confirm(
       'This will immediately notify our crisis response team. Do you want to continue?'
     );
 
-    if (confirmed) {
+    if (_confirmed) {
       try {
         const { error } = await supabase
           .from('peer_chat_sessions')
           .update({
             status: 'escalated',
-            escalated_to_crisis: true,
-            escalation_reason: 'User requested crisis escalation'
+            _escalated_to_crisis: true,
+            _escalation_reason: 'User requested crisis escalation'
           })
           .eq('id', currentSession.id);
 
@@ -301,7 +470,7 @@ const PeerSupportChat = () => {
 
         toast.success('Crisis team has been notified');
         window.open('tel:988', '_self');
-      } catch (error: any) {
+      } catch (error: unknown) {
         toast.error(`Failed to escalate: ${error.message}`);
       }
     }
@@ -316,14 +485,14 @@ const PeerSupportChat = () => {
         .from('peer_chat_sessions')
         .update({
           status: 'ended',
-          ended_at: new Date().toISOString()
+          _ended_at: new Date().toISOString()
         })
         .eq('id', currentSession.id);
 
       if (error) throw error;
 
       setView('rating');
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(`Failed to end chat: ${error.message}`);
     }
   };
@@ -337,7 +506,7 @@ const PeerSupportChat = () => {
         .from('peer_chat_sessions')
         .update({
           user_rating: rating,
-          user_feedback: feedback
+          _user_feedback: feedback
         })
         .eq('id', currentSession.id);
 
@@ -345,15 +514,15 @@ const PeerSupportChat = () => {
 
       toast.success('Thank you for your feedback!');
       setView('main');
-      setCurrentSession(null);
+      setCurrentSession(_null);
       setRating(0);
       setFeedback('');
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(`Failed to submit rating: ${error.message}`);
     }
   };
 
-  // Schedule video session (placeholder)
+  // Schedule video session (_placeholder)
   const scheduleVideoSession = () => {
     toast.info('Video sessions will be available soon');
     setView('video');
@@ -393,11 +562,11 @@ const PeerSupportChat = () => {
                 </div>
               </div>
               <div className="flex gap-2">
-                <MessageSearch sessionId={currentSession.id} />
+                <MessageSearch _sessionId={currentSession.id} />
                 <Button 
                   size="sm" 
                   variant="outline"
-                  onClick={() => setView('video')}
+                  _onClick={() => setView('video')}
                 >
                   <Video className="w-4 h-4 mr-1" />
                   Video
@@ -405,7 +574,7 @@ const PeerSupportChat = () => {
                 <Button 
                   size="sm" 
                   variant="destructive"
-                  onClick={escalateToEmergency}
+                  _onClick={escalateToEmergency}
                 >
                   <AlertTriangle className="w-4 h-4 mr-1" />
                   Crisis
@@ -413,7 +582,7 @@ const PeerSupportChat = () => {
                 <Button 
                   size="sm" 
                   variant="outline"
-                  onClick={endChat}
+                  _onClick={endChat}
                 >
                   End Chat
                 </Button>
@@ -437,7 +606,7 @@ const PeerSupportChat = () => {
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    onClick={() => setReplyToMessage(null)}
+                    _onClick={() => setReplyToMessage(_null)}
                     className="ml-2 h-6 w-6 p-0"
                   >
                     ×
@@ -460,19 +629,19 @@ const PeerSupportChat = () => {
                     isOwn={message.sender_id === user?.id}
                     onEdit={editMessage}
                     onDelete={deleteMessage}
-                    onReply={(messageId) => {
-                      const msg = messages.find(m => m.id === messageId);
+                    onReply={(_messageId) => {
+                      const msg = messages.find(m => m.id === _messageId);
                       if (msg) setReplyToMessage(msg);
                     }}
-                    onReaction={(messageId, emoji) => {
+                    onReaction={(_messageId, emoji) => {
                       // Check if user already reacted
-                      const msg = messages.find(m => m.id === messageId);
-                      const hasReacted = msg?.reactions?.[emoji]?.includes(user?.id || '');
+                      const msg = messages.find(m => m.id === _messageId);
+                      const _hasReacted = msg?.reactions?.[emoji]?.includes(user?.id || '');
                       
-                      if (hasReacted) {
-                        removeReaction(messageId, emoji);
+                      if (_hasReacted) {
+                        removeReaction(_messageId, emoji);
                       } else {
-                        addReaction(messageId, emoji);
+                        addReaction(_messageId, emoji);
                       }
                     }}
                     onBookmark={bookmarkMessage}
@@ -504,8 +673,8 @@ const PeerSupportChat = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={() => {
-                    setFileUpload(null);
+                  _onClick={() => {
+                    setFileUpload(_null);
                     if (fileInputRef.current) fileInputRef.current.value = '';
                   }}
                 >
@@ -529,7 +698,7 @@ const PeerSupportChat = () => {
               <Button 
                 variant="ghost" 
                 size="sm"
-                onClick={() => fileInputRef.current?.click()}
+                _onClick={() => fileInputRef.current?.click()}
                 className="px-2"
               >
                 <Paperclip className="w-4 h-4" />
@@ -546,7 +715,7 @@ const PeerSupportChat = () => {
                     updateTypingStatus(false);
                   }
                 }}
-                placeholder="Type your message..."
+                _placeholder="Type your message..."
                 onKeyPress={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -557,7 +726,7 @@ const PeerSupportChat = () => {
                 className="flex-1"
               />
               
-              <Button onClick={sendMessage} disabled={!newMessage.trim() && !fileUpload}>
+              <Button _onClick={sendMessage} disabled={!newMessage.trim() && !fileUpload}>
                 <Send className="w-4 h-4" />
               </Button>
             </div>
@@ -587,7 +756,7 @@ const PeerSupportChat = () => {
                   key={star}
                   variant="ghost"
                   size="sm"
-                  onClick={() => setRating(star)}
+                  _onClick={() => setRating(star)}
                   className="p-1"
                 >
                   <Star 
@@ -602,12 +771,12 @@ const PeerSupportChat = () => {
 
           <div>
             <label className="text-sm font-medium mb-2 block">
-              Additional feedback (optional)
+              Additional feedback (_optional)
             </label>
             <Textarea
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
-              placeholder="Share your thoughts about the support you received..."
+              _placeholder="Share your thoughts about the support you received..."
               rows={3}
             />
           </div>
@@ -616,13 +785,13 @@ const PeerSupportChat = () => {
             <Button 
               variant="outline" 
               className="flex-1"
-              onClick={() => setView('main')}
+              _onClick={() => setView('main')}
             >
               Skip
             </Button>
             <Button 
               className="flex-1"
-              onClick={submitRating}
+              _onClick={submitRating}
               disabled={rating === 0}
             >
               Submit Rating
@@ -654,7 +823,7 @@ const PeerSupportChat = () => {
 
           <Button 
             className="w-full"
-            onClick={() => setView('main')}
+            _onClick={() => setView('main')}
           >
             Back to Support Options
           </Button>
@@ -683,10 +852,10 @@ const PeerSupportChat = () => {
             </p>
             <Button 
               className="w-full bg-green-600 hover:bg-green-700"
-              onClick={() => joinQueue('normal')}
+              _onClick={() => joinQueue('normal')}
               disabled={loading}
             >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : _null}
               Start Chat Now
             </Button>
           </CardContent>
@@ -699,12 +868,12 @@ const PeerSupportChat = () => {
               <h3 className="font-semibold text-orange-800">High Priority Support</h3>
             </div>
             <p className="text-sm text-orange-700 mb-4">
-              Need urgent support? Get connected faster with priority queue placement
+              Need urgent support? Get connected faster with _priority queue placement
             </p>
             <Button 
               variant="outline" 
               className="w-full border-orange-300 text-orange-700 hover:bg-orange-100"
-              onClick={() => joinQueue('high')}
+              _onClick={() => joinQueue('high')}
               disabled={loading}
             >
               Request Priority Support
@@ -724,7 +893,7 @@ const PeerSupportChat = () => {
             <Button 
               variant="outline" 
               className="w-full border-purple-300 text-purple-700 hover:bg-purple-100"
-              onClick={scheduleVideoSession}
+              _onClick={scheduleVideoSession}
             >
               Schedule Session
             </Button>
@@ -743,14 +912,14 @@ const PeerSupportChat = () => {
             <div className="flex gap-2">
               <Button 
                 className="flex-1 bg-red-600 hover:bg-red-700"
-                onClick={() => window.open('tel:988', '_self')}
+                _onClick={() => window.open('tel:988', '_self')}
               >
                 Call 988
               </Button>
               <Button 
                 variant="outline" 
                 className="flex-1 border-red-300 text-red-700 hover:bg-red-100"
-                onClick={() => window.open('sms:741741', '_self')}
+                _onClick={() => window.open('sms:741741', '_self')}
               >
                 Text Crisis Line
               </Button>

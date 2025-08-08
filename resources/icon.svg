@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="#2563eb" rx="180"/>
+  
+  <!-- Gradient for depth -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e40af;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="heartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e0e7ff;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Apply gradient background -->
+  <rect width="1024" height="1024" fill="url(#bgGradient)" rx="180"/>
+  
+  <!-- Heart symbol for care and support -->
+  <path d="M512 800c-15 0-30-5-42-15-140-115-280-260-280-400 0-110 85-195 195-195 65 0 120 30 155 80 35-50 90-80 155-80 110 0 195 85 195 195 0 140-140 285-280 400-12 10-27 15-42 15-28 0-56 0-56 0z" 
+        fill="url(#heartGradient)" 
+        transform="translate(0, -80) scale(1.1)"/>
+  
+  <!-- Hands supporting the heart (representing community support) -->
+  <g transform="translate(512, 512)">
+    <!-- Left hand -->
+    <path d="M-200 100 Q-180 120 -160 120 L-120 120 Q-100 120 -100 100 L-100 60 Q-100 40 -120 40 L-160 40 Q-180 40 -200 60 Z" 
+          fill="#ffffff" 
+          opacity="0.9"/>
+    <!-- Right hand -->
+    <path d="M200 100 Q180 120 160 120 L120 120 Q100 120 100 100 L100 60 Q100 40 120 40 L160 40 Q180 40 200 60 Z" 
+          fill="#ffffff" 
+          opacity="0.9"/>
+  </g>
+  
+  <!-- Circle of dots representing community -->
+  <g transform="translate(512, 512)">
+    <circle cx="-300" cy="0" r="20" fill="#ffffff" opacity="0.6"/>
+    <circle cx="300" cy="0" r="20" fill="#ffffff" opacity="0.6"/>
+    <circle cx="0" cy="-300" r="20" fill="#ffffff" opacity="0.6"/>
+    <circle cx="0" cy="300" r="20" fill="#ffffff" opacity="0.6"/>
+    <circle cx="-212" cy="-212" r="20" fill="#ffffff" opacity="0.6"/>
+    <circle cx="212" cy="-212" r="20" fill="#ffffff" opacity="0.6"/>
+    <circle cx="-212" cy="212" r="20" fill="#ffffff" opacity="0.6"/>
+    <circle cx="212" cy="212" r="20" fill="#ffffff" opacity="0.6"/>
+  </g>
+</svg>

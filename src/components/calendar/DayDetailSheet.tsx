@@ -31,29 +31,29 @@ const DayDetailSheet: React.FC<DayDetailSheetProps> = ({
   onUpdate,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedData, setEditedData] = useState<Partial<MoodEntry>>({});
+  const [_editedData, setEditedData] = useState<Partial<MoodEntry>>({});
 
   React.useEffect(() => {
     if (selectedDayData) {
       setEditedData({
         mood_rating: selectedDayData.mood_rating,
-        energy_rating: selectedDayData.energy_rating || 5,
-        notes: selectedDayData.notes,
+        _energy_rating: selectedDayData._energy_rating || 5,
+        _notes: selectedDayData._notes,
       });
     }
   }, [selectedDayData]);
 
   const handleSave = () => {
-    onUpdate(editedData);
+    onUpdate(_editedData);
     setIsEditing(false);
   };
 
   const formatDate = (date: Date): string => {
     return date.toLocaleDateString('en-US', {
       weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+      _year: 'numeric',
+      _month: 'long',
+      _day: 'numeric',
     });
   };
 
@@ -73,7 +73,7 @@ const DayDetailSheet: React.FC<DayDetailSheetProps> = ({
 
   if (!selectedDate || !selectedDayData) return null;
 
-  const energyRating = selectedDayData.energy_rating || 5;
+  const energyRating = selectedDayData._energy_rating || 5;
   const moodColor = getMoodColor(selectedDayData.mood_rating);
 
   return (
@@ -110,9 +110,9 @@ const DayDetailSheet: React.FC<DayDetailSheetProps> = ({
             {isEditing ? (
               <div className="space-y-3">
                 <Slider
-                  value={[editedData.mood_rating || 5]}
+                  value={[_editedData.mood_rating || 5]}
                   onValueChange={([value]) =>
-                    setEditedData({ ...editedData, mood_rating: value })
+                    setEditedData({ ..._editedData, mood_rating: value })
                   }
                   min={1}
                   max={10}
@@ -120,7 +120,7 @@ const DayDetailSheet: React.FC<DayDetailSheetProps> = ({
                   className="w-full"
                 />
                 <div className="text-center text-sm text-gray-600 dark:text-gray-400">
-                  {editedData.mood_rating || 5}/10
+                  {_editedData.mood_rating || 5}/10
                 </div>
               </div>
             ) : (
@@ -152,9 +152,9 @@ const DayDetailSheet: React.FC<DayDetailSheetProps> = ({
             {isEditing ? (
               <div className="space-y-3">
                 <Slider
-                  value={[editedData.energy_rating || 5]}
+                  value={[_editedData._energy_rating || 5]}
                   onValueChange={([value]) =>
-                    setEditedData({ ...editedData, energy_rating: value })
+                    setEditedData({ ..._editedData, _energy_rating: value })
                   }
                   min={1}
                   max={10}
@@ -162,7 +162,7 @@ const DayDetailSheet: React.FC<DayDetailSheetProps> = ({
                   className="w-full"
                 />
                 <div className="text-center text-sm text-gray-600 dark:text-gray-400">
-                  {editedData.energy_rating || 5}/10
+                  {_editedData._energy_rating || 5}/10
                 </div>
               </div>
             ) : (
@@ -227,9 +227,9 @@ const DayDetailSheet: React.FC<DayDetailSheetProps> = ({
             </div>
             {isEditing ? (
               <Textarea
-                value={editedData.notes || ''}
+                value={_editedData._notes || ''}
                 onChange={(e) =>
-                  setEditedData({ ...editedData, notes: e.target.value })
+                  setEditedData({ ..._editedData, _notes: e.target.value })
                 }
                 placeholder="Add any thoughts or reflections..."
                 rows={4}
@@ -238,7 +238,7 @@ const DayDetailSheet: React.FC<DayDetailSheetProps> = ({
             ) : (
               <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
                 <p className="p-3 text-sm text-blue-700 dark:text-blue-300">
-                  {selectedDayData.notes || 'No reflections added for this day'}
+                  {selectedDayData._notes || 'No reflections added for this _day'}
                 </p>
               </Card>
             )}
@@ -257,8 +257,8 @@ const DayDetailSheet: React.FC<DayDetailSheetProps> = ({
                     setIsEditing(false);
                     setEditedData({
                       mood_rating: selectedDayData.mood_rating,
-                      energy_rating: selectedDayData.energy_rating || 5,
-                      notes: selectedDayData.notes,
+                      _energy_rating: selectedDayData._energy_rating || 5,
+                      _notes: selectedDayData._notes,
                     });
                   }}
                   variant="outline"

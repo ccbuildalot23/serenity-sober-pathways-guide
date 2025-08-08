@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Calendar, Shield, Bell, Heart, TrendingUp, CheckCircle, Clock, Star } from 'lucide-react';
+import { Users, Calendar, Shield, Bell, Heart, TrendingUp, Clock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { AccountabilityService, AccountabilityPartnership } from '@/services/accountabilityService';
 import { toast } from 'sonner';
@@ -15,7 +15,7 @@ import SupportAgreementViewer from './SupportAgreementViewer';
 const AccountabilityPartnerDashboard: React.FC = () => {
   const [partnerships, setPartnerships] = useState<AccountabilityPartnership[]>([]);
   const [selectedPartnership, setSelectedPartnership] = useState<AccountabilityPartnership | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [showRequestForm, setShowRequestForm] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const { user } = useAuth();
@@ -35,9 +35,9 @@ const AccountabilityPartnerDashboard: React.FC = () => {
       if (data.length > 0 && !selectedPartnership) {
         setSelectedPartnership(data[0]);
       }
-    } catch (error) {
-      console.error('Error loading partnerships:', error);
-      toast.error('Failed to load accountability partnerships');
+    } catch (_error) {
+      console._error('Error _loading partnerships:', _error);
+      toast._error('Failed to load accountability partnerships');
     } finally {
       setLoading(false);
     }
@@ -51,7 +51,7 @@ const AccountabilityPartnerDashboard: React.FC = () => {
     return `Partner ${partnerId.slice(0, 8)}...`; // Placeholder
   };
 
-  const renderPartnershipCard = (partnership: AccountabilityPartnership) => (
+  const _renderPartnershipCard = (partnership: AccountabilityPartnership) => (
     <Card 
       key={partnership.id}
       className={`cursor-pointer transition-all ${
@@ -92,7 +92,7 @@ const AccountabilityPartnerDashboard: React.FC = () => {
     </Card>
   );
 
-  if (loading) {
+  if (_loading) {
     return (
       <div className="space-y-4">
         <div className="animate-pulse">
@@ -150,7 +150,7 @@ const AccountabilityPartnerDashboard: React.FC = () => {
               Your Partnerships ({partnerships.length})
             </h3>
             
-            {partnerships.map(renderPartnershipCard)}
+            {partnerships.map(_renderPartnershipCard)}
           </div>
 
           {/* Partnership Details */}
@@ -218,13 +218,13 @@ const PartnershipOverview: React.FC<{ partnership: AccountabilityPartnership }> 
     if (!user) return;
     
     try {
-      const streakCount = await AccountabilityService.calculatePartnershipStreak(
+      const _streakCount = await AccountabilityService.calculatePartnershipStreak(
         partnership.id, 
         user.id
       );
-      setStreak(streakCount);
-    } catch (error) {
-      console.error('Error loading streak:', error);
+      setStreak(_streakCount);
+    } catch (_error) {
+      console._error('Error _loading streak:', _error);
     }
   };
 

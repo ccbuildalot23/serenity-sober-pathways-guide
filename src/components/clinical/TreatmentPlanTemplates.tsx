@@ -3,11 +3,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { FileText, Plus, Target, Clock, CheckCircle2 } from 'lucide-react';
+import { FileText, Plus, Target, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -17,9 +16,9 @@ interface TreatmentPlan {
   patient_id: string;
   provider_id: string;
   plan_type: string;
-  goals: any[];
-  interventions: any[];
-  timeline_weeks: number;
+  goals: unknown[];
+  interventions: unknown[];
+  _timeline_weeks: number;
   status: string;
   effectiveness_rating?: number;
 }
@@ -28,71 +27,71 @@ const treatmentTemplates = [
   {
     id: 'substance-abuse-basic',
     name: 'Substance Abuse - Basic Recovery',
-    description: 'Comprehensive treatment plan for substance use disorder',
+    _description: 'Comprehensive treatment plan for substance use disorder',
     plan_type: 'substance_abuse',
-    timeline_weeks: 12,
+    _timeline_weeks: 12,
     goals: [
-      { id: 1, title: 'Achieve initial sobriety', target_weeks: 2, priority: 'high' },
-      { id: 2, title: 'Develop coping strategies', target_weeks: 4, priority: 'high' },
-      { id: 3, title: 'Build support network', target_weeks: 6, priority: 'medium' },
-      { id: 4, title: 'Prevent relapse', target_weeks: 12, priority: 'high' }
+      { id: 1, title: 'Achieve initial sobriety', target_weeks: 2, _priority: 'high' },
+      { id: 2, title: 'Develop coping strategies', target_weeks: 4, _priority: 'high' },
+      { id: 3, title: 'Build support network', target_weeks: 6, _priority: 'medium' },
+      { id: 4, title: 'Prevent relapse', target_weeks: 12, _priority: 'high' }
     ],
     interventions: [
-      { type: 'therapy', frequency: 'weekly', description: 'Individual CBT sessions' },
-      { type: 'group', frequency: 'bi-weekly', description: 'Group therapy sessions' },
-      { type: 'medication', frequency: 'as-needed', description: 'Medication-assisted treatment if appropriate' },
-      { type: 'skills', frequency: 'daily', description: 'Daily coping skills practice' }
+      { type: 'therapy', _frequency: 'weekly', _description: 'Individual CBT sessions' },
+      { type: 'group', _frequency: 'bi-weekly', _description: 'Group therapy sessions' },
+      { type: 'medication', _frequency: 'as-needed', _description: 'Medication-assisted treatment if appropriate' },
+      { type: 'skills', _frequency: 'daily', _description: 'Daily coping skills practice' }
     ]
   },
   {
     id: 'mental-health-comprehensive',
     name: 'Mental Health - Comprehensive Care',
-    description: 'Integrated treatment for mental health conditions',
+    _description: 'Integrated treatment for mental health conditions',
     plan_type: 'mental_health',
-    timeline_weeks: 16,
+    _timeline_weeks: 16,
     goals: [
-      { id: 1, title: 'Stabilize mood symptoms', target_weeks: 4, priority: 'high' },
-      { id: 2, title: 'Improve daily functioning', target_weeks: 8, priority: 'medium' },
-      { id: 3, title: 'Enhance coping skills', target_weeks: 12, priority: 'high' },
-      { id: 4, title: 'Maintain progress', target_weeks: 16, priority: 'medium' }
+      { id: 1, title: 'Stabilize mood symptoms', target_weeks: 4, _priority: 'high' },
+      { id: 2, title: 'Improve daily functioning', target_weeks: 8, _priority: 'medium' },
+      { id: 3, title: 'Enhance coping skills', target_weeks: 12, _priority: 'high' },
+      { id: 4, title: 'Maintain progress', target_weeks: 16, _priority: 'medium' }
     ],
     interventions: [
-      { type: 'therapy', frequency: 'weekly', description: 'Individual therapy (CBT/DBT)' },
-      { type: 'assessment', frequency: 'monthly', description: 'Progress assessments' },
-      { type: 'psychoeducation', frequency: 'bi-weekly', description: 'Educational sessions' },
-      { type: 'skills', frequency: 'daily', description: 'Mindfulness and coping practices' }
+      { type: 'therapy', _frequency: 'weekly', _description: 'Individual therapy (CBT/DBT)' },
+      { type: 'assessment', _frequency: 'monthly', _description: 'Progress assessments' },
+      { type: 'psychoeducation', _frequency: 'bi-weekly', _description: 'Educational sessions' },
+      { type: 'skills', _frequency: 'daily', _description: 'Mindfulness and coping practices' }
     ]
   },
   {
     id: 'crisis-intervention',
     name: 'Crisis Intervention',
-    description: 'Short-term intensive support for crisis situations',
+    _description: 'Short-term intensive support for crisis situations',
     plan_type: 'crisis',
-    timeline_weeks: 6,
+    _timeline_weeks: 6,
     goals: [
-      { id: 1, title: 'Ensure immediate safety', target_weeks: 1, priority: 'critical' },
-      { id: 2, title: 'Stabilize crisis', target_weeks: 2, priority: 'high' },
-      { id: 3, title: 'Develop safety plan', target_weeks: 3, priority: 'high' },
-      { id: 4, title: 'Connect to ongoing support', target_weeks: 6, priority: 'medium' }
+      { id: 1, title: 'Ensure immediate safety', target_weeks: 1, _priority: 'critical' },
+      { id: 2, title: 'Stabilize crisis', target_weeks: 2, _priority: 'high' },
+      { id: 3, title: 'Develop safety plan', target_weeks: 3, _priority: 'high' },
+      { id: 4, title: 'Connect to ongoing support', target_weeks: 6, _priority: 'medium' }
     ],
     interventions: [
-      { type: 'crisis', frequency: 'daily', description: 'Daily safety check-ins' },
-      { type: 'therapy', frequency: 'twice-weekly', description: 'Crisis counseling sessions' },
-      { type: 'support', frequency: 'as-needed', description: '24/7 crisis line access' },
-      { type: 'coordination', frequency: 'weekly', description: 'Care coordination meetings' }
+      { type: 'crisis', _frequency: 'daily', _description: 'Daily safety check-ins' },
+      { type: 'therapy', _frequency: 'twice-weekly', _description: 'Crisis counseling sessions' },
+      { type: 'support', _frequency: 'as-needed', _description: '24/7 crisis line access' },
+      { type: 'coordination', _frequency: 'weekly', _description: 'Care coordination meetings' }
     ]
   }
 ];
 
 const TreatmentPlanTemplates: React.FC = () => {
   const { user } = useAuth();
-  const [selectedTemplate, setSelectedTemplate] = useState<typeof treatmentTemplates[0] | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<typeof treatmentTemplates[0] | _null>(_null);
   const [patientId, setPatientId] = useState('');
   const [customizations, setCustomizations] = useState({
-    timeline_weeks: 12,
-    additional_goals: '',
-    additional_interventions: '',
-    notes: ''
+    _timeline_weeks: 12,
+    _additional_goals: '',
+    _additional_interventions: '',
+    _notes: ''
   });
   const [isCreating, setIsCreating] = useState(false);
 
@@ -104,49 +103,49 @@ const TreatmentPlanTemplates: React.FC = () => {
 
     setIsCreating(true);
     try {
-      const planData = {
+      const _planData = {
         patient_id: patientId,
         provider_id: user!.id,
         plan_type: selectedTemplate.plan_type,
-        timeline_weeks: customizations.timeline_weeks,
+        _timeline_weeks: customizations._timeline_weeks,
         status: 'active',
         goals: [
           ...selectedTemplate.goals,
-          ...(customizations.additional_goals ? 
-            customizations.additional_goals.split('\n').map((goal, index) => ({
+          ...(customizations._additional_goals ? 
+            customizations._additional_goals.split('\n').map((goal, index) => ({
               id: selectedTemplate.goals.length + index + 1,
               title: goal.trim(),
-              target_weeks: customizations.timeline_weeks,
-              priority: 'medium'
+              target_weeks: customizations._timeline_weeks,
+              _priority: 'medium'
             })) : [])
         ],
         interventions: [
           ...selectedTemplate.interventions,
-          ...(customizations.additional_interventions ?
-            customizations.additional_interventions.split('\n').map(intervention => ({
+          ...(customizations._additional_interventions ?
+            customizations._additional_interventions.split('\n').map(intervention => ({
               type: 'custom',
-              frequency: 'as-needed',
-              description: intervention.trim()
+              _frequency: 'as-needed',
+              _description: intervention.trim()
             })) : [])
         ]
       };
 
       const { data, error } = await supabase
         .from('treatment_plans')
-        .insert(planData)
+        .insert(_planData)
         .select()
         .single();
 
       if (error) throw error;
 
       toast.success('Treatment plan created successfully');
-      setSelectedTemplate(null);
+      setSelectedTemplate(_null);
       setPatientId('');
       setCustomizations({
-        timeline_weeks: 12,
-        additional_goals: '',
-        additional_interventions: '',
-        notes: ''
+        _timeline_weeks: 12,
+        _additional_goals: '',
+        _additional_interventions: '',
+        _notes: ''
       });
 
     } catch (error) {
@@ -157,8 +156,8 @@ const TreatmentPlanTemplates: React.FC = () => {
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
+  const getPriorityColor = (_priority: string) => {
+    switch (_priority) {
       case 'critical': return 'destructive';
       case 'high': return 'secondary';
       case 'medium': return 'default';
@@ -182,10 +181,10 @@ const TreatmentPlanTemplates: React.FC = () => {
             <CardHeader>
               <div className="flex items-start justify-between">
                 <FileText className="h-6 w-6 text-primary" />
-                <Badge variant="outline">{template.timeline_weeks}w</Badge>
+                <Badge variant="outline">{template._timeline_weeks}w</Badge>
               </div>
               <CardTitle className="text-lg">{template.name}</CardTitle>
-              <CardDescription>{template.description}</CardDescription>
+              <CardDescription>{template._description}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -198,8 +197,8 @@ const TreatmentPlanTemplates: React.FC = () => {
                     {template.goals.slice(0, 2).map((goal) => (
                       <div key={goal.id} className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground truncate">{goal.title}</span>
-                        <Badge variant={getPriorityColor(goal.priority)}>
-                          {goal.priority}
+                        <Badge variant={getPriorityColor(goal._priority)}>
+                          {goal._priority}
                         </Badge>
                       </div>
                     ))}
@@ -219,7 +218,7 @@ const TreatmentPlanTemplates: React.FC = () => {
                   <div className="space-y-1">
                     {template.interventions.slice(0, 2).map((intervention, index) => (
                       <div key={index} className="text-sm text-muted-foreground">
-                        {intervention.description}
+                        {intervention._description}
                       </div>
                     ))}
                     {template.interventions.length > 2 && (
@@ -265,10 +264,10 @@ const TreatmentPlanTemplates: React.FC = () => {
                             <Input
                               id="timeline"
                               type="number"
-                              value={customizations.timeline_weeks}
+                              value={customizations._timeline_weeks}
                               onChange={(e) => setCustomizations(prev => ({
                                 ...prev,
-                                timeline_weeks: parseInt(e.target.value) || 12
+                                _timeline_weeks: parseInt(e.target.value) || 12
                               }))}
                               min="1"
                               max="52"
@@ -279,7 +278,7 @@ const TreatmentPlanTemplates: React.FC = () => {
                         <div className="flex justify-end space-x-2">
                           <Button 
                             variant="outline" 
-                            onClick={() => setSelectedTemplate(null)}
+                            onClick={() => setSelectedTemplate(_null)}
                           >
                             Cancel
                           </Button>

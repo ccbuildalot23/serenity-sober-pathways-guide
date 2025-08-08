@@ -5,7 +5,7 @@ import { useRealtimeUpdates } from '@/hooks/useRealtimeUpdates';
 import { AlertTriangle, Heart, TrendingUp, ShieldAlert, CheckCircle } from 'lucide-react';
 
 const RealtimeNotifications: React.FC = () => {
-  const handleCrisisEvent = useCallback((payload: any) => {
+  const handleCrisisEvent = useCallback((payload: unknown) => {
     const eventData = payload.new;
     const eventTime = new Date(eventData.created_at).toLocaleTimeString();
     
@@ -28,7 +28,7 @@ const RealtimeNotifications: React.FC = () => {
     }
   }, []);
 
-  const handleMoodUpdate = useCallback((payload: any) => {
+  const handleMoodUpdate = useCallback((payload: unknown) => {
     const checkinData = payload.new;
     if (checkinData.mood_rating) {
       const moodLevel = checkinData.mood_rating >= 7 ? 'great' : 
@@ -53,7 +53,7 @@ const RealtimeNotifications: React.FC = () => {
     }
   }, []);
 
-  const handleCheckInUpdate = useCallback((payload: any) => {
+  const handleCheckInUpdate = useCallback((payload: unknown) => {
     const checkinData = payload.new;
     
     if (payload.eventType === 'INSERT' && checkinData.is_complete) {

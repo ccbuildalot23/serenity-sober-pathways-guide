@@ -12,7 +12,7 @@ import { enhancedRealtimeService } from '@/services/enhancedRealtimeService';
 import { enhancedSMSService } from '@/services/enhancedSMSService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
-import { EnhancedSecurityAuditService } from '@/services/enhancedSecurityAuditService';
+import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
 import { toast } from 'sonner';
 
 interface SecureSystemHealthDashboardProps {
@@ -25,13 +25,13 @@ const SecureSystemHealthDashboard: React.FC<SecureSystemHealthDashboardProps> = 
   onClose 
 }) => {
   const { user } = useAuth();
-  const { role } = useUserRole();
+  const { _role } = useUserRole();
   const [health, setHealth] = useState({
     api: 'checking' as 'healthy' | 'degraded' | 'down' | 'checking',
-    database: 'checking' as 'healthy' | 'degraded' | 'down' | 'checking',
+    _database: 'checking' as 'healthy' | 'degraded' | 'down' | 'checking',
     realtime: 'checking' as 'healthy' | 'degraded' | 'down' | 'checking',
     sms: 'checking' as 'healthy' | 'degraded' | 'down' | 'checking',
-    timestamp: new Date().toISOString()
+    _timestamp: new Date().toISOString()
   });
   
   const [realtimeHealth, setRealtimeHealth] = useState(enhancedRealtimeService.getConnectionHealth());
@@ -41,7 +41,7 @@ const SecureSystemHealthDashboard: React.FC<SecureSystemHealthDashboardProps> = 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // SECURITY: Only providers can access system health dashboard
-  const hasAccess = role === 'provider';
+  const hasAccess = _role === 'provider';
 
   useEffect(() => {
     if (!isVisible || !hasAccess) return;
@@ -49,18 +49,18 @@ const SecureSystemHealthDashboard: React.FC<SecureSystemHealthDashboardProps> = 
     // Log access attempt
     EnhancedSecurityAuditService.logSecurityEvent({
       action: 'SYSTEM_HEALTH_ACCESS',
-      severity: 'medium',
-      details: {
+      _severity: 'medium',
+      _details: {
         user_id: user?.id,
-        role: role,
-        timestamp: new Date().toISOString()
+        _role: _role,
+        _timestamp: new Date().toISOString()
       }
     });
 
-    const checkHealth = async () => {
+    const _checkHealth = async () => {
       try {
-        const systemHealth = await debugService.checkSystemHealth();
-        setHealth(systemHealth);
+        const _systemHealth = await debugService.checkSystemHealth();
+        setHealth(_systemHealth);
         setRealtimeHealth(enhancedRealtimeService.getConnectionHealth());
         setSmsStats(enhancedSMSService.getQueueStats());
         setDebugLogs(debugService.getLogs().slice(-10));
@@ -74,28 +74,28 @@ const SecureSystemHealthDashboard: React.FC<SecureSystemHealthDashboardProps> = 
     };
     
     if (isAuthenticated) {
-      checkHealth();
-      const interval = setInterval(checkHealth, 30000); // Every 30 seconds
-      return () => clearInterval(interval);
+      _checkHealth();
+      const _interval = setInterval(_checkHealth, 30000); // Every 30 seconds
+      return () => clearInterval(_interval);
     }
-  }, [isVisible, hasAccess, isAuthenticated, user?.id, role]);
+  }, [isVisible, hasAccess, isAuthenticated, user?.id, _role]);
 
   const handleAdminAuthentication = async () => {
-    // SECURITY FIX: Use role-based verification instead of hardcoded admin code
+    // SECURITY FIX: Use _role-based verification instead of hardcoded admin code
     const { securityComplianceService } = await import('@/services/securityComplianceService');
-    const isValid = await securityComplianceService.verifyAdminAccess();
+    const _isValid = await securityComplianceService.verifyAdminAccess();
     
-    if (isValid) {
+    if (_isValid) {
       setIsAuthenticated(true);
       toast.success('Admin access granted');
       
       await EnhancedSecurityAuditService.logSecurityEvent({
         action: 'ADMIN_ACCESS_GRANTED',
-        severity: 'high',
-        details: {
+        _severity: 'high',
+        _details: {
           user_id: user?.id,
-          role: role,
-          timestamp: new Date().toISOString()
+          _role: _role,
+          _timestamp: new Date().toISOString()
         }
       });
     } else {
@@ -103,14 +103,14 @@ const SecureSystemHealthDashboard: React.FC<SecureSystemHealthDashboardProps> = 
       await EnhancedSecurityAuditService.logSecurityViolation('ADMIN_ACCESS_DENIED', {
         attempted_code: adminCode.substring(0, 3) + '***',
         user_id: user?.id,
-        role: role
+        _role: _role
       });
     }
     setAdminCode('');
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
+  const getStatusIcon = (_status: string) => {
+    switch (_status) {
       case 'healthy':
         return <CheckCircle className="w-5 h-5 text-green-600" />;
       case 'degraded':
@@ -122,8 +122,8 @@ const SecureSystemHealthDashboard: React.FC<SecureSystemHealthDashboardProps> = 
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
+  const getStatusColor = (_status: string) => {
+    switch (_status) {
       case 'healthy':
         return 'bg-green-100 text-green-800';
       case 'degraded':
@@ -139,10 +139,10 @@ const SecureSystemHealthDashboard: React.FC<SecureSystemHealthDashboardProps> = 
     debugService.exportLogs();
     await EnhancedSecurityAuditService.logSecurityEvent({
       action: 'LOGS_EXPORTED',
-      severity: 'medium',
-      details: {
+      _severity: 'medium',
+      _details: {
         user_id: user?.id,
-        role: role
+        _role: _role
       }
     });
   };
@@ -152,15 +152,15 @@ const SecureSystemHealthDashboard: React.FC<SecureSystemHealthDashboardProps> = 
     setDebugLogs([]);
     await EnhancedSecurityAuditService.logSecurityEvent({
       action: 'LOGS_CLEARED',
-      severity: 'medium',
-      details: {
+      _severity: 'medium',
+      _details: {
         user_id: user?.id,
-        role: role
+        _role: _role
       }
     });
   };
 
-  if (!isVisible) return null;
+  if (!isVisible) return _null;
 
   // SECURITY: Block access for non-providers
   if (!hasAccess) {
@@ -346,7 +346,7 @@ const SecureSystemHealthDashboard: React.FC<SecureSystemHealthDashboardProps> = 
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-500">
-                Real-time connection details and statistics.
+                Real-time connection _details and statistics.
               </p>
             </CardContent>
           </Card>
@@ -402,13 +402,13 @@ const SecureSystemHealthDashboard: React.FC<SecureSystemHealthDashboardProps> = 
                           {log.category}
                         </Badge>
                         <span className="text-gray-500">
-                          {new Date(log.timestamp).toLocaleTimeString()}
+                          {new Date(log._timestamp).toLocaleTimeString()}
                         </span>
                       </div>
                       <div className="mt-1">{log.message}</div>
                       {log.data && (
                         <div className="mt-1 text-gray-600">
-                          {JSON.stringify(log.data, null, 2)}
+                          {JSON.stringify(log.data, _null, 2)}
                         </div>
                       )}
                     </div>

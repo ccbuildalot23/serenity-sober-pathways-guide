@@ -4,7 +4,8 @@ import { AuthForm } from '@/components/auth/AuthForm';
 import { AuthDebugPanel } from '@/components/auth/AuthDebugPanel';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, Shield, Heart, Brain, Users, Bug, AlertCircle, Stethoscope, HandHeart, UserCheck, Activity, CheckCircle } from 'lucide-react';
+import { useUserRole } from '@/hooks/useUserRole';
+import { Loader2, Shield, Heart, Brain, Users, Bug, AlertCircle, Stethoscope, HeartHandshake, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,7 @@ const Auth = () => {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [showFeatures, setShowFeatures] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<any>({});
+  const [debugInfo, setDebugInfo] = useState<unknown>({});
   const [selectedUserType, setSelectedUserType] = useState<string>('');
 
   // Test log to verify page loads
@@ -52,11 +53,17 @@ const Auth = () => {
       // Clear any error states
       localStorage.removeItem('auth_error');
       
-      // Use React Router navigation to dashboard instead of home
-      setTimeout(() => {
-        console.log('Redirecting to dashboard...');
-        navigate('/dashboard');
-      }, 1000);
+      // Use user metadata directly for immediate, deterministic routing
+      const userType = (user as any)?.user_metadata?.userType || 'recovery';
+      console.log('Determined userType for redirect:', userType);
+      
+      const route = userType === 'provider'
+        ? '/provider/dashboard'
+        : userType === 'supporter'
+          ? '/supporter/dashboard'
+          : '/patient/dashboard';
+
+      navigate(route);
     }
   }, [user, authLoading, isRedirecting, navigate]);
 
@@ -276,6 +283,19 @@ const Auth = () => {
               </div>
             </div>
 
+            {/* Login Button */}
+            <Button
+              data-testid="login-button"
+              onClick={() => {
+                // This will trigger the login form to show
+                console.log('Login button clicked');
+              }}
+              className="w-full"
+              variant="outline"
+            >
+              Continue to Login
+            </Button>
+
             {/* Auth Form */}
             <AuthForm userType={selectedUserType} />
 
@@ -411,7 +431,7 @@ const Auth = () => {
                 >
                   <CardHeader className="text-center pb-4">
                     <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg mx-auto mb-4 group-hover:scale-110 transition-transform">
-                      <HandHeart className="w-8 h-8 text-white" />
+                      <HeartHandshake className="w-8 h-8 text-white" />
                     </div>
                     <CardTitle className="text-xl font-bold text-purple-800 dark:text-purple-200">
                       I'm Supporting Someone

@@ -11,7 +11,6 @@ import {
   Share2, Save, CheckCircle, Info, Star, Clock 
 } from 'lucide-react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { voiceActivationService } from '@/services/voiceActivationService';
@@ -38,7 +37,7 @@ interface DailyContent {
     name: string;
     description: string;
     daily_reflection: string;
-    month: number;
+    _month: number;
   };
 }
 
@@ -50,54 +49,54 @@ export const UnifiedRecoveryContent = () => {
   const [selectedTab, setSelectedTab] = useState('integrated');
   const [personalNote, setPersonalNote] = useState('');
   const [favorites, setFavorites] = useState<string[]>([]);
-  const { isOnline, syncWithServer } = useOfflineCrisisData();
+  const { _isOnline, syncWithServer } = useOfflineCrisisData();
 
   // Handle offline/online transitions
   useEffect(() => {
-    const handleOnline = async () => {
+    const _handleOnline = async () => {
       setOfflineMode(false);
       setSyncStatus('syncing');
       
       try {
         await CrisisSyncService.syncWithServer(user?.id || '');
         setSyncStatus('synced');
-        toast.success("Offline data synced successfully!");
+        toast.success("Offline _data synced successfully!");
       } catch (error) {
         setSyncStatus('error');
-        toast.error("Failed to sync offline data");
+        toast.error("Failed to sync offline _data");
       }
     };
     
-    const handleOffline = () => {
+    const _handleOffline = () => {
       setOfflineMode(true);
       toast.info("You're offline. Data will sync when connected.");
     };
     
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', _handleOnline);
+    window.addEventListener('offline', _handleOffline);
     
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', _handleOnline);
+      window.removeEventListener('offline', _handleOffline);
     };
   }, [user?.id]);
 
   // Load favorites from localStorage
   useEffect(() => {
     const savedFavorites = JSON.parse(localStorage.getItem('recoveryFavorites') || '[]');
-    setFavorites(savedFavorites.map((item: any) => item.id));
+    setFavorites(savedFavorites.map((item: unknown) => item.id));
   }, []);
 
   // Fetch today's content
-  const { data: todaysContent, isLoading } = useQuery({
+  const { _data: todaysContent, _isLoading } = useQuery({
     queryKey: ['daily-content', new Date().toDateString()],
     queryFn: async (): Promise<DailyContent> => {
       const today = new Date();
       const dateStr = today.toISOString().split('T')[0];
-      const currentMonth = today.getMonth() + 1;
+      const _currentMonth = today.getMonth() + 1;
       
       // Try to fetch from cache first when offline
-      if (!isOnline) {
+      if (!_isOnline) {
         const cached = offlineStorage.getFromLocalStorage('dailyContent');
         if (cached) return cached;
       }
@@ -106,7 +105,7 @@ export const UnifiedRecoveryContent = () => {
       const content = {
         affirmation: getDefaultAffirmation(),
         dailyFocus: getDefaultDailyFocus(),
-        principle: getDefaultPrinciple(currentMonth)
+        principle: getDefaultPrinciple(_currentMonth)
       };
       
       // Cache for offline use
@@ -119,22 +118,22 @@ export const UnifiedRecoveryContent = () => {
 
   // Save completion
   const completionMutation = useMutation({
-    mutationFn: async ({ type, note }: { type: string; note?: string }) => {
+    mutationFn: async ({ type, _note }: { type: string; _note?: string }) => {
       const completion = {
         user_id: user?.id,
         type,
         date: new Date(),
         completed: true,
-        note
+        _note
       };
       
-      if (isOnline) {
+      if (_isOnline) {
         // In a real app, save to database
         console.log('Saving completion to database:', completion);
       } else {
         offlineStorage.queueForSync({
           type: 'daily_completion',
-          data: completion
+          _data: completion
         });
       }
     },
@@ -163,8 +162,8 @@ export const UnifiedRecoveryContent = () => {
                      selectedTab === 'daily' ? todaysContent.dailyFocus.text :
                      todaysContent.principle.daily_reflection;
         
-        const utterance = new SpeechSynthesisUtterance(text);
-        speechSynthesis.speak(utterance);
+        const _utterance = new SpeechSynthesisUtterance(text);
+        speechSynthesis.speak(_utterance);
       }
     } else {
       voiceActivationService.stopListening();
@@ -174,7 +173,7 @@ export const UnifiedRecoveryContent = () => {
   };
 
   // Save to favorites
-  const saveToFavorites = (type: string, content: any) => {
+  const saveToFavorites = (type: string, content: unknown) => {
     const favoriteItem = {
       id: `${type}_${Date.now()}`,
       type,
@@ -197,7 +196,7 @@ export const UnifiedRecoveryContent = () => {
         await navigator.share({
           title: 'Recovery Inspiration',
           text: text,
-          url: window.location.href
+          _url: window.location.href
         });
       } catch (error) {
         // User cancelled or error
@@ -210,7 +209,7 @@ export const UnifiedRecoveryContent = () => {
     }
   };
 
-  // Get contextual content based on mood/crisis data
+  // Get contextual content based on mood/crisis _data
   const getContextualAffirmation = () => {
     const defaultAffirmations = {
       crisis: "This feeling is temporary. You have survived difficult moments before.",
@@ -221,7 +220,7 @@ export const UnifiedRecoveryContent = () => {
     return defaultAffirmations.general;
   };
 
-  if (isLoading) {
+  if (_isLoading) {
     return (
       <Card className="animate-pulse">
         <CardHeader>
@@ -381,7 +380,7 @@ export const UnifiedRecoveryContent = () => {
                     onClick={() => {
                       completionMutation.mutate({ 
                         type: 'reflection', 
-                        note: personalNote 
+                        _note: personalNote 
                       });
                       setPersonalNote('');
                     }}
@@ -524,7 +523,7 @@ function getDefaultDailyFocus() {
   };
 }
 
-function getDefaultPrinciple(month: number) {
+function getDefaultPrinciple(_month: number) {
   const principles = [
     { name: "Honesty", description: "Being truthful with ourselves and others" },
     { name: "Hope", description: "Believing in the possibility of positive change" },
@@ -540,13 +539,13 @@ function getDefaultPrinciple(month: number) {
     { name: "Service", description: "Helping others in their journey" }
   ];
   
-  const principle = principles[(month - 1) % 12];
+  const principle = principles[(_month - 1) % 12];
   return {
     id: 'default',
     name: principle.name,
     description: principle.description,
     daily_reflection: `How can I practice ${principle.name.toLowerCase()} in my recovery today?`,
-    month
+    _month
   };
 }
 

@@ -12,7 +12,7 @@ export const useDailyCheckIn = () => {
   const { user } = useAuth();
   const [mood, setMood] = useState<MoodToday | null>(null);
   const [gratitude, setGratitude] = useState('');
-  const [todaysVictory, setTodaysVictory] = useState('');
+  const [_todaysVictory, setTodaysVictory] = useState('');
   const [needsSupport, setNeedsSupport] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasCheckedIn, setHasCheckedIn] = useState(false);
@@ -41,8 +41,8 @@ export const useDailyCheckIn = () => {
       await simpleCheckin.checkIn(mood);
       
       // Track victory if they shared one
-      if (todaysVictory.trim()) {
-        await victoryTracker.trackDailyVictory(todaysVictory);
+      if (_todaysVictory.trim()) {
+        await victoryTracker.trackDailyVictory(_todaysVictory);
       }
       
       // Track gratitude as a victory too
@@ -102,7 +102,7 @@ export const useDailyCheckIn = () => {
     setMood,
     gratitude,
     setGratitude,
-    todaysVictory,
+    _todaysVictory,
     setTodaysVictory,
     needsSupport,
     setNeedsSupport,

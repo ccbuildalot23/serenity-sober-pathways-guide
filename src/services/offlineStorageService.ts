@@ -1,9 +1,9 @@
 
 interface OfflineData {
-  crisisEvents: any[];
-  followUpTasks: any[];
-  checkInResponses: any[];
-  crisisResolutions: any[];
+  crisisEvents: unknown[];
+  followUpTasks: unknown[];
+  checkInResponses: unknown[];
+  crisisResolutions: unknown[];
   lastSync: number;
 }
 
@@ -16,7 +16,7 @@ class OfflineStorageService {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.dbName, this.version);
 
-      request.onerror = () => reject(request.error);
+      request.onerror = () => reject(request._error);
       request.onsuccess = () => {
         this.db = request.result;
         resolve();
@@ -28,7 +28,7 @@ class OfflineStorageService {
         // Create object stores
         if (!db.objectStoreNames.contains('crisisEvents')) {
           const crisisStore = db.createObjectStore('crisisEvents', { keyPath: 'id' });
-          crisisStore.createIndex('timestamp', 'timestamp', { unique: false });
+          crisisStore.createIndex('_timestamp', '_timestamp', { unique: false });
         }
 
         if (!db.objectStoreNames.contains('followUpTasks')) {
@@ -38,7 +38,7 @@ class OfflineStorageService {
 
         if (!db.objectStoreNames.contains('checkInResponses')) {
           const checkInStore = db.createObjectStore('checkInResponses', { keyPath: 'id' });
-          checkInStore.createIndex('timestamp', 'timestamp', { unique: false });
+          checkInStore.createIndex('_timestamp', '_timestamp', { unique: false });
         }
 
         if (!db.objectStoreNames.contains('crisisResolutions')) {
@@ -49,60 +49,60 @@ class OfflineStorageService {
     });
   }
 
-  async saveData(storeName: string, data: any): Promise<void> {
+  async saveData(_storeName: string, _data: unknown): Promise<void> {
     if (!this.db) await this.initDB();
     
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([storeName], 'readwrite');
-      const store = transaction.objectStore(storeName);
-      const request = store.put(data);
+      const transaction = this.db!.transaction([_storeName], 'readwrite');
+      const store = transaction.objectStore(_storeName);
+      const request = store.put(_data);
 
-      request.onerror = () => reject(request.error);
+      request.onerror = () => reject(request._error);
       request.onsuccess = () => resolve();
     });
   }
 
-  async getData(storeName: string): Promise<any[]> {
+  async getData(_storeName: string): Promise<unknown[]> {
     if (!this.db) await this.initDB();
     
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([storeName], 'readonly');
-      const store = transaction.objectStore(storeName);
+      const transaction = this.db!.transaction([_storeName], 'readonly');
+      const store = transaction.objectStore(_storeName);
       const request = store.getAll();
 
-      request.onerror = () => reject(request.error);
+      request.onerror = () => reject(request._error);
       request.onsuccess = () => resolve(request.result || []);
     });
   }
 
-  async clearStore(storeName: string): Promise<void> {
+  async clearStore(_storeName: string): Promise<void> {
     if (!this.db) await this.initDB();
     
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([storeName], 'readwrite');
-      const store = transaction.objectStore(storeName);
+      const transaction = this.db!.transaction([_storeName], 'readwrite');
+      const store = transaction.objectStore(_storeName);
       const request = store.clear();
 
-      request.onerror = () => reject(request.error);
+      request.onerror = () => reject(request._error);
       request.onsuccess = () => resolve();
     });
   }
 
   // Fallback to localStorage if IndexedDB fails
-  saveToLocalStorage(key: string, data: any): void {
+  saveToLocalStorage(_key: string, _data: unknown): void {
     try {
-      localStorage.setItem(key, JSON.stringify(data));
-    } catch (error) {
-      console.error('Failed to save to localStorage:', error);
+      localStorage.setItem(_key, JSON.stringify(_data));
+    } catch (_error) {
+      console._error('Failed to save to localStorage:', _error);
     }
   }
 
-  getFromLocalStorage(key: string): any {
+  getFromLocalStorage(_key: string): any {
     try {
-      const data = localStorage.getItem(key);
-      return data ? JSON.parse(data) : null;
-    } catch (error) {
-      console.error('Failed to get from localStorage:', error);
+      const _data = localStorage.getItem(_key);
+      return _data ? JSON.parse(_data) : null;
+    } catch (_error) {
+      console._error('Failed to get from localStorage:', _error);
       return null;
     }
   }
@@ -112,16 +112,16 @@ class OfflineStorageService {
   }
 
   // Queue operations for when back online
-  queueForSync(operation: any): void {
-    const queue = this.getFromLocalStorage('syncQueue') || [];
-    queue.push({
+  queueForSync(operation: unknown): void {
+    const _queue = this.getFromLocalStorage('syncQueue') || [];
+    _queue.push({
       ...operation,
-      timestamp: Date.now()
+      _timestamp: Date.now()
     });
-    this.saveToLocalStorage('syncQueue', queue);
+    this.saveToLocalStorage('syncQueue', _queue);
   }
 
-  getSyncQueue(): any[] {
+  getSyncQueue(): unknown[] {
     return this.getFromLocalStorage('syncQueue') || [];
   }
 

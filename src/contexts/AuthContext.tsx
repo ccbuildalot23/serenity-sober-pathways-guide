@@ -7,20 +7,22 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, options?: any) => Promise<{ error: any }>;
+  signIn: (email: string, password: string) => Promise<{ error: any | null }>;
+  signUp: (email: string, password: string, options?: unknown) => Promise<{ data?: any; error: any | null }>;
   signOut: () => Promise<void>;
+  resetPasswordForEmail: (email: string) => Promise<{ error: any | null }>;
+  updatePassword: (newPassword: string) => Promise<{ error: any | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}
+};
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -39,43 +41,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
         throw new Error('Invalid email format');
       }
 
-      console.log('🔐 Starting sign in process for:', sanitizedEmail);
+      // Don't clear existing auth state - this can cause issues
+      // Let Supabase handle the auth state management
 
-      // Clear any existing auth state before signing in
-      try {
-        // Clear localStorage auth keys
-        Object.keys(localStorage).forEach(key => {
-          if (key.startsWith('supabase.auth') || key.includes('sb-')) {
-            localStorage.removeItem(key);
-          }
-        });
-        await supabase.auth.signOut({ scope: 'global' });
-      } catch (err) {
-        console.warn('⚠️ Error clearing previous auth state:', err);
-        // Continue even if this fails
-      }
-
-      console.log('📡 Attempting Supabase sign in...');
+      console.log('Attempting sign in with email:', sanitizedEmail);
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email: sanitizedEmail,
         password,
       });
 
       if (error) {
-        console.error('❌ Supabase sign in error:', error);
-        console.error('Error details:', { code: error.code, message: error.message, status: error.status });
-      } else {
-        console.log('✅ Sign in successful!', { user: data.user?.email, session: !!data.session });
+        console.error('Sign in error:', error);
+        return { error };
       }
 
-      return { error };
-    } catch (error) {
-      console.error('❌ Sign in exception:', error);
-      return { error };
+      if (data?.user) {
+        console.log('Sign in successful for user:', data.user.email);
+      }
+
+      return { error: null };
+    } catch (err: any) {
+      console.error('Sign in exception:', err);
+      return { error: err };
     }
   };
 
-  const signUp = async (email: string, password: string, options?: any) => {
+  const signUp = async (email: string, password: string, options?: unknown) => {
     try {
       // Basic email validation
       const sanitizedEmail = email.trim().toLowerCase();
@@ -88,79 +80,140 @@ export function AuthProvider({ children }: AuthProviderProps) {
         throw new Error('Password must be at least 8 characters long');
       }
 
-      // Clear any existing auth state before signing up
-      try {
-        // Clear localStorage auth keys
-        Object.keys(localStorage).forEach(key => {
-          if (key.startsWith('supabase.auth') || key.includes('sb-')) {
-            localStorage.removeItem(key);
-          }
-        });
-        await supabase.auth.signOut({ scope: 'global' });
-      } catch (err) {
-        // Continue even if this fails
-      }
+      console.log('Attempting sign up with email:', sanitizedEmail);
 
       const { data, error } = await supabase.auth.signUp({
         email: sanitizedEmail,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
-          ...options
+          emailRedirectTo: `${window.location.origin}/auth`,
+          ...(options as object)
         }
       });
 
-      return { data, error };
-    } catch (error) {
-      return { error };
+      if (error) {
+        console.error('Sign up error:', error);
+        return { data: null, error };
+      }
+
+      if (data?.user) {
+        console.log('Sign up successful for user:', data.user.email);
+      }
+
+      return { data, error: null };
+    } catch (err: any) {
+      console.error('Sign up exception:', err);
+      return { data: null, error: err };
     }
   };
 
   const signOut = async () => {
     try {
-      // Clear localStorage auth keys
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('supabase.auth') || key.includes('sb-')) {
-          localStorage.removeItem(key);
-        }
-      });
-      await supabase.auth.signOut({ scope: 'global' });
-    } catch (error) {
-      console.error('Sign out error:', error);
+      console.log('Signing out user...');
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Sign out error:', error);
+      } else {
+        console.log('Sign out successful');
+      }
+    } catch (err: any) {
+      console.error('Sign out exception:', err);
     }
     
     // Force redirect to auth page
     window.location.href = '/auth';
   };
 
+  const resetPasswordForEmail = async (email: string) => {
+    try {
+      const sanitizedEmail = email.trim().toLowerCase();
+      console.log('Requesting password reset for:', sanitizedEmail);
+      
+      const { error } = await supabase.auth.resetPasswordForEmail(sanitizedEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      
+      if (error) {
+        console.error('Password reset error:', error);
+        return { error };
+      }
+      
+      console.log('Password reset email sent successfully');
+      return { error: null };
+    } catch (err: any) {
+      console.error('Password reset exception:', err);
+      return { error: err };
+    }
+  };
+
+  const updatePassword = async (newPassword: string) => {
+    try {
+      console.log('Updating user password...');
+      
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      
+      if (error) {
+        console.error('Password update error:', error);
+        return { error };
+      }
+      
+      console.log('Password updated successfully');
+      return { error: null };
+    } catch (err: any) {
+      console.error('Password update exception:', err);
+      return { error: err };
+    }
+  };
+
   useEffect(() => {
-    // Listen for auth changes first
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state change:', event, session?.user?.email);
-      setSession(session);
-      setUser(session?.user ?? null);
+    console.log('Setting up auth state listener...');
+    
+    // Get initial _session first
+    const getInitialSession = async () => {
+      try {
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        console.log('Initial session:', initialSession?.user?.email || 'none');
+        setSession(initialSession);
+        setUser(initialSession?.user ?? null);
+        setLoading(false);
+      } catch (err: any) {
+        console.error('Error getting initial session:', err);
+        setLoading(false);
+      }
+    };
+
+    getInitialSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+      console.log('Auth state change:', event, newSession?.user?.email || 'none');
+      
+      setSession(newSession);
+      setUser(newSession?.user ?? null);
       setLoading(false);
     });
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session:', session?.user?.email);
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    }).catch((error) => {
-      console.error('Error getting session:', error);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      console.log('Cleaning up auth subscription');
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      session, 
+      loading, 
+      signIn, 
+      signUp, 
+      signOut,
+      resetPasswordForEmail,
+      updatePassword
+    }}>
       {children}
     </AuthContext.Provider>
   );
 }
-
-export default AuthProvider;

@@ -9,7 +9,7 @@ import type { CrisisResolution, CheckInResponse, FollowUpTask } from '@/types/cr
 
 // Recovery-first offline support - works when they need it most
 export const useOfflineSupport = () => {
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [_isOnline, setIsOnline] = useState(navigator.onLine);
   const [crisisResolutions, setCrisisResolutions] = useState<CrisisResolution[]>([]);
   const [checkInResponses, setCheckInResponses] = useState<CheckInResponse[]>([]);
   const [followUpTasks, setFollowUpTasks] = useState<FollowUpTask[]>([]);
@@ -18,19 +18,19 @@ export const useOfflineSupport = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
+    const _handleOnline = () => setIsOnline(true);
+    const _handleOffline = () => setIsOnline(false);
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', _handleOnline);
+    window.addEventListener('offline', _handleOffline);
 
     if (user) {
       loadData();
     }
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', _handleOnline);
+      window.removeEventListener('offline', _handleOffline);
     };
   }, [user]);
 
@@ -40,13 +40,13 @@ export const useOfflineSupport = () => {
     try {
       setIsLoading(true);
       
-      if (isOnline) {
+      if (_isOnline) {
         await loadFromDatabase();
       } else {
         await loadFromOfflineStorage();
       }
-    } catch (error) {
-      console.error('Failed to load crisis data:', error);
+    } catch (_error) {
+      console._error('Failed to load crisis data:', _error);
       await loadFromOfflineStorage();
     } finally {
       setIsLoading(false);
@@ -57,23 +57,23 @@ export const useOfflineSupport = () => {
     if (!user) return;
 
     try {
-      const [resolutions, responses, tasks] = await Promise.all([
+      const [_resolutions, _responses, _tasks] = await Promise.all([
         UnifiedCrisisService.loadCrisisResolutions(user.id),
         UnifiedCrisisService.loadCheckInResponses(user.id),
         UnifiedCrisisService.loadFollowUpTasks(user.id)
       ]);
 
-      setCrisisResolutions(resolutions);
-      setCheckInResponses(responses);
-      setFollowUpTasks(tasks);
+      setCrisisResolutions(_resolutions);
+      setCheckInResponses(_responses);
+      setFollowUpTasks(_tasks);
 
       // Save to offline storage as backup
-      offlineStorage.saveToLocalStorage('crisisResolutions', resolutions);
-      offlineStorage.saveToLocalStorage('checkInResponses', responses);
-      offlineStorage.saveToLocalStorage('followUpTasks', tasks);
-    } catch (error) {
-      console.error('Error loading from database:', error);
-      throw error;
+      offlineStorage.saveToLocalStorage('crisisResolutions', _resolutions);
+      offlineStorage.saveToLocalStorage('checkInResponses', _responses);
+      offlineStorage.saveToLocalStorage('followUpTasks', _tasks);
+    } catch (_error) {
+      console._error('Error loading from database:', _error);
+      throw _error;
     }
   };
 
@@ -81,25 +81,25 @@ export const useOfflineSupport = () => {
     try {
       await offlineStorage.initDB();
       
-      const [resolutions, responses, tasks] = await Promise.all([
+      const [_resolutions, _responses, _tasks] = await Promise.all([
         offlineStorage.getData('crisisResolutions'),
         offlineStorage.getData('checkInResponses'),
         offlineStorage.getData('followUpTasks')
       ]);
 
-      setCrisisResolutions(resolutions || []);
-      setCheckInResponses(responses || []);
-      setFollowUpTasks(tasks || []);
-    } catch (error) {
-      console.error('Failed to load offline data:', error);
+      setCrisisResolutions(_resolutions || []);
+      setCheckInResponses(_responses || []);
+      setFollowUpTasks(_tasks || []);
+    } catch (_error) {
+      console._error('Failed to load offline data:', _error);
       // Fallback to localStorage
-      const resolutions = offlineStorage.getFromLocalStorage('crisisResolutions') || [];
-      const responses = offlineStorage.getFromLocalStorage('checkInResponses') || [];
-      const tasks = offlineStorage.getFromLocalStorage('followUpTasks') || [];
+      const _resolutions = offlineStorage.getFromLocalStorage('crisisResolutions') || [];
+      const _responses = offlineStorage.getFromLocalStorage('checkInResponses') || [];
+      const _tasks = offlineStorage.getFromLocalStorage('followUpTasks') || [];
 
-      setCrisisResolutions(resolutions);
-      setCheckInResponses(responses);
-      setFollowUpTasks(tasks);
+      setCrisisResolutions(_resolutions);
+      setCheckInResponses(_responses);
+      setFollowUpTasks(_tasks);
     }
   };
 
@@ -109,7 +109,7 @@ export const useOfflineSupport = () => {
     try {
       let newMoment: CrisisResolution;
 
-      if (isOnline) {
+      if (_isOnline) {
         newMoment = await UnifiedCrisisService.saveCrisisResolution(user.id, resolution);
       } else {
         newMoment = {
@@ -126,8 +126,8 @@ export const useOfflineSupport = () => {
 
       setCrisisResolutions(prev => [newMoment, ...prev]);
       offlineStorage.saveToLocalStorage('crisisResolutions', [newMoment, ...crisisResolutions]);
-    } catch (error) {
-      console.error('Failed to save help moment:', error);
+    } catch (_error) {
+      console._error('Failed to save help moment:', _error);
     }
   };
 
@@ -137,7 +137,7 @@ export const useOfflineSupport = () => {
     try {
       let newResponse: CheckInResponse;
 
-      if (isOnline) {
+      if (_isOnline) {
         newResponse = await UnifiedCrisisService.saveCheckInResponse(user.id, response);
       } else {
         newResponse = {
@@ -154,8 +154,8 @@ export const useOfflineSupport = () => {
 
       setCheckInResponses(prev => [newResponse, ...prev]);
       offlineStorage.saveToLocalStorage('checkInResponses', [newResponse, ...checkInResponses]);
-    } catch (error) {
-      console.error('Failed to save check-in response:', error);
+    } catch (_error) {
+      console._error('Failed to save check-in response:', _error);
     }
   };
 
@@ -165,7 +165,7 @@ export const useOfflineSupport = () => {
     try {
       let newStep: FollowUpTask;
 
-      if (isOnline) {
+      if (_isOnline) {
         newStep = await UnifiedCrisisService.saveFollowUpTask(user.id, task);
       } else {
         newStep = {
@@ -184,8 +184,8 @@ export const useOfflineSupport = () => {
         a.scheduled_for.getTime() - b.scheduled_for.getTime()
       ));
       offlineStorage.saveToLocalStorage('followUpTasks', [...followUpTasks, newStep]);
-    } catch (error) {
-      console.error('Failed to save next step:', error);
+    } catch (_error) {
+      console._error('Failed to save next step:', _error);
     }
   };
 
@@ -193,7 +193,7 @@ export const useOfflineSupport = () => {
     if (!user) return;
 
     try {
-      if (isOnline) {
+      if (_isOnline) {
         await UnifiedCrisisService.updateFollowUpTask(user.id, taskId, updates);
       } else {
         offlineStorage.queueForSync({
@@ -202,19 +202,19 @@ export const useOfflineSupport = () => {
         });
       }
 
-      const updatedSteps = followUpTasks.map(task =>
+      const _updatedSteps = followUpTasks.map(task =>
         task.id === taskId ? { ...task, ...updates } : task
       );
       
-      setFollowUpTasks(updatedSteps);
-      offlineStorage.saveToLocalStorage('followUpTasks', updatedSteps);
-    } catch (error) {
-      console.error('Failed to update next step:', error);
+      setFollowUpTasks(_updatedSteps);
+      offlineStorage.saveToLocalStorage('followUpTasks', _updatedSteps);
+    } catch (_error) {
+      console._error('Failed to update next step:', _error);
     }
   };
 
   const syncWithServer = async () => {
-    if (!isOnline || !user) return;
+    if (!_isOnline || !user) return;
     
     try {
       await CrisisSyncService.syncWithServer(user.id);
@@ -222,13 +222,13 @@ export const useOfflineSupport = () => {
       
       // Reload data from server after sync
       await loadFromDatabase();
-    } catch (error) {
-      console.error('Failed to sync with server:', error);
+    } catch (_error) {
+      console._error('Failed to sync with server:', _error);
     }
   };
 
   return {
-    isOnline,
+    _isOnline,
     isLoading,
     helpMoments: crisisResolutions,
     checkInResponses,

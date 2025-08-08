@@ -6,7 +6,7 @@ import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { Settings, Bell, Mail, MessageSquare, Clock } from 'lucide-react';
+import { Settings, Bell, MessageSquare, Clock } from 'lucide-react';
 import { useNotificationPreferences } from '@/hooks/useSupportNetwork';
 import { NotificationPreferences } from '@/services/supportNetworkService';
 
@@ -15,8 +15,8 @@ interface NotificationPreferencesDialogProps {
 }
 
 export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDialogProps> = ({ children }) => {
-  const { preferences, loading, updatePreferences } = useNotificationPreferences();
-  const [localPreferences, setLocalPreferences] = useState<Partial<NotificationPreferences>>({});
+  const { preferences, _loading, updatePreferences } = useNotificationPreferences();
+  const [_localPreferences, setLocalPreferences] = useState<Partial<NotificationPreferences>>({});
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -27,9 +27,9 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
 
   const handleSave = async () => {
     try {
-      await updatePreferences(localPreferences);
+      await updatePreferences(_localPreferences);
       setOpen(false);
-    } catch (error) {
+    } catch (_error) {
       // Error is handled in the hook
     }
   };
@@ -37,8 +37,8 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
   const updateAlertType = (type: string, value: boolean) => {
     setLocalPreferences(prev => ({
       ...prev,
-      alert_types: {
-        ...prev.alert_types,
+      _alert_types: {
+        ...prev._alert_types,
         [type]: value
       }
     }));
@@ -47,8 +47,8 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
   const updateContactMethod = (method: string, value: boolean) => {
     setLocalPreferences(prev => ({
       ...prev,
-      contact_methods: {
-        ...prev.contact_methods,
+      _contact_methods: {
+        ...prev._contact_methods,
         [method]: value
       }
     }));
@@ -57,8 +57,8 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
   const updateQuietHours = (field: string, value: string | boolean) => {
     setLocalPreferences(prev => ({
       ...prev,
-      quiet_hours: {
-        ...prev.quiet_hours,
+      _quiet_hours: {
+        ...prev._quiet_hours,
         [field]: value
       }
     }));
@@ -67,14 +67,14 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
   const updateFrequencyLimit = (field: string, value: number) => {
     setLocalPreferences(prev => ({
       ...prev,
-      frequency_limits: {
-        ...prev.frequency_limits,
+      _frequency_limits: {
+        ...prev._frequency_limits,
         [field]: value
       }
     }));
   };
 
-  if (loading) {
+  if (_loading) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
@@ -116,8 +116,8 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
                   <p className="text-sm text-gray-600 dark:text-gray-400">Immediate notifications for crisis situations</p>
                 </div>
                 <Switch
-                  checked={localPreferences.alert_types?.crisis ?? true}
-                  onCheckedChange={(checked) => updateAlertType('crisis', checked)}
+                  _checked={_localPreferences._alert_types?.crisis ?? true}
+                  onCheckedChange={(_checked) => updateAlertType('crisis', _checked)}
                 />
               </div>
               
@@ -127,8 +127,8 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
                   <p className="text-sm text-gray-600 dark:text-gray-400">Notifications when mood ratings are concerning</p>
                 </div>
                 <Switch
-                  checked={localPreferences.alert_types?.mood_low ?? true}
-                  onCheckedChange={(checked) => updateAlertType('mood_low', checked)}
+                  _checked={_localPreferences._alert_types?.mood_low ?? true}
+                  onCheckedChange={(_checked) => updateAlertType('mood_low', _checked)}
                 />
               </div>
               
@@ -138,8 +138,8 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
                   <p className="text-sm text-gray-600 dark:text-gray-400">Notifications when daily check-ins are missed</p>
                 </div>
                 <Switch
-                  checked={localPreferences.alert_types?.missed_checkin ?? true}
-                  onCheckedChange={(checked) => updateAlertType('missed_checkin', checked)}
+                  _checked={_localPreferences._alert_types?.missed_checkin ?? true}
+                  onCheckedChange={(_checked) => updateAlertType('missed_checkin', _checked)}
                 />
               </div>
               
@@ -149,8 +149,8 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
                   <p className="text-sm text-gray-600 dark:text-gray-400">Celebrations for recovery milestones</p>
                 </div>
                 <Switch
-                  checked={localPreferences.alert_types?.milestones ?? false}
-                  onCheckedChange={(checked) => updateAlertType('milestones', checked)}
+                  _checked={_localPreferences._alert_types?.milestones ?? false}
+                  onCheckedChange={(_checked) => updateAlertType('milestones', _checked)}
                 />
               </div>
               
@@ -160,8 +160,8 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
                   <p className="text-sm text-gray-600 dark:text-gray-400">Notifications for elevated relapse risk patterns</p>
                 </div>
                 <Switch
-                  checked={localPreferences.alert_types?.relapse_risk ?? true}
-                  onCheckedChange={(checked) => updateAlertType('relapse_risk', checked)}
+                  _checked={_localPreferences._alert_types?.relapse_risk ?? true}
+                  onCheckedChange={(_checked) => updateAlertType('relapse_risk', _checked)}
                 />
               </div>
             </div>
@@ -182,8 +182,8 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
                   <p className="text-sm text-gray-600 dark:text-gray-400">Push notifications within the app</p>
                 </div>
                 <Switch
-                  checked={localPreferences.contact_methods?.in_app ?? true}
-                  onCheckedChange={(checked) => updateContactMethod('in_app', checked)}
+                  _checked={_localPreferences._contact_methods?.in_app ?? true}
+                  onCheckedChange={(_checked) => updateContactMethod('in_app', _checked)}
                 />
               </div>
               
@@ -193,8 +193,8 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
                   <p className="text-sm text-gray-600 dark:text-gray-400">Notifications via email</p>
                 </div>
                 <Switch
-                  checked={localPreferences.contact_methods?.email ?? false}
-                  onCheckedChange={(checked) => updateContactMethod('email', checked)}
+                  _checked={_localPreferences._contact_methods?.email ?? false}
+                  onCheckedChange={(_checked) => updateContactMethod('email', _checked)}
                 />
               </div>
               
@@ -204,8 +204,8 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
                   <p className="text-sm text-gray-600 dark:text-gray-400">Text message notifications</p>
                 </div>
                 <Switch
-                  checked={localPreferences.contact_methods?.sms ?? false}
-                  onCheckedChange={(checked) => updateContactMethod('sms', checked)}
+                  _checked={_localPreferences._contact_methods?.sms ?? false}
+                  onCheckedChange={(_checked) => updateContactMethod('sms', _checked)}
                 />
               </div>
             </div>
@@ -223,12 +223,12 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
               <div className="flex items-center justify-between">
                 <Label>Enable Quiet Hours</Label>
                 <Switch
-                  checked={localPreferences.quiet_hours?.enabled ?? false}
-                  onCheckedChange={(checked) => updateQuietHours('enabled', checked)}
+                  _checked={_localPreferences._quiet_hours?.enabled ?? false}
+                  onCheckedChange={(_checked) => updateQuietHours('enabled', _checked)}
                 />
               </div>
               
-              {localPreferences.quiet_hours?.enabled && (
+              {_localPreferences._quiet_hours?.enabled && (
                 <>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
@@ -236,7 +236,7 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
                       <Input
                         id="start-time"
                         type="time"
-                        value={localPreferences.quiet_hours?.start_time ?? '22:00'}
+                        value={_localPreferences._quiet_hours?.start_time ?? '22:00'}
                         onChange={(e) => updateQuietHours('start_time', e.target.value)}
                       />
                     </div>
@@ -245,7 +245,7 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
                       <Input
                         id="end-time"
                         type="time"
-                        value={localPreferences.quiet_hours?.end_time ?? '08:00'}
+                        value={_localPreferences._quiet_hours?.end_time ?? '08:00'}
                         onChange={(e) => updateQuietHours('end_time', e.target.value)}
                       />
                     </div>
@@ -254,7 +254,7 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
                   <div>
                     <Label htmlFor="timezone">Timezone</Label>
                     <Select 
-                      value={localPreferences.quiet_hours?.timezone ?? 'UTC'} 
+                      value={_localPreferences._quiet_hours?.timezone ?? 'UTC'} 
                       onValueChange={(value) => updateQuietHours('timezone', value)}
                     >
                       <SelectTrigger>
@@ -290,7 +290,7 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
                   type="number"
                   min="1"
                   max="50"
-                  value={localPreferences.frequency_limits?.max_daily_alerts ?? 10}
+                  value={_localPreferences._frequency_limits?.max_daily_alerts ?? 10}
                   onChange={(e) => updateFrequencyLimit('max_daily_alerts', parseInt(e.target.value))}
                 />
               </div>
@@ -302,7 +302,7 @@ export const NotificationPreferencesDialog: React.FC<NotificationPreferencesDial
                   type="number"
                   min="1"
                   max="10"
-                  value={localPreferences.frequency_limits?.max_hourly_alerts ?? 3}
+                  value={_localPreferences._frequency_limits?.max_hourly_alerts ?? 3}
                   onChange={(e) => updateFrequencyLimit('max_hourly_alerts', parseInt(e.target.value))}
                 />
               </div>

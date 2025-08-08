@@ -29,33 +29,33 @@ export default function NotificationSettings() {
 
   useEffect(() => {
     // Load saved preferences from localStorage
-    const savedSettings = localStorage.getItem('notification_settings');
-    if (savedSettings) {
-      const settings = JSON.parse(savedSettings);
-      setTime(settings.time || '09:00');
-      setFreq(settings.freq || 3);
-      setToggles(settings.toggles || toggles);
+    const _savedSettings = localStorage.getItem('notification_settings');
+    if (_savedSettings) {
+      const _settings = JSON.parse(_savedSettings);
+      setTime(_settings.time || '09:00');
+      setFreq(_settings.freq || 3);
+      setToggles(_settings.toggles || toggles);
     }
   }, []);
 
   const save = async () => {
     if (!user?.id) return;
     
-    const settings = { time, freq, toggles };
-    localStorage.setItem('notification_settings', JSON.stringify(settings));
-    await NotificationService.scheduleAll(settings, user.id);
+    const _settings = { time, freq, toggles };
+    localStorage.setItem('notification_settings', JSON.stringify(_settings));
+    await NotificationService.scheduleAll(_settings, user.id);
   };
 
   const requestPermission = async () => {
-    const result = await NotificationService.requestPermission();
-    setPermission(result);
+    const _result = await NotificationService.requestPermission();
+    setPermission(_result);
   };
 
   const notificationTypes = [
-    { key: 'checkIn', label: 'Daily Check-In', icon: Heart, description: 'Gentle reminders to log your mood' },
-    { key: 'affirm', label: 'Affirmations', icon: BookOpen, description: 'Positive thoughts for your day' },
-    { key: 'support', label: 'Support Call Reminder', icon: Phone, description: 'Prompts to reach out for support' },
-    { key: 'spiritual', label: 'Spiritual Principles', icon: Bell, description: 'Daily wisdom and reflection' }
+    { key: 'checkIn', label: 'Daily Check-In', _icon: Heart, description: 'Gentle reminders to log your mood' },
+    { key: 'affirm', label: 'Affirmations', _icon: BookOpen, description: 'Positive thoughts for your day' },
+    { key: 'support', label: 'Support Call Reminder', _icon: Phone, description: 'Prompts to reach out for support' },
+    { key: 'spiritual', label: 'Spiritual Principles', _icon: Bell, description: 'Daily wisdom and reflection' }
   ];
 
   if (permission === 'denied') {
@@ -72,7 +72,7 @@ export default function NotificationSettings() {
             <Bell className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-700 mb-2">Notifications Blocked</h3>
             <p className="text-gray-600 mb-4">
-              Notifications are currently blocked. Please enable them in your browser settings to receive recovery reminders.
+              Notifications are currently blocked. Please enable them in your browser _settings to receive recovery reminders.
             </p>
           </div>
         </CardContent>
@@ -133,7 +133,7 @@ export default function NotificationSettings() {
 
         <div className="space-y-4">
           <h3 className="font-medium text-[#1E3A8A]">Notification Types</h3>
-          {notificationTypes.map(({ key, label, icon: Icon, description }) => (
+          {notificationTypes.map(({ key, label, _icon: Icon, description }) => (
             <div key={key} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <div className="flex items-center gap-3">
                 <Icon className="w-5 h-5 text-[#10B981]" />

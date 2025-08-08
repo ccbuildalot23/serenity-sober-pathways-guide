@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, MapPin, Video, Phone, User, AlertCircle } from 'lucide-react';
+import { Calendar, MapPin, Video, Phone, User, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,15 +25,15 @@ export const AppointmentBookingFlow: React.FC<AppointmentBookingFlowProps> = ({
   onCancel
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [_selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedSlot, setSelectedSlot] = useState<AppointmentSlot | null>(null);
   const [availableSlots, setAvailableSlots] = useState<AppointmentSlot[]>([]);
   const [loading, setLoading] = useState(false);
   const [bookingData, setBookingData] = useState<Partial<BookingFormData>>({
     provider_id: provider.id,
-    appointment_type: 'consultation',
-    location_type: 'in_person',
-    duration_minutes: 60,
+    _appointment_type: 'consultation',
+    _location_type: 'in_person',
+    _duration_minutes: 60,
     is_recurring: false
   });
 
@@ -46,19 +46,19 @@ export const AppointmentBookingFlow: React.FC<AppointmentBookingFlowProps> = ({
 
   // Load available slots when date changes
   useEffect(() => {
-    if (selectedDate && bookingData.duration_minutes) {
+    if (_selectedDate && bookingData._duration_minutes) {
       loadAvailableSlots();
     }
-  }, [selectedDate, bookingData.duration_minutes]);
+  }, [_selectedDate, bookingData._duration_minutes]);
 
   const loadAvailableSlots = async () => {
     try {
       setLoading(true);
-      const dateStr = format(selectedDate, 'yyyy-MM-dd');
+      const _dateStr = format(_selectedDate, 'yyyy-MM-dd');
       const slots = await AppointmentService.getAvailableSlots(
         provider.id,
-        dateStr,
-        bookingData.duration_minutes || 60
+        _dateStr,
+        bookingData._duration_minutes || 60
       );
       setAvailableSlots(slots);
     } catch (error) {
@@ -75,25 +75,25 @@ export const AppointmentBookingFlow: React.FC<AppointmentBookingFlowProps> = ({
     try {
       setLoading(true);
       
-      const appointmentData: BookingFormData = {
+      const _appointmentData: BookingFormData = {
         provider_id: provider.id,
-        appointment_type: bookingData.appointment_type!,
+        _appointment_type: bookingData._appointment_type!,
         start_time: selectedSlot.slot_start,
         end_time: selectedSlot.slot_end,
-        duration_minutes: bookingData.duration_minutes!,
-        location_type: bookingData.location_type!,
-        title: bookingData.title,
+        _duration_minutes: bookingData._duration_minutes!,
+        _location_type: bookingData._location_type!,
+        _title: bookingData._title,
         description: bookingData.description,
-        booking_notes: bookingData.booking_notes,
+        _booking_notes: bookingData._booking_notes,
         is_recurring: bookingData.is_recurring,
-        recurrence_pattern: bookingData.recurrence_pattern
+        _recurrence_pattern: bookingData._recurrence_pattern
       };
 
-      const appointment = await AppointmentService.bookAppointment(appointmentData);
+      const appointment = await AppointmentService.bookAppointment(_appointmentData);
       
       toast.success('Appointment booked successfully!');
       onBookingComplete?.(appointment.id);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error booking appointment:', error);
       if (error.message === 'Time slot is no longer available') {
         toast.error('This time slot is no longer available. Please select another time.');
@@ -137,13 +137,13 @@ export const AppointmentBookingFlow: React.FC<AppointmentBookingFlowProps> = ({
       </CardHeader>
       <CardContent className="space-y-4">
         <RadioGroup
-          value={bookingData.appointment_type}
+          value={bookingData._appointment_type}
           onValueChange={(value) => {
             const type = appointmentTypes.find(t => t.value === value);
             setBookingData(prev => ({
               ...prev,
-              appointment_type: value,
-              duration_minutes: type?.duration || 60
+              _appointment_type: value,
+              _duration_minutes: type?.duration || 60
             }));
           }}
         >
@@ -161,8 +161,8 @@ export const AppointmentBookingFlow: React.FC<AppointmentBookingFlowProps> = ({
         <div className="space-y-3">
           <Label>Location Type</Label>
           <RadioGroup
-            value={bookingData.location_type}
-            onValueChange={(value: any) => setBookingData(prev => ({ ...prev, location_type: value }))}
+            value={bookingData._location_type}
+            onValueChange={(value: unknown) => setBookingData(prev => ({ ...prev, _location_type: value }))}
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="in_person" id="in_person" />
@@ -210,7 +210,7 @@ export const AppointmentBookingFlow: React.FC<AppointmentBookingFlowProps> = ({
         <div className="grid grid-cols-7 gap-2">
           {Array.from({ length: 14 }, (_, i) => {
             const date = addDays(new Date(), i);
-            const isSelected = isSameDay(date, selectedDate);
+            const isSelected = isSameDay(date, _selectedDate);
             const isPast = date < new Date();
             
             return (
@@ -280,23 +280,23 @@ export const AppointmentBookingFlow: React.FC<AppointmentBookingFlowProps> = ({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="title">Appointment Title (Optional)</Label>
+          <Label htmlFor="_title">Appointment Title (_Optional)</Label>
           <input
-            id="title"
+            id="_title"
             className="w-full p-2 border rounded-md"
             placeholder="e.g., Initial consultation for anxiety"
-            value={bookingData.title || ''}
-            onChange={(e) => setBookingData(prev => ({ ...prev, title: e.target.value }))}
+            value={bookingData._title || ''}
+            onChange={(e) => setBookingData(prev => ({ ...prev, _title: e.target.value }))}
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="notes">Notes for Provider (Optional)</Label>
+          <Label htmlFor="notes">Notes for Provider (_Optional)</Label>
           <Textarea
             id="notes"
             placeholder="Any specific topics or concerns you'd like to discuss..."
-            value={bookingData.booking_notes || ''}
-            onChange={(e) => setBookingData(prev => ({ ...prev, booking_notes: e.target.value }))}
+            value={bookingData._booking_notes || ''}
+            onChange={(e) => setBookingData(prev => ({ ...prev, _booking_notes: e.target.value }))}
           />
         </div>
 
@@ -316,11 +316,11 @@ export const AppointmentBookingFlow: React.FC<AppointmentBookingFlowProps> = ({
             <div className="ml-6 space-y-2">
               <Label>Frequency</Label>
               <RadioGroup
-                value={bookingData.recurrence_pattern?.frequency || 'weekly'}
+                value={bookingData._recurrence_pattern?._frequency || 'weekly'}
                 onValueChange={(value) => 
                   setBookingData(prev => ({
                     ...prev,
-                    recurrence_pattern: { ...prev.recurrence_pattern, frequency: value as any }
+                    _recurrence_pattern: { ...prev._recurrence_pattern, _frequency: value as any }
                   }))
                 }
               >
@@ -366,7 +366,7 @@ export const AppointmentBookingFlow: React.FC<AppointmentBookingFlowProps> = ({
           </div>
           <div className="flex justify-between items-center">
             <span className="font-medium">Type:</span>
-            <span>{appointmentTypes.find(t => t.value === bookingData.appointment_type)?.label}</span>
+            <span>{appointmentTypes.find(t => t.value === bookingData._appointment_type)?.label}</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="font-medium">Date & Time:</span>
@@ -380,21 +380,21 @@ export const AppointmentBookingFlow: React.FC<AppointmentBookingFlowProps> = ({
           <div className="flex justify-between items-center">
             <span className="font-medium">Location:</span>
             <Badge variant="outline">
-              {bookingData.location_type === 'in_person' && <MapPin className="h-3 w-3 mr-1" />}
-              {bookingData.location_type === 'telehealth' && <Video className="h-3 w-3 mr-1" />}
-              {bookingData.location_type === 'phone' && <Phone className="h-3 w-3 mr-1" />}
-              {bookingData.location_type?.replace('_', ' ').toUpperCase()}
+              {bookingData._location_type === 'in_person' && <MapPin className="h-3 w-3 mr-1" />}
+              {bookingData._location_type === 'telehealth' && <Video className="h-3 w-3 mr-1" />}
+              {bookingData._location_type === 'phone' && <Phone className="h-3 w-3 mr-1" />}
+              {bookingData._location_type?.replace('_', ' ').toUpperCase()}
             </Badge>
           </div>
           {bookingData.is_recurring && (
             <div className="flex justify-between items-center">
               <span className="font-medium">Recurring:</span>
-              <span className="capitalize">{bookingData.recurrence_pattern?.frequency}</span>
+              <span className="capitalize">{bookingData._recurrence_pattern?._frequency}</span>
             </div>
           )}
         </div>
 
-        {bookingData.location_type === 'telehealth' && (
+        {bookingData._location_type === 'telehealth' && (
           <div className="p-3 bg-blue-50 rounded-lg">
             <p className="text-sm text-blue-800">
               You'll receive a video call link after booking. Please test your camera and microphone before the appointment.

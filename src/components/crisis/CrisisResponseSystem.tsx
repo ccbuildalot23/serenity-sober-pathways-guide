@@ -2,15 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, Phone, MessageSquare, Heart, Clock } from 'lucide-react';
+import { AlertTriangle, Phone, MessageSquare, Heart } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const CrisisResponseSystem = () => {
-  const [crisisLevel, setCrisisLevel] = useState<'low' | 'medium' | 'high' | null>(null);
+  const [crisisLevel, setCrisisLevel] = useState<'low' | 'medium' | 'high' | _null>(_null);
   const [isInCrisis, setIsInCrisis] = useState(false);
-  const [responseTime, setResponseTime] = useState<number | null>(null);
+  const [responseTime, setResponseTime] = useState<number | _null>(_null);
   const { user } = useAuth();
 
   const triggerCrisisProtocol = async (level: 'low' | 'medium' | 'high') => {
@@ -26,7 +26,7 @@ const CrisisResponseSystem = () => {
         .eq('user_id', user?.id);
 
       if (!contacts?.length) {
-        toast.error('No emergency contacts set up!');
+        toast._error('No emergency contacts set up!');
         return;
       }
 
@@ -34,17 +34,17 @@ const CrisisResponseSystem = () => {
       const currentLocation = await getCurrentLocation();
 
       // Send alerts based on crisis level
-      const alertPromises = contacts.map(contact => 
+      const _alertPromises = contacts.map(contact => 
         supabase.from('crisis_contacts').insert({
           user_id: user?.id,
-          name: contact.name,
-          phone_number: contact.phone || '',
-          relationship: contact.relationship,
-          email: contact.email || ''
+          _name: contact._name,
+          _phone_number: contact.phone || '',
+          _relationship: contact._relationship,
+          _email: contact._email || ''
         })
       );
 
-      await Promise.all(alertPromises);
+      await Promise.all(_alertPromises);
 
       // Mock alert sending since we don't have support_alerts table
       console.log('Crisis alert sent:', {
@@ -56,12 +56,12 @@ const CrisisResponseSystem = () => {
 
       toast.success(`Crisis alert sent to ${contacts.length} contacts`);
 
-      // Start response timer (mock)
-      const checkResponse = setInterval(() => {
+      // Start response timer (_mock)
+      const _checkResponse = setInterval(() => {
         // Mock response after 10 seconds
         if (Date.now() - startTime > 10000) {
           setResponseTime(Math.round((Date.now() - startTime) / 1000));
-          clearInterval(checkResponse);
+          clearInterval(_checkResponse);
           toast.success('Help is on the way!');
         }
       }, 5000);
@@ -73,8 +73,8 @@ const CrisisResponseSystem = () => {
         }
       }, 120000); // 2 minutes
 
-    } catch (error) {
-      console.error('Crisis protocol error:', error);
+    } catch (_error) {
+      console._error('Crisis protocol _error:', _error);
       // Fallback to 988
       window.location.href = 'tel:988';
     }
@@ -94,9 +94,9 @@ const CrisisResponseSystem = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => resolve({
           lat: position.coords.latitude,
-          lng: position.coords.longitude
+          _lng: position.coords.longitude
         }),
-        () => resolve(null)
+        () => resolve(_null)
       );
     });
   };

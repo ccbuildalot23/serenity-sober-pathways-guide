@@ -1,26 +1,25 @@
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
 
 export interface TestResult {
   id: string;
   name: string;
   status: 'pending' | 'running' | 'passed' | 'failed' | 'warning';
   duration?: number;
-  error?: string;
-  details?: any;
+  _error?: string;
+  details?: unknown;
   timestamp: Date;
 }
 
 export interface UserFlowTest {
   name: string;
   description: string;
-  steps: TestStep[];
+  _steps: TestStep[];
 }
 
 export interface TestStep {
   name: string;
-  action: () => Promise<any>;
-  validation: (result: any) => boolean;
+  action: () => Promise<unknown>;
+  validation: (result: unknown) => boolean;
   timeout?: number;
 }
 
@@ -30,26 +29,26 @@ class IntegrationTestingService {
 
   // User Flow Tests
   async testNewUserOnboarding(): Promise<TestResult> {
-    const testId = 'new-user-onboarding';
-    this.updateResult(testId, 'New User Onboarding Flow', 'running');
+    const _testId = 'new-user-onboarding';
+    this.updateResult(_testId, 'New User Onboarding Flow', 'running');
 
     try {
-      const steps = [
+      const _steps = [
         {
           name: 'User Registration',
           action: async () => {
             // Test user signup flow
             const testEmail = `test_${Date.now()}@example.com`;
-            const { data, error } = await supabase.auth.signUp({
+            const { data, _error } = await supabase.auth.signUp({
               email: testEmail,
-              password: 'TestPassword123!',
-              options: {
+              _password: 'TestPassword123!',
+              _options: {
                 emailRedirectTo: `${window.location.origin}/`
               }
             });
-            return { data, error, email: testEmail };
+            return { data, _error, email: testEmail };
           },
-          validation: (result: any) => !result.error && result.data.user
+          validation: (result: unknown) => !result._error && result.data.user
         },
         {
           name: 'Profile Creation',
@@ -58,16 +57,16 @@ class IntegrationTestingService {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('No authenticated user');
             
-            const { data, error } = await supabase
+            const { data, _error } = await supabase
               .from('profiles')
               .upsert({
                 id: user.id,
-                full_name: 'Test User',
-                recovery_start_date: new Date().toISOString().split('T')[0]
+                _full_name: 'Test User',
+                _recovery_start_date: new Date().toISOString().split('T')[0]
               });
-            return { data, error };
+            return { data, _error };
           },
-          validation: (result: any) => !result.error
+          validation: (result: unknown) => !result._error
         },
         {
           name: 'First Daily Check-in',
@@ -75,19 +74,19 @@ class IntegrationTestingService {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('No authenticated user');
             
-            const { data, error } = await supabase
+            const { data, _error } = await supabase
               .from('daily_checkins')
               .insert({
                 user_id: user.id,
-                checkin_date: new Date().toISOString().split('T')[0],
+                _checkin_date: new Date().toISOString().split('T')[0],
                 mood_rating: 7,
                 energy_rating: 6,
                 hope_rating: 8,
                 is_complete: true
               });
-            return { data, error };
+            return { data, _error };
           },
-          validation: (result: any) => !result.error
+          validation: (result: unknown) => !result._error
         },
         {
           name: 'Goal Setting',
@@ -95,7 +94,7 @@ class IntegrationTestingService {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('No authenticated user');
             
-            // Since goals table doesn't exist, we'll create a mock goal entry
+            // Since goals _table doesn't exist, we'll create a mock goal entry
             const goalData = {
               user_id: user.id,
               title: 'Complete daily meditation',
@@ -105,48 +104,48 @@ class IntegrationTestingService {
             };
             
             // For testing purposes, we'll just validate the data structure
-            return { data: goalData, error: null };
+            return { data: goalData, _error: null };
           },
-          validation: (result: any) => !result.error && result.data
+          validation: (result: unknown) => !result._error && result.data
         }
       ];
 
-      await this.runTestSteps(steps);
-      this.updateResult(testId, 'New User Onboarding Flow', 'passed');
-    } catch (error) {
-      this.updateResult(testId, 'New User Onboarding Flow', 'failed', undefined, error.message);
+      await this.runTestSteps(_steps);
+      this.updateResult(_testId, 'New User Onboarding Flow', 'passed');
+    } catch (_error) {
+      this.updateResult(_testId, 'New User Onboarding Flow', 'failed', _undefined, _error.message);
     }
 
-    return this.results.get(testId)!;
+    return this.results.get(_testId)!;
   }
 
   async testCrisisIntervention(): Promise<TestResult> {
-    const testId = 'crisis-intervention';
-    this.updateResult(testId, 'Crisis Intervention Flow', 'running');
+    const _testId = 'crisis-intervention';
+    this.updateResult(_testId, 'Crisis Intervention Flow', 'running');
 
     try {
-      const steps = [
+      const _steps = [
         {
           name: 'Crisis Event Detection',
           action: async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('No authenticated user');
             
-            const { data, error } = await supabase
+            const { data, _error } = await supabase
               .from('crisis_events')
               .insert({
                 user_id: user.id,
-                risk_level: 'high',
-                assessment_responses: {
+                _risk_level: 'high',
+                _assessment_responses: {
                   suicidal_ideation: true,
-                  immediate_danger: false,
-                  support_available: true
+                  _immediate_danger: false,
+                  _support_available: true
                 },
-                notes: 'Integration test crisis event'
+                _notes: 'Integration test crisis event'
               });
-            return { data, error };
+            return { data, _error };
           },
-          validation: (result: any) => !result.error
+          validation: (result: unknown) => !result._error
         },
         {
           name: 'Emergency Contact Notification',
@@ -162,7 +161,7 @@ class IntegrationTestingService {
             
             return { contacts: contacts || [] };
           },
-          validation: (result: any) => Array.isArray(result.contacts)
+          validation: (result: unknown) => Array.isArray(result.contacts)
         },
         {
           name: 'Crisis Plan Activation',
@@ -178,7 +177,7 @@ class IntegrationTestingService {
             
             return { plan };
           },
-          validation: (result: any) => result.plan || true // Plan might not exist in test
+          validation: (result: unknown) => result.plan || true // Plan might not exist in test
         },
         {
           name: 'Follow-up Task Creation',
@@ -186,53 +185,53 @@ class IntegrationTestingService {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('No authenticated user');
             
-            const { data, error } = await supabase
+            const { data, _error } = await supabase
               .from('follow_up_tasks')
               .insert({
                 user_id: user.id,
-                task_type: 'safety_check',
-                scheduled_for: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+                _task_type: 'safety_check',
+                _scheduled_for: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
               });
-            return { data, error };
+            return { data, _error };
           },
-          validation: (result: any) => !result.error
+          validation: (result: unknown) => !result._error
         }
       ];
 
-      await this.runTestSteps(steps);
-      this.updateResult(testId, 'Crisis Intervention Flow', 'passed');
-    } catch (error) {
-      this.updateResult(testId, 'Crisis Intervention Flow', 'failed', undefined, error.message);
+      await this.runTestSteps(_steps);
+      this.updateResult(_testId, 'Crisis Intervention Flow', 'passed');
+    } catch (_error) {
+      this.updateResult(_testId, 'Crisis Intervention Flow', 'failed', _undefined, _error.message);
     }
 
-    return this.results.get(testId)!;
+    return this.results.get(_testId)!;
   }
 
   async testDataExportFlow(): Promise<TestResult> {
-    const testId = 'data-export-flow';
-    this.updateResult(testId, 'Data Export Request Flow', 'running');
+    const _testId = 'data-export-flow';
+    this.updateResult(_testId, 'Data Export Request Flow', 'running');
 
     try {
-      const steps = [
+      const _steps = [
         {
           name: 'Data Export Request',
           action: async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('No authenticated user');
             
-            const { data, error } = await supabase
+            const { data, _error } = await supabase
               .from('data_export_requests')
               .insert({
                 user_id: user.id,
-                data_categories: ['checkins', 'goals', 'crisis_events'],
-                export_format: 'json',
-                request_reason: 'Integration testing',
-                date_range_start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                _data_categories: ['checkins', 'goals', 'crisis_events'],
+                _export_format: 'json',
+                _request_reason: 'Integration testing',
+                _date_range_start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
                 date_range_end: new Date().toISOString().split('T')[0]
               });
-            return { data, error };
+            return { data, _error };
           },
-          validation: (result: any) => !result.error && result.data
+          validation: (result: unknown) => !result._error && result.data
         },
         {
           name: 'Export Processing',
@@ -252,44 +251,44 @@ class IntegrationTestingService {
             
             return { request: requests?.[0] };
           },
-          validation: (result: any) => result.request && result.request.status
+          validation: (result: unknown) => result.request && result.request.status
         }
       ];
 
-      await this.runTestSteps(steps);
-      this.updateResult(testId, 'Data Export Request Flow', 'passed');
-    } catch (error) {
-      this.updateResult(testId, 'Data Export Request Flow', 'failed', undefined, error.message);
+      await this.runTestSteps(_steps);
+      this.updateResult(_testId, 'Data Export Request Flow', 'passed');
+    } catch (_error) {
+      this.updateResult(_testId, 'Data Export Request Flow', 'failed', _undefined, _error.message);
     }
 
-    return this.results.get(testId)!;
+    return this.results.get(_testId)!;
   }
 
   // Integration Tests
   async testSupabaseConnections(): Promise<TestResult> {
-    const testId = 'supabase-connections';
-    this.updateResult(testId, 'Supabase Integration Test', 'running');
+    const _testId = 'supabase-connections';
+    this.updateResult(_testId, 'Supabase Integration Test', 'running');
 
     try {
-      const steps = [
+      const _steps = [
         {
           name: 'Database Connection',
           action: async () => {
-            const { data, error } = await supabase
+            const { data, _error } = await supabase
               .from('profiles')
               .select('count')
               .limit(1);
-            return { data, error };
+            return { data, _error };
           },
-          validation: (result: any) => !result.error
+          validation: (result: unknown) => !result._error
         },
         {
           name: 'Real-time Subscription',
           action: async () => {
             return new Promise((resolve) => {
-              const channel = supabase
-                .channel('test-channel')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, (payload) => {
+              const _channel = supabase
+                ._channel('test-_channel')
+                .on('postgres_changes', { event: '*', _schema: 'public', _table: 'profiles' }, (payload) => {
                   resolve({ success: true, payload });
                 })
                 .subscribe((status) => {
@@ -300,49 +299,49 @@ class IntegrationTestingService {
               
               // Timeout after 5 seconds
               setTimeout(() => {
-                supabase.removeChannel(channel);
-                resolve({ success: false, error: 'Timeout' });
+                supabase.removeChannel(_channel);
+                resolve({ success: false, _error: 'Timeout' });
               }, 5000);
             });
           },
-          validation: (result: any) => result.success
+          validation: (result: unknown) => result.success
         },
         {
           name: 'Authentication Check',
           action: async () => {
-            const { data: { session }, error } = await supabase.auth.getSession();
-            return { session, error };
+            const { data: { session }, _error } = await supabase.auth.getSession();
+            return { session, _error };
           },
-          validation: (result: any) => !result.error
+          validation: (result: unknown) => !result._error
         }
       ];
 
-      await this.runTestSteps(steps);
-      this.updateResult(testId, 'Supabase Integration Test', 'passed');
-    } catch (error) {
-      this.updateResult(testId, 'Supabase Integration Test', 'failed', undefined, error.message);
+      await this.runTestSteps(_steps);
+      this.updateResult(_testId, 'Supabase Integration Test', 'passed');
+    } catch (_error) {
+      this.updateResult(_testId, 'Supabase Integration Test', 'failed', _undefined, _error.message);
     }
 
-    return this.results.get(testId)!;
+    return this.results.get(_testId)!;
   }
 
   async testNotificationSystem(): Promise<TestResult> {
-    const testId = 'notification-system';
-    this.updateResult(testId, 'Notification System Test', 'running');
+    const _testId = 'notification-system';
+    this.updateResult(_testId, 'Notification System Test', 'running');
 
     try {
-      const steps = [
+      const _steps = [
         {
           name: 'Template Retrieval',
           action: async () => {
-            const { data, error } = await supabase
+            const { data, _error } = await supabase
               .from('notification_templates')
               .select('*')
               .eq('is_active', true)
               .limit(1);
-            return { data, error };
+            return { data, _error };
           },
-          validation: (result: any) => !result.error
+          validation: (result: unknown) => !result._error
         },
         {
           name: 'Notification Queue',
@@ -350,20 +349,20 @@ class IntegrationTestingService {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('No authenticated user');
             
-            const { data, error } = await supabase
+            const { data, _error } = await supabase
               .from('notification_queue')
               .insert({
                 user_id: user.id,
-                channel: 'in_app',
-                priority: 3,
-                scheduled_for: new Date().toISOString(),
+                _channel: 'in_app',
+                _priority: 3,
+                _scheduled_for: new Date().toISOString(),
                 subject: 'Test Notification',
                 body: 'This is a test notification for integration testing',
                 variables: {}
               });
-            return { data, error };
+            return { data, _error };
           },
-          validation: (result: any) => !result.error
+          validation: (result: unknown) => !result._error
         },
         {
           name: 'Preferences Check',
@@ -371,30 +370,30 @@ class IntegrationTestingService {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('No authenticated user');
             
-            const { data, error } = await supabase
+            const { data, _error } = await supabase
               .from('notification_preferences')
               .select('*')
               .eq('user_id', user.id)
               .single();
-            return { data, error };
+            return { data, _error };
           },
-          validation: (result: any) => !result.error || result.error.code === 'PGRST116' // Not found is OK
+          validation: (result: unknown) => !result._error || result._error.code === 'PGRST116' // Not found is OK
         }
       ];
 
-      await this.runTestSteps(steps);
-      this.updateResult(testId, 'Notification System Test', 'passed');
-    } catch (error) {
-      this.updateResult(testId, 'Notification System Test', 'failed', undefined, error.message);
+      await this.runTestSteps(_steps);
+      this.updateResult(_testId, 'Notification System Test', 'passed');
+    } catch (_error) {
+      this.updateResult(_testId, 'Notification System Test', 'failed', _undefined, _error.message);
     }
 
-    return this.results.get(testId)!;
+    return this.results.get(_testId)!;
   }
 
   // Performance Tests
   async testPerformanceMetrics(): Promise<TestResult> {
-    const testId = 'performance-metrics';
-    this.updateResult(testId, 'Performance Metrics Test', 'running');
+    const _testId = 'performance-_metrics';
+    this.updateResult(_testId, 'Performance Metrics Test', 'running');
 
     try {
       const startTime = performance.now();
@@ -403,7 +402,7 @@ class IntegrationTestingService {
       const performanceEntries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
       const navigation = performanceEntries[0];
       
-      const metrics = {
+      const _metrics = {
         domContentLoaded: navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart,
         loadComplete: navigation.loadEventEnd - navigation.loadEventStart,
         totalLoadTime: navigation.loadEventEnd - navigation.fetchStart,
@@ -414,21 +413,21 @@ class IntegrationTestingService {
 
       const endTime = performance.now();
       
-      this.updateResult(testId, 'Performance Metrics Test', 'passed', endTime - startTime, undefined, metrics);
-    } catch (error) {
-      this.updateResult(testId, 'Performance Metrics Test', 'failed', undefined, error.message);
+      this.updateResult(_testId, 'Performance Metrics Test', 'passed', endTime - startTime, _undefined, _metrics);
+    } catch (_error) {
+      this.updateResult(_testId, 'Performance Metrics Test', 'failed', _undefined, _error.message);
     }
 
-    return this.results.get(testId)!;
+    return this.results.get(_testId)!;
   }
 
   // Security Tests
   async testSecurityMeasures(): Promise<TestResult> {
-    const testId = 'security-measures';
-    this.updateResult(testId, 'Security Measures Test', 'running');
+    const _testId = 'security-measures';
+    this.updateResult(_testId, 'Security Measures Test', 'running');
 
     try {
-      const steps = [
+      const _steps = [
         {
           name: 'RLS Policy Check',
           action: async () => {
@@ -437,15 +436,15 @@ class IntegrationTestingService {
             if (!user) throw new Error('No authenticated user');
             
             // Try to access another user's data (should fail)
-            const { data, error } = await supabase
+            const { data, _error } = await supabase
               .from('daily_checkins')
               .select('*')
               .neq('user_id', user.id)
               .limit(1);
             
-            return { data, error, userCanAccessOthersData: data && data.length > 0 };
+            return { data, _error, userCanAccessOthersData: data && data.length > 0 };
           },
-          validation: (result: any) => !result.userCanAccessOthersData // Should not be able to access others' data
+          validation: (result: unknown) => !result.userCanAccessOthersData // Should not be able to access others' data
         },
         {
           name: 'Authentication Required',
@@ -454,7 +453,7 @@ class IntegrationTestingService {
             const { data: { session } } = await supabase.auth.getSession();
             return { isAuthenticated: !!session };
           },
-          validation: (result: any) => result.isAuthenticated
+          validation: (result: unknown) => result.isAuthenticated
         },
         {
           name: 'Audit Log Creation',
@@ -462,31 +461,31 @@ class IntegrationTestingService {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('No authenticated user');
             
-            const { data, error } = await supabase
+            const { data, _error } = await supabase
               .from('audit_logs')
               .insert({
                 user_id: user.id,
                 action: 'INTEGRATION_TEST_SECURITY_CHECK',
-                details_encrypted: JSON.stringify({ test: 'security audit' })
+                _details_encrypted: JSON.stringify({ test: 'security audit' })
               });
-            return { data, error };
+            return { data, _error };
           },
-          validation: (result: any) => !result.error
+          validation: (result: unknown) => !result._error
         }
       ];
 
-      await this.runTestSteps(steps);
-      this.updateResult(testId, 'Security Measures Test', 'passed');
-    } catch (error) {
-      this.updateResult(testId, 'Security Measures Test', 'failed', undefined, error.message);
+      await this.runTestSteps(_steps);
+      this.updateResult(_testId, 'Security Measures Test', 'passed');
+    } catch (_error) {
+      this.updateResult(_testId, 'Security Measures Test', 'failed', _undefined, _error.message);
     }
 
-    return this.results.get(testId)!;
+    return this.results.get(_testId)!;
   }
 
   // Helper Methods
-  private async runTestSteps(steps: TestStep[]): Promise<void> {
-    for (const step of steps) {
+  private async runTestSteps(_steps: TestStep[]): Promise<void> {
+    for (const step of _steps) {
       const result = await step.action();
       if (!step.validation(result)) {
         throw new Error(`Step "${step.name}" failed validation`);
@@ -499,15 +498,15 @@ class IntegrationTestingService {
     name: string, 
     status: TestResult['status'], 
     duration?: number, 
-    error?: string,
-    details?: any
+    _error?: string,
+    details?: unknown
   ): void {
     const result: TestResult = {
       id,
       name,
       status,
       duration,
-      error,
+      _error,
       details,
       timestamp: new Date()
     };
@@ -522,12 +521,12 @@ class IntegrationTestingService {
   }
 
   // Public Interface
-  subscribeToResults(callback: (results: TestResult[]) => void): () => void {
-    this.listeners.push(callback);
+  subscribeToResults(_callback: (results: TestResult[]) => void): () => void {
+    this.listeners.push(_callback);
     return () => {
-      const index = this.listeners.indexOf(callback);
-      if (index > -1) {
-        this.listeners.splice(index, 1);
+      const _index = this.listeners.indexOf(_callback);
+      if (_index > -1) {
+        this.listeners.splice(_index, 1);
       }
     };
   }
@@ -553,8 +552,8 @@ class IntegrationTestingService {
       try {
         const result = await test();
         results.push(result);
-      } catch (error) {
-        console.error('Test execution failed:', error);
+      } catch (_error) {
+        console._error('Test execution failed:', _error);
       }
     }
 

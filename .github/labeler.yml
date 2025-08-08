@@ -1,0 +1,77 @@
+# Configuration for GitHub Labeler action
+frontend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/**/*.tsx'
+      - 'src/**/*.ts'
+      - 'src/**/*.css'
+
+backend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'api/**/*'
+      - 'server/**/*'
+
+components:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/components/**/*'
+
+hooks:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/hooks/**/*'
+
+utils:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/lib/**/*'
+      - 'src/utils/**/*'
+
+tests:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'tests/**/*'
+      - '**/*.test.ts'
+      - '**/*.test.tsx'
+      - '**/*.spec.ts'
+      - '**/*.spec.tsx'
+
+documentation:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/*.md'
+      - 'docs/**/*'
+
+configuration:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '*.json'
+      - '*.yaml'
+      - '*.yml'
+      - '.github/**/*'
+
+dependencies:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'package-lock.json'
+
+accessibility:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/components/accessibility/**/*'
+      - 'tests/accessibility/**/*'
+
+security:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/lib/security/**/*'
+      - 'src/utils/security/**/*'
+
+performance:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/lib/performance/**/*'
+      - 'src/utils/performance/**/*'

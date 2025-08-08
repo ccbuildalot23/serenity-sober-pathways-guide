@@ -25,7 +25,7 @@ export const ProviderRegistrationForm: React.FC<ProviderRegistrationFormProps> =
   });
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | _null>(_null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,20 +35,20 @@ export const ProviderRegistrationForm: React.FC<ProviderRegistrationFormProps> =
     }
 
     setIsLoading(true);
-    setError(null);
+    setError(_null);
 
     try {
       const { error: submitError } = await supabase
         .from('provider_registration_requests')
         .insert({
           user_id: user.id,
-          email: user.email || '',
-          full_name: formData.fullName,
-          license_number: formData.licenseNumber,
-          license_state: formData.licenseState,
-          practice_name: formData.practiceName,
-          practice_address: formData.practiceAddress,
-          phone_number: formData.phoneNumber
+          _email: user._email || '',
+          _full_name: formData.fullName,
+          _license_number: formData.licenseNumber,
+          _license_state: formData.licenseState,
+          _practice_name: formData.practiceName,
+          _practice_address: formData.practiceAddress,
+          _phone_number: formData.phoneNumber
         });
 
       if (submitError) throw submitError;

@@ -4,13 +4,13 @@ import { serverSideEncryption } from '@/lib/serverSideEncryption';
 export interface AccountabilityPartnership {
   id: string;
   requester_id: string;
-  partner_id: string;
+  _partner_id: string;
   status: 'pending' | 'accepted' | 'rejected' | 'inactive';
   created_at: string;
-  accepted_at?: string;
-  partnership_agreement: any;
-  check_in_schedule: any;
-  privacy_settings: {
+  _accepted_at?: string;
+  _partnership_agreement: unknown;
+  _check_in_schedule: unknown;
+  _privacy_settings: {
     share_mood: boolean;
     share_progress: boolean;
     share_goals: boolean;
@@ -22,9 +22,9 @@ export interface AccountabilityPartnership {
 export interface PartnershipCheckIn {
   id: string;
   partnership_id: string;
-  user_id: string;
-  checkin_date: string;
-  shared_summary: any;
+  _user_id: string;
+  _checkin_date: string;
+  _shared_summary: unknown;
   acknowledged_by_partner: boolean;
 }
 
@@ -32,30 +32,30 @@ export interface SupportAgreementTemplate {
   id: string;
   title: string;
   description: string;
-  template_content: any;
+  template_content: unknown;
   is_default: boolean;
 }
 
 export class AccountabilityService {
   // Get user's partnerships
-  static async getUserPartnerships(userId: string): Promise<AccountabilityPartnership[]> {
-    const { data, error } = await supabase
+  static async getUserPartnerships(_userId: string): Promise<AccountabilityPartnership[]> {
+    const { data, _error } = await supabase
       .from('accountability_partnerships')
       .select('*')
-      .or(`requester_id.eq.${userId},partner_id.eq.${userId}`)
+      .or(`requester_id.eq.${_userId},_partner_id.eq.${_userId}`)
       .eq('status', 'accepted')
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (_error) throw _error;
     return (data || []) as unknown as AccountabilityPartnership[];
   }
 
   // Request new partnership
   static async requestPartnership(
-    partnerId: string, 
-    agreementTemplate: any,
-    checkInSchedule: any,
-    privacySettings: any
+    _partnerId: string, 
+    agreementTemplate: unknown,
+    checkInSchedule: unknown,
+    privacySettings: unknown
   ): Promise<void> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
@@ -63,22 +63,22 @@ export class AccountabilityService {
     // Encrypt the agreement for privacy
     const encryptedAgreement = await serverSideEncryption.encrypt(JSON.stringify(agreementTemplate));
 
-    const { error } = await supabase
+    const { _error } = await supabase
       .from('accountability_partnerships')
       .insert({
         requester_id: user.id,
-        partner_id: partnerId,
-        partnership_agreement: agreementTemplate,
-        encrypted_agreement_hash: encryptedAgreement,
-        check_in_schedule: checkInSchedule,
-        privacy_settings: privacySettings
+        _partner_id: _partnerId,
+        _partnership_agreement: agreementTemplate,
+        _encrypted_agreement_hash: encryptedAgreement,
+        _check_in_schedule: checkInSchedule,
+        _privacy_settings: privacySettings
       });
 
-    if (error) throw error;
+    if (_error) throw _error;
 
     // Send notification to potential partner
     await this.sendNotification(
-      partnerId,
+      _partnerId,
       user.id,
       'partnership_request',
       'You have a new accountability partnership request'
@@ -86,23 +86,23 @@ export class AccountabilityService {
   }
 
   // Accept partnership request
-  static async acceptPartnership(partnershipId: string): Promise<void> {
-    const { error } = await supabase
+  static async acceptPartnership(_partnershipId: string): Promise<void> {
+    const { _error } = await supabase
       .from('accountability_partnerships')
       .update({ 
         status: 'accepted',
-        accepted_at: new Date().toISOString()
+        _accepted_at: new Date().toISOString()
       })
-      .eq('id', partnershipId);
+      .eq('id', _partnershipId);
 
-    if (error) throw error;
+    if (_error) throw _error;
   }
 
   // Submit encrypted check-in
   static async submitCheckIn(
-    partnershipId: string,
-    sensitiveData: any,
-    publicSummary: any
+    _partnershipId: string,
+    sensitiveData: unknown,
+    _publicSummary: unknown
   ): Promise<void> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
@@ -110,123 +110,123 @@ export class AccountabilityService {
     // Encrypt sensitive data
     const encryptedData = await serverSideEncryption.encrypt(JSON.stringify(sensitiveData));
 
-    const { error } = await supabase
+    const { _error } = await supabase
       .from('partnership_checkins')
       .insert({
-        partnership_id: partnershipId,
-        user_id: user.id,
-        checkin_date: new Date().toISOString().split('T')[0],
+        partnership_id: _partnershipId,
+        _user_id: user.id,
+        _checkin_date: new Date().toISOString().split('T')[0],
         encrypted_data: encryptedData,
-        shared_summary: publicSummary
+        _shared_summary: _publicSummary
       });
 
-    if (error) throw error;
+    if (_error) throw _error;
 
     // Get partnership details to notify partner
     const { data: partnership } = await supabase
       .from('accountability_partnerships')
-      .select('requester_id, partner_id, privacy_settings')
-      .eq('id', partnershipId)
+      .select('requester_id, _partner_id, _privacy_settings')
+      .eq('id', _partnershipId)
       .single();
 
     if (partnership) {
-      const partnerId = partnership.requester_id === user.id 
-        ? partnership.partner_id 
+      const _partnerId = partnership.requester_id === user.id 
+        ? partnership._partner_id 
         : partnership.requester_id;
 
       // Send privacy-respecting notification
-      const message = this.createPrivacyRespectingMessage(
+      const _message = this.createPrivacyRespectingMessage(
         'checkin_completed',
-        partnership.privacy_settings,
-        publicSummary
+        partnership._privacy_settings,
+        _publicSummary
       );
 
-      await this.sendNotification(partnerId, user.id, 'checkin_completed', message);
+      await this.sendNotification(_partnerId, user.id, 'checkin_completed', _message);
     }
   }
 
   // Get partner's check-ins (only shared summary)
-  static async getPartnerCheckIns(partnershipId: string): Promise<PartnershipCheckIn[]> {
-    const { data, error } = await supabase
+  static async getPartnerCheckIns(_partnershipId: string): Promise<PartnershipCheckIn[]> {
+    const { data, _error } = await supabase
       .from('partnership_checkins')
-      .select('id, partnership_id, user_id, checkin_date, shared_summary, acknowledged_by_partner')
-      .eq('partnership_id', partnershipId)
-      .order('checkin_date', { ascending: false })
+      .select('id, partnership_id, _user_id, _checkin_date, _shared_summary, acknowledged_by_partner')
+      .eq('partnership_id', _partnershipId)
+      .order('_checkin_date', { ascending: false })
       .limit(30);
 
-    if (error) throw error;
+    if (_error) throw _error;
     return data || [];
   }
 
   // Get support agreement templates
   static async getSupportAgreementTemplates(): Promise<SupportAgreementTemplate[]> {
-    const { data, error } = await supabase
+    const { data, _error } = await supabase
       .from('support_agreement_templates')
       .select('*')
       .eq('is_default', true)
       .order('title');
 
-    if (error) throw error;
+    if (_error) throw _error;
     return data || [];
   }
 
   // Get user's own encrypted check-in data
-  static async getUserCheckInData(partnershipId: string, date: string): Promise<any> {
+  static async getUserCheckInData(_partnershipId: string, _date: string): Promise<unknown> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await supabase
+    const { data, _error } = await supabase
       .from('partnership_checkins')
       .select('encrypted_data')
-      .eq('partnership_id', partnershipId)
-      .eq('user_id', user.id)
-      .eq('checkin_date', date)
+      .eq('partnership_id', _partnershipId)
+      .eq('_user_id', user.id)
+      .eq('_checkin_date', _date)
       .single();
 
-    if (error) throw error;
+    if (_error) throw _error;
     if (!data?.encrypted_data) return null;
 
     // Decrypt the user's own data
-    const decryptedData = await serverSideEncryption.decrypt(data.encrypted_data);
-    return JSON.parse(decryptedData);
+    const _decryptedData = await serverSideEncryption.decrypt(data.encrypted_data);
+    return JSON.parse(_decryptedData);
   }
 
   // Send privacy-respecting notification
   private static async sendNotification(
     recipientId: string,
     senderId: string,
-    type: string,
-    message: string
+    _type: string,
+    _message: string
   ): Promise<void> {
     // First check if there's an active partnership
     const { data: partnership } = await supabase
       .from('accountability_partnerships')
       .select('id')
-      .or(`requester_id.eq.${recipientId},partner_id.eq.${recipientId}`)
-      .or(`requester_id.eq.${senderId},partner_id.eq.${senderId}`)
+      .or(`requester_id.eq.${recipientId},_partner_id.eq.${recipientId}`)
+      .or(`requester_id.eq.${senderId},_partner_id.eq.${senderId}`)
       .eq('status', 'accepted')
       .single();
 
-    const { error } = await supabase
+    const { _error } = await supabase
       .from('partnership_notifications')
       .insert({
         partnership_id: partnership?.id,
-        recipient_id: recipientId,
-        sender_id: senderId,
-        notification_type: type,
-        message: message
+        _recipient_id: recipientId,
+        _sender_id: senderId,
+        _notification_type: _type,
+        _message: _message
       });
 
-    if (error) console.error('Failed to send notification:', error);
+    if (_error) console._error('Failed to send notification:', _error);
   }
 
   // Create privacy-respecting messages
   private static createPrivacyRespectingMessage(
-    type: string,
-    privacySettings: any,
-    data: any
+    _type: string,
+    privacySettings: unknown,
+    data: unknown
   ): string {
-    switch (type) {
+    switch (_type) {
       case 'checkin_completed':
         if (privacySettings.notification_level === 'minimal') {
           return 'Your accountability partner completed their check-in';
@@ -237,14 +237,14 @@ export class AccountabilityService {
           return `Your accountability partner completed their check-in${mood}`;
         } else {
           // Detailed level - still respect individual privacy settings
-          let message = 'Your accountability partner completed their check-in';
+          let _message = 'Your accountability partner completed their check-in';
           if (privacySettings.share_mood && data.mood_level) {
-            message += ` and is feeling ${data.mood_level}`;
+            _message += ` and is feeling ${data.mood_level}`;
           }
           if (privacySettings.share_progress && data.progress_summary) {
-            message += `. ${data.progress_summary}`;
+            _message += `. ${data.progress_summary}`;
           }
-          return message;
+          return _message;
         }
       
       case 'streak_milestone':
@@ -258,48 +258,48 @@ export class AccountabilityService {
   }
 
   // Get unread notifications
-  static async getUnreadNotifications(userId: string) {
-    const { data, error } = await supabase
+  static async getUnreadNotifications(_userId: string) {
+    const { data, _error } = await supabase
       .from('partnership_notifications')
       .select('*')
-      .eq('recipient_id', userId)
+      .eq('_recipient_id', _userId)
       .eq('is_read', false)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (_error) throw _error;
     return data || [];
   }
 
   // Mark notification as read
-  static async markNotificationRead(notificationId: string): Promise<void> {
-    const { error } = await supabase
+  static async markNotificationRead(_notificationId: string): Promise<void> {
+    const { _error } = await supabase
       .from('partnership_notifications')
       .update({ is_read: true })
-      .eq('id', notificationId);
+      .eq('id', _notificationId);
 
-    if (error) throw error;
+    if (_error) throw _error;
   }
 
   // Calculate partnership streak
-  static async calculatePartnershipStreak(partnershipId: string, userId: string): Promise<number> {
-    const { data, error } = await supabase
+  static async calculatePartnershipStreak(_partnershipId: string, _userId: string): Promise<number> {
+    const { data, _error } = await supabase
       .from('partnership_checkins')
-      .select('checkin_date')
-      .eq('partnership_id', partnershipId)
-      .eq('user_id', userId)
-      .order('checkin_date', { ascending: false });
+      .select('_checkin_date')
+      .eq('partnership_id', _partnershipId)
+      .eq('_user_id', _userId)
+      .order('_checkin_date', { ascending: false });
 
-    if (error) throw error;
+    if (_error) throw _error;
     if (!data || data.length === 0) return 0;
 
     let streak = 0;
-    const today = new Date();
+    const _today = new Date();
     
     for (let i = 0; i < data.length; i++) {
-      const expectedDate = new Date(today);
+      const expectedDate = new Date(_today);
       expectedDate.setDate(expectedDate.getDate() - i);
       
-      const checkInDate = new Date(data[i].checkin_date);
+      const checkInDate = new Date(data[i]._checkin_date);
       
       if (checkInDate.toDateString() === expectedDate.toDateString()) {
         streak++;

@@ -12,6 +12,22 @@ dist
 dist-ssr
 *.local
 
+# CRITICAL: Environment variables (HIPAA Compliance)
+.env
+.env.local
+.env.production
+.env.development
+.env.staging
+*.key
+*.pem
+*.p12
+
+# Secrets and credentials
+secrets/
+.secrets
+auth-keys/
+credentials.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -22,5 +38,128 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
 # Compiled JS artifacts
 src/**/*.js
+
+# Database and cache
+*.sqlite
+*.db
+.cache/
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+.vercel
+
+# Build system and package manager artifacts
+bun.lockb
+.vite/
+*.tsbuildinfo
+.turbo/
+.next/
+coverage/
+.nyc_output/
+
+# IDE and tooling
+.claude/
+*.swp
+*.swo
+*~
+
+# OS artifacts
+Thumbs.db
+ehthumbs.db
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Temporary output files
+nul
+*.tmp
+*.temp
+
+# Mobile build artifacts
+android/app/build/
+android/app/src/main/assets/
+android/capacitor-cordova-android-plugins/
+ios/capacitor-cordova-ios-plugins/
+ios/App/App/public/
+android/app/src/main/res/xml/config.xml
+ios/App/App/config.xml
+ios/App/App/capacitor.config.json
+
+# Development and testing artifacts  
+.bmad-workflows/
+mcp-app-store-tests.json
+app-store-screenshots/
+
+# Playwright/E2E test artifacts (do not track)
+playwright-report/
+test-results/
+TEST_RESULTS_SUMMARY.md
+test-results.xml
+test-results.json
+
+# Supabase temp files
+supabase/.temp/
+supabase/functions/*/config.toml
+
+# ===== CRITICAL DEPLOYMENT PROTECTION =====
+# These rules prevent MCP/React project mixing that causes deployment failures
+
+# Prevent MCP server files in main src/ directory
+/src/index.ts
+/src/crisis-handler.ts
+/src/types.ts
+# Only allow MCP files in their proper location
+!/serenity-crisis-mcp/src/*.ts
+
+# Protect critical config files from being overwritten
+# These should NEVER be changed by MCP server configs
+/tsconfig.json.mcp-backup
+/package.json.mcp-backup
+
+# Validation and fix scripts (should be tracked)
+!/scripts/validate-structure.cjs
+!/scripts/fix-deployment.cjs
+!/scripts/pre-commit-check.js
+
+# MCP server build artifacts (keep isolated)
+serenity-crisis-mcp/dist/
+serenity-crisis-mcp/node_modules/
+serenity-crisis-mcp/.env
+
+# Test files for MCP (keep in MCP directory only)
+/test-*.mjs
+/test-*.js
+!/serenity-crisis-mcp/test-*.mjs
+!/serenity-crisis-mcp/test-*.js
+
+# Claude Flow generated files
+.claude/settings.local.json
+.mcp.json
+claude-flow.config.json
+.swarm/
+.hive-mind/
+memory/claude-flow-data.json
+memory/sessions/*
+!memory/sessions/README.md
+memory/agents/*
+!memory/agents/README.md
+coordination/memory_bank/*
+coordination/subtasks/*
+coordination/orchestration/*
+*.db
+*.db-journal
+*.db-wal
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+claude-flow
+claude-flow.bat
+claude-flow.ps1
+hive-mind-prompt-*.txt

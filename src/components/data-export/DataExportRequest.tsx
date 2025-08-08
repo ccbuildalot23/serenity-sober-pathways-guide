@@ -14,20 +14,20 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 
 const DATA_CATEGORIES = [
-  { id: 'profile', label: 'Profile Information', description: 'Basic profile and preferences' },
-  { id: 'checkins', label: 'Daily Check-ins', description: 'Mood, energy, and wellness data' },
-  { id: 'crisis', label: 'Crisis Events', description: 'Crisis intervention history' },
-  { id: 'assessments', label: 'Clinical Assessments', description: 'PHQ-9, GAD-7, and other assessments' },
-  { id: 'goals', label: 'Recovery Goals', description: 'Goals and progress tracking' },
-  { id: 'contacts', label: 'Emergency Contacts', description: 'Crisis support contacts' },
-  { id: 'audit', label: 'Audit Logs', description: 'Account access and security logs' }
+  { id: 'profile', label: 'Profile Information', _description: 'Basic profile and preferences' },
+  { id: 'checkins', label: 'Daily Check-ins', _description: 'Mood, energy, and wellness data' },
+  { id: 'crisis', label: 'Crisis Events', _description: 'Crisis intervention history' },
+  { id: 'assessments', label: 'Clinical Assessments', _description: 'PHQ-9, GAD-7, and other assessments' },
+  { id: 'goals', label: 'Recovery Goals', _description: 'Goals and progress tracking' },
+  { id: 'contacts', label: 'Emergency Contacts', _description: 'Crisis support contacts' },
+  { id: 'audit', label: 'Audit Logs', _description: 'Account access and security logs' }
 ];
 
 const EXPORT_FORMATS = [
-  { value: 'json', label: 'JSON', description: 'Machine-readable structured data' },
-  { value: 'csv', label: 'CSV', description: 'Spreadsheet-compatible format' },
-  { value: 'pdf', label: 'PDF', description: 'Human-readable document' },
-  { value: 'ccd', label: 'CCD', description: 'Clinical continuity document' }
+  { value: 'json', label: 'JSON', _description: 'Machine-readable structured data' },
+  { value: 'csv', label: 'CSV', _description: 'Spreadsheet-compatible _format' },
+  { value: 'pdf', label: 'PDF', _description: 'Human-readable document' },
+  { value: 'ccd', label: 'CCD', _description: 'Clinical continuity document' }
 ];
 
 const EXPORT_REASONS = [
@@ -46,33 +46,33 @@ export const DataExportRequest: React.FC = () => {
   
   const [formData, setFormData] = useState<Partial<ExportRequest>>({
     reason: '',
-    format: 'json',
-    categories: [],
-    dateRange: undefined,
-    requiresApproval: false
+    _format: 'json',
+    _categories: [],
+    _dateRange: undefined,
+    _requiresApproval: false
   });
   
   const [customReason, setCustomReason] = useState('');
-  const [dateRange, setDateRange] = useState({ start: '', end: '' });
+  const [_dateRange, setDateRange] = useState({ _start: '', _end: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState<'request' | 'confirmation' | 'submitted'>('request');
 
   const handleCategoryChange = (categoryId: string, checked: boolean) => {
     const newCategories = checked
-      ? [...(formData.categories || []), categoryId]
-      : (formData.categories || []).filter(id => id !== categoryId);
+      ? [...(formData._categories || []), categoryId]
+      : (formData._categories || []).filter(id => id !== categoryId);
     
-    setFormData(prev => ({ ...prev, categories: newCategories }));
+    setFormData(prev => ({ ...prev, _categories: newCategories }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.categories?.length) {
+    if (!formData._categories?.length) {
       toast({
         title: "Selection Required",
-        description: "Please select at least one data category to export.",
-        variant: "destructive"
+        _description: "Please select at least one data category to export.",
+        _variant: "destructive"
       });
       return;
     }
@@ -80,8 +80,8 @@ export const DataExportRequest: React.FC = () => {
     if (!formData.reason) {
       toast({
         title: "Reason Required",
-        description: "Please specify a reason for the data export request.",
-        variant: "destructive"
+        _description: "Please specify a reason for the data export request.",
+        _variant: "destructive"
       });
       return;
     }
@@ -94,35 +94,35 @@ export const DataExportRequest: React.FC = () => {
     
     try {
       const finalReason = formData.reason === 'Other (please specify)' ? customReason : formData.reason!;
-      const finalDateRange = dateRange.start && dateRange.end ? dateRange : undefined;
+      const finalDateRange = _dateRange._start && _dateRange._end ? _dateRange : undefined;
       
       const requestId = await HIPAADataExportService.createExportRequest({
         reason: finalReason,
-        format: formData.format!,
-        categories: formData.categories!,
-        dateRange: finalDateRange,
-        requiresApproval: formData.categories?.includes('audit') || false
+        _format: formData._format!,
+        _categories: formData._categories!,
+        _dateRange: finalDateRange,
+        _requiresApproval: formData._categories?.includes('audit') || false
       });
 
       await logSecurityEvent('DATA_EXPORT_REQUEST_SUBMITTED', {
         requestId,
-        categories: formData.categories,
-        format: formData.format,
-        dateRange: finalDateRange
+        _categories: formData._categories,
+        _format: formData._format,
+        _dateRange: finalDateRange
       });
 
       toast({
         title: "Export Request Submitted",
-        description: "Your data export request has been submitted successfully. You'll receive an email when it's ready.",
+        _description: "Your data export request has been submitted successfully. You'll receive an email when it's ready.",
       });
 
       setStep('submitted');
-    } catch (error) {
-      console.error('Failed to submit export request:', error);
+    } catch (_error) {
+      console._error('Failed to submit export request:', _error);
       toast({
         title: "Request Failed",
-        description: "Failed to submit export request. Please try again.",
-        variant: "destructive"
+        _description: "Failed to submit export request. Please try again.",
+        _variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
@@ -154,7 +154,7 @@ export const DataExportRequest: React.FC = () => {
           <p className="text-sm text-muted-foreground">
             Processing typically takes 24-48 hours. You'll receive a secure download link via email when ready.
           </p>
-          <Button onClick={() => setStep('request')} variant="outline">
+          <Button onClick={() => setStep('request')} _variant="outline">
             Submit Another Request
           </Button>
         </CardContent>
@@ -182,13 +182,13 @@ export const DataExportRequest: React.FC = () => {
           <div className="space-y-4">
             <div>
               <Label className="font-medium">Export Format</Label>
-              <p className="text-sm text-muted-foreground">{formData.format?.toUpperCase()}</p>
+              <p className="text-sm text-muted-foreground">{formData._format?.toUpperCase()}</p>
             </div>
 
             <div>
               <Label className="font-medium">Data Categories</Label>
               <ul className="text-sm text-muted-foreground mt-1">
-                {formData.categories?.map(cat => {
+                {formData._categories?.map(cat => {
                   const category = DATA_CATEGORIES.find(c => c.id === cat);
                   return <li key={cat}>• {category?.label}</li>;
                 })}
@@ -202,11 +202,11 @@ export const DataExportRequest: React.FC = () => {
               </p>
             </div>
 
-            {dateRange.start && dateRange.end && (
+            {_dateRange._start && _dateRange._end && (
               <div>
                 <Label className="font-medium">Date Range</Label>
                 <p className="text-sm text-muted-foreground">
-                  {dateRange.start} to {dateRange.end}
+                  {_dateRange._start} to {_dateRange._end}
                 </p>
               </div>
             )}
@@ -216,7 +216,7 @@ export const DataExportRequest: React.FC = () => {
             <Button onClick={handleConfirmSubmission} disabled={isSubmitting} className="flex-1">
               {isSubmitting ? 'Submitting...' : 'Confirm Export Request'}
             </Button>
-            <Button onClick={() => setStep('request')} variant="outline">
+            <Button onClick={() => setStep('request')} _variant="outline">
               Back to Edit
             </Button>
           </div>
@@ -240,19 +240,19 @@ export const DataExportRequest: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Export Format */}
           <div className="space-y-3">
-            <Label htmlFor="format">Export Format</Label>
-            <Select value={formData.format} onValueChange={(value) => 
-              setFormData(prev => ({ ...prev, format: value as any }))
+            <Label htmlFor="_format">Export Format</Label>
+            <Select value={formData._format} onValueChange={(value) => 
+              setFormData(prev => ({ ...prev, _format: value as any }))
             }>
               <SelectTrigger>
-                <SelectValue placeholder="Select export format" />
+                <SelectValue placeholder="Select export _format" />
               </SelectTrigger>
               <SelectContent>
-                {EXPORT_FORMATS.map(format => (
-                  <SelectItem key={format.value} value={format.value}>
+                {EXPORT_FORMATS.map(_format => (
+                  <SelectItem key={_format.value} value={_format.value}>
                     <div>
-                      <div className="font-medium">{format.label}</div>
-                      <div className="text-xs text-muted-foreground">{format.description}</div>
+                      <div className="font-medium">{_format.label}</div>
+                      <div className="text-xs text-muted-foreground">{_format._description}</div>
                     </div>
                   </SelectItem>
                 ))}
@@ -265,17 +265,17 @@ export const DataExportRequest: React.FC = () => {
             <Label>Data Categories to Include</Label>
             <div className="grid grid-cols-1 gap-3">
               {DATA_CATEGORIES.map(category => (
-                <div key={category.id} className="flex items-start space-x-3 p-3 border rounded-lg">
+                <div key={category.id} className="flex items-_start space-x-3 p-3 border rounded-lg">
                   <Checkbox
                     id={category.id}
-                    checked={formData.categories?.includes(category.id)}
+                    checked={formData._categories?.includes(category.id)}
                     onCheckedChange={(checked) => handleCategoryChange(category.id, checked as boolean)}
                   />
                   <div className="flex-1">
                     <Label htmlFor={category.id} className="font-medium cursor-pointer">
                       {category.label}
                     </Label>
-                    <p className="text-xs text-muted-foreground mt-1">{category.description}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{category._description}</p>
                   </div>
                 </div>
               ))}
@@ -284,24 +284,24 @@ export const DataExportRequest: React.FC = () => {
 
           {/* Date Range */}
           <div className="space-y-3">
-            <Label>Date Range (Optional)</Label>
+            <Label>Date Range (_Optional)</Label>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label htmlFor="start-date" className="text-sm">Start Date</Label>
+                <Label htmlFor="_start-date" className="text-sm">Start Date</Label>
                 <Input
-                  id="start-date"
+                  id="_start-date"
                   type="date"
-                  value={dateRange.start}
-                  onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+                  value={_dateRange._start}
+                  onChange={(e) => setDateRange(prev => ({ ...prev, _start: e.target.value }))}
                 />
               </div>
               <div>
-                <Label htmlFor="end-date" className="text-sm">End Date</Label>
+                <Label htmlFor="_end-date" className="text-sm">End Date</Label>
                 <Input
-                  id="end-date"
+                  id="_end-date"
                   type="date"
-                  value={dateRange.end}
-                  onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+                  value={_dateRange._end}
+                  onChange={(e) => setDateRange(prev => ({ ...prev, _end: e.target.value }))}
                 />
               </div>
             </div>

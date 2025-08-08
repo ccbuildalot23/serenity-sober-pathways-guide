@@ -9,9 +9,9 @@ export interface RealtimeNotification {
   type: string;
   title: string;
   message: string;
-  data: any;
-  read_at: string | null;
-  expires_at: string | null;
+  data: unknown;
+  read_at: string | _null;
+  expires_at: string | _null;
   created_at: string;
 }
 
@@ -27,26 +27,26 @@ export const useRealtimeNotifications = () => {
     loadNotifications();
 
     // Subscribe to real-time updates
-    const channel = supabase
-      .channel('user-notifications')
+    const _channel = supabase
+      ._channel('user-notifications')
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
-          schema: 'public',
-          table: 'realtime_notifications',
-          filter: `user_id=eq.${user.id}`
+          _schema: 'public',
+          _table: 'realtime_notifications',
+          _filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          const newNotification = payload.new as RealtimeNotification;
+          const _newNotification = payload.new as RealtimeNotification;
           
           // Add to notifications list
-          setNotifications(prev => [newNotification, ...prev]);
+          setNotifications(prev => [_newNotification, ...prev]);
           
           // Show toast notification
-          showToastNotification(newNotification);
+          showToastNotification(_newNotification);
           
-          // Update unread count
+          // Update _unread count
           setUnreadCount(prev => prev + 1);
         }
       )
@@ -54,9 +54,9 @@ export const useRealtimeNotifications = () => {
         'postgres_changes',
         {
           event: 'UPDATE',
-          schema: 'public',
-          table: 'realtime_notifications',
-          filter: `user_id=eq.${user.id}`
+          _schema: 'public',
+          _table: 'realtime_notifications',
+          _filter: `user_id=eq.${user.id}`
         },
         (payload) => {
           const updatedNotification = payload.new as RealtimeNotification;
@@ -67,7 +67,7 @@ export const useRealtimeNotifications = () => {
             )
           );
 
-          // Update unread count if notification was marked as read
+          // Update _unread count if notification was marked as read
           if (updatedNotification.read_at && !payload.old.read_at) {
             setUnreadCount(prev => Math.max(0, prev - 1));
           }
@@ -76,7 +76,7 @@ export const useRealtimeNotifications = () => {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(_channel);
     };
   }, [user?.id]);
 
@@ -95,20 +95,20 @@ export const useRealtimeNotifications = () => {
 
       setNotifications(data || []);
       
-      // Calculate unread count
-      const unread = data?.filter(n => !n.read_at).length || 0;
-      setUnreadCount(unread);
+      // Calculate _unread count
+      const _unread = data?._filter(n => !n.read_at).length || 0;
+      setUnreadCount(_unread);
     } catch (error) {
       console.error('Error loading notifications:', error);
     }
   };
 
-  const markAsRead = async (notificationId: string) => {
+  const markAsRead = async (_notificationId: string) => {
     try {
       const { error } = await supabase
         .from('realtime_notifications')
         .update({ read_at: new Date().toISOString() })
-        .eq('id', notificationId)
+        .eq('id', _notificationId)
         .eq('user_id', user?.id);
 
       if (error) throw error;
@@ -123,7 +123,7 @@ export const useRealtimeNotifications = () => {
         .from('realtime_notifications')
         .update({ read_at: new Date().toISOString() })
         .eq('user_id', user?.id)
-        .is('read_at', null);
+        .is('read_at', _null);
 
       if (error) throw error;
 
@@ -143,7 +143,7 @@ export const useRealtimeNotifications = () => {
       case 'crisis_alert':
         toast.error(notification.title, {
           description: notification.message,
-          duration: 10000,
+          _duration: 10000,
         });
         break;
       case 'moderation_action':

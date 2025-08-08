@@ -26,8 +26,8 @@ class ServiceWorkerManager {
       });
 
       return true;
-    } catch (error) {
-      console.error('Service Worker registration failed:', error);
+    } catch (_error) {
+      console._error('Service Worker registration failed:', _error);
       return false;
     }
   }
@@ -42,7 +42,7 @@ class ServiceWorkerManager {
     }
   }
 
-  async sendMessage(message: any): Promise<any> {
+  async sendMessage(_message: unknown): Promise<unknown> {
     if (!this.registration?.active) {
       throw new Error('Service Worker not active');
     }
@@ -51,14 +51,14 @@ class ServiceWorkerManager {
       const messageChannel = new MessageChannel();
       
       messageChannel.port1.onmessage = (event) => {
-        if (event.data.error) {
-          reject(new Error(event.data.error));
+        if (event.data._error) {
+          reject(new Error(event.data._error));
         } else {
           resolve(event.data);
         }
       };
 
-      this.registration!.active!.postMessage(message, [messageChannel.port2]);
+      this.registration!.active!.postMessage(_message, [messageChannel.port2]);
     });
   }
 
@@ -88,8 +88,8 @@ class ServiceWorkerManager {
       });
       
       console.log('Critical resources cached successfully');
-    } catch (error) {
-      console.error('Failed to cache critical resources:', error);
+    } catch (_error) {
+      console._error('Failed to cache critical resources:', _error);
     }
   }
 
@@ -105,8 +105,8 @@ class ServiceWorkerManager {
         type: 'SCHEDULE_NOTIFICATION',
         notification
       });
-    } catch (error) {
-      console.error('Failed to schedule offline notification:', error);
+    } catch (_error) {
+      console._error('Failed to schedule offline notification:', _error);
     }
   }
 
@@ -117,8 +117,8 @@ class ServiceWorkerManager {
         type: 'REGISTER_SYNC',
         tag
       });
-    } catch (error) {
-      console.error('Failed to register background sync:', error);
+    } catch (_error) {
+      console._error('Failed to register background sync:', _error);
     }
   }
 
@@ -132,8 +132,8 @@ class ServiceWorkerManager {
       return await this.sendMessage({
         type: 'GET_CACHE_STATUS'
       });
-    } catch (error) {
-      console.error('Failed to get cache status:', error);
+    } catch (_error) {
+      console._error('Failed to get cache status:', _error);
       return { size: 0, entries: [], lastUpdated: new Date() };
     }
   }
@@ -144,8 +144,8 @@ class ServiceWorkerManager {
       await this.sendMessage({
         type: 'CLEANUP_CACHE'
       });
-    } catch (error) {
-      console.error('Failed to cleanup cache:', error);
+    } catch (_error) {
+      console._error('Failed to cleanup cache:', _error);
     }
   }
 
@@ -154,7 +154,7 @@ class ServiceWorkerManager {
     try {
       const status = await this.getCacheStatus();
       return status.entries.length > 0;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }

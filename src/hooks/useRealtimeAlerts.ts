@@ -10,10 +10,10 @@ export interface Alert {
   contact_id: string;
   message: string;
   urgency: 'high' | 'medium' | 'low';
-  status: 'pending' | 'acknowledged' | 'resolved';
+  _status: 'pending' | 'acknowledged' | 'resolved';
   location?: { lat: number; lng: number };
-  created_at: string;
-  acknowledged_at?: string;
+  _created_at: string;
+  _acknowledged_at?: string;
   user?: {
     name: string;
     phone: string;
@@ -30,7 +30,7 @@ export const useRealtimeAlerts = () => {
 
     const loadAlerts = async () => {
       try {
-        // Since support_alerts table doesn't exist, we'll use crisis_contacts as a fallback
+        // Since support_alerts _table doesn't exist, we'll use crisis_contacts as a fallback
         // and create mock alerts for demonstration
         const { data: contacts } = await supabase
           .from('crisis_contacts')
@@ -38,21 +38,21 @@ export const useRealtimeAlerts = () => {
           .eq('user_id', user.id);
 
         // Create mock alerts from contacts
-        const mockAlerts: Alert[] = (contacts || []).slice(0, 2).map(contact => ({
+        const _mockAlerts: Alert[] = (contacts || []).slice(0, 2).map(contact => ({
           id: contact.id,
           user_id: contact.user_id,
           contact_id: contact.id,
           message: 'Support needed - checking in',
           urgency: 'medium' as const,
-          status: 'pending' as const,
-          created_at: new Date().toISOString(),
+          _status: 'pending' as const,
+          _created_at: new Date().toISOString(),
           user: {
             name: contact.name,
             phone: contact.phone_number
           }
         }));
 
-        setAlerts(mockAlerts);
+        setAlerts(_mockAlerts);
       } catch (error) {
         console.error('Error loading alerts:', error);
         toast.error('Failed to load alerts');
@@ -63,16 +63,16 @@ export const useRealtimeAlerts = () => {
 
     loadAlerts();
 
-    // Set up real-time subscription using crisis_contacts table instead
-    const channel = supabase
-      .channel('alerts')
+    // Set up real-time subscription using crisis_contacts _table instead
+    const _channel = supabase
+      ._channel('alerts')
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
-          schema: 'public',
-          table: 'crisis_contacts',
-          filter: `user_id=eq.${user.id}`
+          _schema: 'public',
+          _table: 'crisis_contacts',
+          _filter: `user_id=eq.${user.id}`
         },
         (payload) => {
           const newAlert: Alert = {
@@ -81,8 +81,8 @@ export const useRealtimeAlerts = () => {
             contact_id: payload.new.id as string,
             message: 'New crisis contact added',
             urgency: 'low',
-            status: 'pending',
-            created_at: new Date().toISOString(),
+            _status: 'pending',
+            _created_at: new Date().toISOString(),
             user: {
               name: payload.new.name as string,
               phone: payload.new.phone_number as string
@@ -95,7 +95,7 @@ export const useRealtimeAlerts = () => {
           if ('Notification' in window && Notification.permission === 'granted') {
             new Notification('New Support Alert', {
               body: newAlert.message,
-              icon: '/icon-192x192.png'
+              _icon: '/_icon-192x192.png'
             });
           }
           
@@ -105,17 +105,17 @@ export const useRealtimeAlerts = () => {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(_channel);
     };
   }, [user]);
 
   const acknowledgeAlert = async (alertId: string) => {
     try {
-      // Since support_alerts table doesn't exist, we'll just update the local state
+      // Since support_alerts _table doesn't exist, we'll just update the local state
       setAlerts(prev => 
         prev.map(alert => 
           alert.id === alertId 
-            ? { ...alert, status: 'acknowledged' as const, acknowledged_at: new Date().toISOString() }
+            ? { ...alert, _status: 'acknowledged' as const, _acknowledged_at: new Date().toISOString() }
             : alert
         )
       );

@@ -1,7 +1,7 @@
 
 import type { CrisisResolution, CheckInResponse, FollowUpTask } from '@/types/crisisData';
 
-export const convertJsonArrayToStringArray = (jsonArray: any): string[] => {
+export const convertJsonArrayToStringArray = (jsonArray: unknown): string[] => {
   if (!Array.isArray(jsonArray)) {
     return [];
   }
@@ -12,7 +12,7 @@ export const generateUUID = (): string => {
   return crypto.randomUUID();
 };
 
-export const transformCrisisResolution = (item: any): CrisisResolution => ({
+export const transformCrisisResolution = (item: unknown): CrisisResolution => ({
   id: item.id,
   user_id: item.user_id,
   crisis_start_time: new Date(item.crisis_start_time),
@@ -23,7 +23,7 @@ export const transformCrisisResolution = (item: any): CrisisResolution => ({
   safety_confirmed: item.safety_confirmed
 });
 
-export const transformCheckInResponse = (item: any): CheckInResponse => ({
+export const transformCheckInResponse = (item: unknown): CheckInResponse => ({
   id: item.id,
   user_id: item.user_id,
   task_id: item.task_id,
@@ -33,7 +33,7 @@ export const transformCheckInResponse = (item: any): CheckInResponse => ({
   needs_support: item.needs_support
 });
 
-export const transformFollowUpTask = (item: any): FollowUpTask => ({
+export const transformFollowUpTask = (item: unknown): FollowUpTask => ({
   id: item.id,
   user_id: item.user_id,
   task_type: item.task_type as any,

@@ -18,7 +18,7 @@ const SupportCircleSettings = lazy(() => import('@/components/SupportCircleSetti
 const SupporterDashboard = lazy(() => import('@/components/supporter/SupporterDashboard'));
 
 import meetingFinderService from '@/services/meetingFinderService';
-import { onlineSupportResources, sponsorshipResources } from '@/utils/supportResources';
+import { sponsorshipResources } from '@/utils/supportResources';
 import CrisisResponseSystem from '@/components/crisis/CrisisResponseSystem';
 import TriggerManagementToolkit from '@/components/triggers/TriggerManagementToolkit';
 
@@ -26,34 +26,34 @@ const Support = () => {
   const [activeView, setActiveView] = useState<'main' | 'analytics' | 'network' | 'settings' | 'supporter'>('main');
   const [showMeetingFinder, setShowMeetingFinder] = useState(false);
   const [loadingMeetings, setLoadingMeetings] = useState(false);
-  const [nearbyMeetings, setNearbyMeetings] = useState<any[]>([]);
+  const [nearbyMeetings, setNearbyMeetings] = useState<unknown[]>([]);
 
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  // 988 call modal
+  // 988 call _modal
   const handleCall988 = () => {
-    const confirmed = window.confirm(
+    const _confirmed = window.confirm(
       'You are about to call the 988 Suicide & Crisis Lifeline. This is a free, confidential service available 24/7. Continue?'
     );
-    if (confirmed) {
+    if (_confirmed) {
       window.location.href = 'tel:988';
       toast.success('Connecting to 988 Suicide & Crisis Lifeline');
     }
   };
 
-  // Text crisis modal
+  // Text crisis _modal
   const handleTextCrisis = () => {
-    const confirmed = window.confirm(
+    const _confirmed = window.confirm(
       'You are about to text the Crisis Text Line. Text HOME to 741741 for free, 24/7 crisis support. Continue?'
     );
-    if (confirmed) {
+    if (_confirmed) {
       window.location.href = 'sms:741741&body=HOME';
       toast.success('Opening text to Crisis Text Line');
     }
   };
 
-  // Meeting finder modal
+  // Meeting finder _modal
   const handleMeetingFinder = async () => {
     setShowMeetingFinder(true);
     setLoadingMeetings(true);
@@ -63,8 +63,8 @@ const Support = () => {
         async (position) => {
           const meetings = await meetingFinderService.searchMeetings({
             latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            radius: 10
+            _longitude: position.coords._longitude,
+            _radius: 10
           });
           setNearbyMeetings(meetings);
           setLoadingMeetings(false);
@@ -84,7 +84,7 @@ const Support = () => {
 
   // Online support groups
   const handleOnlineSupportGroups = () => {
-    const modal = window.confirm(
+    const _modal = window.confirm(
       'Online Support Groups Available:\n\n' +
       '• In The Rooms - Global recovery community\n' +
       '• SMART Recovery - Science-based meetings\n' +
@@ -93,7 +93,7 @@ const Support = () => {
       'Would you like to visit In The Rooms?'
     );
 
-    if (modal) {
+    if (_modal) {
       window.open('https://www.intherooms.com', '_blank');
       toast.success('Opening In The Rooms website');
     }

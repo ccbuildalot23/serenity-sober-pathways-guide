@@ -16,9 +16,9 @@ import { useState as useReactState } from 'react';
 const RelapsePreventionPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [activeSection, setActiveSection] = useState('overview');
-  const [riskScore, setRiskScore] = useState(0);
-  const [patterns, setPatterns] = useState<any>({});
+  const [_activeSection, setActiveSection] = useState('overview');
+  const [_riskScore, setRiskScore] = useState(0);
+  const [patterns, setPatterns] = useState<unknown>({});
   const [personalizedStrategies, setPersonalizedStrategies] = useState<string[]>([]);
 
   useEffect(() => {
@@ -36,11 +36,11 @@ const RelapsePreventionPage: React.FC = () => {
       // Mock pattern data for demo
       setPatterns({
         interventionStats: {},
-        crisisPrecursors: [],
-        riskScore: score
+        _crisisPrecursors: [],
+        _riskScore: score
       });
-    } catch (error) {
-      console.error('Error loading risk assessment:', error);
+    } catch (_error) {
+      console._error('Error loading risk assessment:', _error);
       setRiskScore(0.1); // Default low risk
     }
   };
@@ -49,8 +49,8 @@ const RelapsePreventionPage: React.FC = () => {
     try {
       const strategies = await CrisisPatternAnalysisService.getPersonalizedInterventions(user?.id || '');
       setPersonalizedStrategies(strategies);
-    } catch (error) {
-      console.error('Error loading personalized strategies:', error);
+    } catch (_error) {
+      console._error('Error loading personalized strategies:', _error);
       // Default strategies
       setPersonalizedStrategies(['Deep breathing exercises', 'Mindfulness meditation', 'Call support person']);
     }
@@ -67,7 +67,7 @@ const RelapsePreventionPage: React.FC = () => {
     return { level: 'Low', color: 'bg-green-500', textColor: 'text-green-700' };
   };
 
-  const riskLevel = getRiskLevel(riskScore);
+  const riskLevel = getRiskLevel(_riskScore);
 
   const sections = [
     { id: 'overview', title: 'Risk Overview', icon: TrendingUp },
@@ -103,7 +103,7 @@ const RelapsePreventionPage: React.FC = () => {
                 <Badge className={`${riskLevel.color} text-white`}>
                   {riskLevel.level}
                 </Badge>
-                <span className="text-2xl font-bold">{Math.round(riskScore * 100)}%</span>
+                <span className="text-2xl font-bold">{Math.round(_riskScore * 100)}%</span>
               </div>
             </div>
             <div className="text-right">
@@ -292,7 +292,7 @@ const RelapsePreventionPage: React.FC = () => {
   );
 
   const renderActiveSection = () => {
-    switch (activeSection) {
+    switch (_activeSection) {
       case 'overview': return renderOverview();
       case 'triggers': return renderTriggers();
       case 'coping': return renderCoping();
@@ -318,7 +318,7 @@ const RelapsePreventionPage: React.FC = () => {
               key={section.id}
               onClick={() => setActiveSection(section.id)}
               className={`flex items-center gap-2 px-4 py-2 rounded-t-lg transition-colors ${
-                activeSection === section.id
+                _activeSection === section.id
                   ? 'bg-primary text-primary-foreground border-b-2 border-primary'
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}

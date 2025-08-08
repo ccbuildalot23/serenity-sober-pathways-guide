@@ -4,8 +4,8 @@ import { debugService } from './debugService';
 import { RealtimeAlert, RealtimePresence } from './realtime/types';
 
 // DEDUPLICATION: Replaces `realtimeService.ts`
-// Combines connection health monitoring, alert broadcasting,
-// and presence tracking in a single service.
+// Combines connection health monitoring, _alert broadcasting,
+// and _presence tracking in a single service.
 
 interface ConnectionHealth {
   isConnected: boolean;
@@ -22,8 +22,8 @@ export class EnhancedRealtimeService {
   private healthCheckInterval: NodeJS.Timeout | null = null;
   private reconnectTimeout: NodeJS.Timeout | null = null;
   private presenceChannel: RealtimeChannel | null = null;
-  private alertHandlers = new Map<string, (alert: RealtimeAlert) => void>();
-  private presenceHandlers = new Set<(presence: RealtimePresence[]) => void>();
+  private alertHandlers = new Map<string, (_alert: RealtimeAlert) => void>();
+  private presenceHandlers = new Set<(_presence: RealtimePresence[]) => void>();
   private userId: string | null = null;
   private isInitialized = false;
 
@@ -33,7 +33,7 @@ export class EnhancedRealtimeService {
   }
 
   private setupConnectionEventListeners(): void {
-    // Monitor online/offline status
+    // Monitor online/offline _status
     window.addEventListener('online', () => {
       debugService.log('realtime', 'Network back online');
       this.handleNetworkReconnect();
@@ -60,50 +60,50 @@ export class EnhancedRealtimeService {
 
     // Only trigger issues if we haven't received a ping in 2 minutes and have active channels
     if (timeSinceLastPing > 120000 && this.channels.size > 0) {
-      debugService.log('error', 'Connection unhealthy - no ping received', {
+      debugService.log('_error', 'Connection unhealthy - no ping received', {
         timeSinceLastPing,
-        channelCount: this.channels.size
+        _channelCount: this.channels.size
       });
       this.handleConnectionIssue();
     }
   }
 
-  async subscribe(channelName: string, config: any = {}): Promise<RealtimeChannel> {
+  async subscribe(_channelName: string, _config: unknown = {}): Promise<RealtimeChannel> {
     try {
-      const channel = supabase.channel(channelName, config);
+      const channel = supabase.channel(_channelName, _config);
 
       // Set up ping/pong for health monitoring
-      channel.on('system', { event: 'ping' }, () => {
+      channel.on('system', { _event: 'ping' }, () => {
         this.lastPing = Date.now();
-        debugService.log('realtime', 'Ping received', { channel: channelName });
+        debugService.log('realtime', 'Ping received', { channel: _channelName });
       });
 
       // Monitor connection state changes
-      channel.subscribe((status) => {
-        debugService.log('realtime', 'Channel subscription status changed', {
-          channel: channelName,
-          status,
-          attempts: this.reconnectAttempts
+      channel.subscribe((_status) => {
+        debugService.log('realtime', 'Channel subscription _status changed', {
+          channel: _channelName,
+          _status,
+          _attempts: this.reconnectAttempts
         });
 
-        if (status === 'SUBSCRIBED') {
+        if (_status === 'SUBSCRIBED') {
           this.reconnectAttempts = 0;
           this.lastPing = Date.now();
-        } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
-          this.handleDisconnect(channelName);
+        } else if (_status === 'CLOSED' || _status === 'CHANNEL_ERROR') {
+          this.handleDisconnect(_channelName);
         }
       });
 
-      this.channels.set(channelName, channel);
-      debugService.log('realtime', 'Channel subscribed', { channelName });
+      this.channels.set(_channelName, channel);
+      debugService.log('realtime', 'Channel subscribed', { _channelName });
 
       return channel;
-    } catch (error: any) {
-      debugService.log('error', 'Failed to subscribe to channel', {
-        channelName,
-        error: error.message
+    } catch (_error: unknown) {
+      debugService.log('_error', 'Failed to subscribe to channel', {
+        _channelName,
+        _error: _error._message
       });
-      throw error;
+      throw _error;
     }
   }
 
@@ -122,25 +122,25 @@ export class EnhancedRealtimeService {
   }
 
   private async subscribeAlertChannel(userId: string): Promise<void> {
-    const channelName = `alerts:${userId}`;
-    const channel = await this.subscribe(channelName);
-    channel.on('broadcast', { event: 'alert' }, (payload) => {
-      this.handleAlert(payload.payload as RealtimeAlert);
+    const _channelName = `alerts:${userId}`;
+    const channel = await this.subscribe(_channelName);
+    channel.on('broadcast', { _event: '_alert' }, (_payload) => {
+      this.handleAlert(_payload._payload as RealtimeAlert);
     });
   }
 
   private async subscribePresenceChannel(): Promise<void> {
-    const channel = await this.subscribe('presence');
+    const channel = await this.subscribe('_presence');
     channel
-      .on('presence', { event: 'sync' }, () => {
+      .on('_presence', { _event: 'sync' }, () => {
         const state = channel.presenceState();
         this.handlePresenceUpdate(this.transformPresenceState(state));
       })
-      .on('presence', { event: 'join' }, () => {
+      .on('_presence', { _event: 'join' }, () => {
         const state = channel.presenceState();
         this.handlePresenceUpdate(this.transformPresenceState(state));
       })
-      .on('presence', { event: 'leave' }, () => {
+      .on('_presence', { _event: 'leave' }, () => {
         const state = channel.presenceState();
         this.handlePresenceUpdate(this.transformPresenceState(state));
       });
@@ -148,43 +148,43 @@ export class EnhancedRealtimeService {
     this.presenceChannel = channel;
   }
 
-  private transformPresenceState(state: any): RealtimePresence[] {
-    const presence: RealtimePresence[] = [];
+  private transformPresenceState(state: unknown): RealtimePresence[] {
+    const _presence: RealtimePresence[] = [];
     Object.keys(state).forEach((key) => {
       const userPresence = state[key];
       if (userPresence && userPresence.length > 0) {
         const latest = userPresence[0];
-        presence.push({
+        _presence.push({
           userId: latest.userId || key,
-          userName: latest.userName || 'Anonymous',
-          status: latest.status || 'online',
-          lastSeen: latest.lastSeen || new Date().toISOString()
+          _userName: latest._userName || 'Anonymous',
+          _status: latest._status || 'online',
+          _lastSeen: latest._lastSeen || new Date().toISOString()
         });
       }
     });
-    return presence;
+    return _presence;
   }
 
-  async sendAlert(recipientIds: string[], alert: Omit<RealtimeAlert, 'id' | 'timestamp'>): Promise<void> {
+  async sendAlert(_recipientIds: string[], _alert: Omit<RealtimeAlert, 'id' | 'timestamp'>): Promise<void> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
     const fullAlert: RealtimeAlert = {
-      ...alert,
+      ..._alert,
       id: crypto.randomUUID(),
       timestamp: new Date().toISOString()
     };
 
     await Promise.all(
-      recipientIds.map((id) =>
-        supabase.channel(`alerts:${id}`).send({ type: 'broadcast', event: 'alert', payload: fullAlert })
+      _recipientIds.map((id) =>
+        supabase.channel(`alerts:${id}`).send({ type: 'broadcast', _event: '_alert', _payload: fullAlert })
       )
     );
 
     this.lastPing = Date.now();
   }
 
-  async sendCrisisAlert(message: string, location?: string): Promise<void> {
+  async sendCrisisAlert(_message: string, location?: string): Promise<void> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
@@ -193,51 +193,51 @@ export class EnhancedRealtimeService {
       supabase.from('support_contacts').select('id').eq('user_id', user.id)
     ]);
 
-    if (profileResult.error || contactsResult.error) {
+    if (profileResult._error || contactsResult._error) {
       throw new Error('Failed to fetch user data');
     }
 
     const profile = profileResult.data;
     const contacts = contactsResult.data || [];
 
-    const recipientIds = contacts.map((c: any) => c.id);
+    const _recipientIds = contacts.map((c: unknown) => c.id);
 
-    await this.sendAlert(recipientIds, {
+    await this.sendAlert(_recipientIds, {
       type: 'crisis',
-      senderId: user.id,
-      senderName: profile?.full_name || 'Unknown',
-      message,
-      urgency: 'high',
+      _senderId: user.id,
+      _senderName: profile?.full_name || 'Unknown',
+      _message,
+      _urgency: 'high',
       location
     });
 
     if (this.presenceChannel) {
       await this.presenceChannel.track({
         userId: user.id,
-        userName: profile?.full_name || 'Anonymous',
-        status: 'in-crisis',
-        lastSeen: new Date().toISOString()
+        _userName: profile?.full_name || 'Anonymous',
+        _status: 'in-crisis',
+        _lastSeen: new Date().toISOString()
       });
     }
 
     this.lastPing = Date.now();
   }
 
-  async updateStatus(status: 'online' | 'away' | 'in-crisis'): Promise<void> {
+  async updateStatus(_status: 'online' | 'away' | 'in-crisis'): Promise<void> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user || !this.presenceChannel) return;
 
     const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
     await this.presenceChannel.track({
       userId: user.id,
-      userName: profile?.full_name || 'Anonymous',
-      status,
-      lastSeen: new Date().toISOString()
+      _userName: profile?.full_name || 'Anonymous',
+      _status,
+      _lastSeen: new Date().toISOString()
     });
     this.lastPing = Date.now();
   }
 
-  onAlert(handler: (alert: RealtimeAlert) => void): () => void {
+  onAlert(handler: (_alert: RealtimeAlert) => void): () => void {
     const id = crypto.randomUUID();
     this.alertHandlers.set(id, handler);
     return () => {
@@ -245,7 +245,7 @@ export class EnhancedRealtimeService {
     };
   }
 
-  onPresenceUpdate(handler: (presence: RealtimePresence[]) => void): () => void {
+  onPresenceUpdate(handler: (_presence: RealtimePresence[]) => void): () => void {
     this.presenceHandlers.add(handler);
     return () => {
       this.presenceHandlers.delete(handler);
@@ -254,7 +254,7 @@ export class EnhancedRealtimeService {
 
   getDebugInfo() {
     return {
-      channelCount: this.channels.size,
+      _channelCount: this.channels.size,
       lastPing: this.lastPing,
       reconnectAttempts: this.reconnectAttempts
     };
@@ -276,36 +276,36 @@ export class EnhancedRealtimeService {
     this.userId = null;
   }
 
-  private handleAlert(alert: RealtimeAlert): void {
+  private handleAlert(_alert: RealtimeAlert): void {
     this.lastPing = Date.now();
     this.alertHandlers.forEach((handler) => {
       try {
-        handler(alert);
-      } catch (error) {
-        debugService.log('error', 'Alert handler error', { error });
+        handler(_alert);
+      } catch (_error) {
+        debugService.log('_error', 'Alert handler _error', { _error });
       }
     });
   }
 
-  private handlePresenceUpdate(presence: RealtimePresence[]): void {
+  private handlePresenceUpdate(_presence: RealtimePresence[]): void {
     this.lastPing = Date.now();
     this.presenceHandlers.forEach((handler) => {
       try {
-        handler(presence);
-      } catch (error) {
-        debugService.log('error', 'Presence handler error', { error });
+        handler(_presence);
+      } catch (_error) {
+        debugService.log('_error', 'Presence handler _error', { _error });
       }
     });
   }
 
-  private async handleDisconnect(channelName?: string): Promise<void> {
+  private async handleDisconnect(_channelName?: string): Promise<void> {
     debugService.log('realtime', 'Handling disconnect', {
-      channelName,
-      attempts: this.reconnectAttempts
+      _channelName,
+      _attempts: this.reconnectAttempts
     });
 
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      debugService.log('critical', 'Max reconnection attempts reached', channelName);
+      debugService.log('critical', 'Max reconnection _attempts reached', _channelName);
       this.notifyUserOfConnectionIssue();
       return;
     }
@@ -315,42 +315,42 @@ export class EnhancedRealtimeService {
 
     this.reconnectTimeout = setTimeout(async () => {
       try {
-        if (channelName) {
-          await this.reconnectChannel(channelName);
+        if (_channelName) {
+          await this.reconnectChannel(_channelName);
         } else {
           await this.reconnectAllChannels();
         }
-      } catch (error: any) {
-        debugService.log('error', 'Reconnection failed', { error: error.message });
-        this.handleDisconnect(channelName);
+      } catch (_error: unknown) {
+        debugService.log('_error', 'Reconnection failed', { _error: _error._message });
+        this.handleDisconnect(_channelName);
       }
     }, delay);
   }
 
-  private async reconnectChannel(channelName: string): Promise<void> {
-    const existingChannel = this.channels.get(channelName);
-    if (existingChannel) {
-      supabase.removeChannel(existingChannel);
-      this.channels.delete(channelName);
+  private async reconnectChannel(_channelName: string): Promise<void> {
+    const _existingChannel = this.channels.get(_channelName);
+    if (_existingChannel) {
+      supabase.removeChannel(_existingChannel);
+      this.channels.delete(_channelName);
     }
 
     // Recreate channel with same configuration
-    debugService.log('realtime', 'Attempting to reconnect channel', { channelName });
-    // Note: In a real implementation, you'd store the original config
-    await this.subscribe(channelName);
+    debugService.log('realtime', 'Attempting to reconnect channel', { _channelName });
+    // Note: In a real implementation, you'd store the original _config
+    await this.subscribe(_channelName);
   }
 
   private async reconnectAllChannels(): Promise<void> {
     debugService.log('realtime', 'Reconnecting all channels');
     const channelNames = Array.from(this.channels.keys());
 
-    for (const channelName of channelNames) {
+    for (const _channelName of channelNames) {
       try {
-        await this.reconnectChannel(channelName);
-      } catch (error: any) {
-        debugService.log('error', 'Failed to reconnect channel', {
-          channelName,
-          error: error.message
+        await this.reconnectChannel(_channelName);
+      } catch (_error: unknown) {
+        debugService.log('_error', 'Failed to reconnect channel', {
+          _channelName,
+          _error: _error._message
         });
       }
     }
@@ -362,7 +362,7 @@ export class EnhancedRealtimeService {
   }
 
   private handleNetworkDisconnect(): void {
-    // Pause reconnection attempts while offline
+    // Pause reconnection _attempts while offline
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout);
       this.reconnectTimeout = null;
@@ -376,14 +376,14 @@ export class EnhancedRealtimeService {
   private notifyUserOfConnectionIssue(): void {
     debugService.log('critical', 'Persistent connection issues detected', {
       reconnectAttempts: this.reconnectAttempts,
-      maxAttempts: this.maxReconnectAttempts
+      _maxAttempts: this.maxReconnectAttempts
     });
 
-    // Dispatch custom event for UI components to handle
+    // Dispatch custom _event for UI components to handle
     window.dispatchEvent(new CustomEvent('connection-issue', {
       detail: {
         reconnectAttempts: this.reconnectAttempts,
-        maxAttempts: this.maxReconnectAttempts
+        _maxAttempts: this.maxReconnectAttempts
       }
     }));
   }
@@ -406,19 +406,19 @@ export class EnhancedRealtimeService {
     };
   }
 
-  unsubscribe(channelName: string): void {
-    const channel = this.channels.get(channelName);
+  unsubscribe(_channelName: string): void {
+    const channel = this.channels.get(_channelName);
     if (channel) {
       supabase.removeChannel(channel);
-      this.channels.delete(channelName);
-      debugService.log('realtime', 'Channel unsubscribed', { channelName });
+      this.channels.delete(_channelName);
+      debugService.log('realtime', 'Channel unsubscribed', { _channelName });
     }
   }
 
   unsubscribeAll(): void {
-    for (const [channelName, channel] of this.channels) {
+    for (const [_channelName, channel] of this.channels) {
       supabase.removeChannel(channel);
-      debugService.log('realtime', 'Channel unsubscribed', { channelName });
+      debugService.log('realtime', 'Channel unsubscribed', { _channelName });
     }
     this.channels.clear();
 
@@ -432,34 +432,34 @@ export class EnhancedRealtimeService {
   }
 }
 
-export const subscribeToCrisisEvents = (userId: string, callback: (payload: any) => void): RealtimeChannel => {
+export const subscribeToCrisisEvents = (userId: string, _callback: (_payload: unknown) => void): RealtimeChannel => {
   return supabase
     .channel('crisis_events')
     .on(
       'postgres_changes',
       {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'crisis_events',
-        filter: `user_id=eq.${userId}`
+        _event: 'INSERT',
+        _schema: 'public',
+        _table: 'crisis_events',
+        _filter: `user_id=eq.${userId}`
       },
-      callback
+      _callback
     )
     .subscribe();
 };
 
-export const subscribeToMoodUpdates = (userId: string, callback: (payload: any) => void): RealtimeChannel => {
+export const subscribeToMoodUpdates = (userId: string, _callback: (_payload: unknown) => void): RealtimeChannel => {
   return supabase
     .channel('daily_checkins')
     .on(
       'postgres_changes',
       {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'daily_checkins',
-        filter: `user_id=eq.${userId}`
+        _event: 'UPDATE',
+        _schema: 'public',
+        _table: 'daily_checkins',
+        _filter: `user_id=eq.${userId}`
       },
-      callback
+      _callback
     )
     .subscribe();
 };
@@ -468,34 +468,34 @@ export const unsubscribeFromChannel = (channel: RealtimeChannel): void => {
   supabase.removeChannel(channel);
 };
 
-export const subscribeToAllCheckInUpdates = (userId: string, callback: (payload: any) => void): RealtimeChannel => {
+export const subscribeToAllCheckInUpdates = (userId: string, _callback: (_payload: unknown) => void): RealtimeChannel => {
   return supabase
     .channel('all_checkins')
     .on(
       'postgres_changes',
       {
-        event: '*',
-        schema: 'public',
-        table: 'daily_checkins',
-        filter: `user_id=eq.${userId}`
+        _event: '*',
+        _schema: 'public',
+        _table: 'daily_checkins',
+        _filter: `user_id=eq.${userId}`
       },
-      callback
+      _callback
     )
     .subscribe();
 };
 
-export const subscribeToEmergencyContactUpdates = (userId: string, callback: (payload: any) => void): RealtimeChannel => {
+export const subscribeToEmergencyContactUpdates = (userId: string, _callback: (_payload: unknown) => void): RealtimeChannel => {
   return supabase
     .channel('emergency_contacts')
     .on(
       'postgres_changes',
       {
-        event: '*',
-        schema: 'public',
-        table: 'emergency_contacts',
-        filter: `user_id=eq.${userId}`
+        _event: '*',
+        _schema: 'public',
+        _table: 'emergency_contacts',
+        _filter: `user_id=eq.${userId}`
       },
-      callback
+      _callback
     )
     .subscribe();
 };

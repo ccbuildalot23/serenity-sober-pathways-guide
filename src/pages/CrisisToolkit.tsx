@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Wind, Eye, Heart, ArrowLeft, Play, Pause } from 'lucide-react';
+import { Wind, Heart, ArrowLeft, Play, Pause } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const CrisisToolkit: React.FC = () => {
@@ -15,7 +15,7 @@ const CrisisToolkit: React.FC = () => {
   // Auto-breathing animation
   useEffect(() => {
     if (breathingActive) {
-      const interval = setInterval(() => {
+      const _interval = setInterval(() => {
         setBreathCount(prev => {
           const next = (prev + 1) % 12;
           if (next < 4) setBreathPhase('inhale');
@@ -24,7 +24,7 @@ const CrisisToolkit: React.FC = () => {
           return next;
         });
       }, 1000);
-      return () => clearInterval(interval);
+      return () => clearInterval(_interval);
     }
   }, [breathingActive]);
 

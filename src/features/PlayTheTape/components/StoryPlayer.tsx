@@ -21,7 +21,7 @@ export const StoryPlayer: React.FC<StoryPlayerProps> = ({
   
   useEffect(() => {
     if (isPlaying && audioEnabled) {
-      const interval = setInterval(() => {
+      const _interval = setInterval(() => {
         setProgress(prev => {
           if (prev >= 100) {
             setIsPlaying(false);
@@ -31,7 +31,7 @@ export const StoryPlayer: React.FC<StoryPlayerProps> = ({
         });
       }, 1000);
       
-      return () => clearInterval(interval);
+      return () => clearInterval(_interval);
     }
   }, [isPlaying, audioEnabled, story.duration]);
   

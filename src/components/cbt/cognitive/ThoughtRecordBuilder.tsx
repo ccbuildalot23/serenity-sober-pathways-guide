@@ -7,32 +7,32 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, Heart, Brain, Lightbulb, CheckCircle } from 'lucide-react';
+import { Calendar, Heart, Brain, Lightbulb, CheckCircle } from 'lucide-react';
 
 interface ThoughtRecord {
-  situation: string;
-  datetime: string;
-  emotion: string;
-  emotionIntensity: number;
-  automaticThought: string;
-  thoughtIntensity: number;
-  evidence: string;
-  balancedThought: string;
-  newEmotionIntensity: number;
+  _situation: string;
+  _datetime: string;
+  _emotion: string;
+  _emotionIntensity: number;
+  _automaticThought: string;
+  _thoughtIntensity: number;
+  _evidence: string;
+  _balancedThought: string;
+  _newEmotionIntensity: number;
 }
 
 const ThoughtRecordBuilder: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [record, setRecord] = useState<ThoughtRecord>({
-    situation: '',
-    datetime: '',
-    emotion: '',
-    emotionIntensity: 5,
-    automaticThought: '',
-    thoughtIntensity: 5,
-    evidence: '',
-    balancedThought: '',
-    newEmotionIntensity: 5
+  const [_record, setRecord] = useState<ThoughtRecord>({
+    _situation: '',
+    _datetime: '',
+    _emotion: '',
+    _emotionIntensity: 5,
+    _automaticThought: '',
+    _thoughtIntensity: 5,
+    _evidence: '',
+    _balancedThought: '',
+    _newEmotionIntensity: 5
   });
 
   const steps = [
@@ -57,18 +57,18 @@ const ThoughtRecordBuilder: React.FC = () => {
 
   const handleSave = () => {
     // Save to local storage or database
-    console.log('Saving thought record:', record);
+    console.log('Saving thought _record:', _record);
     // Reset form
     setRecord({
-      situation: '',
-      datetime: '',
-      emotion: '',
-      emotionIntensity: 5,
-      automaticThought: '',
-      thoughtIntensity: 5,
-      evidence: '',
-      balancedThought: '',
-      newEmotionIntensity: 5
+      _situation: '',
+      _datetime: '',
+      _emotion: '',
+      _emotionIntensity: 5,
+      _automaticThought: '',
+      _thoughtIntensity: 5,
+      _evidence: '',
+      _balancedThought: '',
+      _newEmotionIntensity: 5
     });
     setCurrentStep(0);
   };
@@ -125,22 +125,22 @@ const ThoughtRecordBuilder: React.FC = () => {
           {currentStep === 0 && (
             <div className="space-y-4">
               <div>
-                <Label htmlFor="situation">Describe the situation</Label>
+                <Label htmlFor="_situation">Describe the _situation</Label>
                 <Textarea
-                  id="situation"
+                  id="_situation"
                   placeholder="What happened? Where were you? Who was involved?"
-                  value={record.situation}
-                  onChange={(e) => setRecord({...record, situation: e.target.value})}
+                  value={_record._situation}
+                  onChange={(e) => setRecord({..._record, _situation: e.target.value})}
                   className="mt-1"
                 />
               </div>
               <div>
-                <Label htmlFor="datetime">Date and Time</Label>
+                <Label htmlFor="_datetime">Date and Time</Label>
                 <Input
-                  id="datetime"
-                  type="datetime-local"
-                  value={record.datetime}
-                  onChange={(e) => setRecord({...record, datetime: e.target.value})}
+                  id="_datetime"
+                  type="_datetime-local"
+                  value={_record._datetime}
+                  onChange={(e) => setRecord({..._record, _datetime: e.target.value})}
                   className="mt-1"
                 />
               </div>
@@ -150,12 +150,12 @@ const ThoughtRecordBuilder: React.FC = () => {
           {currentStep === 1 && (
             <div className="space-y-4">
               <div>
-                <Label htmlFor="emotion">Primary emotion</Label>
+                <Label htmlFor="_emotion">Primary _emotion</Label>
                 <Input
-                  id="emotion"
+                  id="_emotion"
                   placeholder="e.g., anxious, sad, angry, frustrated"
-                  value={record.emotion}
-                  onChange={(e) => setRecord({...record, emotion: e.target.value})}
+                  value={_record._emotion}
+                  onChange={(e) => setRecord({..._record, _emotion: e.target.value})}
                   className="mt-1"
                 />
               </div>
@@ -163,8 +163,8 @@ const ThoughtRecordBuilder: React.FC = () => {
                 <Label>Emotion intensity (1-10)</Label>
                 <div className="mt-2">
                   <Slider
-                    value={[record.emotionIntensity]}
-                    onValueChange={(value) => setRecord({...record, emotionIntensity: value[0]})}
+                    value={[_record._emotionIntensity]}
+                    onValueChange={(value) => setRecord({..._record, _emotionIntensity: value[0]})}
                     max={10}
                     min={1}
                     step={1}
@@ -172,7 +172,7 @@ const ThoughtRecordBuilder: React.FC = () => {
                   />
                   <div className="flex justify-between text-sm text-gray-500 mt-1">
                     <span>Mild (1)</span>
-                    <span className="font-medium">{record.emotionIntensity}</span>
+                    <span className="font-medium">{_record._emotionIntensity}</span>
                     <span>Intense (10)</span>
                   </div>
                 </div>
@@ -183,12 +183,12 @@ const ThoughtRecordBuilder: React.FC = () => {
           {currentStep === 2 && (
             <div className="space-y-4">
               <div>
-                <Label htmlFor="automaticThought">Automatic thought</Label>
+                <Label htmlFor="_automaticThought">Automatic thought</Label>
                 <Textarea
-                  id="automaticThought"
+                  id="_automaticThought"
                   placeholder="What thoughts went through your mind? What were you telling yourself?"
-                  value={record.automaticThought}
-                  onChange={(e) => setRecord({...record, automaticThought: e.target.value})}
+                  value={_record._automaticThought}
+                  onChange={(e) => setRecord({..._record, _automaticThought: e.target.value})}
                   className="mt-1"
                 />
               </div>
@@ -196,8 +196,8 @@ const ThoughtRecordBuilder: React.FC = () => {
                 <Label>How much do you believe this thought? (1-10)</Label>
                 <div className="mt-2">
                   <Slider
-                    value={[record.thoughtIntensity]}
-                    onValueChange={(value) => setRecord({...record, thoughtIntensity: value[0]})}
+                    value={[_record._thoughtIntensity]}
+                    onValueChange={(value) => setRecord({..._record, _thoughtIntensity: value[0]})}
                     max={10}
                     min={1}
                     step={1}
@@ -205,7 +205,7 @@ const ThoughtRecordBuilder: React.FC = () => {
                   />
                   <div className="flex justify-between text-sm text-gray-500 mt-1">
                     <span>Don't believe (1)</span>
-                    <span className="font-medium">{record.thoughtIntensity}</span>
+                    <span className="font-medium">{_record._thoughtIntensity}</span>
                     <span>Completely believe (10)</span>
                   </div>
                 </div>
@@ -216,12 +216,12 @@ const ThoughtRecordBuilder: React.FC = () => {
           {currentStep === 3 && (
             <div className="space-y-4">
               <div>
-                <Label htmlFor="evidence">Evidence examination</Label>
+                <Label htmlFor="_evidence">Evidence examination</Label>
                 <Textarea
-                  id="evidence"
-                  placeholder="What evidence supports this thought? What evidence challenges it? What would you tell a friend in this situation?"
-                  value={record.evidence}
-                  onChange={(e) => setRecord({...record, evidence: e.target.value})}
+                  id="_evidence"
+                  placeholder="What _evidence supports this thought? What _evidence challenges it? What would you tell a friend in this _situation?"
+                  value={_record._evidence}
+                  onChange={(e) => setRecord({..._record, _evidence: e.target.value})}
                   className="mt-1"
                   rows={6}
                 />
@@ -232,21 +232,21 @@ const ThoughtRecordBuilder: React.FC = () => {
           {currentStep === 4 && (
             <div className="space-y-4">
               <div>
-                <Label htmlFor="balancedThought">Balanced thought</Label>
+                <Label htmlFor="_balancedThought">Balanced thought</Label>
                 <Textarea
-                  id="balancedThought"
-                  placeholder="Based on the evidence, what's a more balanced, realistic perspective?"
-                  value={record.balancedThought}
-                  onChange={(e) => setRecord({...record, balancedThought: e.target.value})}
+                  id="_balancedThought"
+                  placeholder="Based on the _evidence, what's a more balanced, realistic perspective?"
+                  value={_record._balancedThought}
+                  onChange={(e) => setRecord({..._record, _balancedThought: e.target.value})}
                   className="mt-1"
                 />
               </div>
               <div>
-                <Label>How intense is the emotion now? (1-10)</Label>
+                <Label>How intense is the _emotion now? (1-10)</Label>
                 <div className="mt-2">
                   <Slider
-                    value={[record.newEmotionIntensity]}
-                    onValueChange={(value) => setRecord({...record, newEmotionIntensity: value[0]})}
+                    value={[_record._newEmotionIntensity]}
+                    onValueChange={(value) => setRecord({..._record, _newEmotionIntensity: value[0]})}
                     max={10}
                     min={1}
                     step={1}
@@ -254,7 +254,7 @@ const ThoughtRecordBuilder: React.FC = () => {
                   />
                   <div className="flex justify-between text-sm text-gray-500 mt-1">
                     <span>Mild (1)</span>
-                    <span className="font-medium">{record.newEmotionIntensity}</span>
+                    <span className="font-medium">{_record._newEmotionIntensity}</span>
                     <span>Intense (10)</span>
                   </div>
                 </div>

@@ -6,9 +6,9 @@ import { serviceWorkerManager } from '@/services/serviceWorkerManager';
 export const useMobileOptimization = () => {
   const mobileCrisis = useMobileCrisis({
     shakeThreshold: 15,
-    volumeButtonShortcuts: true,
-    hapticFeedback: true,
-    batteryOptimization: true,
+    _volumeButtonShortcuts: true,
+    _hapticFeedback: true,
+    _batteryOptimization: true,
   });
 
   const offlineSync = useOfflineSync();

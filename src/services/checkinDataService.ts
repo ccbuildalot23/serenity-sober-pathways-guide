@@ -3,17 +3,17 @@ import { supabase } from '@/integrations/supabase/client';
 import { CheckinResponses } from '@/types/dailyCheckIn';
 
 export const checkinDataService = {
-  async loadExistingCheckin(userId: string, checkinDate: string) {
+  async loadExistingCheckin(_userId: string, _checkinDate: string) {
     try {
-      const { data: existingCheckin, error } = await supabase
+      const { data: existingCheckin, _error } = await supabase
         .from('daily_checkins')
         .select('*')
-        .eq('user_id', userId)
-        .eq('checkin_date', checkinDate)
+        .eq('user_id', _userId)
+        .eq('checkin_date', _checkinDate)
         .single();
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error loading existing check-in:', error);
+      if (_error && _error.code !== 'PGRST116') {
+        console._error('Error loading existing check-in:', _error);
         return { existingCheckin: null, responses: null, completedSections: new Set() };
       }
 
@@ -63,8 +63,8 @@ export const checkinDataService = {
       );
 
       return { existingCheckin, responses, completedSections };
-    } catch (error) {
-      console.error('Error in loadExistingCheckin:', error);
+    } catch (_error) {
+      console._error('Error in loadExistingCheckin:', _error);
       return { existingCheckin: null, responses: null, completedSections: new Set() };
     }
   }

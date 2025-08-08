@@ -1,24 +1,24 @@
 
 import { toast } from 'sonner';
 
-const NOTIFICATION_PERMISSION_KEY = 'notification-permission-requested';
-const NOTIFICATION_BANNER_DISMISSED_KEY = 'notification-banner-dismissed';
+const _NOTIFICATION_PERMISSION_KEY = 'notification-permission-requested';
+const _NOTIFICATION_BANNER_DISMISSED_KEY = 'notification-banner-dismissed';
 
 export const notificationPermissionService = {
   hasRequestedPermission(): boolean {
-    return localStorage.getItem(NOTIFICATION_PERMISSION_KEY) === 'true';
+    return localStorage.getItem(_NOTIFICATION_PERMISSION_KEY) === 'true';
   },
 
   markPermissionRequested() {
-    localStorage.setItem(NOTIFICATION_PERMISSION_KEY, 'true');
+    localStorage.setItem(_NOTIFICATION_PERMISSION_KEY, 'true');
   },
 
   isBannerDismissed(): boolean {
-    return localStorage.getItem(NOTIFICATION_BANNER_DISMISSED_KEY) === 'true';
+    return localStorage.getItem(_NOTIFICATION_BANNER_DISMISSED_KEY) === 'true';
   },
 
   dismissBanner() {
-    localStorage.setItem(NOTIFICATION_BANNER_DISMISSED_KEY, 'true');
+    localStorage.setItem(_NOTIFICATION_BANNER_DISMISSED_KEY, 'true');
   },
 
   shouldShowPermissionPrompt(): boolean {

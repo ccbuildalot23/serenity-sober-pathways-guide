@@ -21,16 +21,16 @@ import { useToast } from '@/hooks/use-toast';
 
 interface EmergencyContact {
   id: string;
-  name: string;
-  relationship: string;
-  phone_number: string;
+  _name: string;
+  _relationship: string;
+  _phone_number: string;
   priority_order: number;
   notification_preferences: {
     crisis: boolean;
-    preferredMethod: 'phone' | 'text' | 'both';
+    _preferredMethod: 'phone' | 'text' | 'both';
   };
-  is_emergency_contact: boolean;
-  last_contacted?: Date;
+  _is_emergency_contact: boolean;
+  _last_contacted?: Date;
 }
 
 interface EmergencyContactsQuickAccessProps {
@@ -45,15 +45,15 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
   onContactTexted
 }) => {
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
-  const [isAdding, setIsAdding] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [includeLocation, setIncludeLocation] = useState(false);
+  const [isAdding, setIsAdding] = useState(_false);
+  const [_loading, setLoading] = useState(_true);
+  const [saving, setSaving] = useState(_false);
+  const [includeLocation, setIncludeLocation] = useState(_false);
   const [newContact, setNewContact] = useState({
-    name: '',
-    relationship: '',
-    phone_number: '',
-    isPrimary: false
+    _name: '',
+    _relationship: '',
+    _phone_number: '',
+    _isPrimary: _false
   });
 
   const { user } = useAuth();
@@ -69,138 +69,138 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
     if (!user) return;
 
     try {
-      setLoading(true);
-      const { data, error } = await supabase
+      setLoading(_true);
+      const { data, _error } = await supabase
         .from('crisis_contacts')
         .select('*')
         .eq('user_id', user.id)
-        .eq('is_emergency_contact', true)
-        .order('priority_order', { ascending: true });
+        .eq('_is_emergency_contact', _true)
+        .order('priority_order', { ascending: _true });
 
-      if (error) {
-        console.error('Error loading emergency contacts:', error);
+      if (_error) {
+        console._error('Error _loading emergency contacts:', _error);
         toast({
           title: "Error",
-          description: "Failed to load your emergency contacts",
-          variant: "destructive",
+          _description: "Failed to load your emergency contacts",
+          _variant: "destructive",
         });
         return;
       }
 
-      const transformedContacts = (data || []).map(contact => ({
+      const _transformedContacts = (data || []).map(contact => ({
         id: contact.id,
-        name: contact.name,
-        relationship: contact.relationship,
-        phone_number: contact.phone_number,
+        _name: contact._name,
+        _relationship: contact._relationship,
+        _phone_number: contact._phone_number,
         priority_order: contact.priority_order,
         notification_preferences: contact.notification_preferences as any,
-        is_emergency_contact: contact.is_emergency_contact,
-        last_contacted: contact.last_contacted ? new Date(contact.last_contacted) : undefined
+        _is_emergency_contact: contact._is_emergency_contact,
+        _last_contacted: contact._last_contacted ? new Date(contact._last_contacted) : undefined
       }));
 
-      setContacts(transformedContacts);
-    } catch (error) {
-      console.error('Error in loadContacts:', error);
+      setContacts(_transformedContacts);
+    } catch (_error) {
+      console._error('Error in loadContacts:', _error);
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
 
   const handleAddContact = async () => {
-    if (!newContact.name.trim() || !newContact.phone_number.trim() || !user) {
+    if (!newContact._name.trim() || !newContact._phone_number.trim() || !user) {
       toast({
         title: "Error",
-        description: "Please fill in name and phone number",
-        variant: "destructive",
+        _description: "Please fill in _name and phone number",
+        _variant: "destructive",
       });
       return;
     }
 
     try {
-      setSaving(true);
-      const { data, error } = await supabase
+      setSaving(_true);
+      const { data, _error } = await supabase
         .from('crisis_contacts')
         .insert({
           user_id: user.id,
-          name: newContact.name,
-          relationship: newContact.relationship || 'Emergency Contact',
-          phone_number: newContact.phone_number,
-          priority_order: newContact.isPrimary ? 1 : contacts.length + 1,
+          _name: newContact._name,
+          _relationship: newContact._relationship || 'Emergency Contact',
+          _phone_number: newContact._phone_number,
+          priority_order: newContact._isPrimary ? 1 : contacts.length + 1,
           notification_preferences: {
-            crisis: true,
-            milestones: false,
-            preferredMethod: 'both'
+            crisis: _true,
+            _milestones: _false,
+            _preferredMethod: 'both'
           },
-          is_emergency_contact: true
+          _is_emergency_contact: _true
         })
         .select()
         .single();
 
-      if (error) {
-        console.error('Error adding emergency contact:', error);
+      if (_error) {
+        console._error('Error adding emergency contact:', _error);
         toast({
           title: "Error",
-          description: "Failed to save contact. Please try again.",
-          variant: "destructive",
+          _description: "Failed to save contact. Please try again.",
+          _variant: "destructive",
         });
         return;
       }
 
       const transformedContact = {
         id: data.id,
-        name: data.name,
-        relationship: data.relationship,
-        phone_number: data.phone_number,
+        _name: data._name,
+        _relationship: data._relationship,
+        _phone_number: data._phone_number,
         priority_order: data.priority_order,
         notification_preferences: data.notification_preferences as any,
-        is_emergency_contact: data.is_emergency_contact,
-        last_contacted: data.last_contacted ? new Date(data.last_contacted) : undefined
+        _is_emergency_contact: data._is_emergency_contact,
+        _last_contacted: data._last_contacted ? new Date(data._last_contacted) : undefined
       };
 
       setContacts([...contacts, transformedContact]);
       onContactAdded?.(transformedContact);
 
-      setNewContact({ name: '', relationship: '', phone_number: '', isPrimary: false });
-      setIncludeLocation(false);
-      setIsAdding(false);
+      setNewContact({ _name: '', _relationship: '', _phone_number: '', _isPrimary: _false });
+      setIncludeLocation(_false);
+      setIsAdding(_false);
 
       toast({
         title: "Success",
-        description: `${transformedContact.name} added to emergency contacts`,
+        _description: `${transformedContact._name} added to emergency contacts`,
       });
-    } catch (error) {
-      console.error('Error in handleAddContact:', error);
+    } catch (_error) {
+      console._error('Error in handleAddContact:', _error);
       toast({
         title: "Error",
-        description: "An unexpected error occurred",
-        variant: "destructive",
+        _description: "An unexpected _error occurred",
+        _variant: "destructive",
       });
     } finally {
-      setSaving(false);
+      setSaving(_false);
     }
   };
 
   const handleCall = async (contact: EmergencyContact) => {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('crisis_contacts')
-        .update({ last_contacted: new Date().toISOString() })
+        .update({ _last_contacted: new Date().toISOString() })
         .eq('id', contact.id)
         .eq('user_id', user!.id);
 
-      if (error) {
-        console.error('Error updating last contacted:', error);
+      if (_error) {
+        console._error('Error updating last contacted:', _error);
       }
 
-      window.open(`tel:${contact.phone_number}`, '_self');
+      window.open(`tel:${contact._phone_number}`, '_self');
       onContactCalled?.(contact);
       
       toast({
         title: "Calling",
-        description: `Calling ${contact.name}...`,
+        _description: `Calling ${contact._name}...`,
       });
-    } catch (error) {
-      console.error('Error in handleCall:', error);
+    } catch (_error) {
+      console._error('Error in handleCall:', _error);
     }
   };
 
@@ -209,38 +209,38 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
     
     if (includeLocation && navigator.geolocation) {
       try {
-        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+        const position = await new Promise<GeolocationPosition>((_resolve, _reject) => {
+          navigator.geolocation.getCurrentPosition(_resolve, _reject, { timeout: 5000 });
         });
         
         const { latitude, longitude } = position.coords;
         message += ` My current location: https://maps.google.com/?q=${latitude},${longitude}`;
-      } catch (error) {
+      } catch (_error) {
         console.log('Location sharing failed, sending message without location');
       }
     }
 
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('crisis_contacts')
-        .update({ last_contacted: new Date().toISOString() })
+        .update({ _last_contacted: new Date().toISOString() })
         .eq('id', contact.id)
         .eq('user_id', user!.id);
 
-      if (error) {
-        console.error('Error updating last contacted:', error);
+      if (_error) {
+        console._error('Error updating last contacted:', _error);
       }
 
       const encodedMessage = encodeURIComponent(message);
-      window.open(`sms:${contact.phone_number}&body=${encodedMessage}`, '_self');
+      window.open(`sms:${contact._phone_number}&body=${encodedMessage}`, '_self');
       onContactTexted?.(contact);
 
       toast({
         title: "Sending Message",
-        description: `Sending crisis message to ${contact.name}...`,
+        _description: `Sending crisis message to ${contact._name}...`,
       });
-    } catch (error) {
-      console.error('Error in handleText:', error);
+    } catch (_error) {
+      console._error('Error in handleText:', _error);
     }
   };
 
@@ -248,30 +248,30 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
     if (!user) return;
 
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('crisis_contacts')
         .delete()
         .eq('id', contactId)
         .eq('user_id', user.id);
 
-      if (error) {
-        console.error('Error deleting emergency contact:', error);
+      if (_error) {
+        console._error('Error deleting emergency contact:', _error);
         toast({
           title: "Error",
-          description: "Failed to delete contact",
-          variant: "destructive",
+          _description: "Failed to delete contact",
+          _variant: "destructive",
         });
         return;
       }
 
-      const updatedContacts = contacts.filter(c => c.id !== contactId);
-      setContacts(updatedContacts);
+      const _updatedContacts = contacts.filter(c => c.id !== contactId);
+      setContacts(_updatedContacts);
       toast({
         title: "Success",
-        description: "Contact removed",
+        _description: "Contact removed",
       });
-    } catch (error) {
-      console.error('Error in removeContact:', error);
+    } catch (_error) {
+      console._error('Error in removeContact:', _error);
     }
   };
 
@@ -285,7 +285,7 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
   const primaryContacts = contacts.filter(c => c.priority_order <= 2);
   const secondaryContacts = contacts.filter(c => c.priority_order > 2);
 
-  if (loading) {
+  if (_loading) {
     return (
       <div className="space-y-4">
         <div className="text-center py-8">
@@ -304,7 +304,7 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
           <p className="text-sm text-gray-600">Quick access for crisis situations</p>
         </div>
         <Button
-          onClick={() => setIsAdding(true)}
+          onClick={() => setIsAdding(_true)}
           size="sm"
           className="bg-red-600 hover:bg-red-700"
         >
@@ -325,21 +325,21 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="name">Name *</Label>
+                <Label htmlFor="_name">Name *</Label>
                 <Input
-                  id="name"
-                  placeholder="Contact name"
-                  value={newContact.name}
-                  onChange={(e) => setNewContact({ ...newContact, name: e.target.value })}
+                  id="_name"
+                  placeholder="Contact _name"
+                  value={newContact._name}
+                  onChange={(e) => setNewContact({ ...newContact, _name: e.target.value })}
                 />
               </div>
               <div>
-                <Label htmlFor="relationship">Relationship</Label>
+                <Label htmlFor="_relationship">Relationship</Label>
                 <Input
-                  id="relationship"
+                  id="_relationship"
                   placeholder="e.g., Sponsor, Family, Friend"
-                  value={newContact.relationship}
-                  onChange={(e) => setNewContact({ ...newContact, relationship: e.target.value })}
+                  value={newContact._relationship}
+                  onChange={(e) => setNewContact({ ...newContact, _relationship: e.target.value })}
                 />
               </div>
             </div>
@@ -350,16 +350,16 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
                 id="phone"
                 type="tel"
                 placeholder="Phone number"
-                value={newContact.phone_number}
-                onChange={(e) => setNewContact({ ...newContact, phone_number: e.target.value })}
+                value={newContact._phone_number}
+                onChange={(e) => setNewContact({ ...newContact, _phone_number: e.target.value })}
               />
             </div>
 
             <div className="flex items-center space-x-2">
               <Switch
                 id="primary"
-                checked={newContact.isPrimary}
-                onCheckedChange={(checked) => setNewContact({ ...newContact, isPrimary: checked })}
+                checked={newContact._isPrimary}
+                onCheckedChange={(checked) => setNewContact({ ...newContact, _isPrimary: checked })}
               />
               <Label htmlFor="primary">Priority contact (called first)</Label>
             </div>
@@ -382,8 +382,8 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
                 {saving ? 'Saving...' : 'Add Emergency Contact'}
               </Button>
               <Button 
-                onClick={() => setIsAdding(false)} 
-                variant="outline" 
+                onClick={() => setIsAdding(_false)} 
+                _variant="outline" 
                 className="flex-1"
                 disabled={saving}
               >
@@ -412,11 +412,11 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
                       </div>
                       <div>
                         <div className="flex items-center space-x-2">
-                          <span className="font-medium">{contact.name}</span>
+                          <span className="font-medium">{contact._name}</span>
                           <Badge className="bg-red-500 text-xs">Priority</Badge>
                         </div>
-                        <p className="text-sm text-gray-600">{contact.relationship}</p>
-                        <p className="text-xs text-gray-500">{contact.phone_number}</p>
+                        <p className="text-sm text-gray-600">{contact._relationship}</p>
+                        <p className="text-xs text-gray-500">{contact._phone_number}</p>
                       </div>
                     </div>
                     
@@ -437,7 +437,7 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
                       </Button>
                       <Button
                         size="sm"
-                        variant="outline"
+                        _variant="outline"
                         onClick={() => removeContact(contact.id)}
                         className="text-red-600 hover:text-red-700 p-2"
                       >
@@ -466,9 +466,9 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
                         <User className="w-5 h-5 text-gray-600" />
                       </div>
                       <div>
-                        <span className="font-medium">{contact.name}</span>
-                        <p className="text-sm text-gray-600">{contact.relationship}</p>
-                        <p className="text-xs text-gray-500">{contact.phone_number}</p>
+                        <span className="font-medium">{contact._name}</span>
+                        <p className="text-sm text-gray-600">{contact._relationship}</p>
+                        <p className="text-xs text-gray-500">{contact._phone_number}</p>
                       </div>
                     </div>
                     
@@ -489,7 +489,7 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
                       </Button>
                       <Button
                         size="sm"
-                        variant="outline"
+                        _variant="outline"
                         onClick={() => removeContact(contact.id)}
                         className="text-red-600 hover:text-red-700 p-2"
                       >
@@ -512,7 +512,7 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
           <p className="text-sm text-gray-500 mb-4">
             Add trusted people who can support you during crisis moments
           </p>
-          <Button onClick={() => setIsAdding(true)} className="bg-red-600 hover:bg-red-700">
+          <Button onClick={() => setIsAdding(_true)} className="bg-red-600 hover:bg-red-700">
             Add Your First Emergency Contact
           </Button>
         </Card>

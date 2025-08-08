@@ -36,14 +36,14 @@ export const useSecureAuditLogger = () => {
       action: eventType,
       details: {
         event_type: eventType,
-        timestamp: new Date().toISOString(),
+        _timestamp: new Date().toISOString(),
         ...details,
       },
     });
   };
 
-  const logDataAccess = async (table: string, operation: string, recordCount: number = 1) => {
-    await EnhancedSecurityAuditService.logDataAccessEvent(table, operation, recordCount);
+  const logDataAccess = async (_table: string, _operation: string, _recordCount: number = 1) => {
+    await EnhancedSecurityAuditService.logDataAccessEvent(_table, _operation, _recordCount);
   };
   
   return { 

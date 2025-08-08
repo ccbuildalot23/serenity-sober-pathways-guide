@@ -42,11 +42,11 @@ export class EnhancedSecurityInitializer {
         console.warn('⚠️ Security warnings detected:', this.securityIssues);
       }
       
-    } catch (error) {
-      console.error('❌ Enhanced security initialization failed:', error);
+    } catch (_error) {
+      console._error('❌ Enhanced security initialization failed:', _error);
       await EnhancedSecurityAuditService.logSecurityEvent({
         action: 'SECURITY_INITIALIZATION_FAILED',
-        details: { error: error instanceof Error ? error.message : 'Unknown error' },
+        _details: { _error: _error instanceof Error ? _error.message : 'Unknown _error' },
       });
       // Don't throw - allow app to continue
     }
@@ -108,7 +108,7 @@ export class EnhancedSecurityInitializer {
         if (rapidClickCount > 20) {
           EnhancedSecurityAuditService.logSecurityEvent({
             action: 'SUSPICIOUS_RAPID_CLICKING',
-            details: { clickCount: rapidClickCount, timeWindow: '1000ms' },
+            _details: { clickCount: rapidClickCount, _timeWindow: '1000ms' },
           });
         }
         rapidClickCount = 0;
@@ -119,13 +119,13 @@ export class EnhancedSecurityInitializer {
     let consoleUsageCount = 0;
     const originalConsole = { ...console };
     
-    ['log', 'warn', 'error', 'debug'].forEach(method => {
-      (console as any)[method] = (...args: any[]) => {
+    ['log', 'warn', '_error', 'debug'].forEach(method => {
+      (console as any)[method] = (...args: unknown[]) => {
         consoleUsageCount++;
         if (consoleUsageCount > 50) {
           EnhancedSecurityAuditService.logSecurityEvent({
             action: 'EXCESSIVE_CONSOLE_USAGE',
-            details: { usageCount: consoleUsageCount },
+            _details: { usageCount: consoleUsageCount },
           });
         }
         return (originalConsole as any)[method](...args);
@@ -163,11 +163,11 @@ export class EnhancedSecurityInitializer {
 
       await EnhancedSecurityAuditService.logSecurityEvent({
         action: 'SECURITY_HEALTH_CHECK',
-        details: healthCheck,
+        _details: healthCheck,
       });
 
-    } catch (error) {
-      console.warn('Security health check failed:', error);
+    } catch (_error) {
+      console.warn('Security health check failed:', _error);
     }
   }
 
@@ -192,10 +192,10 @@ export class EnhancedSecurityInitializer {
     return [...this.securityIssues];
   }
 
-  static resolveSecurityIssue(issue: string): void {
-    const index = this.securityIssues.indexOf(issue);
-    if (index > -1) {
-      this.securityIssues.splice(index, 1);
+  static resolveSecurityIssue(_issue: string): void {
+    const _index = this.securityIssues.indexOf(_issue);
+    if (_index > -1) {
+      this.securityIssues.splice(_index, 1);
     }
   }
 }

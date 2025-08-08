@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -44,14 +44,14 @@ const DailyPledges = () => {
   const { toast } = useToast();
   
   const [currentTab, setCurrentTab] = useState<'morning' | 'evening' | 'templates'>('morning');
-  const [currentStreak, setCurrentStreak] = useState(3);
-  const [longestStreak, setLongestStreak] = useState(12);
-  const [loading, setLoading] = useState(false);
+  const [currentStreak] = useState(3);
+  const [longestStreak] = useState(12);
+  const [loading, setLoading] = useState(_false);
   const [morningCommitment, setMorningCommitment] = useState('');
   const [eveningReflection, setEveningReflection] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
-  const [completedMorning, setCompletedMorning] = useState(false);
-  const [completedEvening, setCompletedEvening] = useState(false);
+  const [isEditing, setIsEditing] = useState(_false);
+  const [_completedMorning, setCompletedMorning] = useState(_false);
+  const [completedEvening, setCompletedEvening] = useState(_false);
 
   const templates = [
     {
@@ -60,7 +60,7 @@ const DailyPledges = () => {
       morning_prompt: 'Today, I commit to staying present and mindful in my serenity journey.',
       evening_prompt: 'What am I most grateful for today?',
       category: 'mindfulness',
-      is_default: true
+      is_default: _true
     },
     {
       id: '2', 
@@ -68,7 +68,7 @@ const DailyPledges = () => {
       morning_prompt: 'I pledge to reach out for support when I need it and to be gentle with myself.',
       evening_prompt: 'How did I honor my commitment to myself today?',
       category: 'support',
-      is_default: true
+      is_default: _true
     },
     {
       id: '3',
@@ -76,7 +76,7 @@ const DailyPledges = () => {
       morning_prompt: 'Today, I choose healing and will take one positive step forward.',
       evening_prompt: 'What challenges did I face, and how did I handle them?',
       category: 'progress',
-      is_default: true
+      is_default: _true
     },
     {
       id: '4',
@@ -84,7 +84,7 @@ const DailyPledges = () => {
       morning_prompt: 'Today is another day I choose my recovery. I will take it one moment at a time and celebrate each small victory.',
       evening_prompt: 'What recovery skills did I practice today? What can I learn from any difficult moments?',
       category: 'early-recovery',
-      is_default: true
+      is_default: _true
     },
     {
       id: '5',
@@ -92,7 +92,7 @@ const DailyPledges = () => {
       morning_prompt: 'Today I commit to regularly checking if I am Hungry, Angry, Lonely, or Tired, and addressing these needs with care.',
       evening_prompt: 'When did I notice HALT feelings today, and how did I respond to them?',
       category: 'self-care',
-      is_default: true
+      is_default: _true
     },
     {
       id: '6',
@@ -100,7 +100,7 @@ const DailyPledges = () => {
       morning_prompt: 'I will prioritize authentic connections today, whether through meetings, friends in recovery, or my support network.',
       evening_prompt: 'How did I connect with others in recovery today? What relationships am I nurturing?',
       category: 'community',
-      is_default: true
+      is_default: _true
     },
     {
       id: '7',
@@ -108,7 +108,7 @@ const DailyPledges = () => {
       morning_prompt: 'If cravings arise today, I commit to using healthy coping strategies and reaching out for support rather than struggling alone.',
       evening_prompt: 'Did I experience any cravings or triggers today? How did I handle them, and what tools were most helpful?',
       category: 'cravings',
-      is_default: true
+      is_default: _true
     },
     {
       id: '8',
@@ -116,7 +116,7 @@ const DailyPledges = () => {
       morning_prompt: 'I will nurture my spiritual connection today through prayer, meditation, or whatever practice brings me peace and strength.',
       evening_prompt: 'How did I connect with my higher power or spiritual practice today? What brought me peace?',
       category: 'spiritual',
-      is_default: true
+      is_default: _true
     },
     {
       id: '9',
@@ -124,7 +124,7 @@ const DailyPledges = () => {
       morning_prompt: 'Today I will work on healing relationships and making amends where appropriate, starting with being compassionate to myself.',
       evening_prompt: 'How did I practice forgiveness today - both giving and receiving? What relationships am I healing?',
       category: 'relationships',
-      is_default: true
+      is_default: _true
     },
     {
       id: '10',
@@ -132,95 +132,95 @@ const DailyPledges = () => {
       morning_prompt: 'With months/years of recovery behind me, I commit to staying vigilant, helping newcomers, and continuing to grow.',
       evening_prompt: 'How did I give back to the recovery community today? What did I do to maintain my spiritual condition?',
       category: 'long-term',
-      is_default: true
+      is_default: _true
     }
   ];
 
   const saveMorningCommitment = async () => {
     if (!morningCommitment.trim()) return;
 
-    setLoading(true);
+    setLoading(_true);
     try {
       // Simulate saving
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      setCompletedMorning(true);
+      setCompletedMorning(_true);
       
       toast({
         title: "Morning Commitment Saved! 🌅",
-        description: "Your intention for today has been set. Stay strong!",
+        _description: "Your intention for today has been set. Stay strong!",
       });
 
-    } catch (error) {
-      console.error('Error saving morning commitment:', error);
+    } catch (_error) {
+      console._error('Error saving morning commitment:', _error);
       toast({
         title: "Error",
-        description: "Failed to save your commitment. Please try again.",
-        variant: "destructive",
+        _description: "Failed to save your commitment. Please try again.",
+        _variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
 
   const saveEveningReflection = async () => {
     if (!eveningReflection.trim()) return;
 
-    setLoading(true);
+    setLoading(_true);
     try {
-      if (!completedMorning) {
+      if (!_completedMorning) {
         toast({
           title: "Complete Morning First",
-          description: "Please set your morning commitment before adding evening reflection.",
-          variant: "destructive",
+          _description: "Please set your morning commitment before adding evening reflection.",
+          _variant: "destructive",
         });
-        setLoading(false);
+        setLoading(_false);
         return;
       }
 
       // Simulate saving
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      setCompletedEvening(true);
+      setCompletedEvening(_true);
 
       // Check if both morning and evening are now complete for celebration
-      if (completedMorning) {
+      if (_completedMorning) {
         celebrateCompletion();
       }
 
       toast({
         title: "Evening Reflection Saved! 🌙",
-        description: "Thank you for taking time to reflect on your day.",
+        _description: "Thank you for taking time to reflect on your day.",
       });
 
-    } catch (error) {
-      console.error('Error saving evening reflection:', error);
+    } catch (_error) {
+      console._error('Error saving evening reflection:', _error);
       toast({
         title: "Error",
-        description: "Failed to save your reflection. Please try again.",
-        variant: "destructive",
+        _description: "Failed to save your reflection. Please try again.",
+        _variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
 
   const celebrateCompletion = () => {
     confetti({
       particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 }
+      _spread: 70,
+      _origin: { y: 0.6 }
     });
 
     toast({
       title: "🎉 Daily Pledge Complete!",
-      description: "You've completed both your morning commitment and evening reflection. Amazing work!",
-      duration: 5000,
+      _description: "You've completed both your morning commitment and evening reflection. Amazing work!",
+      _duration: 5000,
     });
   };
 
-  const useTemplate = (template: any) => {
-    setMorningCommitment(template.morning_prompt);
+  const applyTemplate = (_template: any) => {
+    setMorningCommitment(_template.morning_prompt);
     setCurrentTab('morning');
   };
 
@@ -228,8 +228,8 @@ const DailyPledges = () => {
     // This is for gentle restart - just provides encouragement
     toast({
       title: "Fresh Start 💪",
-      description: "Every day is a new opportunity. Your commitment to growth is what matters most.",
-      duration: 6000,
+      _description: "Every day is a new opportunity. Your commitment to growth is what matters most.",
+      _duration: 6000,
     });
   };
 
@@ -294,8 +294,8 @@ const DailyPledges = () => {
               <div className="text-center">
                 <Calendar className="w-6 h-6 mx-auto text-serenity-teal mb-1" />
                 <div className="text-lg font-bold text-serenity-navy">
-                  {completedMorning && completedEvening ? '✓' : 
-                   completedMorning ? '½' : '○'}
+                  {_completedMorning && completedEvening ? '✓' : 
+                   _completedMorning ? '½' : '○'}
                 </div>
                 <div className="text-xs text-muted-foreground">Today</div>
               </div>
@@ -303,7 +303,7 @@ const DailyPledges = () => {
 
             {currentStreak > 0 && (
               <div className="mt-4">
-                <Button variant="outline" size="sm" onClick={resetStreak} className="border-serenity-coral text-serenity-coral">
+                <Button _variant="outline" size="sm" onClick={resetStreak} className="border-serenity-coral text-serenity-coral">
                   <RefreshCw className="w-4 h-4 mr-1" />
                   Need a fresh start?
                 </Button>
@@ -319,12 +319,12 @@ const DailyPledges = () => {
           <TabsTrigger value="morning" className="flex items-center gap-2">
             <Sun className="w-4 h-4" />
             Morning
-            {completedMorning && <Badge variant="secondary" className="ml-1 h-4 w-4 p-0 text-xs">✓</Badge>}
+            {_completedMorning && <Badge _variant="secondary" className="ml-1 h-4 w-4 p-0 text-xs">✓</Badge>}
           </TabsTrigger>
           <TabsTrigger value="evening" className="flex items-center gap-2">
             <Moon className="w-4 h-4" />
             Evening
-            {completedEvening && <Badge variant="secondary" className="ml-1 h-4 w-4 p-0 text-xs">✓</Badge>}
+            {completedEvening && <Badge _variant="secondary" className="ml-1 h-4 w-4 p-0 text-xs">✓</Badge>}
           </TabsTrigger>
           <TabsTrigger value="templates" className="flex items-center gap-2">
             <BookOpen className="w-4 h-4" />
@@ -345,13 +345,13 @@ const DailyPledges = () => {
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
-              {!completedMorning && (
+              {!_completedMorning && (
                 <div className="grid grid-cols-1 gap-2">
                   <p className="text-sm text-muted-foreground mb-2">Quick prompts to get started:</p>
                   {defaultMorningPrompts.map((prompt, index) => (
                     <Button
                       key={index}
-                      variant="outline"
+                      _variant="outline"
                       size="sm"
                       onClick={() => setMorningCommitment(prompt)}
                       className="text-left justify-start h-auto p-3 border-serenity-sage/30 hover:bg-serenity-mint/10"
@@ -367,14 +367,14 @@ const DailyPledges = () => {
                 value={morningCommitment}
                 onChange={(e) => setMorningCommitment(e.target.value)}
                 className="min-h-32"
-                disabled={completedMorning && !isEditing}
+                disabled={_completedMorning && !isEditing}
               />
 
               <div className="flex justify-between items-center">
-                {completedMorning && !isEditing ? (
+                {_completedMorning && !isEditing ? (
                   <Button
-                    variant="outline"
-                    onClick={() => setIsEditing(true)}
+                    _variant="outline"
+                    onClick={() => setIsEditing(_true)}
                     className="border-serenity-teal text-serenity-teal"
                   >
                     <Edit3 className="w-4 h-4 mr-2" />
@@ -387,14 +387,14 @@ const DailyPledges = () => {
                     className="bg-serenity-gold hover:bg-serenity-gold/90 text-white"
                   >
                     <Save className="w-4 h-4 mr-2" />
-                    {loading ? 'Saving...' : completedMorning ? 'Update' : 'Set Commitment'}
+                    {loading ? 'Saving...' : _completedMorning ? 'Update' : 'Set Commitment'}
                   </Button>
                 )}
 
                 {isEditing && (
                   <Button
-                    variant="outline"
-                    onClick={() => setIsEditing(false)}
+                    _variant="outline"
+                    onClick={() => setIsEditing(_false)}
                   >
                     Cancel
                   </Button>
@@ -417,7 +417,7 @@ const DailyPledges = () => {
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
-              {morningCommitment && completedMorning && (
+              {morningCommitment && _completedMorning && (
                 <div className="p-4 bg-serenity-mint/10 rounded-lg border border-serenity-mint/30">
                   <p className="text-sm text-serenity-sage font-medium mb-2">This morning you committed to:</p>
                   <p className="text-serenity-navy italic">"{morningCommitment}"</p>
@@ -430,7 +430,7 @@ const DailyPledges = () => {
                   {defaultEveningPrompts.map((prompt, index) => (
                     <Button
                       key={index}
-                      variant="outline"
+                      _variant="outline"
                       size="sm"
                       onClick={() => setEveningReflection(prev => prev + (prev ? '\n\n' : '') + prompt + '\n')}
                       className="text-left justify-start h-auto p-3 border-serenity-sage/30 hover:bg-serenity-mint/10"
@@ -452,8 +452,8 @@ const DailyPledges = () => {
               <div className="flex justify-between items-center">
                 {completedEvening && !isEditing ? (
                   <Button
-                    variant="outline"
-                    onClick={() => setIsEditing(true)}
+                    _variant="outline"
+                    onClick={() => setIsEditing(_true)}
                     className="border-serenity-teal text-serenity-teal"
                   >
                     <Edit3 className="w-4 h-4 mr-2" />
@@ -462,7 +462,7 @@ const DailyPledges = () => {
                 ) : (
                   <Button
                     onClick={saveEveningReflection}
-                    disabled={loading || !eveningReflection.trim() || !completedMorning}
+                    disabled={loading || !eveningReflection.trim() || !_completedMorning}
                     className="bg-serenity-sage hover:bg-serenity-sage/90 text-white"
                   >
                     <Save className="w-4 h-4 mr-2" />
@@ -472,15 +472,15 @@ const DailyPledges = () => {
 
                 {isEditing && (
                   <Button
-                    variant="outline"
-                    onClick={() => setIsEditing(false)}
+                    _variant="outline"
+                    onClick={() => setIsEditing(_false)}
                   >
                     Cancel
                   </Button>
                 )}
               </div>
 
-              {!completedMorning && (
+              {!_completedMorning && (
                 <p className="text-sm text-muted-foreground text-center">
                   Complete your morning commitment first to unlock evening reflection.
                 </p>
@@ -502,7 +502,7 @@ const DailyPledges = () => {
               </p>
               <div className="flex flex-wrap gap-2 mt-2">
                 {Array.from(new Set(templates.map(t => t.category))).map(category => (
-                  <Badge key={category} variant="outline" className="text-xs capitalize">
+                  <Badge key={category} _variant="outline" className="text-xs capitalize">
                     {category.replace('-', ' ')}
                   </Badge>
                 ))}
@@ -511,31 +511,31 @@ const DailyPledges = () => {
             <CardContent>
               <div className="grid gap-4">
                 <div className="grid gap-4 md:grid-cols-2">
-                  {templates.map((template) => (
+                  {templates.map((_template) => (
                     <div
-                      key={template.id}
+                      key={_template.id}
                       className="p-4 border border-serenity-sage/30 rounded-lg hover:bg-serenity-mint/5 transition-colors"
                     >
                       <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-semibold text-serenity-navy">{template.title}</h4>
+                        <h4 className="font-semibold text-serenity-navy">{_template.title}</h4>
                         <div className="flex gap-2">
-                          <Badge variant="outline" className="text-xs capitalize">
-                            {template.category.replace('-', ' ')}
+                          <Badge _variant="outline" className="text-xs capitalize">
+                            {_template.category.replace('-', ' ')}
                           </Badge>
-                          <Badge variant={template.is_default ? "secondary" : "outline"}>
-                            {template.is_default ? "Featured" : "Custom"}
+                          <Badge _variant={_template.is_default ? "secondary" : "outline"}>
+                            {_template.is_default ? "Featured" : "Custom"}
                           </Badge>
                         </div>
                       </div>
                       
                       <div className="space-y-2 text-sm text-muted-foreground mb-3">
-                        <p><strong className="text-serenity-gold">Morning:</strong> {template.morning_prompt}</p>
-                        <p><strong className="text-serenity-sage">Evening:</strong> {template.evening_prompt}</p>
+                        <p><strong className="text-serenity-gold">Morning:</strong> {_template.morning_prompt}</p>
+                        <p><strong className="text-serenity-sage">Evening:</strong> {_template.evening_prompt}</p>
                       </div>
                       
                       <Button
                         size="sm"
-                        onClick={() => useTemplate(template)}
+                        onClick={() => applyTemplate(_template)}
                         className="w-full bg-serenity-teal hover:bg-serenity-teal/90 text-white"
                       >
                         <Target className="w-4 h-4 mr-2" />

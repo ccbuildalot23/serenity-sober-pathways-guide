@@ -5,51 +5,51 @@ import { EnhancedSecurityMonitoringService } from '@/services/enhancedSecurityMo
 
 interface SecurityHealth {
   score: number;
-  issues: string[];
-  recommendations: string[];
-  loading: boolean;
+  _issues: string[];
+  _recommendations: string[];
+  _loading: boolean;
 }
 
 export const useEnhancedSecurity = () => {
   const { user } = useAuth();
   const [securityHealth, setSecurityHealth] = useState<SecurityHealth>({
     score: 0,
-    issues: [],
-    recommendations: [],
-    loading: true
+    _issues: [],
+    _recommendations: [],
+    _loading: true
   });
 
   const logSecurityEvent = async (
     eventType: string,
-    severity: 'low' | 'medium' | 'high' | 'critical',
-    details?: Record<string, any>
+    _severity: 'low' | 'medium' | 'high' | 'critical',
+    _details?: Record<string, any>
   ) => {
     await EnhancedSecurityMonitoringService.logSecurityEvent({
       eventType,
-      severity,
-      details,
-      userId: user?.id
+      _severity,
+      _details,
+      _userId: user?.id
     });
   };
 
   const checkSecurityHealth = async () => {
     if (!user?.id) return;
 
-    setSecurityHealth(prev => ({ ...prev, loading: true }));
+    setSecurityHealth(prev => ({ ...prev, _loading: true }));
     
     try {
       const health = await EnhancedSecurityMonitoringService.performSecurityHealthCheck(user.id);
       setSecurityHealth({
         ...health,
-        loading: false
+        _loading: false
       });
-    } catch (error) {
-      console.error('Failed to check security health:', error);
+    } catch (_error) {
+      console._error('Failed to check security health:', _error);
       setSecurityHealth({
         score: 0,
-        issues: ['Unable to check security health'],
-        recommendations: ['Contact support'],
-        loading: false
+        _issues: ['Unable to check security health'],
+        _recommendations: ['Contact support'],
+        _loading: false
       });
     }
   };

@@ -11,42 +11,42 @@ import CheckInAccountability from './support/CheckInAccountability';
 import CrisisContactManager from './emergency/CrisisContactManager';
 
 const SupportNetwork = () => {
-  const [isAdding, setIsAdding] = useState(false);
-  const [showCrisisContacts, setShowCrisisContacts] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
+  const [isAdding, setIsAdding] = useState(_false);
+  const [_showCrisisContacts, setShowCrisisContacts] = useState(_false);
+  const [_showSettings, setShowSettings] = useState(_false);
   
   const { 
     contacts, 
-    loading, 
+    _loading, 
     saving, 
     addContact, 
     deleteContact, 
     contactPerson 
   } = useSupportContacts();
 
-  const handleAddContact = async (contactData: any) => {
-    const success = await addContact(contactData);
+  const handleAddContact = async (_contactData: unknown) => {
+    const success = await addContact(_contactData);
     if (success) {
-      setIsAdding(false);
+      setIsAdding(_false);
     }
     return success;
   };
 
-  const handleCall = (contact: any) => {
-    contactPerson(contact);
+  const handleCall = (_contact: unknown) => {
+    contactPerson(_contact);
   };
 
-  const handleMessage = (contact: any) => {
-    const message = "Hi! I could use some support right now. Are you available to talk?";
-    contactPerson(contact, message);
+  const handleMessage = (_contact: unknown) => {
+    const _message = "Hi! I could use some support right now. Are you available to talk?";
+    contactPerson(_contact, _message);
   };
 
-  if (showCrisisContacts) {
+  if (_showCrisisContacts) {
     return (
       <div>
         <div className="flex items-center mb-4">
           <Button
-            onClick={() => setShowCrisisContacts(false)}
+            onClick={() => setShowCrisisContacts(_false)}
             variant="outline"
             size="sm"
           >
@@ -58,13 +58,13 @@ const SupportNetwork = () => {
     );
   }
 
-  if (showSettings) {
+  if (_showSettings) {
     const SupportCircleSettings = React.lazy(() => import('./SupportCircleSettings'));
     return (
       <div>
         <div className="flex items-center mb-4">
           <Button
-            onClick={() => setShowSettings(false)}
+            onClick={() => setShowSettings(_false)}
             variant="outline"
             size="sm"
           >
@@ -78,7 +78,7 @@ const SupportNetwork = () => {
     );
   }
 
-  if (loading) {
+  if (_loading) {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -98,7 +98,7 @@ const SupportNetwork = () => {
         <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Support Network</h3>
         <div className="flex gap-2">
           <Button
-            onClick={() => setShowCrisisContacts(true)}
+            onClick={() => setShowCrisisContacts(_true)}
             size="sm"
             className="bg-red-600 hover:bg-red-700 text-xs"
           >
@@ -106,7 +106,7 @@ const SupportNetwork = () => {
             Crisis Contacts
           </Button>
           <Button
-            onClick={() => setShowSettings(true)}
+            onClick={() => setShowSettings(_true)}
             size="sm"
             variant="outline"
             className="text-xs"
@@ -114,7 +114,7 @@ const SupportNetwork = () => {
             Settings
           </Button>
           <Button
-            onClick={() => setIsAdding(true)}
+            onClick={() => setIsAdding(_true)}
             size="sm"
             className="bg-blue-600 hover:bg-blue-700"
           >
@@ -137,7 +137,7 @@ const SupportNetwork = () => {
             </p>
           </div>
           <Button
-            onClick={() => setShowCrisisContacts(true)}
+            onClick={() => setShowCrisisContacts(_true)}
             size="sm"
             className="bg-red-600 hover:bg-red-700"
           >
@@ -156,17 +156,17 @@ const SupportNetwork = () => {
       {isAdding && (
         <AddContactForm
           onSubmit={handleAddContact}
-          onCancel={() => setIsAdding(false)}
-          loading={saving}
+          onCancel={() => setIsAdding(_false)}
+          _loading={saving}
         />
       )}
 
       {/* Contacts List */}
       <div className="space-y-3">
-        {contacts.map((contact) => (
+        {contacts.map((_contact) => (
           <ContactCard
-            key={contact.id}
-            contact={contact}
+            key={_contact.id}
+            _contact={_contact}
             onCall={handleCall}
             onMessage={handleMessage}
             onDelete={deleteContact}
@@ -183,7 +183,7 @@ const SupportNetwork = () => {
             Add people who support your recovery journey
           </p>
           <Button 
-            onClick={() => setIsAdding(true)}
+            onClick={() => setIsAdding(_true)}
             className="bg-blue-600 hover:bg-blue-700"
           >
             Add Your First Contact

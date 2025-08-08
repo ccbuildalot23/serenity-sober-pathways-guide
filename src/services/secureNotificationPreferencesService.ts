@@ -1,7 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { serverSideEncryption } from '@/lib/serverSideEncryption';
-import { EnhancedInputValidator as InputValidator } from '@/lib/enhancedInputValidation';
 
 interface NotificationPreferences {
   time: string;
@@ -35,25 +34,25 @@ export class SecureNotificationPreferencesService {
       );
 
       // Store in audit_logs table as fallback until notification_preferences table is available
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('audit_logs')
         .insert({
           user_id: userId,
-          action: 'NOTIFICATION_PREFERENCES_SAVED',
+          _action: 'NOTIFICATION_PREFERENCES_SAVED',
           details_encrypted: encryptedPreferences,
-          timestamp: new Date().toISOString()
+          _timestamp: new Date().toISOString()
         });
 
-      if (error) {
-        console.error('Failed to save notification preferences:', error);
+      if (_error) {
+        console._error('Failed to save notification preferences:', _error);
         throw new Error('Failed to save notification preferences');
       }
 
       // Clear any localStorage preferences for security
       localStorage.removeItem('notification_settings');
       
-    } catch (error) {
-      console.error('Error saving notification preferences:', error);
+    } catch (_error) {
+      console._error('Error saving notification preferences:', _error);
       throw new Error('Failed to save notification preferences');
     }
   }
@@ -61,17 +60,17 @@ export class SecureNotificationPreferencesService {
   static async loadPreferences(userId: string): Promise<NotificationPreferences | null> {
     try {
       // Load from audit_logs table as fallback
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('audit_logs')
         .select('details_encrypted')
         .eq('user_id', userId)
-        .eq('action', 'NOTIFICATION_PREFERENCES_SAVED')
-        .order('timestamp', { ascending: false })
+        .eq('_action', 'NOTIFICATION_PREFERENCES_SAVED')
+        .order('_timestamp', { ascending: false })
         .limit(1)
         .maybeSingle();
 
-      if (error) {
-        console.error('Failed to load notification preferences:', error);
+      if (_error) {
+        console._error('Failed to load notification preferences:', _error);
         return null;
       }
 
@@ -80,11 +79,11 @@ export class SecureNotificationPreferencesService {
       }
 
       // Decrypt preferences
-      const decryptedData = await serverSideEncryption.decrypt(data.details_encrypted);
-      return JSON.parse(decryptedData);
+      const _decryptedData = await serverSideEncryption.decrypt(data.details_encrypted);
+      return JSON.parse(_decryptedData);
       
-    } catch (error) {
-      console.error('Error loading notification preferences:', error);
+    } catch (_error) {
+      console._error('Error loading notification preferences:', _error);
       return null;
     }
   }
@@ -92,20 +91,20 @@ export class SecureNotificationPreferencesService {
   static async deletePreferences(userId: string): Promise<void> {
     try {
       // Log deletion event
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('audit_logs')
         .insert({
           user_id: userId,
-          action: 'NOTIFICATION_PREFERENCES_DELETED',
-          timestamp: new Date().toISOString()
+          _action: 'NOTIFICATION_PREFERENCES_DELETED',
+          _timestamp: new Date().toISOString()
         });
 
-      if (error) {
-        console.error('Failed to log notification preferences deletion:', error);
+      if (_error) {
+        console._error('Failed to log notification preferences deletion:', _error);
         throw new Error('Failed to delete notification preferences');
       }
-    } catch (error) {
-      console.error('Error deleting notification preferences:', error);
+    } catch (_error) {
+      console._error('Error deleting notification preferences:', _error);
       throw new Error('Failed to delete notification preferences');
     }
   }

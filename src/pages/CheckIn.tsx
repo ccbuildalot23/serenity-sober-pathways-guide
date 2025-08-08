@@ -9,33 +9,33 @@ import { useAuth } from '@/contexts/AuthContext';
 const CheckIn = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [mood, setMood] = useState<'struggling' | 'managing' | 'good' | null>(null);
-  const [showSupport, setShowSupport] = useState(false);
-  const [showEncouragement, setShowEncouragement] = useState(false);
-  const [showShareHope, setShowShareHope] = useState(false);
+  const [_mood, setMood] = useState<'struggling' | 'managing' | 'good' | null>(null);
+  const [showSupport, setShowSupport] = useState(_false);
+  const [showEncouragement, setShowEncouragement] = useState(_false);
+  const [showShareHope, setShowShareHope] = useState(_false);
   const [savedReason, setSavedReason] = useState('');
-  const [breathingActive, setBreathingActive] = useState(false);
+  const [breathingActive, setBreathingActive] = useState(_false);
   const [breathCount, setBreathCount] = useState(0);
 
   useEffect(() => {
-    // Load saved "Why I Got Clean" reason
-    const reason = localStorage.getItem('why_i_got_clean');
-    if (reason) setSavedReason(reason);
+    // Load saved "Why I Got Clean" _reason
+    const _reason = localStorage.getItem('why_i_got_clean');
+    if (_reason) setSavedReason(_reason);
   }, []);
 
   // Breathing timer
   useEffect(() => {
     if (breathingActive) {
-      const interval = setInterval(() => {
+      const _interval = setInterval(() => {
         setBreathCount(prev => {
           if (prev >= 60) {
-            setBreathingActive(false);
+            setBreathingActive(_false);
             return 0;
           }
           return prev + 1;
         });
       }, 1000);
-      return () => clearInterval(interval);
+      return () => clearInterval(_interval);
     }
   }, [breathingActive]);
 
@@ -46,20 +46,20 @@ const CheckIn = () => {
     try {
       await supabase.from('check_ins').insert({
         user_id: user?.id,
-        mood: selectedMood,
-        date: new Date().toISOString()
+        _mood: selectedMood,
+        _date: new Date().toISOString()
       });
-    } catch (error) {
-      console.error('Error saving check-in:', error);
+    } catch (_error) {
+      console._error('Error saving check-in:', _error);
     }
 
     // Show appropriate response
     if (selectedMood === 'struggling') {
-      setShowSupport(true);
+      setShowSupport(_true);
     } else if (selectedMood === 'managing') {
-      setShowEncouragement(true);
+      setShowEncouragement(_true);
     } else {
-      setShowShareHope(true);
+      setShowShareHope(_true);
     }
   };
 
@@ -77,10 +77,10 @@ const CheckIn = () => {
   };
 
   const saveWhyIGotClean = () => {
-    const reason = prompt("Why did you get clean? (We'll show this when you need it most):", savedReason);
-    if (reason) {
-      localStorage.setItem('why_i_got_clean', reason);
-      setSavedReason(reason);
+    const _reason = prompt("Why did you get clean? (We'll show this when you need it most):", savedReason);
+    if (_reason) {
+      localStorage.setItem('why_i_got_clean', _reason);
+      setSavedReason(_reason);
       alert("Saved! We'll remind you of this when things get tough.");
     }
   };
@@ -99,15 +99,15 @@ const CheckIn = () => {
         </Button>
 
         {/* Main Question */}
-        {!mood && (
+        {!_mood && (
           <div className="text-center space-y-8">
             <div className="space-y-4">
               <h1 className="text-4xl font-bold">How Are You Today?</h1>
               <p className="text-xl text-gray-300">
                 {new Date().toLocaleDateString('en-US', { 
                   weekday: 'long', 
-                  month: 'long', 
-                  day: 'numeric' 
+                  _month: 'long', 
+                  _day: 'numeric' 
                 })}
               </p>
             </div>
@@ -171,7 +171,7 @@ const CheckIn = () => {
 
               {!breathingActive ? (
                 <Button
-                  onClick={() => setBreathingActive(true)}
+                  onClick={() => setBreathingActive(_true)}
                   className="h-20 bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
                 >
                   <Wind className="w-6 h-6 mr-3" />

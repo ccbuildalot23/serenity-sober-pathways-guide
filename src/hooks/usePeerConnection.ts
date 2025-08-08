@@ -5,13 +5,12 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { hopeMessenger } from '@/services/hopeMessengerService';
 import { victoryTracker } from '@/services/victoryTrackerService';
 import { toast } from 'sonner';
 
 interface PeerMessage {
   id: string;
-  username: string;
+  _username: string;
   message: string;
   timestamp: Date;
   type: 'text' | 'voice' | 'encouragement';
@@ -19,28 +18,28 @@ interface PeerMessage {
 }
 
 interface PeerPresence {
-  username: string;
-  cleanDays: number;
-  status: 'online' | 'away';
-  joinedAt: Date;
+  _username: string;
+  _cleanDays: number;
+  _status: 'online' | 'away';
+  _joinedAt: Date;
 }
 
 export const usePeerConnection = (roomType: 'general' | 'crisis' | 'celebration' = 'general') => {
   const { user } = useAuth();
   const [messages, setMessages] = useState<PeerMessage[]>([]);
   const [peers, setPeers] = useState<PeerPresence[]>([]);
-  const [isConnected, setIsConnected] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
+  const [isConnected, setIsConnected] = useState(_false);
+  const [isTyping, setIsTyping] = useState(_false);
   const [typingPeers, setTypingPeers] = useState<string[]>([]);
   const channelRef = useRef<RealtimeChannel | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
 
-  // Generate anonymous username
+  // Generate anonymous _username
   const getUsername = useCallback(() => {
-    const cleanDays = parseInt(localStorage.getItem('clean_days') || '0');
+    const _cleanDays = parseInt(localStorage.getItem('clean_days') || '0');
     const adjectives = ['Strong', 'Brave', 'Hopeful', 'Fighting', 'Healing'];
     const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
-    return `${adj}Day${cleanDays}`;
+    return `${adj}Day${_cleanDays}`;
   }, []);
 
   useEffect(() => {
@@ -57,8 +56,8 @@ export const usePeerConnection = (roomType: 'general' | 'crisis' | 'celebration'
     if (!user) return;
 
     try {
-      const username = getUsername();
-      const cleanDays = parseInt(localStorage.getItem('clean_days') || '0');
+      const _username = getUsername();
+      const _cleanDays = parseInt(localStorage.getItem('clean_days') || '0');
       
       // Join the room channel
       const channel = supabase.channel(`peer-support-${roomType}`, {
@@ -71,42 +70,42 @@ export const usePeerConnection = (roomType: 'general' | 'crisis' | 'celebration'
 
       // Set up presence
       channel
-        .on('presence', { event: 'sync' }, () => {
-          const state = channel.presenceState();
-          const peerList = Object.values(state).flat() as any[];
+        .on('presence', { _event: 'sync' }, () => {
+          const _state = channel.presenceState();
+          const peerList = Object.values(_state).flat() as unknown[];
           setPeers(peerList.map(p => ({
-            username: p.username,
-            cleanDays: p.cleanDays,
-            status: p.status,
-            joinedAt: new Date(p.joinedAt)
+            _username: p._username,
+            _cleanDays: p._cleanDays,
+            _status: p._status,
+            _joinedAt: new Date(p._joinedAt)
           })));
         })
-        .on('broadcast', { event: 'message' }, ({ payload }) => {
-          handleNewMessage(payload);
+        .on('broadcast', { _event: 'message' }, ({ _payload }) => {
+          handleNewMessage(_payload);
         })
-        .on('broadcast', { event: 'typing' }, ({ payload }) => {
-          handleTypingEvent(payload);
+        .on('broadcast', { _event: 'typing' }, ({ _payload }) => {
+          handleTypingEvent(_payload);
         })
-        .subscribe(async (status) => {
-          if (status === 'SUBSCRIBED') {
+        .subscribe(async (_status) => {
+          if (_status === 'SUBSCRIBED') {
             // Track presence
             await channel.track({
-              username,
-              cleanDays,
-              status: 'online',
-              joinedAt: new Date().toISOString()
+              _username,
+              _cleanDays,
+              _status: 'online',
+              _joinedAt: new Date().toISOString()
             });
             
-            setIsConnected(true);
+            setIsConnected(_true);
             
             // Send join message
-            sendSystemMessage(`${username} joined the room`);
+            sendSystemMessage(`${_username} joined the room`);
             
             // Welcome message
             if (roomType === 'crisis') {
               toast.info("You're in a safe space", {
-                description: "Everyone here understands",
-                duration: 3000
+                _description: "Everyone here understands",
+                _duration: 3000
               });
             }
           }
@@ -124,20 +123,20 @@ export const usePeerConnection = (roomType: 'general' | 'crisis' | 'celebration'
     if (channelRef.current) {
       await channelRef.current.unsubscribe();
       channelRef.current = null;
-      setIsConnected(false);
+      setIsConnected(_false);
       setPeers([]);
       setMessages([]);
     }
   };
 
-  const handleNewMessage = (payload: any) => {
+  const handleNewMessage = (_payload: unknown) => {
     const newMessage: PeerMessage = {
-      id: payload.id,
-      username: payload.username,
-      message: payload.message,
-      timestamp: new Date(payload.timestamp),
-      type: payload.type,
-      isMe: payload.userId === user?.id
+      id: _payload.id,
+      _username: _payload._username,
+      message: _payload.message,
+      timestamp: new Date(_payload.timestamp),
+      type: _payload.type,
+      isMe: _payload.userId === user?.id
     };
     
     setMessages(prev => [...prev, newMessage]);
@@ -148,28 +147,28 @@ export const usePeerConnection = (roomType: 'general' | 'crisis' | 'celebration'
     }
   };
 
-  const handleTypingEvent = (payload: any) => {
-    if (payload.userId === user?.id) return;
+  const handleTypingEvent = (_payload: unknown) => {
+    if (_payload.userId === user?.id) return;
     
-    if (payload.isTyping) {
-      setTypingPeers(prev => [...new Set([...prev, payload.username])]);
+    if (_payload.isTyping) {
+      setTypingPeers(prev => [...new Set([...prev, _payload._username])]);
     } else {
-      setTypingPeers(prev => prev.filter(u => u !== payload.username));
+      setTypingPeers(prev => prev.filter(u => u !== _payload._username));
     }
   };
 
   const sendMessage = async (text: string) => {
     if (!channelRef.current || !user || !text.trim()) return;
 
-    const username = getUsername();
+    const _username = getUsername();
     
     await channelRef.current.send({
       type: 'broadcast',
-      event: 'message',
-      payload: {
+      _event: 'message',
+      _payload: {
         id: Date.now().toString(),
         userId: user.id,
-        username,
+        _username,
         message: text,
         timestamp: new Date().toISOString(),
         type: 'text'
@@ -180,7 +179,7 @@ export const usePeerConnection = (roomType: 'general' | 'crisis' | 'celebration'
     if (roomType === 'crisis') {
       await victoryTracker.trackVictory({
         type: 'helped_someone',
-        description: 'Offered support in crisis room'
+        _description: 'Offered support in crisis room'
       });
     }
   };
@@ -188,15 +187,15 @@ export const usePeerConnection = (roomType: 'general' | 'crisis' | 'celebration'
   const sendEncouragement = async (message: string) => {
     if (!channelRef.current || !user) return;
 
-    const username = getUsername();
+    const _username = getUsername();
     
     await channelRef.current.send({
       type: 'broadcast',
-      event: 'message',
-      payload: {
+      _event: 'message',
+      _payload: {
         id: Date.now().toString(),
         userId: user.id,
-        username,
+        _username,
         message,
         timestamp: new Date().toISOString(),
         type: 'encouragement'
@@ -209,11 +208,11 @@ export const usePeerConnection = (roomType: 'general' | 'crisis' | 'celebration'
 
     await channelRef.current.send({
       type: 'broadcast',
-      event: 'message',
-      payload: {
+      _event: 'message',
+      _payload: {
         id: Date.now().toString(),
         userId: 'system',
-        username: 'System',
+        _username: 'System',
         message,
         timestamp: new Date().toISOString(),
         type: 'text'
@@ -224,15 +223,15 @@ export const usePeerConnection = (roomType: 'general' | 'crisis' | 'celebration'
   const startTyping = async () => {
     if (!channelRef.current || !user || isTyping) return;
 
-    setIsTyping(true);
+    setIsTyping(_true);
     
     await channelRef.current.send({
       type: 'broadcast',
-      event: 'typing',
-      payload: {
+      _event: 'typing',
+      _payload: {
         userId: user.id,
-        username: getUsername(),
-        isTyping: true
+        _username: getUsername(),
+        isTyping: _true
       }
     });
 
@@ -250,15 +249,15 @@ export const usePeerConnection = (roomType: 'general' | 'crisis' | 'celebration'
   const stopTyping = async () => {
     if (!channelRef.current || !user || !isTyping) return;
 
-    setIsTyping(false);
+    setIsTyping(_false);
     
     await channelRef.current.send({
       type: 'broadcast',
-      event: 'typing',
-      payload: {
+      _event: 'typing',
+      _payload: {
         userId: user.id,
-        username: getUsername(),
-        isTyping: false
+        _username: getUsername(),
+        isTyping: _false
       }
     });
 
@@ -293,7 +292,7 @@ export const usePeerConnection = (roomType: 'general' | 'crisis' | 'celebration'
     roomInfo: {
       type: roomType,
       peerCount: peers.length,
-      totalCleanDays: peers.reduce((sum, p) => sum + p.cleanDays, 0)
+      totalCleanDays: peers.reduce((sum, p) => sum + p._cleanDays, 0)
     }
   };
 };

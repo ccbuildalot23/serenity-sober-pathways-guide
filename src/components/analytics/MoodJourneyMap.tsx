@@ -6,7 +6,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { intelligentAnalyticsService } from '@/services/intelligentAnalyticsService';
-import { analyticsService } from '@/services/analyticsService';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -25,8 +24,8 @@ interface MoodPoint {
   date: string;
   mood: number;
   energy?: number;
-  triggers: string[];
-  coping: string[];
+  _triggers: string[];
+  _coping: string[];
   isAnomaly?: boolean;
   note?: string;
 }
@@ -36,25 +35,25 @@ export const MoodJourneyMap: React.FC = () => {
 
   const { data: patterns } = useQuery({
     queryKey: ['mood-patterns', user?.id],
-    queryFn: () => intelligentAnalyticsService.detectMoodPatterns(user!.id),
+    _queryFn: () => intelligentAnalyticsService.detectMoodPatterns(user!.id),
     enabled: !!user?.id
   });
 
   const { data: forecast } = useQuery({
     queryKey: ['mood-forecast', user?.id],
-    queryFn: () => intelligentAnalyticsService.generate7DayMoodForecast(user!.id),
+    _queryFn: () => intelligentAnalyticsService.generate7DayMoodForecast(user!.id),
     enabled: !!user?.id
   });
 
   const { data: recommendations } = useQuery({
     queryKey: ['personalized-recommendations', user?.id],
-    queryFn: () => intelligentAnalyticsService.generatePersonalizedRecommendations(user!.id),
+    _queryFn: () => intelligentAnalyticsService.generatePersonalizedRecommendations(user!.id),
     enabled: !!user?.id
   });
 
   const { data: riskAlerts } = useQuery({
     queryKey: ['risk-alerts', user?.id],
-    queryFn: () => intelligentAnalyticsService.generateRiskAlerts(user!.id),
+    _queryFn: () => intelligentAnalyticsService.generateRiskAlerts(user!.id),
     enabled: !!user?.id
   });
 
@@ -70,8 +69,8 @@ export const MoodJourneyMap: React.FC = () => {
         journey.push({
           date: `Day ${index + 1}`,
           mood: pattern.avgOutcome || 5,
-          triggers: pattern.commonTriggers || [],
-          coping: pattern.effectiveCoping || [],
+          _triggers: pattern.commonTriggers || [],
+          _coping: pattern.effectiveCoping || [],
           isAnomaly: false
         });
       });
@@ -120,8 +119,8 @@ export const MoodJourneyMap: React.FC = () => {
     });
   };
 
-  const getTrendIcon = (direction: string) => {
-    switch (direction) {
+  const getTrendIcon = (_direction: string) => {
+    switch (_direction) {
       case 'improving':
         return <TrendingUp className="h-4 w-4 text-success" />;
       case 'declining':
@@ -131,8 +130,8 @@ export const MoodJourneyMap: React.FC = () => {
     }
   };
 
-  const getRiskBadgeVariant = (level: string) => {
-    switch (level) {
+  const getRiskBadgeVariant = (_level: string) => {
+    switch (_level) {
       case 'critical': return 'destructive';
       case 'high': return 'destructive';
       case 'medium': return 'secondary';
@@ -182,9 +181,9 @@ export const MoodJourneyMap: React.FC = () => {
                 <p className="text-sm mb-2">
                   Probability: {Math.round(alert.probability)}%
                 </p>
-                {alert.triggers.length > 0 && (
+                {alert._triggers.length > 0 && (
                   <div className="text-sm">
-                    <strong>Factors:</strong> {alert.triggers.join(', ')}
+                    <strong>Factors:</strong> {alert._triggers.join(', ')}
                   </div>
                 )}
               </div>

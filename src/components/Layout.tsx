@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Calendar, Users, BookOpen, User, Settings, Heart, Target, Shield, MessageCircle } from 'lucide-react';
+import { Home, Calendar, Users, BookOpen, User, Heart, Target, MessageCircle } from 'lucide-react';
 import RealtimeNotificationBell from '@/components/realtime/RealtimeNotificationBell';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -11,7 +11,7 @@ interface LayoutProps {
   onProfileClick?: () => void;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onProfileClick }) => {
+const Layout: React.FC<LayoutProps> = ({ children, activeTab: _activeTab, onTabChange, onProfileClick }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
@@ -25,7 +25,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onPro
     { id: 'motivation', label: 'Motivation', icon: BookOpen, path: '/motivation' },
   ];
 
-  const handleNavClick = (tab: any) => {
+  const handleNavClick = (tab: { id: string; path: string }) => {
     onTabChange(tab.id);
     navigate(tab.path);
   };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search, Calendar, Filter, Download, Bookmark } from 'lucide-react';
+import { Search, Filter, Download, Bookmark } from 'lucide-react';
 import { useRealtimePeerChat } from '@/hooks/useRealtimePeerChat';
 
 interface SearchResult {
@@ -33,32 +33,32 @@ interface MessageSearchProps {
 }
 
 export const MessageSearch: React.FC<MessageSearchProps> = ({ sessionId }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [_searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month'>('all');
+  const [isSearching, setIsSearching] = useState(_false);
+  const [_dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month'>('all');
   const [senderFilter, setSenderFilter] = useState<'all' | 'user' | 'supporter'>('all');
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(_false);
 
   const { searchMessages } = useRealtimePeerChat({
     sessionId,
   });
 
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
+  const _handleSearch = async () => {
+    if (!_searchQuery.trim()) return;
 
-    setIsSearching(true);
+    setIsSearching(_true);
     try {
-      const results = await searchMessages(searchQuery);
+      const results = await searchMessages(_searchQuery);
       
       // Apply filters
-      let filteredResults = results;
+      let _filteredResults = results;
       
-      if (dateFilter !== 'all') {
+      if (_dateFilter !== 'all') {
         const now = new Date();
         const filterDate = new Date();
         
-        switch (dateFilter) {
+        switch (_dateFilter) {
           case 'today':
             filterDate.setHours(0, 0, 0, 0);
             break;
@@ -70,22 +70,22 @@ export const MessageSearch: React.FC<MessageSearchProps> = ({ sessionId }) => {
             break;
         }
         
-        filteredResults = filteredResults.filter(result => 
+        _filteredResults = _filteredResults.filter(result => 
           new Date(result.created_at) >= filterDate
         );
       }
       
       if (senderFilter !== 'all') {
-        filteredResults = filteredResults.filter(result => 
+        _filteredResults = _filteredResults.filter(result => 
           result.sender_type === senderFilter
         );
       }
       
-      setSearchResults(filteredResults);
-    } catch (error) {
-      console.error('Search failed:', error);
+      setSearchResults(_filteredResults);
+    } catch (_error) {
+      console._error('Search failed:', _error);
     } finally {
-      setIsSearching(false);
+      setIsSearching(_false);
     }
   };
 
@@ -101,15 +101,15 @@ export const MessageSearch: React.FC<MessageSearchProps> = ({ sessionId }) => {
         )
       ].join('\n');
       
-      const blob = new Blob([csvContent], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
+      const _blob = new Blob([csvContent], { type: 'text/csv' });
+      const _url = window.URL.createObjectURL(_blob);
       const a = document.createElement('a');
-      a.href = url;
+      a.href = _url;
       a.download = `conversation-${sessionId}.csv`;
       a.click();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Export failed:', error);
+      window.URL.revokeObjectURL(_url);
+    } catch (_error) {
+      console._error('Export failed:', _error);
     }
   };
 
@@ -129,13 +129,13 @@ export const MessageSearch: React.FC<MessageSearchProps> = ({ sessionId }) => {
   };
 
   useEffect(() => {
-    if (searchQuery) {
-      const debounceTimer = setTimeout(handleSearch, 300);
-      return () => clearTimeout(debounceTimer);
+    if (_searchQuery) {
+      const _debounceTimer = setTimeout(_handleSearch, 300);
+      return () => clearTimeout(_debounceTimer);
     } else {
       setSearchResults([]);
     }
-  }, [searchQuery, dateFilter, senderFilter]);
+  }, [_searchQuery, _dateFilter, senderFilter]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -159,13 +159,13 @@ export const MessageSearch: React.FC<MessageSearchProps> = ({ sessionId }) => {
             <div className="flex-1 min-w-[200px]">
               <Input
                 placeholder="Search messages..."
-                value={searchQuery}
+                value={_searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full"
               />
             </div>
             
-            <Select value={dateFilter} onValueChange={setDateFilter as any}>
+            <Select value={_dateFilter} onValueChange={setDateFilter as any}>
               <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>
@@ -226,7 +226,7 @@ export const MessageSearch: React.FC<MessageSearchProps> = ({ sessionId }) => {
                           </div>
                         </div>
                         <p className="text-sm text-gray-900">
-                          {highlightText(result.message_text, searchQuery)}
+                          {highlightText(result.message_text, _searchQuery)}
                         </p>
                       </div>
                       <Button variant="ghost" size="sm">
@@ -236,9 +236,9 @@ export const MessageSearch: React.FC<MessageSearchProps> = ({ sessionId }) => {
                   </Card>
                 ))}
               </>
-            ) : searchQuery ? (
+            ) : _searchQuery ? (
               <div className="text-center py-8 text-gray-500">
-                No messages found matching "{searchQuery}"
+                No messages found matching "{_searchQuery}"
               </div>
             ) : (
               <div className="text-center py-8 text-gray-400">

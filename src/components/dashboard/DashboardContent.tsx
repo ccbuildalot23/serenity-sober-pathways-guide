@@ -10,9 +10,9 @@ import { CrisisSupport } from '@/components/dashboard/CrisisSupport';
 import { DashboardHeaderSkeleton, DashboardStatsSkeleton } from '@/components/dashboard/LoadingSkeleton';
 
 interface DashboardContentProps {
-  user: any;
-  profile: any;
-  stats: any;
+  user: unknown;
+  profile: unknown;
+  stats: unknown;
   loading: boolean;
   onCheckInComplete: () => void;
 }

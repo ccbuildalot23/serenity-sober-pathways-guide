@@ -9,12 +9,12 @@ interface UrgeSurfingTimerProps {
 }
 
 const UrgeSurfingTimer: React.FC<UrgeSurfingTimerProps> = ({ onComplete }) => {
-  const [isActive, setIsActive] = useState(false);
+  const [isActive, setIsActive] = useState(_false);
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [currentGuidance, setCurrentGuidance] = useState(0);
-  const [isCompleted, setIsCompleted] = useState(false);
+  const [_isCompleted, setIsCompleted] = useState(_false);
 
-  const totalDuration = 120; // 2 minutes in seconds
+  const _totalDuration = 120; // 2 minutes in seconds
   
   const guidance = [
     {
@@ -40,22 +40,22 @@ const UrgeSurfingTimer: React.FC<UrgeSurfingTimerProps> = ({ onComplete }) => {
   ];
 
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+    let _interval: NodeJS.Timeout | null = null;
     
-    if (isActive && timeElapsed < totalDuration) {
-      interval = setInterval(() => {
+    if (isActive && timeElapsed < _totalDuration) {
+      _interval = setInterval(() => {
         setTimeElapsed(prev => {
           const newTime = prev + 1;
           
           // Update guidance based on time
           const nextGuidanceIndex = guidance.findIndex(g => g.time > newTime) - 1;
-          const validIndex = Math.max(0, nextGuidanceIndex >= 0 ? nextGuidanceIndex : guidance.length - 1);
-          setCurrentGuidance(validIndex);
+          const _validIndex = Math.max(0, nextGuidanceIndex >= 0 ? nextGuidanceIndex : guidance.length - 1);
+          setCurrentGuidance(_validIndex);
           
           // Complete when time is up
-          if (newTime >= totalDuration) {
-            setIsActive(false);
-            setIsCompleted(true);
+          if (newTime >= _totalDuration) {
+            setIsActive(_false);
+            setIsCompleted(_true);
           }
           
           return newTime;
@@ -64,31 +64,31 @@ const UrgeSurfingTimer: React.FC<UrgeSurfingTimerProps> = ({ onComplete }) => {
     }
 
     return () => {
-      if (interval) clearInterval(interval);
+      if (_interval) clearInterval(_interval);
     };
   }, [isActive, timeElapsed]);
 
   const handleStart = () => {
-    setIsActive(true);
+    setIsActive(_true);
   };
 
   const handlePause = () => {
-    setIsActive(false);
+    setIsActive(_false);
   };
 
   const handleStop = () => {
-    setIsActive(false);
+    setIsActive(_false);
     setTimeElapsed(0);
     setCurrentGuidance(0);
-    setIsCompleted(false);
+    setIsCompleted(_false);
   };
 
-  const progress = (timeElapsed / totalDuration) * 100;
-  const waveHeight = Math.sin((timeElapsed / totalDuration) * Math.PI * 2) * 0.3 + 0.5;
-  const waveOffset = (timeElapsed / totalDuration) * 200;
+  const progress = (timeElapsed / _totalDuration) * 100;
+  const waveHeight = Math.sin((timeElapsed / _totalDuration) * Math.PI * 2) * 0.3 + 0.5;
+  const waveOffset = (timeElapsed / _totalDuration) * 200;
 
   // Completion screen
-  if (isCompleted) {
+  if (_isCompleted) {
     return (
       <Card className="w-full max-w-md mx-auto">
         <CardHeader className="text-center">
@@ -147,7 +147,7 @@ const UrgeSurfingTimer: React.FC<UrgeSurfingTimerProps> = ({ onComplete }) => {
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="text-blue-800 font-semibold text-lg bg-white/80 px-3 py-1 rounded">
-              {formatTime(totalDuration - timeElapsed)}
+              {formatTime(_totalDuration - timeElapsed)}
             </span>
           </div>
         </div>
@@ -166,7 +166,7 @@ const UrgeSurfingTimer: React.FC<UrgeSurfingTimerProps> = ({ onComplete }) => {
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span>Progress</span>
-            <span>{formatTime(timeElapsed)} / {formatTime(totalDuration)}</span>
+            <span>{formatTime(timeElapsed)} / {formatTime(_totalDuration)}</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-3">
             <div 

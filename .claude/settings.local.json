@@ -25,7 +25,13 @@
       "Bash(gh workflow list:*)",
       "Bash(git reset:*)",
       "Bash(gh api:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(npm:*)",
+      "Bash(gh pr status:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(git fetch:*)",
+      "Bash(rm:*)",
+      "Bash(git merge:*)"
     ],
     "deny": []
   }

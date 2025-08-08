@@ -46,18 +46,18 @@ const FollowUpDashboard = () => {
   }, []);
 
   const loadData = () => {
-    // Load crisis resolutions
-    const resolutions = JSON.parse(localStorage.getItem('crisisResolutions') || '[]');
-    setCrisisHistory(resolutions);
+    // Load crisis _resolutions
+    const _resolutions = JSON.parse(localStorage.getItem('crisisResolutions') || '[]');
+    setCrisisHistory(_resolutions);
 
-    // Load check-in responses
-    const responses = JSON.parse(localStorage.getItem('checkInResponses') || '[]');
-    setCheckInHistory(responses);
+    // Load check-in _responses
+    const _responses = JSON.parse(localStorage.getItem('checkInResponses') || '[]');
+    setCheckInHistory(_responses);
 
     // Count pending tasks
     const tasks = JSON.parse(localStorage.getItem('followUpTasks') || '[]');
     const now = new Date();
-    const pending = tasks.filter((task: any) => {
+    const pending = tasks.filter((task: unknown) => {
       const scheduledTime = new Date(task.scheduled);
       return !task.completed && scheduledTime <= now;
     });
@@ -86,8 +86,8 @@ const FollowUpDashboard = () => {
     return 'stable';
   };
 
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
+  const getTrendIcon = (_trend: string) => {
+    switch (_trend) {
       case 'improving':
         return <TrendingUp className="w-4 h-4 text-green-600" />;
       case 'declining':
@@ -97,8 +97,8 @@ const FollowUpDashboard = () => {
     }
   };
 
-  const getTrendColor = (trend: string) => {
-    switch (trend) {
+  const getTrendColor = (_trend: string) => {
+    switch (_trend) {
       case 'improving':
         return 'text-green-600 bg-green-50 border-green-200';
       case 'declining':
@@ -145,7 +145,7 @@ const FollowUpDashboard = () => {
               <Heart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h4 className="font-semibold text-gray-600 mb-2">No history yet</h4>
               <p className="text-sm text-gray-500">
-                Your crisis resolutions and check-in responses will appear here
+                Your crisis _resolutions and check-in _responses will appear here
               </p>
             </Card>
           ) : (

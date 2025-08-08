@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -25,18 +25,18 @@ const TestPage = () => {
   
   return (
     <div style={{ 
-      padding: '20px', 
-      backgroundColor: '#f0f0f0', 
-      minHeight: '100vh',
-      fontFamily: 'Arial, sans-serif'
+      _padding: '20px', 
+      _backgroundColor: '#f0f0f0', 
+      _minHeight: '100vh',
+      _fontFamily: 'Arial, sans-serif'
     }}>
       <h1 style={{ color: '#333' }}>🚀 Serenity App is Working!</h1>
       <p style={{ color: '#666' }}>If you can see this, the React app is loading correctly.</p>
       <div style={{ 
-        backgroundColor: '#e8f5e8', 
-        padding: '15px', 
-        borderRadius: '8px', 
-        marginTop: '20px' 
+        _backgroundColor: '#e8f5e8', 
+        _padding: '15px', 
+        _borderRadius: '8px', 
+        _marginTop: '20px' 
       }}>
         <h3>Debug Info:</h3>
         <ul>

@@ -7,8 +7,8 @@ interface OnboardingWrapperProps {
 }
 
 export const OnboardingWrapper: React.FC<OnboardingWrapperProps> = ({ children }) => {
-  const [shouldShowOnboarding, setShouldShowOnboarding] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [_shouldShowOnboarding, setShouldShowOnboarding] = useState(_false);
+  const [_isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Check if onboarding has been completed
@@ -23,7 +23,7 @@ export const OnboardingWrapper: React.FC<OnboardingWrapperProps> = ({ children }
         // If there's an error, default to showing onboarding
         setShouldShowOnboarding(true);
       } finally {
-        setIsLoading(false);
+        setIsLoading(_false);
       }
     };
 
@@ -32,7 +32,7 @@ export const OnboardingWrapper: React.FC<OnboardingWrapperProps> = ({ children }
 
   const handleOnboardingComplete = (data: OnboardingData) => {
     console.log('Onboarding completed with data:', data);
-    setShouldShowOnboarding(false);
+    setShouldShowOnboarding(_false);
   };
 
   const handleOnboardingSkip = () => {
@@ -43,10 +43,10 @@ export const OnboardingWrapper: React.FC<OnboardingWrapperProps> = ({ children }
       skipped: true,
     };
     localStorage.setItem('serenity_onboarding_completed', JSON.stringify(completionData));
-    setShouldShowOnboarding(false);
+    setShouldShowOnboarding(_false);
   };
 
-  if (isLoading) {
+  if (_isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center space-y-4">
@@ -59,7 +59,7 @@ export const OnboardingWrapper: React.FC<OnboardingWrapperProps> = ({ children }
     );
   }
 
-  if (shouldShowOnboarding) {
+  if (_shouldShowOnboarding) {
     return (
       <OnboardingFlow
         onComplete={handleOnboardingComplete}

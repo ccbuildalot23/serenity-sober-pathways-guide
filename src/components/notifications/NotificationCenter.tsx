@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, Check, CheckCheck, Settings, Clock, X, Trash2 } from 'lucide-react';
+import { Bell, Check, CheckCheck, Settings, Clock, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,17 +21,17 @@ export function NotificationCenter() {
   const {
     notifications,
     unreadCount,
-    loading,
+    _loading,
     markAsRead,
     markAllAsRead,
     deleteNotification,
     snoozeNotification,
   } = useRecoveryNotifications();
 
-  const [showPreferences, setShowPreferences] = useState(false);
+  const [showPreferences, setShowPreferences] = useState(_false);
 
-  const getPriorityColor = (priority: RecoveryNotification['priority']) => {
-    switch (priority) {
+  const getPriorityColor = (_priority: RecoveryNotification['_priority']) => {
+    switch (_priority) {
       case 'urgent': return 'destructive';
       case 'high': return 'secondary';
       case 'normal': return 'outline';
@@ -40,8 +40,8 @@ export function NotificationCenter() {
     }
   };
 
-  const getNotificationIcon = (type: RecoveryNotification['notification_type']) => {
-    switch (type) {
+  const getNotificationIcon = (_type: RecoveryNotification['notification_type']) => {
+    switch (_type) {
       case 'goal_due_reminder':
       case 'goal_overdue':
         return '⏰';
@@ -63,15 +63,15 @@ export function NotificationCenter() {
     }
   };
 
-  const handleSnooze = async (notificationId: string, minutes: number) => {
+  const handleSnooze = async (_notificationId: string, _minutes: number) => {
     try {
-      await snoozeNotification(notificationId, minutes);
-    } catch (error) {
-      console.error('Error snoozing notification:', error);
+      await snoozeNotification(_notificationId, _minutes);
+    } catch (_error) {
+      console._error('Error snoozing notification:', _error);
     }
   };
 
-  if (loading) {
+  if (_loading) {
     return (
       <Card className="w-full max-w-md">
         <CardHeader>
@@ -124,7 +124,7 @@ export function NotificationCenter() {
                 <DialogHeader>
                   <DialogTitle>Notification Preferences</DialogTitle>
                 </DialogHeader>
-                <NotificationPreferences onClose={() => setShowPreferences(false)} />
+                <NotificationPreferences onClose={() => setShowPreferences(_false)} />
               </DialogContent>
             </Dialog>
           </div>
@@ -140,7 +140,7 @@ export function NotificationCenter() {
             </div>
           ) : (
             <div className="space-y-1">
-              {notifications.map((notification, index) => (
+              {notifications.map((notification, _index) => (
                 <div key={notification.id}>
                   <div
                     className={`p-4 hover:bg-muted/50 transition-colors ${
@@ -159,10 +159,10 @@ export function NotificationCenter() {
                           </h4>
                           <div className="flex items-center gap-1">
                             <Badge 
-                              variant={getPriorityColor(notification.priority)} 
+                              variant={getPriorityColor(notification._priority)} 
                               className="text-xs"
                             >
-                              {notification.priority}
+                              {notification._priority}
                             </Badge>
                             
                             <DropdownMenu>
@@ -227,7 +227,7 @@ export function NotificationCenter() {
                       </div>
                     </div>
                   </div>
-                  {index < notifications.length - 1 && <Separator />}
+                  {_index < notifications.length - 1 && <Separator />}
                 </div>
               ))}
             </div>

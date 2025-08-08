@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 
 interface PerformanceMetrics {
   version: string;
-  buildTimestamp: string;
+  _buildTimestamp: string;
   environment: 'development' | 'staging' | 'production';
-  uptime: string;
+  _uptime: string;
   memoryUsage?: {
     used: number;
     total: number;
@@ -15,15 +15,15 @@ interface PerformanceMetrics {
 export const PerformanceDashboard: React.FC = () => {
   const [metrics, setMetrics] = useState<PerformanceMetrics>({
     version: '1.0.0',
-    buildTimestamp: new Date().toISOString(),
-    environment: import.meta.env.MODE as 'development' | 'staging' | 'production',
-    uptime: '0s'
+    _buildTimestamp: new Date().toISOString(),
+    environment: import.meta._env.MODE as 'development' | 'staging' | 'production',
+    _uptime: '0s'
   });
   
   const [startTime] = useState(Date.now());
 
   useEffect(() => {
-    const updateMetrics = () => {
+    const _updateMetrics = () => {
       const now = Date.now();
       const uptimeMs = now - startTime;
       const uptimeSeconds = Math.floor(uptimeMs / 1000);
@@ -52,23 +52,23 @@ export const PerformanceDashboard: React.FC = () => {
 
       setMetrics(prev => ({
         ...prev,
-        uptime: uptimeString,
-        buildTimestamp: import.meta.env.BUILD_TIME || new Date().toISOString(),
+        _uptime: uptimeString,
+        _buildTimestamp: import.meta._env.BUILD_TIME || new Date().toISOString(),
         memoryUsage: memoryInfo
       }));
     };
 
     // Update immediately
-    updateMetrics();
+    _updateMetrics();
     
     // Update every second
-    const interval = setInterval(updateMetrics, 1000);
+    const _interval = setInterval(_updateMetrics, 1000);
     
-    return () => clearInterval(interval);
+    return () => clearInterval(_interval);
   }, [startTime]);
 
-  const getEnvironmentColor = (env: string) => {
-    switch (env) {
+  const getEnvironmentColor = (_env: string) => {
+    switch (_env) {
       case 'production':
         return '#ef4444'; // red-500
       case 'staging':
@@ -79,8 +79,8 @@ export const PerformanceDashboard: React.FC = () => {
     }
   };
 
-  const getEnvironmentBgColor = (env: string) => {
-    switch (env) {
+  const getEnvironmentBgColor = (_env: string) => {
+    switch (_env) {
       case 'production':
         return '#fef2f2'; // red-50
       case 'staging':
@@ -94,15 +94,15 @@ export const PerformanceDashboard: React.FC = () => {
   return (
     <div style={{
       position: 'fixed',
-      top: '10px',
-      right: '10px',
+      _top: '10px',
+      _right: '10px',
       backgroundColor: 'white',
       border: '1px solid #e5e7eb',
       borderRadius: '8px',
       padding: '12px',
       fontSize: '12px',
-      fontFamily: 'monospace',
-      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+      _fontFamily: 'monospace',
+      _boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
       zIndex: 9999,
       minWidth: '200px'
     }}>
@@ -146,13 +146,13 @@ export const PerformanceDashboard: React.FC = () => {
         
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <span style={{ color: '#6b7280' }}>Uptime:</span>
-          <span style={{ fontWeight: 'bold', color: '#059669' }}>{metrics.uptime}</span>
+          <span style={{ fontWeight: 'bold', color: '#059669' }}>{metrics._uptime}</span>
         </div>
         
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <span style={{ color: '#6b7280' }}>Build:</span>
           <span style={{ fontSize: '10px', color: '#9ca3af' }}>
-            {new Date(metrics.buildTimestamp).toLocaleTimeString()}
+            {new Date(metrics._buildTimestamp).toLocaleTimeString()}
           </span>
         </div>
 

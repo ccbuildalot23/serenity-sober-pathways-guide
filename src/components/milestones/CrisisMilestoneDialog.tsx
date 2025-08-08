@@ -45,13 +45,13 @@ const CrisisMilestoneDialog: React.FC<CrisisMilestoneDialogProps> = ({
   const [helpfulInterventions, setHelpfulInterventions] = useState<string[]>([]);
   const [crisisMessage, setCrisisMessage] = useState('');
 
-  const lastCrisisDate = crisisData[0]?.crisis_start_time;
-  const daysSinceLastCrisis = lastCrisisDate 
-    ? Math.floor((Date.now() - new Date(lastCrisisDate).getTime()) / (1000 * 60 * 60 * 24))
+  const _lastCrisisDate = crisisData[0]?.crisis_start_time;
+  const daysSinceLastCrisis = _lastCrisisDate 
+    ? Math.floor((Date.now() - new Date(_lastCrisisDate).getTime()) / (1000 * 60 * 60 * 24))
     : null;
 
-  const handleInterventionChange = (intervention: string, checked: boolean) => {
-    if (checked) {
+  const handleInterventionChange = (intervention: string, _checked: boolean) => {
+    if (_checked) {
       setHelpfulInterventions(prev => [...prev, intervention]);
     } else {
       setHelpfulInterventions(prev => prev.filter(item => item !== intervention));
@@ -63,23 +63,23 @@ const CrisisMilestoneDialog: React.FC<CrisisMilestoneDialogProps> = ({
       // Save milestone with crisis-specific data
       await supabase.from('user_achievements').insert({
         user_id: user?.id,
-        badge_name: `${milestone} Days Recovery`,
-        badge_type: 'milestone'
+        _badge_name: `${milestone} Days Recovery`,
+        _badge_type: 'milestone'
       });
 
       // Log achievement
       await log('MILESTONE_ACHIEVED', {
         milestone_days: milestone,
-        crisis_free_days: daysSinceLastCrisis,
-        interventions: helpfulInterventions,
-        crisis_message: crisisMessage
+        _crisis_free_days: daysSinceLastCrisis,
+        _interventions: helpfulInterventions,
+        _crisis_message: crisisMessage
       });
 
       // Trigger confetti celebration
       confetti({
         colors: ['#1E3A8A', '#10B981', '#F59E0B'],
-        spread: 100,
-        particleCount: 200
+        _spread: 100,
+        _particleCount: 200
       });
 
       toast.success('Milestone celebrated and saved!');
@@ -111,16 +111,16 @@ const CrisisMilestoneDialog: React.FC<CrisisMilestoneDialogProps> = ({
           
           <div>
             <Label className="text-base font-medium mb-3 block">
-              What interventions helped most?
+              What _interventions helped most?
             </Label>
             <div className="grid grid-cols-2 gap-3">
               {interventionOptions.map((intervention) => (
                 <div key={intervention} className="flex items-center space-x-2">
                   <Checkbox
                     id={intervention}
-                    checked={helpfulInterventions.includes(intervention)}
-                    onCheckedChange={(checked) => 
-                      handleInterventionChange(intervention, checked as boolean)
+                    _checked={helpfulInterventions.includes(intervention)}
+                    onCheckedChange={(_checked) => 
+                      handleInterventionChange(intervention, _checked as boolean)
                     }
                   />
                   <Label 

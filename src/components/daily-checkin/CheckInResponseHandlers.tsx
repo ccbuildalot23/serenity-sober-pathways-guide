@@ -6,7 +6,7 @@ interface CheckInResponseHandlersProps {
   responses: CheckinResponses;
   setResponses: React.Dispatch<React.SetStateAction<CheckinResponses>>;
   markSectionComplete: (section: string) => void;
-  children: (handlers: any) => React.ReactNode;
+  children: (_handlers: unknown) => React.ReactNode;
 }
 
 export const CheckInResponseHandlers: React.FC<CheckInResponseHandlersProps> = ({
@@ -21,56 +21,56 @@ export const CheckInResponseHandlers: React.FC<CheckInResponseHandlersProps> = (
   };
 
   const handleEnergyChange = (value: number) => {
-    setResponses(prev => ({ ...prev, energy: value }));
+    setResponses(prev => ({ ...prev, _energy: value }));
     markSectionComplete('wellness');
   };
 
   const handleHopeChange = (value: number) => {
-    setResponses(prev => ({ ...prev, hope: value }));
+    setResponses(prev => ({ ...prev, _hope: value }));
     markSectionComplete('wellness');
   };
 
   const handleSobrietyConfidenceChange = (value: number) => {
-    setResponses(prev => ({ ...prev, sobriety_confidence: value }));
+    setResponses(prev => ({ ...prev, _sobriety_confidence: value }));
     markSectionComplete('wellness');
   };
 
   const handleRecoveryImportanceChange = (value: number) => {
-    setResponses(prev => ({ ...prev, recovery_importance: value }));
+    setResponses(prev => ({ ...prev, _recovery_importance: value }));
     markSectionComplete('wellness');
   };
 
   const handleRecoveryStrengthChange = (value: string) => {
-    setResponses(prev => ({ ...prev, recovery_strength: value }));
+    setResponses(prev => ({ ...prev, _recovery_strength: value }));
     markSectionComplete('wellness');
   };
 
   const handleSupportNeededChange = (checked: boolean) => {
-    setResponses(prev => ({ ...prev, support_needed: checked }));
+    setResponses(prev => ({ ...prev, _support_needed: checked }));
     markSectionComplete('wellness');
   };
 
   const handlePhq2Q1Change = (value: number) => {
-    setResponses(prev => ({ ...prev, phq2_q1: value }));
+    setResponses(prev => ({ ...prev, _phq2_q1: value }));
     markSectionComplete('assessments');
   };
 
   const handlePhq2Q2Change = (value: number) => {
-    setResponses(prev => ({ ...prev, phq2_q2: value }));
+    setResponses(prev => ({ ...prev, _phq2_q2: value }));
     markSectionComplete('assessments');
   };
 
   const handleGad2Q1Change = (value: number) => {
-    setResponses(prev => ({ ...prev, gad2_q1: value }));
+    setResponses(prev => ({ ...prev, _gad2_q1: value }));
     markSectionComplete('assessments');
   };
 
   const handleGad2Q2Change = (value: number) => {
-    setResponses(prev => ({ ...prev, gad2_q2: value }));
+    setResponses(prev => ({ ...prev, _gad2_q2: value }));
     markSectionComplete('assessments');
   };
 
-  const handlers = {
+  const _handlers = {
     handleMoodChange,
     handleEnergyChange,
     handleHopeChange,
@@ -84,5 +84,5 @@ export const CheckInResponseHandlers: React.FC<CheckInResponseHandlersProps> = (
     handleGad2Q2Change
   };
 
-  return <>{children(handlers)}</>;
+  return <>{children(_handlers)}</>;
 };

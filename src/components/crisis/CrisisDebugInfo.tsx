@@ -3,7 +3,7 @@ import React from 'react';
 interface CrisisDebugInfoProps {
   voiceListening?: boolean;
   hasLocationPermission?: boolean;
-  currentCrisisEvent?: any;
+  currentCrisisEvent?: unknown;
 }
 
 export const CrisisDebugInfo: React.FC<CrisisDebugInfoProps> = ({

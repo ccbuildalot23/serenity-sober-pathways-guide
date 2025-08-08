@@ -7,12 +7,12 @@ export interface BackupVerificationLog {
   verification_status: string;
   backup_size_bytes?: number;
   verification_started_at: string;
-  verification_completed_at?: string;
+  _verification_completed_at?: string;
   integrity_check_passed?: boolean;
   recovery_test_passed?: boolean;
   geographic_redundancy_verified?: boolean;
-  error_details?: any;
-  verification_metrics?: any;
+  error_details?: unknown;
+  verification_metrics?: unknown;
   next_verification_date?: string;
   created_at: string;
 }
@@ -25,10 +25,10 @@ export interface RecoveryDrillSchedule {
   status: string;
   target_recovery_time_minutes: number;
   actual_recovery_time_minutes?: number;
-  success_criteria: any;
-  results?: any;
-  conducted_by?: string;
-  completed_at?: string;
+  success_criteria: unknown;
+  results?: unknown;
+  _conducted_by?: string;
+  _completed_at?: string;
   next_drill_date?: string;
   created_at: string;
 }
@@ -49,15 +49,15 @@ class BackupVerificationService {
     const today = new Date().toISOString().split('T')[0];
     
     // Check if verification already ran today
-    const { data: existing } = await supabase
+    const { data: _existing } = await supabase
       .from('backup_verification_logs')
       .select('id')
       .eq('backup_date', today)
       .single();
 
-    if (existing) return;
+    if (_existing) return;
 
-    const verificationLog = {
+    const _verificationLog = {
       backup_date: today,
       backup_type: 'daily',
       verification_status: 'running'
@@ -65,7 +65,7 @@ class BackupVerificationService {
 
     const { data: log } = await supabase
       .from('backup_verification_logs')
-      .insert(verificationLog)
+      .insert(_verificationLog)
       .select()
       .single();
 
@@ -78,7 +78,7 @@ class BackupVerificationService {
         .from('backup_verification_logs')
         .update({
           verification_status: 'completed',
-          verification_completed_at: new Date().toISOString(),
+          _verification_completed_at: new Date().toISOString(),
           integrity_check_passed: results.integrityCheck,
           recovery_test_passed: results.recoveryTest,
           geographic_redundancy_verified: results.geographicRedundancy,
@@ -93,14 +93,14 @@ class BackupVerificationService {
         .from('backup_verification_logs')
         .update({
           verification_status: 'failed',
-          verification_completed_at: new Date().toISOString(),
+          _verification_completed_at: new Date().toISOString(),
           error_details: { error: error.message }
         })
         .eq('id', log.id);
     }
   }
 
-  private async performBackupVerification(): Promise<any> {
+  private async performBackupVerification(): Promise<unknown> {
     // Simulate backup verification process
     const metrics = {
       verification_start_time: new Date().toISOString(),
@@ -148,14 +148,14 @@ class BackupVerificationService {
   }
 
   async scheduleRecoveryDrill(drill: Omit<RecoveryDrillSchedule, 'id' | 'created_at' | 'status'>): Promise<RecoveryDrillSchedule> {
-    const drillData = {
+    const _drillData = {
       ...drill,
       status: 'scheduled'
     };
 
     const { data, error } = await supabase
       .from('recovery_drill_schedules')
-      .insert(drillData)
+      .insert(_drillData)
       .select()
       .single();
 
@@ -163,11 +163,11 @@ class BackupVerificationService {
     return data as RecoveryDrillSchedule;
   }
 
-  async conductRecoveryDrill(drillId: string, conductedBy: string): Promise<void> {
+  async conductRecoveryDrill(_drillId: string, conductedBy: string): Promise<void> {
     const startTime = new Date();
     
     try {
-      const drillResults = await this.executeDrill(drillId);
+      const drillResults = await this.executeDrill(_drillId);
       const endTime = new Date();
       const actualRecoveryTime = Math.floor((endTime.getTime() - startTime.getTime()) / (1000 * 60));
 
@@ -175,30 +175,30 @@ class BackupVerificationService {
         .from('recovery_drill_schedules')
         .update({
           status: 'completed',
-          conducted_by: conductedBy,
-          completed_at: endTime.toISOString(),
+          _conducted_by: conductedBy,
+          _completed_at: endTime.toISOString(),
           actual_recovery_time_minutes: actualRecoveryTime,
           results: drillResults,
           next_drill_date: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 90 days
         })
-        .eq('id', drillId);
+        .eq('id', _drillId);
 
     } catch (error) {
       await supabase
         .from('recovery_drill_schedules')
         .update({
           status: 'failed',
-          results: { error: error.message, failed_at: new Date().toISOString() }
+          results: { error: error.message, _failed_at: new Date().toISOString() }
         })
-        .eq('id', drillId);
+        .eq('id', _drillId);
     }
   }
 
-  private async executeDrill(drillId: string): Promise<any> {
+  private async executeDrill(_drillId: string): Promise<unknown> {
     const { data: drill } = await supabase
       .from('recovery_drill_schedules')
       .select('*')
-      .eq('id', drillId)
+      .eq('id', _drillId)
       .single();
 
     if (!drill) throw new Error('Drill not found');
@@ -260,12 +260,12 @@ class BackupVerificationService {
     return results;
   }
 
-  async getVerificationLogs(limit: number = 30): Promise<BackupVerificationLog[]> {
+  async getVerificationLogs(_limit: number = 30): Promise<BackupVerificationLog[]> {
     const { data, error } = await supabase
       .from('backup_verification_logs')
       .select('*')
       .order('backup_date', { ascending: false })
-      .limit(limit);
+      ._limit(_limit);
 
     if (error) throw error;
     return (data || []) as BackupVerificationLog[];
@@ -281,7 +281,7 @@ class BackupVerificationService {
     return (data || []) as RecoveryDrillSchedule[];
   }
 
-  async getBackupMetrics(): Promise<any> {
+  async getBackupMetrics(): Promise<unknown> {
     const { data: logs } = await supabase
       .from('backup_verification_logs')
       .select('*')
@@ -301,13 +301,13 @@ class BackupVerificationService {
       backup_verification_success_rate: totalVerifications > 0 ? (successfulVerifications / totalVerifications) * 100 : 0,
       recovery_drill_success_rate: totalDrills > 0 ? (successfulDrills / totalDrills) * 100 : 0,
       last_successful_verification: logs?.find(l => l.verification_status === 'completed')?.backup_date,
-      last_recovery_drill: drills?.find(d => d.status === 'completed')?.completed_at,
+      last_recovery_drill: drills?.find(d => d.status === 'completed')?._completed_at,
       average_recovery_time: this.calculateAverageRecoveryTime(drills || []),
       geographic_redundancy_status: this.getRedundancyStatus(logs || [])
     };
   }
 
-  private calculateAverageRecoveryTime(drills: any[]): number {
+  private calculateAverageRecoveryTime(drills: unknown[]): number {
     const completedDrills = drills.filter(d => d.status === 'completed' && d.actual_recovery_time_minutes);
     if (completedDrills.length === 0) return 0;
     
@@ -315,11 +315,11 @@ class BackupVerificationService {
     return Math.round(totalTime / completedDrills.length);
   }
 
-  private getRedundancyStatus(logs: any[]): string {
+  private getRedundancyStatus(logs: unknown[]): string {
     const recentLogs = logs.slice(0, 7); // Last 7 days
-    const allVerified = recentLogs.every(log => log.geographic_redundancy_verified);
+    const _allVerified = recentLogs.every(log => log.geographic_redundancy_verified);
     
-    if (allVerified) return 'verified';
+    if (_allVerified) return 'verified';
     if (recentLogs.some(log => log.geographic_redundancy_verified)) return 'partial';
     return 'failed';
   }

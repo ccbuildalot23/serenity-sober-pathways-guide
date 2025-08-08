@@ -9,7 +9,7 @@ export interface NotificationData {
 
 export interface MockPushResult {
   success: boolean;
-  error?: string;
+  _error?: string;
 }
 
 // Request notification permission on app load
@@ -31,8 +31,8 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
   try {
     const permission = await Notification.requestPermission();
     return permission === 'granted';
-  } catch (error) {
-    console.error('Error requesting notification permission:', error);
+  } catch (_error) {
+    console._error('Error requesting notification permission:', _error);
     return false;
   }
 };
@@ -44,7 +44,7 @@ export const getNotificationHistory = (): NotificationData[] => {
   
   try {
     const notifications = JSON.parse(history);
-    return notifications.map((notif: any) => ({
+    return notifications.map((notif: unknown) => ({
       ...notif,
       timestamp: new Date(notif.timestamp)
     }));
@@ -75,21 +75,21 @@ export const sendMockPush = async (
 
   // Check if notifications are supported and permitted
   if (!('Notification' in window)) {
-    return { success: false, error: 'Notifications not supported' };
+    return { success: false, _error: 'Notifications not supported' };
   }
 
   if (Notification.permission !== 'granted') {
-    return { success: false, error: 'Notification permission not granted' };
+    return { success: false, _error: 'Notification permission not granted' };
   }
 
   // Simulate occasional failures (10% chance)
   if (Math.random() < 0.1) {
-    return { success: false, error: 'Network error' };
+    return { success: false, _error: 'Network _error' };
   }
 
   try {
     // Create notification data
-    const notificationData: NotificationData = {
+    const _notificationData: NotificationData = {
       id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       contactName: contact.name,
       message,
@@ -98,18 +98,18 @@ export const sendMockPush = async (
       type: 'emergency_alert'
     };
 
-    // Create the notification title and body
-    const title = `Emergency Alert Sent to ${contact.name}`;
+    // Create the notification _title and body
+    const _title = `Emergency Alert Sent to ${contact.name}`;
     const body = `${message}${location ? `\nLocation: ${location}` : ''}`;
     
     // Create the browser notification
-    const notification = new Notification(title, {
+    const notification = new Notification(_title, {
       body,
-      icon: '/favicon.ico',
-      badge: '/favicon.ico',
-      tag: `emergency_${contact.id}`,
-      requireInteraction: true,
-      silent: false
+      _icon: '/favicon.ico',
+      _badge: '/favicon.ico',
+      _tag: `emergency_${contact.id}`,
+      _requireInteraction: true,
+      _silent: false
     });
 
     // Try to vibrate if supported (mobile devices)
@@ -123,14 +123,14 @@ export const sendMockPush = async (
     }, 10000);
 
     // Add to notification history
-    addToHistory(notificationData);
+    addToHistory(_notificationData);
 
-    console.log('Push notification sent:', notificationData);
+    console.log('Push notification sent:', _notificationData);
     return { success: true };
 
-  } catch (error) {
-    console.error('Error sending push notification:', error);
-    return { success: false, error: 'Failed to send notification' };
+  } catch (_error) {
+    console._error('Error sending push notification:', _error);
+    return { success: false, _error: 'Failed to send notification' };
   }
 };
 

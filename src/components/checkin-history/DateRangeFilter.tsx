@@ -12,7 +12,7 @@ interface DateRangeFilterProps {
     end: Date;
     preset: '7d' | '30d' | '90d' | 'custom';
   };
-  onChange: (dateRange: any) => void;
+  onChange: (dateRange: unknown) => void;
 }
 
 export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({ value, onChange }) => {
@@ -38,13 +38,13 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({ value, onChang
   const handleCustomDate = (date: Date | undefined, type: 'start' | 'end') => {
     if (!date) return;
     
-    const newRange = {
+    const _newRange = {
       ...value,
       [type]: date,
       preset: 'custom' as const
     };
     
-    onChange(newRange);
+    onChange(_newRange);
   };
 
   const presets = [
@@ -59,12 +59,12 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({ value, onChang
       
       {/* Preset Buttons */}
       <div className="flex gap-2">
-        {presets.map(({ label, value: presetValue }) => (
+        {presets.map(({ label, value: _presetValue }) => (
           <Button
-            key={presetValue}
-            variant={value.preset === presetValue ? 'default' : 'outline'}
+            key={_presetValue}
+            variant={value.preset === _presetValue ? 'default' : 'outline'}
             size="sm"
-            onClick={() => handlePresetChange(presetValue)}
+            onClick={() => handlePresetChange(_presetValue)}
           >
             {label}
           </Button>

@@ -5,13 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Brain, Heart, Target, Users, Lightbulb, TrendingUp, Star, Award } from 'lucide-react';
+import { Brain, Heart, Target, Users, Lightbulb, Star, Award } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useSkillSession } from '@/hooks/useSkillSession';
 
 interface SkillAssessment {
-  category: string;
+  _category: string;
   priority: 'high' | 'medium' | 'low';
   currentLevel: string;
   recommendedSkills: string[];
@@ -19,24 +19,24 @@ interface SkillAssessment {
 
 interface LearningRecommendation {
   skillName: string;
-  category: string;
-  reason: string;
+  _category: string;
+  _reason: string;
   priority: number;
-  estimatedTime: string;
+  _estimatedTime: string;
 }
 
 interface UserProgress {
-  category: string;
-  completedSessions: number;
-  averageEffectiveness: number;
-  masteryLevel: string;
+  _category: string;
+  _completedSessions: number;
+  _averageEffectiveness: number;
+  _masteryLevel: string;
   lastPracticed: string | null;
 }
 
 const PersonalizedLearningPath: React.FC = () => {
   const { user } = useAuth();
   const { getSkillProgress, getSkillMastery } = useSkillSession();
-  const [assessmentCompleted, setAssessmentCompleted] = useState(false);
+  const [assessmentCompleted, setAssessmentCompleted] = useState(_false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [assessmentAnswers, setAssessmentAnswers] = useState<Record<string, any>>({});
   const [skillAssessments, setSkillAssessments] = useState<SkillAssessment[]>([]);
@@ -50,11 +50,11 @@ const PersonalizedLearningPath: React.FC = () => {
       question: 'What is your biggest challenge in recovery right now?',
       type: 'single',
       options: [
-        { value: 'negative_thoughts', label: 'Negative thinking patterns', category: 'cognitive' },
-        { value: 'low_motivation', label: 'Lack of motivation or energy', category: 'behavioral' },
-        { value: 'overwhelming_emotions', label: 'Overwhelming emotions or urges', category: 'mindfulness' },
-        { value: 'social_situations', label: 'Difficult social situations', category: 'communication' },
-        { value: 'staying_motivated', label: 'Staying motivated long-term', category: 'relapse_prevention' }
+        { value: 'negative_thoughts', label: 'Negative thinking patterns', _category: 'cognitive' },
+        { value: 'low_motivation', label: 'Lack of motivation or energy', _category: 'behavioral' },
+        { value: 'overwhelming_emotions', label: 'Overwhelming emotions or urges', _category: 'mindfulness' },
+        { value: 'social_situations', label: 'Difficult social situations', _category: 'communication' },
+        { value: 'staying_motivated', label: 'Staying motivated long-term', _category: 'relapse_prevention' }
       ]
     },
     {
@@ -84,12 +84,12 @@ const PersonalizedLearningPath: React.FC = () => {
       question: 'Which skills are most important to you? (Select all that apply)',
       type: 'multiple',
       options: [
-        { value: 'thought_challenging', label: 'Challenging negative thoughts', category: 'cognitive' },
-        { value: 'activity_planning', label: 'Planning rewarding activities', category: 'behavioral' },
-        { value: 'stress_management', label: 'Managing stress and anxiety', category: 'mindfulness' },
-        { value: 'setting_boundaries', label: 'Setting healthy boundaries', category: 'communication' },
-        { value: 'craving_management', label: 'Managing cravings and urges', category: 'relapse_prevention' },
-        { value: 'mood_regulation', label: 'Regulating difficult emotions', category: 'mindfulness' }
+        { value: 'thought_challenging', label: 'Challenging negative thoughts', _category: 'cognitive' },
+        { value: 'activity_planning', label: 'Planning rewarding activities', _category: 'behavioral' },
+        { value: 'stress_management', label: 'Managing stress and anxiety', _category: 'mindfulness' },
+        { value: 'setting_boundaries', label: 'Setting healthy boundaries', _category: 'communication' },
+        { value: 'craving_management', label: 'Managing cravings and urges', _category: 'relapse_prevention' },
+        { value: 'mood_regulation', label: 'Regulating difficult emotions', _category: 'mindfulness' }
       ]
     },
     {
@@ -114,14 +114,14 @@ const PersonalizedLearningPath: React.FC = () => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('user_skill_preferences')
         .select('*')
         .eq('user_id', user.id)
         .single();
 
-      if (error && error.code !== 'PGRST116') { // Not found error
-        throw error;
+      if (_error && _error.code !== 'PGRST116') { // Not found _error
+        throw _error;
       }
 
       if (data) {
@@ -130,8 +130,8 @@ const PersonalizedLearningPath: React.FC = () => {
         // Load existing assessments and recommendations
         generateRecommendations(data);
       }
-    } catch (error) {
-      console.error('Error loading user preferences:', error);
+    } catch (_error) {
+      console._error('Error loading user preferences:', _error);
     }
   };
 
@@ -139,39 +139,39 @@ const PersonalizedLearningPath: React.FC = () => {
     if (!user) return;
 
     const categories = ['cognitive', 'behavioral', 'mindfulness', 'communication', 'relapse_prevention'];
-    const progressData: UserProgress[] = [];
+    const _progressData: UserProgress[] = [];
 
-    for (const category of categories) {
+    for (const _category of categories) {
       try {
-        const { data: sessions } = await getSkillProgress(category);
-        const { data: mastery } = await getSkillMastery(category);
+        const { data: sessions } = await getSkillProgress(_category);
+        const { data: mastery } = await getSkillMastery(_category);
 
         if (sessions) {
-          const completedSessions = sessions.length;
-          const averageEffectiveness = sessions
+          const _completedSessions = sessions.length;
+          const _averageEffectiveness = sessions
             .filter(s => s.effectiveness_rating)
             .reduce((sum, s) => sum + (s.effectiveness_rating || 0), 0) / 
             (sessions.filter(s => s.effectiveness_rating).length || 1);
           
           const lastPracticed = sessions.length > 0 ? sessions[0].completed_at : null;
 
-          progressData.push({
-            category,
-            completedSessions,
-            averageEffectiveness,
-            masteryLevel: mastery || 'Beginner',
+          _progressData.push({
+            _category,
+            _completedSessions,
+            _averageEffectiveness,
+            _masteryLevel: mastery || 'Beginner',
             lastPracticed
           });
         }
-      } catch (error) {
-        console.error(`Error loading progress for ${category}:`, error);
+      } catch (_error) {
+        console._error(`Error loading progress for ${_category}:`, _error);
       }
     }
 
-    setUserProgress(progressData);
+    setUserProgress(_progressData);
   };
 
-  const handleAssessmentAnswer = (questionId: string, answer: any) => {
+  const handleAssessmentAnswer = (questionId: string, answer: unknown) => {
     setAssessmentAnswers(prev => ({
       ...prev,
       [questionId]: answer
@@ -194,27 +194,27 @@ const PersonalizedLearningPath: React.FC = () => {
       const preferences = {
         user_id: user.id,
         preferred_modules: assessmentAnswers.skill_priorities || [],
-        completed_assessment: true,
+        completed_assessment: _true,
         learning_style: assessmentAnswers.learning_preference,
         last_updated: new Date().toISOString()
       };
 
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('user_skill_preferences')
         .upsert(preferences);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
-      setAssessmentCompleted(true);
+      setAssessmentCompleted(_true);
       setLearningStyle(assessmentAnswers.learning_preference);
       generateRecommendations(preferences);
 
-    } catch (error) {
-      console.error('Error saving assessment:', error);
+    } catch (_error) {
+      console._error('Error saving assessment:', _error);
     }
   };
 
-  const generateRecommendations = async (preferences: any) => {
+  const generateRecommendations = async (preferences: unknown) => {
     // Generate personalized recommendations based on assessment and progress
     const recs: LearningRecommendation[] = [];
 
@@ -224,32 +224,32 @@ const PersonalizedLearningPath: React.FC = () => {
     if (primaryStruggle === 'negative_thoughts') {
       recs.push({
         skillName: 'Thought Record Builder',
-        category: 'cognitive',
-        reason: 'Helps identify and challenge negative thought patterns',
+        _category: 'cognitive',
+        _reason: 'Helps identify and challenge negative thought patterns',
         priority: 1,
-        estimatedTime: '15-20 minutes'
+        _estimatedTime: '15-20 minutes'
       });
     }
 
     if (primaryStruggle === 'overwhelming_emotions') {
       recs.push({
         skillName: 'TIPP Skills',
-        category: 'mindfulness',
-        reason: 'Provides immediate relief for intense emotions',
+        _category: 'mindfulness',
+        _reason: 'Provides immediate relief for intense emotions',
         priority: 1,
-        estimatedTime: '2-5 minutes'
+        _estimatedTime: '2-5 minutes'
       });
     }
 
     // Recommendations based on progress gaps
     userProgress.forEach(progress => {
-      if (progress.completedSessions < 3) {
+      if (progress._completedSessions < 3) {
         recs.push({
-          skillName: `${progress.category} Skills Introduction`,
-          category: progress.category,
-          reason: 'Build foundation in this skill area',
+          skillName: `${progress._category} Skills Introduction`,
+          _category: progress._category,
+          _reason: 'Build foundation in this skill area',
           priority: 2,
-          estimatedTime: '10-15 minutes'
+          _estimatedTime: '10-15 minutes'
         });
       }
     });
@@ -259,8 +259,8 @@ const PersonalizedLearningPath: React.FC = () => {
     setRecommendations(recs.slice(0, 6)); // Top 6 recommendations
   };
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
+  const getCategoryIcon = (_category: string) => {
+    switch (_category) {
       case 'cognitive': return <Brain className="h-5 w-5" />;
       case 'behavioral': return <Target className="h-5 w-5" />;
       case 'mindfulness': return <Heart className="h-5 w-5" />;
@@ -270,8 +270,8 @@ const PersonalizedLearningPath: React.FC = () => {
     }
   };
 
-  const getCategoryColor = (category: string) => {
-    switch (category) {
+  const getCategoryColor = (_category: string) => {
+    switch (_category) {
       case 'cognitive': return 'bg-blue-500';
       case 'behavioral': return 'bg-green-500';
       case 'mindfulness': return 'bg-purple-500';
@@ -317,10 +317,10 @@ const PersonalizedLearningPath: React.FC = () => {
                       handleAssessmentAnswer(question.id, option.value);
                     } else {
                       const current = assessmentAnswers[question.id] || [];
-                      const updated = current.includes(option.value)
+                      const _updated = current.includes(option.value)
                         ? current.filter((v: string) => v !== option.value)
                         : [...current, option.value];
-                      handleAssessmentAnswer(question.id, updated);
+                      handleAssessmentAnswer(question.id, _updated);
                     }
                   }}
                 >
@@ -375,11 +375,11 @@ const PersonalizedLearningPath: React.FC = () => {
         <TabsContent value="recommendations" className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             {recommendations.map((rec, index) => (
-              <Card key={index} className="border-l-4" style={{borderLeftColor: getCategoryColor(rec.category).replace('bg-', '')}}>
+              <Card key={index} className="border-l-4" style={{borderLeftColor: getCategoryColor(rec._category).replace('bg-', '')}}>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      {getCategoryIcon(rec.category)}
+                      {getCategoryIcon(rec._category)}
                       <h4 className="font-bold text-[#1E3A8A]">{rec.skillName}</h4>
                     </div>
                     <Badge variant={rec.priority === 1 ? "destructive" : rec.priority === 2 ? "default" : "secondary"}>
@@ -387,10 +387,10 @@ const PersonalizedLearningPath: React.FC = () => {
                     </Badge>
                   </div>
                   
-                  <p className="text-sm text-gray-600 mb-2">{rec.reason}</p>
+                  <p className="text-sm text-gray-600 mb-2">{rec._reason}</p>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500">Est. {rec.estimatedTime}</span>
+                    <span className="text-xs text-gray-500">Est. {rec._estimatedTime}</span>
                     <Button size="sm" className="bg-[#10B981] hover:bg-[#059669]">
                       Start Practice
                     </Button>
@@ -404,30 +404,30 @@ const PersonalizedLearningPath: React.FC = () => {
         <TabsContent value="progress" className="space-y-4">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {userProgress.map((progress) => (
-              <Card key={progress.category}>
+              <Card key={progress._category}>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-3">
-                    {getCategoryIcon(progress.category)}
+                    {getCategoryIcon(progress._category)}
                     <h4 className="font-bold text-[#1E3A8A] capitalize">
-                      {progress.category.replace('_', ' ')}
+                      {progress._category.replace('_', ' ')}
                     </h4>
                   </div>
                   
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span>Mastery Level:</span>
-                      <Badge variant="secondary">{progress.masteryLevel}</Badge>
+                      <Badge variant="secondary">{progress._masteryLevel}</Badge>
                     </div>
                     
                     <div className="flex justify-between text-sm">
                       <span>Sessions:</span>
-                      <span>{progress.completedSessions}</span>
+                      <span>{progress._completedSessions}</span>
                     </div>
                     
                     <div className="flex justify-between text-sm">
                       <span>Avg. Effectiveness:</span>
                       <div className="flex items-center gap-1">
-                        <span>{progress.averageEffectiveness.toFixed(1)}/10</span>
+                        <span>{progress._averageEffectiveness.toFixed(1)}/10</span>
                         <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                       </div>
                     </div>
@@ -467,20 +467,20 @@ const PersonalizedLearningPath: React.FC = () => {
 
                   {/* Skill Category Priorities */}
                   <div className="grid md:grid-cols-5 gap-3">
-                    {['cognitive', 'behavioral', 'mindfulness', 'communication', 'relapse_prevention'].map((category) => {
-                      const progress = userProgress.find(p => p.category === category);
-                      const completionPercentage = progress ? Math.min((progress.completedSessions / 10) * 100, 100) : 0;
+                    {['cognitive', 'behavioral', 'mindfulness', 'communication', 'relapse_prevention'].map((_category) => {
+                      const progress = userProgress.find(p => p._category === _category);
+                      const _completionPercentage = progress ? Math.min((progress._completedSessions / 10) * 100, 100) : 0;
                       
                       return (
-                        <div key={category} className="text-center">
-                          <div className={`w-16 h-16 rounded-full ${getCategoryColor(category)} flex items-center justify-center text-white mx-auto mb-2`}>
-                            {getCategoryIcon(category)}
+                        <div key={_category} className="text-center">
+                          <div className={`w-16 h-16 rounded-full ${getCategoryColor(_category)} flex items-center justify-center text-white mx-auto mb-2`}>
+                            {getCategoryIcon(_category)}
                           </div>
                           <h5 className="text-sm font-medium capitalize mb-1">
-                            {category.replace('_', ' ')}
+                            {_category.replace('_', ' ')}
                           </h5>
-                          <Progress value={completionPercentage} className="h-2" />
-                          <span className="text-xs text-gray-500">{Math.round(completionPercentage)}%</span>
+                          <Progress value={_completionPercentage} className="h-2" />
+                          <span className="text-xs text-gray-500">{Math.round(_completionPercentage)}%</span>
                         </div>
                       );
                     })}

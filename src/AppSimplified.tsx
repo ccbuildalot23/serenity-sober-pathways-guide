@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { useEffect, Suspense, lazy } from 'react';
@@ -37,7 +37,7 @@ const queryClient = new QueryClient({
       staleTime: 1000 * 60 * 5, // 5 minutes
       cacheTime: 1000 * 60 * 10, // 10 minutes
       retry: 3,
-      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+      _retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
     },
   },
 });
@@ -72,7 +72,7 @@ function App() {
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/reset-password" element={<ResetPassword />} />
                   
-                  {/* Crisis Help (Public) */}
+                  {/* Crisis Help (_Public) */}
                   <Route path="/crisis-help" element={<CrisisHelp />} />
                   
                   {/* Legal Pages */}

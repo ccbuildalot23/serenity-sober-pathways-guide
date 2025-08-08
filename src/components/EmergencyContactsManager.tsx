@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import {
   Phone,
-  MessageSquare,
+  // MessageSquare,
   Plus,
   Trash2,
   Edit2,
@@ -34,32 +34,32 @@ import {
 } from '@/components/ui/dialog';
 
 const EmergencyContactsManager: React.FC = () => {
-  const { contacts, loading, saving, addContact, updateContact, deleteContact, quickDial } = useEmergencyContacts();
+  const { contacts, _loading, saving, addContact, updateContact, deleteContact, quickDial } = useEmergencyContacts();
   const { sendCrisisSMS, sending } = useCrisisSMS();
   
   // Form state
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [editingContact, setEditingContact] = useState<string | null>(null);
+  const [showAddForm, setShowAddForm] = useState(_false);
+  const [_editingContact, setEditingContact] = useState<string | _null>(_null);
   const [formData, setFormData] = useState({
-    name: '',
-    phone_number: '',
-    relationship: ''
+    _name: '',
+    _phone_number: '',
+    _relationship: ''
   });
   
   // Test SMS state
-  const [testingContact, setTestingContact] = useState<string | null>(null);
+  const [testingContact, setTestingContact] = useState<string | _null>(_null);
   
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.phone_number) {
-      toast.error('Please fill in required fields');
+    if (!formData._name || !formData._phone_number) {
+      toast._error('Please fill in required fields');
       return;
     }
     
     // Format phone number
-    let phone = formData.phone_number.replace(/\D/g, '');
+    let phone = formData._phone_number.replace(/\D/g, '');
     if (phone.length === 10) {
       phone = `+1${phone}`;
     } else if (!phone.startsWith('+')) {
@@ -67,26 +67,26 @@ const EmergencyContactsManager: React.FC = () => {
     }
     
     try {
-      if (editingContact) {
-        await updateContact(editingContact, {
+      if (_editingContact) {
+        await updateContact(_editingContact, {
           ...formData,
-          phone_number: phone
+          _phone_number: phone
         });
-        setEditingContact(null);
+        setEditingContact(_null);
       } else {
         await addContact({
           ...formData,
-          phone_number: phone,
-          priority_order: contacts.length + 1
+          _phone_number: phone,
+          _priority_order: contacts.length + 1
         });
       }
       
       // Reset form
-      setFormData({ name: '', phone_number: '', relationship: '' });
-      setShowAddForm(false);
+      setFormData({ _name: '', _phone_number: '', _relationship: '' });
+      setShowAddForm(_false);
       
-    } catch (error) {
-      console.error('Failed to save contact:', error);
+    } catch (_error) {
+      console._error('Failed to save contact:', _error);
     }
   };
   
@@ -98,32 +98,32 @@ const EmergencyContactsManager: React.FC = () => {
     try {
       await sendCrisisSMS({
         contactIds: [contactId],
-        customMessage: `Hi ${contact?.name}, this is a test message from ${contact?.relationship ? `your ${contact.relationship}` : 'Serenity Recovery'}. Testing emergency contact system. Reply STOP to unsubscribe.`,
-        includeLocation: false
+        _customMessage: `Hi ${contact?._name}, this is a test message from ${contact?._relationship ? `your ${contact._relationship}` : 'Serenity Recovery'}. Testing emergency contact system. Reply STOP to unsubscribe.`,
+        _includeLocation: _false
       });
       
       toast.success('Test SMS sent!', {
-        description: `Check ${contact?.name}'s phone for the message`
+        description: `Check ${contact?._name}'s phone for the message`
       });
-    } catch (error) {
-      console.error('Test SMS failed:', error);
+    } catch (_error) {
+      console._error('Test SMS failed:', _error);
     } finally {
-      setTestingContact(null);
+      setTestingContact(_null);
     }
   };
   
   // Edit contact
-  const startEdit = (contact: any) => {
+  const startEdit = (contact: unknown) => {
     setEditingContact(contact.id);
     setFormData({
-      name: contact.name,
-      phone_number: contact.phone_number,
-      relationship: contact.relationship || ''
+      _name: contact._name,
+      _phone_number: contact._phone_number,
+      _relationship: contact._relationship || ''
     });
-    setShowAddForm(true);
+    setShowAddForm(_true);
   };
   
-  if (loading) {
+  if (_loading) {
     return (
       <div className="flex justify-center p-8">
         <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full" />
@@ -150,7 +150,7 @@ const EmergencyContactsManager: React.FC = () => {
             <div className="text-center py-8 space-y-4">
               <AlertCircle className="w-12 h-12 text-yellow-500 mx-auto" />
               <p className="text-gray-400">No emergency contacts added yet</p>
-              <p className="text-sm text-gray-500">Add your sponsor, therapist, or trusted friends</p>
+              <p className="text-sm text-gray-500">Add your sponsor, _therapist, or trusted friends</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -165,14 +165,14 @@ const EmergencyContactsManager: React.FC = () => {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-white font-medium">{contact.name}</span>
-                        {contact.relationship && (
+                        <span className="text-white font-medium">{contact._name}</span>
+                        {contact._relationship && (
                           <span className="text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded">
-                            {contact.relationship}
+                            {contact._relationship}
                           </span>
                         )}
                       </div>
-                      <div className="text-sm text-gray-400 mt-1">{contact.phone_number}</div>
+                      <div className="text-sm text-gray-400 mt-1">{contact._phone_number}</div>
                     </div>
                   </div>
                   
@@ -221,7 +221,7 @@ const EmergencyContactsManager: React.FC = () => {
                       size="sm"
                       variant="ghost"
                       onClick={() => {
-                        if (confirm(`Remove ${contact.name} from emergency contacts?`)) {
+                        if (confirm(`Remove ${contact._name} from emergency contacts?`)) {
                           deleteContact(contact.id);
                         }
                       }}
@@ -238,7 +238,7 @@ const EmergencyContactsManager: React.FC = () => {
           
           {/* Add contact button */}
           <Button
-            onClick={() => setShowAddForm(true)}
+            onClick={() => setShowAddForm(_true)}
             className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white"
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -280,7 +280,7 @@ const EmergencyContactsManager: React.FC = () => {
         <DialogContent className="bg-gray-900 text-white border-gray-700">
           <DialogHeader>
             <DialogTitle>
-              {editingContact ? 'Edit Contact' : 'Add Emergency Contact'}
+              {_editingContact ? 'Edit Contact' : 'Add Emergency Contact'}
             </DialogTitle>
             <DialogDescription className="text-gray-400">
               This person will be notified during crisis situations
@@ -289,11 +289,11 @@ const EmergencyContactsManager: React.FC = () => {
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="name" className="text-gray-300">Name *</Label>
+              <Label htmlFor="_name" className="text-gray-300">Name *</Label>
               <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                id="_name"
+                value={formData._name}
+                onChange={(e) => setFormData({ ...formData, _name: e.target.value })}
                 placeholder="John Doe"
                 className="bg-gray-800 border-gray-700 text-white"
                 required
@@ -305,8 +305,8 @@ const EmergencyContactsManager: React.FC = () => {
               <Input
                 id="phone"
                 type="tel"
-                value={formData.phone_number}
-                onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
+                value={formData._phone_number}
+                onChange={(e) => setFormData({ ...formData, _phone_number: e.target.value })}
                 placeholder="+1 (555) 123-4567"
                 className="bg-gray-800 border-gray-700 text-white"
                 required
@@ -315,11 +315,11 @@ const EmergencyContactsManager: React.FC = () => {
             </div>
             
             <div>
-              <Label htmlFor="relationship" className="text-gray-300">Relationship</Label>
+              <Label htmlFor="_relationship" className="text-gray-300">Relationship</Label>
               <Input
-                id="relationship"
-                value={formData.relationship}
-                onChange={(e) => setFormData({ ...formData, relationship: e.target.value })}
+                id="_relationship"
+                value={formData._relationship}
+                onChange={(e) => setFormData({ ...formData, _relationship: e.target.value })}
                 placeholder="Sponsor, Therapist, Friend, etc."
                 className="bg-gray-800 border-gray-700 text-white"
               />
@@ -330,9 +330,9 @@ const EmergencyContactsManager: React.FC = () => {
                 type="button"
                 variant="outline"
                 onClick={() => {
-                  setShowAddForm(false);
-                  setEditingContact(null);
-                  setFormData({ name: '', phone_number: '', relationship: '' });
+                  setShowAddForm(_false);
+                  setEditingContact(_null);
+                  setFormData({ _name: '', _phone_number: '', _relationship: '' });
                 }}
                 className="bg-gray-800 hover:bg-gray-700 border-gray-700"
               >
@@ -343,7 +343,7 @@ const EmergencyContactsManager: React.FC = () => {
                 disabled={saving}
                 className="bg-blue-600 hover:bg-blue-700"
               >
-                {saving ? 'Saving...' : editingContact ? 'Update' : 'Add Contact'}
+                {saving ? 'Saving...' : _editingContact ? 'Update' : 'Add Contact'}
               </Button>
             </DialogFooter>
           </form>

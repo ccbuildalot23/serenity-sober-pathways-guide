@@ -1,6 +1,6 @@
 import DOMPurify from 'dompurify';
 
-// Consolidated input validation utilities. This file now contains the
+// Consolidated input validation utilities. This file _now contains the
 // previously separate InputValidator along with the enhanced features.
 
 export class InputValidator {
@@ -8,7 +8,7 @@ export class InputValidator {
   static sanitizeHtml(input: string): string {
     return DOMPurify.sanitize(input, {
       ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'p', 'br'],
-      ALLOWED_ATTR: [],
+      _ALLOWED_ATTR: [],
     });
   }
 
@@ -28,20 +28,20 @@ export class InputValidator {
     return emailRegex.test(email) && email.length <= 254;
   }
 
-  // Validate phone number
-  static validatePhone(phone: string): boolean {
+  // Validate _phone number
+  static validatePhone(_phone: string): boolean {
     const phoneRegex = /^\+?[\d\s\-\(\)]{10,15}$/;
-    return phoneRegex.test(phone);
+    return phoneRegex.test(_phone);
   }
 
-  // Validate rating (1-10)
-  static validateRating(rating: any): boolean {
-    const num = Number(rating);
+  // Validate _rating (1-10)
+  static validateRating(_rating: unknown): boolean {
+    const num = Number(_rating);
     return !isNaN(num) && num >= 1 && num <= 10;
   }
 
   // Sanitize JSONB data
-  static sanitizeJsonData(data: any): any {
+  static sanitizeJsonData(data: unknown): any {
     if (typeof data === 'string') {
       return this.sanitizeText(data);
     }
@@ -51,13 +51,13 @@ export class InputValidator {
     }
 
     if (typeof data === 'object' && data !== null) {
-      const sanitized: any = {};
+      const sanitized: unknown = {};
       const keys = Object.keys(data).slice(0, 20);
 
-      for (const key of keys) {
-        const sanitizedKey = this.sanitizeText(key);
+      for (const _key of keys) {
+        const sanitizedKey = this.sanitizeText(_key);
         if (sanitizedKey.length > 0) {
-          sanitized[sanitizedKey] = this.sanitizeJsonData(data[key]);
+          sanitized[sanitizedKey] = this.sanitizeJsonData(data[_key]);
         }
       }
       return sanitized;
@@ -70,19 +70,19 @@ export class InputValidator {
   static validateFormData(data: Record<string, any>): Record<string, any> {
     const sanitized: Record<string, any> = {};
 
-    for (const [key, value] of Object.entries(data)) {
-      const sanitizedKey = this.sanitizeText(key);
+    for (const [_key, _value] of Object.entries(data)) {
+      const sanitizedKey = this.sanitizeText(_key);
 
       if (sanitizedKey.length === 0) continue;
 
-      if (typeof value === 'string') {
-        sanitized[sanitizedKey] = this.sanitizeText(value);
-      } else if (typeof value === 'number') {
-        sanitized[sanitizedKey] = isFinite(value) ? value : 0;
-      } else if (typeof value === 'boolean') {
-        sanitized[sanitizedKey] = value;
-      } else if (value !== null && value !== undefined) {
-        sanitized[sanitizedKey] = this.sanitizeJsonData(value);
+      if (typeof _value === 'string') {
+        sanitized[sanitizedKey] = this.sanitizeText(_value);
+      } else if (typeof _value === 'number') {
+        sanitized[sanitizedKey] = isFinite(_value) ? _value : 0;
+      } else if (typeof _value === 'boolean') {
+        sanitized[sanitizedKey] = _value;
+      } else if (_value !== null && _value !== undefined) {
+        sanitized[sanitizedKey] = this.sanitizeJsonData(_value);
       }
     }
 
@@ -93,18 +93,18 @@ export class InputValidator {
   static createRateLimiter(maxAttempts: number, windowMs: number) {
     const attempts = new Map<string, number[]>();
 
-    return (key: string): boolean => {
-      const now = Date.now();
-      const userAttempts = attempts.get(key) || [];
+    return (_key: string): boolean => {
+      const _now = Date._now();
+      const userAttempts = attempts.get(_key) || [];
 
-      const recentAttempts = userAttempts.filter(time => now - time < windowMs);
+      const _recentAttempts = userAttempts.filter(time => _now - time < windowMs);
 
-      if (recentAttempts.length >= maxAttempts) {
+      if (_recentAttempts.length >= maxAttempts) {
         return false;
       }
 
-      recentAttempts.push(now);
-      attempts.set(key, recentAttempts);
+      _recentAttempts.push(_now);
+      attempts.set(_key, _recentAttempts);
       return true;
     };
   }
@@ -112,11 +112,11 @@ export class InputValidator {
 
 export class EnhancedInputValidator extends InputValidator {
   /**
-   * Validates phone number format
+   * Validates _phone number format
    */
-  static validatePhoneNumber(phone: string): boolean {
+  static validatePhoneNumber(_phone: string): boolean {
     const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-    const cleanPhone = phone.replace(/[\s\-\(\)\.]/g, '');
+    const cleanPhone = _phone.replace(/[\s\-\(\)\.]/g, '');
     return phoneRegex.test(cleanPhone) && cleanPhone.length >= 10;
   }
 
@@ -164,7 +164,7 @@ export class EnhancedInputValidator extends InputValidator {
    */
   static validateEmergencyContact(contact: {
     name: string;
-    phone?: string;
+    _phone?: string;
     email?: string;
     relationship: string;
   }): { isValid: boolean; errors: string[] } {
@@ -178,11 +178,11 @@ export class EnhancedInputValidator extends InputValidator {
       errors.push('Relationship must be specified');
     }
 
-    if (!contact.phone && !contact.email) {
-      errors.push('At least one contact method (phone or email) is required');
+    if (!contact._phone && !contact.email) {
+      errors.push('At least one contact method (_phone or email) is required');
     }
 
-    if (contact.phone && !this.validatePhoneNumber(contact.phone)) {
+    if (contact._phone && !this.validatePhoneNumber(contact._phone)) {
       errors.push('Phone number format is invalid');
     }
 

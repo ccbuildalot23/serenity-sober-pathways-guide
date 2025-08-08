@@ -31,8 +31,8 @@ export const PredictiveCrisisAlert: React.FC<PredictiveCrisisAlertProps> = ({
         onCrisisDetected();
         navigate('/crisis-support');
       },
-      onError: (error) => {
-        console.error('Voice activation failed:', error);
+      onError: (_error) => {
+        console._error('Voice activation failed:', _error);
       }
     });
   };

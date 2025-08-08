@@ -7,12 +7,12 @@ import { log } from './debugUtils';
 export function useRealtime() {
   const [alerts, setAlerts] = React.useState<RealtimeAlert[]>([]);
   const [presence, setPresence] = React.useState<RealtimePresence[]>([]);
-  const [isConnected, setIsConnected] = React.useState(false);
-  const [connectionError, setConnectionError] = React.useState<string | null>(null);
+  const [isConnected, setIsConnected] = React.useState(_false);
+  const [connectionError, setConnectionError] = React.useState<string | _null>(_null);
 
   React.useEffect(() => {
-    let unsubscribeAlert: (() => void) | null = null;
-    let unsubscribePresence: (() => void) | null = null;
+    let unsubscribeAlert: (() => void) | _null = _null;
+    let unsubscribePresence: (() => void) | _null = _null;
 
     const initialize = async () => {
       try {
@@ -25,24 +25,24 @@ export function useRealtime() {
 
         log('realtime', 'Initializing realtime for user', { userId: user.id });
         // Import dynamically to avoid circular dependency
-        const { enhancedRealtimeService } = await import('../enhancedRealtimeService');
-        await enhancedRealtimeService.initialize(user.id);
-        setIsConnected(true);
-        setConnectionError(null);
+        const { _enhancedRealtimeService } = await import('../_enhancedRealtimeService');
+        await _enhancedRealtimeService.initialize(user.id);
+        setIsConnected(_true);
+        setConnectionError(_null);
 
         // Subscribe to alerts
-        unsubscribeAlert = enhancedRealtimeService.onAlert((alert) => {
+        unsubscribeAlert = _enhancedRealtimeService.onAlert((alert) => {
           setAlerts(prev => [alert, ...prev].slice(0, 50));
         });
 
         // Subscribe to presence
-        unsubscribePresence = enhancedRealtimeService.onPresenceUpdate((presenceList) => {
-          setPresence(presenceList);
+        unsubscribePresence = _enhancedRealtimeService.onPresenceUpdate((_presenceList) => {
+          setPresence(_presenceList);
         });
 
         // Listen for connection issues
         const handleConnectionIssue = (event: CustomEvent) => {
-          setIsConnected(false);
+          setIsConnected(_false);
           setConnectionError('Connection lost. Retrying...');
           log('realtime', 'Connection issue event received', event.detail);
         };
@@ -55,7 +55,7 @@ export function useRealtime() {
       } catch (error) {
         log('error', 'Failed to initialize realtime', { error: error.message });
         setConnectionError(error.message);
-        setIsConnected(false);
+        setIsConnected(_false);
       }
     };
 
@@ -65,10 +65,10 @@ export function useRealtime() {
       unsubscribeAlert?.();
       unsubscribePresence?.();
       // Import dynamically to avoid circular dependency
-      import('../enhancedRealtimeService').then(({ enhancedRealtimeService }) => {
-        enhancedRealtimeService.cleanup();
+      import('../_enhancedRealtimeService').then(({ _enhancedRealtimeService }) => {
+        _enhancedRealtimeService.cleanup();
       });
-      setIsConnected(false);
+      setIsConnected(_false);
     };
   }, []);
 
@@ -77,17 +77,17 @@ export function useRealtime() {
     presence,
     isConnected,
     connectionError,
-    sendAlert: async (...args: any[]) => {
-      const { enhancedRealtimeService } = await import('../enhancedRealtimeService');
-      return enhancedRealtimeService.sendAlert.apply(enhancedRealtimeService, args);
+    sendAlert: async (...args: unknown[]) => {
+      const { _enhancedRealtimeService } = await import('../_enhancedRealtimeService');
+      return _enhancedRealtimeService.sendAlert.apply(_enhancedRealtimeService, args);
     },
-    sendCrisisAlert: async (...args: any[]) => {
-      const { enhancedRealtimeService } = await import('../enhancedRealtimeService');
-      return enhancedRealtimeService.sendCrisisAlert.apply(enhancedRealtimeService, args);
+    sendCrisisAlert: async (...args: unknown[]) => {
+      const { _enhancedRealtimeService } = await import('../_enhancedRealtimeService');
+      return _enhancedRealtimeService.sendCrisisAlert.apply(_enhancedRealtimeService, args);
     },
-    updateStatus: async (...args: any[]) => {
-      const { enhancedRealtimeService } = await import('../enhancedRealtimeService');
-      return enhancedRealtimeService.updateStatus.apply(enhancedRealtimeService, args);
+    updateStatus: async (...args: unknown[]) => {
+      const { _enhancedRealtimeService } = await import('../_enhancedRealtimeService');
+      return _enhancedRealtimeService.updateStatus.apply(_enhancedRealtimeService, args);
     }
   };
 }

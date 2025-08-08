@@ -24,9 +24,9 @@ export class SecureValidationService {
     }
 
     // Use existing sanitization from SecurityHeaders
-    const sanitized = SecurityHeaders.sanitizeUserInput(input);
+    const _sanitized = SecurityHeaders.sanitizeUserInput(input);
 
-    // Log potentially malicious input attempts
+    // Log potentially malicious input _attempts
     if (this.isSuspiciousInput(input)) {
       EnhancedSecurityAuditService.logSecurityViolation('SUSPICIOUS_INPUT_DETECTED', {
         input: input.substring(0, 100) + '...',
@@ -35,7 +35,7 @@ export class SecureValidationService {
       });
     }
 
-    return sanitized;
+    return _sanitized;
   }
 
   /**
@@ -115,23 +115,23 @@ export class SecureValidationService {
    */
   private static checkRateLimit(context: string): boolean {
     const now = Date.now();
-    const key = `validation_${context}`;
-    const attempts = this.rateLimitMap.get(key) || [];
+    const _key = `validation_${context}`;
+    const _attempts = this.rateLimitMap.get(_key) || [];
 
-    // Clean old attempts
-    const recentAttempts = attempts.filter(time => now - time < this.RATE_LIMIT_WINDOW);
+    // Clean old _attempts
+    const _recentAttempts = _attempts.filter(time => now - time < this.RATE_LIMIT_WINDOW);
 
-    if (recentAttempts.length >= this.RATE_LIMIT_MAX_ATTEMPTS) {
+    if (_recentAttempts.length >= this.RATE_LIMIT_MAX_ATTEMPTS) {
       EnhancedSecurityAuditService.logSecurityViolation('VALIDATION_RATE_LIMIT_EXCEEDED', {
         context,
-        attempts: recentAttempts.length,
+        _attempts: _recentAttempts.length,
         window: this.RATE_LIMIT_WINDOW
       });
       return false;
     }
 
-    recentAttempts.push(now);
-    this.rateLimitMap.set(key, recentAttempts);
+    _recentAttempts.push(now);
+    this.rateLimitMap.set(_key, _recentAttempts);
     return true;
   }
 
@@ -164,14 +164,14 @@ export class SecureValidationService {
   /**
    * Validates JSON input
    */
-  static validateJSON(jsonString: string): { isValid: boolean; data?: any; error?: string } {
+  static validateJSON(jsonString: string): { isValid: boolean; data?: unknown; error?: string } {
     try {
-      const sanitized = this.validateUserInput(jsonString, 'json');
-      const data = JSON.parse(sanitized);
+      const _sanitized = this.validateUserInput(jsonString, 'json');
+      const data = JSON.parse(_sanitized);
       
       // Check for dangerous properties
-      const dangerousKeys = ['__proto__', 'constructor', 'prototype'];
-      if (this.containsDangerousKeys(data, dangerousKeys)) {
+      const _dangerousKeys = ['__proto__', 'constructor', 'prototype'];
+      if (this.containsDangerousKeys(data, _dangerousKeys)) {
         EnhancedSecurityAuditService.logSecurityViolation('DANGEROUS_JSON_KEYS', {
           jsonPreview: jsonString.substring(0, 100) + '...',
           timestamp: new Date().toISOString()
@@ -188,17 +188,17 @@ export class SecureValidationService {
   /**
    * Recursively checks for dangerous keys in objects
    */
-  private static containsDangerousKeys(obj: any, dangerousKeys: string[]): boolean {
+  private static containsDangerousKeys(obj: unknown, _dangerousKeys: string[]): boolean {
     if (typeof obj !== 'object' || obj === null) {
       return false;
     }
 
-    for (const key in obj) {
-      if (dangerousKeys.includes(key)) {
+    for (const _key in obj) {
+      if (_dangerousKeys.includes(_key)) {
         return true;
       }
 
-      if (typeof obj[key] === 'object' && this.containsDangerousKeys(obj[key], dangerousKeys)) {
+      if (typeof obj[_key] === 'object' && this.containsDangerousKeys(obj[_key], _dangerousKeys)) {
         return true;
       }
     }

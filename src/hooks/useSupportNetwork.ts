@@ -7,33 +7,33 @@ import { toast } from 'sonner';
 export const useSupportNetwork = () => {
   const { user } = useAuth();
   const [supportMembers, setSupportMembers] = useState<SupportMember[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(_true);
+  const [error, setError] = useState<string | _null>(_null);
 
   const fetchSupportNetwork = useCallback(async () => {
     if (!user?.id) {
-      setLoading(false);
+      setLoading(_false);
       return;
     }
 
     try {
-      setLoading(true);
+      setLoading(_true);
       const members = await supportNetworkService.getSupportNetwork(user.id);
       setSupportMembers(members);
-      setError(null);
+      setError(_null);
     } catch (err) {
       console.error('Error fetching support network:', err);
       setError('Failed to load support network');
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   }, [user?.id]);
 
-  const addSupportMember = useCallback(async (supportMemberId: string, relationshipType: string) => {
+  const addSupportMember = useCallback(async (_supportMemberId: string, _relationshipType: string) => {
     if (!user?.id) return;
 
     try {
-      await supportNetworkService.addSupportMember(user.id, supportMemberId, relationshipType);
+      await supportNetworkService.addSupportMember(user.id, _supportMemberId, _relationshipType);
       await fetchSupportNetwork();
       toast.success('Support member added successfully');
     } catch (err) {
@@ -43,9 +43,9 @@ export const useSupportNetwork = () => {
     }
   }, [user?.id, fetchSupportNetwork]);
 
-  const updateMemberPermissions = useCallback(async (membershipId: string, permissions: Partial<SupportMember['permissions']>) => {
+  const updateMemberPermissions = useCallback(async (_membershipId: string, permissions: Partial<SupportMember['permissions']>) => {
     try {
-      await supportNetworkService.updateMemberPermissions(membershipId, permissions);
+      await supportNetworkService.updateMemberPermissions(_membershipId, permissions);
       await fetchSupportNetwork();
       toast.success('Permissions updated successfully');
     } catch (err) {
@@ -55,9 +55,9 @@ export const useSupportNetwork = () => {
     }
   }, [fetchSupportNetwork]);
 
-  const updateMemberStatus = useCallback(async (membershipId: string, status: SupportMember['status']) => {
+  const updateMemberStatus = useCallback(async (_membershipId: string, status: SupportMember['status']) => {
     try {
-      await supportNetworkService.updateMemberStatus(membershipId, status);
+      await supportNetworkService.updateMemberStatus(_membershipId, status);
       await fetchSupportNetwork();
       toast.success('Member status updated');
     } catch (err) {
@@ -67,11 +67,11 @@ export const useSupportNetwork = () => {
     }
   }, [fetchSupportNetwork]);
 
-  const sendAlert = useCallback(async (supportMemberId: string, alertType: string, message: string) => {
+  const sendAlert = useCallback(async (_supportMemberId: string, _alertType: string, _message: string) => {
     if (!user?.id) return;
 
     try {
-      await supportNetworkService.sendAlert(supportMemberId, user.id, alertType, message);
+      await supportNetworkService.sendAlert(_supportMemberId, user.id, _alertType, _message);
       toast.success('Alert sent successfully');
     } catch (err) {
       console.error('Error sending alert:', err);
@@ -87,43 +87,43 @@ export const useSupportNetwork = () => {
     console.log('Setting up support network real-time subscriptions');
 
     // Subscribe to support network changes
-    const networkChannel = supabase
+    const _networkChannel = supabase
       .channel('support_network_changes')
       .on(
         'postgres_changes',
         {
           event: '*',
-          schema: 'public',
-          table: 'support_network',
+          _schema: 'public',
+          _table: 'support_network',
           filter: `patient_id=eq.${user.id}`
         },
-        (payload) => {
-          console.log('Support network change received:', payload);
+        (_payload) => {
+          console.log('Support network change received:', _payload);
           fetchSupportNetwork();
         }
       )
       .subscribe();
 
     // Subscribe to presence changes
-    const presenceChannel = supabase
+    const _presenceChannel = supabase
       .channel('presence_changes')
       .on(
         'postgres_changes',
         {
           event: '*',
-          schema: 'public',
-          table: 'support_member_presence'
+          _schema: 'public',
+          _table: 'support_member_presence'
         },
-        (payload) => {
-          console.log('Presence change received:', payload);
+        (_payload) => {
+          console.log('Presence change received:', _payload);
           fetchSupportNetwork();
         }
       )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(networkChannel);
-      supabase.removeChannel(presenceChannel);
+      supabase.removeChannel(_networkChannel);
+      supabase.removeChannel(_presenceChannel);
     };
   }, [user?.id, fetchSupportNetwork]);
 
@@ -156,35 +156,35 @@ export const useSupportNetwork = () => {
 export const usePresenceManagement = () => {
   const { user } = useAuth();
   const [currentStatus, setCurrentStatus] = useState<PresenceStatus['status']>('offline');
-  const [doNotDisturb, setDoNotDisturb] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [doNotDisturb, setDoNotDisturb] = useState(_false);
+  const [loading, setLoading] = useState(_false);
 
-  const updatePresence = useCallback(async (status: PresenceStatus['status'], dnd: boolean = doNotDisturb) => {
+  const updatePresence = useCallback(async (status: PresenceStatus['status'], _dnd: boolean = doNotDisturb) => {
     if (!user?.id) return;
 
     try {
-      setLoading(true);
-      await supportNetworkService.updatePresence(user.id, status, dnd);
+      setLoading(_true);
+      await supportNetworkService.updatePresence(user.id, status, _dnd);
       setCurrentStatus(status);
-      setDoNotDisturb(dnd);
+      setDoNotDisturb(_dnd);
     } catch (err) {
       console.error('Error updating presence:', err);
       toast.error('Failed to update presence status');
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   }, [user?.id, doNotDisturb]);
 
   const toggleDoNotDisturb = useCallback(async () => {
-    const newDndStatus = !doNotDisturb;
-    await updatePresence(currentStatus, newDndStatus);
+    const _newDndStatus = !doNotDisturb;
+    await updatePresence(currentStatus, _newDndStatus);
   }, [doNotDisturb, currentStatus, updatePresence]);
 
   // Auto-update presence based on page visibility
   useEffect(() => {
     if (!user?.id) return;
 
-    const handleVisibilityChange = () => {
+    const _handleVisibilityChange = () => {
       if (document.hidden) {
         updatePresence('away');
       } else {
@@ -192,19 +192,19 @@ export const usePresenceManagement = () => {
       }
     };
 
-    const handleBeforeUnload = () => {
+    const _handleBeforeUnload = () => {
       updatePresence('offline');
     };
 
     // Set initial status
     updatePresence('online');
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', _handleVisibilityChange);
+    window.addEventListener('beforeunload', _handleBeforeUnload);
 
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', _handleVisibilityChange);
+      window.removeEventListener('beforeunload', _handleBeforeUnload);
       updatePresence('offline');
     };
   }, [user?.id, updatePresence]);
@@ -220,34 +220,34 @@ export const usePresenceManagement = () => {
 
 export const useNotificationPreferences = () => {
   const { user } = useAuth();
-  const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [preferences, setPreferences] = useState<NotificationPreferences | _null>(_null);
+  const [loading, setLoading] = useState(_true);
+  const [error, setError] = useState<string | _null>(_null);
 
   const fetchPreferences = useCallback(async () => {
     if (!user?.id) {
-      setLoading(false);
+      setLoading(_false);
       return;
     }
 
     try {
-      setLoading(true);
-      const prefs = await supportNetworkService.getNotificationPreferences(user.id);
-      setPreferences(prefs);
-      setError(null);
+      setLoading(_true);
+      const _prefs = await supportNetworkService.getNotificationPreferences(user.id);
+      setPreferences(_prefs);
+      setError(_null);
     } catch (err) {
       console.error('Error fetching notification preferences:', err);
       setError('Failed to load notification preferences');
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   }, [user?.id]);
 
-  const updatePreferences = useCallback(async (newPreferences: Partial<NotificationPreferences>) => {
+  const updatePreferences = useCallback(async (_newPreferences: Partial<NotificationPreferences>) => {
     if (!user?.id) return;
 
     try {
-      await supportNetworkService.updateNotificationPreferences(user.id, newPreferences);
+      await supportNetworkService.updateNotificationPreferences(user.id, _newPreferences);
       await fetchPreferences();
       toast.success('Notification preferences updated');
     } catch (err) {

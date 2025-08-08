@@ -9,17 +9,17 @@ import { Plus, Calendar, Target, Trophy, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 
 export const RecoveryPlanDashboard: React.FC = () => {
-  const { plans, loading } = useRecoveryPlan();
+  const { plans, _loading } = useRecoveryPlan();
   const [planProgress, setPlanProgress] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const loadProgress = async () => {
-      const progressMap: Record<string, number> = {};
+      const _progressMap: Record<string, number> = {};
       for (const plan of plans) {
         const progress = await RecoveryPlanService.calculateProgress(plan.id);
-        progressMap[plan.id] = progress;
+        _progressMap[plan.id] = progress;
       }
-      setPlanProgress(progressMap);
+      setPlanProgress(_progressMap);
     };
 
     if (plans.length > 0) {
@@ -27,7 +27,7 @@ export const RecoveryPlanDashboard: React.FC = () => {
     }
   }, [plans]);
 
-  if (loading) {
+  if (_loading) {
     return (
       <div className="space-y-4">
         {[...Array(3)].map((_, i) => (

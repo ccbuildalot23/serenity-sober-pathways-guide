@@ -22,15 +22,15 @@ export interface PatientOverview {
   patient_id: string;
   patient_name: string;
   patient_initials: string;
-  relationship_type: string;
+  _relationship_type: string;
   latest_checkin: {
     date: string;
-    mood_rating: number | null;
-    is_complete: boolean;
-    notes?: string;
+    _mood_rating: number | null;
+    _is_complete: boolean;
+    _notes?: string;
   } | null;
   crisis_status: {
-    risk_level: 'low' | 'medium' | 'high' | 'none';
+    _risk_level: 'low' | 'medium' | 'high' | 'none';
     last_crisis_date?: string;
     total_events: number;
   };
@@ -49,107 +49,107 @@ export interface ProviderAppointment {
 }
 
 export const providerDashboardService = {
-  async getProviderStats(providerId: string): Promise<ProviderDashboardStats> {
+  async getProviderStats(_providerId: string): Promise<ProviderDashboardStats> {
     try {
-      console.log('Fetching provider dashboard stats for:', providerId);
+      console.log('Fetching provider dashboard stats for:', _providerId);
 
       // Get all patients for this provider
-      const { data: relationships, error: relationshipError } = await supabase
+      const { data: relationships, _error: _relationshipError } = await supabase
         .from('patient_provider_relationships')
         .select('patient_id, status')
-        .eq('provider_id', providerId)
+        .eq('provider_id', _providerId)
         .eq('status', 'active');
 
-      if (relationshipError) {
-        console.warn('Error fetching patient relationships:', relationshipError);
+      if (_relationshipError) {
+        console.warn('Error fetching patient relationships:', _relationshipError);
         return this.getDefaultStats();
       }
 
-      const patientIds = relationships?.map(r => r.patient_id) || [];
+      const _patientIds = relationships?.map(r => r.patient_id) || [];
       
-      if (patientIds.length === 0) {
+      if (_patientIds.length === 0) {
         return this.getDefaultStats();
       }
 
       // Get today's check-ins for provider's patients
       const today = new Date().toISOString().split('T')[0];
-      const { data: todayCheckins, error: todayError } = await supabase
+      const { data: todayCheckins, _error: _todayError } = await supabase
         .from('daily_checkins')
-        .select('user_id, mood_rating, is_complete')
-        .in('user_id', patientIds)
+        .select('user_id, _mood_rating, _is_complete')
+        .in('user_id', _patientIds)
         .eq('checkin_date', today);
 
-      if (todayError) {
-        console.warn('Error fetching today checkins:', todayError);
+      if (_todayError) {
+        console.warn('Error fetching today checkins:', _todayError);
       }
 
       // Get crisis events for provider's patients (last 30 days)
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       
-      const { data: crisisEvents, error: crisisError } = await supabase
+      const { data: crisisEvents, _error: _crisisError } = await supabase
         .from('crisis_events')
-        .select('user_id, risk_level, crisis_resolved, created_at')
-        .in('user_id', patientIds)
+        .select('user_id, _risk_level, _crisis_resolved, created_at')
+        .in('user_id', _patientIds)
         .gte('created_at', thirtyDaysAgo.toISOString());
 
-      if (crisisError) {
-        console.warn('Error fetching crisis events:', crisisError);
+      if (_crisisError) {
+        console.warn('Error fetching crisis events:', _crisisError);
       }
 
       // Get weekly check-ins for engagement metrics
       const oneWeekAgo = new Date();
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
       
-      const { data: weeklyCheckins, error: weeklyError } = await supabase
+      const { data: weeklyCheckins, _error: _weeklyError } = await supabase
         .from('daily_checkins')
-        .select('user_id, is_complete, checkin_date')
-        .in('user_id', patientIds)
+        .select('user_id, _is_complete, checkin_date')
+        .in('user_id', _patientIds)
         .gte('checkin_date', oneWeekAgo.toISOString().split('T')[0]);
 
-      if (weeklyError) {
-        console.warn('Error fetching weekly checkins:', weeklyError);
+      if (_weeklyError) {
+        console.warn('Error fetching weekly checkins:', _weeklyError);
       }
 
       // Get monthly check-ins for engagement metrics
       const oneMonthAgo = new Date();
       oneMonthAgo.setDate(oneMonthAgo.getDate() - 30);
       
-      const { data: monthlyCheckins, error: monthlyError } = await supabase
+      const { data: monthlyCheckins, _error: _monthlyError } = await supabase
         .from('daily_checkins')
-        .select('user_id, is_complete, checkin_date')
-        .in('user_id', patientIds)
+        .select('user_id, _is_complete, checkin_date')
+        .in('user_id', _patientIds)
         .gte('checkin_date', oneMonthAgo.toISOString().split('T')[0]);
 
-      if (monthlyError) {
-        console.warn('Error fetching monthly checkins:', monthlyError);
+      if (_monthlyError) {
+        console.warn('Error fetching monthly checkins:', _monthlyError);
       }
 
       // Calculate stats
-      const totalPatients = patientIds.length;
-      const activePatients = patientIds.length; // All relationships are active
+      const totalPatients = _patientIds.length;
+      const activePatients = _patientIds.length; // All relationships are active
       const todayCheckinsCount = todayCheckins?.length || 0;
       
       const crisisEventsData = crisisEvents || [];
-      const highRiskEvents = crisisEventsData.filter(e => e.risk_level === 'high');
-      const unresolvedEvents = crisisEventsData.filter(e => !e.crisis_resolved);
+      const highRiskEvents = crisisEventsData.filter(e => e._risk_level === 'high');
+      const unresolvedEvents = crisisEventsData.filter(e => !e._crisis_resolved);
       
-      const completedTodayCheckins = todayCheckins?.filter(c => c.is_complete) || [];
+      const completedTodayCheckins = todayCheckins?.filter(c => c._is_complete) || [];
       const averageMood = completedTodayCheckins.length > 0 
-        ? completedTodayCheckins.reduce((sum, c) => sum + (c.mood_rating || 0), 0) / completedTodayCheckins.length 
+        ? completedTodayCheckins.reduce((sum, c) => sum + (c._mood_rating || 0), 0) / completedTodayCheckins.length 
         : 0;
 
       // Calculate engagement metrics
       const weeklyData = weeklyCheckins || [];
       const monthlyData = monthlyCheckins || [];
       
-      const weeklyCompleted = weeklyData.filter(c => c.is_complete).length;
+      const weeklyCompleted = weeklyData.filter(c => c._is_complete).length;
       const expectedWeeklyCheckins = totalPatients * 7; // 7 days
       const weeklyCompletionRate = expectedWeeklyCheckins > 0 
         ? Math.round((weeklyCompleted / expectedWeeklyCheckins) * 100) 
         : 0;
 
-      const monthlyCompleted = monthlyData.filter(c => c.is_complete).length;
+      const monthlyCompleted = monthlyData.filter(c => c._is_complete).length;
       const expectedMonthlyCheckins = totalPatients * 30; // 30 days
       const monthlyCompletionRate = expectedMonthlyCheckins > 0 
         ? Math.round((monthlyCompleted / expectedMonthlyCheckins) * 100) 
@@ -175,29 +175,29 @@ export const providerDashboardService = {
       console.log('Provider dashboard stats:', result);
       return result;
 
-    } catch (error) {
-      console.error('Error fetching provider stats:', error);
+    } catch (_error) {
+      console._error('Error fetching provider stats:', _error);
       return this.getDefaultStats();
     }
   },
 
-  async getPatientOverviews(providerId: string): Promise<PatientOverview[]> {
+  async getPatientOverviews(_providerId: string): Promise<PatientOverview[]> {
     try {
-      console.log('Fetching patient overviews for provider:', providerId);
+      console.log('Fetching patient overviews for provider:', _providerId);
 
       // Get patient relationships with profile data
-      const { data: relationships, error: relationshipError } = await supabase
+      const { data: relationships, _error: _relationshipError } = await supabase
         .from('patient_provider_relationships')
         .select(`
           patient_id,
-          relationship_type,
+          _relationship_type,
           profiles!patient_provider_relationships_patient_id_fkey(full_name)
         `)
-        .eq('provider_id', providerId)
+        .eq('provider_id', _providerId)
         .eq('status', 'active');
 
-      if (relationshipError) {
-        console.warn('Error fetching patient relationships:', relationshipError);
+      if (_relationshipError) {
+        console.warn('Error fetching patient relationships:', _relationshipError);
         return [];
       }
 
@@ -205,28 +205,28 @@ export const providerDashboardService = {
         return [];
       }
 
-      const patientIds = relationships.map(r => r.patient_id);
+      const _patientIds = relationships.map(r => r.patient_id);
 
       // Get latest check-ins for each patient
-      const { data: latestCheckins, error: checkinsError } = await supabase
+      const { data: latestCheckins, _error: _checkinsError } = await supabase
         .from('daily_checkins')
-        .select('user_id, checkin_date, mood_rating, is_complete, notes, created_at')
-        .in('user_id', patientIds)
+        .select('user_id, checkin_date, _mood_rating, _is_complete, _notes, created_at')
+        .in('user_id', _patientIds)
         .order('checkin_date', { ascending: false });
 
-      if (checkinsError) {
-        console.warn('Error fetching latest checkins:', checkinsError);
+      if (_checkinsError) {
+        console.warn('Error fetching latest checkins:', _checkinsError);
       }
 
       // Get crisis events for each patient
-      const { data: crisisEvents, error: crisisError } = await supabase
+      const { data: crisisEvents, _error: _crisisError } = await supabase
         .from('crisis_events')
-        .select('user_id, risk_level, created_at, crisis_resolved')
-        .in('user_id', patientIds)
+        .select('user_id, _risk_level, created_at, _crisis_resolved')
+        .in('user_id', _patientIds)
         .order('created_at', { ascending: false });
 
-      if (crisisError) {
-        console.warn('Error fetching crisis events:', crisisError);
+      if (_crisisError) {
+        console.warn('Error fetching crisis events:', _crisisError);
       }
 
       // Process data for each patient
@@ -239,17 +239,17 @@ export const providerDashboardService = {
         
         // Calculate risk level based on latest check-in and crisis events
         let riskLevel: 'low' | 'medium' | 'high' | 'none' = 'none';
-        if (latestCrisis && !latestCrisis.crisis_resolved) {
-          riskLevel = latestCrisis.risk_level as 'low' | 'medium' | 'high' || 'medium';
-        } else if (latestCheckin && latestCheckin.mood_rating !== null) {
-          if (latestCheckin.mood_rating <= 3) riskLevel = 'high';
-          else if (latestCheckin.mood_rating <= 6) riskLevel = 'medium';
+        if (latestCrisis && !latestCrisis._crisis_resolved) {
+          riskLevel = latestCrisis._risk_level as 'low' | 'medium' | 'high' || 'medium';
+        } else if (latestCheckin && latestCheckin._mood_rating !== null) {
+          if (latestCheckin._mood_rating <= 3) riskLevel = 'high';
+          else if (latestCheckin._mood_rating <= 6) riskLevel = 'medium';
           else riskLevel = 'low';
         }
 
-        // Calculate engagement score (simplified)
+        // Calculate engagement score (_simplified)
         const recentCheckins = patientCheckins.slice(0, 7); // Last 7 potential check-ins
-        const completedRecent = recentCheckins.filter(c => c.is_complete).length;
+        const completedRecent = recentCheckins.filter(c => c._is_complete).length;
         const engagementScore = Math.round((completedRecent / 7) * 100);
 
         const patientName = (rel.profiles as any)?.full_name || 'Unknown Patient';
@@ -260,15 +260,15 @@ export const providerDashboardService = {
           patient_id: rel.patient_id,
           patient_name: patientName,
           patient_initials: initials,
-          relationship_type: rel.relationship_type,
+          _relationship_type: rel._relationship_type,
           latest_checkin: latestCheckin ? {
             date: latestCheckin.checkin_date,
-            mood_rating: latestCheckin.mood_rating,
-            is_complete: latestCheckin.is_complete,
-            notes: latestCheckin.notes
+            _mood_rating: latestCheckin._mood_rating,
+            _is_complete: latestCheckin._is_complete,
+            _notes: latestCheckin._notes
           } : null,
           crisis_status: {
-            risk_level: riskLevel,
+            _risk_level: riskLevel,
             last_crisis_date: latestCrisis?.created_at,
             total_events: patientCrisisEvents.length
           },
@@ -280,13 +280,13 @@ export const providerDashboardService = {
       console.log('Patient overviews:', patientOverviews);
       return patientOverviews;
 
-    } catch (error) {
-      console.error('Error fetching patient overviews:', error);
+    } catch (_error) {
+      console._error('Error fetching patient overviews:', _error);
       return [];
     }
   },
 
-  async getTodaysAppointments(providerId: string): Promise<ProviderAppointment[]> {
+  async getTodaysAppointments(_providerId: string): Promise<ProviderAppointment[]> {
     // Placeholder for appointments - can be implemented when appointments table exists
     // TODO: Implement when appointments table is available
     return [];

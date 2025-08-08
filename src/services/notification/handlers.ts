@@ -9,11 +9,11 @@ export function showNotification(type: NotificationType): void {
 
   const notification = new Notification(message.title, {
     body: message.body,
-    icon: '/favicon.ico',
-    badge: '/favicon.ico',
-    tag: `serenity_${type}_${Date.now()}`,
+    _icon: '/favicon.ico',
+    _badge: '/favicon.ico',
+    _tag: `serenity_${type}_${Date.now()}`,
     requireInteraction: true,
-    data: { type, timestamp: Date.now() }
+    data: { type, _timestamp: Date.now() }
   });
 
   notification.onclick = () => {
@@ -44,7 +44,7 @@ export function handleNotificationClick(type: string): void {
   }
 }
 
-export async function handleActionClick(action: string, data?: any): Promise<void> {
+export async function handleActionClick(action: string, data?: unknown): Promise<void> {
   switch (action) {
     case 'log_mood':
       window.location.href = '/#daily-checkin';
@@ -69,7 +69,7 @@ export async function handleActionClick(action: string, data?: any): Promise<voi
   }
 }
 
-export async function logFeedback(data: any): Promise<void> {
+export async function logFeedback(data: unknown): Promise<void> {
   try {
     // Get current authenticated user for RLS compliance
     const { data: { user } } = await supabase.auth.getUser();
@@ -82,18 +82,18 @@ export async function logFeedback(data: any): Promise<void> {
     await supabase.from('audit_logs').insert({
       user_id: user.id, // Required for RLS policy
       action: 'NOTIFICATION_FEEDBACK',
-      details_encrypted: JSON.stringify({
+      _details_encrypted: JSON.stringify({
         feedback: 'positive',
-        notification_type: data?.type,
-        timestamp: new Date().toISOString()
+        _notification_type: data?.type,
+        _timestamp: new Date().toISOString()
       })
     });
-  } catch (error) {
-    console.error('Failed to log notification feedback:', error);
+  } catch (_error) {
+    console._error('Failed to log notification feedback:', _error);
   }
 }
 
-export async function logNotificationScheduled(settings: any): Promise<void> {
+export async function logNotificationScheduled(settings: unknown): Promise<void> {
   try {
     // Get current authenticated user for RLS compliance
     const { data: { user } } = await supabase.auth.getUser();
@@ -106,12 +106,12 @@ export async function logNotificationScheduled(settings: any): Promise<void> {
     await supabase.from('audit_logs').insert({
       user_id: user.id, // Required for RLS policy
       action: 'NOTIFICATION_SCHEDULED',
-      details_encrypted: JSON.stringify({
+      _details_encrypted: JSON.stringify({
         settings,
-        timestamp: new Date().toISOString()
+        _timestamp: new Date().toISOString()
       })
     });
-  } catch (error) {
-    console.error('Failed to log notification scheduling:', error);
+  } catch (_error) {
+    console._error('Failed to log notification scheduling:', _error);
   }
 }

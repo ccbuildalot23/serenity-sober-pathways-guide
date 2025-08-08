@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Clock } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 
 interface AppointmentChangeRequestDialogProps {
   open: boolean;
-  appointmentId: string;
+  _appointmentId: string;
   requestType: 'reschedule' | 'cancel';
   onClose: () => void;
   onSuccess: () => void;
@@ -21,52 +21,52 @@ interface AppointmentChangeRequestDialogProps {
 
 export const AppointmentChangeRequestDialog: React.FC<AppointmentChangeRequestDialogProps> = ({
   open,
-  appointmentId,
+  _appointmentId,
   requestType,
   onClose,
   onSuccess
 }) => {
-  const [loading, setLoading] = useState(false);
-  const [reason, setReason] = useState('');
-  const [newDate, setNewDate] = useState<Date>();
+  const [loading, setLoading] = useState(_false);
+  const [_reason, setReason] = useState('');
+  const [_newDate, setNewDate] = useState<Date>();
   const [newTime, setNewTime] = useState('');
 
   const handleSubmit = async () => {
-    if (!reason.trim()) {
-      toast.error('Please provide a reason for the change');
+    if (!_reason.trim()) {
+      toast.error('Please provide a _reason for the change');
       return;
     }
 
-    if (requestType === 'reschedule' && (!newDate || !newTime)) {
+    if (requestType === 'reschedule' && (!_newDate || !newTime)) {
       toast.error('Please select a new date and time');
       return;
     }
 
     try {
-      setLoading(true);
+      setLoading(_true);
       
-      let newStartTime: string | undefined;
-      let newEndTime: string | undefined;
+      let _newStartTime: string | undefined;
+      let _newEndTime: string | undefined;
 
-      if (requestType === 'reschedule' && newDate && newTime) {
-        const [hours, minutes] = newTime.split(':').map(Number);
-        const startDateTime = new Date(newDate);
-        startDateTime.setHours(hours, minutes, 0, 0);
+      if (requestType === 'reschedule' && _newDate && newTime) {
+        const [hours, _minutes] = newTime.split(':').map(_Number);
+        const startDateTime = new Date(_newDate);
+        startDateTime.setHours(hours, _minutes, 0, 0);
         
         // Assume 1 hour duration for now (could be made configurable)
         const endDateTime = new Date(startDateTime);
-        endDateTime.setHours(hours + 1, minutes, 0, 0);
+        endDateTime.setHours(hours + 1, _minutes, 0, 0);
         
-        newStartTime = startDateTime.toISOString();
-        newEndTime = endDateTime.toISOString();
+        _newStartTime = startDateTime.toISOString();
+        _newEndTime = endDateTime.toISOString();
       }
 
       await AppointmentService.createChangeRequest(
-        appointmentId,
+        _appointmentId,
         requestType,
-        reason,
-        newStartTime,
-        newEndTime
+        _reason,
+        _newStartTime,
+        _newEndTime
       );
 
       toast.success(
@@ -80,7 +80,7 @@ export const AppointmentChangeRequestDialog: React.FC<AppointmentChangeRequestDi
       console.error('Error submitting change request:', error);
       toast.error('Failed to submit request. Please try again.');
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
 
@@ -110,17 +110,17 @@ export const AppointmentChangeRequestDialog: React.FC<AppointmentChangeRequestDi
                       variant="outline"
                       className={cn(
                         "w-full justify-start text-left font-normal",
-                        !newDate && "text-muted-foreground"
+                        !_newDate && "text-muted-foreground"
                       )}
                     >
                       <Calendar className="mr-2 h-4 w-4" />
-                      {newDate ? format(newDate, "PPP") : "Pick a date"}
+                      {_newDate ? format(_newDate, "PPP") : "Pick a date"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
                     <CalendarComponent
                       mode="single"
-                      selected={newDate}
+                      selected={_newDate}
                       onSelect={setNewDate}
                       disabled={(date) => date < new Date()}
                       initialFocus
@@ -150,13 +150,13 @@ export const AppointmentChangeRequestDialog: React.FC<AppointmentChangeRequestDi
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="reason">
+            <Label htmlFor="_reason">
               Reason for {requestType === 'reschedule' ? 'rescheduling' : 'cancellation'}
             </Label>
             <Textarea
-              id="reason"
+              id="_reason"
               placeholder={`Please explain why you need to ${requestType} this appointment...`}
-              value={reason}
+              value={_reason}
               onChange={(e) => setReason(e.target.value)}
               rows={3}
             />

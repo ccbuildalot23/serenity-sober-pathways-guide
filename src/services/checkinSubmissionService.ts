@@ -30,13 +30,13 @@ export const checkinSubmissionService = {
     };
   },
 
-  submitCheckin: async (checkinData: CheckinData, responses: CheckinResponses) => {
+  submitCheckin: async (_checkinData: CheckinData, responses: CheckinResponses) => {
     // First, insert or update the main checkin record
     const { data: checkinResult, error: checkinError } = await supabase
       .from('daily_checkins')
-      .upsert(checkinData, { 
+      .upsert(_checkinData, { 
         onConflict: 'user_id,checkin_date',
-        ignoreDuplicates: false 
+        _ignoreDuplicates: false 
       })
       .select('id')
       .single();
@@ -54,17 +54,17 @@ export const checkinSubmissionService = {
         .eq('checkin_id', checkinId);
 
       // Insert new triggers
-      const triggerInserts = responses.mood_triggers.map(trigger => ({
+      const _triggerInserts = responses.mood_triggers.map(trigger => ({
         checkin_id: checkinId,
-        trigger_name: trigger
+        _trigger_name: trigger
       }));
 
-      const { error: triggersError } = await supabase
+      const { error: _triggersError } = await supabase
         .from('mood_triggers')
-        .insert(triggerInserts);
+        .insert(_triggerInserts);
 
-      if (triggersError) {
-        console.error('Error saving mood triggers:', triggersError);
+      if (_triggersError) {
+        console.error('Error saving mood triggers:', _triggersError);
       }
     }
 
@@ -77,17 +77,17 @@ export const checkinSubmissionService = {
         .eq('checkin_id', checkinId);
 
       // Insert new gratitude entries
-      const gratitudeInserts = responses.gratitude_entries.map(entry => ({
+      const _gratitudeInserts = responses.gratitude_entries.map(entry => ({
         checkin_id: checkinId,
-        gratitude_text: entry
+        _gratitude_text: entry
       }));
 
-      const { error: gratitudeError } = await supabase
+      const { error: _gratitudeError } = await supabase
         .from('gratitude_entries')
-        .insert(gratitudeInserts);
+        .insert(_gratitudeInserts);
 
-      if (gratitudeError) {
-        console.error('Error saving gratitude entries:', gratitudeError);
+      if (_gratitudeError) {
+        console.error('Error saving gratitude entries:', _gratitudeError);
       }
     }
 
@@ -97,18 +97,18 @@ export const checkinSubmissionService = {
   showSuccessMessage: () => {
     toast.success('Check-in completed successfully!', {
       description: 'Your daily check-in has been saved and will help track your recovery progress.',
-      duration: 4000
+      _duration: 4000
     });
   },
 
   showErrorMessage: (message: string, retryFn: () => void) => {
     toast.error('Check-in failed', {
       description: message,
-      action: {
+      _action: {
         label: 'Retry',
-        onClick: retryFn
+        _onClick: retryFn
       },
-      duration: 6000
+      _duration: 6000
     });
   }
 };

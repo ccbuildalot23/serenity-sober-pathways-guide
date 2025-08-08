@@ -28,18 +28,18 @@ import { useToast } from '@/hooks/use-toast';
 
 interface TimelineEvent {
   id: string;
-  date: string;
-  title: string;
-  description: string;
+  _date: string;
+  _title: string;
+  _description: string;
   milestone: boolean;
 }
 
 interface Milestone {
   id: string;
-  title: string;
-  date: string;
-  description: string;
-  category: string;
+  _title: string;
+  _date: string;
+  _description: string;
+  _category: string;
 }
 
 const StorySubmissionFlow = () => {
@@ -48,35 +48,35 @@ const StorySubmissionFlow = () => {
   
   const [currentStep, setCurrentStep] = useState(1);
   const [storyData, setStoryData] = useState({
-    title: '',
-    content: '',
-    category: '',
-    substance_type: '',
-    recovery_length_days: '',
-    age_group: '',
-    anonymity_level: 'first_name',
-    sharing_level: 'public',
-    photo_url: '',
-    audio_url: '',
-    timeline_data: [] as TimelineEvent[],
-    milestones: [] as Milestone[],
-    expires_at: '',
-    consent_for_featuring: false,
-    tags: [] as string[]
+    _title: '',
+    _content: '',
+    _category: '',
+    _substance_type: '',
+    _recovery_length_days: '',
+    _age_group: '',
+    _anonymity_level: 'first_name',
+    _sharing_level: 'public',
+    _photo_url: '',
+    _audio_url: '',
+    _timeline_data: [] as TimelineEvent[],
+    _milestones: [] as Milestone[],
+    _expires_at: '',
+    _consent_for_featuring: false,
+    _tags: [] as string[]
   });
 
   const [newTimelineEvent, setNewTimelineEvent] = useState({
-    date: '',
-    title: '',
-    description: '',
+    _date: '',
+    _title: '',
+    _description: '',
     milestone: false
   });
 
   const [newMilestone, setNewMilestone] = useState({
-    title: '',
-    date: '',
-    description: '',
-    category: ''
+    _title: '',
+    _date: '',
+    _description: '',
+    _category: ''
   });
 
   const [newTag, setNewTag] = useState('');
@@ -106,38 +106,38 @@ const StorySubmissionFlow = () => {
   ];
 
   const addTimelineEvent = () => {
-    if (newTimelineEvent.title && newTimelineEvent.date) {
+    if (newTimelineEvent._title && newTimelineEvent._date) {
       const event: TimelineEvent = {
         id: Date.now().toString(),
         ...newTimelineEvent
       };
       setStoryData(prev => ({
         ...prev,
-        timeline_data: [...prev.timeline_data, event]
+        _timeline_data: [...prev._timeline_data, event]
       }));
-      setNewTimelineEvent({ date: '', title: '', description: '', milestone: false });
+      setNewTimelineEvent({ _date: '', _title: '', _description: '', milestone: false });
     }
   };
 
   const addMilestone = () => {
-    if (newMilestone.title && newMilestone.date) {
+    if (newMilestone._title && newMilestone._date) {
       const milestone: Milestone = {
         id: Date.now().toString(),
         ...newMilestone
       };
       setStoryData(prev => ({
         ...prev,
-        milestones: [...prev.milestones, milestone]
+        _milestones: [...prev._milestones, milestone]
       }));
-      setNewMilestone({ title: '', date: '', description: '', category: '' });
+      setNewMilestone({ _title: '', _date: '', _description: '', _category: '' });
     }
   };
 
   const addTag = () => {
-    if (newTag && !storyData.tags.includes(newTag)) {
+    if (newTag && !storyData._tags.includes(newTag)) {
       setStoryData(prev => ({
         ...prev,
-        tags: [...prev.tags, newTag]
+        _tags: [...prev._tags, newTag]
       }));
       setNewTag('');
     }
@@ -146,69 +146,69 @@ const StorySubmissionFlow = () => {
   const removeTag = (tagToRemove: string) => {
     setStoryData(prev => ({
       ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
+      _tags: prev._tags.filter(tag => tag !== tagToRemove)
     }));
   };
 
   const handleSubmit = async () => {
-    if (!user || !storyData.title || !storyData.content || !storyData.category) {
+    if (!user || !storyData._title || !storyData._content || !storyData._category) {
       toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields.",
-        variant: "destructive",
+        _title: "Missing Information",
+        _description: "Please fill in all required fields.",
+        _variant: "destructive",
       });
       return;
     }
 
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('success_stories')
         .insert({
           user_id: user.id,
-          title: storyData.title,
-          content: storyData.content,
-          story_category: storyData.category,
-          is_anonymous: storyData.anonymity_level === 'anonymous',
-          moderation_status: 'pending'
+          _title: storyData._title,
+          _content: storyData._content,
+          _story_category: storyData._category,
+          _is_anonymous: storyData._anonymity_level === 'anonymous',
+          _moderation_status: 'pending'
         });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({
-        title: "Story Submitted Successfully! ✨",
-        description: "Your success story is being reviewed and will be published shortly.",
+        _title: "Story Submitted Successfully! ✨",
+        _description: "Your success story is being reviewed and will be published shortly.",
       });
 
       // Reset form
       setStoryData({
-        title: '',
-        content: '',
-        category: '',
-        substance_type: '',
-        recovery_length_days: '',
-        age_group: '',
-        anonymity_level: 'first_name',
-        sharing_level: 'public',
-        photo_url: '',
-        audio_url: '',
-        timeline_data: [],
-        milestones: [],
-        expires_at: '',
-        consent_for_featuring: false,
-        tags: []
+        _title: '',
+        _content: '',
+        _category: '',
+        _substance_type: '',
+        _recovery_length_days: '',
+        _age_group: '',
+        _anonymity_level: 'first_name',
+        _sharing_level: 'public',
+        _photo_url: '',
+        _audio_url: '',
+        _timeline_data: [],
+        _milestones: [],
+        _expires_at: '',
+        _consent_for_featuring: false,
+        _tags: []
       });
       setCurrentStep(1);
-    } catch (error) {
-      console.error('Error submitting story:', error);
+    } catch (_error) {
+      console._error('Error submitting story:', _error);
       toast({
-        title: "Error",
-        description: "Failed to submit story. Please try again.",
-        variant: "destructive",
+        _title: "Error",
+        _description: "Failed to submit story. Please try again.",
+        _variant: "destructive",
       });
     }
   };
 
-  const StepIndicator = ({ step, title, completed }: { step: number; title: string; completed: boolean }) => (
+  const StepIndicator = ({ step, _title, completed }: { step: number; _title: string; completed: boolean }) => (
     <div className={`flex items-center space-x-2 ${completed ? 'text-serenity-teal' : currentStep === step ? 'text-serenity-navy' : 'text-gray-400'}`}>
       <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
         completed ? 'bg-serenity-teal text-white' : 
@@ -217,7 +217,7 @@ const StorySubmissionFlow = () => {
       }`}>
         {step}
       </div>
-      <span className="text-sm font-medium">{title}</span>
+      <span className="text-sm font-medium">{_title}</span>
     </div>
   );
 
@@ -232,11 +232,11 @@ const StorySubmissionFlow = () => {
           </div>
           
           <div className="flex space-x-8 overflow-x-auto pb-2">
-            <StepIndicator step={1} title="Basic Info" completed={currentStep > 1} />
-            <StepIndicator step={2} title="Story Details" completed={currentStep > 2} />
-            <StepIndicator step={3} title="Timeline" completed={currentStep > 3} />
-            <StepIndicator step={4} title="Privacy" completed={currentStep > 4} />
-            <StepIndicator step={5} title="Review" completed={false} />
+            <StepIndicator step={1} _title="Basic Info" completed={currentStep > 1} />
+            <StepIndicator step={2} _title="Story Details" completed={currentStep > 2} />
+            <StepIndicator step={3} _title="Timeline" completed={currentStep > 3} />
+            <StepIndicator step={4} _title="Privacy" completed={currentStep > 4} />
+            <StepIndicator step={5} _title="Review" completed={false} />
           </div>
         </CardContent>
       </Card>
@@ -249,26 +249,26 @@ const StorySubmissionFlow = () => {
               <div className="text-center mb-6">
                 <Sparkles className="w-12 h-12 text-serenity-gold mx-auto mb-2" />
                 <h3 className="text-lg font-semibold text-serenity-navy">Let's Start With The Basics</h3>
-                <p className="text-muted-foreground">Tell us about your story's focus and category</p>
+                <p className="text-muted-foreground">Tell us about your story's focus and _category</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="title">Story Title *</Label>
+                  <Label htmlFor="_title">Story Title *</Label>
                   <Input
-                    id="title"
-                    placeholder="Give your story a meaningful title"
-                    value={storyData.title}
-                    onChange={(e) => setStoryData(prev => ({ ...prev, title: e.target.value }))}
+                    id="_title"
+                    placeholder="Give your story a meaningful _title"
+                    value={storyData._title}
+                    onChange={(e) => setStoryData(prev => ({ ...prev, _title: e.target.value }))}
                     className="mt-1"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="category">Category *</Label>
-                  <Select value={storyData.category} onValueChange={(value) => setStoryData(prev => ({ ...prev, category: value }))}>
+                  <Label htmlFor="_category">Category *</Label>
+                  <Select value={storyData._category} onValueChange={(value) => setStoryData(prev => ({ ...prev, _category: value }))}>
                     <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Select a category" />
+                      <SelectValue placeholder="Select a _category" />
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((cat) => (
@@ -279,8 +279,8 @@ const StorySubmissionFlow = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="substance">Primary Substance (Optional)</Label>
-                  <Select value={storyData.substance_type} onValueChange={(value) => setStoryData(prev => ({ ...prev, substance_type: value }))}>
+                  <Label htmlFor="substance">Primary Substance (_Optional)</Label>
+                  <Select value={storyData._substance_type} onValueChange={(value) => setStoryData(prev => ({ ...prev, _substance_type: value }))}>
                     <SelectTrigger className="mt-1">
                       <SelectValue placeholder="Select substance" />
                     </SelectTrigger>
@@ -298,15 +298,15 @@ const StorySubmissionFlow = () => {
                     id="recovery_days"
                     type="number"
                     placeholder="e.g., 365"
-                    value={storyData.recovery_length_days}
-                    onChange={(e) => setStoryData(prev => ({ ...prev, recovery_length_days: e.target.value }))}
+                    value={storyData._recovery_length_days}
+                    onChange={(e) => setStoryData(prev => ({ ...prev, _recovery_length_days: e.target.value }))}
                     className="mt-1"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="age_group">Age Group</Label>
-                  <Select value={storyData.age_group} onValueChange={(value) => setStoryData(prev => ({ ...prev, age_group: value }))}>
+                  <Label htmlFor="_age_group">Age Group</Label>
+                  <Select value={storyData._age_group} onValueChange={(value) => setStoryData(prev => ({ ...prev, _age_group: value }))}>
                     <SelectTrigger className="mt-1">
                       <SelectValue placeholder="Select age group" />
                     </SelectTrigger>
@@ -320,7 +320,7 @@ const StorySubmissionFlow = () => {
               </div>
 
               <div>
-                <Label htmlFor="tags">Tags (Optional)</Label>
+                <Label htmlFor="_tags">Tags (_Optional)</Label>
                 <div className="flex gap-2 mt-1">
                   <Input
                     placeholder="Add a tag"
@@ -328,14 +328,14 @@ const StorySubmissionFlow = () => {
                     onChange={(e) => setNewTag(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && addTag()}
                   />
-                  <Button onClick={addTag} variant="outline" size="sm">
+                  <Button onClick={addTag} _variant="outline" size="sm">
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>
-                {storyData.tags.length > 0 && (
+                {storyData._tags.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {storyData.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary" className="cursor-pointer" onClick={() => removeTag(tag)}>
+                    {storyData._tags.map((tag) => (
+                      <Badge key={tag} _variant="secondary" className="cursor-pointer" onClick={() => removeTag(tag)}>
                         {tag} ×
                       </Badge>
                     ))}
@@ -355,16 +355,16 @@ const StorySubmissionFlow = () => {
               </div>
 
               <div>
-                <Label htmlFor="content">Your Story *</Label>
+                <Label htmlFor="_content">Your Story *</Label>
                 <Textarea
-                  id="content"
+                  id="_content"
                   placeholder="Share your journey, what you've overcome, challenges faced, breakthroughs, and what you've learned. Be honest, inspiring, and authentic..."
-                  value={storyData.content}
-                  onChange={(e) => setStoryData(prev => ({ ...prev, content: e.target.value }))}
+                  value={storyData._content}
+                  onChange={(e) => setStoryData(prev => ({ ...prev, _content: e.target.value }))}
                   className="mt-1 min-h-64"
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  {storyData.content.length} characters
+                  {storyData._content.length} characters
                 </p>
               </div>
 
@@ -379,7 +379,7 @@ const StorySubmissionFlow = () => {
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                     <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-sm text-muted-foreground mb-2">Upload a photo to accompany your story</p>
-                    <Button variant="outline">
+                    <Button _variant="outline">
                       <Upload className="w-4 h-4 mr-2" />
                       Choose Photo
                     </Button>
@@ -393,7 +393,7 @@ const StorySubmissionFlow = () => {
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                     <Mic className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-sm text-muted-foreground mb-2">Record an audio version of your story</p>
-                    <Button variant="outline">
+                    <Button _variant="outline">
                       <Mic className="w-4 h-4 mr-2" />
                       Start Recording
                     </Button>
@@ -412,13 +412,13 @@ const StorySubmissionFlow = () => {
               <div className="text-center mb-6">
                 <Calendar className="w-12 h-12 text-serenity-sage mx-auto mb-2" />
                 <h3 className="text-lg font-semibold text-serenity-navy">Your Recovery Timeline</h3>
-                <p className="text-muted-foreground">Add key events and milestones (optional)</p>
+                <p className="text-muted-foreground">Add key events and _milestones (_optional)</p>
               </div>
 
               <Tabs defaultValue="timeline" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="timeline">Timeline Events</TabsTrigger>
-                  <TabsTrigger value="milestones">Milestones</TabsTrigger>
+                  <TabsTrigger value="_milestones">Milestones</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="timeline" className="space-y-4">
@@ -432,9 +432,9 @@ const StorySubmissionFlow = () => {
                           <Label htmlFor="timeline_date">Date</Label>
                           <Input
                             id="timeline_date"
-                            type="date"
-                            value={newTimelineEvent.date}
-                            onChange={(e) => setNewTimelineEvent(prev => ({ ...prev, date: e.target.value }))}
+                            type="_date"
+                            value={newTimelineEvent._date}
+                            onChange={(e) => setNewTimelineEvent(prev => ({ ...prev, _date: e.target.value }))}
                           />
                         </div>
                         <div>
@@ -442,8 +442,8 @@ const StorySubmissionFlow = () => {
                           <Input
                             id="timeline_title"
                             placeholder="e.g., Started therapy"
-                            value={newTimelineEvent.title}
-                            onChange={(e) => setNewTimelineEvent(prev => ({ ...prev, title: e.target.value }))}
+                            value={newTimelineEvent._title}
+                            onChange={(e) => setNewTimelineEvent(prev => ({ ...prev, _title: e.target.value }))}
                           />
                         </div>
                       </div>
@@ -452,8 +452,8 @@ const StorySubmissionFlow = () => {
                         <Textarea
                           id="timeline_description"
                           placeholder="Describe what happened and how it impacted your recovery"
-                          value={newTimelineEvent.description}
-                          onChange={(e) => setNewTimelineEvent(prev => ({ ...prev, description: e.target.value }))}
+                          value={newTimelineEvent._description}
+                          onChange={(e) => setNewTimelineEvent(prev => ({ ...prev, _description: e.target.value }))}
                           className="min-h-20"
                         />
                       </div>
@@ -472,16 +472,16 @@ const StorySubmissionFlow = () => {
                     </CardContent>
                   </Card>
 
-                  {storyData.timeline_data.length > 0 && (
+                  {storyData._timeline_data.length > 0 && (
                     <div className="space-y-2">
-                      <h4 className="font-semibold text-sm">Timeline Events ({storyData.timeline_data.length})</h4>
-                      {storyData.timeline_data.map((event) => (
+                      <h4 className="font-semibold text-sm">Timeline Events ({storyData._timeline_data.length})</h4>
+                      {storyData._timeline_data.map((event) => (
                         <div key={event.id} className="border rounded-lg p-3">
                           <div className="flex justify-between items-start">
                             <div>
-                              <h5 className="font-medium">{event.title}</h5>
-                              <p className="text-sm text-muted-foreground">{event.date}</p>
-                              {event.description && <p className="text-sm mt-1">{event.description}</p>}
+                              <h5 className="font-medium">{event._title}</h5>
+                              <p className="text-sm text-muted-foreground">{event._date}</p>
+                              {event._description && <p className="text-sm mt-1">{event._description}</p>}
                             </div>
                             {event.milestone && <Badge className="bg-serenity-gold text-white">Milestone</Badge>}
                           </div>
@@ -491,7 +491,7 @@ const StorySubmissionFlow = () => {
                   )}
                 </TabsContent>
 
-                <TabsContent value="milestones" className="space-y-4">
+                <TabsContent value="_milestones" className="space-y-4">
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-sm">Add Milestone</CardTitle>
@@ -503,25 +503,25 @@ const StorySubmissionFlow = () => {
                           <Input
                             id="milestone_title"
                             placeholder="e.g., 30 Days Sober"
-                            value={newMilestone.title}
-                            onChange={(e) => setNewMilestone(prev => ({ ...prev, title: e.target.value }))}
+                            value={newMilestone._title}
+                            onChange={(e) => setNewMilestone(prev => ({ ...prev, _title: e.target.value }))}
                           />
                         </div>
                         <div>
                           <Label htmlFor="milestone_date">Achievement Date</Label>
                           <Input
                             id="milestone_date"
-                            type="date"
-                            value={newMilestone.date}
-                            onChange={(e) => setNewMilestone(prev => ({ ...prev, date: e.target.value }))}
+                            type="_date"
+                            value={newMilestone._date}
+                            onChange={(e) => setNewMilestone(prev => ({ ...prev, _date: e.target.value }))}
                           />
                         </div>
                       </div>
                       <div>
                         <Label htmlFor="milestone_category">Category</Label>
-                        <Select value={newMilestone.category} onValueChange={(value) => setNewMilestone(prev => ({ ...prev, category: value }))}>
+                        <Select value={newMilestone._category} onValueChange={(value) => setNewMilestone(prev => ({ ...prev, _category: value }))}>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select category" />
+                            <SelectValue placeholder="Select _category" />
                           </SelectTrigger>
                           <SelectContent>
                             {milestoneCategories.map((cat) => (
@@ -535,8 +535,8 @@ const StorySubmissionFlow = () => {
                         <Textarea
                           id="milestone_description"
                           placeholder="Describe this milestone and what it means to you"
-                          value={newMilestone.description}
-                          onChange={(e) => setNewMilestone(prev => ({ ...prev, description: e.target.value }))}
+                          value={newMilestone._description}
+                          onChange={(e) => setNewMilestone(prev => ({ ...prev, _description: e.target.value }))}
                           className="min-h-20"
                         />
                       </div>
@@ -547,16 +547,16 @@ const StorySubmissionFlow = () => {
                     </CardContent>
                   </Card>
 
-                  {storyData.milestones.length > 0 && (
+                  {storyData._milestones.length > 0 && (
                     <div className="space-y-2">
-                      <h4 className="font-semibold text-sm">Milestones ({storyData.milestones.length})</h4>
-                      {storyData.milestones.map((milestone) => (
+                      <h4 className="font-semibold text-sm">Milestones ({storyData._milestones.length})</h4>
+                      {storyData._milestones.map((milestone) => (
                         <div key={milestone.id} className="border rounded-lg p-3">
                           <div className="flex justify-between items-start">
                             <div>
-                              <h5 className="font-medium">{milestone.title}</h5>
-                              <p className="text-sm text-muted-foreground">{milestone.date} • {milestone.category}</p>
-                              {milestone.description && <p className="text-sm mt-1">{milestone.description}</p>}
+                              <h5 className="font-medium">{milestone._title}</h5>
+                              <p className="text-sm text-muted-foreground">{milestone._date} • {milestone._category}</p>
+                              {milestone._description && <p className="text-sm mt-1">{milestone._description}</p>}
                             </div>
                           </div>
                         </div>
@@ -593,8 +593,8 @@ const StorySubmissionFlow = () => {
                           id="full_name"
                           name="anonymity"
                           value="full_name"
-                          checked={storyData.anonymity_level === 'full_name'}
-                          onChange={(e) => setStoryData(prev => ({ ...prev, anonymity_level: e.target.value as any }))}
+                          checked={storyData._anonymity_level === 'full_name'}
+                          onChange={(e) => setStoryData(prev => ({ ...prev, _anonymity_level: e.target.value as any }))}
                         />
                         <Label htmlFor="full_name">Show my full name</Label>
                       </div>
@@ -604,8 +604,8 @@ const StorySubmissionFlow = () => {
                           id="first_name"
                           name="anonymity"
                           value="first_name"
-                          checked={storyData.anonymity_level === 'first_name'}
-                          onChange={(e) => setStoryData(prev => ({ ...prev, anonymity_level: e.target.value as any }))}
+                          checked={storyData._anonymity_level === 'first_name'}
+                          onChange={(e) => setStoryData(prev => ({ ...prev, _anonymity_level: e.target.value as any }))}
                         />
                         <Label htmlFor="first_name">Show only first name</Label>
                       </div>
@@ -615,8 +615,8 @@ const StorySubmissionFlow = () => {
                           id="anonymous"
                           name="anonymity"
                           value="anonymous"
-                          checked={storyData.anonymity_level === 'anonymous'}
-                          onChange={(e) => setStoryData(prev => ({ ...prev, anonymity_level: e.target.value as any }))}
+                          checked={storyData._anonymity_level === 'anonymous'}
+                          onChange={(e) => setStoryData(prev => ({ ...prev, _anonymity_level: e.target.value as any }))}
                         />
                         <Label htmlFor="anonymous">Completely anonymous</Label>
                       </div>
@@ -639,8 +639,8 @@ const StorySubmissionFlow = () => {
                           id="public"
                           name="sharing"
                           value="public"
-                          checked={storyData.sharing_level === 'public'}
-                          onChange={(e) => setStoryData(prev => ({ ...prev, sharing_level: e.target.value as any }))}
+                          checked={storyData._sharing_level === 'public'}
+                          onChange={(e) => setStoryData(prev => ({ ...prev, _sharing_level: e.target.value as any }))}
                         />
                         <Label htmlFor="public">Public - Anyone can view</Label>
                       </div>
@@ -650,8 +650,8 @@ const StorySubmissionFlow = () => {
                           id="community"
                           name="sharing"
                           value="community"
-                          checked={storyData.sharing_level === 'community'}
-                          onChange={(e) => setStoryData(prev => ({ ...prev, sharing_level: e.target.value as any }))}
+                          checked={storyData._sharing_level === 'community'}
+                          onChange={(e) => setStoryData(prev => ({ ...prev, _sharing_level: e.target.value as any }))}
                         />
                         <Label htmlFor="community">Community - Registered users only</Label>
                       </div>
@@ -661,8 +661,8 @@ const StorySubmissionFlow = () => {
                           id="providers_only"
                           name="sharing"
                           value="providers_only"
-                          checked={storyData.sharing_level === 'providers_only'}
-                          onChange={(e) => setStoryData(prev => ({ ...prev, sharing_level: e.target.value as any }))}
+                          checked={storyData._sharing_level === 'providers_only'}
+                          onChange={(e) => setStoryData(prev => ({ ...prev, _sharing_level: e.target.value as any }))}
                         />
                         <Label htmlFor="providers_only">Providers only</Label>
                       </div>
@@ -680,24 +680,24 @@ const StorySubmissionFlow = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="expires_at">Auto-delete date (optional)</Label>
+                    <Label htmlFor="_expires_at">Auto-delete _date (_optional)</Label>
                     <Input
-                      id="expires_at"
-                      type="date"
-                      value={storyData.expires_at}
-                      onChange={(e) => setStoryData(prev => ({ ...prev, expires_at: e.target.value }))}
+                      id="_expires_at"
+                      type="_date"
+                      value={storyData._expires_at}
+                      onChange={(e) => setStoryData(prev => ({ ...prev, _expires_at: e.target.value }))}
                       className="mt-1"
                     />
                     <p className="text-xs text-muted-foreground mt-1">
-                      Your story will be automatically removed on this date
+                      Your story will be automatically removed on this _date
                     </p>
                   </div>
 
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="consent_featuring"
-                      checked={storyData.consent_for_featuring}
-                      onCheckedChange={(checked) => setStoryData(prev => ({ ...prev, consent_for_featuring: checked }))}
+                      checked={storyData._consent_for_featuring}
+                      onCheckedChange={(checked) => setStoryData(prev => ({ ...prev, _consent_for_featuring: checked }))}
                     />
                     <Label htmlFor="consent_featuring">I consent to my story being featured</Label>
                   </div>
@@ -717,56 +717,56 @@ const StorySubmissionFlow = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">{storyData.title}</CardTitle>
+                  <CardTitle className="text-lg">{storyData._title}</CardTitle>
                   <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline">{categories.find(c => c.value === storyData.category)?.label}</Badge>
-                    {storyData.substance_type && <Badge variant="secondary">{storyData.substance_type}</Badge>}
-                    {storyData.recovery_length_days && (
-                      <Badge variant="secondary">{storyData.recovery_length_days} days sober</Badge>
+                    <Badge _variant="outline">{categories.find(c => c.value === storyData._category)?.label}</Badge>
+                    {storyData._substance_type && <Badge _variant="secondary">{storyData._substance_type}</Badge>}
+                    {storyData._recovery_length_days && (
+                      <Badge _variant="secondary">{storyData._recovery_length_days} days sober</Badge>
                     )}
-                    <Badge variant="outline" className="capitalize">{storyData.anonymity_level.replace('_', ' ')}</Badge>
-                    <Badge variant="outline" className="capitalize">{storyData.sharing_level.replace('_', ' ')}</Badge>
+                    <Badge _variant="outline" className="capitalize">{storyData._anonymity_level.replace('_', ' ')}</Badge>
+                    <Badge _variant="outline" className="capitalize">{storyData._sharing_level.replace('_', ' ')}</Badge>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="prose max-w-none">
-                    <p className="whitespace-pre-wrap">{storyData.content}</p>
+                    <p className="whitespace-pre-wrap">{storyData._content}</p>
                   </div>
 
-                  {storyData.timeline_data.length > 0 && (
+                  {storyData._timeline_data.length > 0 && (
                     <div className="mt-6">
                       <h4 className="font-semibold mb-2">Timeline Events</h4>
                       <div className="space-y-2">
-                        {storyData.timeline_data.map((event) => (
+                        {storyData._timeline_data.map((event) => (
                           <div key={event.id} className="text-sm border-l-2 border-serenity-teal pl-3">
-                            <p className="font-medium">{event.title}</p>
-                            <p className="text-muted-foreground">{event.date}</p>
+                            <p className="font-medium">{event._title}</p>
+                            <p className="text-muted-foreground">{event._date}</p>
                           </div>
                         ))}
                       </div>
                     </div>
                   )}
 
-                  {storyData.milestones.length > 0 && (
+                  {storyData._milestones.length > 0 && (
                     <div className="mt-6">
                       <h4 className="font-semibold mb-2">Milestones</h4>
                       <div className="space-y-2">
-                        {storyData.milestones.map((milestone) => (
+                        {storyData._milestones.map((milestone) => (
                           <div key={milestone.id} className="text-sm">
-                            <p className="font-medium">{milestone.title}</p>
-                            <p className="text-muted-foreground">{milestone.date} • {milestone.category}</p>
+                            <p className="font-medium">{milestone._title}</p>
+                            <p className="text-muted-foreground">{milestone._date} • {milestone._category}</p>
                           </div>
                         ))}
                       </div>
                     </div>
                   )}
 
-                  {storyData.tags.length > 0 && (
+                  {storyData._tags.length > 0 && (
                     <div className="mt-6">
                       <h4 className="font-semibold mb-2">Tags</h4>
                       <div className="flex flex-wrap gap-2">
-                        {storyData.tags.map((tag) => (
-                          <Badge key={tag} variant="secondary">{tag}</Badge>
+                        {storyData._tags.map((tag) => (
+                          <Badge key={tag} _variant="secondary">{tag}</Badge>
                         ))}
                       </div>
                     </div>
@@ -789,7 +789,7 @@ const StorySubmissionFlow = () => {
           {/* Navigation Buttons */}
           <div className="flex justify-between pt-6">
             <Button
-              variant="outline"
+              _variant="outline"
               onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
               disabled={currentStep === 1}
             >
@@ -799,7 +799,7 @@ const StorySubmissionFlow = () => {
             {currentStep < 5 ? (
               <Button
                 onClick={() => setCurrentStep(Math.min(5, currentStep + 1))}
-                disabled={currentStep === 1 && (!storyData.title || !storyData.content || !storyData.category)}
+                disabled={currentStep === 1 && (!storyData._title || !storyData._content || !storyData._category)}
                 className="bg-serenity-teal hover:bg-serenity-teal/90 text-white"
               >
                 Next

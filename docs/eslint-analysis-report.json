@@ -1,0 +1,239 @@
+{
+  "summary": {
+    "totalFiles": 582,
+    "filesWithIssues": 320,
+    "filesModified": 312,
+    "totalFixes": 3528
+  },
+  "fixesByType": {
+    "anyReplacements": 486,
+    "unusedVarFixes": 2935,
+    "importsRemoved": 107
+  },
+  "issuesByType": {
+    "@typescript-eslint/no-explicit-any": {
+      "totalCount": 441,
+      "affectedFiles": 126,
+      "fixable": true
+    },
+    "no-console": {
+      "totalCount": 847,
+      "affectedFiles": 230,
+      "fixable": false
+    },
+    "react-hooks/exhaustive-deps": {
+      "totalCount": 297,
+      "affectedFiles": 163,
+      "fixable": false
+    }
+  },
+  "problematicFiles": [
+    {
+      "file": "src\\components\\crisis\\CrisisSystemVerification.tsx",
+      "totalIssues": 13,
+      "breakdown": "@typescript-eslint/no-explicit-any: 11, react-hooks/exhaustive-deps: 2"
+    },
+    {
+      "file": "src\\components\\emergency\\EmergencyContactsQuickAccess.tsx",
+      "totalIssues": 12,
+      "breakdown": "no-console: 11, react-hooks/exhaustive-deps: 1"
+    },
+    {
+      "file": "src\\components\\peer-support\\PeerSupportChat.tsx",
+      "totalIssues": 11,
+      "breakdown": "@typescript-eslint/no-explicit-any: 6, no-console: 3, react-hooks/exhaustive-deps: 2"
+    },
+    {
+      "file": "src\\components\\support\\SupportSystemSettings.tsx",
+      "totalIssues": 12,
+      "breakdown": "@typescript-eslint/no-explicit-any: 4, no-console: 7, react-hooks/exhaustive-deps: 1"
+    },
+    {
+      "file": "src\\contexts\\AuthContext.tsx",
+      "totalIssues": 32,
+      "breakdown": "@typescript-eslint/no-explicit-any: 6, no-console: 25, react-hooks/exhaustive-deps: 1"
+    },
+    {
+      "file": "src\\hooks\\useCollaborativeRecoveryPlan.ts",
+      "totalIssues": 15,
+      "breakdown": "@typescript-eslint/no-explicit-any: 1, no-console: 10, react-hooks/exhaustive-deps: 4"
+    },
+    {
+      "file": "src\\hooks\\useCrisisManagement.ts",
+      "totalIssues": 21,
+      "breakdown": "@typescript-eslint/no-explicit-any: 1, no-console: 13, react-hooks/exhaustive-deps: 7"
+    },
+    {
+      "file": "src\\hooks\\useMobileCrisis.ts",
+      "totalIssues": 12,
+      "breakdown": "@typescript-eslint/no-explicit-any: 1, no-console: 2, react-hooks/exhaustive-deps: 9"
+    },
+    {
+      "file": "src\\hooks\\useOfflineSync.ts",
+      "totalIssues": 30,
+      "breakdown": "@typescript-eslint/no-explicit-any: 10, no-console: 9, react-hooks/exhaustive-deps: 11"
+    },
+    {
+      "file": "src\\hooks\\useRealtimePeerChat.ts",
+      "totalIssues": 26,
+      "breakdown": "no-console: 13, react-hooks/exhaustive-deps: 13"
+    },
+    {
+      "file": "src\\hooks\\useRecoveryNotifications.ts",
+      "totalIssues": 11,
+      "breakdown": "no-console: 8, react-hooks/exhaustive-deps: 3"
+    },
+    {
+      "file": "src\\hooks\\useSupporterMessaging.ts",
+      "totalIssues": 14,
+      "breakdown": "no-console: 7, react-hooks/exhaustive-deps: 7"
+    },
+    {
+      "file": "src\\hooks\\useSupportNetwork.ts",
+      "totalIssues": 24,
+      "breakdown": "no-console: 11, react-hooks/exhaustive-deps: 13"
+    },
+    {
+      "file": "src\\integrations\\supabase\\auth-client.ts",
+      "totalIssues": 16,
+      "breakdown": "@typescript-eslint/no-explicit-any: 11, no-console: 5"
+    },
+    {
+      "file": "src\\integrations\\supabase\\compassionate-client.tsx",
+      "totalIssues": 12,
+      "breakdown": "@typescript-eslint/no-explicit-any: 11, no-console: 1"
+    },
+    {
+      "file": "src\\lib\\securityValidation.ts",
+      "totalIssues": 13,
+      "breakdown": "@typescript-eslint/no-explicit-any: 4, no-console: 9"
+    },
+    {
+      "file": "src\\pages\\Auth.tsx",
+      "totalIssues": 12,
+      "breakdown": "no-console: 8, react-hooks/exhaustive-deps: 4"
+    },
+    {
+      "file": "src\\services\\accountabilityService.ts",
+      "totalIssues": 12,
+      "breakdown": "@typescript-eslint/no-explicit-any: 11, no-console: 1"
+    },
+    {
+      "file": "src\\services\\analyticsService.ts",
+      "totalIssues": 11,
+      "breakdown": "@typescript-eslint/no-explicit-any: 9, no-console: 2"
+    },
+    {
+      "file": "src\\services\\collaborativeRecoveryPlanService.ts",
+      "totalIssues": 14,
+      "breakdown": "@typescript-eslint/no-explicit-any: 2, no-console: 12"
+    },
+    {
+      "file": "src\\services\\CrisisNotificationIntegration.ts",
+      "totalIssues": 34,
+      "breakdown": "@typescript-eslint/no-explicit-any: 11, no-console: 23"
+    },
+    {
+      "file": "src\\services\\dashboardDataService.ts",
+      "totalIssues": 15,
+      "breakdown": "@typescript-eslint/no-explicit-any: 1, no-console: 14"
+    },
+    {
+      "file": "src\\services\\EnhancedSecurityAuditService.ts",
+      "totalIssues": 13,
+      "breakdown": "@typescript-eslint/no-explicit-any: 2, no-console: 11"
+    },
+    {
+      "file": "src\\services\\hipaaDataExportService.ts",
+      "totalIssues": 14,
+      "breakdown": "@typescript-eslint/no-explicit-any: 11, no-console: 3"
+    },
+    {
+      "file": "src\\services\\integrationTestingService.ts",
+      "totalIssues": 23,
+      "breakdown": "@typescript-eslint/no-explicit-any: 22, no-console: 1"
+    },
+    {
+      "file": "src\\services\\intelligentAnalyticsService.ts",
+      "totalIssues": 31,
+      "breakdown": "@typescript-eslint/no-explicit-any: 26, no-console: 5"
+    },
+    {
+      "file": "src\\services\\motivationService.ts",
+      "totalIssues": 12,
+      "breakdown": "no-console: 12"
+    },
+    {
+      "file": "src\\services\\offlineStorageService.ts",
+      "totalIssues": 11,
+      "breakdown": "@typescript-eslint/no-explicit-any: 9, no-console: 2"
+    },
+    {
+      "file": "src\\services\\pilotReadinessService.ts",
+      "totalIssues": 15,
+      "breakdown": "@typescript-eslint/no-explicit-any: 5, no-console: 10"
+    },
+    {
+      "file": "src\\services\\providerDashboardService.ts",
+      "totalIssues": 14,
+      "breakdown": "no-console: 14"
+    },
+    {
+      "file": "src\\services\\RealtimeNotificationService.ts",
+      "totalIssues": 14,
+      "breakdown": "@typescript-eslint/no-explicit-any: 1, no-console: 13"
+    },
+    {
+      "file": "src\\services\\recoveryNotificationService.ts",
+      "totalIssues": 13,
+      "breakdown": "no-console: 13"
+    },
+    {
+      "file": "src\\services\\recoveryPlanService.ts",
+      "totalIssues": 22,
+      "breakdown": "@typescript-eslint/no-explicit-any: 12, no-console: 10"
+    },
+    {
+      "file": "src\\services\\securityAuditService.ts",
+      "totalIssues": 12,
+      "breakdown": "@typescript-eslint/no-explicit-any: 11, no-console: 1"
+    },
+    {
+      "file": "src\\services\\securityComplianceService.ts",
+      "totalIssues": 11,
+      "breakdown": "no-console: 11"
+    },
+    {
+      "file": "src\\services\\serviceWorkerManager.ts",
+      "totalIssues": 11,
+      "breakdown": "@typescript-eslint/no-explicit-any: 1, no-console: 10"
+    },
+    {
+      "file": "src\\services\\supportNetworkService.ts",
+      "totalIssues": 19,
+      "breakdown": "@typescript-eslint/no-explicit-any: 1, no-console: 18"
+    },
+    {
+      "file": "src\\services\\unifiedCrisisService.ts",
+      "totalIssues": 11,
+      "breakdown": "@typescript-eslint/no-explicit-any: 4, no-console: 7"
+    },
+    {
+      "file": "src\\services\\voiceActivationService.ts",
+      "totalIssues": 13,
+      "breakdown": "@typescript-eslint/no-explicit-any: 7, no-console: 6"
+    }
+  ],
+  "recommendedManualFixes": [
+    {
+      "type": "React Hook Dependencies",
+      "description": "Review useEffect, useCallback, and useMemo dependency arrays",
+      "files": 163
+    },
+    {
+      "type": "Console Statements",
+      "description": "Remove or replace console.log statements with proper logging",
+      "count": 847
+    }
+  ]
+}

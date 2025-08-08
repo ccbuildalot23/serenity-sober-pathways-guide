@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 
 export const useDashboardKeyboardShortcuts = () => {
   useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
+    const _handleKeyPress = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey) {
         switch (e.key) {
           case 'h':
@@ -26,7 +26,7 @@ export const useDashboardKeyboardShortcuts = () => {
       }
     };
 
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+    window.addEventListener('keydown', _handleKeyPress);
+    return () => window.removeEventListener('keydown', _handleKeyPress);
   }, []);
 };

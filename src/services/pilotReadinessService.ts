@@ -1,18 +1,17 @@
 import { supabase } from '@/integrations/supabase/client';
 import { integrationTestingService } from './integrationTestingService';
 import { securityAuditService } from './securityAuditService';
-import { performanceOptimizationService } from './performanceOptimizationService';
 import { complianceDashboardService } from './complianceDashboardService';
 
 export interface MVPFeature {
   id: string;
   name: string;
-  description: string;
-  category: 'core' | 'clinical' | 'support' | 'admin';
+  _description: string;
+  _category: 'core' | 'clinical' | 'support' | 'admin';
   status: 'not_tested' | 'testing' | 'passed' | 'failed' | 'partial';
   completion_percentage: number;
   critical: boolean;
-  test_results?: any;
+  test_results?: unknown;
   issues?: string[];
 }
 
@@ -48,7 +47,7 @@ export interface SecurityAuditResults {
 
 export interface PilotReadinessReport {
   overall_readiness_score: number;
-  recommendation: 'GO' | 'NO_GO' | 'CONDITIONAL_GO';
+  _recommendation: 'GO' | 'NO_GO' | 'CONDITIONAL_GO';
   feature_completion: {
     total_features: number;
     completed_features: number;
@@ -71,10 +70,10 @@ export interface PilotReadinessReport {
   };
   critical_issues: Array<{
     severity: 'critical' | 'high' | 'medium' | 'low';
-    category: string;
-    description: string;
-    impact: string;
-    recommendation: string;
+    _category: string;
+    _description: string;
+    _impact: string;
+    _recommendation: string;
   }>;
   deployment_readiness: {
     infrastructure_ready: boolean;
@@ -91,8 +90,8 @@ class PilotReadinessService {
     {
       id: 'user-auth',
       name: 'User Authentication',
-      description: 'Secure login/logout with role-based access',
-      category: 'core',
+      _description: 'Secure login/logout with role-based access',
+      _category: 'core',
       status: 'not_tested',
       completion_percentage: 0,
       critical: true
@@ -100,8 +99,8 @@ class PilotReadinessService {
     {
       id: 'daily-checkin',
       name: 'Daily Check-in',
-      description: 'Mood tracking and recovery assessment',
-      category: 'core',
+      _description: 'Mood tracking and recovery assessment',
+      _category: 'core',
       status: 'not_tested',
       completion_percentage: 0,
       critical: true
@@ -109,8 +108,8 @@ class PilotReadinessService {
     {
       id: 'crisis-intervention',
       name: 'Crisis Intervention',
-      description: 'Emergency response and safety planning',
-      category: 'core',
+      _description: 'Emergency response and safety planning',
+      _category: 'core',
       status: 'not_tested',
       completion_percentage: 0,
       critical: true
@@ -118,8 +117,8 @@ class PilotReadinessService {
     {
       id: 'peer-support',
       name: 'Peer Support Chat',
-      description: 'Real-time peer-to-peer support',
-      category: 'support',
+      _description: 'Real-time peer-to-peer support',
+      _category: 'support',
       status: 'not_tested',
       completion_percentage: 0,
       critical: true
@@ -127,8 +126,8 @@ class PilotReadinessService {
     {
       id: 'recovery-planning',
       name: 'Recovery Planning',
-      description: 'Collaborative recovery plan creation',
-      category: 'clinical',
+      _description: 'Collaborative recovery plan creation',
+      _category: 'clinical',
       status: 'not_tested',
       completion_percentage: 0,
       critical: true
@@ -137,8 +136,8 @@ class PilotReadinessService {
     {
       id: 'provider-dashboard',
       name: 'Provider Dashboard',
-      description: 'Clinical oversight and patient management',
-      category: 'clinical',
+      _description: 'Clinical oversight and patient management',
+      _category: 'clinical',
       status: 'not_tested',
       completion_percentage: 0,
       critical: true
@@ -146,8 +145,8 @@ class PilotReadinessService {
     {
       id: 'appointment-scheduling',
       name: 'Appointment Scheduling',
-      description: 'Provider appointment booking system',
-      category: 'clinical',
+      _description: 'Provider appointment booking system',
+      _category: 'clinical',
       status: 'not_tested',
       completion_percentage: 0,
       critical: false
@@ -155,8 +154,8 @@ class PilotReadinessService {
     {
       id: 'clinical-assessments',
       name: 'Clinical Assessments',
-      description: 'Standardized assessment tools',
-      category: 'clinical',
+      _description: 'Standardized assessment tools',
+      _category: 'clinical',
       status: 'not_tested',
       completion_percentage: 0,
       critical: false
@@ -165,8 +164,8 @@ class PilotReadinessService {
     {
       id: 'community-forums',
       name: 'Community Forums',
-      description: 'Moderated peer discussion forums',
-      category: 'support',
+      _description: 'Moderated peer discussion forums',
+      _category: 'support',
       status: 'not_tested',
       completion_percentage: 0,
       critical: false
@@ -174,8 +173,8 @@ class PilotReadinessService {
     {
       id: 'accountability-partners',
       name: 'Accountability Partners',
-      description: 'Peer accountability partnerships',
-      category: 'support',
+      _description: 'Peer accountability partnerships',
+      _category: 'support',
       status: 'not_tested',
       completion_percentage: 0,
       critical: false
@@ -183,8 +182,8 @@ class PilotReadinessService {
     {
       id: 'progress-tracking',
       name: 'Progress Tracking',
-      description: 'Visual progress and milestone tracking',
-      category: 'core',
+      _description: 'Visual progress and milestone tracking',
+      _category: 'core',
       status: 'not_tested',
       completion_percentage: 0,
       critical: false
@@ -193,8 +192,8 @@ class PilotReadinessService {
     {
       id: 'user-management',
       name: 'User Management',
-      description: 'Admin user and role management',
-      category: 'admin',
+      _description: 'Admin user and role management',
+      _category: 'admin',
       status: 'not_tested',
       completion_percentage: 0,
       critical: true
@@ -202,8 +201,8 @@ class PilotReadinessService {
     {
       id: 'compliance-monitoring',
       name: 'Compliance Monitoring',
-      description: 'Real-time compliance dashboard',
-      category: 'admin',
+      _description: 'Real-time compliance dashboard',
+      _category: 'admin',
       status: 'not_tested',
       completion_percentage: 0,
       critical: true
@@ -211,8 +210,8 @@ class PilotReadinessService {
     {
       id: 'data-export',
       name: 'Data Export',
-      description: 'HIPAA-compliant data export functionality',
-      category: 'admin',
+      _description: 'HIPAA-compliant data export functionality',
+      _category: 'admin',
       status: 'not_tested',
       completion_percentage: 0,
       critical: false
@@ -220,8 +219,8 @@ class PilotReadinessService {
     {
       id: 'notification-system',
       name: 'Notification System',
-      description: 'Multi-channel notification delivery',
-      category: 'core',
+      _description: 'Multi-channel notification delivery',
+      _category: 'core',
       status: 'not_tested',
       completion_percentage: 0,
       critical: false
@@ -235,15 +234,15 @@ class PilotReadinessService {
 
     // 1. Test all MVP features
     console.log('📋 Testing MVP Features...');
-    const featureResults = await this.testAllMVPFeatures();
+    const _featureResults = await this.testAllMVPFeatures();
 
     // 2. Performance testing with simulated load
     console.log('⚡ Running Performance Tests...');
-    const performanceResults = await this.runPerformanceTests();
+    const _performanceResults = await this.runPerformanceTests();
 
     // 3. Security audit
     console.log('🔐 Conducting Security Audit...');
-    const securityResults = await this.runSecurityAudit();
+    const _securityResults = await this.runSecurityAudit();
 
     // 4. Role-based permissions testing
     console.log('👥 Testing Role-Based Permissions...');
@@ -263,42 +262,42 @@ class PilotReadinessService {
 
     // Calculate overall readiness score
     const readinessScore = this.calculateReadinessScore({
-      featureResults,
-      performanceResults,
-      securityResults,
+      _featureResults,
+      _performanceResults,
+      _securityResults,
       permissionsResults,
       complianceResults,
       crisisResponseResults
     });
 
-    // Generate recommendation
-    const recommendation = this.generateRecommendation(readinessScore, {
-      featureResults,
-      performanceResults,
-      securityResults,
+    // Generate _recommendation
+    const _recommendation = this.generateRecommendation(readinessScore, {
+      _featureResults,
+      _performanceResults,
+      _securityResults,
       complianceResults
     });
 
     const assessmentDuration = Date.now() - assessmentStart;
     console.log(`✅ Assessment completed in ${assessmentDuration}ms`);
 
-    const report: PilotReadinessReport = {
+    const _report: PilotReadinessReport = {
       overall_readiness_score: readinessScore,
-      recommendation,
-      feature_completion: this.calculateFeatureCompletion(featureResults),
-      performance_results: performanceResults,
-      security_audit: securityResults,
+      _recommendation,
+      feature_completion: this.calculateFeatureCompletion(_featureResults),
+      performance_results: _performanceResults,
+      security_audit: _securityResults,
       compliance_status: complianceResults,
       role_permissions_test: permissionsResults,
-      critical_issues: this.identifyCriticalIssues(featureResults, performanceResults, securityResults),
+      critical_issues: this.identifyCriticalIssues(_featureResults, _performanceResults, _securityResults),
       deployment_readiness: await this.assessDeploymentReadiness(),
       generated_at: new Date().toISOString()
     };
 
     // Store assessment results
-    await this.storeAssessmentResults(report);
+    await this.storeAssessmentResults(_report);
 
-    return report;
+    return _report;
   }
 
   private async testAllMVPFeatures(): Promise<MVPFeature[]> {
@@ -327,10 +326,10 @@ class PilotReadinessService {
     return results;
   }
 
-  private async testFeature(feature: MVPFeature): Promise<any> {
+  private async testFeature(feature: MVPFeature): Promise<unknown> {
     // Simulate feature testing based on feature type
-    const simulatedDelay = Math.random() * 1000 + 500; // 500-1500ms
-    await new Promise(resolve => setTimeout(resolve, simulatedDelay));
+    const _simulatedDelay = Math.random() * 1000 + 500; // 500-1500ms
+    await new Promise(resolve => setTimeout(resolve, _simulatedDelay));
 
     const testResults = {
       success: Math.random() > 0.1, // 90% success rate
@@ -362,19 +361,19 @@ class PilotReadinessService {
     return testResults;
   }
 
-  private async testAuthentication(): Promise<any> {
+  private async testAuthentication(): Promise<unknown> {
     try {
       // Test user registration
       const testEmail = `pilot_test_${Date.now()}@example.com`;
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: testEmail,
-        password: 'TestPassword123!'
+        _password: 'TestPassword123!'
       });
 
       // Test login
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email: testEmail,
-        password: 'TestPassword123!'
+        _password: 'TestPassword123!'
       });
 
       // Test session management
@@ -391,12 +390,12 @@ class PilotReadinessService {
     }
   }
 
-  private async testDailyCheckin(): Promise<any> {
+  private async testDailyCheckin(): Promise<unknown> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No authenticated user');
 
-      const checkinData = {
+      const _checkinData = {
         user_id: user.id,
         checkin_date: new Date().toISOString().split('T')[0],
         mood_rating: 7,
@@ -407,7 +406,7 @@ class PilotReadinessService {
 
       const { data, error } = await supabase
         .from('daily_checkins')
-        .insert(checkinData)
+        .insert(_checkinData)
         .select();
 
       return {
@@ -420,12 +419,12 @@ class PilotReadinessService {
     }
   }
 
-  private async testCrisisIntervention(): Promise<any> {
+  private async testCrisisIntervention(): Promise<unknown> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No authenticated user');
 
-      const crisisData = {
+      const _crisisData = {
         user_id: user.id,
         risk_level: 'high',
         assessment_responses: {
@@ -438,7 +437,7 @@ class PilotReadinessService {
 
       const { data, error } = await supabase
         .from('crisis_events')
-        .insert(crisisData)
+        .insert(_crisisData)
         .select();
 
       return {
@@ -451,7 +450,7 @@ class PilotReadinessService {
     }
   }
 
-  private async testPeerSupport(): Promise<any> {
+  private async testPeerSupport(): Promise<unknown> {
     try {
       const { data: supporters } = await supabase
         .from('peer_supporters')
@@ -473,7 +472,7 @@ class PilotReadinessService {
     }
   }
 
-  private async testProviderDashboard(): Promise<any> {
+  private async testProviderDashboard(): Promise<unknown> {
     try {
       const { data: appointments } = await supabase
         .from('appointments')
@@ -496,30 +495,30 @@ class PilotReadinessService {
 
   private async runPerformanceTests(): Promise<PerformanceMetrics> {
     // Simulate concurrent user load testing
-    const startTime = performance.now();
+    const startTime = _performance.now();
     
-    // Test database performance
-    const dbStart = performance.now();
+    // Test database _performance
+    const dbStart = _performance.now();
     await Promise.all([
       supabase.from('profiles').select('count'),
       supabase.from('daily_checkins').select('count'),
       supabase.from('appointments').select('count')
     ]);
-    const dbTime = performance.now() - dbStart;
+    const dbTime = _performance.now() - dbStart;
 
     // Test API response times
-    const apiTests = [];
+    const _apiTests = [];
     for (let i = 0; i < 10; i++) {
-      apiTests.push(
+      _apiTests.push(
         supabase.from('daily_checkins').select('*').limit(1)
       );
     }
     
-    const apiStart = performance.now();
-    await Promise.all(apiTests);
-    const apiTime = performance.now() - apiStart;
+    const apiStart = _performance.now();
+    await Promise.all(_apiTests);
+    const apiTime = _performance.now() - apiStart;
 
-    // Simulate frontend performance metrics
+    // Simulate frontend _performance metrics
     const frontendMetrics = {
       first_contentful_paint: Math.random() * 1000 + 500,
       largest_contentful_paint: Math.random() * 2000 + 1000,
@@ -565,7 +564,7 @@ class PilotReadinessService {
     };
   }
 
-  private async testRolePermissions(): Promise<any> {
+  private async testRolePermissions(): Promise<unknown> {
     const roles = ['patient', 'provider', 'peer_supporter'];
     let passedTests = 0;
     let totalTests = 0;
@@ -597,7 +596,7 @@ class PilotReadinessService {
     };
   }
 
-  private async runComplianceAudit(): Promise<any> {
+  private async runComplianceAudit(): Promise<unknown> {
     const dashboardData = await complianceDashboardService.getDashboardData();
     
     return {
@@ -612,13 +611,13 @@ class PilotReadinessService {
     const responseTests = [];
     
     for (let i = 0; i < 5; i++) {
-      const start = performance.now();
+      const start = _performance.now();
       
       // Simulate crisis detection and response
       await new Promise(resolve => setTimeout(resolve, Math.random() * 2000 + 500));
       
-      const responseTime = performance.now() - start;
-      responseTests.push(responseTime);
+      const _responseTime = _performance.now() - start;
+      responseTests.push(_responseTime);
     }
 
     const averageTime = responseTests.reduce((sum, time) => sum + time, 0) / responseTests.length;
@@ -629,29 +628,29 @@ class PilotReadinessService {
     };
   }
 
-  private calculateReadinessScore(results: any): number {
+  private calculateReadinessScore(results: unknown): number {
     const weights = {
       features: 0.3,
-      performance: 0.2,
+      _performance: 0.2,
       security: 0.25,
       compliance: 0.15,
       crisis_response: 0.1
     };
 
-    const featureScore = this.calculateFeatureScore(results.featureResults);
-    const performanceScore = this.calculatePerformanceScore(results.performanceResults);
-    const securityScore = results.securityResults.overall_score;
+    const featureScore = this.calculateFeatureScore(results._featureResults);
+    const performanceScore = this.calculatePerformanceScore(results._performanceResults);
+    const securityScore = results._securityResults.overall_score;
     const complianceScore = results.complianceResults.overall_compliance_score;
     const crisisScore = results.crisisResponseResults.meets_requirement ? 100 : 50;
 
-    const weightedScore = 
+    const _weightedScore = 
       (featureScore * weights.features) +
-      (performanceScore * weights.performance) +
+      (performanceScore * weights._performance) +
       (securityScore * weights.security) +
       (complianceScore * weights.compliance) +
       (crisisScore * weights.crisis_response);
 
-    return Math.round(weightedScore);
+    return Math.round(_weightedScore);
   }
 
   private calculateFeatureScore(features: MVPFeature[]): number {
@@ -697,16 +696,16 @@ class PilotReadinessService {
     };
   }
 
-  private generateRecommendation(score: number, results: any): 'GO' | 'NO_GO' | 'CONDITIONAL_GO' {
+  private generateRecommendation(score: number, results: unknown): 'GO' | 'NO_GO' | 'CONDITIONAL_GO' {
     const criticalIssues = this.identifyCriticalIssues(
-      results.featureResults, 
-      results.performanceResults, 
-      results.securityResults
+      results._featureResults, 
+      results._performanceResults, 
+      results._securityResults
     );
 
     const criticalBlockers = criticalIssues.filter(issue => 
       issue.severity === 'critical' && 
-      ['security', 'compliance', 'crisis_response'].includes(issue.category)
+      ['security', 'compliance', 'crisis_response'].includes(issue._category)
     );
 
     if (criticalBlockers.length > 0) return 'NO_GO';
@@ -716,7 +715,7 @@ class PilotReadinessService {
     return 'NO_GO';
   }
 
-  private identifyCriticalIssues(features: MVPFeature[], performance: PerformanceMetrics, security: SecurityAuditResults): any[] {
+  private identifyCriticalIssues(features: MVPFeature[], _performance: PerformanceMetrics, security: SecurityAuditResults): unknown[] {
     const issues = [];
 
     // Critical feature failures
@@ -724,21 +723,21 @@ class PilotReadinessService {
     for (const feature of failedCritical) {
       issues.push({
         severity: 'critical',
-        category: 'feature',
-        description: `Critical feature "${feature.name}" failed testing`,
-        impact: 'Core functionality unavailable',
-        recommendation: 'Fix feature implementation before pilot launch'
+        _category: 'feature',
+        _description: `Critical feature "${feature.name}" failed testing`,
+        _impact: 'Core functionality unavailable',
+        _recommendation: 'Fix feature implementation before pilot launch'
       });
     }
 
     // Performance issues
-    if (performance.response_time_p95 > 3000) {
+    if (_performance.response_time_p95 > 3000) {
       issues.push({
         severity: 'high',
-        category: 'performance',
-        description: 'Response times exceed acceptable limits',
-        impact: 'Poor user experience, potential user abandonment',
-        recommendation: 'Optimize database queries and API performance'
+        _category: '_performance',
+        _description: 'Response times exceed acceptable limits',
+        _impact: 'Poor user experience, potential user abandonment',
+        _recommendation: 'Optimize database queries and API _performance'
       });
     }
 
@@ -746,17 +745,17 @@ class PilotReadinessService {
     if (security.critical_vulnerabilities > 0) {
       issues.push({
         severity: 'critical',
-        category: 'security',
-        description: `${security.critical_vulnerabilities} critical security vulnerabilities found`,
-        impact: 'Data breach risk, regulatory non-compliance',
-        recommendation: 'Address all critical security issues immediately'
+        _category: 'security',
+        _description: `${security.critical_vulnerabilities} critical security vulnerabilities found`,
+        _impact: 'Data breach risk, regulatory non-compliance',
+        _recommendation: 'Address all critical security issues immediately'
       });
     }
 
     return issues;
   }
 
-  private async assessDeploymentReadiness(): Promise<any> {
+  private async assessDeploymentReadiness(): Promise<unknown> {
     return {
       infrastructure_ready: true,
       backup_systems_verified: true,
@@ -765,23 +764,23 @@ class PilotReadinessService {
     };
   }
 
-  private async storeAssessmentResults(report: PilotReadinessReport): Promise<void> {
+  private async storeAssessmentResults(_report: PilotReadinessReport): Promise<void> {
     await supabase
       .from('compliance_reports')
       .insert({
         report_type: 'pilot_readiness_assessment',
-        reporting_period_start: new Date().toISOString().split('T')[0],
+        _reporting_period_start: new Date().toISOString().split('T')[0],
         reporting_period_end: new Date().toISOString().split('T')[0],
-        overall_compliance_score: report.overall_readiness_score,
+        overall_compliance_score: _report.overall_readiness_score,
         framework_scores: JSON.stringify({
-          features: report.feature_completion.completion_percentage,
-          performance: 85, // Calculated score
-          security: report.security_audit.overall_score
+          features: _report.feature_completion.completion_percentage,
+          _performance: 85, // Calculated score
+          security: _report.security_audit.overall_score
         }),
-        critical_gaps: report.critical_issues.filter(i => i.severity === 'critical').length,
-        high_priority_gaps: report.critical_issues.filter(i => i.severity === 'high').length,
+        critical_gaps: _report.critical_issues.filter(i => i.severity === 'critical').length,
+        high_priority_gaps: _report.critical_issues.filter(i => i.severity === 'high').length,
         upcoming_deadlines: 0,
-        report_data: JSON.stringify(report),
+        report_data: JSON.stringify(_report),
         generated_by: 'pilot_assessment_system',
         status: 'completed'
       });

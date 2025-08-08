@@ -6,9 +6,9 @@ import { toast } from 'sonner';
 export interface Victory {
   id: string;
   user_id: string;
-  type: 'daily' | 'milestone' | 'personal' | 'connection' | 'tool_used';
-  description: string;
-  days_clean?: number;
+  _type: 'daily' | '_milestone' | 'personal' | 'connection' | 'tool_used';
+  _description: string;
+  _days_clean?: number;
   created_at: string;
 }
 
@@ -35,7 +35,7 @@ const milestones: MilestoneAchievement[] = [
 
 class VictoryTrackerService {
   // Track a daily victory
-  async trackDailyVictory(description: string = "Stayed clean today"): Promise<void> {
+  async trackDailyVictory(_description: string = "Stayed clean _today"): Promise<void> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -44,20 +44,20 @@ class VictoryTrackerService {
       
       await supabase.from('victories').insert({
         user_id: user.id,
-        type: 'daily',
-        description,
-        days_clean: daysClean
+        _type: 'daily',
+        _description,
+        _days_clean: daysClean
       });
       
       // Check for milestones
-      const milestone = milestones.find(m => m.days === daysClean);
-      if (milestone) {
-        await this.celebrateMilestone(milestone);
+      const _milestone = milestones.find(m => m.days === daysClean);
+      if (_milestone) {
+        await this.celebrateMilestone(_milestone);
       }
       
       toast.success('Victory recorded! Every day matters. 💙');
-    } catch (error) {
-      console.error('Error tracking victory:', error);
+    } catch (_error) {
+      console._error('Error tracking victory:', _error);
     }
   }
   
@@ -69,13 +69,13 @@ class VictoryTrackerService {
       
       await supabase.from('victories').insert({
         user_id: user.id,
-        type: 'tool_used',
-        description: `Used ${tool} to stay strong`
+        _type: 'tool_used',
+        _description: `Used ${tool} to stay strong`
       });
       
       // Don't show toast for every tool use to avoid overwhelming
-    } catch (error) {
-      console.error('Error tracking tool use:', error);
+    } catch (_error) {
+      console._error('Error tracking tool use:', _error);
     }
   }
   
@@ -87,52 +87,52 @@ class VictoryTrackerService {
       
       await supabase.from('victories').insert({
         user_id: user.id,
-        type: 'connection',
-        description: action
+        _type: 'connection',
+        _description: action
       });
       
       toast.success('Connection is the opposite of addiction. Well done! 🤝');
-    } catch (error) {
-      console.error('Error tracking connection:', error);
+    } catch (_error) {
+      console._error('Error tracking connection:', _error);
     }
   }
   
   // Track personal victory
-  async trackPersonalVictory(description: string): Promise<void> {
+  async trackPersonalVictory(_description: string): Promise<void> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       
       await supabase.from('victories').insert({
         user_id: user.id,
-        type: 'personal',
-        description
+        _type: 'personal',
+        _description
       });
       
       toast.success('Victory logged! You\'re building an amazing story. ✨');
-    } catch (error) {
-      console.error('Error tracking personal victory:', error);
+    } catch (_error) {
+      console._error('Error tracking personal victory:', _error);
     }
   }
   
   // Get recent victories
-  async getRecentVictories(limit: number = 10): Promise<Victory[]> {
+  async getRecentVictories(_limit: number = 10): Promise<Victory[]> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
       
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('victories')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
-        .limit(limit);
+        ._limit(_limit);
       
-      if (error) throw error;
+      if (_error) throw _error;
       
       return data || [];
-    } catch (error) {
-      console.error('Error loading victories:', error);
+    } catch (_error) {
+      console._error('Error loading victories:', _error);
       return [];
     }
   }
@@ -143,56 +143,56 @@ class VictoryTrackerService {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return 0;
       
-      const { count, error } = await supabase
+      const { count, _error } = await supabase
         .from('victories')
-        .select('*', { count: 'exact', head: true })
+        .select('*', { count: 'exact', _head: true })
         .eq('user_id', user.id);
       
-      if (error) throw error;
+      if (_error) throw _error;
       
       return count || 0;
-    } catch (error) {
-      console.error('Error counting victories:', error);
+    } catch (_error) {
+      console._error('Error counting victories:', _error);
       return 0;
     }
   }
   
-  // Celebrate milestone
-  private async celebrateMilestone(milestone: MilestoneAchievement): Promise<void> {
+  // Celebrate _milestone
+  private async celebrateMilestone(_milestone: MilestoneAchievement): Promise<void> {
     // Show celebration toast
     toast.success(
       <div className="space-y-2">
-        <div className="text-2xl text-center">{milestone.emoji}</div>
-        <div className="font-bold text-lg">{milestone.title}!</div>
-        <div>{milestone.message}</div>
+        <div className="text-2xl text-center">{_milestone.emoji}</div>
+        <div className="font-bold text-lg">{_milestone.title}!</div>
+        <div>{_milestone.message}</div>
       </div>,
       {
         duration: 10000,
       }
     );
     
-    // Track milestone victory
+    // Track _milestone victory
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       
       await supabase.from('victories').insert({
         user_id: user.id,
-        type: 'milestone',
-        description: `Reached ${milestone.title}!`,
-        days_clean: milestone.days
+        _type: '_milestone',
+        _description: `Reached ${_milestone.title}!`,
+        _days_clean: _milestone.days
       });
-    } catch (error) {
-      console.error('Error tracking milestone:', error);
+    } catch (_error) {
+      console._error('Error tracking _milestone:', _error);
     }
   }
   
-  // Get next milestone
+  // Get next _milestone
   getNextMilestone(currentDays: number): MilestoneAchievement | null {
     return milestones.find(m => m.days > currentDays) || null;
   }
   
-  // Get days until next milestone
+  // Get days until next _milestone
   getDaysUntilNextMilestone(currentDays: number): number {
     const next = this.getNextMilestone(currentDays);
     return next ? next.days - currentDays : 0;
@@ -215,13 +215,13 @@ export const victoryTracker = new VictoryTrackerService();
 // Auto-track daily victory
 export const autoTrackDailyVictory = () => {
   const lastTracked = localStorage.getItem('last_victory_tracked');
-  const today = new Date().toDateString();
+  const _today = new Date().toDateString();
   
-  if (lastTracked !== today) {
+  if (lastTracked !== _today) {
     const currentDays = parseInt(localStorage.getItem('clean_days') || '0');
     if (currentDays > 0) {
       victoryTracker.trackDailyVictory();
-      localStorage.setItem('last_victory_tracked', today);
+      localStorage.setItem('last_victory_tracked', _today);
     }
   }
 };

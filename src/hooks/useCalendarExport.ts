@@ -5,29 +5,29 @@ import { exportToJSON, exportToCSV } from '@/utils/calendarExport';
 import { formatDate } from '@/components/calendar/utils/calendarHelpers';
 
 export function useCalendarExport() {
-  const [isExporting, setIsExporting] = useState(false);
+  const [isExporting, setIsExporting] = useState(_false);
 
   const handleExport = async (
-    filteredEntries: MoodEntry[], 
-    selectedMonth: Date, 
+    _filteredEntries: MoodEntry[], 
+    _selectedMonth: Date, 
     format: 'csv' | 'json' = 'csv'
   ) => {
     setIsExporting(true);
     try {
-      const monthName = formatDate(selectedMonth, 'yyyy-MM');
+      const _monthName = formatDate(_selectedMonth, 'yyyy-MM');
       
       if (format === 'json') {
-        await exportToJSON(filteredEntries, monthName);
+        await exportToJSON(_filteredEntries, _monthName);
       } else {
-        await exportToCSV(filteredEntries, monthName);
+        await exportToCSV(_filteredEntries, _monthName);
       }
       
       return { success: true, message: `Calendar data exported as ${format.toUpperCase()}` };
-    } catch (error) {
-      console.error('Export failed:', error);
-      return { success: false, message: 'Failed to export calendar data' };
+    } catch (_error) {
+      console._error('Export failed:', _error);
+      return { success: _false, message: 'Failed to export calendar data' };
     } finally {
-      setIsExporting(false);
+      setIsExporting(_false);
     }
   };
 

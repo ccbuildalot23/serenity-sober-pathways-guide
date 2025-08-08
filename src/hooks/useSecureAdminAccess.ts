@@ -8,16 +8,16 @@ import { supabase } from '@/integrations/supabase/client';
  */
 export const useSecureAdminAccess = () => {
   const { user } = useAuth();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [verifying, setVerifying] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(_false);
+  const [verifying, setVerifying] = useState(_false);
 
   const verifyAdminAccess = async (): Promise<boolean> => {
     if (!user) {
       console.warn('Admin verification attempted without authenticated user');
-      return false;
+      return _false;
     }
 
-    setVerifying(true);
+    setVerifying(_true);
     try {
       const hasAccess = await securityComplianceService.verifyAdminAccess();
       setIsAdmin(hasAccess);
@@ -26,7 +26,7 @@ export const useSecureAdminAccess = () => {
         // Log unauthorized admin access attempt
         await supabase.rpc('log_security_violation', {
           violation_type: 'UNAUTHORIZED_ADMIN_ACCESS_ATTEMPT',
-          details: {
+          _details: {
             user_id: user.id,
             timestamp: new Date().toISOString(),
             user_agent: navigator.userAgent
@@ -37,10 +37,10 @@ export const useSecureAdminAccess = () => {
       return hasAccess;
     } catch (error) {
       console.error('Admin verification failed:', error);
-      setIsAdmin(false);
-      return false;
+      setIsAdmin(_false);
+      return _false;
     } finally {
-      setVerifying(false);
+      setVerifying(_false);
     }
   };
 
@@ -53,7 +53,7 @@ export const useSecureAdminAccess = () => {
     try {
       await supabase.rpc('log_admin_access', {
         action_type: actionType,
-        details: { timestamp: new Date().toISOString() }
+        _details: { timestamp: new Date().toISOString() }
       });
       
       await action();

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Label } from '@/components/ui/_label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -28,67 +28,67 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   comprehensiveNotificationService, 
-  type NotificationPreferences,
-  type NotificationChannel,
-  type NotificationType
+  _type NotificationPreferences,
+  _type NotificationChannel,
+  _type NotificationType
 } from '@/services/comprehensiveNotificationService';
 
-const notificationTypes: { type: NotificationType; label: string; icon: React.ReactNode; description: string }[] = [
+const notificationTypes: { _type: NotificationType; _label: string; _icon: React.ReactNode; _description: string }[] = [
   {
-    type: 'check_in',
-    label: 'Check-in Reminders',
-    icon: <Activity className="w-4 h-4" />,
-    description: 'Daily wellness check-ins and mood tracking'
+    _type: 'check_in',
+    _label: 'Check-in Reminders',
+    _icon: <Activity className="w-4 h-4" />,
+    _description: 'Daily wellness check-ins and mood tracking'
   },
   {
-    type: 'goal_deadline',
-    label: 'Goal Deadlines',
-    icon: <Calendar className="w-4 h-4" />,
-    description: 'Upcoming goal deadlines and milestones'
+    _type: 'goal_deadline',
+    _label: 'Goal Deadlines',
+    _icon: <Calendar className="w-4 h-4" />,
+    _description: 'Upcoming goal deadlines and milestones'
   },
   {
-    type: 'appointment',
-    label: 'Appointments',
-    icon: <Clock className="w-4 h-4" />,
-    description: 'Therapy sessions and medical appointments'
+    _type: 'appointment',
+    _label: 'Appointments',
+    _icon: <Clock className="w-4 h-4" />,
+    _description: 'Therapy sessions and medical appointments'
   },
   {
-    type: 'crisis',
-    label: 'Crisis Alerts',
-    icon: <AlertTriangle className="w-4 h-4" />,
-    description: 'Emergency notifications and safety check-ins'
+    _type: 'crisis',
+    _label: 'Crisis Alerts',
+    _icon: <AlertTriangle className="w-4 h-4" />,
+    _description: 'Emergency notifications and safety check-ins'
   },
   {
-    type: 'community',
-    label: 'Community Updates',
-    icon: <Users className="w-4 h-4" />,
-    description: 'Forum posts, peer interactions, and group activities'
+    _type: 'community',
+    _label: 'Community Updates',
+    _icon: <Users className="w-4 h-4" />,
+    _description: 'Forum posts, peer interactions, and group activities'
   },
   {
-    type: 'provider',
-    label: 'Provider Messages',
-    icon: <HeartHandshake className="w-4 h-4" />,
-    description: 'Messages from therapists and healthcare providers'
+    _type: 'provider',
+    _label: 'Provider Messages',
+    _icon: <HeartHandshake className="w-4 h-4" />,
+    _description: 'Messages from therapists and healthcare providers'
   },
   {
-    type: 'system',
-    label: 'System Notifications',
-    icon: <Wrench className="w-4 h-4" />,
-    description: 'App updates, maintenance, and security alerts'
+    _type: 'system',
+    _label: 'System Notifications',
+    _icon: <Wrench className="w-4 h-4" />,
+    _description: 'App updates, maintenance, and security alerts'
   }
 ];
 
-const channels: { channel: NotificationChannel; label: string; icon: React.ReactNode }[] = [
-  { channel: 'in_app', label: 'In-App', icon: <Bell className="w-4 h-4" /> },
-  { channel: 'email', label: 'Email', icon: <Mail className="w-4 h-4" /> },
-  { channel: 'sms', label: 'SMS', icon: <MessageSquare className="w-4 h-4" /> },
-  { channel: 'push', label: 'Push', icon: <Smartphone className="w-4 h-4" /> }
+const channels: { channel: NotificationChannel; _label: string; _icon: React.ReactNode }[] = [
+  { channel: 'in_app', _label: 'In-App', _icon: <Bell className="w-4 h-4" /> },
+  { channel: 'email', _label: 'Email', _icon: <Mail className="w-4 h-4" /> },
+  { channel: 'sms', _label: 'SMS', _icon: <MessageSquare className="w-4 h-4" /> },
+  { channel: 'push', _label: 'Push', _icon: <Smartphone className="w-4 h-4" /> }
 ];
 
 export function NotificationPreferencesManager() {
   const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [_loading, setLoading] = useState(_true);
+  const [saving, setSaving] = useState(_false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -100,31 +100,31 @@ export function NotificationPreferencesManager() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      let userPreferences = await comprehensiveNotificationService.getPreferences(user.id);
+      let _userPreferences = await comprehensiveNotificationService.getPreferences(user.id);
       
-      if (!userPreferences) {
+      if (!_userPreferences) {
         // Initialize with defaults
         await comprehensiveNotificationService.initializeDefaultPreferences(user.id);
-        userPreferences = await comprehensiveNotificationService.getPreferences(user.id);
+        _userPreferences = await comprehensiveNotificationService.getPreferences(user.id);
       }
 
-      setPreferences(userPreferences);
-    } catch (error) {
-      console.error('Failed to load preferences:', error);
+      setPreferences(_userPreferences);
+    } catch (_error) {
+      console._error('Failed to load preferences:', _error);
       toast({
         title: 'Error',
-        description: 'Failed to load notification preferences',
-        variant: 'destructive'
+        _description: 'Failed to load notification preferences',
+        _variant: 'destructive'
       });
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
 
   const savePreferences = async () => {
     if (!preferences) return;
 
-    setSaving(true);
+    setSaving(_true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -133,55 +133,55 @@ export function NotificationPreferencesManager() {
       
       toast({
         title: 'Preferences Saved',
-        description: 'Your notification preferences have been updated',
-        variant: 'default'
+        _description: 'Your notification preferences have been updated',
+        _variant: 'default'
       });
-    } catch (error) {
-      console.error('Failed to save preferences:', error);
+    } catch (_error) {
+      console._error('Failed to save preferences:', _error);
       toast({
         title: 'Error',
-        description: 'Failed to save notification preferences',
-        variant: 'destructive'
+        _description: 'Failed to save notification preferences',
+        _variant: 'destructive'
       });
     } finally {
-      setSaving(false);
+      setSaving(_false);
     }
   };
 
-  const updateChannelsForType = (type: NotificationType, selectedChannels: NotificationChannel[]) => {
+  const updateChannelsForType = (_type: NotificationType, selectedChannels: NotificationChannel[]) => {
     if (!preferences) return;
 
-    const channelKey = `${type}_channels` as keyof NotificationPreferences;
+    const channelKey = `${_type}_channels` as keyof NotificationPreferences;
     setPreferences({
       ...preferences,
       [channelKey]: selectedChannels
     });
   };
 
-  const toggleChannel = (type: NotificationType, channel: NotificationChannel) => {
+  const toggleChannel = (_type: NotificationType, channel: NotificationChannel) => {
     if (!preferences) return;
 
-    const channelKey = `${type}_channels` as keyof NotificationPreferences;
+    const channelKey = `${_type}_channels` as keyof NotificationPreferences;
     const currentChannels = Array.isArray(preferences[channelKey]) 
       ? preferences[channelKey] as NotificationChannel[]
       : [];
     
-    const updatedChannels = currentChannels.includes(channel)
+    const _updatedChannels = currentChannels.includes(channel)
       ? currentChannels.filter(c => c !== channel)
       : [...currentChannels, channel];
 
-    updateChannelsForType(type, updatedChannels);
+    updateChannelsForType(_type, _updatedChannels);
   };
 
-  const getChannelsForType = (type: NotificationType): NotificationChannel[] => {
+  const getChannelsForType = (_type: NotificationType): NotificationChannel[] => {
     if (!preferences) return [];
     
-    const channelKey = `${type}_channels` as keyof NotificationPreferences;
+    const channelKey = `${_type}_channels` as keyof NotificationPreferences;
     const channels = preferences[channelKey];
     return Array.isArray(channels) ? channels as NotificationChannel[] : [];
   };
 
-  if (loading) {
+  if (_loading) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -233,27 +233,27 @@ export function NotificationPreferencesManager() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {notificationTypes.map(({ type, label, icon, description }) => (
-                <div key={type} className="space-y-3">
+              {notificationTypes.map(({ _type, _label, _icon, _description }) => (
+                <div key={_type} className="space-y-3">
                   <div className="flex items-center gap-3">
-                    {icon}
+                    {_icon}
                     <div className="flex-1">
-                      <h4 className="font-medium">{label}</h4>
-                      <p className="text-sm text-muted-foreground">{description}</p>
+                      <h4 className="font-medium">{_label}</h4>
+                      <p className="text-sm text-muted-foreground">{_description}</p>
                     </div>
                   </div>
                   
                   <div className="flex flex-wrap gap-2 ml-7">
-                    {channels.map(({ channel, label: channelLabel, icon: channelIcon }) => {
-                      const isSelected = getChannelsForType(type).includes(channel);
+                    {channels.map(({ channel, _label: channelLabel, _icon: channelIcon }) => {
+                      const isSelected = getChannelsForType(_type).includes(channel);
                       return (
                         <Badge
                           key={channel}
-                          variant={isSelected ? "default" : "outline"}
+                          _variant={isSelected ? "default" : "outline"}
                           className={`cursor-pointer transition-colors ${
                             isSelected ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
                           }`}
-                          onClick={() => toggleChannel(type, channel)}
+                          onClick={() => toggleChannel(_type, channel)}
                         >
                           <div className="flex items-center gap-1">
                             {channelIcon}
@@ -303,12 +303,12 @@ export function NotificationPreferencesManager() {
                     <div className="space-y-2">
                       <Label>Start Time</Label>
                       <Input
-                        type="time"
-                        value={preferences.quiet_hours_start}
+                        _type="time"
+                        value={preferences._quiet_hours_start}
                         onChange={(e) =>
                           setPreferences({
                             ...preferences,
-                            quiet_hours_start: e.target.value
+                            _quiet_hours_start: e.target.value
                           })
                         }
                       />
@@ -316,12 +316,12 @@ export function NotificationPreferencesManager() {
                     <div className="space-y-2">
                       <Label>End Time</Label>
                       <Input
-                        type="time"
-                        value={preferences.quiet_hours_end}
+                        _type="time"
+                        value={preferences._quiet_hours_end}
                         onChange={(e) =>
                           setPreferences({
                             ...preferences,
-                            quiet_hours_end: e.target.value
+                            _quiet_hours_end: e.target.value
                           })
                         }
                       />
@@ -331,11 +331,11 @@ export function NotificationPreferencesManager() {
                   <div className="space-y-2">
                     <Label>Timezone</Label>
                     <Select
-                      value={preferences.quiet_hours_timezone}
+                      value={preferences._quiet_hours_timezone}
                       onValueChange={(value) =>
                         setPreferences({
                           ...preferences,
-                          quiet_hours_timezone: value
+                          _quiet_hours_timezone: value
                         })
                       }
                     >
@@ -375,9 +375,9 @@ export function NotificationPreferencesManager() {
                   </p>
                 </div>
                 <Switch
-                  checked={preferences.optimal_delivery_enabled}
+                  checked={preferences._optimal_delivery_enabled}
                   onCheckedChange={(checked) =>
-                    setPreferences({ ...preferences, optimal_delivery_enabled: checked })
+                    setPreferences({ ...preferences, _optimal_delivery_enabled: checked })
                   }
                 />
               </div>
@@ -397,14 +397,14 @@ export function NotificationPreferencesManager() {
               <div className="space-y-2">
                 <Label>Maximum Daily Notifications</Label>
                 <Input
-                  type="number"
+                  _type="number"
                   min="1"
                   max="50"
-                  value={preferences.max_daily_notifications}
+                  value={preferences._max_daily_notifications}
                   onChange={(e) =>
                     setPreferences({
                       ...preferences,
-                      max_daily_notifications: parseInt(e.target.value) || 10
+                      _max_daily_notifications: parseInt(e.target.value) || 10
                     })
                   }
                 />
@@ -413,14 +413,14 @@ export function NotificationPreferencesManager() {
               <div className="space-y-2">
                 <Label>Maximum Hourly Notifications</Label>
                 <Input
-                  type="number"
+                  _type="number"
                   min="1"
                   max="10"
-                  value={preferences.max_hourly_notifications}
+                  value={preferences._max_hourly_notifications}
                   onChange={(e) =>
                     setPreferences({
                       ...preferences,
-                      max_hourly_notifications: parseInt(e.target.value) || 3
+                      _max_hourly_notifications: parseInt(e.target.value) || 3
                     })
                   }
                 />
@@ -440,7 +440,7 @@ export function NotificationPreferencesManager() {
                 <div className="space-y-1">
                   <Label>Batch Similar Notifications</Label>
                   <p className="text-sm text-muted-foreground">
-                    Group notifications of the same type together
+                    Group notifications of the same _type together
                   </p>
                 </div>
                 <Switch
@@ -455,14 +455,14 @@ export function NotificationPreferencesManager() {
                 <div className="space-y-2">
                   <Label>Batch Delay (minutes)</Label>
                   <Input
-                    type="number"
+                    _type="number"
                     min="1"
                     max="60"
-                    value={preferences.batch_delay_minutes}
+                    value={preferences._batch_delay_minutes}
                     onChange={(e) =>
                       setPreferences({
                         ...preferences,
-                        batch_delay_minutes: parseInt(e.target.value) || 15
+                        _batch_delay_minutes: parseInt(e.target.value) || 15
                       })
                     }
                   />
@@ -492,9 +492,9 @@ export function NotificationPreferencesManager() {
                   </p>
                 </div>
                 <Switch
-                  checked={preferences.emergency_override}
+                  checked={preferences._emergency_override}
                   onCheckedChange={(checked) =>
-                    setPreferences({ ...preferences, emergency_override: checked })
+                    setPreferences({ ...preferences, _emergency_override: checked })
                   }
                 />
               </div>
@@ -510,9 +510,9 @@ export function NotificationPreferencesManager() {
             </CardHeader>
             <CardContent>
               <Select
-                value={preferences.language_preference}
+                value={preferences._language_preference}
                 onValueChange={(value) =>
-                  setPreferences({ ...preferences, language_preference: value })
+                  setPreferences({ ...preferences, _language_preference: value })
                 }
               >
                 <SelectTrigger>
@@ -545,9 +545,9 @@ export function NotificationPreferencesManager() {
                   </p>
                 </div>
                 <Switch
-                  checked={preferences.global_unsubscribe}
+                  checked={preferences._global_unsubscribe}
                   onCheckedChange={(checked) =>
-                    setPreferences({ ...preferences, global_unsubscribe: checked })
+                    setPreferences({ ...preferences, _global_unsubscribe: checked })
                   }
                 />
               </div>

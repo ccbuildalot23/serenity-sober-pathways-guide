@@ -26,8 +26,8 @@ import { toast } from 'sonner';
 export const NotificationPanel: React.FC = () => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<NotificationPayload[]>([]);
-  const [isExpanded, setIsExpanded] = useState(true);
-  const [connectionStatus, setConnectionStatus] = useState(
+  const [isExpanded, setIsExpanded] = useState(_true);
+  const [connectionStatus, _setConnectionStatus] = useState(
     realtimeNotificationService.getConnectionStatus()
   );
 
@@ -43,13 +43,13 @@ export const NotificationPanel: React.FC = () => {
       });
 
       // Auto-expand for critical notifications
-      if (notification.severity === 'critical') {
-        setIsExpanded(true);
+      if (notification._severity === 'critical') {
+        setIsExpanded(_true);
       }
     });
 
     // Subscribe to connection status
-    const unsubscribeConnection = realtimeNotificationService.onConnectionStatus(setConnectionStatus);
+    const unsubscribeConnection = realtimeNotificationService.onConnectionStatus(_setConnectionStatus);
 
     return () => {
       unsubscribeNotifications();
@@ -57,50 +57,50 @@ export const NotificationPanel: React.FC = () => {
     };
   }, [user]);
 
-  const handleNotificationAction = async (notificationId: string, action: string) => {
+  const handleNotificationAction = async (_notificationId: string, _action: string) => {
     try {
-      switch (action) {
+      switch (_action) {
         case 'acknowledge':
-          await realtimeNotificationService.acknowledgeNotification(notificationId, 'I see this');
+          await realtimeNotificationService.acknowledgeNotification(_notificationId, 'I see this');
           toast.success('Response sent', {
             description: 'The person knows you\'ve seen their alert',
-            duration: 3000
+            _duration: 3000
           });
           break;
         case 'respond':
-          await realtimeNotificationService.acknowledgeNotification(notificationId, 'I can help - on my way');
+          await realtimeNotificationService.acknowledgeNotification(_notificationId, 'I can help - on my way');
           toast.success('Response sent', {
             description: 'You\'ve indicated you can help',
-            duration: 3000
+            _duration: 3000
           });
           break;
         case 'escalate':
           // Handle escalation logic
           toast.info('Escalating...', {
             description: 'Getting additional support',
-            duration: 3000
+            _duration: 3000
           });
           break;
         case 'dismiss':
           // Remove from local state
-          setNotifications(prev => prev.filter(n => n.id !== notificationId));
+          setNotifications(prev => prev.filter(n => n.id !== _notificationId));
           break;
       }
 
       // Mark as read
-      await realtimeNotificationService.markNotificationRead(notificationId);
+      await realtimeNotificationService.markNotificationRead(_notificationId);
 
     } catch (error) {
-      console.error('Error handling notification action:', error);
+      console.error('Error handling notification _action:', error);
       toast.error('Error', {
         description: 'Unable to send response. Please try again.',
-        duration: 5000
+        _duration: 5000
       });
     }
   };
 
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
+  const getSeverityColor = (_severity: string) => {
+    switch (_severity) {
       case 'critical': return 'bg-red-500 text-white';
       case 'high': return 'bg-orange-500 text-white';
       case 'medium': return 'bg-yellow-500 text-white';
@@ -109,8 +109,8 @@ export const NotificationPanel: React.FC = () => {
     }
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
+  const getTypeIcon = (_type: string) => {
+    switch (_type) {
       case 'crisis_alert': return <AlertTriangle className="w-4 h-4" />;
       case 'supporter_response': return <MessageCircle className="w-4 h-4" />;
       case 'escalation': return <Phone className="w-4 h-4" />;
@@ -122,8 +122,8 @@ export const NotificationPanel: React.FC = () => {
   // Don't render if no notifications or user not authenticated
   if (!user || notifications.length === 0) return null;
 
-  const criticalNotifications = notifications.filter(n => n.severity === 'critical');
-  const otherNotifications = notifications.filter(n => n.severity !== 'critical');
+  const criticalNotifications = notifications.filter(n => n._severity === 'critical');
+  const otherNotifications = notifications.filter(n => n._severity !== 'critical');
 
   return (
     <div className="fixed top-4 right-4 z-[9998] w-96 max-h-[80vh]">
@@ -175,7 +175,7 @@ export const NotificationPanel: React.FC = () => {
                     key={notification.id}
                     notification={notification}
                     onAction={handleNotificationAction}
-                    isUrgent={true}
+                    isUrgent={_true}
                   />
                 ))}
 
@@ -214,7 +214,7 @@ export const NotificationPanel: React.FC = () => {
 
 interface NotificationCardProps {
   notification: NotificationPayload;
-  onAction: (id: string, action: string) => void;
+  onAction: (id: string, _action: string) => void;
   isUrgent: boolean;
 }
 
@@ -223,8 +223,8 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
   onAction, 
   isUrgent 
 }) => {
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
+  const getSeverityColor = (_severity: string) => {
+    switch (_severity) {
       case 'critical': return 'bg-red-500 text-white';
       case 'high': return 'bg-orange-500 text-white';
       case 'medium': return 'bg-yellow-500 text-white';
@@ -233,8 +233,8 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
     }
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
+  const getTypeIcon = (_type: string) => {
+    switch (_type) {
       case 'crisis_alert': return <AlertTriangle className="w-4 h-4" />;
       case 'supporter_response': return <MessageCircle className="w-4 h-4" />;
       case 'escalation': return <Phone className="w-4 h-4" />;
@@ -245,14 +245,14 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
 
   return (
     <div className={cn(
-      "p-4 rounded-lg border transition-all duration-200",
+      "p-4 rounded-lg border transition-all _duration-200",
       isUrgent 
         ? "bg-red-50 border-red-200 shadow-lg ring-2 ring-red-300/50" 
         : "bg-gray-50 border-gray-200 hover:bg-gray-100"
     )}>
       <div className="flex items-start space-x-3">
         <div className="mt-0.5">
-          {getTypeIcon(notification.type)}
+          {getTypeIcon(notification._type)}
         </div>
         
         <div className="flex-1 min-w-0">
@@ -261,9 +261,9 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
               {notification.title}
             </h4>
             <Badge 
-              className={cn("text-xs px-2 py-0.5", getSeverityColor(notification.severity))}
+              className={cn("text-xs px-2 py-0.5", getSeverityColor(notification._severity))}
             >
-              {notification.severity}
+              {notification._severity}
             </Badge>
           </div>
           
@@ -273,23 +273,23 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
           
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-500">
-              {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+              {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: _true })}
             </span>
             
             {notification.actions && notification.actions.length > 0 && (
               <div className="flex items-center space-x-2">
-                {notification.actions.map((action) => (
+                {notification.actions.map((_action) => (
                   <Button
-                    key={action.id}
+                    key={_action.id}
                     size="sm"
-                    variant={action.primary ? "default" : "outline"}
-                    onClick={() => onAction(notification.id, action.type)}
+                    variant={_action.primary ? "default" : "outline"}
+                    onClick={() => onAction(notification.id, _action._type)}
                     className={cn(
                       "h-7 px-3 text-xs",
-                      action.destructive && "text-red-600 hover:text-red-700"
+                      _action.destructive && "text-red-600 hover:text-red-700"
                     )}
                   >
-                    {action.label}
+                    {_action.label}
                   </Button>
                 ))}
               </div>

@@ -11,20 +11,20 @@ export const useCheckInHandlers = () => {
     console.log('Crisis detected! Activating crisis mode...');
     toast.error("Crisis mode activated", {
       description: "Your support network has been notified",
-      duration: 10000,
-      action: {
+      _duration: 10000,
+      _action: {
         label: "Crisis Tools",
-        onClick: () => navigate('/crisis-support')
+        _onClick: () => navigate('/crisis-support')
       }
     });
   };
 
   // Handler for showing interventions
-  const handleShowInterventions = (stats: Record<string, any>) => {
-    console.log('Showing effective interventions:', stats);
+  const handleShowInterventions = (_stats: Record<string, any>) => {
+    console.log('Showing effective interventions:', _stats);
     
     // Find most effective interventions
-    const sortedInterventions = Object.entries(stats)
+    const sortedInterventions = Object.entries(_stats)
       .sort(([,a], [,b]) => (b as any).averageEffectiveness - (a as any).averageEffectiveness)
       .slice(0, 3);
     
@@ -35,18 +35,18 @@ export const useCheckInHandlers = () => {
       
       toast.success("Your most effective strategies", {
         description: `Based on your history: ${interventionsList}`,
-        duration: 8000,
-        action: {
+        _duration: 8000,
+        _action: {
           label: "Use Now",
-          onClick: () => navigate('/crisis-support')
+          _onClick: () => navigate('/crisis-support')
         }
       });
     } else {
       toast.info("Building your intervention history", {
         description: "Complete a few crisis resolutions to see personalized recommendations",
-        action: {
+        _action: {
           label: "Learn More",
-          onClick: () => navigate('/crisis-support')
+          _onClick: () => navigate('/crisis-support')
         }
       });
     }

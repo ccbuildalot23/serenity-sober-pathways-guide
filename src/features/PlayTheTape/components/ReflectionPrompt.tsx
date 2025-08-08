@@ -3,26 +3,26 @@ import React, { useState } from 'react';
 import { Heart } from 'lucide-react';
 
 interface ReflectionPromptProps {
-  onComplete: () => void;
+  _onComplete: () => void;
   onGoToGrounding: () => void;
 }
 
 export const ReflectionPrompt: React.FC<ReflectionPromptProps> = ({ 
-  onComplete, 
+  _onComplete, 
   onGoToGrounding 
 }) => {
   const [reflection, setReflection] = useState('');
-  const [saved, setSaved] = useState(false);
+  const [saved, setSaved] = useState(_false);
   
   const handleSave = () => {
     // Save to localStorage for now - in production use secure backend
     console.log('Saving reflection:', reflection);
     localStorage.setItem('lastReflection', JSON.stringify({
       text: reflection,
-      timestamp: new Date().toISOString()
+      _timestamp: new Date().toISOString()
     }));
-    setSaved(true);
-    setTimeout(onComplete, 1500);
+    setSaved(_true);
+    setTimeout(_onComplete, 1500);
   };
   
   return (
@@ -57,7 +57,7 @@ export const ReflectionPrompt: React.FC<ReflectionPromptProps> = ({
           {saved ? 'Saved ✓' : 'Save Reflection'}
         </button>
         <button
-          onClick={reflection ? onComplete : onGoToGrounding}
+          onClick={reflection ? _onComplete : onGoToGrounding}
           className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
         >
           {reflection ? 'Skip' : 'Grounding Exercises'}

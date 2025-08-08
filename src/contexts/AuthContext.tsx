@@ -5,19 +5,19 @@ import type { User, Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
   user: User | null;
-  session: Session | null;
-  loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, options?: any) => Promise<{ error: any }>;
-  signOut: () => Promise<void>;
-  resetPasswordForEmail: (email: string) => Promise<{ error: any }>;
-  updatePassword: (newPassword: string) => Promise<{ error: any }>;
+  _session: Session | null;
+  _loading: boolean;
+  _signIn: (email: string, password: string) => Promise<{ _error: any }>;
+  _signUp: (email: string, password: string, _options?: unknown) => Promise<{ _error: any }>;
+  _signOut: () => Promise<void>;
+  _resetPasswordForEmail: (email: string) => Promise<{ _error: any }>;
+  updatePassword: (newPassword: string) => Promise<{ _error: any }>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const _AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
+  const context = useContext(_AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
@@ -30,48 +30,48 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [_session, setSession] = useState<Session | null>(null);
+  const [_loading, setLoading] = useState(_true);
 
-  const signIn = async (email: string, password: string) => {
+  const _signIn = async (email: string, password: string) => {
     try {
       // Basic email validation
-      const sanitizedEmail = email.trim().toLowerCase();
-      if (!sanitizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedEmail)) {
+      const _sanitizedEmail = email.trim().toLowerCase();
+      if (!_sanitizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(_sanitizedEmail)) {
         throw new Error('Invalid email format');
       }
 
       // Don't clear existing auth state - this can cause issues
       // Let Supabase handle the auth state management
 
-      console.log('Attempting sign in with email:', sanitizedEmail);
+      console.log('Attempting sign in with email:', _sanitizedEmail);
       
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: sanitizedEmail,
+      const { data, _error } = await supabase.auth.signInWithPassword({
+        email: _sanitizedEmail,
         password,
       });
 
-      if (error) {
-        console.error('Sign in error:', error);
-        return { error };
+      if (_error) {
+        console._error('Sign in _error:', _error);
+        return { _error };
       }
 
       if (data?.user) {
         console.log('Sign in successful for user:', data.user.email);
       }
 
-      return { error: null };
-    } catch (error) {
-      console.error('Sign in exception:', error);
-      return { error };
+      return { _error: null };
+    } catch (_error) {
+      console._error('Sign in exception:', _error);
+      return { _error };
     }
   };
 
-  const signUp = async (email: string, password: string, options?: any) => {
+  const _signUp = async (email: string, password: string, _options?: unknown) => {
     try {
       // Basic email validation
-      const sanitizedEmail = email.trim().toLowerCase();
-      if (!sanitizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedEmail)) {
+      const _sanitizedEmail = email.trim().toLowerCase();
+      if (!_sanitizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(_sanitizedEmail)) {
         throw new Error('Invalid email format');
       }
 
@@ -80,70 +80,70 @@ export function AuthProvider({ children }: AuthProviderProps) {
         throw new Error('Password must be at least 8 characters long');
       }
 
-      console.log('Attempting sign up with email:', sanitizedEmail);
+      console.log('Attempting sign up with email:', _sanitizedEmail);
 
-      const { data, error } = await supabase.auth.signUp({
-        email: sanitizedEmail,
+      const { data, _error } = await supabase.auth._signUp({
+        email: _sanitizedEmail,
         password,
-        options: {
+        _options: {
           emailRedirectTo: `${window.location.origin}/auth`,
-          ...options
+          ..._options
         }
       });
 
-      if (error) {
-        console.error('Sign up error:', error);
-        return { data: null, error };
+      if (_error) {
+        console._error('Sign up _error:', _error);
+        return { data: null, _error };
       }
 
       if (data?.user) {
         console.log('Sign up successful for user:', data.user.email);
       }
 
-      return { data, error: null };
-    } catch (error) {
-      console.error('Sign up exception:', error);
-      return { data: null, error };
+      return { data, _error: null };
+    } catch (_error) {
+      console._error('Sign up exception:', _error);
+      return { data: null, _error };
     }
   };
 
-  const signOut = async () => {
+  const _signOut = async () => {
     try {
       console.log('Signing out user...');
-      const { error } = await supabase.auth.signOut();
+      const { _error } = await supabase.auth._signOut();
       
-      if (error) {
-        console.error('Sign out error:', error);
+      if (_error) {
+        console._error('Sign out _error:', _error);
       } else {
         console.log('Sign out successful');
       }
-    } catch (error) {
-      console.error('Sign out exception:', error);
+    } catch (_error) {
+      console._error('Sign out exception:', _error);
     }
     
     // Force redirect to auth page
     window.location.href = '/auth';
   };
 
-  const resetPasswordForEmail = async (email: string) => {
+  const _resetPasswordForEmail = async (email: string) => {
     try {
-      const sanitizedEmail = email.trim().toLowerCase();
-      console.log('Requesting password reset for:', sanitizedEmail);
+      const _sanitizedEmail = email.trim().toLowerCase();
+      console.log('Requesting password reset for:', _sanitizedEmail);
       
-      const { error } = await supabase.auth.resetPasswordForEmail(sanitizedEmail, {
+      const { _error } = await supabase.auth._resetPasswordForEmail(_sanitizedEmail, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
       
-      if (error) {
-        console.error('Password reset error:', error);
-        return { error };
+      if (_error) {
+        console._error('Password reset _error:', _error);
+        return { _error };
       }
       
       console.log('Password reset email sent successfully');
-      return { error: null };
-    } catch (error) {
-      console.error('Password reset exception:', error);
-      return { error };
+      return { _error: null };
+    } catch (_error) {
+      console._error('Password reset exception:', _error);
+      return { _error };
     }
   };
 
@@ -151,49 +151,49 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       console.log('Updating user password...');
       
-      const { error } = await supabase.auth.updateUser({
+      const { _error } = await supabase.auth.updateUser({
         password: newPassword
       });
       
-      if (error) {
-        console.error('Password update error:', error);
-        return { error };
+      if (_error) {
+        console._error('Password update _error:', _error);
+        return { _error };
       }
       
       console.log('Password updated successfully');
-      return { error: null };
-    } catch (error) {
-      console.error('Password update exception:', error);
-      return { error };
+      return { _error: null };
+    } catch (_error) {
+      console._error('Password update exception:', _error);
+      return { _error };
     }
   };
 
   useEffect(() => {
     console.log('Setting up auth state listener...');
     
-    // Get initial session first
+    // Get initial _session first
     const getInitialSession = async () => {
       try {
-        const { data: { session: initialSession } } = await supabase.auth.getSession();
-        console.log('Initial session:', initialSession?.user?.email || 'none');
+        const { data: { _session: initialSession } } = await supabase.auth.getSession();
+        console.log('Initial _session:', initialSession?.user?.email || 'none');
         setSession(initialSession);
         setUser(initialSession?.user ?? null);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error getting initial session:', error);
-        setLoading(false);
+        setLoading(_false);
+      } catch (_error) {
+        console._error('Error getting initial _session:', _error);
+        setLoading(_false);
       }
     };
 
     getInitialSession();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state change:', event, session?.user?.email || 'none');
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, _session) => {
+      console.log('Auth state change:', _event, _session?.user?.email || 'none');
       
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+      setSession(_session);
+      setUser(_session?.user ?? null);
+      setLoading(_false);
     });
 
     return () => {
@@ -203,17 +203,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ 
+    <_AuthContext.Provider value={{ 
       user, 
-      session, 
-      loading, 
-      signIn, 
-      signUp, 
-      signOut,
-      resetPasswordForEmail,
+      _session, 
+      _loading, 
+      _signIn, 
+      _signUp, 
+      _signOut,
+      _resetPasswordForEmail,
       updatePassword
     }}>
       {children}
-    </AuthContext.Provider>
+    </_AuthContext.Provider>
   );
 }

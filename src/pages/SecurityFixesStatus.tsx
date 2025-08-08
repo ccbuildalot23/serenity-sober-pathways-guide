@@ -13,13 +13,13 @@ interface SecurityFix {
   title: string;
   description: string;
   status: 'completed' | 'active' | 'pending';
-  severity: 'critical' | 'high' | 'medium' | 'low';
+  _severity: 'critical' | 'high' | 'medium' | 'low';
   implementation: string;
 }
 
 const SecurityFixesStatus: React.FC = () => {
   const [securityStatus, setSecurityStatus] = useState<Record<string, boolean>>({});
-  const [auditCleanupRunning, setAuditCleanupRunning] = useState(false);
+  const [auditCleanupRunning, setAuditCleanupRunning] = useState(_false);
 
   const securityFixes: SecurityFix[] = [
     {
@@ -27,7 +27,7 @@ const SecurityFixesStatus: React.FC = () => {
       title: 'Admin Code Security',
       description: 'Moved hardcoded admin verification to secure service with environment variable support',
       status: 'completed',
-      severity: 'high',
+      _severity: 'high',
       implementation: 'Implemented secure admin verification service with audit logging'
     },
     {
@@ -35,7 +35,7 @@ const SecurityFixesStatus: React.FC = () => {
       title: 'Audit Log Retention Policy',
       description: 'Automated cleanup of audit logs older than 90 days with proper logging',
       status: 'active',
-      severity: 'medium',
+      _severity: 'medium',
       implementation: 'Database function with automatic scheduling and compliance logging'
     },
     {
@@ -43,7 +43,7 @@ const SecurityFixesStatus: React.FC = () => {
       title: 'Enhanced Security Headers',
       description: 'Strengthened CSP, added additional security headers for XSS and clickjacking protection',
       status: 'completed',
-      severity: 'medium',
+      _severity: 'medium',
       implementation: 'Comprehensive security header service with nonce generation'
     },
     {
@@ -51,7 +51,7 @@ const SecurityFixesStatus: React.FC = () => {
       title: 'Environment Security Validation',
       description: 'Added checks for forbidden client-side keys and HTTPS enforcement',
       status: 'completed',
-      severity: 'high',
+      _severity: 'high',
       implementation: 'Runtime validation with security issue reporting'
     },
     {
@@ -59,7 +59,7 @@ const SecurityFixesStatus: React.FC = () => {
       title: 'Development Code Cleanup',
       description: 'Removed TODO comments and replaced mock implementations with production-ready code',
       status: 'completed',
-      severity: 'low',
+      _severity: 'low',
       implementation: 'Code review and refactoring for production readiness'
     }
   ];
@@ -69,15 +69,15 @@ const SecurityFixesStatus: React.FC = () => {
   }, []);
 
   const handleManualAuditCleanup = async () => {
-    setAuditCleanupRunning(true);
+    setAuditCleanupRunning(_true);
     try {
       await securityComplianceService.cleanupAuditLogs();
       toast.success('Audit log cleanup completed successfully');
-    } catch (error) {
-      toast.error('Audit log cleanup failed');
-      console.error('Cleanup error:', error);
+    } catch (_error) {
+      toast._error('Audit log cleanup failed');
+      console._error('Cleanup _error:', _error);
     } finally {
-      setAuditCleanupRunning(false);
+      setAuditCleanupRunning(_false);
     }
   };
 
@@ -94,8 +94,8 @@ const SecurityFixesStatus: React.FC = () => {
     }
   };
 
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
+  const getSeverityColor = (_severity: string) => {
+    switch (_severity) {
       case 'critical': return 'destructive';
       case 'high': return 'destructive';
       case 'medium': return 'secondary';
@@ -167,8 +167,8 @@ const SecurityFixesStatus: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Badge variant={getSeverityColor(fix.severity)}>
-                    {fix.severity}
+                  <Badge variant={getSeverityColor(fix._severity)}>
+                    {fix._severity}
                   </Badge>
                   <Badge variant={getStatusColor(fix.status)}>
                     {fix.status}

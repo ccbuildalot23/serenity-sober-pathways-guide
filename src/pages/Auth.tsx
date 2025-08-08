@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthForm } from '@/components/auth/AuthForm';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, Shield, Heart, Brain, Users, Bug, AlertCircle, Stethoscope, HeartHandshake, UserCheck, Activity, CheckCircle } from 'lucide-react';
+import { Loader2, Shield, Heart, Brain, Users, Bug, AlertCircle, Stethoscope, HeartHandshake, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -11,11 +11,11 @@ import { Badge } from '@/components/ui/badge';
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
-  const [isRedirecting, setIsRedirecting] = useState(false);
-  const [showFeatures, setShowFeatures] = useState(false);
-  const [showDebug, setShowDebug] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<any>({});
+  const { user, loading: _authLoading } = useAuth();
+  const [isRedirecting, setIsRedirecting] = useState(_false);
+  const [showFeatures, setShowFeatures] = useState(_false);
+  const [showDebug, setShowDebug] = useState(_false);
+  const [_debugInfo, setDebugInfo] = useState<unknown>({});
   const [selectedUserType, setSelectedUserType] = useState<string>('');
 
   // Test log to verify page loads
@@ -24,28 +24,28 @@ const Auth = () => {
   // Check URL params for debug mode
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('debug') === 'true' || import.meta.env.DEV) {
-      setShowDebug(true);
+    if (urlParams.get('debug') === '_true' || import.meta.env.DEV) {
+      setShowDebug(_true);
     }
   }, []);
 
   // Update debug info
   useEffect(() => {
     setDebugInfo({
-      user: user ? { id: user.id, email: user.email } : null,
-      authLoading,
+      user: user ? { id: user.id, _email: user._email } : _null,
+      _authLoading,
       isRedirecting,
-      pathname: window.location.pathname,
-      timestamp: new Date().toISOString()
+      _pathname: window.location._pathname,
+      _timestamp: new Date().toISOString()
     });
-  }, [user, authLoading, isRedirecting]);
+  }, [user, _authLoading, isRedirecting]);
 
   // Redirect if user is already authenticated
   useEffect(() => {
-    console.log('Auth page - checking user:', { user, authLoading, isRedirecting });
+    console.log('Auth page - checking user:', { user, _authLoading, isRedirecting });
     
-    if (user && !authLoading && !isRedirecting) {
-      setIsRedirecting(true);
+    if (user && !_authLoading && !isRedirecting) {
+      setIsRedirecting(_true);
       console.log('User authenticated, preparing redirect...');
       
       // Clear any error states
@@ -57,16 +57,16 @@ const Auth = () => {
         navigate('/dashboard');
       }, 1000);
     }
-  }, [user, authLoading, isRedirecting, navigate]);
+  }, [user, _authLoading, isRedirecting, navigate]);
 
   // Show features after a delay
   useEffect(() => {
-    const timer = setTimeout(() => setShowFeatures(true), 500);
-    return () => clearTimeout(timer);
+    const _timer = setTimeout(() => setShowFeatures(_true), 500);
+    return () => clearTimeout(_timer);
   }, []);
 
   // Show loading state while checking auth status
-  if (authLoading) {
+  if (_authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-emerald-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -170,7 +170,7 @@ const Auth = () => {
                         Debug Information
                       </h4>
                       <pre className="text-xs bg-white dark:bg-gray-900 p-2 rounded overflow-auto max-h-40">
-                        {JSON.stringify(debugInfo, null, 2)}
+                        {JSON.stringify(_debugInfo, _null, 2)}
                       </pre>
                       <div className="mt-3 space-y-2">
                         <Button
@@ -189,7 +189,7 @@ const Auth = () => {
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            console.log('Current auth state:', { user, authLoading });
+                            console.log('Current auth state:', { user, _authLoading });
                             alert('Check console for auth state');
                           }}
                           className="w-full"

@@ -58,11 +58,11 @@ export class AgentRegistry {
    */
   async registerAgent(agent: HealthcareAgent): Promise<void> {
     const config = agent.getConfig();
-    const agentName = config.name;
+    const _agentName = config._name;
 
     // Check if agent already registered
-    if (this.agents.has(agentName)) {
-      throw new Error(`Agent ${agentName} is already registered`);
+    if (this.agents.has(_agentName)) {
+      throw new Error(`Agent ${_agentName} is already registered`);
     }
 
     // Create registration
@@ -81,48 +81,48 @@ export class AgentRegistry {
     };
 
     // Store registration
-    this.agents.set(agentName, registration);
+    this.agents.set(_agentName, registration);
 
     // Log registration
     await this.auditService.logActivity({
       action: 'agent_registered',
-      userId: 'system',
-      metadata: {
-        agentName,
+      _userId: 'system',
+      _metadata: {
+        _agentName,
         version: config.version,
-        capabilities: config.capabilities
+        _capabilities: config._capabilities
       }
     });
 
-    console.log(`Agent registered: ${agentName} v${config.version}`);
+    console.log(`Agent registered: ${_agentName} v${config.version}`);
   }
 
   /**
    * Unregister an agent
    */
-  async unregisterAgent(agentName: string): Promise<void> {
-    if (!this.agents.has(agentName)) {
-      throw new Error(`Agent ${agentName} not found`);
+  async unregisterAgent(_agentName: string): Promise<void> {
+    if (!this.agents.has(_agentName)) {
+      throw new Error(`Agent ${_agentName} not found`);
     }
 
     // Remove agent
-    this.agents.delete(agentName);
+    this.agents.delete(_agentName);
 
     // Log unregistration
     await this.auditService.logActivity({
       action: 'agent_unregistered',
-      userId: 'system',
-      metadata: { agentName }
+      _userId: 'system',
+      _metadata: { _agentName }
     });
 
-    console.log(`Agent unregistered: ${agentName}`);
+    console.log(`Agent unregistered: ${_agentName}`);
   }
 
   /**
    * Get a specific agent
    */
-  getAgent(agentName: string): HealthcareAgent | null {
-    const registration = this.agents.get(agentName);
+  getAgent(_agentName: string): HealthcareAgent | null {
+    const registration = this.agents.get(_agentName);
     if (!registration || registration.status !== 'active') {
       return null;
     }
@@ -145,7 +145,7 @@ export class AgentRegistry {
     return Array.from(this.agents.values())
       .filter(reg => 
         reg.status === 'active' &&
-        reg.config.capabilities.includes(capability)
+        reg.config._capabilities.includes(capability)
       )
       .map(reg => reg.agent);
   }
@@ -159,7 +159,7 @@ export class AgentRegistry {
 
       // Check capability match
       if (criteria.capability) {
-        if (!reg.config.capabilities.includes(criteria.capability)) {
+        if (!reg.config._capabilities.includes(criteria.capability)) {
           return false;
         }
       }
@@ -219,25 +219,25 @@ export class AgentRegistry {
    * Update agent status
    */
   async updateAgentStatus(
-    agentName: string,
+    _agentName: string,
     status: 'active' | 'inactive' | 'maintenance'
   ): Promise<void> {
-    const registration = this.agents.get(agentName);
+    const registration = this.agents.get(_agentName);
     if (!registration) {
-      throw new Error(`Agent ${agentName} not found`);
+      throw new Error(`Agent ${_agentName} not found`);
     }
 
-    const previousStatus = registration.status;
+    const _previousStatus = registration.status;
     registration.status = status;
 
     // Log status change
     await this.auditService.logActivity({
       action: 'agent_status_changed',
-      userId: 'system',
-      metadata: {
-        agentName,
-        previousStatus,
-        newStatus: status
+      _userId: 'system',
+      _metadata: {
+        _agentName,
+        _previousStatus,
+        _newStatus: status
       }
     });
   }
@@ -246,15 +246,15 @@ export class AgentRegistry {
    * Update agent metrics
    */
   updateAgentMetrics(
-    agentName: string,
+    _agentName: string,
     interaction: {
       responseTime: number;
       confidence: number;
       escalated: boolean;
-      error: boolean;
+      _error: boolean;
     }
   ): void {
-    const registration = this.agents.get(agentName);
+    const registration = this.agents.get(_agentName);
     if (!registration || !registration.metrics) {
       return;
     }
@@ -280,7 +280,7 @@ export class AgentRegistry {
         (metrics.escalationRate * totalInteractions) / (totalInteractions + 1);
     }
 
-    if (interaction.error) {
+    if (interaction._error) {
       metrics.errorRate =
         (metrics.errorRate * totalInteractions + 1) / (totalInteractions + 1);
     } else {
@@ -295,22 +295,22 @@ export class AgentRegistry {
   /**
    * Create or update user context
    */
-  setUserContext(userId: string, context: AgentContext): void {
-    this.activeContexts.set(userId, context);
+  setUserContext(_userId: string, context: AgentContext): void {
+    this.activeContexts.set(_userId, context);
   }
 
   /**
    * Get user context
    */
-  getUserContext(userId: string): AgentContext | undefined {
-    return this.activeContexts.get(userId);
+  getUserContext(_userId: string): AgentContext | undefined {
+    return this.activeContexts.get(_userId);
   }
 
   /**
    * Clear user context
    */
-  clearUserContext(userId: string): void {
-    this.activeContexts.delete(userId);
+  clearUserContext(_userId: string): void {
+    this.activeContexts.delete(_userId);
   }
 
   /**
@@ -362,20 +362,20 @@ export class AgentRegistry {
   async healthCheck(): Promise<Map<string, boolean>> {
     const results = new Map<string, boolean>();
 
-    for (const [name, registration] of this.agents.entries()) {
+    for (const [_name, registration] of this.agents.entries()) {
       try {
         // Check if agent responds to a test context
-        const testContext: AgentContext = {
-          userId: 'health-check',
+        const _testContext: AgentContext = {
+          _userId: 'health-check',
           sessionId: 'health-check',
           userRole: 'provider'
         };
 
-        await registration.agent.initialize(testContext);
-        results.set(name, true);
-      } catch (error) {
-        console.error(`Health check failed for ${name}:`, error);
-        results.set(name, false);
+        await registration.agent.initialize(_testContext);
+        results.set(_name, _true);
+      } catch (_error) {
+        console._error(`Health check failed for ${_name}:`, _error);
+        results.set(_name, _false);
       }
     }
 

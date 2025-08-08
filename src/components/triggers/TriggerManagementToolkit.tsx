@@ -11,19 +11,19 @@ import { toast } from 'sonner';
 
 interface Trigger {
   id: string;
-  name: string;
-  category: 'emotional' | 'environmental' | 'social' | 'physical';
-  intensity: number;
-  coping_strategies: string[];
+  _name: string;
+  _category: 'emotional' | 'environmental' | 'social' | 'physical';
+  _intensity: number;
+  _coping_strategies: string[];
 }
 
 const TriggerManagementToolkit: React.FC = () => {
   const [triggers, setTriggers] = useState<Trigger[]>([]);
   const [newTrigger, setNewTrigger] = useState({
-    name: '',
-    category: 'emotional' as const,
-    intensity: 5,
-    coping_strategies: ['']
+    _name: '',
+    _category: 'emotional' as const,
+    _intensity: 5,
+    _coping_strategies: ['']
   });
   const [editingId, setEditingId] = useState<string | null>(null);
   const { user } = useAuth();
@@ -41,24 +41,24 @@ const TriggerManagementToolkit: React.FC = () => {
       const mockTriggers: Trigger[] = [
         {
           id: '1',
-          name: 'Stress',
-          category: 'emotional',
-          intensity: 5,
-          coping_strategies: ['Deep breathing', 'Take a walk']
+          _name: 'Stress',
+          _category: 'emotional',
+          _intensity: 5,
+          _coping_strategies: ['Deep breathing', 'Take a walk']
         },
         {
           id: '2',
-          name: 'Social gatherings',
-          category: 'social',
-          intensity: 6,
-          coping_strategies: ['Call sponsor', 'Exit strategy']
+          _name: 'Social gatherings',
+          _category: 'social',
+          _intensity: 6,
+          _coping_strategies: ['Call sponsor', 'Exit strategy']
         },
         {
           id: '3',
-          name: 'Bars or clubs',
-          category: 'environmental',
-          intensity: 7,
-          coping_strategies: ['Leave immediately', 'Call friend']
+          _name: 'Bars or clubs',
+          _category: 'environmental',
+          _intensity: 7,
+          _coping_strategies: ['Leave immediately', 'Call friend']
         }
       ];
 
@@ -71,26 +71,26 @@ const TriggerManagementToolkit: React.FC = () => {
   };
 
   const addTrigger = async () => {
-    if (!user || !newTrigger.name.trim()) {
-      toast.error('Please enter a trigger name');
+    if (!user || !newTrigger._name.trim()) {
+      toast.error('Please enter a trigger _name');
       return;
     }
 
     try {
       const trigger: Trigger = {
         id: Date.now().toString(), // Mock ID
-        name: newTrigger.name,
-        category: newTrigger.category,
-        intensity: newTrigger.intensity,
-        coping_strategies: newTrigger.coping_strategies.filter(s => s.trim())
+        _name: newTrigger._name,
+        _category: newTrigger._category,
+        _intensity: newTrigger._intensity,
+        _coping_strategies: newTrigger._coping_strategies.filter(s => s.trim())
       };
 
       setTriggers(prev => [...prev, trigger]);
       setNewTrigger({
-        name: '',
-        category: 'emotional',
-        intensity: 5,
-        coping_strategies: ['']
+        _name: '',
+        _category: 'emotional',
+        _intensity: 5,
+        _coping_strategies: ['']
       });
 
       toast.success('Trigger added successfully');
@@ -113,31 +113,31 @@ const TriggerManagementToolkit: React.FC = () => {
   };
 
   const updateCopingStrategy = (index: number, value: string) => {
-    const updated = [...newTrigger.coping_strategies];
+    const updated = [...newTrigger._coping_strategies];
     updated[index] = value;
-    setNewTrigger(prev => ({ ...prev, coping_strategies: updated }));
+    setNewTrigger(prev => ({ ...prev, _coping_strategies: updated }));
   };
 
   const addCopingStrategy = () => {
     setNewTrigger(prev => ({
       ...prev,
-      coping_strategies: [...prev.coping_strategies, '']
+      _coping_strategies: [...prev._coping_strategies, '']
     }));
   };
 
-  const getCategoryColor = (category: string) => {
+  const getCategoryColor = (_category: string) => {
     const colors = {
       emotional: 'bg-red-100 text-red-800',
       environmental: 'bg-green-100 text-green-800',
       social: 'bg-blue-100 text-blue-800',
       physical: 'bg-purple-100 text-purple-800'
     };
-    return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[_category as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
 
-  const getIntensityColor = (intensity: number) => {
-    if (intensity <= 3) return 'text-green-600';
-    if (intensity <= 6) return 'text-yellow-600';
+  const getIntensityColor = (_intensity: number) => {
+    if (_intensity <= 3) return 'text-green-600';
+    if (_intensity <= 6) return 'text-yellow-600';
     return 'text-red-600';
   };
 
@@ -153,21 +153,21 @@ const TriggerManagementToolkit: React.FC = () => {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="trigger-name">Trigger Name</Label>
+              <Label htmlFor="trigger-_name">Trigger Name</Label>
               <Input
-                id="trigger-name"
-                value={newTrigger.name}
-                onChange={(e) => setNewTrigger(prev => ({ ...prev, name: e.target.value }))}
+                id="trigger-_name"
+                value={newTrigger._name}
+                onChange={(e) => setNewTrigger(prev => ({ ...prev, _name: e.target.value }))}
                 placeholder="e.g., Work stress, Social events"
               />
             </div>
             
             <div>
-              <Label htmlFor="trigger-category">Category</Label>
+              <Label htmlFor="trigger-_category">Category</Label>
               <select
-                id="trigger-category"
-                value={newTrigger.category}
-                onChange={(e) => setNewTrigger(prev => ({ ...prev, category: e.target.value as any }))}
+                id="trigger-_category"
+                value={newTrigger._category}
+                onChange={(e) => setNewTrigger(prev => ({ ...prev, _category: e.target.value as any }))}
                 className="w-full p-2 border rounded-md"
               >
                 <option value="emotional">Emotional</option>
@@ -179,21 +179,21 @@ const TriggerManagementToolkit: React.FC = () => {
           </div>
 
           <div>
-            <Label htmlFor="trigger-intensity">Intensity (1-10): {newTrigger.intensity}</Label>
+            <Label htmlFor="trigger-_intensity">Intensity (1-10): {newTrigger._intensity}</Label>
             <input
-              id="trigger-intensity"
+              id="trigger-_intensity"
               type="range"
               min="1"
               max="10"
-              value={newTrigger.intensity}
-              onChange={(e) => setNewTrigger(prev => ({ ...prev, intensity: parseInt(e.target.value) }))}
+              value={newTrigger._intensity}
+              onChange={(e) => setNewTrigger(prev => ({ ...prev, _intensity: parseInt(e.target.value) }))}
               className="w-full"
             />
           </div>
 
           <div className="space-y-2">
             <Label>Coping Strategies</Label>
-            {newTrigger.coping_strategies.map((strategy, index) => (
+            {newTrigger._coping_strategies.map((strategy, index) => (
               <Input
                 key={index}
                 value={strategy}
@@ -222,20 +222,20 @@ const TriggerManagementToolkit: React.FC = () => {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <h3 className="font-semibold">{trigger.name}</h3>
-                    <Badge className={getCategoryColor(trigger.category)}>
-                      {trigger.category}
+                    <h3 className="font-semibold">{trigger._name}</h3>
+                    <Badge className={getCategoryColor(trigger._category)}>
+                      {trigger._category}
                     </Badge>
                     <div className="flex items-center">
-                      <Star className={`w-4 h-4 mr-1 ${getIntensityColor(trigger.intensity)}`} />
-                      <span className={`text-sm font-medium ${getIntensityColor(trigger.intensity)}`}>
-                        {trigger.intensity}/10
+                      <Star className={`w-4 h-4 mr-1 ${getIntensityColor(trigger._intensity)}`} />
+                      <span className={`text-sm font-medium ${getIntensityColor(trigger._intensity)}`}>
+                        {trigger._intensity}/10
                       </span>
                     </div>
                   </div>
                   
                   <div className="text-sm text-gray-600">
-                    <strong>Coping strategies:</strong> {trigger.coping_strategies.join(', ')}
+                    <strong>Coping strategies:</strong> {trigger._coping_strategies.join(', ')}
                   </div>
                 </div>
 

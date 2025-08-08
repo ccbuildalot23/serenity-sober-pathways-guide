@@ -35,22 +35,22 @@ import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditSe
 
 interface MeetingWithDetails extends Meeting {
   description?: string;
-  accessibility?: string[];
+  _accessibility?: string[];
   contact_info?: string;
   group_size?: 'small' | 'medium' | 'large';
   newcomer_friendly?: boolean;
   social_anxiety_rating?: number;
-  format?: string;
+  _format?: string;
   distance?: number;
 }
 
 interface FilterOptions {
   type: string[];
-  time: string[];
-  format: string[];
-  accessibility: string[];
-  socialAnxietyLevel: number;
-  maxDistance: number;
+  _time: string[];
+  _format: string[];
+  _accessibility: string[];
+  _socialAnxietyLevel: number;
+  _maxDistance: number;
   newcomerFriendly: boolean;
 }
 
@@ -58,41 +58,41 @@ const MeetingFinder = () => {
   const { user } = useAuth();
   const [meetings, setMeetings] = useState<MeetingWithDetails[]>([]);
   const [filteredMeetings, setFilteredMeetings] = useState<MeetingWithDetails[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(_false);
   const [searchLocation, setSearchLocation] = useState('');
-  const [currentLocation, setCurrentLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [_currentLocation, setCurrentLocation] = useState<{lat: number, _lng: number} | null>(null);
   const [selectedMeeting, setSelectedMeeting] = useState<MeetingWithDetails | null>(null);
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(_false);
   const [savedMeetings, setSavedMeetings] = useState<string[]>([]);
   const [attendanceHistory, setAttendanceHistory] = useState<Record<string, Date[]>>({});
   
-  const [filters, setFilters] = useState<FilterOptions>({
+  const [_filters, setFilters] = useState<FilterOptions>({
     type: [],
-    time: [],
-    format: [],
-    accessibility: [],
-    socialAnxietyLevel: 5,
-    maxDistance: 10,
-    newcomerFriendly: false
+    _time: [],
+    _format: [],
+    _accessibility: [],
+    _socialAnxietyLevel: 5,
+    _maxDistance: 10,
+    newcomerFriendly: _false
   });
 
   const mapRef = useRef<HTMLDivElement>(null);
 
   // Enhanced meeting data with social anxiety considerations
-  const enhancedMeetings: MeetingWithDetails[] = [
+  const _enhancedMeetings: MeetingWithDetails[] = [
     {
       id: '1',
       name: 'Newcomers Welcome AA',
       type: 'AA',
       day: 'Mon',
-      time: '7:00 PM',
+      _time: '7:00 PM',
       location: '123 Main St, Springfield',
       description: 'A welcoming group specifically for people new to recovery. Very supportive environment.',
-      accessibility: ['wheelchair', 'hearing_loop'],
+      _accessibility: ['wheelchair', 'hearing_loop'],
       group_size: 'small',
-      newcomer_friendly: true,
+      newcomer_friendly: _true,
       social_anxiety_rating: 2, // 1-5 scale, lower = more comfortable
-      format: 'discussion',
+      _format: 'discussion',
       distance: 0.8
     },
     {
@@ -100,14 +100,14 @@ const MeetingFinder = () => {
       name: 'Lunchtime Recovery NA',
       type: 'NA',
       day: 'Wed',
-      time: '12:00 PM',
+      _time: '12:00 PM',
       location: '456 Oak Ave, Springfield',
       description: 'Quick 45-minute meeting perfect for lunch break. Casual atmosphere.',
-      accessibility: ['wheelchair'],
+      _accessibility: ['wheelchair'],
       group_size: 'medium',
-      newcomer_friendly: true,
+      newcomer_friendly: _true,
       social_anxiety_rating: 3,
-      format: 'speaker',
+      _format: 'speaker',
       distance: 1.2
     },
     {
@@ -115,15 +115,15 @@ const MeetingFinder = () => {
       name: 'Online Support Meeting',
       type: 'SMART',
       day: 'Fri',
-      time: '6:00 PM',
+      _time: '6:00 PM',
       location: 'Virtual',
-      virtual: true,
+      virtual: _true,
       link: 'https://zoom.us/meeting',
       description: 'Video meeting with camera optional. Great for social anxiety.',
       group_size: 'small',
-      newcomer_friendly: true,
+      newcomer_friendly: _true,
       social_anxiety_rating: 1, // Virtual = lowest anxiety
-      format: 'discussion',
+      _format: 'discussion',
       distance: 0
     },
     {
@@ -131,14 +131,14 @@ const MeetingFinder = () => {
       name: 'Women\'s Circle AA',
       type: 'AA',
       day: 'Thu',
-      time: '6:30 PM',
+      _time: '6:30 PM',
       location: '789 Pine St, Springfield',
       description: 'Women-only meeting with childcare available. Safe space to share.',
-      accessibility: ['childcare', 'wheelchair'],
+      _accessibility: ['childcare', 'wheelchair'],
       group_size: 'small',
-      newcomer_friendly: true,
+      newcomer_friendly: _true,
       social_anxiety_rating: 2,
-      format: 'sharing_circle',
+      _format: 'sharing_circle',
       distance: 2.1
     },
     {
@@ -146,14 +146,14 @@ const MeetingFinder = () => {
       name: 'Young Adults in Recovery',
       type: 'AA',
       day: 'Sat',
-      time: '2:00 PM',
+      _time: '2:00 PM',
       location: '321 Elm St, Springfield',
       description: 'Ages 18-35. Casual meetup with coffee and donuts. Very relaxed.',
-      accessibility: ['coffee', 'informal_seating'],
+      _accessibility: ['coffee', 'informal_seating'],
       group_size: 'medium',
-      newcomer_friendly: true,
+      newcomer_friendly: _true,
       social_anxiety_rating: 3,
-      format: 'social',
+      _format: 'social',
       distance: 1.5
     },
     {
@@ -161,14 +161,14 @@ const MeetingFinder = () => {
       name: 'Silent Meditation AA',
       type: 'AA',
       day: 'Sun',
-      time: '9:00 AM',
+      _time: '9:00 AM',
       location: '654 Maple Ave, Springfield',
       description: 'Begins with 20 minutes of silent meditation. Minimal speaking required.',
-      accessibility: ['quiet_space'],
+      _accessibility: ['quiet_space'],
       group_size: 'small',
-      newcomer_friendly: false,
+      newcomer_friendly: _false,
       social_anxiety_rating: 1, // Minimal speaking
-      format: 'meditation',
+      _format: 'meditation',
       distance: 2.8
     }
   ];
@@ -181,7 +181,7 @@ const MeetingFinder = () => {
 
   useEffect(() => {
     applyFilters();
-  }, [meetings, filters]);
+  }, [meetings, _filters]);
 
   const getCurrentLocation = () => {
     if (navigator.geolocation) {
@@ -189,15 +189,15 @@ const MeetingFinder = () => {
         (position) => {
           setCurrentLocation({
             lat: position.coords.latitude,
-            lng: position.coords.longitude
+            _lng: position.coords.longitude
           });
         },
         async (error) => {
           // Log location access denial (not a security issue, but worth tracking)
           await EnhancedSecurityAuditService.logSecurityEvent({
             action: 'LOCATION_ACCESS_DENIED',
-            details: { error_code: error.code },
-            severity: 'low'
+            _details: { error_code: error.code },
+            _severity: 'low'
           });
         }
       );
@@ -205,20 +205,20 @@ const MeetingFinder = () => {
   };
 
   const loadMeetings = async () => {
-    setLoading(true);
+    setLoading(_true);
     try {
       // In a real app, this would fetch from an API with user's location
-      setMeetings(enhancedMeetings);
+      setMeetings(_enhancedMeetings);
     } catch (error) {
       // Log meeting data access error
       await EnhancedSecurityAuditService.logSecurityEvent({
         action: 'MEETING_DATA_ACCESS_ERROR',
-        details: { error_type: 'load_error' },
-        severity: 'medium'
+        _details: { _error_type: 'load_error' },
+        _severity: 'medium'
       });
       toast.error('Failed to load meetings');
     } finally {
-      setLoading(false);
+      setLoading(_false);
     }
   };
 
@@ -236,79 +236,79 @@ const MeetingFinder = () => {
         setSavedMeetings(saved.map(s => s.meeting_id));
       }
 
-      // Load attendance history
+      // Load attendance _history
       const { data: attendance } = await supabase
         .from('meeting_attendance')
         .select('meeting_id, attended_at')
         .eq('user_id', user.id);
       
       if (attendance) {
-        const history: Record<string, Date[]> = {};
+        const _history: Record<string, Date[]> = {};
         attendance.forEach(a => {
-          if (!history[a.meeting_id]) history[a.meeting_id] = [];
-          history[a.meeting_id].push(new Date(a.attended_at));
+          if (!_history[a.meeting_id]) _history[a.meeting_id] = [];
+          _history[a.meeting_id].push(new Date(a.attended_at));
         });
-        setAttendanceHistory(history);
+        setAttendanceHistory(_history);
       }
     } catch (error) {
       // Log user preference access error
       await EnhancedSecurityAuditService.logSecurityEvent({
         action: 'USER_PREFERENCES_ACCESS_ERROR',
-        details: { error_type: 'database_error' },
-        severity: 'medium'
+        _details: { _error_type: 'database_error' },
+        _severity: 'medium'
       });
     }
   };
 
   const applyFilters = () => {
-    let filtered = [...meetings];
+    let _filtered = [...meetings];
 
     // Type filter
-    if (filters.type.length > 0) {
-      filtered = filtered.filter(m => filters.type.includes(m.type));
+    if (_filters.type.length > 0) {
+      _filtered = _filtered.filter(m => _filters.type.includes(m.type));
     }
 
     // Social anxiety filter
-    filtered = filtered.filter(m => 
-      (m.social_anxiety_rating || 5) <= filters.socialAnxietyLevel
+    _filtered = _filtered.filter(m => 
+      (m.social_anxiety_rating || 5) <= _filters._socialAnxietyLevel
     );
 
     // Distance filter
-    if (currentLocation) {
-      filtered = filtered.filter(m => 
-        m.virtual || (m.distance || 0) <= filters.maxDistance
+    if (_currentLocation) {
+      _filtered = _filtered.filter(m => 
+        m.virtual || (m.distance || 0) <= _filters._maxDistance
       );
     }
 
     // Newcomer friendly filter
-    if (filters.newcomerFriendly) {
-      filtered = filtered.filter(m => m.newcomer_friendly);
+    if (_filters.newcomerFriendly) {
+      _filtered = _filtered.filter(m => m.newcomer_friendly);
     }
 
     // Format filter
-    if (filters.format.length > 0) {
-      filtered = filtered.filter(m => 
-        m.format && filters.format.includes(m.format)
+    if (_filters._format.length > 0) {
+      _filtered = _filtered.filter(m => 
+        m._format && _filters._format.includes(m._format)
       );
     }
 
     // Sort by social anxiety rating and distance
-    filtered.sort((a, b) => {
+    _filtered.sort((a, b) => {
       const anxietyDiff = (a.social_anxiety_rating || 5) - (b.social_anxiety_rating || 5);
       if (anxietyDiff !== 0) return anxietyDiff;
       return (a.distance || 0) - (b.distance || 0);
     });
 
-    setFilteredMeetings(filtered);
+    setFilteredMeetings(_filtered);
   };
 
   const toggleSavedMeeting = async (meetingId: string) => {
     if (!user) return;
     
-    const isSaved = savedMeetings.includes(meetingId);
+    const _isSaved = savedMeetings.includes(meetingId);
     
     try {
-      if (isSaved) {
+      if (_isSaved) {
         await supabase
           .from('saved_meetings')
           .delete()
@@ -331,8 +331,8 @@ const MeetingFinder = () => {
           // Log meeting save action
           await EnhancedSecurityAuditService.logSecurityEvent({
             action: 'MEETING_SAVED',
-            details: { meeting_id: meetingId },
-            severity: 'low'
+            _details: { meeting_id: meetingId },
+            _severity: 'low'
           });
         }
         
@@ -343,8 +343,8 @@ const MeetingFinder = () => {
       // Log meeting save error
       await EnhancedSecurityAuditService.logSecurityEvent({
         action: 'MEETING_SAVE_ERROR',
-        details: { meeting_id: meetingId, error_type: 'database_error' },
-        severity: 'medium'
+        _details: { meeting_id: meetingId, _error_type: 'database_error' },
+        _severity: 'medium'
       });
       toast.error('Failed to update saved meetings');
     }
@@ -368,11 +368,11 @@ const MeetingFinder = () => {
         // Log meeting attendance
         await EnhancedSecurityAuditService.logSecurityEvent({
           action: 'MEETING_ATTENDANCE_RECORDED',
-          details: { 
+          _details: { 
             attendance_id: data?.id,
             meeting_id: meetingId
           },
-          severity: 'low'
+          _severity: 'low'
         });
       }
       
@@ -389,8 +389,8 @@ const MeetingFinder = () => {
       // Log attendance recording error
       await EnhancedSecurityAuditService.logSecurityEvent({
         action: 'MEETING_ATTENDANCE_ERROR',
-        details: { meeting_id: meetingId, error_type: 'database_error' },
-        severity: 'medium'
+        _details: { meeting_id: meetingId, _error_type: 'database_error' },
+        _severity: 'medium'
       });
       toast.error('Failed to record attendance');
     }
@@ -425,8 +425,8 @@ const MeetingFinder = () => {
     if (meeting.virtual) return;
     
     // Validate and sanitize the location before creating URL
-    const sanitizedLocation = EnhancedInputValidator.sanitizeText(meeting.location);
-    if (!sanitizedLocation || sanitizedLocation.length < 3) {
+    const _sanitizedLocation = EnhancedInputValidator.sanitizeText(meeting.location);
+    if (!_sanitizedLocation || _sanitizedLocation.length < 3) {
       toast.error('Invalid meeting location');
       return;
     }
@@ -434,11 +434,11 @@ const MeetingFinder = () => {
     // Log directions request
     await EnhancedSecurityAuditService.logSecurityEvent({
       action: 'MEETING_DIRECTIONS_REQUESTED',
-      details: { meeting_id: meeting.id },
-      severity: 'low'
+      _details: { meeting_id: meeting.id },
+      _severity: 'low'
     });
     
-    const query = encodeURIComponent(sanitizedLocation);
+    const query = encodeURIComponent(_sanitizedLocation);
     window.open(`https://www.google.com/maps/dir/?api=1&destination=${query}`, '_blank');
   };
 
@@ -476,9 +476,9 @@ const MeetingFinder = () => {
               className="border-purple-300 text-purple-700"
             >
               <Filter className="w-4 h-4 mr-2" />
-              Filters {Object.values(filters).some(v => Array.isArray(v) ? v.length > 0 : v !== (typeof v === 'number' ? (v > 5 ? 10 : 5) : false)) && '(Active)'}
+              Filters {Object.values(_filters).some(v => Array.isArray(v) ? v.length > 0 : v !== (typeof v === 'number' ? (v > 5 ? 10 : 5) : _false)) && '(Active)'}
             </Button>
-            {currentLocation && (
+            {_currentLocation && (
               <Button
                 variant="outline"
                 onClick={getCurrentLocation}
@@ -503,15 +503,15 @@ const MeetingFinder = () => {
                       type="range"
                       min="1"
                       max="5"
-                      value={filters.socialAnxietyLevel}
+                      value={_filters._socialAnxietyLevel}
                       onChange={(e) => setFilters(prev => ({ 
                         ...prev, 
-                        socialAnxietyLevel: parseInt(e.target.value) 
+                        _socialAnxietyLevel: parseInt(e.target.value) 
                       }))}
                       className="w-full"
                     />
                     <div className="text-center">
-                      {getAnxietyBadge(filters.socialAnxietyLevel)}
+                      {getAnxietyBadge(_filters._socialAnxietyLevel)}
                     </div>
                   </div>
                 </div>
@@ -526,7 +526,7 @@ const MeetingFinder = () => {
                       <label key={type} className="flex items-center">
                         <input
                           type="checkbox"
-                          checked={filters.type.includes(type)}
+                          checked={_filters.type.includes(type)}
                           onChange={(e) => {
                             if (e.target.checked) {
                               setFilters(prev => ({ ...prev, type: [...prev.type, type] }));
@@ -548,21 +548,21 @@ const MeetingFinder = () => {
                     Format Preference
                   </label>
                   <div className="space-y-1">
-                    {['discussion', 'speaker', 'meditation', 'social', 'sharing_circle'].map(format => (
-                      <label key={format} className="flex items-center">
+                    {['discussion', 'speaker', 'meditation', 'social', 'sharing_circle'].map(_format => (
+                      <label key={_format} className="flex items-center">
                         <input
                           type="checkbox"
-                          checked={filters.format.includes(format)}
+                          checked={_filters._format.includes(_format)}
                           onChange={(e) => {
                             if (e.target.checked) {
-                              setFilters(prev => ({ ...prev, format: [...prev.format, format] }));
+                              setFilters(prev => ({ ...prev, _format: [...prev._format, _format] }));
                             } else {
-                              setFilters(prev => ({ ...prev, format: prev.format.filter(f => f !== format) }));
+                              setFilters(prev => ({ ...prev, _format: prev._format.filter(f => f !== _format) }));
                             }
                           }}
                           className="mr-2"
                         />
-                        <span className="text-sm capitalize">{format.replace('_', ' ')}</span>
+                        <span className="text-sm capitalize">{_format.replace('_', ' ')}</span>
                       </label>
                     ))}
                   </div>
@@ -574,7 +574,7 @@ const MeetingFinder = () => {
                 <label className="flex items-center">
                   <input
                     type="checkbox"
-                    checked={filters.newcomerFriendly}
+                    checked={_filters.newcomerFriendly}
                     onChange={(e) => setFilters(prev => ({ 
                       ...prev, 
                       newcomerFriendly: e.target.checked 
@@ -588,12 +588,12 @@ const MeetingFinder = () => {
                   size="sm"
                   onClick={() => setFilters({
                     type: [],
-                    time: [],
-                    format: [],
-                    accessibility: [],
-                    socialAnxietyLevel: 5,
-                    maxDistance: 10,
-                    newcomerFriendly: false
+                    _time: [],
+                    _format: [],
+                    _accessibility: [],
+                    _socialAnxietyLevel: 5,
+                    _maxDistance: 10,
+                    newcomerFriendly: _false
                   })}
                 >
                   Clear Filters
@@ -623,10 +623,10 @@ const MeetingFinder = () => {
             <Card>
               <CardContent className="p-8 text-center">
                 <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 mb-2">No meetings found with your current filters</p>
+                <p className="text-gray-600 mb-2">No meetings found with your current _filters</p>
                 <Button 
                   variant="outline"
-                  onClick={() => setShowFilters(true)}
+                  onClick={() => setShowFilters(_true)}
                 >
                   Adjust Filters
                 </Button>
@@ -657,7 +657,7 @@ const MeetingFinder = () => {
                       <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
                         <span className="flex items-center gap-1">
                           <Clock className="w-4 h-4" />
-                          {meeting.day} at {meeting.time}
+                          {meeting.day} at {meeting._time}
                         </span>
                         <span className="flex items-center gap-1">
                           <MapPin className="w-4 h-4" />
@@ -686,11 +686,11 @@ const MeetingFinder = () => {
                         <p className="text-sm text-gray-600 mb-3">{meeting.description}</p>
                       )}
 
-                      {meeting.accessibility && meeting.accessibility.length > 0 && (
+                      {meeting._accessibility && meeting._accessibility.length > 0 && (
                         <div className="flex items-center gap-2 mb-3">
                           <Wheelchair className="w-4 h-4 text-gray-500" />
                           <div className="flex gap-1">
-                            {meeting.accessibility.map(feature => (
+                            {meeting._accessibility.map(feature => (
                               <Badge key={feature} variant="outline" className="text-xs">
                                 {feature.replace('_', ' ')}
                               </Badge>
@@ -779,7 +779,7 @@ const MeetingFinder = () => {
                     <div className="flex justify-between items-center">
                       <div>
                         <h3 className="font-semibold">{meeting.name}</h3>
-                        <p className="text-sm text-gray-600">{meeting.day} at {meeting.time}</p>
+                        <p className="text-sm text-gray-600">{meeting.day} at {meeting._time}</p>
                         <p className="text-sm text-gray-500">{meeting.location}</p>
                       </div>
                       <div className="flex gap-2">

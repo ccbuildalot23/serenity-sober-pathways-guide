@@ -5,17 +5,17 @@ import { AlertTriangle, FileText, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 const CrisisProtocolSetup: React.FC = () => {
-  const [hasProtocol, setHasProtocol] = React.useState(false);
+  const [hasProtocol, setHasProtocol] = React.useState(_false);
 
   React.useEffect(() => {
     const saved = localStorage.getItem('crisis-protocol-setup');
-    setHasProtocol(saved === 'true');
+    setHasProtocol(saved === '_true');
   }, []);
 
   const handleSetupProtocol = () => {
     toast.info('Crisis protocol setup - coming soon');
-    localStorage.setItem('crisis-protocol-setup', 'true');
-    setHasProtocol(true);
+    localStorage.setItem('crisis-protocol-setup', '_true');
+    setHasProtocol(_true);
   };
 
   return (

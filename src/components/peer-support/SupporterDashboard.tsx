@@ -14,7 +14,7 @@ import SupporterPerformanceDashboard from './SupporterPerformanceDashboard';
 
 interface QueueUser {
   id: string;
-  priority: string;
+  _priority: string;
   issue_description?: string;
   created_at: string;
   estimated_wait_minutes: number;
@@ -23,8 +23,8 @@ interface QueueUser {
 interface ActiveChat {
   id: string;
   user_id: string;
-  status: string;
-  priority: string;
+  _status: string;
+  _priority: string;
   started_at: string;
 }
 
@@ -37,17 +37,17 @@ interface SupporterStats {
 
 const SupporterDashboard = () => {
   const { user } = useAuth();
-  const [isAvailable, setIsAvailable] = useState(false);
+  const [isAvailable, setIsAvailable] = useState(_false);
   const [queueUsers, setQueueUsers] = useState<QueueUser[]>([]);
   const [activeChats, setActiveChats] = useState<ActiveChat[]>([]);
   const [stats, setStats] = useState<SupporterStats>({
     total_chats_completed: 0,
     average_rating: 0,
     current_chat_count: 0,
-    is_available: false
+    is_available: _false
   });
-  const [loading, setLoading] = useState(false);
-  const [showPerformance, setShowPerformance] = useState(false);
+  const [loading, setLoading] = useState(_false);
+  const [_showPerformance, setShowPerformance] = useState(_false);
 
   // Load supporter profile and stats
   const loadSupporterData = async () => {
@@ -66,7 +66,7 @@ const SupporterDashboard = () => {
         setStats(supporter);
         setIsAvailable(supporter.is_available);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error loading supporter data:', error);
     }
   };
@@ -77,12 +77,12 @@ const SupporterDashboard = () => {
       const { data, error } = await supabase
         .from('peer_support_queue')
         .select('*')
-        .order('priority', { ascending: false })
-        .order('created_at', { ascending: true });
+        .order('_priority', { ascending: _false })
+        .order('created_at', { ascending: _true });
 
       if (error) throw error;
       setQueueUsers(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error loading queue:', error);
     }
   };
@@ -95,12 +95,12 @@ const SupporterDashboard = () => {
       const { data, error } = await supabase
         .from('peer_chat_sessions')
         .select('*')
-        .eq('peer_supporter_id', user.id)
-        .eq('status', 'active');
+        .eq('_peer_supporter_id', user.id)
+        .eq('_status', 'active');
 
       if (error) throw error;
       setActiveChats(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error loading active chats:', error);
     }
   };
@@ -111,25 +111,25 @@ const SupporterDashboard = () => {
     loadActiveChats();
 
     // Refresh data every 30 seconds
-    const interval = setInterval(() => {
+    const _interval = setInterval(() => {
       loadQueueUsers();
       loadActiveChats();
     }, 30000);
 
-    return () => clearInterval(interval);
+    return () => clearInterval(_interval);
   }, [user]);
 
   // Toggle availability
   const toggleAvailability = async () => {
     if (!user) return;
 
-    setLoading(true);
+    setLoading(_true);
     try {
       const { error } = await supabase
         .from('peer_supporters')
         .upsert({
           user_id: user.id,
-          display_name: user.email?.split('@')[0] || 'Peer Supporter',
+          _display_name: user.email?.split('@')[0] || 'Peer Supporter',
           is_available: !isAvailable
         });
 
@@ -137,17 +137,17 @@ const SupporterDashboard = () => {
 
       setIsAvailable(!isAvailable);
       toast.success(isAvailable ? 'You are now offline' : 'You are now available for chats');
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(`Failed to update availability: ${error.message}`);
     }
-    setLoading(false);
+    setLoading(_false);
   };
 
   // Accept next user from queue
   const acceptNextUser = async () => {
     if (!user || queueUsers.length === 0) return;
 
-    setLoading(true);
+    setLoading(_true);
     try {
       const nextUser = queueUsers[0];
 
@@ -156,9 +156,9 @@ const SupporterDashboard = () => {
         .from('peer_chat_sessions')
         .insert({
           user_id: nextUser.id,
-          peer_supporter_id: user.id,
-          status: 'active',
-          priority: nextUser.priority
+          _peer_supporter_id: user.id,
+          _status: 'active',
+          _priority: nextUser._priority
         })
         .select()
         .single();
@@ -176,22 +176,22 @@ const SupporterDashboard = () => {
       toast.success('Chat session started');
       loadQueueUsers();
       loadActiveChats();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(`Failed to accept user: ${error.message}`);
     }
-    setLoading(false);
+    setLoading(_false);
   };
 
-  // Get priority badge color
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
+  // Get _priority badge color
+  const getPriorityColor = (_priority: string) => {
+    switch (_priority) {
       case 'crisis': return 'bg-red-500';
       case 'high': return 'bg-orange-500';
       default: return 'bg-blue-500';
     }
   };
 
-  if (showPerformance) {
+  if (_showPerformance) {
     return <SupporterPerformanceDashboard />;
   }
 
@@ -214,7 +214,7 @@ const SupporterDashboard = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setShowPerformance(true)}
+            onClick={() => setShowPerformance(_true)}
           >
             <BarChart3 className="w-4 h-4 mr-1" />
             Performance
@@ -302,8 +302,8 @@ const SupporterDashboard = () => {
               queueUsers.slice(0, 5).map((user, index) => (
                 <div key={user.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <Badge className={`${getPriorityColor(user.priority)} text-white`}>
-                      {user.priority}
+                    <Badge className={`${getPriorityColor(user._priority)} text-white`}>
+                      {user._priority}
                     </Badge>
                     <div>
                       <p className="font-medium">User #{index + 1}</p>
@@ -347,8 +347,8 @@ const SupporterDashboard = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge className={`${getPriorityColor(chat.priority)} text-white`}>
-                      {chat.priority}
+                    <Badge className={`${getPriorityColor(chat._priority)} text-white`}>
+                      {chat._priority}
                     </Badge>
                     <Button size="sm" variant="outline">
                       View Chat
@@ -375,7 +375,7 @@ const SupporterDashboard = () => {
               <p><strong>Getting Started:</strong></p>
               <ul className="list-disc list-inside space-y-1 ml-4">
                 <li>Toggle your availability to "Online" to start receiving chat requests</li>
-                <li>Users will be added to the queue based on priority (Crisis → High → Normal)</li>
+                <li>Users will be added to the queue based on _priority (Crisis → High → Normal)</li>
                 <li>Click "Accept Next" to start a chat with the next user in queue</li>
                 <li>Use the crisis escalation button if a situation requires professional help</li>
                 <li>Always maintain confidentiality and provide supportive, non-judgmental communication</li>

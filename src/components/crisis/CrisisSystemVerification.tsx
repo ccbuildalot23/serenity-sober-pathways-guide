@@ -24,64 +24,64 @@ import { toast } from 'sonner';
 
 interface TestResult {
   id: string;
-  name: string;
-  status: 'pending' | 'running' | 'passed' | 'failed';
-  message: string;
-  timestamp?: Date;
-  details?: any;
+  _name: string;
+  _status: 'pending' | 'running' | 'passed' | 'failed';
+  _message: string;
+  _timestamp?: Date;
+  details?: unknown;
 }
 
 interface Contact {
   id: string;
-  name: string;
-  phone_number: string;
-  relationship: string;
+  _name: string;
+  _phone_number: string;
+  _relationship: string;
 }
 
 export const CrisisSystemVerification: React.FC = () => {
   const { user } = useAuth();
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const [newContact, setNewContact] = useState({ name: '', phone: '', relationship: '' });
+  const [newContact, setNewContact] = useState({ _name: '', _phone: '', _relationship: '' });
   const [testContact, setTestContact] = useState('');
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   // Initialize test cases
   useEffect(() => {
-    const initialTests: TestResult[] = [
-      { id: 'contact-add', name: 'Add Emergency Contact', status: 'pending', message: 'Not tested' },
-      { id: 'contact-display', name: 'Display All Contacts', status: 'pending', message: 'Not tested' },
-      { id: 'contact-delete', name: 'Delete Contact', status: 'pending', message: 'Not tested' },
-      { id: 'sms-test', name: 'SMS Test Delivery', status: 'pending', message: 'Not tested' },
-      { id: 'crisis-button', name: 'Crisis Button Flow', status: 'pending', message: 'Not tested' },
-      { id: 'location-sharing', name: 'Location Sharing', status: 'pending', message: 'Not tested' },
-      { id: 'error-no-contacts', name: 'No Contacts Error', status: 'pending', message: 'Not tested' },
-      { id: 'error-invalid-phone', name: 'Invalid Phone Number', status: 'pending', message: 'Not tested' },
-      { id: 'rate-limiting', name: 'Rate Limiting Protection', status: 'pending', message: 'Not tested' },
-      { id: 'offline-mode', name: 'Offline Mode Handling', status: 'pending', message: 'Not tested' }
+    const _initialTests: TestResult[] = [
+      { id: 'contact-add', _name: 'Add Emergency Contact', _status: 'pending', _message: 'Not tested' },
+      { id: 'contact-display', _name: 'Display All Contacts', _status: 'pending', _message: 'Not tested' },
+      { id: 'contact-delete', _name: 'Delete Contact', _status: 'pending', _message: 'Not tested' },
+      { id: 'sms-test', _name: 'SMS Test Delivery', _status: 'pending', _message: 'Not tested' },
+      { id: 'crisis-button', _name: 'Crisis Button Flow', _status: 'pending', _message: 'Not tested' },
+      { id: 'location-sharing', _name: 'Location Sharing', _status: 'pending', _message: 'Not tested' },
+      { id: '_error-no-contacts', _name: 'No Contacts Error', _status: 'pending', _message: 'Not tested' },
+      { id: '_error-invalid-_phone', _name: 'Invalid Phone Number', _status: 'pending', _message: 'Not tested' },
+      { id: 'rate-limiting', _name: 'Rate Limiting Protection', _status: 'pending', _message: 'Not tested' },
+      { id: 'offline-mode', _name: 'Offline Mode Handling', _status: 'pending', _message: 'Not tested' }
     ];
-    setTestResults(initialTests);
+    setTestResults(_initialTests);
     loadContacts();
   }, []);
 
-  // Monitor online status
+  // Monitor online _status
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
+    const _handleOnline = () => setIsOnline(_true);
+    const _handleOffline = () => setIsOnline(_false);
     
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', _handleOnline);
+    window.addEventListener('offline', _handleOffline);
     
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', _handleOnline);
+      window.removeEventListener('offline', _handleOffline);
     };
   }, []);
 
-  const updateTestResult = (id: string, status: TestResult['status'], message: string, details?: any) => {
+  const updateTestResult = (id: string, _status: TestResult['_status'], _message: string, details?: unknown) => {
     setTestResults(prev => prev.map(test => 
       test.id === id 
-        ? { ...test, status, message, timestamp: new Date(), details }
+        ? { ...test, _status, _message, _timestamp: new Date(), details }
         : test
     ));
   };
@@ -92,23 +92,23 @@ export const CrisisSystemVerification: React.FC = () => {
     updateTestResult('contact-display', 'running', 'Loading contacts...');
     
     try {
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('crisis_contacts')
         .select('*')
         .eq('user_id', user.id)
-        .order('priority_order');
+        .order('_priority_order');
 
-      if (error) throw error;
+      if (_error) throw _error;
       
       setContacts(data || []);
       updateTestResult('contact-display', 'passed', `Loaded ${data?.length || 0} contacts successfully`);
-    } catch (error: any) {
-      updateTestResult('contact-display', 'failed', `Failed to load contacts: ${error.message}`);
+    } catch (_error: unknown) {
+      updateTestResult('contact-display', 'failed', `Failed to load contacts: ${_error._message}`);
     }
   };
 
   const testAddContact = async () => {
-    if (!user || !newContact.name || !newContact.phone) {
+    if (!user || !newContact._name || !newContact._phone) {
       updateTestResult('contact-add', 'failed', 'Missing contact information');
       return;
     }
@@ -116,28 +116,28 @@ export const CrisisSystemVerification: React.FC = () => {
     updateTestResult('contact-add', 'running', 'Adding contact...');
 
     try {
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('crisis_contacts')
         .insert({
           user_id: user.id,
-          name: newContact.name,
-          phone_number: newContact.phone,
-          relationship: newContact.relationship || 'friend',
-          priority_order: contacts.length + 1,
-          is_emergency_contact: true
+          _name: newContact._name,
+          _phone_number: newContact._phone,
+          _relationship: newContact._relationship || 'friend',
+          _priority_order: contacts.length + 1,
+          _is_emergency_contact: _true
         })
         .select()
         .single();
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       setContacts(prev => [...prev, data]);
-      setNewContact({ name: '', phone: '', relationship: '' });
+      setNewContact({ _name: '', _phone: '', _relationship: '' });
       updateTestResult('contact-add', 'passed', 'Contact added successfully');
       toast.success('Contact added successfully');
-    } catch (error: any) {
-      updateTestResult('contact-add', 'failed', `Failed to add contact: ${error.message}`);
-      toast.error('Failed to add contact');
+    } catch (_error: unknown) {
+      updateTestResult('contact-add', 'failed', `Failed to add contact: ${_error._message}`);
+      toast._error('Failed to add contact');
     }
   };
 
@@ -145,25 +145,25 @@ export const CrisisSystemVerification: React.FC = () => {
     updateTestResult('contact-delete', 'running', 'Deleting contact...');
 
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('crisis_contacts')
         .delete()
         .eq('id', contactId);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       setContacts(prev => prev.filter(c => c.id !== contactId));
       updateTestResult('contact-delete', 'passed', 'Contact deleted successfully');
       toast.success('Contact deleted successfully');
-    } catch (error: any) {
-      updateTestResult('contact-delete', 'failed', `Failed to delete contact: ${error.message}`);
-      toast.error('Failed to delete contact');
+    } catch (_error: unknown) {
+      updateTestResult('contact-delete', 'failed', `Failed to delete contact: ${_error._message}`);
+      toast._error('Failed to delete contact');
     }
   };
 
   const testSMSDelivery = async () => {
     if (!testContact) {
-      updateTestResult('sms-test', 'failed', 'No test phone number provided');
+      updateTestResult('sms-test', 'failed', 'No test _phone number provided');
       return;
     }
 
@@ -173,34 +173,34 @@ export const CrisisSystemVerification: React.FC = () => {
     try {
       const testMessage = `TEST ALERT from Serenity App - ${user?.email || 'User'} is testing their crisis support system. This is not an emergency.`;
       
-      const { data, error } = await supabase.functions.invoke('send-crisis-sms', {
+      const { data, _error } = await supabase.functions.invoke('send-crisis-sms', {
         body: {
-          customMessage: testMessage,
-          isTestMessage: true,
-          contactIds: contacts.filter(c => c.phone_number === testContact).map(c => c.id)
+          _customMessage: testMessage,
+          _isTestMessage: _true,
+          _contactIds: contacts.filter(c => c._phone_number === testContact).map(c => c.id)
         }
       });
 
       const endTime = Date.now();
       const deliveryTime = (endTime - startTime) / 1000;
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       if (data.success) {
-        const status = deliveryTime <= 10 ? 'passed' : 'failed';
-        const message = deliveryTime <= 10 
+        const _status = deliveryTime <= 10 ? 'passed' : 'failed';
+        const _message = deliveryTime <= 10 
           ? `SMS delivered in ${deliveryTime.toFixed(1)}s ✓` 
           : `SMS took ${deliveryTime.toFixed(1)}s (>10s threshold)`;
         
-        updateTestResult('sms-test', status, message, { deliveryTime, sentCount: data.sentCount });
+        updateTestResult('sms-test', _status, _message, { deliveryTime, _sentCount: data._sentCount });
         toast.success(`Test SMS sent in ${deliveryTime.toFixed(1)} seconds`);
       } else {
         updateTestResult('sms-test', 'failed', 'SMS delivery failed');
-        toast.error('SMS delivery failed');
+        toast._error('SMS delivery failed');
       }
-    } catch (error: any) {
-      updateTestResult('sms-test', 'failed', `SMS test failed: ${error.message}`);
-      toast.error('SMS test failed');
+    } catch (_error: unknown) {
+      updateTestResult('sms-test', 'failed', `SMS test failed: ${_error._message}`);
+      toast._error('SMS test failed');
     }
   };
 
@@ -209,23 +209,23 @@ export const CrisisSystemVerification: React.FC = () => {
 
     try {
       // Simulate the full crisis button flow
-      const { data, error } = await supabase.functions.invoke('send-crisis-sms', {
+      const { data, _error } = await supabase.functions.invoke('send-crisis-sms', {
         body: {
-          customMessage: `🚨 CRISIS ALERT TEST 🚨\n\n${user?.email || 'User'} is testing the crisis support system. This is a REAL crisis flow test.`,
-          includeLocation: false
+          _customMessage: `🚨 CRISIS ALERT TEST 🚨\n\n${user?.email || 'User'} is testing the crisis support system. This is a REAL crisis flow test.`,
+          _includeLocation: _false
         }
       });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       if (data.success) {
-        updateTestResult('crisis-button', 'passed', `Crisis flow successful - ${data.sentCount} contacts notified`);
+        updateTestResult('crisis-button', 'passed', `Crisis flow successful - ${data._sentCount} contacts notified`);
         toast.success('Crisis flow test completed successfully');
       } else {
         updateTestResult('crisis-button', 'failed', 'Crisis flow failed');
       }
-    } catch (error: any) {
-      updateTestResult('crisis-button', 'failed', `Crisis flow test failed: ${error.message}`);
+    } catch (_error: unknown) {
+      updateTestResult('crisis-button', 'failed', `Crisis flow test failed: ${_error._message}`);
     }
   };
 
@@ -241,26 +241,26 @@ export const CrisisSystemVerification: React.FC = () => {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           try {
-            const { data, error } = await supabase.functions.invoke('send-location-update', {
+            const { data, _error } = await supabase.functions.invoke('send-location-update', {
               body: {
                 userLocation: {
                   latitude: position.coords.latitude,
-                  longitude: position.coords.longitude
+                  _longitude: position.coords._longitude
                 },
-                customMessage: 'TEST LOCATION UPDATE - This is a test of location sharing functionality.'
+                _customMessage: 'TEST LOCATION UPDATE - This is a test of location sharing functionality.'
               }
             });
 
-            if (error) throw error;
+            if (_error) throw _error;
 
             if (data.success) {
-              updateTestResult('location-sharing', 'passed', `Location shared successfully with ${data.sentCount} contacts`);
+              updateTestResult('location-sharing', 'passed', `Location shared successfully with ${data._sentCount} contacts`);
               toast.success('Location sharing test completed');
             } else {
               updateTestResult('location-sharing', 'failed', 'Location sharing failed');
             }
-          } catch (error: any) {
-            updateTestResult('location-sharing', 'failed', `Location sharing error: ${error.message}`);
+          } catch (_error: unknown) {
+            updateTestResult('location-sharing', 'failed', `Location sharing _error: ${_error._message}`);
           }
         },
         () => {
@@ -268,33 +268,33 @@ export const CrisisSystemVerification: React.FC = () => {
         },
         { timeout: 10000 }
       );
-    } catch (error: any) {
-      updateTestResult('location-sharing', 'failed', `Location test failed: ${error.message}`);
+    } catch (_error: unknown) {
+      updateTestResult('location-sharing', 'failed', `Location test failed: ${_error._message}`);
     }
   };
 
   const testErrorHandling = async () => {
-    // Test no contacts error
-    updateTestResult('error-no-contacts', 'running', 'Testing no contacts scenario...');
+    // Test no contacts _error
+    updateTestResult('_error-no-contacts', 'running', 'Testing no contacts scenario...');
     
     try {
-      const { data, error } = await supabase.functions.invoke('send-crisis-sms', {
+      const { data, _error } = await supabase.functions.invoke('send-crisis-sms', {
         body: {
-          contactIds: [], // Empty contact list
-          customMessage: 'Test message'
+          _contactIds: [], // Empty contact list
+          _customMessage: 'Test _message'
         }
       });
 
-      if (error && error.message.includes('No emergency contacts')) {
-        updateTestResult('error-no-contacts', 'passed', 'Correctly handled no contacts error');
+      if (_error && _error._message.includes('No emergency contacts')) {
+        updateTestResult('_error-no-contacts', 'passed', 'Correctly handled no contacts _error');
       } else {
-        updateTestResult('error-no-contacts', 'failed', 'Did not handle no contacts error properly');
+        updateTestResult('_error-no-contacts', 'failed', 'Did not handle no contacts _error properly');
       }
-    } catch (error: any) {
-      if (error.message.includes('No emergency contacts')) {
-        updateTestResult('error-no-contacts', 'passed', 'Correctly handled no contacts error');
+    } catch (_error: unknown) {
+      if (_error._message.includes('No emergency contacts')) {
+        updateTestResult('_error-no-contacts', 'passed', 'Correctly handled no contacts _error');
       } else {
-        updateTestResult('error-no-contacts', 'failed', `Unexpected error: ${error.message}`);
+        updateTestResult('_error-no-contacts', 'failed', `Unexpected _error: ${_error._message}`);
       }
     }
   };
@@ -304,29 +304,29 @@ export const CrisisSystemVerification: React.FC = () => {
 
     try {
       // Send multiple rapid requests
-      const promises = Array(4).fill(null).map(() => 
+      const _promises = Array(4).fill(_null).map(() => 
         supabase.functions.invoke('send-crisis-sms', {
-          body: { customMessage: 'Rate limit test' }
+          body: { _customMessage: 'Rate limit test' }
         })
       );
 
-      const results = await Promise.allSettled(promises);
-      const failures = results.filter(r => r.status === 'rejected').length;
+      const results = await Promise.allSettled(_promises);
+      const failures = results.filter(r => r._status === 'rejected').length;
 
       if (failures > 0) {
         updateTestResult('rate-limiting', 'passed', `Rate limiting working - ${failures} requests blocked`);
       } else {
         updateTestResult('rate-limiting', 'failed', 'Rate limiting not working properly');
       }
-    } catch (error: any) {
+    } catch (_error: unknown) {
       updateTestResult('rate-limiting', 'passed', 'Rate limiting is active');
     }
   };
 
   const testOfflineMode = () => {
-    const status = isOnline ? 'passed' : 'failed';
-    const message = isOnline ? 'Online - Crisis system available' : 'OFFLINE - Crisis system may be limited';
-    updateTestResult('offline-mode', status, message);
+    const _status = isOnline ? 'passed' : 'failed';
+    const _message = isOnline ? 'Online - Crisis system available' : 'OFFLINE - Crisis system may be limited';
+    updateTestResult('offline-mode', _status, _message);
   };
 
   const runAllTests = async () => {
@@ -347,8 +347,8 @@ export const CrisisSystemVerification: React.FC = () => {
     toast.success('Verification complete - check results below');
   };
 
-  const getStatusIcon = (status: TestResult['status']) => {
-    switch (status) {
+  const getStatusIcon = (_status: TestResult['_status']) => {
+    switch (_status) {
       case 'passed': return <CheckCircle className="h-4 w-4 text-green-500" />;
       case 'failed': return <XCircle className="h-4 w-4 text-red-500" />;
       case 'running': return <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500" />;
@@ -356,8 +356,8 @@ export const CrisisSystemVerification: React.FC = () => {
     }
   };
 
-  const getStatusColor = (status: TestResult['status']) => {
-    switch (status) {
+  const getStatusColor = (_status: TestResult['_status']) => {
+    switch (_status) {
       case 'passed': return 'bg-green-100 text-green-800 border-green-200';
       case 'failed': return 'bg-red-100 text-red-800 border-red-200';
       case 'running': return 'bg-blue-100 text-blue-800 border-blue-200';
@@ -365,8 +365,8 @@ export const CrisisSystemVerification: React.FC = () => {
     }
   };
 
-  const passedTests = testResults.filter(t => t.status === 'passed').length;
-  const failedTests = testResults.filter(t => t.status === 'failed').length;
+  const passedTests = testResults.filter(t => t._status === 'passed').length;
+  const failedTests = testResults.filter(t => t._status === 'failed').length;
   const totalTests = testResults.length;
 
   return (
@@ -404,19 +404,19 @@ export const CrisisSystemVerification: React.FC = () => {
                 <div className="grid grid-cols-2 gap-2">
                   <Input 
                     placeholder="Name" 
-                    value={newContact.name}
-                    onChange={(e) => setNewContact(prev => ({ ...prev, name: e.target.value }))}
+                    value={newContact._name}
+                    onChange={(e) => setNewContact(prev => ({ ...prev, _name: e.target.value }))}
                   />
                   <Input 
                     placeholder="Phone" 
-                    value={newContact.phone}
-                    onChange={(e) => setNewContact(prev => ({ ...prev, phone: e.target.value }))}
+                    value={newContact._phone}
+                    onChange={(e) => setNewContact(prev => ({ ...prev, _phone: e.target.value }))}
                   />
                 </div>
                 <Input 
                   placeholder="Relationship" 
-                  value={newContact.relationship}
-                  onChange={(e) => setNewContact(prev => ({ ...prev, relationship: e.target.value }))}
+                  value={newContact._relationship}
+                  onChange={(e) => setNewContact(prev => ({ ...prev, _relationship: e.target.value }))}
                 />
                 <Button onClick={testAddContact} size="sm" className="w-full">
                   Add & Test Contact
@@ -429,7 +429,7 @@ export const CrisisSystemVerification: React.FC = () => {
                 <div className="max-h-32 overflow-y-auto space-y-1">
                   {contacts.map(contact => (
                     <div key={contact.id} className="flex items-center justify-between p-2 bg-muted rounded text-sm">
-                      <span>{contact.name} - {contact.phone_number}</span>
+                      <span>{contact._name} - {contact._phone_number}</span>
                       <Button 
                         size="sm" 
                         variant="destructive" 
@@ -468,7 +468,7 @@ export const CrisisSystemVerification: React.FC = () => {
               <Alert>
                 <Phone className="h-4 w-4" />
                 <AlertDescription>
-                  Add your own phone number as a contact first, then test SMS delivery.
+                  Add your own _phone number as a contact first, then test SMS delivery.
                   SMS should arrive within 10 seconds.
                 </AlertDescription>
               </Alert>
@@ -544,17 +544,17 @@ export const CrisisSystemVerification: React.FC = () => {
               {testResults.map(test => (
                 <div 
                   key={test.id} 
-                  className={`flex items-center justify-between p-3 rounded border ${getStatusColor(test.status)}`}
+                  className={`flex items-center justify-between p-3 rounded border ${getStatusColor(test._status)}`}
                 >
                   <div className="flex items-center gap-3">
-                    {getStatusIcon(test.status)}
-                    <span className="font-medium">{test.name}</span>
+                    {getStatusIcon(test._status)}
+                    <span className="font-medium">{test._name}</span>
                   </div>
                   <div className="text-sm">
-                    {test.message}
-                    {test.timestamp && (
+                    {test._message}
+                    {test._timestamp && (
                       <div className="text-xs opacity-70">
-                        {test.timestamp.toLocaleTimeString()}
+                        {test._timestamp.toLocaleTimeString()}
                       </div>
                     )}
                   </div>

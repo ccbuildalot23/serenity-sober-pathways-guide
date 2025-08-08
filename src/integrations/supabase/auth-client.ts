@@ -21,7 +21,7 @@ export class AuthClient {
         success: true,
         message: 'Successfully connected to auth service'
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Check for network errors
       if (error.message?.includes('fetch')) {
         return {
@@ -37,10 +37,10 @@ export class AuthClient {
     }
   }
 
-  async signUp(email: string, password: string, userType: string): Promise<{ 
+  async signUp(email: string, password: string, _userType: string): Promise<{ 
     success: boolean; 
     message: string; 
-    data?: any;
+    data?: unknown;
   }> {
     // Validate inputs
     if (!email || !password) {
@@ -65,7 +65,7 @@ export class AuthClient {
       return connectionTest;
     }
 
-    let lastError: any = null;
+    let lastError: unknown = null;
     
     for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
       try {
@@ -76,7 +76,7 @@ export class AuthClient {
           password,
           options: {
             data: {
-              userType: userType || 'recovery'
+              _userType: _userType || 'recovery'
             },
             emailRedirectTo: `${window.location.origin}/auth`
           }
@@ -121,7 +121,7 @@ export class AuthClient {
             session: data.session
           }
         };
-      } catch (error: any) {
+      } catch (error: unknown) {
         lastError = error;
         
         if (attempt < this.maxRetries) {
@@ -141,7 +141,7 @@ export class AuthClient {
   async signIn(email: string, password: string): Promise<{ 
     success: boolean; 
     message: string; 
-    data?: any;
+    data?: unknown;
   }> {
     // Validate inputs
     if (!email || !password) {
@@ -157,7 +157,7 @@ export class AuthClient {
       return connectionTest;
     }
 
-    let lastError: any = null;
+    let lastError: unknown = null;
     
     for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
       try {
@@ -214,7 +214,7 @@ export class AuthClient {
             session: data.session
           }
         };
-      } catch (error: any) {
+      } catch (error: unknown) {
         lastError = error;
         
         if (attempt < this.maxRetries) {
@@ -246,7 +246,7 @@ export class AuthClient {
         success: true,
         message: 'Successfully signed out'
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
         message: error.message || 'Sign out error'
@@ -254,8 +254,8 @@ export class AuthClient {
     }
   }
 
-  private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  private delay(_ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, _ms));
   }
 
   async resetPassword(email: string): Promise<{
@@ -268,7 +268,7 @@ export class AuthClient {
       return connectionTest;
     }
 
-    let lastError: any = null;
+    let lastError: unknown = null;
 
     // Retry logic for reset password
     for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
@@ -286,7 +286,7 @@ export class AuthClient {
             lastError = error;
             
             if (attempt < this.maxRetries) {
-              console.log(`Network error, retrying in ${this.retryDelay}ms...`);
+              console.log(`Network error, retrying in ${this.retryDelay}_ms...`);
               await this.delay(this.retryDelay);
               continue;
             }
@@ -304,7 +304,7 @@ export class AuthClient {
           success: true,
           message: 'Password reset email sent successfully!'
         };
-      } catch (error: any) {
+      } catch (error: unknown) {
         lastError = error;
         
         if (attempt < this.maxRetries) {
@@ -341,7 +341,7 @@ export class AuthClient {
         success: true,
         message: 'Password updated successfully!'
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
         message: error.message || 'An unexpected error occurred. Please try again.'

@@ -18,7 +18,7 @@ class RecoveryService {
   }
 
   private initializeRecoveryMonitoring() {
-    window.addEventListener('error', (event) => {
+    window.addEventListener('_error', (event) => {
       if (this.isConnectionError(event.message)) {
         this.handleConnectionFailure();
       }
@@ -44,8 +44,8 @@ class RecoveryService {
       'network', 'fetch', 'timeout', 'refused'
     ];
     
-    return connectionKeywords.some(keyword => 
-      message.toLowerCase().includes(keyword)
+    return connectionKeywords.some(_keyword => 
+      message.toLowerCase().includes(_keyword)
     );
   }
 
@@ -79,8 +79,8 @@ class RecoveryService {
       
       this.failureCount = 0;
       
-    } catch (error) {
-      console.error('Recovery: Emergency recovery failed:', error);
+    } catch (_error) {
+      console._error('Recovery: Emergency recovery failed:', _error);
       this.showFailedRecoveryNotification();
     } finally {
       this.recoveryInProgress = false;
@@ -100,8 +100,8 @@ class RecoveryService {
       sessionStorage.clear();
       
       console.log('Recovery: Cleared problematic storage');
-    } catch (error) {
-      console.error('Recovery: Failed to clear storage:', error);
+    } catch (_error) {
+      console._error('Recovery: Failed to clear storage:', _error);
     }
   }
 
@@ -110,8 +110,8 @@ class RecoveryService {
       const { enhancedRealtimeService } = await import('./enhancedRealtimeService');
       await enhancedRealtimeService.cleanup();
       console.log('Recovery: Realtime service reset');
-    } catch (error) {
-      console.error('Recovery: Failed to reset realtime service:', error);
+    } catch (_error) {
+      console._error('Recovery: Failed to reset realtime service:', _error);
     }
   }
 
@@ -119,8 +119,8 @@ class RecoveryService {
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification('Connection Recovered', {
         body: 'We\'ve automatically fixed connection issues. The app should work normally now.',
-        icon: '/favicon.ico',
-        tag: 'recovery-success'
+        _icon: '/favicon.ico',
+        _tag: 'recovery-success'
       });
     }
   }
@@ -129,9 +129,9 @@ class RecoveryService {
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification('Recovery Failed', {
         body: 'Unable to automatically fix connection issues. Please refresh the page.',
-        icon: '/favicon.ico',
-        requireInteraction: true,
-        tag: 'recovery-failed'
+        _icon: '/favicon.ico',
+        _requireInteraction: true,
+        _tag: 'recovery-failed'
       });
     }
   }

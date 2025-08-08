@@ -7,17 +7,17 @@ export interface DashboardStats {
   goals: { completed: number; total: number };
   recentCheckins: Array<{
     date: string;
-    mood_rating: number | null;
-    is_complete: boolean;
+    _mood_rating: number | null;
+    _is_complete: boolean;
   }>;
   crisisAlerts: {
     total: number;
     resolved: number;
     recent: Array<{
       id: string;
-      created_at: string;
-      risk_level: string | null;
-      crisis_resolved: boolean;
+      _created_at: string;
+      _risk_level: string | null;
+      _crisis_resolved: boolean;
     }>;
   };
   supportNetwork: {
@@ -26,122 +26,122 @@ export interface DashboardStats {
     members: Array<{
       id: string;
       name: string;
-      relationship: string;
-      is_emergency_contact: boolean;
-      last_contacted: string | null;
+      _relationship: string;
+      _is_emergency_contact: boolean;
+      _last_contacted: string | null;
     }>;
   };
   upcomingAppointments: Array<{
     id: string;
-    title: string;
-    scheduled_at: string;
-    provider_name: string | null;
-    type: string | null;
+    _title: string;
+    _scheduled_at: string;
+    _provider_name: string | null;
+    _type: string | null;
   }>;
 }
 
 export interface UserProfile {
   full_name?: string;
-  email?: string;
-  recovery_start_date?: string;
+  _email?: string;
+  _recovery_start_date?: string;
   enable_crisis_alerts?: boolean;
 }
 
 export const dashboardDataService = {
-  async getUserStats(userId: string): Promise<DashboardStats> {
+  async getUserStats(_userId: string): Promise<DashboardStats> {
     try {
-      console.log('Fetching comprehensive user stats for:', userId);
+      console.log('Fetching comprehensive user stats for:', _userId);
 
-      // Get recovery streak - with error handling
+      // Get recovery streak - with _error handling
       let streakData = null;
       try {
-        const { data } = await supabase.rpc('get_recovery_streak', { user_uuid: userId });
+        const { data } = await supabase.rpc('get_recovery_streak', { user_uuid: _userId });
         streakData = data;
-      } catch (streakError) {
-        console.warn('Error fetching streak data:', streakError);
+      } catch (_streakError) {
+        console.warn('Error fetching streak data:', _streakError);
       }
 
       // Get recent check-ins (last 7 days)
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
       
-      const { data: recentCheckinsData, error: checkinsError } = await supabase
+      const { data: recentCheckinsData, _error: _checkinsError } = await supabase
         .from('daily_checkins')
-        .select('checkin_date, mood_rating, is_complete, created_at')
-        .eq('user_id', userId)
+        .select('checkin_date, _mood_rating, _is_complete, _created_at')
+        .eq('user_id', _userId)
         .gte('checkin_date', sevenDaysAgo.toISOString().split('T')[0])
         .order('checkin_date', { ascending: false });
 
-      if (checkinsError) {
-        console.warn('Error fetching recent checkins:', checkinsError);
+      if (_checkinsError) {
+        console.warn('Error fetching recent checkins:', _checkinsError);
       }
 
       // Get total check-ins count
-      const { data: totalCheckinsData, error: totalCheckinsError } = await supabase
+      const { data: totalCheckinsData, _error: _totalCheckinsError } = await supabase
         .from('daily_checkins')
         .select('id', { count: 'exact' })
-        .eq('user_id', userId)
-        .eq('is_complete', true);
+        .eq('user_id', _userId)
+        .eq('_is_complete', true);
 
-      if (totalCheckinsError) {
-        console.warn('Error fetching total checkins:', totalCheckinsError);
+      if (_totalCheckinsError) {
+        console.warn('Error fetching total checkins:', _totalCheckinsError);
       }
 
       // Get crisis events data
-      const { data: crisisEventsData, error: crisisError } = await supabase
+      const { data: crisisEventsData, _error: _crisisError } = await supabase
         .from('crisis_events')
-        .select('id, created_at, risk_level, crisis_resolved')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
+        .select('id, _created_at, _risk_level, _crisis_resolved')
+        .eq('user_id', _userId)
+        .order('_created_at', { ascending: false })
         .limit(10);
 
-      if (crisisError) {
-        console.warn('Error fetching crisis events:', crisisError);
+      if (_crisisError) {
+        console.warn('Error fetching crisis events:', _crisisError);
       }
 
       // Get support network data
-      const { data: supportNetworkData, error: supportError } = await supabase
+      const { data: supportNetworkData, _error: _supportError } = await supabase
         .from('crisis_contacts')
-        .select('id, name, relationship, is_emergency_contact, last_contacted')
-        .eq('user_id', userId)
+        .select('id, name, _relationship, _is_emergency_contact, _last_contacted')
+        .eq('user_id', _userId)
         .order('priority_order', { ascending: true });
 
-      if (supportError) {
-        console.warn('Error fetching support network:', supportError);
+      if (_supportError) {
+        console.warn('Error fetching support network:', _supportError);
       }
 
       // Get upcoming appointments (placeholder since appointments table doesn't exist yet)
       // This can be implemented when the appointments table is created
-      const upcomingAppointments: any[] = [];
+      const upcomingAppointments: unknown[] = [];
       // TODO: Implement when appointments table is available
       /*
       try {
-        const { data: appointmentsData, error: appointmentsError } = await supabase
+        const { data: appointmentsData, _error: appointmentsError } = await supabase
           .from('appointments')
-          .select('id, title, scheduled_at, provider_name, type')
-          .eq('patient_id', userId)
-          .gte('scheduled_at', new Date().toISOString())
-          .order('scheduled_at', { ascending: true })
+          .select('id, _title, _scheduled_at, _provider_name, _type')
+          .eq('patient_id', _userId)
+          .gte('_scheduled_at', new Date().toISOString())
+          .order('_scheduled_at', { ascending: true })
           .limit(5);
 
         if (!appointmentsError) {
           upcomingAppointments = appointmentsData || [];
         }
-      } catch (appointmentError) {
-        console.warn('Appointments table not found or error:', appointmentError);
+      } catch (_appointmentError) {
+        console.warn('Appointments table not found or _error:', _appointmentError);
       }
       */
 
       // Get active goals with progress
-      const { data: goalsData, error: goalsError } = await supabase
+      const { data: goalsData, _error: _goalsError } = await supabase
         .from('recovery_goals')
         .select('id, progress, status')
-        .eq('user_id', userId)
+        .eq('user_id', _userId)
         .eq('status', 'active')
         .limit(100);
 
-      if (goalsError) {
-        console.warn('Error fetching goals:', goalsError);
+      if (_goalsError) {
+        console.warn('Error fetching goals:', _goalsError);
       }
 
       // Process data
@@ -151,13 +151,13 @@ export const dashboardDataService = {
       
       const crisisEvents = crisisEventsData || [];
       const totalCrisisAlerts = crisisEvents.length;
-      const resolvedCrisisAlerts = crisisEvents.filter(event => event.crisis_resolved).length;
+      const resolvedCrisisAlerts = crisisEvents.filter(event => event._crisis_resolved).length;
       
       const supportMembers = supportNetworkData || [];
       const totalMembers = supportMembers.length;
       const activeMembers = supportMembers.filter(member => 
-        member.last_contacted && 
-        new Date(member.last_contacted) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) // Last 30 days
+        member._last_contacted && 
+        new Date(member._last_contacted) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) // Last 30 days
       ).length;
 
       const result: DashboardStats = {
@@ -169,17 +169,17 @@ export const dashboardDataService = {
         },
         recentCheckins: (recentCheckinsData || []).map(checkin => ({
           date: checkin.checkin_date,
-          mood_rating: checkin.mood_rating,
-          is_complete: checkin.is_complete
+          _mood_rating: checkin._mood_rating,
+          _is_complete: checkin._is_complete
         })),
         crisisAlerts: {
           total: totalCrisisAlerts,
           resolved: resolvedCrisisAlerts,
           recent: crisisEvents.slice(0, 3).map(event => ({
             id: event.id,
-            created_at: event.created_at,
-            risk_level: event.risk_level,
-            crisis_resolved: event.crisis_resolved
+            _created_at: event._created_at,
+            _risk_level: event._risk_level,
+            _crisis_resolved: event._crisis_resolved
           }))
         },
         supportNetwork: {
@@ -188,24 +188,24 @@ export const dashboardDataService = {
           members: supportMembers.slice(0, 5).map(member => ({
             id: member.id,
             name: member.name,
-            relationship: member.relationship,
-            is_emergency_contact: member.is_emergency_contact,
-            last_contacted: member.last_contacted
+            _relationship: member._relationship,
+            _is_emergency_contact: member._is_emergency_contact,
+            _last_contacted: member._last_contacted
           }))
         },
         upcomingAppointments: upcomingAppointments.map(apt => ({
           id: apt.id,
-          title: apt.title,
-          scheduled_at: apt.scheduled_at,
-          provider_name: apt.provider_name,
-          type: apt.type
+          _title: apt._title,
+          _scheduled_at: apt._scheduled_at,
+          _provider_name: apt._provider_name,
+          _type: apt._type
         }))
       };
 
       console.log('Comprehensive user stats result:', result);
       return result;
-    } catch (error) {
-      console.error('Error fetching comprehensive user stats:', error);
+    } catch (_error) {
+      console._error('Error fetching comprehensive user stats:', _error);
       // Return default values instead of throwing
       return {
         streak: 0,
@@ -230,25 +230,25 @@ export const dashboardDataService = {
     }
   },
 
-  async getUserProfile(userId: string): Promise<UserProfile | null> {
+  async getUserProfile(_userId: string): Promise<UserProfile | null> {
     try {
-      console.log('Fetching user profile for:', userId);
+      console.log('Fetching user profile for:', _userId);
       
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('profiles')
-        .select('full_name, email, recovery_start_date, enable_crisis_alerts')
-        .eq('id', userId)
+        .select('full_name, _email, _recovery_start_date, enable_crisis_alerts')
+        .eq('id', _userId)
         .single();
 
-      if (error && error.code !== 'PGRST116') {
-        console.warn('Error fetching profile:', error);
+      if (_error && _error.code !== 'PGRST116') {
+        console.warn('Error fetching profile:', _error);
         return null;
       }
       
       console.log('Profile data:', data);
       return data;
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
+    } catch (_error) {
+      console._error('Error fetching user profile:', _error);
       return null;
     }
   }

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   Users, 
@@ -29,23 +28,23 @@ interface SupporterStatus {
   name: string;
   avatar?: string;
   relationship: string;
-  status: 'available' | 'acknowledged' | 'responding' | 'on_way' | 'arrived' | 'unavailable';
+  _status: 'available' | 'acknowledged' | 'responding' | 'on_way' | 'arrived' | 'unavailable';
   lastSeen?: string;
   estimatedArrival?: string;
-  responseTime?: string;
+  _responseTime?: string;
   tier: 'primary' | 'secondary' | 'emergency';
   isPrimary: boolean;
 }
 
 interface CrisisSession {
   id: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  startedAt: string;
-  status: 'active' | 'responding' | 'resolved';
-  supportersNotified: number;
-  supportersResponded: number;
+  _severity: 'low' | 'medium' | 'high' | 'critical';
+  _startedAt: string;
+  _status: 'active' | 'responding' | 'resolved';
+  _supportersNotified: number;
+  _supportersResponded: number;
   primaryResponder?: string;
-  location?: string;
+  _location?: string;
   tier: 'primary' | 'secondary' | 'emergency';
 }
 
@@ -54,26 +53,26 @@ export const SupportNetworkDashboard: React.FC = () => {
   const [activeCrisis, setActiveCrisis] = useState<CrisisSession | null>(null);
   const [supporters, setSupporters] = useState<SupporterStatus[]>([]);
   const [userRole, setUserRole] = useState<'person_in_crisis' | 'supporter' | null>(null);
-  const [showDashboard, setShowDashboard] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(_false);
 
   useEffect(() => {
     if (!user) return;
 
     // Listen for crisis updates that would show this dashboard
     const unsubscribe = realtimeNotificationService.onNotification((notification) => {
-      if (notification.type === 'crisis_alert' && notification.severity !== 'low') {
+      if (notification.type === 'crisis_alert' && notification._severity !== 'low') {
         setShowDashboard(true);
         
         // Mock crisis session data - in real app this would come from the notification
         setActiveCrisis({
           id: notification.id,
-          severity: notification.severity,
-          startedAt: notification.createdAt,
-          status: 'active',
-          supportersNotified: 4,
-          supportersResponded: 0,
+          _severity: notification._severity,
+          _startedAt: notification.createdAt,
+          _status: 'active',
+          _supportersNotified: 4,
+          _supportersResponded: 0,
           tier: 'primary',
-          location: 'Approximate location available'
+          _location: 'Approximate _location available'
         });
 
         // Mock supporters data
@@ -82,7 +81,7 @@ export const SupportNetworkDashboard: React.FC = () => {
             id: '1',
             name: 'Sarah (Sponsor)',
             relationship: 'Sponsor',
-            status: 'available',
+            _status: 'available',
             tier: 'primary',
             isPrimary: true
           },
@@ -90,26 +89,26 @@ export const SupportNetworkDashboard: React.FC = () => {
             id: '2', 
             name: 'Mike (Therapist)',
             relationship: 'Therapist',
-            status: 'available',
+            _status: 'available',
             tier: 'primary',
-            isPrimary: false
+            isPrimary: _false
           },
           {
             id: '3',
             name: 'Anna (Friend)',
             relationship: 'Close Friend',
-            status: 'unavailable',
+            _status: 'unavailable',
             lastSeen: '30 minutes ago',
             tier: 'secondary',
-            isPrimary: false
+            isPrimary: _false
           },
           {
             id: '4',
             name: 'Dr. Chen',
             relationship: 'Psychiatrist',
-            status: 'available',
+            _status: 'available',
             tier: 'emergency',
-            isPrimary: false
+            isPrimary: _false
           }
         ]);
 
@@ -135,15 +134,15 @@ export const SupportNetworkDashboard: React.FC = () => {
         
         toast.success('Response sent', {
           description: `Your ${responseType.replace('_', ' ')} response has been shared`,
-          duration: 3000
+          _duration: 3000
         });
 
-        // Update local supporter status
+        // Update local supporter _status
         setSupporters(prev => prev.map(s => 
           s.id === '1' ? { 
             ...s, 
-            status: responseType === 'cant_help' ? 'unavailable' : responseType as any,
-            responseTime: responseType === 'acknowledge' ? 'Just now' : s.responseTime 
+            _status: responseType === 'cant_help' ? 'unavailable' : responseType as any,
+            _responseTime: responseType === 'acknowledge' ? 'Just now' : s._responseTime 
           } : s
         ));
       }
@@ -151,7 +150,7 @@ export const SupportNetworkDashboard: React.FC = () => {
     } catch (error) {
       toast.error('Unable to send response', {
         description: 'Please try again',
-        duration: 3000
+        _duration: 3000
       });
     }
   };
@@ -159,8 +158,8 @@ export const SupportNetworkDashboard: React.FC = () => {
   // Don't render if not active or user not authenticated
   if (!user || !showDashboard || !activeCrisis) return null;
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
+  const getStatusColor = (_status: string) => {
+    switch (_status) {
       case 'available': return 'bg-green-100 text-green-800 border-green-200';
       case 'acknowledged': return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'responding': return 'bg-purple-100 text-purple-800 border-purple-200';
@@ -171,8 +170,8 @@ export const SupportNetworkDashboard: React.FC = () => {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
+  const getStatusIcon = (_status: string) => {
+    switch (_status) {
       case 'available': return <UserCheck className="w-4 h-4" />;
       case 'acknowledged': return <Eye className="w-4 h-4" />;
       case 'responding': return <MessageCircle className="w-4 h-4" />;
@@ -183,8 +182,8 @@ export const SupportNetworkDashboard: React.FC = () => {
     }
   };
 
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
+  const getSeverityColor = (_severity: string) => {
+    switch (_severity) {
       case 'critical': return 'border-red-500 bg-red-50';
       case 'high': return 'border-orange-500 bg-orange-50';
       case 'medium': return 'border-yellow-500 bg-yellow-50';
@@ -200,21 +199,21 @@ export const SupportNetworkDashboard: React.FC = () => {
     <div className="fixed top-4 left-4 z-[9997] w-80">
       <Card className={cn(
         "shadow-2xl border-2 bg-white/95 backdrop-blur-sm",
-        getSeverityColor(activeCrisis.severity)
+        getSeverityColor(activeCrisis._severity)
       )}>
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className="relative">
                 <Users className="w-5 h-5" />
-                {activeCrisis.severity === 'critical' && (
+                {activeCrisis._severity === 'critical' && (
                   <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
                 )}
               </div>
               <span>Support Network</span>
             </div>
             <Badge variant="outline" className="text-xs">
-              {supporters.filter(s => s.status !== 'unavailable').length} available
+              {supporters.filter(s => s._status !== 'unavailable').length} available
             </Badge>
           </CardTitle>
         </CardHeader>
@@ -228,29 +227,29 @@ export const SupportNetworkDashboard: React.FC = () => {
                 <span className="font-medium text-sm">Active Crisis</span>
               </div>
               <Badge variant="secondary">
-                {activeCrisis.severity.toUpperCase()}
+                {activeCrisis._severity.toUpperCase()}
               </Badge>
             </div>
             
             <div className="space-y-2 text-xs text-gray-600">
               <div className="flex items-center justify-between">
                 <span>Started:</span>
-                <span>{formatDistanceToNow(new Date(activeCrisis.startedAt), { addSuffix: true })}</span>
+                <span>{formatDistanceToNow(new Date(activeCrisis._startedAt), { addSuffix: true })}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span>Notified:</span>
-                <span>{activeCrisis.supportersNotified} people</span>
+                <span>{activeCrisis._supportersNotified} people</span>
               </div>
               <div className="flex items-center justify-between">
                 <span>Responded:</span>
-                <span className="font-medium">{activeCrisis.supportersResponded} people</span>
+                <span className="font-medium">{activeCrisis._supportersResponded} people</span>
               </div>
             </div>
 
-            {activeCrisis.location && (
+            {activeCrisis._location && (
               <div className="flex items-center space-x-2 mt-3 pt-2 border-t">
                 <MapPin className="w-4 h-4 text-blue-500" />
-                <span className="text-xs text-gray-600">{activeCrisis.location}</span>
+                <span className="text-xs text-gray-600">{activeCrisis._location}</span>
               </div>
             )}
           </div>
@@ -292,11 +291,11 @@ export const SupportNetworkDashboard: React.FC = () => {
           </div>
 
           {/* Secondary Supporters if any responded */}
-          {secondarySupporters.some(s => s.status !== 'available' && s.status !== 'unavailable') && (
+          {secondarySupporters.some(s => s._status !== 'available' && s._status !== 'unavailable') && (
             <div className="space-y-2">
               <h4 className="text-sm font-medium">Secondary Support</h4>
               <div className="space-y-2">
-                {secondarySupporters.filter(s => s.status !== 'available').map((supporter) => (
+                {secondarySupporters.filter(s => s._status !== 'available').map((supporter) => (
                   <SupporterCard key={supporter.id} supporter={supporter} />
                 ))}
               </div>
@@ -304,11 +303,11 @@ export const SupportNetworkDashboard: React.FC = () => {
           )}
 
           {/* Emergency Contact if activated */}
-          {emergencySupporters.some(s => s.status !== 'available') && (
+          {emergencySupporters.some(s => s._status !== 'available') && (
             <div className="space-y-2">
               <h4 className="text-sm font-medium text-red-600">Emergency Contact</h4>
               <div className="space-y-2">
-                {emergencySupporters.filter(s => s.status !== 'available').map((supporter) => (
+                {emergencySupporters.filter(s => s._status !== 'available').map((supporter) => (
                   <SupporterCard key={supporter.id} supporter={supporter} />
                 ))}
               </div>
@@ -325,7 +324,7 @@ export const SupportNetworkDashboard: React.FC = () => {
           {/* Resolution Button */}
           <Button
             size="sm"
-            onClick={() => setShowDashboard(false)}
+            onClick={() => setShowDashboard(_false)}
             variant="outline"
             className="w-full text-xs"
           >
@@ -342,8 +341,8 @@ interface SupporterCardProps {
 }
 
 const SupporterCard: React.FC<SupporterCardProps> = ({ supporter }) => {
-  const getStatusColor = (status: string) => {
-    switch (status) {
+  const getStatusColor = (_status: string) => {
+    switch (_status) {
       case 'available': return 'bg-green-100 text-green-800 border-green-200';
       case 'acknowledged': return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'responding': return 'bg-purple-100 text-purple-800 border-purple-200';
@@ -354,8 +353,8 @@ const SupporterCard: React.FC<SupporterCardProps> = ({ supporter }) => {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
+  const getStatusIcon = (_status: string) => {
+    switch (_status) {
       case 'available': return <UserCheck className="w-3 h-3" />;
       case 'acknowledged': return <Eye className="w-3 h-3" />;
       case 'responding': return <MessageCircle className="w-3 h-3" />;
@@ -392,17 +391,17 @@ const SupporterCard: React.FC<SupporterCardProps> = ({ supporter }) => {
       <div className="text-right">
         <Badge 
           variant="outline" 
-          className={cn("text-[10px] px-2 py-1 border", getStatusColor(supporter.status))}
+          className={cn("text-[10px] px-2 py-1 border", getStatusColor(supporter._status))}
         >
           <span className="flex items-center space-x-1">
-            {getStatusIcon(supporter.status)}
-            <span>{supporter.status.replace('_', ' ')}</span>
+            {getStatusIcon(supporter._status)}
+            <span>{supporter._status.replace('_', ' ')}</span>
           </span>
         </Badge>
         
-        {supporter.responseTime && (
+        {supporter._responseTime && (
           <p className="text-[10px] text-gray-500 mt-1">
-            {supporter.responseTime}
+            {supporter._responseTime}
           </p>
         )}
         

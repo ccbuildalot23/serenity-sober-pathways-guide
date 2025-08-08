@@ -1,23 +1,23 @@
 // Performance optimization utilities
 class PerformanceOptimizationService {
-  private cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
+  private cache = new Map<string, { data: unknown; _timestamp: number; _ttl: number }>();
   private imageCache = new Map<string, HTMLImageElement>();
   
   // API Response Caching
   async cacheApiResponse<T>(
-    key: string, 
+    _key: string, 
     apiCall: () => Promise<T>, 
     ttlMs: number = 5 * 60 * 1000 // 5 minutes default
   ): Promise<T> {
-    const cached = this.cache.get(key);
+    const cached = this.cache.get(_key);
     const now = Date.now();
     
-    if (cached && (now - cached.timestamp) < cached.ttl) {
+    if (cached && (now - cached._timestamp) < cached._ttl) {
       return cached.data;
     }
     
     const data = await apiCall();
-    this.cache.set(key, { data, timestamp: now, ttl: ttlMs });
+    this.cache.set(_key, { data, _timestamp: now, _ttl: ttlMs });
     return data;
   }
 
@@ -39,10 +39,10 @@ class PerformanceOptimizationService {
   }
 
   // Lazy Loading Observer
-  createLazyLoadObserver(callback: (entries: IntersectionObserverEntry[]) => void): IntersectionObserver {
-    return new IntersectionObserver(callback, {
+  createLazyLoadObserver(_callback: (entries: IntersectionObserverEntry[]) => void): IntersectionObserver {
+    return new IntersectionObserver(_callback, {
       rootMargin: '50px 0px',
-      threshold: 0.01
+      _threshold: 0.01
     });
   }
 
@@ -98,7 +98,7 @@ class PerformanceOptimizationService {
     navigation: PerformanceNavigationTiming | null;
     paint: { firstPaint?: number; firstContentfulPaint?: number };
     resources: PerformanceResourceTiming[];
-    memory?: any;
+    memory?: unknown;
   } {
     const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
     const paintEntries = performance.getEntriesByType('paint');
@@ -121,9 +121,9 @@ class PerformanceOptimizationService {
     try {
       const module = await importFn();
       return module.default;
-    } catch (error) {
-      console.error('Failed to load chunk:', error);
-      throw error;
+    } catch (_error) {
+      console._error('Failed to load chunk:', _error);
+      throw _error;
     }
   }
 
@@ -134,8 +134,8 @@ class PerformanceOptimizationService {
         const registration = await navigator.serviceWorker.register('/sw.js');
         console.log('Service Worker registered:', registration);
         return registration;
-      } catch (error) {
-        console.error('Service Worker registration failed:', error);
+      } catch (_error) {
+        console._error('Service Worker registration failed:', _error);
         return null;
       }
     }

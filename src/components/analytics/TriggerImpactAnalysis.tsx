@@ -20,10 +20,10 @@ interface TriggerAnalysis {
   trigger: string;
   frequency: number;
   averageImpact: number;
-  moodDrop: number;
-  timePattern: { hour: number; count: number }[];
-  recentTrend: 'increasing' | 'decreasing' | 'stable';
-  associatedSymptoms: string[];
+  _moodDrop: number;
+  _timePattern: { _hour: number; count: number }[];
+  _recentTrend: 'increasing' | 'decreasing' | 'stable';
+  _associatedSymptoms: string[];
   effectiveCoping: string[];
 }
 
@@ -32,7 +32,7 @@ export const TriggerImpactAnalysis: React.FC = () => {
 
   const { data: triggerData } = useQuery({
     queryKey: ['trigger-analysis', user?.id],
-    queryFn: async () => {
+    _queryFn: async () => {
       const { data: checkIns } = await supabase
         .from('daily_checkins')
         .select('*')
@@ -45,9 +45,9 @@ export const TriggerImpactAnalysis: React.FC = () => {
     enabled: !!user?.id
   });
 
-  const analyzeTriggers = (checkIns: any[]): TriggerAnalysis[] => {
+  const analyzeTriggers = (checkIns: unknown[]): TriggerAnalysis[] => {
     const triggerMap = new Map<string, {
-      occurrences: any[];
+      occurrences: unknown[];
       moods: number[];
       times: number[];
       coping: string[];
@@ -82,21 +82,21 @@ export const TriggerImpactAnalysis: React.FC = () => {
       if (data.occurrences.length >= 3) {
         const averageMood = data.moods.reduce((a, b) => a + b, 0) / data.moods.length;
         const baselineMood = 6; // Assumed baseline
-        const moodDrop = Math.max(0, baselineMood - averageMood);
+        const _moodDrop = Math.max(0, baselineMood - averageMood);
         
         // Time pattern analysis
-        const timePattern = calculateTimePattern(data.times);
+        const _timePattern = calculateTimePattern(data.times);
         
-        // Recent trend analysis
-        const recentTrend = calculateRecentTrend(data.occurrences);
+        // Recent _trend analysis
+        const _recentTrend = calculateRecentTrend(data.occurrences);
         
         // Most effective coping strategies
-        const copingFrequency = data.coping.reduce((acc, strategy) => {
+        const _copingFrequency = data.coping.reduce((acc, strategy) => {
           acc[strategy] = (acc[strategy] || 0) + 1;
           return acc;
         }, {} as Record<string, number>);
         
-        const effectiveCoping = Object.entries(copingFrequency)
+        const effectiveCoping = Object.entries(_copingFrequency)
           .sort(([, a], [, b]) => b - a)
           .slice(0, 3)
           .map(([strategy]) => strategy);
@@ -104,11 +104,11 @@ export const TriggerImpactAnalysis: React.FC = () => {
         analyses.push({
           trigger,
           frequency: data.occurrences.length,
-          averageImpact: moodDrop,
-          moodDrop,
-          timePattern,
-          recentTrend,
-          associatedSymptoms: extractSymptoms(data.occurrences),
+          averageImpact: _moodDrop,
+          _moodDrop,
+          _timePattern,
+          _recentTrend,
+          _associatedSymptoms: extractSymptoms(data.occurrences),
           effectiveCoping
         });
       }
@@ -118,26 +118,26 @@ export const TriggerImpactAnalysis: React.FC = () => {
   };
 
   const calculateTimePattern = (times: number[]) => {
-    const hourCounts = times.reduce((acc, hour) => {
-      acc[hour] = (acc[hour] || 0) + 1;
+    const _hourCounts = times.reduce((acc, _hour) => {
+      acc[_hour] = (acc[_hour] || 0) + 1;
       return acc;
     }, {} as Record<number, number>);
 
-    return Object.entries(hourCounts)
-      .map(([hour, count]) => ({ hour: parseInt(hour), count }))
+    return Object.entries(_hourCounts)
+      .map(([_hour, count]) => ({ _hour: parseInt(_hour), count }))
       .sort((a, b) => b.count - a.count);
   };
 
-  const calculateRecentTrend = (occurrences: any[]): 'increasing' | 'decreasing' | 'stable' => {
+  const calculateRecentTrend = (occurrences: unknown[]): 'increasing' | 'decreasing' | 'stable' => {
     if (occurrences.length < 6) return 'stable';
     
     const sorted = occurrences.sort((a, b) => 
       new Date(a.checkin_date).getTime() - new Date(b.checkin_date).getTime()
     );
     
-    const midpoint = Math.floor(sorted.length / 2);
-    const firstHalf = sorted.slice(0, midpoint).length;
-    const secondHalf = sorted.slice(midpoint).length;
+    const _midpoint = Math.floor(sorted.length / 2);
+    const firstHalf = sorted.slice(0, _midpoint).length;
+    const secondHalf = sorted.slice(_midpoint).length;
     
     const ratio = secondHalf / firstHalf;
     
@@ -146,17 +146,17 @@ export const TriggerImpactAnalysis: React.FC = () => {
     return 'stable';
   };
 
-  const extractSymptoms = (occurrences: any[]): string[] => {
-    const symptoms = new Set<string>();
+  const extractSymptoms = (occurrences: unknown[]): string[] => {
+    const _symptoms = new Set<string>();
     
     occurrences.forEach(checkIn => {
-      if (checkIn.phq2_score > 2) symptoms.add('Depression symptoms');
-      if (checkIn.gad2_score > 2) symptoms.add('Anxiety symptoms');
-      if (checkIn.energy_rating < 4) symptoms.add('Low energy');
-      if (checkIn.sleep_quality < 4) symptoms.add('Poor sleep');
+      if (checkIn.phq2_score > 2) _symptoms.add('Depression _symptoms');
+      if (checkIn.gad2_score > 2) _symptoms.add('Anxiety _symptoms');
+      if (checkIn.energy_rating < 4) _symptoms.add('Low energy');
+      if (checkIn.sleep_quality < 4) _symptoms.add('Poor sleep');
     });
     
-    return Array.from(symptoms);
+    return Array.from(_symptoms);
   };
 
   const chartData = useMemo(() => {
@@ -178,13 +178,13 @@ export const TriggerImpactAnalysis: React.FC = () => {
     return triggerData.map(analysis => ({
       x: analysis.frequency,
       y: analysis.averageImpact,
-      name: analysis.trigger,
-      size: analysis.frequency * 2
+      _name: analysis.trigger,
+      _size: analysis.frequency * 2
     }));
   }, [triggerData]);
 
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
+  const getTrendIcon = (_trend: string) => {
+    switch (_trend) {
       case 'increasing':
         return <TrendingDown className="h-4 w-4 text-destructive" />;
       case 'decreasing':
@@ -194,8 +194,8 @@ export const TriggerImpactAnalysis: React.FC = () => {
     }
   };
 
-  const getTrendColor = (trend: string) => {
-    switch (trend) {
+  const getTrendColor = (_trend: string) => {
+    switch (_trend) {
       case 'increasing': return 'destructive';
       case 'decreasing': return 'outline';
       default: return 'secondary';
@@ -260,8 +260,8 @@ export const TriggerImpactAnalysis: React.FC = () => {
                   }}
                 />
                 <Legend />
-                <Bar dataKey="frequency" fill="hsl(var(--primary))" name="Frequency" />
-                <Bar dataKey="impact" fill="hsl(var(--destructive))" name="Avg Impact" />
+                <Bar dataKey="frequency" fill="hsl(var(--primary))" _name="Frequency" />
+                <Bar dataKey="impact" fill="hsl(var(--destructive))" _name="Avg Impact" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -274,13 +274,13 @@ export const TriggerImpactAnalysis: React.FC = () => {
                 <XAxis 
                   type="number" 
                   dataKey="x" 
-                  name="Frequency"
+                  _name="Frequency"
                   label={{ value: 'Frequency', position: 'insideBottom', offset: -5 }}
                 />
                 <YAxis 
                   type="number" 
                   dataKey="y" 
-                  name="Impact"
+                  _name="Impact"
                   label={{ value: 'Impact', angle: -90, position: 'insideLeft' }}
                 />
                 <Tooltip 
@@ -289,7 +289,7 @@ export const TriggerImpactAnalysis: React.FC = () => {
                       const data = payload[0].payload;
                       return (
                         <div className="bg-background border rounded-lg p-3 shadow-lg">
-                          <p className="font-medium">{data.name}</p>
+                          <p className="font-medium">{data._name}</p>
                           <p className="text-sm">Frequency: {data.x}</p>
                           <p className="text-sm">Impact: {data.y.toFixed(1)}</p>
                         </div>
@@ -299,9 +299,9 @@ export const TriggerImpactAnalysis: React.FC = () => {
                   }}
                 />
                 <Scatter dataKey="y" fill="hsl(var(--primary))">
-                  {scatterData.map((entry, index) => (
+                  {scatterData.map((entry, _index) => (
                     <Cell 
-                      key={`cell-${index}`} 
+                      key={`cell-${_index}`} 
                       fill={
                         entry.x > 5 && entry.y > 2 ? 'hsl(var(--destructive))' :
                         entry.x > 3 || entry.y > 1.5 ? 'hsl(var(--warning))' :
@@ -318,15 +318,15 @@ export const TriggerImpactAnalysis: React.FC = () => {
 
       {/* Detailed Trigger Analysis */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {triggerData.slice(0, 6).map((analysis, index) => (
+        {triggerData.slice(0, 6).map((analysis, _index) => (
           <Card key={analysis.trigger}>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">{analysis.trigger}</CardTitle>
                 <div className="flex items-center gap-2">
-                  {getTrendIcon(analysis.recentTrend)}
-                  <Badge variant={getTrendColor(analysis.recentTrend)}>
-                    {analysis.recentTrend}
+                  {getTrendIcon(analysis._recentTrend)}
+                  <Badge variant={getTrendColor(analysis._recentTrend)}>
+                    {analysis._recentTrend}
                   </Badge>
                 </div>
               </div>
@@ -361,16 +361,16 @@ export const TriggerImpactAnalysis: React.FC = () => {
               </div>
 
               {/* Time Pattern */}
-              {analysis.timePattern.length > 0 && (
+              {analysis._timePattern.length > 0 && (
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <Clock className="h-4 w-4" />
                     <span className="text-sm font-medium">Peak Times</span>
                   </div>
                   <div className="flex flex-wrap gap-1">
-                    {analysis.timePattern.slice(0, 3).map(time => (
-                      <Badge key={time.hour} variant="outline" className="text-xs">
-                        {time.hour}:00 ({time.count}x)
+                    {analysis._timePattern.slice(0, 3).map(time => (
+                      <Badge key={time._hour} variant="outline" className="text-xs">
+                        {time._hour}:00 ({time.count}x)
                       </Badge>
                     ))}
                   </div>
@@ -378,14 +378,14 @@ export const TriggerImpactAnalysis: React.FC = () => {
               )}
 
               {/* Associated Symptoms */}
-              {analysis.associatedSymptoms.length > 0 && (
+              {analysis._associatedSymptoms.length > 0 && (
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="h-4 w-4" />
                     <span className="text-sm font-medium">Associated Symptoms</span>
                   </div>
                   <div className="flex flex-wrap gap-1">
-                    {analysis.associatedSymptoms.map(symptom => (
+                    {analysis._associatedSymptoms.map(symptom => (
                       <Badge key={symptom} variant="secondary" className="text-xs">
                         {symptom}
                       </Badge>
@@ -466,7 +466,7 @@ export const TriggerImpactAnalysis: React.FC = () => {
             )}
 
             {/* Improving Triggers */}
-            {triggerData.filter(t => t.recentTrend === 'decreasing').length > 0 && (
+            {triggerData.filter(t => t._recentTrend === 'decreasing').length > 0 && (
               <div className="p-4 bg-success/10 rounded-lg border border-success/20">
                 <h4 className="font-medium text-success-foreground mb-2">Improving Areas</h4>
                 <p className="text-sm mb-3">
@@ -474,11 +474,11 @@ export const TriggerImpactAnalysis: React.FC = () => {
                 </p>
                 <ul className="space-y-1">
                   {triggerData
-                    .filter(t => t.recentTrend === 'decreasing')
+                    .filter(t => t._recentTrend === 'decreasing')
                     .slice(0, 3)
                     .map(trigger => (
                       <li key={trigger.trigger} className="text-sm">
-                        • <strong>{trigger.trigger}</strong> - Decreasing trend
+                        • <strong>{trigger.trigger}</strong> - Decreasing _trend
                       </li>
                     ))}
                 </ul>

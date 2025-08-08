@@ -1,12 +1,11 @@
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 
 export interface NotificationData {
   user_id: string;
-  supporter_id?: string;
-  notification_type: 'crisis_alert' | 'check_in_missed' | 'milestone_reached' | 'relapse_risk' | 'support_request';
-  title: string;
-  message: string;
+  _supporter_id?: string;
+  _notification_type: 'crisis_alert' | 'check_in_missed' | 'milestone_reached' | 'relapse_risk' | 'support_request';
+  _title: string;
+  _message: string;
   severity: 'low' | 'medium' | 'high' | 'crisis';
   action_required: boolean;
   metadata?: {
@@ -21,11 +20,11 @@ export interface NotificationData {
 }
 
 export interface SupportNetworkMember {
-  supporter_id: string;
-  supporter_name: string;
-  relationship_type: 'family' | 'friend' | 'sponsor' | 'counselor' | 'peer' | 'other';
-  contact_method: 'sms' | 'email' | 'app' | 'phone';
-  notification_preferences: {
+  _supporter_id: string;
+  _supporter_name: string;
+  _relationship_type: 'family' | 'friend' | 'sponsor' | 'counselor' | 'peer' | 'other';
+  _contact_method: 'sms' | 'email' | 'app' | 'phone';
+  _notification_preferences: {
     crisis_alerts: boolean;
     check_in_reminders: boolean;
     milestone_celebrations: boolean;
@@ -36,87 +35,87 @@ export interface SupportNetworkMember {
 
 class SupportNetworkNotificationService {
   // Get user's active support network
-  async getSupportNetwork(userId: string): Promise<SupportNetworkMember[]> {
+  async getSupportNetwork(_userId: string): Promise<SupportNetworkMember[]> {
     try {
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('support_network')
         .select(`
-          supporter_id,
-          supporter_name,
-          relationship_type,
-          contact_method,
-          notification_preferences,
+          _supporter_id,
+          _supporter_name,
+          _relationship_type,
+          _contact_method,
+          _notification_preferences,
           priority_level
         `)
-        .eq('user_id', userId)
+        .eq('user_id', _userId)
         .eq('status', 'active');
 
-      if (error) throw error;
+      if (_error) throw _error;
       return data || [];
-    } catch (error) {
-      console.error('Error fetching support network:', error);
+    } catch (_error) {
+      console._error('Error fetching support network:', _error);
       return [];
     }
   }
 
   // Send notifications to appropriate support network members
   async notifySupportNetwork(
-    userId: string,
+    _userId: string,
     notification: NotificationData,
-    targetMembers?: 'all' | 'primary' | 'emergency'
+    _targetMembers?: 'all' | 'primary' | 'emergency'
   ): Promise<void> {
     try {
-      const supportNetwork = await this.getSupportNetwork(userId);
+      const _supportNetwork = await this.getSupportNetwork(_userId);
       
-      if (supportNetwork.length === 0) {
-        console.log('No support network found for user:', userId);
+      if (_supportNetwork.length === 0) {
+        console.log('No support network found for user:', _userId);
         return;
       }
 
       // Filter members based on target and preferences
-      const filteredMembers = this.filterMembersByNotificationType(
-        supportNetwork, 
+      const _filteredMembers = this.filterMembersByNotificationType(
+        _supportNetwork, 
         notification,
-        targetMembers
+        _targetMembers
       );
 
-      if (filteredMembers.length === 0) {
+      if (_filteredMembers.length === 0) {
         console.log('No eligible support members for this notification type');
         return;
       }
 
       // Create notifications for each member
-      const notifications = filteredMembers.map(member => ({
-        user_id: userId,
-        supporter_id: member.supporter_id,
-        notification_type: notification.notification_type,
-        title: notification.title,
-        message: this.personalizeMessage(notification.message, member),
+      const notifications = _filteredMembers.map(member => ({
+        user_id: _userId,
+        _supporter_id: member._supporter_id,
+        _notification_type: notification._notification_type,
+        _title: notification._title,
+        _message: this.personalizeMessage(notification._message, member),
         severity: notification.severity,
         action_required: notification.action_required,
         metadata: {
           ...notification.metadata,
-          contact_method: member.contact_method,
-          relationship_type: member.relationship_type
+          _contact_method: member._contact_method,
+          _relationship_type: member._relationship_type
         },
         created_at: new Date().toISOString()
       }));
 
       // Insert notifications into database
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('support_network_notifications')
         .insert(notifications);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       // Send immediate alerts for crisis situations
       if (notification.severity === 'crisis') {
-        await this.sendImmediateAlerts(filteredMembers, notification);
+        await this.sendImmediateAlerts(_filteredMembers, notification);
       }
 
       console.log(`Sent ${notifications.length} notifications to support network`);
-    } catch (error) {
-      console.error('Error notifying support network:', error);
+    } catch (_error) {
+      console._error('Error notifying support network:', _error);
     }
   }
 
@@ -124,20 +123,20 @@ class SupportNetworkNotificationService {
   private filterMembersByNotificationType(
     members: SupportNetworkMember[],
     notification: NotificationData,
-    targetMembers?: 'all' | 'primary' | 'emergency'
+    _targetMembers?: 'all' | 'primary' | 'emergency'
   ): SupportNetworkMember[] {
     return members.filter(member => {
       // Priority filtering
-      if (targetMembers === 'emergency' && member.priority_level !== 'emergency_only') {
+      if (_targetMembers === 'emergency' && member.priority_level !== 'emergency_only') {
         return false;
       }
-      if (targetMembers === 'primary' && member.priority_level === 'secondary') {
+      if (_targetMembers === 'primary' && member.priority_level === 'secondary') {
         return false;
       }
 
       // Preference filtering
-      const preferences = member.notification_preferences;
-      switch (notification.notification_type) {
+      const preferences = member._notification_preferences;
+      switch (notification._notification_type) {
         case 'crisis_alert':
           return preferences.crisis_alerts;
         case 'check_in_missed':
@@ -152,8 +151,8 @@ class SupportNetworkNotificationService {
     });
   }
 
-  // Personalize message based on relationship type
-  private personalizeMessage(message: string, member: SupportNetworkMember): string {
+  // Personalize _message based on relationship type
+  private personalizeMessage(_message: string, member: SupportNetworkMember): string {
     const relationshipContext = {
       'family': 'your family member',
       'friend': 'your friend',
@@ -163,9 +162,9 @@ class SupportNetworkNotificationService {
       'other': 'your support person'
     };
 
-    return message.replace(
+    return _message.replace(
       /your support person/g,
-      relationshipContext[member.relationship_type] || 'your support person'
+      relationshipContext[member._relationship_type] || 'your support person'
     );
   }
 
@@ -181,46 +180,46 @@ class SupportNetworkNotificationService {
     );
 
     for (const member of emergencyMembers) {
-      if (member.contact_method === 'sms') {
+      if (member._contact_method === 'sms') {
         // SMS integration would go here
-        console.log(`SMS alert sent to ${member.supporter_name}`);
-      } else if (member.contact_method === 'email') {
+        console.log(`SMS alert sent to ${member._supporter_name}`);
+      } else if (member._contact_method === 'email') {
         // Email integration would go here
-        console.log(`Email alert sent to ${member.supporter_name}`);
+        console.log(`Email alert sent to ${member._supporter_name}`);
       }
     }
   }
 
   // Feature-specific notification methods
-  async notifyHALTCrisis(userId: string, scores: Record<string, number>): Promise<void> {
-    const severeCount = Object.values(scores).filter(score => score >= 8).length;
+  async notifyHALTCrisis(_userId: string, _scores: Record<string, number>): Promise<void> {
+    const severeCount = Object.values(_scores).filter(score => score >= 8).length;
     const notification: NotificationData = {
-      user_id: userId,
-      notification_type: 'crisis_alert',
-      title: 'HALT Crisis Detected',
-      message: `Crisis indicators detected in HALT assessment. ${severeCount} severe warning signs identified. Immediate support may be needed.`,
+      user_id: _userId,
+      _notification_type: 'crisis_alert',
+      _title: 'HALT Crisis Detected',
+      _message: `Crisis indicators detected in HALT assessment. ${severeCount} severe warning signs identified. Immediate support may be needed.`,
       severity: severeCount >= 3 ? 'crisis' : 'high',
       action_required: true,
       metadata: {
         trigger_source: 'halt_assessment',
         feature_name: 'HALT Assessment',
-        assessment_scores: scores,
-        risk_factors: Object.entries(scores)
+        assessment_scores: _scores,
+        risk_factors: Object.entries(_scores)
           .filter(([_, score]) => score >= 8)
           .map(([factor, _]) => factor)
       }
     };
 
-    await this.notifySupportNetwork(userId, notification, 'primary');
+    await this.notifySupportNetwork(_userId, notification, 'primary');
   }
 
-  async notifyCravingIntervention(userId: string, intensity: number, success: boolean): Promise<void> {
+  async notifyCravingIntervention(_userId: string, intensity: number, success: boolean): Promise<void> {
     if (intensity >= 8 || !success) {
       const notification: NotificationData = {
-        user_id: userId,
-        notification_type: 'relapse_risk',
-        title: success ? 'High-Intensity Craving Managed' : 'Craving Intervention Needed',
-        message: success 
+        user_id: _userId,
+        _notification_type: 'relapse_risk',
+        _title: success ? 'High-Intensity Craving Managed' : 'Craving Intervention Needed',
+        _message: success 
           ? `Successfully managed a high-intensity craving (${intensity}/10). Showing resilience but may need extra support.`
           : `Failed to complete craving timer with ${intensity}/10 intensity. May need immediate support.`,
         severity: success ? 'medium' : 'high',
@@ -232,17 +231,17 @@ class SupportNetworkNotificationService {
         }
       };
 
-      await this.notifySupportNetwork(userId, notification, success ? 'primary' : 'all');
+      await this.notifySupportNetwork(_userId, notification, success ? 'primary' : 'all');
     }
   }
 
-  async notifyPlayingItForwardRisk(userId: string, exploredUsingPath: boolean): Promise<void> {
-    if (exploredUsingPath) {
+  async notifyPlayingItForwardRisk(_userId: string, _exploredUsingPath: boolean): Promise<void> {
+    if (_exploredUsingPath) {
       const notification: NotificationData = {
-        user_id: userId,
-        notification_type: 'relapse_risk',
-        title: 'Vulnerable Decision-Making Detected',
-        message: 'Explored potential relapse scenarios in decision-making tool. May be contemplating use and could benefit from support.',
+        user_id: _userId,
+        _notification_type: 'relapse_risk',
+        _title: 'Vulnerable Decision-Making Detected',
+        _message: 'Explored potential relapse scenarios in decision-making tool. May be contemplating use and could benefit from support.',
         severity: 'high',
         action_required: true,
         metadata: {
@@ -252,16 +251,16 @@ class SupportNetworkNotificationService {
         }
       };
 
-      await this.notifySupportNetwork(userId, notification, 'primary');
+      await this.notifySupportNetwork(_userId, notification, 'primary');
     }
   }
 
-  async notifyMilestoneReached(userId: string, milestone: number, milestoneType: string): Promise<void> {
+  async notifyMilestoneReached(_userId: string, milestone: number, milestoneType: string): Promise<void> {
     const notification: NotificationData = {
-      user_id: userId,
-      notification_type: 'milestone_reached',
-      title: `Recovery Milestone: ${milestoneType}`,
-      message: `Congratulations! Reached ${milestone} ${milestoneType.toLowerCase()} of continuous recovery. This achievement deserves celebration and recognition.`,
+      user_id: _userId,
+      _notification_type: 'milestone_reached',
+      _title: `Recovery Milestone: ${milestoneType}`,
+      _message: `Congratulations! Reached ${milestone} ${milestoneType.toLowerCase()} of continuous recovery. This achievement deserves celebration and recognition.`,
       severity: 'low',
       action_required: false,
       metadata: {
@@ -271,16 +270,16 @@ class SupportNetworkNotificationService {
       }
     };
 
-    await this.notifySupportNetwork(userId, notification, 'all');
+    await this.notifySupportNetwork(_userId, notification, 'all');
   }
 
-  async notifyMissedCheckIn(userId: string, daysMissed: number): Promise<void> {
+  async notifyMissedCheckIn(_userId: string, daysMissed: number): Promise<void> {
     if (daysMissed >= 2) {
       const notification: NotificationData = {
-        user_id: userId,
-        notification_type: 'check_in_missed',
-        title: 'Check-In Pattern Concern',
-        message: `Missed daily check-ins for ${daysMissed} days. This could indicate difficulties or need for additional support.`,
+        user_id: _userId,
+        _notification_type: 'check_in_missed',
+        _title: 'Check-In Pattern Concern',
+        _message: `Missed daily check-ins for ${daysMissed} days. This could indicate difficulties or need for additional support.`,
         severity: daysMissed >= 5 ? 'high' : 'medium',
         action_required: daysMissed >= 5,
         metadata: {
@@ -290,49 +289,49 @@ class SupportNetworkNotificationService {
         }
       };
 
-      await this.notifySupportNetwork(userId, notification, 'primary');
+      await this.notifySupportNetwork(_userId, notification, 'primary');
     }
   }
 
   // Get recent notifications for a supporter
-  async getNotificationsForSupporter(supporterId: string): Promise<any[]> {
+  async getNotificationsForSupporter(_supporterId: string): Promise<unknown[]> {
     try {
-      const { data, error } = await supabase
+      const { data, _error } = await supabase
         .from('support_network_notifications')
         .select(`
           *,
-          profiles:user_id (
+          _profiles:user_id (
             full_name,
-            display_name
+            _display_name
           )
         `)
-        .eq('supporter_id', supporterId)
+        .eq('_supporter_id', _supporterId)
         .order('created_at', { ascending: false })
         .limit(20);
 
-      if (error) throw error;
+      if (_error) throw _error;
       return data || [];
-    } catch (error) {
-      console.error('Error fetching supporter notifications:', error);
+    } catch (_error) {
+      console._error('Error fetching supporter notifications:', _error);
       return [];
     }
   }
 
   // Mark notification as acknowledged
-  async acknowledgeNotification(notificationId: string, supporterId: string): Promise<void> {
+  async acknowledgeNotification(_notificationId: string, _supporterId: string): Promise<void> {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('support_network_notifications')
         .update({
           acknowledged_at: new Date().toISOString(),
-          acknowledged_by: supporterId
+          acknowledged_by: _supporterId
         })
-        .eq('id', notificationId)
-        .eq('supporter_id', supporterId);
+        .eq('id', _notificationId)
+        .eq('_supporter_id', _supporterId);
 
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error acknowledging notification:', error);
+      if (_error) throw _error;
+    } catch (_error) {
+      console._error('Error acknowledging notification:', _error);
     }
   }
 }

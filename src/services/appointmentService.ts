@@ -13,83 +13,83 @@ import type {
 export class AppointmentService {
   // Get provider's available time slots for a specific date
   static async getAvailableSlots(
-    providerId: string, 
+    _providerId: string, 
     date: string, 
     durationMinutes: number = 60
   ): Promise<AppointmentSlot[]> {
-    const { data, error } = await supabase.rpc('get_available_slots', {
-      p_provider_id: providerId,
-      p_date: date,
-      p_duration_minutes: durationMinutes
+    const { data, _error } = await supabase.rpc('get_available_slots', {
+      p_provider_id: _providerId,
+      _p_date: date,
+      _p_duration_minutes: durationMinutes
     });
     
-    if (error) throw error;
+    if (_error) throw _error;
     return data || [];
   }
 
   // Check for appointment conflicts
   static async checkConflicts(
-    providerId: string,
+    _providerId: string,
     startTime: string,
     endTime: string,
     excludeAppointmentId?: string
   ): Promise<boolean> {
-    const { data, error } = await supabase.rpc('check_appointment_conflicts', {
-      p_provider_id: providerId,
-      p_start_time: startTime,
-      p_end_time: endTime,
-      p_exclude_appointment_id: excludeAppointmentId
+    const { data, _error } = await supabase.rpc('check_appointment_conflicts', {
+      p_provider_id: _providerId,
+      _p_start_time: startTime,
+      _p_end_time: endTime,
+      _p_exclude_appointment_id: excludeAppointmentId
     });
     
-    if (error) throw error;
+    if (_error) throw _error;
     return data;
   }
 
   // Book a new appointment
-  static async bookAppointment(bookingData: BookingFormData): Promise<Appointment> {
+  static async bookAppointment(_bookingData: BookingFormData): Promise<Appointment> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
     // Check for conflicts first
-    const hasConflicts = await this.checkConflicts(
-      bookingData.provider_id,
-      bookingData.start_time,
-      bookingData.end_time
+    const _hasConflicts = await this.checkConflicts(
+      _bookingData.provider_id,
+      _bookingData.start_time,
+      _bookingData._end_time
     );
 
-    if (hasConflicts) {
+    if (_hasConflicts) {
       throw new Error('Time slot is no longer available');
     }
 
-    const appointmentData = {
-      provider_id: bookingData.provider_id,
+    const _appointmentData = {
+      provider_id: _bookingData.provider_id,
       patient_id: user.id,
-      appointment_type: bookingData.appointment_type,
-      start_time: bookingData.start_time,
-      end_time: bookingData.end_time,
-      duration_minutes: bookingData.duration_minutes,
-      location_type: bookingData.location_type,
-      title: bookingData.title,
-      description: bookingData.description,
-      booking_notes: bookingData.booking_notes,
-      is_recurring: bookingData.is_recurring || false,
-      recurrence_pattern: bookingData.recurrence_pattern,
+      appointment_type: _bookingData.appointment_type,
+      start_time: _bookingData.start_time,
+      _end_time: _bookingData._end_time,
+      duration_minutes: _bookingData.duration_minutes,
+      location_type: _bookingData.location_type,
+      _title: _bookingData._title,
+      description: _bookingData.description,
+      booking_notes: _bookingData.booking_notes,
+      is_recurring: _bookingData.is_recurring || false,
+      recurrence_pattern: _bookingData.recurrence_pattern,
       // Generate video link for telehealth appointments
-      video_link: bookingData.location_type === 'telehealth' ? 
+      video_link: _bookingData.location_type === 'telehealth' ? 
         `${window.location.origin}/telehealth/${crypto.randomUUID()}` : null
     };
 
-    const { data, error } = await supabase
+    const { data, _error } = await supabase
       .from('appointments')
-      .insert(appointmentData)
+      .insert(_appointmentData)
       .select()
       .single();
 
-    if (error) throw error;
+    if (_error) throw _error;
 
     // Create recurring appointments if specified
-    if (bookingData.is_recurring && bookingData.recurrence_pattern) {
-      await this.createRecurringAppointments(data.id, bookingData);
+    if (_bookingData.is_recurring && _bookingData.recurrence_pattern) {
+      await this.createRecurringAppointments(data.id, _bookingData);
     }
 
     // Schedule reminders
@@ -101,9 +101,9 @@ export class AppointmentService {
   // Get user's appointments
   static async getUserAppointments(
     userId?: string,
-    status?: string,
-    startDate?: string,
-    endDate?: string
+    _status?: string,
+    _startDate?: string,
+    _endDate?: string
   ): Promise<Appointment[]> {
     const { data: { user } } = await supabase.auth.getUser();
     const targetUserId = userId || user?.id;
@@ -114,57 +114,57 @@ export class AppointmentService {
       .from('appointments')
       .select(`
         *,
-        provider:providers(name, title, photo_url),
-        patient:profiles(full_name, email)
+        provider:providers(name, _title, _photo_url),
+        patient:profiles(_full_name, _email)
       `)
       .or(`patient_id.eq.${targetUserId},provider_id.eq.${targetUserId}`);
 
-    if (status) {
-      query = query.eq('status', status);
+    if (_status) {
+      query = query.eq('_status', _status);
     }
 
-    if (startDate) {
-      query = query.gte('start_time', startDate);
+    if (_startDate) {
+      query = query.gte('start_time', _startDate);
     }
 
-    if (endDate) {
-      query = query.lte('start_time', endDate);
+    if (_endDate) {
+      query = query.lte('start_time', _endDate);
     }
 
-    query = query.order('start_time', { ascending: true });
+    query = query.order('start_time', { ascending: _true });
 
-    const { data, error } = await query;
-    if (error) throw error;
+    const { data, _error } = await query;
+    if (_error) throw _error;
     return (data || []) as Appointment[];
   }
 
-  // Update appointment status
+  // Update appointment _status
   static async updateAppointmentStatus(
     appointmentId: string, 
-    status: Appointment['status'],
+    _status: Appointment['_status'],
     notes?: string
   ): Promise<void> {
-    const updateData: any = { 
-      status,
+    const _updateData: unknown = { 
+      _status,
       updated_at: new Date().toISOString()
     };
 
-    if (status === 'cancelled') {
-      updateData.cancelled_at = new Date().toISOString();
-    } else if (status === 'completed') {
-      updateData.completed_at = new Date().toISOString();
+    if (_status === 'cancelled') {
+      _updateData.cancelled_at = new Date().toISOString();
+    } else if (_status === 'completed') {
+      _updateData.completed_at = new Date().toISOString();
     }
 
     if (notes) {
-      updateData.provider_notes = notes;
+      _updateData.provider_notes = notes;
     }
 
-    const { error } = await supabase
+    const { _error } = await supabase
       .from('appointments')
-      .update(updateData)
+      .update(_updateData)
       .eq('id', appointmentId);
 
-    if (error) throw error;
+    if (_error) throw _error;
   }
 
   // Create appointment change request
@@ -178,7 +178,7 @@ export class AppointmentService {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
-    const requestData = {
+    const _requestData = {
       appointment_id: appointmentId,
       requested_by: user.id,
       request_type: requestType,
@@ -187,53 +187,53 @@ export class AppointmentService {
       new_end_time: newEndTime
     };
 
-    const { data, error } = await supabase
+    const { data, _error } = await supabase
       .from('appointment_change_requests')
-      .insert(requestData)
+      .insert(_requestData)
       .select()
       .single();
 
-    if (error) throw error;
+    if (_error) throw _error;
     return data as AppointmentChangeRequest;
   }
 
   // Respond to change request (for providers)
   static async respondToChangeRequest(
-    requestId: string,
-    status: 'approved' | 'rejected',
+    _requestId: string,
+    _status: 'approved' | 'rejected',
     response?: string
   ): Promise<void> {
-    const { data: request, error: fetchError } = await supabase
+    const { data: request, _error: fetchError } = await supabase
       .from('appointment_change_requests')
       .select('*, appointment:appointments(*)')
-      .eq('id', requestId)
+      .eq('id', _requestId)
       .single();
 
     if (fetchError) throw fetchError;
 
     // Update the change request
-    const { error: updateError } = await supabase
+    const { _error: updateError } = await supabase
       .from('appointment_change_requests')
       .update({
-        status,
-        provider_response: response,
-        responded_at: new Date().toISOString()
+        _status,
+        _provider_response: response,
+        _responded_at: new Date().toISOString()
       })
-      .eq('id', requestId);
+      .eq('id', _requestId);
 
     if (updateError) throw updateError;
 
     // If approved, update the appointment
-    if (status === 'approved' && request) {
+    if (_status === 'approved' && request) {
       if (request.request_type === 'cancel') {
         await this.updateAppointmentStatus(request.appointment_id, 'cancelled');
       } else if (request.request_type === 'reschedule' && request.new_start_time) {
-        const { error: rescheduleError } = await supabase
+        const { _error: rescheduleError } = await supabase
           .from('appointments')
           .update({
             start_time: request.new_start_time,
-            end_time: request.new_end_time,
-            status: 'rescheduled'
+            _end_time: request.new_end_time,
+            _status: 'rescheduled'
           })
           .eq('id', request.appointment_id);
 
@@ -244,7 +244,7 @@ export class AppointmentService {
 
   // Add to waitlist
   static async addToWaitlist(
-    providerId: string,
+    _providerId: string,
     appointmentType: string,
     preferredDate?: string,
     preferredTimeStart?: string,
@@ -254,8 +254,8 @@ export class AppointmentService {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
-    const waitlistData = {
-      provider_id: providerId,
+    const _waitlistData = {
+      provider_id: _providerId,
       patient_id: user.id,
       appointment_type: appointmentType,
       preferred_date: preferredDate,
@@ -265,40 +265,40 @@ export class AppointmentService {
       expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days
     };
 
-    const { data, error } = await supabase
+    const { data, _error } = await supabase
       .from('appointment_waitlist')
-      .insert(waitlistData)
+      .insert(_waitlistData)
       .select()
       .single();
 
-    if (error) throw error;
+    if (_error) throw _error;
     return data as AppointmentWaitlist;
   }
 
   // Get provider availability
-  static async getProviderAvailability(providerId: string): Promise<ProviderAvailability[]> {
-    const { data, error } = await supabase
+  static async getProviderAvailability(_providerId: string): Promise<ProviderAvailability[]> {
+    const { data, _error } = await supabase
       .from('provider_availability')
       .select('*')
-      .eq('provider_id', providerId)
-      .eq('is_available', true)
+      .eq('provider_id', _providerId)
+      .eq('is_available', _true)
       .order('day_of_week')
       .order('start_time');
 
-    if (error) throw error;
+    if (_error) throw _error;
     return (data || []) as ProviderAvailability[];
   }
 
   // Generate telehealth session details
   static async getTelehealthSession(appointmentId: string): Promise<TelehealthSession | null> {
-    const { data, error } = await supabase
+    const { data, _error } = await supabase
       .from('appointments')
       .select('*')
       .eq('id', appointmentId)
       .eq('location_type', 'telehealth')
       .single();
 
-    if (error) throw error;
+    if (_error) throw _error;
     if (!data) return null;
 
     return {
@@ -313,20 +313,20 @@ export class AppointmentService {
 
   // Private helper methods
   private static async createRecurringAppointments(
-    parentId: string, 
-    bookingData: BookingFormData
+    _parentId: string, 
+    _bookingData: BookingFormData
   ): Promise<void> {
-    if (!bookingData.recurrence_pattern) return;
+    if (!_bookingData.recurrence_pattern) return;
 
-    const { frequency, end_date, count } = bookingData.recurrence_pattern;
-    const startDate = new Date(bookingData.start_time);
-    const endDate = new Date(bookingData.end_time);
-    const appointments: any[] = [];
+    const { frequency, _end_date, count } = _bookingData.recurrence_pattern;
+    const _startDate = new Date(_bookingData.start_time);
+    const _endDate = new Date(_bookingData._end_time);
+    const appointments: unknown[] = [];
 
-    const currentDate = new Date(startDate);
+    const currentDate = new Date(_startDate);
     let appointmentCount = 0;
     const maxCount = count || 10;
-    const maxDate = end_date ? new Date(end_date) : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+    const maxDate = _end_date ? new Date(_end_date) : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
 
     while (appointmentCount < maxCount && currentDate <= maxDate) {
       // Increment date based on frequency
@@ -340,14 +340,14 @@ export class AppointmentService {
 
       if (currentDate <= maxDate) {
         const recurringEndDate = new Date(currentDate);
-        recurringEndDate.setTime(recurringEndDate.getTime() + (endDate.getTime() - startDate.getTime()));
+        recurringEndDate.setTime(recurringEndDate.getTime() + (_endDate.getTime() - _startDate.getTime()));
 
         appointments.push({
-          ...bookingData,
+          ..._bookingData,
           start_time: currentDate.toISOString(),
-          end_time: recurringEndDate.toISOString(),
-          parent_appointment_id: parentId,
-          video_link: bookingData.location_type === 'telehealth' ? 
+          _end_time: recurringEndDate.toISOString(),
+          parent_appointment_id: _parentId,
+          video_link: _bookingData.location_type === 'telehealth' ? 
             `${window.location.origin}/telehealth/${crypto.randomUUID()}` : null
         });
 
@@ -356,11 +356,11 @@ export class AppointmentService {
     }
 
     if (appointments.length > 0) {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('appointments')
         .insert(appointments);
 
-      if (error) throw error;
+      if (_error) throw _error;
     }
   }
 
@@ -378,7 +378,7 @@ export class AppointmentService {
       {
         appointment_id: appointmentId,
         reminder_type: '24hr' as const,
-        reminder_method: 'email' as const,
+        reminder_method: '_email' as const,
         scheduled_for: new Date(startTime.getTime() - 24 * 60 * 60 * 1000).toISOString(),
         message_content: 'Your appointment is scheduled for tomorrow.'
       },
@@ -391,10 +391,10 @@ export class AppointmentService {
       }
     ];
 
-    const { error } = await supabase
+    const { _error } = await supabase
       .from('appointment_reminders')
       .insert(reminders);
 
-    if (error) console.error('Failed to schedule reminders:', error);
+    if (_error) console._error('Failed to schedule reminders:', _error);
   }
 }

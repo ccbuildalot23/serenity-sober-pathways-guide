@@ -15,7 +15,7 @@ export class CrisisDataValidator extends EnhancedInputValidator {
     notes?: string;
   }): { isValid: boolean; errors: string[]; sanitized: any } {
     const errors: string[] = [];
-    const sanitized: any = {
+    const sanitized: unknown = {
       responses: {},
       riskLevel: assessment.riskLevel,
       notes: assessment.notes
@@ -36,7 +36,7 @@ export class CrisisDataValidator extends EnhancedInputValidator {
         continue;
       }
 
-      // Validate numeric responses (ratings, scores)
+      // Validate numeric responses (_ratings, _scores)
       if (typeof value === 'number') {
         if (!isFinite(value) || value < 0 || value > 10) {
           errors.push(`Invalid numeric response for ${key}: must be between 0-10`);
@@ -130,7 +130,7 @@ export class CrisisDataValidator extends EnhancedInputValidator {
     notes?: string;
   }): { isValid: boolean; errors: string[]; sanitized: any } {
     const errors: string[] = [];
-    const sanitized: any = {};
+    const sanitized: unknown = {};
 
     // Validate intervention type
     const validTypes = [
@@ -188,7 +188,7 @@ export class CrisisDataValidator extends EnhancedInputValidator {
     priority?: number;
   }): { isValid: boolean; errors: string[]; sanitized: any } {
     const errors: string[] = [];
-    const sanitized: any = {};
+    const sanitized: unknown = {};
 
     // Validate name
     if (!contact.name || contact.name.trim().length < 2) {

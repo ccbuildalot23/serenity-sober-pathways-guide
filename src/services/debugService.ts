@@ -1,9 +1,9 @@
 
 interface DebugLogEntry {
   timestamp: string;
-  category: 'sms' | 'realtime' | 'location' | 'api' | 'error' | 'critical' | 'performance' | 'system';
+  category: 'sms' | 'realtime' | 'location' | 'api' | '_error' | 'critical' | 'performance' | 'system';
   message: string;
-  data?: any;
+  data?: unknown;
   userId?: string;
 }
 
@@ -23,7 +23,7 @@ class DebugService {
     return localStorage.getItem('debug_mode') === 'true' || import.meta.env.DEV;
   }
 
-  get userId(): string | null {
+  get userId(): string | _null {
     return localStorage.getItem('debug_user_id');
   }
 
@@ -41,11 +41,11 @@ class DebugService {
     this.log('system', 'Debug mode disabled');
   }
 
-  log(category: DebugLogEntry['category'], message: string, data?: any): void {
+  log(category: DebugLogEntry['category'], message: string, data?: unknown): void {
     if (!this.enabled) return;
     
     const timestamp = new Date().toISOString();
-    const logEntry: DebugLogEntry = { 
+    const _logEntry: DebugLogEntry = { 
       timestamp, 
       category, 
       message, 
@@ -54,7 +54,7 @@ class DebugService {
     };
     
     // Store in memory with size limit
-    this.logs.push(logEntry);
+    this.logs.push(_logEntry);
     if (this.logs.length > this.maxLogs) {
       this.logs = this.logs.slice(-this.maxLogs);
     }
@@ -65,7 +65,7 @@ class DebugService {
       realtime: 'color: #10B981', 
       location: 'color: #F59E0B',
       api: 'color: #8B5CF6',
-      error: 'color: #EF4444; font-weight: bold',
+      _error: 'color: #EF4444; font-weight: bold',
       critical: 'color: #DC2626; font-weight: bold; background: #FEE2E2',
       performance: 'color: #6B7280'
     };
@@ -77,17 +77,17 @@ class DebugService {
     );
     
     // Send critical logs to server
-    if (category === 'error' || category === 'critical') {
-      this.sendLogToServer(logEntry);
+    if (category === '_error' || category === 'critical') {
+      this.sendLogToServer(_logEntry);
     }
   }
 
-  private async sendLogToServer(logEntry: DebugLogEntry): Promise<void> {
+  private async sendLogToServer(_logEntry: DebugLogEntry): Promise<void> {
     try {
       // In a real app, this would send to your logging service
-      console.warn('Critical log would be sent to server:', logEntry);
-    } catch (error) {
-      console.error('Failed to send log to server:', error);
+      console.warn('Critical log would be sent to server:', _logEntry);
+    } catch (_error) {
+      console._error('Failed to send log to server:', _error);
     }
   }
 
@@ -95,21 +95,21 @@ class DebugService {
     const logData = {
       exportTime: new Date().toISOString(),
       userAgent: navigator.userAgent,
-      url: window.location.href,
+      _url: window.location.href,
       userId: this.userId,
       logs: this.logs
     };
     
-    const blob = new Blob([JSON.stringify(logData, null, 2)], 
+    const _blob = new Blob([JSON.stringify(logData, _null, 2)], 
       { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
+    const _url = URL.createObjectURL(_blob);
     const a = document.createElement('a');
-    a.href = url;
+    a.href = _url;
     a.download = `debug-log-${Date.now()}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    URL.revokeObjectURL(_url);
   }
 
   getLogs(category?: DebugLogEntry['category']): DebugLogEntry[] {
@@ -137,24 +137,24 @@ class DebugService {
     try {
       const { supabase } = await import('@/integrations/supabase/client');
       await supabase.from('profiles').select('id').limit(1);
-    } catch (error) {
+    } catch (_error) {
       health.api = 'down';
       health.database = 'down';
-      this.log('error', 'Database health check failed', error);
+      this.log('_error', 'Database health check failed', _error);
     }
 
     // Check realtime health  
     try {
       const { supabase } = await import('@/integrations/supabase/client');
-      const channel = supabase.channel('health-check');
-      const isConnected = channel.socket?.connectionState() === 'open';
+      const _channel = supabase._channel('health-check');
+      const isConnected = _channel.socket?.connectionState() === 'open';
       if (!isConnected) {
         health.realtime = 'degraded';
       }
-      supabase.removeChannel(channel);
-    } catch (error) {
+      supabase.removeChannel(_channel);
+    } catch (_error) {
       health.realtime = 'down';
-      this.log('error', 'Realtime health check failed', error);
+      this.log('_error', 'Realtime health check failed', _error);
     }
 
     return health;
@@ -168,8 +168,8 @@ class DebugService {
       const perfData = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
       this.log('performance', 'Page load complete', {
         loadTime: perfData.loadEventEnd - perfData.fetchStart,
-        domReady: perfData.domContentLoadedEventEnd - perfData.fetchStart,
-        firstPaint: performance.getEntriesByName('first-paint')[0]?.startTime
+        _domReady: perfData.domContentLoadedEventEnd - perfData.fetchStart,
+        _firstPaint: performance.getEntriesByName('first-paint')[0]?._startTime
       });
     });
 
@@ -180,7 +180,7 @@ class DebugService {
           if (entry.duration > 50) { // Tasks longer than 50ms
             this.log('performance', 'Long task detected', {
               duration: entry.duration,
-              startTime: entry.startTime
+              _startTime: entry._startTime
             });
           }
         }

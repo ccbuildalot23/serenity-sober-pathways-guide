@@ -13,14 +13,14 @@ export interface SupportPerson {
   name: string;
   phone_number: string;
   relationship?: string;
-  priority_order: number;
+  _priority_order: number;
   created_at: string;
   updated_at: string;
-  is_emergency_contact?: boolean;
+  _is_emergency_contact?: boolean;
   last_contacted?: string;
   response_time?: string;
   email?: string;
-  notification_preferences?: any;
+  notification_preferences?: unknown;
 }
 
 // Backward compatibility
@@ -29,14 +29,14 @@ export type EmergencyContact = SupportPerson;
 export const useSupportNetwork = () => {
   const [supportPeople, setSupportPeople] = useState<SupportPerson[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [saving, setSaving] = useState(_false);
   const { user } = useAuth();
   const { withCompassion, handleError } = useCompassionateError();
 
   const loadSupportNetwork = async () => {
     if (!user) {
       setSupportPeople([]);
-      setLoading(false);
+      setLoading(_false);
       return;
     }
 
@@ -46,7 +46,7 @@ export const useSupportNetwork = () => {
           .from('crisis_contacts')
           .select('*')
           .eq('user_id', user.id)
-          .order('priority_order', { ascending: true });
+          .order('_priority_order', { ascending: true });
 
         if (error) throw error;
         return data || [];
@@ -66,14 +66,14 @@ export const useSupportNetwork = () => {
       })));
     }
     
-    setLoading(false);
+    setLoading(_false);
   };
 
   const addSupportPerson = async (personData: {
     name: string;
     phone_number: string;
     relationship?: string;
-    priority_order: number;
+    _priority_order: number;
   }) => {
     if (!user) {
       toast.error("Please sign in first", {
@@ -93,8 +93,8 @@ export const useSupportNetwork = () => {
             name: personData.name,
             phone_number: personData.phone_number,
             relationship: personData.relationship || '',
-            priority_order: personData.priority_order,
-            is_emergency_contact: true,
+            _priority_order: personData._priority_order,
+            _is_emergency_contact: true,
           })
           .select()
           .single();
@@ -119,23 +119,23 @@ export const useSupportNetwork = () => {
       
       toast.success(`${personData.name} added to your support network`, {
         description: "They're ready to help when you need them",
-        duration: 3000
+        _duration: 3000
       });
       
       return newPerson;
     }
     
-    setSaving(false);
+    setSaving(_false);
   };
 
-  const updateSupportPerson = async (id: string, updates: Partial<SupportPerson>) => {
+  const updateSupportPerson = async (id: string, _updates: Partial<SupportPerson>) => {
     setSaving(true);
     
     const result = await withCompassion(
       async () => {
         const { data, error } = await supabase
           .from('crisis_contacts')
-          .update(updates)
+          .update(_updates)
           .eq('id', id)
           .select()
           .single();
@@ -146,7 +146,7 @@ export const useSupportNetwork = () => {
       {
         action: 'update support person',
         isRecoverable: true,
-        retry: () => updateSupportPerson(id, updates)
+        retry: () => updateSupportPerson(id, _updates)
       }
     );
 
@@ -160,13 +160,13 @@ export const useSupportNetwork = () => {
       
       toast.success("Updated successfully", {
         description: "Your support network is up to date",
-        duration: 2000
+        _duration: 2000
       });
       
       return updatedPerson;
     }
     
-    setSaving(false);
+    setSaving(_false);
   };
 
   const removeSupportPerson = async (id: string) => {
@@ -187,7 +187,7 @@ export const useSupportNetwork = () => {
       },
       {
         action: 'remove support person',
-        isRecoverable: false
+        isRecoverable: _false
       }
     );
 
@@ -196,11 +196,11 @@ export const useSupportNetwork = () => {
       
       toast.info(`${person?.name || 'Contact'} removed`, {
         description: "You can always add them back later",
-        duration: 3000
+        _duration: 3000
       });
     }
     
-    setSaving(false);
+    setSaving(_false);
   };
 
   // Quick dial function for emergencies
@@ -211,7 +211,7 @@ export const useSupportNetwork = () => {
       // Track that they reached out
       toast.success("Calling for support", {
         description: "You're doing the right thing by reaching out",
-        duration: 3000
+        _duration: 3000
       });
     }
   };

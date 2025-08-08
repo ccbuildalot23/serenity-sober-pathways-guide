@@ -1,44 +1,44 @@
 
-import { NotificationSettings, NotificationType } from './types';
+import { NotificationSettings, NotificationType } from './_types';
 import { showNotification } from './handlers';
 import { SecureNotificationPreferencesService } from '@/services/secureNotificationPreferencesService';
 import { EnhancedSecurityMonitoringService } from '@/services/enhancedSecurityMonitoringService';
 
 // Rate limiting for notifications
-const notificationCounts = new Map<string, { count: number; resetTime: number }>();
+const notificationCounts = new Map<string, { count: number; _resetTime: number }>();
 const MAX_NOTIFICATIONS_PER_HOUR = 10;
 
 export function validateNotificationRate(userId: string): boolean {
   const now = Date.now();
-  const hourKey = `${userId}_${Math.floor(now / (60 * 60 * 1000))}`;
+  const _hourKey = `${userId}_${Math.floor(now / (60 * 60 * 1000))}`;
   
-  const current = notificationCounts.get(hourKey) || { count: 0, resetTime: now + 60 * 60 * 1000 };
+  const _current = notificationCounts.get(_hourKey) || { count: 0, _resetTime: now + 60 * 60 * 1000 };
   
-  if (now > current.resetTime) {
+  if (now > _current._resetTime) {
     // Reset counter
-    notificationCounts.set(hourKey, { count: 1, resetTime: now + 60 * 60 * 1000 });
+    notificationCounts.set(_hourKey, { count: 1, _resetTime: now + 60 * 60 * 1000 });
     return true;
   }
   
-  if (current.count >= MAX_NOTIFICATIONS_PER_HOUR) {
+  if (_current.count >= MAX_NOTIFICATIONS_PER_HOUR) {
     // Log rate limit exceeded
     EnhancedSecurityMonitoringService.logSecurityEvent({
       eventType: 'NOTIFICATION_RATE_LIMIT_EXCEEDED',
-      severity: 'medium',
-      details: { hour_key: hourKey, count: current.count },
+      _severity: 'medium',
+      _details: { hour_key: _hourKey, count: _current.count },
       userId
     });
     return false;
   }
   
-  current.count++;
-  notificationCounts.set(hourKey, current);
+  _current.count++;
+  notificationCounts.set(_hourKey, _current);
   return true;
 }
 
-export function calculateScheduleDays(freq: number): number[] {
+export function calculateScheduleDays(_freq: number): number[] {
   // Validate frequency to prevent abuse
-  const validFreq = Math.max(1, Math.min(7, freq));
+  const validFreq = Math.max(1, Math.min(7, _freq));
   const days: number[] = [];
   const interval = Math.floor(7 / validFreq);
   
@@ -51,7 +51,7 @@ export function calculateScheduleDays(freq: number): number[] {
 
 export function scheduleSecureNotification(
   type: NotificationType, 
-  baseTime: Date, 
+  _baseTime: Date, 
   hourOffset: number = 0,
   userId?: string
 ): void {
@@ -61,12 +61,12 @@ export function scheduleSecureNotification(
     return;
   }
 
-  const scheduleTime = new Date(baseTime);
-  scheduleTime.setHours(scheduleTime.getHours() + hourOffset);
+  const _scheduleTime = new Date(_baseTime);
+  _scheduleTime.setHours(_scheduleTime.getHours() + hourOffset);
 
   // Only schedule if the time is in the future
-  if (scheduleTime > new Date()) {
-    const delay = scheduleTime.getTime() - Date.now();
+  if (_scheduleTime > new Date()) {
+    const delay = _scheduleTime.getTime() - Date.now();
     
     // Validate delay is reasonable (not too far in future, not negative)
     if (delay > 0 && delay < 7 * 24 * 60 * 60 * 1000) { // Max 7 days
@@ -77,8 +77,8 @@ export function scheduleSecureNotification(
         if (userId) {
           EnhancedSecurityMonitoringService.logSecurityEvent({
             eventType: 'NOTIFICATION_SENT',
-            severity: 'low',
-            details: { type, scheduled_time: scheduleTime.toISOString() },
+            _severity: 'low',
+            _details: { type, _scheduled_time: _scheduleTime.toISOString() },
             userId
           });
         }
@@ -106,42 +106,42 @@ export async function scheduleAllSecure(settings: NotificationSettings, userId: 
   // Save settings securely
   await SecureNotificationPreferencesService.savePreferences(userId, settings);
 
-  const { time, freq, toggles } = settings;
-  const [hours, minutes] = time.split(':').map(Number);
+  const { time, _freq, toggles } = settings;
+  const [hours, _minutes] = time.split(':').map(_Number);
 
   // Validate time values
-  if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+  if (hours < 0 || hours > 23 || _minutes < 0 || _minutes > 59) {
     throw new Error('Invalid time format');
   }
 
   // Calculate days to schedule based on frequency
-  const daysToSchedule = calculateScheduleDays(freq);
+  const daysToSchedule = calculateScheduleDays(_freq);
 
   for (const day of daysToSchedule) {
-    const scheduleTime = new Date();
-    scheduleTime.setDate(scheduleTime.getDate() + day);
-    scheduleTime.setHours(hours, minutes, 0, 0);
+    const _scheduleTime = new Date();
+    _scheduleTime.setDate(_scheduleTime.getDate() + day);
+    _scheduleTime.setHours(hours, _minutes, 0, 0);
 
-    // Schedule different types of notifications with rate limiting
+    // Schedule different _types of notifications with rate limiting
     if (toggles.checkIn) {
-      scheduleSecureNotification('checkIn', scheduleTime, 0, userId);
+      scheduleSecureNotification('checkIn', _scheduleTime, 0, userId);
     }
     if (toggles.affirm) {
-      scheduleSecureNotification('affirm', scheduleTime, 2, userId); // 2 hours after check-in
+      scheduleSecureNotification('affirm', _scheduleTime, 2, userId); // 2 hours after check-in
     }
     if (toggles.support) {
-      scheduleSecureNotification('support', scheduleTime, 6, userId); // 6 hours after check-in
+      scheduleSecureNotification('support', _scheduleTime, 6, userId); // 6 hours after check-in
     }
     if (toggles.spiritual) {
-      scheduleSecureNotification('spiritual', scheduleTime, -1, userId); // 1 hour before check-in
+      scheduleSecureNotification('spiritual', _scheduleTime, -1, userId); // 1 hour before check-in
     }
   }
 
   // Log scheduling event
   EnhancedSecurityMonitoringService.logSecurityEvent({
     eventType: 'NOTIFICATIONS_SCHEDULED',
-    severity: 'low',
-    details: { frequency: freq, types: Object.keys(toggles).filter(k => toggles[k as keyof typeof toggles]) },
+    _severity: 'low',
+    _details: { frequency: _freq, _types: Object.keys(toggles).filter(k => toggles[k as keyof typeof toggles]) },
     userId
   });
 }

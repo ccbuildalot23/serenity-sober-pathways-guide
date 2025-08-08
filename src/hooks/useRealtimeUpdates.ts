@@ -10,9 +10,9 @@ import {
 } from '@/services/enhancedRealtimeService';
 
 interface UseRealtimeUpdatesProps {
-  onCrisisEvent?: (payload: any) => void;
-  onMoodUpdate?: (payload: any) => void;
-  onCheckInUpdate?: (payload: any) => void;
+  onCrisisEvent?: (_payload: unknown) => void;
+  onMoodUpdate?: (_payload: unknown) => void;
+  onCheckInUpdate?: (_payload: unknown) => void;
 }
 
 export const useRealtimeUpdates = ({
@@ -30,29 +30,29 @@ export const useRealtimeUpdates = ({
 
     // Subscribe to crisis events
     if (onCrisisEvent) {
-      const crisisChannel = subscribeToCrisisEvents(user.id, (payload) => {
-        console.log('Crisis event received:', payload);
-        onCrisisEvent(payload);
+      const _crisisChannel = subscribeToCrisisEvents(user.id, (_payload) => {
+        console.log('Crisis event received:', _payload);
+        onCrisisEvent(_payload);
       });
-      channelsRef.current.push(crisisChannel);
+      channelsRef.current.push(_crisisChannel);
     }
 
     // Subscribe to mood updates
     if (onMoodUpdate) {
-      const moodChannel = subscribeToMoodUpdates(user.id, (payload) => {
-        console.log('Mood update received:', payload);
-        onMoodUpdate(payload);
+      const _moodChannel = subscribeToMoodUpdates(user.id, (_payload) => {
+        console.log('Mood update received:', _payload);
+        onMoodUpdate(_payload);
       });
-      channelsRef.current.push(moodChannel);
+      channelsRef.current.push(_moodChannel);
     }
 
     // Subscribe to all check-in updates
     if (onCheckInUpdate) {
-      const checkInChannel = subscribeToAllCheckInUpdates(user.id, (payload) => {
-        console.log('Check-in update received:', payload);
-        onCheckInUpdate(payload);
+      const _checkInChannel = subscribeToAllCheckInUpdates(user.id, (_payload) => {
+        console.log('Check-in update received:', _payload);
+        onCheckInUpdate(_payload);
       });
-      channelsRef.current.push(checkInChannel);
+      channelsRef.current.push(_checkInChannel);
     }
 
     // Cleanup function

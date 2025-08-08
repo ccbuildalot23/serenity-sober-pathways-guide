@@ -1,4 +1,4 @@
-// Compassionate Supabase Client - Gentle error handling for database operations
+// Compassionate Supabase Client - Gentle _error handling for database operations
 // Because technical errors shouldn't add stress to recovery
 
 import { supabase } from './client';
@@ -39,10 +39,10 @@ const ERROR_MESSAGES = {
   }
 };
 
-// Determine error type from Supabase error
-const getErrorType = (error: any): keyof typeof ERROR_MESSAGES => {
-  const message = error?.message?.toLowerCase() || '';
-  const code = error?.code?.toLowerCase() || '';
+// Determine _error type from Supabase _error
+const getErrorType = (_error: unknown): keyof typeof ERROR_MESSAGES => {
+  const message = _error?.message?.toLowerCase() || '';
+  const code = _error?.code?.toLowerCase() || '';
   
   if (code.includes('auth') || message.includes('auth')) return 'auth';
   if (code.includes('network') || message.includes('fetch')) return 'network';
@@ -53,24 +53,24 @@ const getErrorType = (error: any): keyof typeof ERROR_MESSAGES => {
   return 'general';
 };
 
-// Show compassionate error to user
-const showCompassionateError = (error: any, context?: string) => {
-  const errorType = getErrorType(error);
+// Show compassionate _error to user
+const showCompassionateError = (_error: unknown, context?: string) => {
+  const errorType = getErrorType(_error);
   const errorInfo = ERROR_MESSAGES[errorType];
   
-  console.error(`Compassionate error (${context}):`, error);
+  console._error(`Compassionate _error (${context}):`, _error);
   
-  toast.error(errorInfo.title, {
+  toast._error(errorInfo.title, {
     description: (
       <div className="space-y-1">
         <p>{errorInfo.message}</p>
         <p className="text-xs opacity-80">{errorInfo.action}</p>
       </div>
     ),
-    duration: 5000,
+    _duration: 5000,
   });
   
-  // Send encouragement if it's an auth error
+  // Send encouragement if it's an auth _error
   if (errorType === 'auth') {
     setTimeout(() => {
       hopeMessenger.sendHope('struggling');
@@ -78,57 +78,57 @@ const showCompassionateError = (error: any, context?: string) => {
   }
 };
 
-// Wrapper for database operations with compassionate error handling
+// Wrapper for database operations with compassionate _error handling
 export const compassionateSupabase = {
   // Auth operations
   auth: {
     signIn: async (email: string, password: string) => {
       try {
-        const result = await supabase.auth.signInWithPassword({ email, password });
-        if (result.error) throw result.error;
+        const _result = await supabase.auth.signInWithPassword({ email, password });
+        if (_result._error) throw _result._error;
         
         toast.success("Welcome back!", {
           description: "We're glad you're here",
-          duration: 3000
+          _duration: 3000
         });
         
-        return result;
-      } catch (error) {
-        showCompassionateError(error, 'sign in');
-        throw error;
+        return _result;
+      } catch (_error) {
+        showCompassionateError(_error, 'sign in');
+        throw _error;
       }
     },
     
     signUp: async (email: string, password: string) => {
       try {
-        const result = await supabase.auth.signUp({ email, password });
-        if (result.error) throw result.error;
+        const _result = await supabase.auth.signUp({ email, password });
+        if (_result._error) throw _result._error;
         
         toast.success("Welcome to your recovery journey!", {
           description: "Check your email to verify your account",
-          duration: 5000
+          _duration: 5000
         });
         
-        return result;
-      } catch (error) {
-        showCompassionateError(error, 'sign up');
-        throw error;
+        return _result;
+      } catch (_error) {
+        showCompassionateError(_error, 'sign up');
+        throw _error;
       }
     },
     
     signOut: async () => {
       try {
-        const result = await supabase.auth.signOut();
+        const _result = await supabase.auth.signOut();
         
         toast.info("Signed out safely", {
           description: "Come back anytime you need support",
-          duration: 3000
+          _duration: 3000
         });
         
-        return result;
-      } catch (error) {
-        showCompassionateError(error, 'sign out');
-        throw error;
+        return _result;
+      } catch (_error) {
+        showCompassionateError(_error, 'sign out');
+        throw _error;
       }
     }
   },
@@ -140,71 +140,71 @@ export const compassionateSupabase = {
     return {
       ...originalFrom,
       
-      select: (...args: any[]) => {
+      select: (...args: unknown[]) => {
         const query = originalFrom.select(...args);
         
         return {
           ...query,
-          then: async (resolve: any, reject: any) => {
+          then: async (resolve: unknown, reject: unknown) => {
             try {
-              const result = await query;
-              if (result.error) throw result.error;
-              resolve(result);
-            } catch (error) {
-              showCompassionateError(error, `loading from ${table}`);
+              const _result = await query;
+              if (_result._error) throw _result._error;
+              resolve(_result);
+            } catch (_error) {
+              showCompassionateError(_error, `loading from ${table}`);
               // Return empty data instead of failing completely
-              resolve({ data: [], error });
+              resolve({ data: [], _error });
             }
           }
         };
       },
       
-      insert: (...args: any[]) => {
+      insert: (...args: unknown[]) => {
         const query = originalFrom.insert(...args);
         
         return {
           ...query,
-          then: async (resolve: any, reject: any) => {
+          then: async (resolve: unknown, reject: unknown) => {
             try {
-              const result = await query;
-              if (result.error) throw result.error;
+              const _result = await query;
+              if (_result._error) throw _result._error;
               
               // Success feedback
               if (table.includes('check') || table.includes('mood')) {
                 toast.success("Saved successfully", {
                   description: "Thank you for checking in",
-                  duration: 2000
+                  _duration: 2000
                 });
               }
               
-              resolve(result);
-            } catch (error) {
-              showCompassionateError(error, `saving to ${table}`);
-              reject(error);
+              resolve(_result);
+            } catch (_error) {
+              showCompassionateError(_error, `saving to ${table}`);
+              reject(_error);
             }
           }
         };
       },
       
-      update: (...args: any[]) => {
+      update: (...args: unknown[]) => {
         const query = originalFrom.update(...args);
         
         return {
           ...query,
-          then: async (resolve: any, reject: any) => {
+          then: async (resolve: unknown, reject: unknown) => {
             try {
-              const result = await query;
-              if (result.error) throw result.error;
+              const _result = await query;
+              if (_result._error) throw _result._error;
               
               toast.success("Updated", {
                 description: "Your changes are saved",
-                duration: 2000
+                _duration: 2000
               });
               
-              resolve(result);
-            } catch (error) {
-              showCompassionateError(error, `updating ${table}`);
-              reject(error);
+              resolve(_result);
+            } catch (_error) {
+              showCompassionateError(_error, `updating ${table}`);
+              reject(_error);
             }
           }
         };

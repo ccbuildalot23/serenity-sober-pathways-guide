@@ -4,11 +4,11 @@ import { sessionManager } from '@/lib/unifiedSessionManager';
 import { SecurityConfigValidator } from '@/lib/securityConfigValidator';
 
 interface UnifiedSecurityState {
-  isSessionValid: boolean;
+  _isSessionValid: boolean;
   sessionWarning: boolean;
-  securityScore: number;
-  securityEvents: string[];
-  configurationValid: boolean;
+  _securityScore: number;
+  _securityEvents: string[];
+  _configurationValid: boolean;
 }
 
 /**
@@ -19,16 +19,16 @@ export const useUnifiedSecurity = () => {
   const { user } = useAuth();
   
   const [securityState, setSecurityState] = useState<UnifiedSecurityState>({
-    isSessionValid: false,
+    _isSessionValid: false,
     sessionWarning: false,
-    securityScore: 0,
-    securityEvents: [],
-    configurationValid: false
+    _securityScore: 0,
+    _securityEvents: [],
+    _configurationValid: false
   });
 
   // Stable logging function
-  const logSecurityEvent = useCallback((eventType: string, details?: any) => {
-    console.log('Security Event:', eventType, details);
+  const logSecurityEvent = useCallback((_eventType: string, _details?: unknown) => {
+    console.log('Security Event:', _eventType, _details);
   }, []);
 
   useEffect(() => {
@@ -37,16 +37,16 @@ export const useUnifiedSecurity = () => {
     
     setSecurityState(prev => ({
       ...prev,
-      securityScore: configValidation.score,
-      configurationValid: configValidation.isSecure
+      _securityScore: configValidation.score,
+      _configurationValid: configValidation.isSecure
     }));
 
     // Log configuration issues
     if (!configValidation.isSecure) {
       logSecurityEvent('SECURITY_CONFIG_INVALID', {
         score: configValidation.score,
-        errors: configValidation.errors,
-        warnings: configValidation.warnings
+        _errors: configValidation._errors,
+        _warnings: configValidation._warnings
       });
     }
 
@@ -59,35 +59,35 @@ export const useUnifiedSecurity = () => {
       
       logSecurityEvent('SESSION_WARNING_SHOWN', {
         timeRemaining: event.detail?.timeRemaining,
-        userId: user?.id
+        _userId: user?.id
       });
     };
 
     const handleSessionEnded = (event: CustomEvent) => {
       setSecurityState(prev => ({
         ...prev,
-        isSessionValid: false,
+        _isSessionValid: false,
         sessionWarning: false
       }));
       
       logSecurityEvent('SESSION_ENDED', {
         reason: event.detail?.reason,
-        userId: user?.id
+        _userId: user?.id
       });
     };
 
     const handleSecurityEvent = (event: CustomEvent) => {
-      const eventType = event.detail?.type;
-      if (eventType) {
+      const _eventType = event.detail?.type;
+      if (_eventType) {
         setSecurityState(prev => ({
           ...prev,
-          securityEvents: [...prev.securityEvents.slice(-20), eventType]
+          _securityEvents: [...prev._securityEvents.slice(-20), _eventType]
         }));
         
         logSecurityEvent('CLIENT_SECURITY_EVENT', {
-          eventType,
-          timestamp: event.detail?.timestamp,
-          data: event.detail?.data
+          _eventType,
+          _timestamp: event.detail?._timestamp,
+          _data: event.detail?._data
         });
       }
     };
@@ -96,7 +96,7 @@ export const useUnifiedSecurity = () => {
       setSecurityState(prev => ({
         ...prev,
         sessionWarning: false,
-        isSessionValid: true
+        _isSessionValid: true
       }));
     };
 
@@ -109,7 +109,7 @@ export const useUnifiedSecurity = () => {
     // Check initial session state
     setSecurityState(prev => ({
       ...prev,
-      isSessionValid: sessionManager.isSessionValid()
+      _isSessionValid: sessionManager._isSessionValid()
     }));
 
     // Cleanup on unmount
@@ -123,16 +123,16 @@ export const useUnifiedSecurity = () => {
 
   // Monitor session validity
   useEffect(() => {
-    const checkSession = () => {
-      const isValid = sessionManager.isSessionValid();
+    const _checkSession = () => {
+      const isValid = sessionManager._isSessionValid();
       setSecurityState(prev => ({
         ...prev,
-        isSessionValid: isValid
+        _isSessionValid: isValid
       }));
     };
 
-    const interval = setInterval(checkSession, 30000); // Check every 30 seconds
-    return () => clearInterval(interval);
+    const _interval = setInterval(_checkSession, 30000); // Check every 30 seconds
+    return () => clearInterval(_interval);
   }, []);
 
   const extendSession = async () => {
@@ -164,25 +164,25 @@ export const useUnifiedSecurity = () => {
     
     return {
       overall: {
-        score: Math.min(securityState.securityScore, configValidation.score),
-        status: securityState.configurationValid && securityState.isSessionValid ? 'secure' : 'attention_needed'
+        score: Math.min(securityState._securityScore, configValidation.score),
+        status: securityState._configurationValid && securityState._isSessionValid ? 'secure' : 'attention_needed'
       },
       session: {
-        valid: securityState.isSessionValid,
+        valid: securityState._isSessionValid,
         warning: securityState.sessionWarning,
         lastActivity: sessionState.lastActivity,
-        securityEvents: sessionState.securityEvents
+        _securityEvents: sessionState._securityEvents
       },
       configuration: {
         valid: configValidation.isSecure,
         score: configValidation.score,
-        warnings: configValidation.warnings,
-        errors: configValidation.errors,
+        _warnings: configValidation._warnings,
+        _errors: configValidation._errors,
         recommendations: configValidation.recommendations
       },
       client: {
-        events: securityState.securityEvents,
-        timestamp: Date.now()
+        events: securityState._securityEvents,
+        _timestamp: Date.now()
       }
     };
   };
@@ -197,9 +197,9 @@ export const useUnifiedSecurity = () => {
     getSecurityReport,
     
     // Utilities
-    isSecure: securityState.configurationValid && securityState.isSessionValid,
-    needsAttention: !securityState.configurationValid || securityState.sessionWarning,
-    securityLevel: securityState.securityScore >= 90 ? 'high' : 
-                   securityState.securityScore >= 70 ? 'medium' : 'low'
+    isSecure: securityState._configurationValid && securityState._isSessionValid,
+    needsAttention: !securityState._configurationValid || securityState.sessionWarning,
+    securityLevel: securityState._securityScore >= 90 ? 'high' : 
+                   securityState._securityScore >= 70 ? 'medium' : 'low'
   };
 };

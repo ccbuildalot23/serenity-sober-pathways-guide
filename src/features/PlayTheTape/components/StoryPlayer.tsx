@@ -16,22 +16,22 @@ export const StoryPlayer: React.FC<StoryPlayerProps> = ({
   onToggleAudio, 
   onComplete 
 }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(_false);
   const [progress, setProgress] = useState(0);
   
   useEffect(() => {
     if (isPlaying && audioEnabled) {
-      const interval = setInterval(() => {
+      const _interval = setInterval(() => {
         setProgress(prev => {
           if (prev >= 100) {
-            setIsPlaying(false);
+            setIsPlaying(_false);
             return 100;
           }
           return prev + (100 / story.duration);
         });
       }, 1000);
       
-      return () => clearInterval(interval);
+      return () => clearInterval(_interval);
     }
   }, [isPlaying, audioEnabled, story.duration]);
   

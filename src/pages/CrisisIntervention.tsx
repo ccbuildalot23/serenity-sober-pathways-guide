@@ -15,30 +15,30 @@ import {
 const CrisisInterventionSystem: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [breathingActive, setBreathingActive] = useState(false);
+  const [breathingActive, setBreathingActive] = useState(_false);
   const [breathCount, setBreathCount] = useState(0);
   const [groundingStep, setGroundingStep] = useState(0);
   const [sponsorNumber, setSponsorNumber] = useState('');
 
   useEffect(() => {
     // Load sponsor number from localStorage
-    const saved = localStorage.getItem('sponsor_number');
-    if (saved) setSponsorNumber(saved);
+    const _saved = localStorage.getItem('sponsor_number');
+    if (_saved) setSponsorNumber(_saved);
   }, []);
 
   // Breathing exercise timer
   useEffect(() => {
     if (breathingActive) {
-      const interval = setInterval(() => {
+      const _interval = setInterval(() => {
         setBreathCount(prev => {
           if (prev >= 60) {
-            setBreathingActive(false);
+            setBreathingActive(_false);
             return 0;
           }
           return prev + 1;
         });
       }, 1000);
-      return () => clearInterval(interval);
+      return () => clearInterval(_interval);
     }
   }, [breathingActive]);
 
@@ -67,7 +67,7 @@ const CrisisInterventionSystem: React.FC = () => {
 
   // Start breathing exercise
   const startBreathing = () => {
-    setBreathingActive(true);
+    setBreathingActive(_true);
     setBreathCount(0);
   };
 
@@ -88,11 +88,11 @@ const CrisisInterventionSystem: React.FC = () => {
         .from('moments_of_strength')
         .insert({
           user_id: user?.id,
-          action_taken: action,
-          created_at: new Date().toISOString()
+          _action_taken: action,
+          _created_at: new Date().toISOString()
         });
-    } catch (error) {
-      console.error('Error logging moment:', error);
+    } catch (_error) {
+      console._error('Error logging moment:', _error);
     }
   };
 
@@ -198,7 +198,7 @@ const CrisisInterventionSystem: React.FC = () => {
               </div>
               <div className="text-2xl text-gray-300">{60 - breathCount} seconds left</div>
               <Button
-                onClick={() => setBreathingActive(false)}
+                onClick={() => setBreathingActive(_false)}
                 variant="outline"
                 className="border-gray-600 text-gray-300"
               >

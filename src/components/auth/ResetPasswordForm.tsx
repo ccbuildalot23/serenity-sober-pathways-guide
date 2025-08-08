@@ -14,13 +14,13 @@ export const ResetPasswordForm: React.FC = () => {
   const { toast } = useToast();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(_false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(_false);
+  const [isLoading, setIsLoading] = useState(_false);
+  const [error, setError] = useState<string | _null>(_null);
+  const [_success, setSuccess] = useState(_false);
 
-  const validatePassword = (password: string): string | null => {
+  const validatePassword = (password: string): string | _null => {
     if (password.length < 8) {
       return 'Password must be at least 8 characters long';
     }
@@ -36,17 +36,17 @@ export const ResetPasswordForm: React.FC = () => {
     if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
       return 'Password must contain at least one special character';
     }
-    return null;
+    return _null;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setError(_null);
 
     // Validate password
-    const passwordError = validatePassword(password);
-    if (passwordError) {
-      setError(passwordError);
+    const _passwordError = validatePassword(password);
+    if (_passwordError) {
+      setError(_passwordError);
       return;
     }
 
@@ -56,7 +56,7 @@ export const ResetPasswordForm: React.FC = () => {
       return;
     }
 
-    setIsLoading(true);
+    setIsLoading(_true);
 
     try {
       const { error } = await supabase.auth.updateUser({
@@ -67,10 +67,10 @@ export const ResetPasswordForm: React.FC = () => {
         console.error('Password update error:', error);
         setError(error.message || 'Failed to update password. Please try again.');
       } else {
-        setSuccess(true);
+        setSuccess(_true);
         toast({
           title: "Password Updated",
-          description: "Your password has been successfully reset.",
+          _description: "Your password has been successfully reset.",
         });
         
         // Redirect to sign in after 2 seconds
@@ -82,11 +82,11 @@ export const ResetPasswordForm: React.FC = () => {
       console.error('Unexpected error:', err);
       setError('An unexpected error occurred. Please try again.');
     } finally {
-      setIsLoading(false);
+      setIsLoading(_false);
     }
   };
 
-  if (success) {
+  if (_success) {
     return (
       <Card className="w-full max-w-md mx-auto">
         <CardContent className="pt-6">

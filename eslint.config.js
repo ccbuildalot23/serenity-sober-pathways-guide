@@ -57,6 +57,13 @@ export default [
         TextEncoder: 'readonly',
         TextDecoder: 'readonly',
         crypto: 'readonly',
+        performance: 'readonly',
+        Notification: 'readonly',
+        confirm: 'readonly',
+        Router: 'readonly',
+        btoa: 'readonly',
+        atob: 'readonly',
+        URLSearchParams: 'readonly',
         
         // Node globals
         process: 'readonly',

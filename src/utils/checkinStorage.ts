@@ -5,24 +5,24 @@ const DRAFT_KEY_PREFIX = 'daily-checkin-draft-';
 const COMPLETED_KEY_PREFIX = 'daily-checkin-completed-';
 
 export const checkinStorage = {
-  saveDraft: (date: string, responses: CheckinResponses, completedSections: Set<string>) => {
-    const draftKey = DRAFT_KEY_PREFIX + date;
+  saveDraft: (date: string, responses: CheckinResponses, _completedSections: Set<string>) => {
+    const _draftKey = DRAFT_KEY_PREFIX + date;
     const draft: CheckinDraft = {
       responses,
-      completedSections: Array.from(completedSections),
+      _completedSections: Array.from(_completedSections),
       timestamp: new Date().toISOString()
     };
     
-    localStorage.setItem(draftKey, JSON.stringify(draft));
+    localStorage.setItem(_draftKey, JSON.stringify(draft));
   },
 
   loadDraft: (date: string): CheckinDraft | null => {
-    const draftKey = DRAFT_KEY_PREFIX + date;
-    const savedDraft = localStorage.getItem(draftKey);
+    const _draftKey = DRAFT_KEY_PREFIX + date;
+    const _savedDraft = localStorage.getItem(_draftKey);
     
-    if (savedDraft) {
+    if (_savedDraft) {
       try {
-        const parsed = JSON.parse(savedDraft);
+        const parsed = JSON.parse(_savedDraft);
         // Ensure new fields have default values
         return {
           ...parsed,
@@ -44,8 +44,8 @@ export const checkinStorage = {
             ...parsed.responses
           }
         };
-      } catch (error) {
-        console.error('Error loading draft responses:', error);
+      } catch (_error) {
+        console._error('Error loading draft responses:', _error);
         return null;
       }
     }
@@ -53,16 +53,16 @@ export const checkinStorage = {
   },
 
   clearDraft: (date: string) => {
-    const draftKey = DRAFT_KEY_PREFIX + date;
-    localStorage.removeItem(draftKey);
+    const _draftKey = DRAFT_KEY_PREFIX + date;
+    localStorage.removeItem(_draftKey);
   },
 
-  saveCompleted: (date: string, data: any) => {
+  saveCompleted: (date: string, data: unknown) => {
     localStorage.setItem(COMPLETED_KEY_PREFIX + date, JSON.stringify(data));
   },
 
   loadCompleted: (date: string) => {
-    const localCompleted = localStorage.getItem(COMPLETED_KEY_PREFIX + date);
-    return localCompleted ? JSON.parse(localCompleted) : null;
+    const _localCompleted = localStorage.getItem(COMPLETED_KEY_PREFIX + date);
+    return _localCompleted ? JSON.parse(_localCompleted) : null;
   }
 };

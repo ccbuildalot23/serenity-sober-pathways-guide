@@ -15,7 +15,7 @@ export interface Appointment {
   // Telehealth specific fields
   video_link?: string;
   waiting_room_enabled: boolean;
-  pre_appointment_forms: any[];
+  pre_appointment_forms: unknown[];
   
   // Booking details
   booking_notes?: string;

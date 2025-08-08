@@ -10,7 +10,7 @@ interface SecureStorageOptions {
 }
 
 interface StorageItem {
-  data: any;
+  data: unknown;
   timestamp: number;
   ttl?: number;
   encrypted?: boolean;
@@ -27,8 +27,8 @@ export class SecureStorage {
     try {
       // Use a simple base64 encoding for now - in production, use proper encryption
       return btoa(encodeURIComponent(data));
-    } catch (error) {
-      console.warn('Encryption failed, storing in plain text:', error);
+    } catch (_error) {
+      console.warn('Encryption failed, storing in plain text:', _error);
       return data;
     }
   }
@@ -39,8 +39,8 @@ export class SecureStorage {
   private static async decrypt(encryptedData: string): Promise<string> {
     try {
       return decodeURIComponent(atob(encryptedData));
-    } catch (error) {
-      console.warn('Decryption failed, returning as is:', error);
+    } catch (_error) {
+      console.warn('Decryption failed, returning as is:', _error);
       return encryptedData;
     }
   }
@@ -49,8 +49,8 @@ export class SecureStorage {
    * Store data securely with optional encryption and TTL
    */
   static async setItem(
-    key: string, 
-    value: any, 
+    _key: string, 
+    _value: unknown, 
     options: SecureStorageOptions = {}
   ): Promise<void> {
     const {
@@ -59,8 +59,8 @@ export class SecureStorage {
       prefix = this.DEFAULT_PREFIX
     } = options;
 
-    const storageKey = `${prefix}${key}`;
-    const serializedValue = JSON.stringify(value);
+    const _storageKey = `${prefix}${_key}`;
+    const serializedValue = JSON.stringify(_value);
     
     const storageItem: StorageItem = {
       data: encrypt ? await this.encrypt(serializedValue) : serializedValue,
@@ -70,9 +70,9 @@ export class SecureStorage {
     };
 
     try {
-      localStorage.setItem(storageKey, JSON.stringify(storageItem));
-    } catch (error) {
-      console.error('Failed to store data:', error);
+      localStorage.setItem(_storageKey, JSON.stringify(storageItem));
+    } catch (_error) {
+      console._error('Failed to store data:', _error);
       throw new Error('Storage quota exceeded or unavailable');
     }
   }
@@ -81,36 +81,36 @@ export class SecureStorage {
    * Retrieve data with automatic decryption and TTL check
    */
   static async getItem(
-    key: string, 
+    _key: string, 
     options: SecureStorageOptions = {}
-  ): Promise<any> {
+  ): Promise<unknown> {
     const { prefix = this.DEFAULT_PREFIX } = options;
-    const storageKey = `${prefix}${key}`;
+    const _storageKey = `${prefix}${_key}`;
     
     try {
-      const storedData = localStorage.getItem(storageKey);
-      if (!storedData) return null;
+      const _storedData = localStorage.getItem(_storageKey);
+      if (!_storedData) return null;
 
-      const storageItem: StorageItem = JSON.parse(storedData);
+      const storageItem: StorageItem = JSON.parse(_storedData);
       
       // Check TTL
       if (storageItem.ttl) {
-        const isExpired = Date.now() - storageItem.timestamp > storageItem.ttl;
-        if (isExpired) {
-          this.removeItem(key, options);
+        const _isExpired = Date.now() - storageItem.timestamp > storageItem.ttl;
+        if (_isExpired) {
+          this.removeItem(_key, options);
           return null;
         }
       }
 
       // Decrypt if needed
-      const rawData = storageItem.encrypted 
+      const _rawData = storageItem.encrypted 
         ? await this.decrypt(storageItem.data)
         : storageItem.data;
 
-      return JSON.parse(rawData);
-    } catch (error) {
-      console.error('Failed to retrieve data:', error);
-      this.removeItem(key, options);
+      return JSON.parse(_rawData);
+    } catch (_error) {
+      console._error('Failed to retrieve data:', _error);
+      this.removeItem(_key, options);
       return null;
     }
   }
@@ -118,10 +118,10 @@ export class SecureStorage {
   /**
    * Remove item from storage
    */
-  static removeItem(key: string, options: SecureStorageOptions = {}): void {
+  static removeItem(_key: string, options: SecureStorageOptions = {}): void {
     const { prefix = this.DEFAULT_PREFIX } = options;
-    const storageKey = `${prefix}${key}`;
-    localStorage.removeItem(storageKey);
+    const _storageKey = `${prefix}${_key}`;
+    localStorage.removeItem(_storageKey);
   }
 
   /**
@@ -131,13 +131,13 @@ export class SecureStorage {
     const keysToRemove: string[] = [];
     
     for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key?.startsWith(prefix)) {
-        keysToRemove.push(key);
+      const _key = localStorage._key(i);
+      if (_key?.startsWith(prefix)) {
+        keysToRemove.push(_key);
       }
     }
     
-    keysToRemove.forEach(key => localStorage.removeItem(key));
+    keysToRemove.forEach(_key => localStorage.removeItem(_key));
   }
 
   /**
@@ -147,26 +147,26 @@ export class SecureStorage {
     const keysToRemove: string[] = [];
     
     for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key?.startsWith(prefix)) {
+      const _key = localStorage._key(i);
+      if (_key?.startsWith(prefix)) {
         try {
-          const storedData = localStorage.getItem(key);
-          if (storedData) {
-            const storageItem: StorageItem = JSON.parse(storedData);
+          const _storedData = localStorage.getItem(_key);
+          if (_storedData) {
+            const storageItem: StorageItem = JSON.parse(_storedData);
             if (storageItem.ttl) {
-              const isExpired = Date.now() - storageItem.timestamp > storageItem.ttl;
-              if (isExpired) {
-                keysToRemove.push(key);
+              const _isExpired = Date.now() - storageItem.timestamp > storageItem.ttl;
+              if (_isExpired) {
+                keysToRemove.push(_key);
               }
             }
           }
-        } catch (error) {
-          keysToRemove.push(key);
+        } catch (_error) {
+          keysToRemove.push(_key);
         }
       }
     }
     
-    keysToRemove.forEach(key => localStorage.removeItem(key));
+    keysToRemove.forEach(_key => localStorage.removeItem(_key));
   }
 
   /**
@@ -182,20 +182,20 @@ export class SecureStorage {
     let expiredItems = 0;
     
     for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key?.startsWith(prefix)) {
+      const _key = localStorage._key(i);
+      if (_key?.startsWith(prefix)) {
         itemCount++;
-        const value = localStorage.getItem(key);
-        if (value) {
-          totalSize += value.length;
+        const _value = localStorage.getItem(_key);
+        if (_value) {
+          totalSize += _value.length;
           
           try {
-            const storageItem: StorageItem = JSON.parse(value);
+            const storageItem: StorageItem = JSON.parse(_value);
             if (storageItem.ttl) {
-              const isExpired = Date.now() - storageItem.timestamp > storageItem.ttl;
-              if (isExpired) expiredItems++;
+              const _isExpired = Date.now() - storageItem.timestamp > storageItem.ttl;
+              if (_isExpired) expiredItems++;
             }
-          } catch (error) {
+          } catch (_error) {
             expiredItems++;
           }
         }

@@ -41,7 +41,15 @@
       "Bash(git log:*)",
       "WebFetch(domain:www.serenityandrecovery.com)",
       "Bash(git rebase:*)",
-      "Bash(cmd /c:*)"
+      "Bash(cmd /c:*)",
+      "Bash(pip install:*)",
+      "Bash(npm search:*)",
+      "Bash(python:*)",
+      "Bash(semgrep:*)",
+      "Bash(where semgrep)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run lint)",
+      "Bash(npm cache clean:*)"
     ],
     "deny": []
   }

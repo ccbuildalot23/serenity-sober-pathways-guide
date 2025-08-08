@@ -12,7 +12,6 @@ on:
 
 env:
   NODE_VERSION: '20'
-  PNPM_VERSION: '8'
 
 jobs:
   create-release:
@@ -69,24 +68,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.PNPM_VERSION }}
-          
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+          cache: 'npm'
           
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
         
       - name: Build for ${{ matrix.name }}
         run: |
           if [ "${{ matrix.env }}" = "production" ]; then
-            pnpm build
+            npm run build
           else
-            pnpm build:dev
+            npm run build:dev
           fi
         env:
           VITE_APP_VERSION: ${{ needs.create-release.outputs.version }}
@@ -115,20 +110,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.PNPM_VERSION }}
-          
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+          cache: 'npm'
           
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
         
       - name: Build application
-        run: pnpm build
+        run: npm run build
         env:
           VITE_APP_VERSION: ${{ needs.create-release.outputs.version }}
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}

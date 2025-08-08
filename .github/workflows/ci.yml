@@ -9,7 +9,6 @@ on:
 
 env:
   NODE_VERSION: '20'
-  PNPM_VERSION: '8'
 
 jobs:
   quality:
@@ -18,26 +17,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.PNPM_VERSION }}
-          
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+          cache: 'npm'
           
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
         
       - name: Run linting
-        run: pnpm lint
+        run: npm run lint
         
       - name: Run type checking
-        run: pnpm typecheck
+        run: npm run typecheck
         
       - name: Validate project structure
-        run: pnpm validate:structure
+        run: npm run validate:structure
 
   test:
     name: Tests
@@ -45,29 +40,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.PNPM_VERSION }}
-          
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+          cache: 'npm'
           
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
         
       - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps
+        run: npx playwright install --with-deps
         
       - name: Run tests
-        run: pnpm test
+        run: npm test
         
       - name: Run accessibility tests
-        run: pnpm test:accessibility
+        run: npm run test:accessibility
         
       - name: Run recovery feature tests
-        run: pnpm test:recovery
+        run: npm run test:recovery
         
       - uses: actions/upload-artifact@v4
         if: failure()
@@ -83,25 +74,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.PNPM_VERSION }}
-          
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+          cache: 'npm'
           
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
         
       - name: Build application
-        run: pnpm build
+        run: npm run build
         env:
           CI: true
           
       - name: Check deployment readiness
-        run: pnpm deployment:check
+        run: npm run deployment:check
         
       - uses: actions/upload-artifact@v4
         with:

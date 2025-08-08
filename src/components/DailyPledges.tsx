@@ -77,6 +77,62 @@ const DailyPledges = () => {
       evening_prompt: 'What challenges did I face, and how did I handle them?',
       category: 'progress',
       is_default: true
+    },
+    {
+      id: '4',
+      title: 'Early Recovery Focus',
+      morning_prompt: 'Today is another day I choose my recovery. I will take it one moment at a time and celebrate each small victory.',
+      evening_prompt: 'What recovery skills did I practice today? What can I learn from any difficult moments?',
+      category: 'early-recovery',
+      is_default: true
+    },
+    {
+      id: '5',
+      title: 'HALT Check-In',
+      morning_prompt: 'Today I commit to regularly checking if I am Hungry, Angry, Lonely, or Tired, and addressing these needs with care.',
+      evening_prompt: 'When did I notice HALT feelings today, and how did I respond to them?',
+      category: 'self-care',
+      is_default: true
+    },
+    {
+      id: '6',
+      title: 'Building Connections',
+      morning_prompt: 'I will prioritize authentic connections today, whether through meetings, friends in recovery, or my support network.',
+      evening_prompt: 'How did I connect with others in recovery today? What relationships am I nurturing?',
+      category: 'community',
+      is_default: true
+    },
+    {
+      id: '7',
+      title: 'Dealing with Cravings',
+      morning_prompt: 'If cravings arise today, I commit to using healthy coping strategies and reaching out for support rather than struggling alone.',
+      evening_prompt: 'Did I experience any cravings or triggers today? How did I handle them, and what tools were most helpful?',
+      category: 'cravings',
+      is_default: true
+    },
+    {
+      id: '8',
+      title: 'Spiritual Recovery',
+      morning_prompt: 'I will nurture my spiritual connection today through prayer, meditation, or whatever practice brings me peace and strength.',
+      evening_prompt: 'How did I connect with my higher power or spiritual practice today? What brought me peace?',
+      category: 'spiritual',
+      is_default: true
+    },
+    {
+      id: '9',
+      title: 'Amends and Healing',
+      morning_prompt: 'Today I will work on healing relationships and making amends where appropriate, starting with being compassionate to myself.',
+      evening_prompt: 'How did I practice forgiveness today - both giving and receiving? What relationships am I healing?',
+      category: 'relationships',
+      is_default: true
+    },
+    {
+      id: '10',
+      title: 'Long-term Sobriety',
+      morning_prompt: 'With months/years of recovery behind me, I commit to staying vigilant, helping newcomers, and continuing to grow.',
+      evening_prompt: 'How did I give back to the recovery community today? What did I do to maintain my spiritual condition?',
+      category: 'long-term',
+      is_default: true
     }
   ];
 
@@ -196,6 +252,10 @@ const DailyPledges = () => {
     "I pledge to reach out for support when I need it and to be gentle with myself.",
     "Today, I choose healing and will take one positive step forward.",
     "I commit to honoring my recovery and the progress I've made so far.",
+    "Today I will practice the tools I've learned and trust in my recovery process.",
+    "I choose to be kind to myself today and celebrate every moment of sobriety.",
+    "Today I will stay connected to my support network and recovery community.",
+    "I commit to handling any challenges today with the wisdom I've gained in recovery."
   ];
 
   const defaultEveningPrompts = [
@@ -203,6 +263,10 @@ const DailyPledges = () => {
     "How did I honor my commitment to myself today?", 
     "What challenges did I face, and how did I handle them?",
     "What can I learn from today to help my recovery tomorrow?",
+    "How did I practice self-care and maintain my recovery today?",
+    "What recovery tools did I use today, and which were most helpful?",
+    "How did I connect with others in recovery or my support system today?",
+    "What am I proud of accomplishing in my recovery today, no matter how small?"
   ];
 
   return (
@@ -431,41 +495,55 @@ const DailyPledges = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-serenity-navy">
                 <BookOpen className="w-5 h-5 text-serenity-teal" />
-                Pledge Templates
+                Recovery-Focused Pledge Templates
               </CardTitle>
               <p className="text-muted-foreground">
-                Pre-written commitments and prompts to inspire your daily practice.
+                Choose from these evidence-based recovery prompts designed for different stages and focuses of your journey.
               </p>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {Array.from(new Set(templates.map(t => t.category))).map(category => (
+                  <Badge key={category} variant="outline" className="text-xs capitalize">
+                    {category.replace('-', ' ')}
+                  </Badge>
+                ))}
+              </div>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4">
-                {templates.map((template) => (
-                  <div
-                    key={template.id}
-                    className="p-4 border border-serenity-sage/30 rounded-lg hover:bg-serenity-mint/5 transition-colors"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-semibold text-serenity-navy">{template.title}</h4>
-                      <Badge variant={template.is_default ? "secondary" : "outline"}>
-                        {template.is_default ? "Default" : "Custom"}
-                      </Badge>
-                    </div>
-                    
-                    <div className="space-y-2 text-sm text-muted-foreground mb-3">
-                      <p><strong>Morning:</strong> {template.morning_prompt}</p>
-                      <p><strong>Evening:</strong> {template.evening_prompt}</p>
-                    </div>
-                    
-                    <Button
-                      size="sm"
-                      onClick={() => useTemplate(template)}
-                      className="bg-serenity-teal hover:bg-serenity-teal/90 text-white"
+                <div className="grid gap-4 md:grid-cols-2">
+                  {templates.map((template) => (
+                    <div
+                      key={template.id}
+                      className="p-4 border border-serenity-sage/30 rounded-lg hover:bg-serenity-mint/5 transition-colors"
                     >
-                      <Target className="w-4 h-4 mr-2" />
-                      Use Template
-                    </Button>
-                  </div>
-                ))}
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="font-semibold text-serenity-navy">{template.title}</h4>
+                        <div className="flex gap-2">
+                          <Badge variant="outline" className="text-xs capitalize">
+                            {template.category.replace('-', ' ')}
+                          </Badge>
+                          <Badge variant={template.is_default ? "secondary" : "outline"}>
+                            {template.is_default ? "Featured" : "Custom"}
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2 text-sm text-muted-foreground mb-3">
+                        <p><strong className="text-serenity-gold">Morning:</strong> {template.morning_prompt}</p>
+                        <p><strong className="text-serenity-sage">Evening:</strong> {template.evening_prompt}</p>
+                      </div>
+                      
+                      <Button
+                        size="sm"
+                        onClick={() => useTemplate(template)}
+                        className="w-full bg-serenity-teal hover:bg-serenity-teal/90 text-white"
+                      >
+                        <Target className="w-4 h-4 mr-2" />
+                        Use This Template
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </CardContent>
           </Card>

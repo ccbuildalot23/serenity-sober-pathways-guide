@@ -11,7 +11,9 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
-    "test": "echo \"No tests configured yet\"",
+    "test": "npx playwright test",
+    "test:accessibility": "npx playwright test tests/accessibility/",
+    "test:recovery": "npx playwright test tests/accessibility/recovery-features.spec.ts",
     "validate:structure": "node scripts/validate-structure.cjs",
     "fix:deployment": "node scripts/fix-deployment.cjs",
     "prebuild": "npm run validate:structure",
@@ -51,6 +53,7 @@
     "@tanstack/react-table": "^8.11.8",
     "@types/dompurify": "^3.0.5",
     "@vercel/analytics": "^1.1.1",
+    "canvas-confetti": "^1.6.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "cmdk": "^0.2.0",
@@ -74,6 +77,8 @@
     "zustand": "^4.4.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "@playwright/test": "^1.54.2",
     "@types/node": "^20.10.6",
     "@types/react": "^18.2.46",
     "@types/react-dom": "^18.2.18",

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, DollarSign, Trophy, Clock, Target, TrendingUp, RefreshCw, Heart } from 'lucide-react';
+import { Calendar, DollarSign, Trophy, Clock, Target, TrendingUp, RefreshCw, Heart, Award, Star, Zap } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -36,7 +36,11 @@ const SobrietyTracker = () => {
   const [days, setDays] = useState<number>(0);
   const [hours, setHours] = useState<number>(0);
   const [minutes, setMinutes] = useState<number>(0);
+  const [seconds, setSeconds] = useState<number>(0);
   const [moneySaved, setMoneySaved] = useState<number>(0);
+  const [totalHours, setTotalHours] = useState<number>(0);
+  const [achievements, setAchievements] = useState<string[]>([]);
+  const [newAchievement, setNewAchievement] = useState<string | null>(null);
   const [showMilestone, setShowMilestone] = useState(false);
   const [currentMilestone, setCurrentMilestone] = useState<MilestoneData | null>(null);
   const [crisisData, setCrisisData] = useState<any[]>([]);
@@ -44,16 +48,17 @@ const SobrietyTracker = () => {
   const [loading, setLoading] = useState(false);
   const [analyticsData, setAnalyticsData] = useState<any>(null);
 
-  // Real-time counter update
+  // Real-time counter update (every second for more granular tracking)
   useEffect(() => {
     const interval = setInterval(() => {
       if (sobrietyDate) {
         calculateRealTimeProgress();
+        checkForNewAchievements();
       }
-    }, 60000); // Update every minute
+    }, 1000); // Update every second
 
     return () => clearInterval(interval);
-  }, [sobrietyDate]);
+  }, [sobrietyDate, totalHours]);
 
   // Load data from database
   useEffect(() => {
@@ -180,12 +185,16 @@ const SobrietyTracker = () => {
     const diffTime = now.getTime() - start.getTime();
     
     const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    const totalHours = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const totalHoursInDay = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const totalMinutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
+    const totalSeconds = Math.floor((diffTime % (1000 * 60)) / 1000);
+    const totalHoursOverall = Math.floor(diffTime / (1000 * 60 * 60));
     
     setDays(totalDays);
-    setHours(totalHours);
+    setHours(totalHoursInDay);
     setMinutes(totalMinutes);
+    setSeconds(totalSeconds);
+    setTotalHours(totalHoursOverall);
     setMoneySaved(totalDays * parseFloat(dailyCost));
   };
 
@@ -279,6 +288,33 @@ const SobrietyTracker = () => {
     return { next: nextMilestone, progress, remaining: nextMilestone - days };
   };
 
+  const checkForNewAchievements = () => {
+    const hourlyMilestones = [
+      { hours: 24, title: "First Full Day", icon: "🌅" },
+      { hours: 72, title: "Three Days Strong", icon: "💪" },
+      { hours: 168, title: "First Week", icon: "🔥" },
+      { hours: 336, title: "Two Weeks", icon: "⭐" },
+      { hours: 720, title: "One Month", icon: "🏆" },
+      { hours: 2160, title: "Three Months", icon: "💎" },
+      { hours: 4320, title: "Six Months", icon: "🌈" },
+      { hours: 8760, title: "One Year", icon: "👑" },
+      { hours: 17520, title: "Two Years", icon: "🎯" },
+      { hours: 26280, title: "Three Years", icon: "🌟" }
+    ];
+
+    const newMilestone = hourlyMilestones.find(m => 
+      totalHours >= m.hours && !achievements.includes(m.title)
+    );
+
+    if (newMilestone) {
+      setAchievements(prev => [...prev, newMilestone.title]);
+      setNewAchievement(`${newMilestone.icon} ${newMilestone.title}`);
+      
+      // Show achievement notification
+      setTimeout(() => setNewAchievement(null), 5000);
+    }
+  };
+
   const progressData = getProgressToNextMilestone();
 
   return (
@@ -295,20 +331,33 @@ const SobrietyTracker = () => {
             <>
               {/* Real-time Counter */}
               <div className="mb-6">
-                <div className="grid grid-cols-3 gap-4 mb-4">
+                <div className="grid grid-cols-4 gap-3 mb-4">
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-serenity-emerald">{days}</div>
-                    <div className="text-sm text-muted-foreground">Days</div>
+                    <div className="text-2xl font-bold text-serenity-emerald">{days}</div>
+                    <div className="text-xs text-muted-foreground">Days</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-serenity-teal">{hours}</div>
-                    <div className="text-sm text-muted-foreground">Hours</div>
+                    <div className="text-2xl font-bold text-serenity-teal">{hours}</div>
+                    <div className="text-xs text-muted-foreground">Hours</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-serenity-sage">{minutes}</div>
-                    <div className="text-sm text-muted-foreground">Minutes</div>
+                    <div className="text-2xl font-bold text-serenity-sage">{minutes}</div>
+                    <div className="text-xs text-muted-foreground">Minutes</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-serenity-gold">{seconds}</div>
+                    <div className="text-xs text-muted-foreground">Seconds</div>
                   </div>
                 </div>
+                
+                {/* Total Hours Badge */}
+                <div className="flex justify-center mb-4">
+                  <Badge variant="outline" className="px-4 py-2 text-lg">
+                    <Clock className="w-4 h-4 mr-2" />
+                    {totalHours.toLocaleString()} Total Hours Clean
+                  </Badge>
+                </div>
+                
                 <div className="text-lg text-serenity-navy font-medium">{getStreakMessage()}</div>
               </div>
 
@@ -328,20 +377,49 @@ const SobrietyTracker = () => {
                 </div>
               )}
               
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="glass-card p-4 text-center">
-                  <Calendar className="w-6 h-6 text-serenity-teal mx-auto mb-2" />
-                  <div className="text-sm text-muted-foreground">Days Clean</div>
-                  <div className="text-xl font-bold text-serenity-navy">{days}</div>
+              {/* Enhanced Stats Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="glass-card p-3 text-center">
+                  <Calendar className="w-5 h-5 text-serenity-teal mx-auto mb-1" />
+                  <div className="text-xs text-muted-foreground">Days Clean</div>
+                  <div className="text-lg font-bold text-serenity-navy">{days}</div>
                 </div>
                 
-                <div className="glass-card p-4 text-center">
-                  <DollarSign className="w-6 h-6 text-serenity-emerald mx-auto mb-2" />
-                  <div className="text-sm text-muted-foreground">Money Saved</div>
-                  <div className="text-xl font-bold text-serenity-emerald">${moneySaved.toFixed(0)}</div>
+                <div className="glass-card p-3 text-center">
+                  <Clock className="w-5 h-5 text-serenity-sage mx-auto mb-1" />
+                  <div className="text-xs text-muted-foreground">Total Hours</div>
+                  <div className="text-lg font-bold text-serenity-sage">{totalHours.toLocaleString()}</div>
+                </div>
+                
+                <div className="glass-card p-3 text-center">
+                  <DollarSign className="w-5 h-5 text-serenity-emerald mx-auto mb-1" />
+                  <div className="text-xs text-muted-foreground">Money Saved</div>
+                  <div className="text-lg font-bold text-serenity-emerald">${moneySaved.toFixed(0)}</div>
+                </div>
+                
+                <div className="glass-card p-3 text-center">
+                  <Award className="w-5 h-5 text-serenity-gold mx-auto mb-1" />
+                  <div className="text-xs text-muted-foreground">Achievements</div>
+                  <div className="text-lg font-bold text-serenity-gold">{achievements.length}</div>
                 </div>
               </div>
+              
+              {/* Recent Achievements Display */}
+              {achievements.length > 0 && (
+                <div className="mt-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border border-yellow-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Star className="w-4 h-4 text-yellow-600" />
+                    <h4 className="text-sm font-medium text-yellow-800">Recent Achievements</h4>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {achievements.slice(-3).map((achievement, index) => (
+                      <Badge key={index} className="bg-yellow-500 text-white text-xs">
+                        {achievement}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
             </>
           ) : (
             <div className="text-muted-foreground mb-6">
@@ -471,6 +549,19 @@ const SobrietyTracker = () => {
             Thank You
           </Button>
         </Card>
+      )}
+
+      {/* New Achievement Notification */}
+      {newAchievement && (
+        <div className="fixed top-4 right-4 z-50 bg-gradient-to-r from-yellow-400 to-orange-500 text-white p-4 rounded-lg shadow-lg animate-bounce">
+          <div className="flex items-center gap-2">
+            <Zap className="w-5 h-5" />
+            <div>
+              <div className="font-bold">New Achievement!</div>
+              <div className="text-sm">{newAchievement}</div>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Crisis Milestone Dialog */}

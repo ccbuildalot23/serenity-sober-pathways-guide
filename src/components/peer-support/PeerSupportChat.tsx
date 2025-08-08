@@ -18,6 +18,7 @@ import { PresenceIndicator } from './PresenceIndicator';
 import { useRealtimePeerChat } from '@/hooks/useRealtimePeerChat';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCrisisSystem } from '@/hooks/useCrisisSystem';
 import { toast } from 'sonner';
 
 interface EnhancedChatMessage {
@@ -61,8 +62,22 @@ interface QueueStatus {
   estimated_wait_minutes: number;
 }
 
+// Crisis keyword detection configuration
+const CRISIS_KEYWORDS = {
+  immediate: ['kill myself', 'end it all', 'hurt myself', 'overdose', 'suicide', 'die'],
+  high: ['want to use', 'thinking about using', 'can\'t do this', 'give up', 'relapse', 'using tonight'],
+  medium: ['struggling', 'having thoughts', 'feeling overwhelmed', 'really hard', 'want to drink', 'want to get high']
+};
+
+interface CrisisDetection {
+  severity: 'none' | 'medium' | 'high' | 'immediate';
+  detectedKeywords: string[];
+  requiresIntervention: boolean;
+}
+
 const PeerSupportChat = () => {
   const { user } = useAuth();
+  const { handleCrisisActivated } = useCrisisSystem();
   const [view, setView] = useState<'main' | 'queue' | 'chat' | 'rating' | 'video'>('main');
   const [videoSession, setVideoSession] = useState<any>(null);
   const [currentSession, setCurrentSession] = useState<ChatSession | null>(null);
@@ -74,6 +89,8 @@ const PeerSupportChat = () => {
   const [feedback, setFeedback] = useState('');
   const [replyToMessage, setReplyToMessage] = useState<EnhancedChatMessage | null>(null);
   const [fileUpload, setFileUpload] = useState<File | null>(null);
+  const [crisisDetected, setCrisisDetected] = useState<CrisisDetection | null>(null);
+  const [showCrisisOverlay, setShowCrisisOverlay] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -107,6 +124,148 @@ const PeerSupportChat = () => {
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Crisis keyword detection function
+  const detectCrisisKeywords = (message: string): CrisisDetection => {
+    const lowerMessage = message.toLowerCase();
+    const detection: CrisisDetection = {
+      severity: 'none',
+      detectedKeywords: [],
+      requiresIntervention: false
+    };
+
+    // Check immediate crisis keywords
+    for (const keyword of CRISIS_KEYWORDS.immediate) {
+      if (lowerMessage.includes(keyword)) {
+        detection.detectedKeywords.push(keyword);
+        detection.severity = 'immediate';
+        detection.requiresIntervention = true;
+      }
+    }
+
+    // Check high-risk keywords if not immediate
+    if (detection.severity === 'none') {
+      for (const keyword of CRISIS_KEYWORDS.high) {
+        if (lowerMessage.includes(keyword)) {
+          detection.detectedKeywords.push(keyword);
+          detection.severity = 'high';
+          detection.requiresIntervention = true;
+        }
+      }
+    }
+
+    // Check medium-risk keywords if not higher severity
+    if (detection.severity === 'none') {
+      for (const keyword of CRISIS_KEYWORDS.medium) {
+        if (lowerMessage.includes(keyword)) {
+          detection.detectedKeywords.push(keyword);
+          detection.severity = 'medium';
+          detection.requiresIntervention = false; // Medium doesn't auto-trigger, just alerts
+        }
+      }
+    }
+
+    return detection;
+  };
+
+  // Handle crisis detection in messages
+  const handleCrisisDetection = async (detection: CrisisDetection, messageText: string) => {
+    if (detection.severity === 'none') return;
+
+    setCrisisDetected(detection);
+
+    // Log crisis event
+    try {
+      await supabase
+        .from('crisis_integration_events')
+        .insert({
+          user_id: user?.id,
+          trigger_source: 'peer_chat',
+          trigger_data: {
+            message_text: messageText,
+            detected_keywords: detection.detectedKeywords,
+            severity: detection.severity
+          },
+          severity: detection.severity === 'immediate' ? 'crisis' : detection.severity,
+          crisis_system_activated: detection.requiresIntervention,
+          support_network_notified: detection.requiresIntervention
+        });
+    } catch (error) {
+      console.error('Error logging crisis event:', error);
+    }
+
+    // Handle based on severity
+    if (detection.severity === 'immediate') {
+      setShowCrisisOverlay(true);
+      handleCrisisActivated();
+      
+      toast.error('Crisis keywords detected - Emergency support activated', {
+        description: 'Professional help is being contacted immediately',
+        duration: 10000,
+        action: {
+          label: 'Call 988 Now',
+          onClick: () => window.open('tel:988', '_self')
+        }
+      });
+    } else if (detection.severity === 'high') {
+      setShowCrisisOverlay(true);
+      
+      toast.warning('High-risk language detected', {
+        description: 'Crisis support tools are available if you need them',
+        duration: 8000,
+        action: {
+          label: 'Get Help',
+          onClick: () => handleCrisisActivated()
+        }
+      });
+    } else if (detection.severity === 'medium') {
+      toast.info('It sounds like you\'re going through a tough time', {
+        description: 'Your peer supporter is here to help, and crisis support is available',
+        duration: 5000
+      });
+    }
+
+    // Notify support network for high and immediate risks
+    if (detection.requiresIntervention) {
+      await notifySupportNetwork(detection, messageText);
+    }
+  };
+
+  // Notify support network of crisis
+  const notifySupportNetwork = async (detection: CrisisDetection, messageText: string) => {
+    if (!user) return;
+
+    try {
+      const { data: supportNetwork } = await supabase
+        .from('support_network')
+        .select('supporter_id, supporter_name, relationship_type')
+        .eq('user_id', user.id)
+        .eq('status', 'active');
+
+      if (supportNetwork && supportNetwork.length > 0) {
+        const notifications = supportNetwork.map(supporter => ({
+          user_id: user.id,
+          supporter_id: supporter.supporter_id,
+          notification_type: 'crisis_alert',
+          title: `Crisis Language Detected in Peer Chat`,
+          message: `Crisis keywords were detected in ${supporter.relationship_type === 'sponsor' ? 'your sponsee\'s' : 'your support person\'s'} peer chat conversation. They may need immediate support.`,
+          severity: detection.severity === 'immediate' ? 'crisis' : 'high',
+          action_required: true,
+          metadata: {
+            trigger_source: 'peer_chat',
+            detected_keywords: detection.detectedKeywords,
+            session_id: currentSession?.id
+          }
+        }));
+
+        await supabase
+          .from('support_network_notifications')
+          .insert(notifications);
+      }
+    } catch (error) {
+      console.error('Error notifying support network:', error);
+    }
   };
 
   useEffect(() => {
@@ -197,11 +356,21 @@ const PeerSupportChat = () => {
     return () => clearInterval(interval);
   };
 
-  // Send message with enhanced features
+  // Send message with enhanced features and crisis detection
   const sendMessage = async () => {
     if (!newMessage.trim() && !fileUpload) return;
 
     try {
+      const messageText = newMessage.trim();
+      
+      // Check for crisis keywords if sending text message
+      if (messageText) {
+        const crisisDetection = detectCrisisKeywords(messageText);
+        if (crisisDetection.severity !== 'none') {
+          await handleCrisisDetection(crisisDetection, messageText);
+        }
+      }
+
       let fileData;
       if (fileUpload) {
         // In a real app, you'd upload to storage first
@@ -213,7 +382,7 @@ const PeerSupportChat = () => {
       }
 
       await sendRealtimeMessage(
-        newMessage.trim() || `Shared ${fileUpload?.name}`,
+        messageText || `Shared ${fileUpload?.name}`,
         fileUpload ? 'file' : 'text',
         replyToMessage?.id,
         fileData

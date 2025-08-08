@@ -1,0 +1,15 @@
+* text=auto eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webm binary
+*.mp4 binary
+*.ico binary
+
+# Keep lockfiles consistent
+package-lock.json text eol=lf
+
+

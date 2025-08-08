@@ -99,7 +99,7 @@ serve(async (req) => {
     const userEmail = user.email || 'Unknown user'
     const locationUrl = `https://maps.google.com/maps?q=${userLocation.latitude},${userLocation.longitude}`
     
-    let message = customMessage || `📍 LOCATION UPDATE 📍\n\n${userEmail} has shared their current location.\n\nLocation: ${locationUrl}\n\nThis is a follow-up to their previous crisis alert.`
+    const message = customMessage || `📍 LOCATION UPDATE 📍\n\n${userEmail} has shared their current location.\n\nLocation: ${locationUrl}\n\nThis is a follow-up to their previous crisis alert.`
 
     // Twilio credentials
     const twilioAccountSid = Deno.env.get('TWILIO_ACCOUNT_SID')

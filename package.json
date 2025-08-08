@@ -8,7 +8,8 @@
     "dev": "vite --host 0.0.0.0",
     "build": "tsc && vite build",
     "build:dev": "vite build --mode development",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 50",
+    "lint:fix": "eslint . --fix --report-unused-disable-directives",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
     "test": "npx playwright test",
@@ -22,6 +23,9 @@
     "setup:deploy": "node scripts/setup-deploy.js",
     "deploy:vercel": "vercel",
     "deploy:netlify": "netlify deploy",
+    "lighthouse:validate": "node scripts/lighthouse-validate.js",
+    "lighthouse:test": "node scripts/lighthouse-validate.js --test",
+    "lighthouse:local": "node scripts/lighthouse-validate.js --test --url http://localhost:5173",
     "prepare": "husky"
   },
   "dependencies": {

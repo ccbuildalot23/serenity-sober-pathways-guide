@@ -120,7 +120,7 @@ class SecurityAuditService {
   }
 
   private async runTest(test: SecurityTest): Promise<SecurityTest> {
-    let updatedTest = { ...test, status: 'running' as const };
+    const updatedTest = { ...test, status: 'running' as const };
     
     try {
       switch (test.id) {

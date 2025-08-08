@@ -29,7 +29,7 @@ const CrisisHelp: React.FC = () => {
     }
 
     // Shake detection for emergency activation
-    let shakeThreshold = 20;
+    const shakeThreshold = 20;
     let lastX = 0, lastY = 0, lastZ = 0;
     
     const handleMotion = (event: DeviceMotionEvent) => {

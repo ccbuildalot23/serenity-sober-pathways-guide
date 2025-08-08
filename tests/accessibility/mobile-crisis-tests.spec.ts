@@ -215,7 +215,7 @@ test.describe('Mobile Crisis Testing', () => {
       
       // Test vibration API mock for crisis situations
       await page.addInitScript(() => {
-        let vibrationCalls: number[] = [];
+        const vibrationCalls: number[] = [];
         
         (navigator as any).vibrate = (pattern: number | number[]) => {
           vibrationCalls.push(Array.isArray(pattern) ? pattern.length : 1);

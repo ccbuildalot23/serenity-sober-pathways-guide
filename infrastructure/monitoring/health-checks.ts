@@ -411,7 +411,7 @@ export class HealthCheckService {
       const duration = Date.now() - startTime;
 
       let status: 'healthy' | 'warning' | 'critical' = 'healthy';
-      let details: any = {
+      const details: any = {
         user_authenticated: !!currentUser.user,
         session_valid: !!session.session,
         session_expires_at: session.session?.expires_at

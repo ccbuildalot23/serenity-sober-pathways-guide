@@ -323,7 +323,7 @@ export class AppointmentService {
     const endDate = new Date(bookingData.end_time);
     const appointments: any[] = [];
 
-    let currentDate = new Date(startDate);
+    const currentDate = new Date(startDate);
     let appointmentCount = 0;
     const maxCount = count || 10;
     const maxDate = end_date ? new Date(end_date) : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);

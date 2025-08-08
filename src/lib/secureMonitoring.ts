@@ -83,7 +83,7 @@ export class SecureMonitoring {
     }
 
     // Detect console manipulation attempts with less aggressive checking
-    let devtools = { open: false, orientation: null };
+    const devtools = { open: false, orientation: null };
     const threshold = 160;
 
     const checkDevTools = () => {

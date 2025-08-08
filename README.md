@@ -1,5 +1,10 @@
 # Serenity Crisis MCP Server
 
+[![CI/CD Pipeline](https://github.com/ccbuildalot23/serenity-sober-pathways-guide/actions/workflows/ci.yml/badge.svg)](https://github.com/ccbuildalot23/serenity-sober-pathways-guide/actions/workflows/ci.yml)
+[![Security Scan](https://github.com/ccbuildalot23/serenity-sober-pathways-guide/actions/workflows/ci.yml/badge.svg?job=security-scan)](https://github.com/ccbuildalot23/serenity-sober-pathways-guide/actions)
+[![Deployment Status](https://img.shields.io/badge/Vercel-Deployed-success?logo=vercel)](https://serenity-sober-pathways-guide.vercel.app)
+[![codecov](https://codecov.io/gh/ccbuildalot23/serenity-sober-pathways-guide/branch/main/graph/badge.svg)](https://codecov.io/gh/ccbuildalot23/serenity-sober-pathways-guide)
+
 A Model Context Protocol (MCP) server for crisis communication in the Serenity Sober Pathways application.
 
 ## Overview

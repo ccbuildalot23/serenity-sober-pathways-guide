@@ -46,7 +46,7 @@ serve(async (req) => {
       formattedPhone = `1${formattedPhone}` // Add US country code
     }
 
-    let requestBody: any = {
+    const requestBody: any = {
       messaging_product: 'whatsapp',
       to: formattedPhone
     }

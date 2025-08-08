@@ -25,6 +25,16 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
     e.preventDefault();
     setError(null);
     
+    // Check if user type is selected
+    if (!userType) {
+      toast({
+        title: "Error",
+        description: "Please select your user type before signing in",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     // Basic input validation
     const sanitizedEmail = email.trim().toLowerCase();
     const sanitizedPassword = password.trim();

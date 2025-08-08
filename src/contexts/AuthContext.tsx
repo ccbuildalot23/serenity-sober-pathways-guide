@@ -5,19 +5,19 @@ import type { User, Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
   user: User | null;
-  _session: Session | null;
-  _loading: boolean;
-  _signIn: (email: string, password: string) => Promise<{ _error: any }>;
-  _signUp: (email: string, password: string, _options?: unknown) => Promise<{ _error: any }>;
-  _signOut: () => Promise<void>;
-  _resetPasswordForEmail: (email: string) => Promise<{ _error: any }>;
-  updatePassword: (newPassword: string) => Promise<{ _error: any }>;
+  session: Session | null;
+  loading: boolean;
+  signIn: (email: string, password: string) => Promise<{ error: any | null }>;
+  signUp: (email: string, password: string, options?: unknown) => Promise<{ data?: any; error: any | null }>;
+  signOut: () => Promise<void>;
+  resetPasswordForEmail: (email: string) => Promise<{ error: any | null }>;
+  updatePassword: (newPassword: string) => Promise<{ error: any | null }>;
 }
 
-const _AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
-  const context = useContext(_AuthContext);
+  const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
@@ -30,48 +30,48 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
-  const [_session, setSession] = useState<Session | null>(null);
-  const [_loading, setLoading] = useState(true);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const _signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string) => {
     try {
       // Basic email validation
-      const _sanitizedEmail = email.trim().toLowerCase();
-      if (!_sanitizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(_sanitizedEmail)) {
+      const sanitizedEmail = email.trim().toLowerCase();
+      if (!sanitizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedEmail)) {
         throw new Error('Invalid email format');
       }
 
       // Don't clear existing auth state - this can cause issues
       // Let Supabase handle the auth state management
 
-      console.log('Attempting sign in with email:', _sanitizedEmail);
+      console.log('Attempting sign in with email:', sanitizedEmail);
       
-      const { data, _error } = await supabase.auth.signInWithPassword({
-        email: _sanitizedEmail,
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: sanitizedEmail,
         password,
       });
 
-      if (_error) {
-        console._error('Sign in _error:', _error);
-        return { _error };
+      if (error) {
+        console.error('Sign in error:', error);
+        return { error };
       }
 
       if (data?.user) {
         console.log('Sign in successful for user:', data.user.email);
       }
 
-      return { _error: null };
-    } catch (_error) {
-      console._error('Sign in exception:', _error);
-      return { _error };
+      return { error: null };
+    } catch (err: any) {
+      console.error('Sign in exception:', err);
+      return { error: err };
     }
   };
 
-  const _signUp = async (email: string, password: string, _options?: unknown) => {
+  const signUp = async (email: string, password: string, options?: unknown) => {
     try {
       // Basic email validation
-      const _sanitizedEmail = email.trim().toLowerCase();
-      if (!_sanitizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(_sanitizedEmail)) {
+      const sanitizedEmail = email.trim().toLowerCase();
+      if (!sanitizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedEmail)) {
         throw new Error('Invalid email format');
       }
 
@@ -80,70 +80,70 @@ export function AuthProvider({ children }: AuthProviderProps) {
         throw new Error('Password must be at least 8 characters long');
       }
 
-      console.log('Attempting sign up with email:', _sanitizedEmail);
+      console.log('Attempting sign up with email:', sanitizedEmail);
 
-      const { data, _error } = await supabase.auth._signUp({
-        email: _sanitizedEmail,
+      const { data, error } = await supabase.auth.signUp({
+        email: sanitizedEmail,
         password,
-        _options: {
+        options: {
           emailRedirectTo: `${window.location.origin}/auth`,
-          ..._options
+          ...(options as object)
         }
       });
 
-      if (_error) {
-        console._error('Sign up _error:', _error);
-        return { data: null, _error };
+      if (error) {
+        console.error('Sign up error:', error);
+        return { data: null, error };
       }
 
       if (data?.user) {
         console.log('Sign up successful for user:', data.user.email);
       }
 
-      return { data, _error: null };
-    } catch (_error) {
-      console._error('Sign up exception:', _error);
-      return { data: null, _error };
+      return { data, error: null };
+    } catch (err: any) {
+      console.error('Sign up exception:', err);
+      return { data: null, error: err };
     }
   };
 
-  const _signOut = async () => {
+  const signOut = async () => {
     try {
       console.log('Signing out user...');
-      const { _error } = await supabase.auth._signOut();
+      const { error } = await supabase.auth.signOut();
       
-      if (_error) {
-        console._error('Sign out _error:', _error);
+      if (error) {
+        console.error('Sign out error:', error);
       } else {
         console.log('Sign out successful');
       }
-    } catch (_error) {
-      console._error('Sign out exception:', _error);
+    } catch (err: any) {
+      console.error('Sign out exception:', err);
     }
     
     // Force redirect to auth page
     window.location.href = '/auth';
   };
 
-  const _resetPasswordForEmail = async (email: string) => {
+  const resetPasswordForEmail = async (email: string) => {
     try {
-      const _sanitizedEmail = email.trim().toLowerCase();
-      console.log('Requesting password reset for:', _sanitizedEmail);
+      const sanitizedEmail = email.trim().toLowerCase();
+      console.log('Requesting password reset for:', sanitizedEmail);
       
-      const { _error } = await supabase.auth._resetPasswordForEmail(_sanitizedEmail, {
+      const { error } = await supabase.auth.resetPasswordForEmail(sanitizedEmail, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
       
-      if (_error) {
-        console._error('Password reset _error:', _error);
-        return { _error };
+      if (error) {
+        console.error('Password reset error:', error);
+        return { error };
       }
       
       console.log('Password reset email sent successfully');
-      return { _error: null };
-    } catch (_error) {
-      console._error('Password reset exception:', _error);
-      return { _error };
+      return { error: null };
+    } catch (err: any) {
+      console.error('Password reset exception:', err);
+      return { error: err };
     }
   };
 
@@ -151,20 +151,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       console.log('Updating user password...');
       
-      const { _error } = await supabase.auth.updateUser({
+      const { error } = await supabase.auth.updateUser({
         password: newPassword
       });
       
-      if (_error) {
-        console._error('Password update _error:', _error);
-        return { _error };
+      if (error) {
+        console.error('Password update error:', error);
+        return { error };
       }
       
       console.log('Password updated successfully');
-      return { _error: null };
-    } catch (_error) {
-      console._error('Password update exception:', _error);
-      return { _error };
+      return { error: null };
+    } catch (err: any) {
+      console.error('Password update exception:', err);
+      return { error: err };
     }
   };
 
@@ -174,13 +174,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Get initial _session first
     const getInitialSession = async () => {
       try {
-        const { data: { _session: initialSession } } = await supabase.auth.getSession();
-        console.log('Initial _session:', initialSession?.user?.email || 'none');
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        console.log('Initial session:', initialSession?.user?.email || 'none');
         setSession(initialSession);
         setUser(initialSession?.user ?? null);
         setLoading(false);
-      } catch (_error) {
-        console._error('Error getting initial _session:', _error);
+      } catch (err: any) {
+        console.error('Error getting initial session:', err);
         setLoading(false);
       }
     };
@@ -188,11 +188,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     getInitialSession();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, _session) => {
-      console.log('Auth state change:', _event, _session?.user?.email || 'none');
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+      console.log('Auth state change:', event, newSession?.user?.email || 'none');
       
-      setSession(_session);
-      setUser(_session?.user ?? null);
+      setSession(newSession);
+      setUser(newSession?.user ?? null);
       setLoading(false);
     });
 
@@ -203,17 +203,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   return (
-    <_AuthContext.Provider value={{ 
+    <AuthContext.Provider value={{ 
       user, 
-      _session, 
-      _loading, 
-      _signIn, 
-      _signUp, 
-      _signOut,
-      _resetPasswordForEmail,
+      session, 
+      loading, 
+      signIn, 
+      signUp, 
+      signOut,
+      resetPasswordForEmail,
       updatePassword
     }}>
       {children}
-    </_AuthContext.Provider>
+    </AuthContext.Provider>
   );
 }

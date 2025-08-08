@@ -1,7 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { CrisisDataValidator } from '@/lib/crisisDataValidator';
 import type { CrisisResolution, CheckInResponse, FollowUpTask } from '@/types/crisisData';
-import { _transformCrisisResolution, _transformCheckInResponse, _transformFollowUpTask } from '@/utils/crisisDataUtils';
+import { transformCrisisResolution, transformCheckInResponse, transformFollowUpTask } from '@/utils/crisisDataUtils';
 
 export class UnifiedCrisisService {
   private static syncQueue: Map<string, any> = new Map();
@@ -86,7 +86,7 @@ export class UnifiedCrisisService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return (_data || []).map(_transformCrisisResolution);
+    return (_data || []).map(transformCrisisResolution);
   }
 
   /**
@@ -100,7 +100,7 @@ export class UnifiedCrisisService {
       .order('_timestamp', { ascending: false });
 
     if (error) throw error;
-    return (_data || []).map(_transformCheckInResponse);
+    return (_data || []).map(transformCheckInResponse);
   }
 
   /**
@@ -114,7 +114,7 @@ export class UnifiedCrisisService {
       .order('scheduled_for', { ascending: true });
 
     if (error) throw error;
-    return (_data || []).map(_transformFollowUpTask);
+    return (_data || []).map(transformFollowUpTask);
   }
 
   /**
@@ -152,7 +152,7 @@ export class UnifiedCrisisService {
         .single();
 
       if (error) throw error;
-      return _transformCrisisResolution(_data);
+      return transformCrisisResolution(_data);
     }
 
     // New behavior with encryption and validation
@@ -329,7 +329,7 @@ export class UnifiedCrisisService {
       .single();
 
     if (error) throw error;
-    return _transformCheckInResponse(_data);
+    return transformCheckInResponse(_data);
   }
 
   /**
@@ -349,7 +349,7 @@ export class UnifiedCrisisService {
       .single();
 
     if (error) throw error;
-    return _transformFollowUpTask(_data);
+    return transformFollowUpTask(_data);
   }
 
   /**

@@ -8,8 +8,8 @@ const PROVIDER_CREDENTIALS = {
 
 test.describe('Provider User Journey', () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to the app
-    await page.goto('/');
+    // Navigate to the auth page where login button is located
+    await page.goto('/auth');
   });
 
   test('should complete full provider login and dashboard access', async ({ page }) => {

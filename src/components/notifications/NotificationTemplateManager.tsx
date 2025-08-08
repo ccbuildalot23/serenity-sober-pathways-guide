@@ -23,11 +23,11 @@ import {
   X
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  comprehensiveNotificationService, 
-  _type NotificationTemplate,
-  _type NotificationChannel,
-  _type NotificationType
+import {
+  comprehensiveNotificationService,
+  type NotificationTemplate,
+  type NotificationChannel,
+  type NotificationType
 } from '@/services/comprehensiveNotificationService';
 
 const notificationTypes: { value: NotificationType; label: string }[] = [

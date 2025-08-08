@@ -1,9 +1,9 @@
 import { supabase } from '@/integrations/supabase/client';
-import _type { Json } from '@/integrations/supabase/types';
+import type { Json } from '@/integrations/supabase/types';
 
-export _type NotificationChannel = 'in_app' | 'email' | 'sms' | 'push';
-export _type NotificationType = 'check_in' | 'goal_deadline' | 'appointment' | 'crisis' | 'community' | 'provider' | 'system';
-export _type NotificationPriority = 1 | 2 | 3 | 4; // 1=urgent, 2=high, 3=normal, 4=low
+export type NotificationChannel = 'in_app' | 'email' | 'sms' | 'push';
+export type NotificationType = 'check_in' | 'goal_deadline' | 'appointment' | 'crisis' | 'community' | 'provider' | 'system';
+export type NotificationPriority = 1 | 2 | 3 | 4; // 1=urgent, 2=high, 3=normal, 4=low
 
 export interface NotificationTemplate {
   id: string;

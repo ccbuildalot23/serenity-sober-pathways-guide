@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/_label';
+import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -28,9 +28,9 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   comprehensiveNotificationService, 
-  _type NotificationPreferences,
-  _type NotificationChannel,
-  _type NotificationType
+  type NotificationPreferences,
+  type NotificationChannel,
+  type NotificationType
 } from '@/services/comprehensiveNotificationService';
 
 const notificationTypes: { _type: NotificationType; _label: string; _icon: React.ReactNode; _description: string }[] = [

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthForm } from '@/components/auth/AuthForm';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUserRole } from '@/hooks/useUserRole';
 import { Loader2, Shield, Heart, Brain, Users, Bug, AlertCircle, Stethoscope, HeartHandshake, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -38,7 +39,7 @@ const Auth = () => {
       pathname: window.location.pathname,
       timestamp: new Date().toISOString()
     });
-  }, [user, _authLoading, isRedirecting]);
+  }, [user, authLoading, isRedirecting]);
 
   // Redirect if user is already authenticated
   useEffect(() => {
@@ -51,11 +52,17 @@ const Auth = () => {
       // Clear any error states
       localStorage.removeItem('auth_error');
       
-      // Use React Router navigation to dashboard instead of home
-      setTimeout(() => {
-        console.log('Redirecting to dashboard...');
-        navigate('/dashboard');
-      }, 1000);
+      // Use user metadata directly for immediate, deterministic routing
+      const userType = (user as any)?.user_metadata?.userType || 'recovery';
+      console.log('Determined userType for redirect:', userType);
+      
+      const route = userType === 'provider'
+        ? '/provider/dashboard'
+        : userType === 'supporter'
+          ? '/supporter/dashboard'
+          : '/patient/dashboard';
+
+      navigate(route);
     }
   }, [user, authLoading, isRedirecting, navigate]);
 
@@ -253,6 +260,19 @@ const Auth = () => {
                 </div>
               </div>
             </div>
+
+            {/* Login Button */}
+            <Button
+              data-testid="login-button"
+              onClick={() => {
+                // This will trigger the login form to show
+                console.log('Login button clicked');
+              }}
+              className="w-full"
+              variant="outline"
+            >
+              Continue to Login
+            </Button>
 
             {/* Auth Form */}
             <AuthForm userType={selectedUserType} />

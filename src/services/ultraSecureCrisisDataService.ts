@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { serverSideEncryption } from '@/lib/serverSideEncryption';
 import { EnhancedSecurityAuditService } from './EnhancedSecurityAuditService';
 import type { CrisisResolution, CheckInResponse, FollowUpTask } from '@/types/crisisData';
-import { transformCrisisResolution, transformCheckInResponse, _transformFollowUpTask } from '@/utils/crisisDataUtils';
+import { transformCrisisResolution, transformCheckInResponse, transformFollowUpTask } from '@/utils/crisisDataUtils';
 
 /**
  * Ultra-secure crisis data service using server-side encryption
@@ -202,7 +202,7 @@ export class UltraSecureCrisisDataService {
 
     if (_error) throw _error;
     
-    const transformedData = (data || []).map(_transformFollowUpTask);
+    const transformedData = (data || []).map(transformFollowUpTask);
     await EnhancedSecurityAuditService.logDataAccessEvent('follow_up_tasks', 'SELECT', transformedData.length);
     
     return transformedData;
@@ -237,7 +237,7 @@ export class UltraSecureCrisisDataService {
     }
     
     await EnhancedSecurityAuditService.logDataAccessEvent('follow_up_tasks', 'INSERT', 1);
-    return _transformFollowUpTask(data);
+    return transformFollowUpTask(data);
   }
 
   static async updateFollowUpTask(_userId: string, _taskId: string, updates: Partial<FollowUpTask>) {

@@ -8,8 +8,8 @@ const SUPPORTER_CREDENTIALS = {
 
 test.describe('Supporter User Journey', () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to the app
-    await page.goto('/');
+    // Navigate to the auth page where login button is located
+    await page.goto('/auth');
   });
 
   test('should complete full supporter login and dashboard access', async ({ page }) => {

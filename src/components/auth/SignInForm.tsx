@@ -107,6 +107,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
         <Label htmlFor="email">Email</Label>
         <Input
           id="email"
+          data-testid="email-input"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -122,6 +123,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
         <Label htmlFor="password">Password</Label>
         <Input
           id="password"
+          data-testid="password-input"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -133,7 +135,12 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
         />
       </div>
       
-      <Button type="submit" className="w-full" disabled={loading}>
+      <Button 
+        type="submit" 
+        className="w-full" 
+        disabled={loading}
+        data-testid="submit-login"
+      >
         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         {loading ? 'Signing in...' : 'Sign In'}
       </Button>

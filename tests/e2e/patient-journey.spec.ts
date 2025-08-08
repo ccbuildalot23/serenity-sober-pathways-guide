@@ -8,8 +8,8 @@ const PATIENT_CREDENTIALS = {
 
 test.describe('Patient User Journey', () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to the app
-    await page.goto('/');
+    // Navigate to the auth page where login button is located
+    await page.goto('/auth');
   });
 
   test('should complete full patient login and dashboard access', async ({ page }) => {
@@ -46,7 +46,7 @@ test.describe('Patient User Journey', () => {
 
     // Start daily check-in
     await page.click('[data-testid="start-checkin-button"]');
-    await expect(page).toHaveURL('/patient/checkin');
+    await expect(page).toHaveURL('/checkin');
 
     // Select positive mood (happy/green)
     await page.click('[data-testid="mood-positive"]');
@@ -159,7 +159,7 @@ test.describe('Patient User Journey', () => {
 
     // Access crisis support from dashboard
     await page.click('[data-testid="crisis-support-button"]');
-    await expect(page).toHaveURL('/patient/crisis-support');
+    await expect(page).toHaveURL('/crisis-support');
 
     // Verify crisis support options are available
     await expect(page.locator('[data-testid="crisis-hotline-988"]')).toBeVisible();
@@ -198,7 +198,7 @@ test.describe('Patient User Journey', () => {
 
     // Access peer support
     await page.click('[data-testid="peer-support-access"]');
-    await expect(page).toHaveURL('/patient/peer-support');
+    await expect(page).toHaveURL('/peer-support');
 
     // Verify peer support interface
     await expect(page.locator('[data-testid="peer-chat-room"]')).toBeVisible();
@@ -230,7 +230,7 @@ test.describe('Patient User Journey', () => {
 
     // Access community features
     await page.click('[data-testid="community-access"]');
-    await expect(page).toHaveURL('/patient/community');
+    await expect(page).toHaveURL('/community');
 
     // Verify community features
     await expect(page.locator('[data-testid="community-feed"]')).toBeVisible();

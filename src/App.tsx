@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -63,13 +63,13 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Router>
+        <BrowserRouter>
           <PerformanceDashboard />
           <Routes>
             <Route path="/" element={<TestPage />} />
             <Route path="*" element={<TestPage />} />
           </Routes>
-        </Router>
+        </BrowserRouter>
       </AuthProvider>
     </QueryClientProvider>
   );

@@ -10,6 +10,8 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, options?: any) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  resetPasswordForEmail: (email: string) => Promise<{ error: any }>;
+  updatePassword: (newPassword: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -123,6 +125,49 @@ export function AuthProvider({ children }: AuthProviderProps) {
     window.location.href = '/auth';
   };
 
+  const resetPasswordForEmail = async (email: string) => {
+    try {
+      const sanitizedEmail = email.trim().toLowerCase();
+      console.log('Requesting password reset for:', sanitizedEmail);
+      
+      const { error } = await supabase.auth.resetPasswordForEmail(sanitizedEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      
+      if (error) {
+        console.error('Password reset error:', error);
+        return { error };
+      }
+      
+      console.log('Password reset email sent successfully');
+      return { error: null };
+    } catch (error) {
+      console.error('Password reset exception:', error);
+      return { error };
+    }
+  };
+
+  const updatePassword = async (newPassword: string) => {
+    try {
+      console.log('Updating user password...');
+      
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      
+      if (error) {
+        console.error('Password update error:', error);
+        return { error };
+      }
+      
+      console.log('Password updated successfully');
+      return { error: null };
+    } catch (error) {
+      console.error('Password update exception:', error);
+      return { error };
+    }
+  };
+
   useEffect(() => {
     console.log('Setting up auth state listener...');
     
@@ -158,7 +203,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      session, 
+      loading, 
+      signIn, 
+      signUp, 
+      signOut,
+      resetPasswordForEmail,
+      updatePassword
+    }}>
       {children}
     </AuthContext.Provider>
   );

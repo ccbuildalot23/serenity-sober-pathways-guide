@@ -257,6 +257,97 @@ export class AuthClient {
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
+
+  async resetPassword(email: string): Promise<{
+    success: boolean;
+    message: string;
+  }> {
+    // Test connection first
+    const connectionTest = await this.testConnection();
+    if (!connectionTest.success) {
+      return connectionTest;
+    }
+
+    let lastError: any = null;
+
+    // Retry logic for reset password
+    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+      try {
+        console.log(`Password reset attempt ${attempt}/${this.maxRetries}...`);
+        
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+
+        if (error) {
+          // Check if it's a network error
+          if (error.message?.toLowerCase().includes('fetch') || 
+              error.message?.toLowerCase().includes('network')) {
+            lastError = error;
+            
+            if (attempt < this.maxRetries) {
+              console.log(`Network error, retrying in ${this.retryDelay}ms...`);
+              await this.delay(this.retryDelay);
+              continue;
+            }
+          }
+          
+          // Other errors - don't retry
+          return {
+            success: false,
+            message: error.message || 'Failed to send reset email. Please try again.'
+          };
+        }
+
+        // Success!
+        return {
+          success: true,
+          message: 'Password reset email sent successfully!'
+        };
+      } catch (error: any) {
+        lastError = error;
+        
+        if (attempt < this.maxRetries) {
+          console.log(`Error on attempt ${attempt}, retrying...`);
+          await this.delay(this.retryDelay);
+        }
+      }
+    }
+
+    // All retries failed
+    return {
+      success: false,
+      message: lastError?.message || 'Network error: Unable to send reset email. Please check your connection and try again.'
+    };
+  }
+
+  async updatePassword(newPassword: string): Promise<{
+    success: boolean;
+    message: string;
+  }> {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) {
+        return {
+          success: false,
+          message: error.message || 'Failed to update password. Please try again.'
+        };
+      }
+
+      return {
+        success: true,
+        message: 'Password updated successfully!'
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'An unexpected error occurred. Please try again.'
+      };
+    }
+  }
 }
 
 // Export singleton instance

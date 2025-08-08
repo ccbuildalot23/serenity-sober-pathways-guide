@@ -2,15 +2,16 @@
 import React, { useState } from 'react';
 import { SignInForm } from './SignInForm';
 import { SignUpForm } from './SignUpForm';
+import { ForgotPasswordForm } from './ForgotPasswordForm';
 import { Button } from '@/components/ui/button';
 
 interface AuthFormProps {
-  initialMode?: 'signin' | 'signup';
+  initialMode?: 'signin' | 'signup' | 'forgot';
   userType?: string;
 }
 
 export const AuthForm: React.FC<AuthFormProps> = ({ initialMode = 'signin', userType }) => {
-  const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
+  const [mode, setMode] = useState<'signin' | 'signup' | 'forgot'>(initialMode);
 
   return (
     <div className="space-y-6">
@@ -26,23 +27,41 @@ export const AuthForm: React.FC<AuthFormProps> = ({ initialMode = 'signin', user
         </div>
       )}
       
-      {mode === 'signin' ? (
+      {mode === 'signin' && (
         <SignInForm userType={userType} />
-      ) : (
+      )}
+      {mode === 'signup' && (
         <SignUpForm onSuccess={() => setMode('signin')} userType={userType} />
       )}
+      {mode === 'forgot' && (
+        <ForgotPasswordForm onBack={() => setMode('signin')} />
+      )}
 
-      <div className="text-center">
-        <Button
-          variant="link"
-          onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
-          className="text-sm"
-        >
-          {mode === 'signin' 
-            ? "Don't have an account? Sign up" 
-            : "Already have an account? Sign in"
-          }
-        </Button>
+      <div className="text-center space-y-2">
+        {mode !== 'forgot' && (
+          <Button
+            variant="link"
+            onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
+            className="text-sm"
+          >
+            {mode === 'signin' 
+              ? "Don't have an account? Sign up" 
+              : "Already have an account? Sign in"
+            }
+          </Button>
+        )}
+        
+        {mode === 'signin' && (
+          <div>
+            <Button
+              variant="link"
+              onClick={() => setMode('forgot')}
+              className="text-sm text-muted-foreground"
+            >
+              Forgot your password?
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

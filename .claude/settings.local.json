@@ -40,7 +40,8 @@
       "Bash(curl:*)",
       "Bash(git log:*)",
       "WebFetch(domain:www.serenityandrecovery.com)",
-      "Bash(git rebase:*)"
+      "Bash(git rebase:*)",
+      "Bash(cmd /c:*)"
     ],
     "deny": []
   }

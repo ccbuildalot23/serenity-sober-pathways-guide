@@ -19,6 +19,9 @@ import Auth from '@/pages/Auth';
 import HomePage from '@/pages/HomePage';
 
 // LAZY LOADED ROUTES - Load on demand to reduce bundle size
+// Auth Pages
+const ResetPassword = lazy(() => import('@/pages/ResetPassword'));
+
 // Landing Pages
 const Platform = lazy(() => import('@/pages/Platform'));
 const Providers = lazy(() => import('@/pages/Providers'));
@@ -154,6 +157,11 @@ function App() {
                 {/* Auth and Dashboard Routes */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/reset-password" element={
+                  <Suspense fallback={<LoadingState />}>
+                    <ResetPassword />
+                  </Suspense>
+                } />
                 <Route path="/dashboard" element={
                   <ProtectedRoute>
                     <Suspense fallback={<LoadingState message="Loading your dashboard..." />}>
@@ -256,13 +264,14 @@ function App() {
                     <DataExport />
                   </ProtectedRoute>
                 } />
+                {/* Commented out - MobileCrisisDemo component missing
                 <Route path="/demo/mobile-crisis" element={
                   <ProtectedRoute>
                     <div className="min-h-screen bg-background">
                       <MobileCrisisDemo />
                     </div>
                   </ProtectedRoute>
-                } />
+                } /> */}
                 <Route path="/hipaa-security" element={
                   <ProtectedRoute>
                     <HIPAASecurityDashboard />
@@ -283,11 +292,12 @@ function App() {
                     <VoiceSupport />
                   </ProtectedRoute>
                 } />
+                {/* Commented out - TestDashboard component missing
                 <Route path="/test-dashboard" element={
                   <ProtectedRoute>
                     <TestDashboard />
                   </ProtectedRoute>
-                } />
+                } /> */}
                 <Route path="/progress" element={
                   <ProtectedRoute>
                     <Suspense fallback={<LoadingState message="Calculating your progress..." />}>
@@ -305,11 +315,12 @@ function App() {
                     <NotificationManagement />
                   </ProtectedRoute>
                 } />
+                {/* Commented out - IntegrationTesting component missing
                 <Route path="/integration-testing" element={
                   <ProtectedRoute>
                     <IntegrationTesting />
                   </ProtectedRoute>
-                } />
+                } /> */}
                 <Route path="/compliance-management" element={
                   <ProtectedRoute>
                     <ComplianceManagement />

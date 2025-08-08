@@ -5,7 +5,7 @@ import App from './App';
 import './index.css';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
 
-// Simple startup without blocking security checks
+// Add back ThemeProvider
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>

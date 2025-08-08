@@ -1,12 +1,13 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { authClient } from '@/integrations/supabase/auth-client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Mail, Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import { Loader2, Mail, Lock, Eye, EyeOff, CheckCircle, AlertCircle, WifiOff } from 'lucide-react';
 
 interface SignUpFormProps {
   onSuccess?: () => void;
@@ -83,21 +84,15 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
     setIsLoading(true);
 
     try {
-      // Include user type in metadata for role assignment
-      const { error } = await signUp(email, password, {
-        data: {
-          userType: userType || 'recovery'
-        }
-      });
+      // Use enhanced auth client with retry logic
+      const result = await authClient.signUp(email, password, userType || 'recovery');
       
-      if (error) {
-        // Handle specific Supabase errors
-        if (error.message?.includes('User already registered')) {
-          setError('An account with this email already exists');
-        } else if (error.message?.includes('Invalid email')) {
-          setError('Please enter a valid email address');
-        } else {
-          setError(error.message || 'Failed to create account. Please try again.');
+      if (!result.success) {
+        setError(result.message);
+        
+        // Add visual hint for network errors
+        if (result.message.includes('Network')) {
+          console.error('Network error detected during signup');
         }
       } else {
         setSuccess(true);
@@ -113,7 +108,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
       }
     } catch (err) {
       console.error('Sign up error:', err);
-      setError('An unexpected error occurred. Please try again.');
+      setError('An unexpected error occurred. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -151,8 +146,22 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
       <CardContent>
         <div className="space-y-4">
           {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
+            <Alert variant={error.includes('Network') ? 'default' : 'destructive'}>
+              {error.includes('Network') && <WifiOff className="h-4 w-4 mr-2" />}
+              {!error.includes('Network') && <AlertCircle className="h-4 w-4 mr-2" />}
+              <AlertDescription>
+                {error}
+                {error.includes('Network') && (
+                  <div className="mt-2 text-sm">
+                    <strong>Troubleshooting tips:</strong>
+                    <ul className="list-disc list-inside mt-1">
+                      <li>Check your internet connection</li>
+                      <li>Try refreshing the page</li>
+                      <li>Disable ad blockers or VPN</li>
+                    </ul>
+                  </div>
+                )}
+              </AlertDescription>
             </Alert>
           )}
 

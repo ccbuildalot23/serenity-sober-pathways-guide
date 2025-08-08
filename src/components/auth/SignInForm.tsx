@@ -3,8 +3,11 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { authClient } from '@/integrations/supabase/auth-client';
+import { Loader2, WifiOff, AlertCircle } from 'lucide-react';
 
 interface SignInFormProps {
   userType?: string;
@@ -14,81 +17,64 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const { signIn } = useAuth();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     
     // Basic input validation
     const sanitizedEmail = email.trim().toLowerCase();
     const sanitizedPassword = password.trim();
     
     if (!sanitizedEmail || !sanitizedPassword) {
-      toast({
-        title: "Please fill in all fields",
-        description: "Email and password are required",
-        variant: "destructive",
-      });
+      setError('Email and password are required');
       return;
     }
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(sanitizedEmail)) {
-      toast({
-        title: "Invalid email format",
-        description: "Please enter a valid email address",
-        variant: "destructive",
-      });
+      setError('Please enter a valid email address');
       return;
     }
 
     try {
       setLoading(true);
-      console.log('Attempting sign in...');
+      console.log('Attempting sign in with enhanced auth client...');
 
-      const { error } = await signIn(sanitizedEmail, sanitizedPassword);
+      // Use enhanced auth client with retry logic
+      const result = await authClient.signIn(sanitizedEmail, sanitizedPassword);
 
-      if (error) {
-        console.error('Sign in error:', error);
+      if (!result.success) {
+        setError(result.message);
         
-        // Handle specific error types
-        let errorMessage = "Failed to sign in. Please try again.";
-        
-        if (error.message?.includes('Invalid login credentials')) {
-          errorMessage = "Invalid email or password. Please check your credentials and try again.";
-        } else if (error.message?.includes('Email not confirmed')) {
-          errorMessage = "Please check your email and click the verification link before signing in.";
-        } else if (error.message?.includes('Too many requests')) {
-          errorMessage = "Too many sign-in attempts. Please wait a moment before trying again.";
-        } else if (error.message?.includes('User not found')) {
-          errorMessage = "No account found with this email address. Please check your email or create a new account.";
+        // Show toast for network errors
+        if (result.message.includes('Network')) {
+          toast({
+            title: "Connection Issue",
+            description: "Having trouble connecting to our servers. Please check your internet connection.",
+            variant: "default",
+          });
         }
-        
-        toast({
-          title: "Sign in failed",
-          description: errorMessage,
-          variant: "destructive",
-        });
         return;
       }
 
+      // Success!
+      setError(null);
       toast({
         title: "Welcome back!",
         description: "Signing you in...",
       });
       
-      // Let the auth context handle the redirect
-      console.log('Sign in successful, waiting for auth state change...');
+      // The auth context will handle the redirect
+      console.log('Sign in successful, auth state will update...');
       
     } catch (error: any) {
       console.error('Sign in exception:', error);
-      toast({
-        title: "Unexpected error",
-        description: "Something went wrong. Please try again or contact support if the problem persists.",
-        variant: "destructive",
-      });
+      setError('An unexpected error occurred. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -96,6 +82,27 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
 
   return (
     <form onSubmit={handleSignIn} className="space-y-4">
+      {error && (
+        <Alert variant={error.includes('Network') ? 'default' : 'destructive'}>
+          {error.includes('Network') && <WifiOff className="h-4 w-4" />}
+          {!error.includes('Network') && <AlertCircle className="h-4 w-4" />}
+          <AlertDescription>
+            {error}
+            {error.includes('Network') && (
+              <div className="mt-2 text-sm">
+                <strong>Troubleshooting tips:</strong>
+                <ul className="list-disc list-inside mt-1">
+                  <li>Check your internet connection</li>
+                  <li>Try refreshing the page</li>
+                  <li>Disable ad blockers or VPN</li>
+                  <li>Check if cookies are enabled</li>
+                </ul>
+              </div>
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
+      
       <div>
         <Label htmlFor="email">Email</Label>
         <Input
@@ -127,6 +134,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
       </div>
       
       <Button type="submit" className="w-full" disabled={loading}>
+        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         {loading ? 'Signing in...' : 'Sign In'}
       </Button>
     </form>

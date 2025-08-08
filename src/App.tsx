@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { EnhancedSecurityInitializer } from '@/lib/enhancedSecurityInitializer';
+import { PerformanceDashboard } from '@/components/PerformanceDashboard';
 
 // Create query client
 const queryClient = new QueryClient({
@@ -63,6 +64,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Router>
+          <PerformanceDashboard />
           <Routes>
             <Route path="/" element={<TestPage />} />
             <Route path="*" element={<TestPage />} />

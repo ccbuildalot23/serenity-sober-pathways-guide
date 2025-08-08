@@ -5,9 +5,11 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   e2e:
+    name: Playwright E2E
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

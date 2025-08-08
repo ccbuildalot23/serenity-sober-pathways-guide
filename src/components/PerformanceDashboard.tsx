@@ -16,7 +16,7 @@ export const PerformanceDashboard: React.FC = () => {
   const [metrics, setMetrics] = useState<PerformanceMetrics>({
     version: '1.0.0',
     _buildTimestamp: new Date().toISOString(),
-    environment: import.meta._env.MODE as 'development' | 'staging' | 'production',
+    environment: import.meta.env.MODE as 'development' | 'staging' | 'production',
     _uptime: '0s'
   });
   
@@ -53,7 +53,7 @@ export const PerformanceDashboard: React.FC = () => {
       setMetrics(prev => ({
         ...prev,
         _uptime: uptimeString,
-        _buildTimestamp: import.meta._env.BUILD_TIME || new Date().toISOString(),
+        _buildTimestamp: import.meta.env.BUILD_TIME || new Date().toISOString(),
         memoryUsage: memoryInfo
       }));
     };

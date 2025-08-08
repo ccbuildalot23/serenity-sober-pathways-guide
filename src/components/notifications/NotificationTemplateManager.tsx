@@ -75,7 +75,7 @@ interface TemplateFormData {
 export function NotificationTemplateManager() {
   const [templates, setTemplates] = useState<NotificationTemplate[]>([]);
   const [_loading, setLoading] = useState(true);
-  const [_editingTemplate, setEditingTemplate] = useState<NotificationTemplate | _null>(_null);
+  const [_editingTemplate, setEditingTemplate] = useState<NotificationTemplate | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [_formData, setFormData] = useState<TemplateFormData>({
     _name: '',
@@ -122,7 +122,7 @@ export function NotificationTemplateManager() {
       _is_active: true,
       _language_code: 'en'
     });
-    setEditingTemplate(_null);
+    setEditingTemplate(null);
   };
 
   const openCreateDialog = () => {
@@ -192,7 +192,7 @@ export function NotificationTemplateManager() {
       _is_active: template._is_active,
       _language_code: template._language_code
     });
-    setEditingTemplate(_null);
+    setEditingTemplate(null);
     setIsDialogOpen(true);
   };
 

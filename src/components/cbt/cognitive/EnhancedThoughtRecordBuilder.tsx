@@ -34,7 +34,7 @@ const EnhancedThoughtRecordBuilder: React.FC = () => {
   const { user } = useAuth();
   const { recordSkillSession } = useSkillSession();
   const [templates, setTemplates] = useState<ThoughtRecordTemplate[]>([]);
-  const [selectedTemplate, setSelectedTemplate] = useState<ThoughtRecordTemplate | _null>(_null);
+  const [selectedTemplate, setSelectedTemplate] = useState<ThoughtRecordTemplate | null>(null);
   const [thoughtRecord, setThoughtRecord] = useState<ThoughtRecordData>({
     _situation: '',
     _automaticThoughts: '',
@@ -46,7 +46,7 @@ const EnhancedThoughtRecordBuilder: React.FC = () => {
   });
   const [_currentStep, setCurrentStep] = useState(0);
   const [completedRecords, setCompletedRecords] = useState(0);
-  const [_effectivenessRating, setEffectivenessRating] = useState<number | _null>(_null);
+  const [_effectivenessRating, setEffectivenessRating] = useState<number | null>(null);
 
   const emotionOptions = [
     'Angry', 'Anxious', 'Sad', 'Frustrated', 'Lonely', 'Guilty', 
@@ -190,8 +190,8 @@ const EnhancedThoughtRecordBuilder: React.FC = () => {
         _balancedReframe: ''
       });
       setCurrentStep(0);
-      setSelectedTemplate(_null);
-      setEffectivenessRating(_null);
+      setSelectedTemplate(null);
+      setEffectivenessRating(null);
       loadProgress();
 
     } catch (_error) {
@@ -239,7 +239,7 @@ const EnhancedThoughtRecordBuilder: React.FC = () => {
                   variant="outline"
                   className="p-4 h-auto text-left"
                   onClick={() => {
-                    setSelectedTemplate(_null);
+                    setSelectedTemplate(null);
                     setCurrentStep(1);
                   }}
                 >
@@ -495,7 +495,7 @@ const EnhancedThoughtRecordBuilder: React.FC = () => {
         );
 
       default:
-        return _null;
+        return null;
     }
   };
 

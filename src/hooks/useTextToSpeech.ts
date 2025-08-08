@@ -12,9 +12,9 @@ export interface TextToSpeechOptions {
 export const useTextToSpeech = (options: TextToSpeechOptions = {}) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | _null>(_null);
+  const [error, setError] = useState<string | null>(null);
   
-  const audioRef = useRef<HTMLAudioElement | _null>(_null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const { voice = 'alloy', _autoPlay = true, onStart, onEnd, onError } = options;
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export const useTextToSpeech = (options: TextToSpeechOptions = {}) => {
 
   const speak = async (text: string) => {
     try {
-      setError(_null);
+      setError(null);
       setIsLoading(true);
 
       // Generate speech
@@ -103,6 +103,6 @@ export const useTextToSpeech = (options: TextToSpeechOptions = {}) => {
     isSpeaking,
     isLoading,
     error,
-    clearError: () => setError(_null)
+    clearError: () => setError(null)
   };
 };

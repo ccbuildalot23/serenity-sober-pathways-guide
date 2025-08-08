@@ -13,12 +13,12 @@ export const useVoiceRecording = (options: VoiceRecordingOptions = {}) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const [error, setError] = useState<string | _null>(_null);
+  const [error, setError] = useState<string | null>(null);
   
-  const mediaRecorderRef = useRef<MediaRecorder | _null>(_null);
-  const streamRef = useRef<MediaStream | _null>(_null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const timeoutRef = useRef<NodeJS.Timeout | _null>(_null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const { maxDuration = 60, onStart, onStop, onError, onTranscription } = options;
 
@@ -33,7 +33,7 @@ export const useVoiceRecording = (options: VoiceRecordingOptions = {}) => {
 
   const startRecording = async () => {
     try {
-      setError(_null);
+      setError(null);
       
       // Request microphone permission
       const _stream = await navigator.mediaDevices.getUserMedia({
@@ -91,12 +91,12 @@ export const useVoiceRecording = (options: VoiceRecordingOptions = {}) => {
 
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
-      timeoutRef.current = _null;
+      timeoutRef.current = null;
     }
 
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = _null;
+      streamRef.current = null;
     }
   };
 
@@ -138,6 +138,6 @@ export const useVoiceRecording = (options: VoiceRecordingOptions = {}) => {
     startRecording,
     stopRecording,
     clearTranscript: () => setTranscript(''),
-    clearError: () => setError(_null)
+    clearError: () => setError(null)
   };
 };

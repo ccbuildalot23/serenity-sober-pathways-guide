@@ -93,8 +93,8 @@ export interface UseCrisisManagementReturn {
   }) => Promise<unknown>;
   
   // Status and monitoring
-  activeCrisis: CrisisAlert | _null;
-  crisisStatus: CrisisStatus | _null;
+  activeCrisis: CrisisAlert | null;
+  crisisStatus: CrisisStatus | null;
   isLoadingStatus: boolean;
   connectionStatus: {
     connected: boolean;
@@ -119,7 +119,7 @@ export interface UseCrisisManagementReturn {
   isResolving: boolean;
   
   // Error handling
-  _error: string | _null;
+  _error: string | null;
   clearError: () => void;
   
   // Health monitoring
@@ -142,7 +142,7 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
     _lastConnected: undefined as string | undefined,
     _retryCount: 0
   });
-  const [_error, setError] = useState<string | _null>(_null);
+  const [_error, setError] = useState<string | null>(null);
   const [systemHealth, setSystemHealth] = useState({
     inApp: false,
     _mcp: false,
@@ -150,8 +150,8 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
   });
   
   // Refs for cleanup
-  const notificationUnsubscribe = useRef<(() => void) | _null>(_null);
-  const connectionUnsubscribe = useRef<(() => void) | _null>(_null);
+  const notificationUnsubscribe = useRef<(() => void) | null>(null);
+  const connectionUnsubscribe = useRef<(() => void) | null>(null);
 
   // Query for active crisis
   const { 
@@ -161,7 +161,7 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
     queryKey: ['crisis', 'active'],
     _queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return _null;
+      if (!user) return null;
 
       const { data, _error } = await supabase
         .from('crisis_alert_notifications')
@@ -183,7 +183,7 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
 
       if (_error && _error.code !== 'PGRST116') { // Not found _error
         console._error('[useCrisisManagement] Error fetching active crisis:', _error);
-        return _null;
+        return null;
       }
 
       return data ? {
@@ -199,7 +199,7 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
         firstResponderId: data.first_responder_id,
         tier: data.tier,
         escalationLevel: data.escalation_level
-      } as CrisisAlert : _null;
+      } as CrisisAlert : null;
     },
     refetchInterval: 10000, // Poll every 10 seconds for active crisis
   });
@@ -211,7 +211,7 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
   } = useQuery({
     queryKey: ['crisis', 'status', alertId],
     _queryFn: async () => {
-      if (!alertId) return _null;
+      if (!alertId) return null;
       const unified = await mcpIntegrationBridge.getAlertStatus(alertId);
       return unified.unified as CrisisStatus;
     },
@@ -459,7 +459,7 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
   }, []);
 
   const clearError = useCallback(() => {
-    setError(_null);
+    setError(null);
   }, []);
 
   const refreshHealth = useCallback(async () => {

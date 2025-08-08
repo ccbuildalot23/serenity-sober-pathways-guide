@@ -22,10 +22,10 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | _null>(_null);
+  const [error, setError] = useState<string | null>(null);
   const [_success, setSuccess] = useState(false);
 
-  const validatePassword = (_password: string): string | _null => {
+  const validatePassword = (_password: string): string | null => {
     if (_password.length < 8) {
       return 'Password must be at least 8 characters long';
     }
@@ -48,11 +48,11 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
       return 'Password is too common. Please choose a stronger _password';
     }
     
-    return _null;
+    return null;
   };
 
   const handleSubmit = async () => {
-    setError(_null);
+    setError(null);
     setSuccess(false);
 
     // Basic validation

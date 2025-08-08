@@ -39,7 +39,7 @@ const EmergencyContactsManager: React.FC = () => {
   
   // Form state
   const [showAddForm, setShowAddForm] = useState(false);
-  const [_editingContact, setEditingContact] = useState<string | _null>(_null);
+  const [_editingContact, setEditingContact] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     _name: '',
     _phone_number: '',
@@ -47,7 +47,7 @@ const EmergencyContactsManager: React.FC = () => {
   });
   
   // Test SMS state
-  const [testingContact, setTestingContact] = useState<string | _null>(_null);
+  const [testingContact, setTestingContact] = useState<string | null>(null);
   
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -72,7 +72,7 @@ const EmergencyContactsManager: React.FC = () => {
           ...formData,
           _phone_number: phone
         });
-        setEditingContact(_null);
+        setEditingContact(null);
       } else {
         await addContact({
           ...formData,
@@ -108,7 +108,7 @@ const EmergencyContactsManager: React.FC = () => {
     } catch (_error) {
       console._error('Test SMS failed:', _error);
     } finally {
-      setTestingContact(_null);
+      setTestingContact(null);
     }
   };
   
@@ -331,7 +331,7 @@ const EmergencyContactsManager: React.FC = () => {
                 variant="outline"
                 onClick={() => {
                   setShowAddForm(false);
-                  setEditingContact(_null);
+                  setEditingContact(null);
                   setFormData({ _name: '', _phone_number: '', _relationship: '' });
                 }}
                 className="bg-gray-800 hover:bg-gray-700 border-gray-700"

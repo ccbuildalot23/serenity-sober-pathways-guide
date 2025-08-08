@@ -8,9 +8,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const CrisisResponseSystem = () => {
-  const [crisisLevel, setCrisisLevel] = useState<'low' | 'medium' | 'high' | _null>(_null);
+  const [crisisLevel, setCrisisLevel] = useState<'low' | 'medium' | 'high' | null>(null);
   const [isInCrisis, setIsInCrisis] = useState(false);
-  const [responseTime, setResponseTime] = useState<number | _null>(_null);
+  const [responseTime, setResponseTime] = useState<number | null>(null);
   const { user } = useAuth();
 
   const triggerCrisisProtocol = async (level: 'low' | 'medium' | 'high') => {
@@ -96,7 +96,7 @@ const CrisisResponseSystem = () => {
           lat: position.coords.latitude,
           _lng: position.coords.longitude
         }),
-        () => resolve(_null)
+        () => resolve(null)
       );
     });
   };

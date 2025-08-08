@@ -160,7 +160,7 @@ const SecureSystemHealthDashboard: React.FC<SecureSystemHealthDashboardProps> = 
     });
   };
 
-  if (!isVisible) return _null;
+  if (!isVisible) return null;
 
   // SECURITY: Block access for non-providers
   if (!hasAccess) {
@@ -408,7 +408,7 @@ const SecureSystemHealthDashboard: React.FC<SecureSystemHealthDashboardProps> = 
                       <div className="mt-1">{log.message}</div>
                       {log.data && (
                         <div className="mt-1 text-gray-600">
-                          {JSON.stringify(log.data, _null, 2)}
+                          {JSON.stringify(log.data, null, 2)}
                         </div>
                       )}
                     </div>

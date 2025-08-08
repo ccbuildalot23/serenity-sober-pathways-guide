@@ -22,7 +22,7 @@ import { useAuth } from '@/contexts/AuthContext';
 interface EnhancedCrisisToolkitProps {
   showAssessment: boolean;
   showResponse: boolean;
-  riskLevel: 'low' | 'moderate' | 'high' | 'severe' | _null;
+  riskLevel: 'low' | 'moderate' | 'high' | 'severe' | null;
   currentCrisisEvent: unknown;
   voiceListening: boolean;
   hasLocationPermission: boolean;
@@ -51,8 +51,8 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
 }) => {
   const { user } = useAuth();
   const [panicCooldown, setPanicCooldown] = useState(0);
-  const [location, _setLocation] = useState<unknown>(_null);
-  const [activeIntervention, setActiveIntervention] = useState<string | _null>(_null);
+  const [location, _setLocation] = useState<unknown>(null);
+  const [activeIntervention, setActiveIntervention] = useState<string | null>(null);
   const [breathingCount, setBreathingCount] = useState(0);
   const [groundingStep, setGroundingStep] = useState(0);
   const { _isOnline } = useOfflineCrisisData();
@@ -123,7 +123,7 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
         if (prev >= 5) {
           clearInterval(_breathingInterval);
           handleInterventionComplete('Breathing Exercise');
-          setActiveIntervention(_null);
+          setActiveIntervention(null);
           toast.success("Breathing exercise completed! 🌟");
           return 0;
         }
@@ -394,7 +394,7 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
                 <Button 
                   variant="outline" 
                   className="mt-4"
-                  onClick={() => setActiveIntervention(_null)}
+                  onClick={() => setActiveIntervention(null)}
                 >
                   Stop Exercise
                 </Button>

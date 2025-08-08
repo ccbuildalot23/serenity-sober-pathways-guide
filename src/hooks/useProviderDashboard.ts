@@ -21,7 +21,7 @@ export const useProviderDashboard = () => {
   const [patients, setPatients] = useState<PatientOverview[]>([]);
   const [appointments, setAppointments] = useState<ProviderAppointment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | _null>(_null);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     if (!user?.id) {
@@ -43,7 +43,7 @@ export const useProviderDashboard = () => {
       setStats(_statsData);
       setPatients(_patientsData);
       setAppointments(_appointmentsData);
-      setError(_null);
+      setError(null);
     } catch (err) {
       console.error('Error fetching provider dashboard data:', err);
       setError('Failed to load dashboard data');

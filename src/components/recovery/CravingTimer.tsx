@@ -57,11 +57,11 @@ const CravingTimer = () => {
   // UI state
   const [_showIntensityBefore, setShowIntensityBefore] = useState(true);
   const [_showIntensityAfter, setShowIntensityAfter] = useState(false);
-  const [currentDistraction, setCurrentDistraction] = useState<string | _null>(_null);
+  const [currentDistraction, setCurrentDistraction] = useState<string | null>(null);
   const [motivationalQuote, setMotivationalQuote] = useState('');
   
-  const audioRef = useRef<HTMLAudioElement | _null>(_null);
-  const intervalRef = useRef<NodeJS.Timeout | _null>(_null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const distractions = [
     { id: 'breathing', icon: Wind, label: 'Breathing Exercise', description: 'Follow the 4-7-8 technique' },
@@ -192,7 +192,7 @@ const CravingTimer = () => {
     });
     setShowIntensityBefore(true);
     setShowIntensityAfter(false);
-    setCurrentDistraction(_null);
+    setCurrentDistraction(null);
     setMotivationalQuote('');
   };
 

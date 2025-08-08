@@ -85,7 +85,7 @@ const treatmentTemplates = [
 
 const TreatmentPlanTemplates: React.FC = () => {
   const { user } = useAuth();
-  const [selectedTemplate, setSelectedTemplate] = useState<typeof treatmentTemplates[0] | _null>(_null);
+  const [selectedTemplate, setSelectedTemplate] = useState<typeof treatmentTemplates[0] | null>(null);
   const [patientId, setPatientId] = useState('');
   const [customizations, setCustomizations] = useState({
     _timeline_weeks: 12,
@@ -139,7 +139,7 @@ const TreatmentPlanTemplates: React.FC = () => {
       if (error) throw error;
 
       toast.success('Treatment plan created successfully');
-      setSelectedTemplate(_null);
+      setSelectedTemplate(null);
       setPatientId('');
       setCustomizations({
         _timeline_weeks: 12,
@@ -278,7 +278,7 @@ const TreatmentPlanTemplates: React.FC = () => {
                         <div className="flex justify-end space-x-2">
                           <Button 
                             variant="outline" 
-                            onClick={() => setSelectedTemplate(_null)}
+                            onClick={() => setSelectedTemplate(null)}
                           >
                             Cancel
                           </Button>

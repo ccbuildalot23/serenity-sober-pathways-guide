@@ -35,9 +35,9 @@ interface VoiceCrisisResponse {
 const VoiceCrisisAssistant: React.FC = () => {
   const { user } = useAuth();
   const [isActive, setIsActive] = useState(false);
-  const [response, setResponse] = useState<VoiceCrisisResponse | _null>(_null);
+  const [response, setResponse] = useState<VoiceCrisisResponse | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | _null>(_null);
+  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
 
   const voiceRecording = useVoiceRecording({
     maxDuration: 120, // 2 minutes for crisis situations
@@ -95,7 +95,7 @@ const VoiceCrisisAssistant: React.FC = () => {
         setCurrentAudio(audio);
         
         audio.onended = () => {
-          setCurrentAudio(_null);
+          setCurrentAudio(null);
         };
         
         await audio.play();
@@ -118,7 +118,7 @@ const VoiceCrisisAssistant: React.FC = () => {
 
   const activateCrisisAssistant = () => {
     setIsActive(true);
-    setResponse(_null);
+    setResponse(null);
     voiceRecording.startRecording();
   };
 
@@ -127,7 +127,7 @@ const VoiceCrisisAssistant: React.FC = () => {
     voiceRecording.stopRecording();
     if (currentAudio) {
       currentAudio.pause();
-      setCurrentAudio(_null);
+      setCurrentAudio(null);
     }
   };
 

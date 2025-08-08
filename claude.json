@@ -3,6 +3,32 @@
     "ide": {
       "command": "npx",
       "args": ["@modelcontextprotocol/server-ide"]
+    },
+    "claude-flow": {
+      "command": "npx",
+      "args": ["claude-flow@alpha", "mcp", "start"]
+    },
+    "healthcare-api": {
+      "command": "node",
+      "args": ["src/mcp/servers/healthcare-api.js"],
+      "env": {
+        "API_KEY": "${HEALTHCARE_API_KEY}",
+        "HIPAA_COMPLIANT": "true"
+      }
+    },
+    "analytics": {
+      "command": "node",
+      "args": ["src/mcp/servers/analytics.js"],
+      "env": {
+        "ANALYTICS_API_KEY": "${ANALYTICS_API_KEY}"
+      }
+    },
+    "notifications": {
+      "command": "node",
+      "args": ["src/mcp/servers/notifications.js"],
+      "env": {
+        "NOTIFICATION_SERVICE_URL": "${NOTIFICATION_SERVICE_URL}"
+      }
     }
   }
 }

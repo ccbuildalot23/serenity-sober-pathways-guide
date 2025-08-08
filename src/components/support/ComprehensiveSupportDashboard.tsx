@@ -39,8 +39,8 @@ interface PositiveReinforcement {
 
 export const ComprehensiveSupportDashboard: React.FC = () => {
   const { user } = useAuth();
-  const [sending, setSending] = useState<string | _null>(_null);
-  const [stats, setStats] = useState<SupportStats | _null>(_null);
+  const [sending, setSending] = useState<string | null>(null);
+  const [stats, setStats] = useState<SupportStats | null>(null);
   const [reinforcements, setReinforcements] = useState<PositiveReinforcement[]>([]);
   const [encouragementIndex, setEncouragementIndex] = useState(0);
 
@@ -208,7 +208,7 @@ export const ComprehensiveSupportDashboard: React.FC = () => {
       console.error('Failed to send support request:', error);
       toast.error(error.message || 'Failed to send support request');
     } finally {
-      setSending(_null);
+      setSending(null);
     }
   };
 
@@ -301,7 +301,7 @@ export const ComprehensiveSupportDashboard: React.FC = () => {
       console.error('Failed to send practice message:', error);
       toast.error('Failed to send practice message');
     } finally {
-      setSending(_null);
+      setSending(null);
     }
   };
 

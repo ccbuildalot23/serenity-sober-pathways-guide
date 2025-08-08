@@ -10,8 +10,8 @@ export interface RealtimeNotification {
   title: string;
   message: string;
   data: unknown;
-  read_at: string | _null;
-  expires_at: string | _null;
+  read_at: string | null;
+  expires_at: string | null;
   created_at: string;
 }
 
@@ -123,7 +123,7 @@ export const useRealtimeNotifications = () => {
         .from('realtime_notifications')
         .update({ read_at: new Date().toISOString() })
         .eq('user_id', user?.id)
-        .is('read_at', _null);
+        .is('read_at', null);
 
       if (error) throw error;
 

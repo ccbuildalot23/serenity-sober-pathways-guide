@@ -136,7 +136,7 @@ export class EnhancedSecurityAuditService {
     }
   }
 
-  private async getClientIP(): Promise<string | _null> {
+  private async getClientIP(): Promise<string | null> {
     try {
       // Try multiple methods to get client IP
       
@@ -150,7 +150,7 @@ export class EnhancedSecurityAuditService {
           });
           if (response.ok) {
             const data = await response.json();
-            return data.ip || _null;
+            return data.ip || null;
           }
         } catch (_error) {
           console.warn('Failed to get IP from external service:', _error);
@@ -175,14 +175,14 @@ export class EnhancedSecurityAuditService {
       }
       
       // Method 4: Final fallback
-      return import.meta.env.DEV ? '127.0.0.1' : _null;
+      return import.meta.env.DEV ? '127.0.0.1' : null;
     } catch (_error) {
       console.warn('IP detection _error:', _error);
-      return _null;
+      return null;
     }
   }
 
-  private async getLocalIP(): Promise<string | _null> {
+  private async getLocalIP(): Promise<string | null> {
     return new Promise((resolve) => {
       try {
         const rtc = new RTCPeerConnection({
@@ -193,7 +193,7 @@ export class EnhancedSecurityAuditService {
         
         rtc.onicecandidate = (ice) => {
           if (!ice || !ice.candidate || !ice.candidate.candidate) {
-            resolve(_null);
+            resolve(null);
             return;
           }
           
@@ -211,10 +211,10 @@ export class EnhancedSecurityAuditService {
         // Timeout after 2 seconds
         setTimeout(() => {
           rtc.close();
-          resolve(_null);
+          resolve(null);
         }, 2000);
       } catch (_error) {
-        resolve(_null);
+        resolve(null);
       }
     });
   }
@@ -269,8 +269,8 @@ export class EnhancedSecurityAuditService {
           critical_events: auditLogs?.filter(log => log._risk_level === 'critical').length || 0,
           high_risk_events: auditLogs?.filter(log => log._risk_level === 'high').length || 0,
           failed_logins: auditLogs?.filter(log => log.event_type === 'AUTH_FAILURE').length || 0,
-          unique_users: new Set(auditLogs?.map(log => log._user_id).filter(_Boolean)).size || 0,
-          unique_ips: new Set(auditLogs?.map(log => log._ip_address).filter(_Boolean)).size || 0
+          unique_users: new Set(auditLogs?.map(log => log._user_id).filter(Boolean)).size || 0,
+          unique_ips: new Set(auditLogs?.map(log => log._ip_address).filter(Boolean)).size || 0
         },
         risk_analysis: {
           high_risk_indicators: [],
@@ -414,8 +414,8 @@ export class EnhancedSecurityAuditService {
       const sessions = data || [];
       const analysis = {
         total_sessions: sessions.length,
-        unique_users: new Set(sessions.map(s => s._user_id).filter(_Boolean)).size,
-        unique_devices: new Set(sessions.map(s => s.user_agent).filter(_Boolean)).size,
+        unique_users: new Set(sessions.map(s => s._user_id).filter(Boolean)).size,
+        unique_devices: new Set(sessions.map(s => s.user_agent).filter(Boolean)).size,
         session_duration_stats: this.calculateSessionDurations(sessions),
         device_breakdown: this.analyzeDevices(sessions)
       };

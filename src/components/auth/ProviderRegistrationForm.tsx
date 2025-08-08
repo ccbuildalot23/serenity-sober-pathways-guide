@@ -25,7 +25,7 @@ export const ProviderRegistrationForm: React.FC<ProviderRegistrationFormProps> =
   });
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | _null>(_null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +35,7 @@ export const ProviderRegistrationForm: React.FC<ProviderRegistrationFormProps> =
     }
 
     setIsLoading(true);
-    setError(_null);
+    setError(null);
 
     try {
       const { error: submitError } = await supabase

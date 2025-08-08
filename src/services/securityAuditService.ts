@@ -358,7 +358,7 @@ class SecurityAuditService {
     try {
       // Test if rate limiting is in place by making rapid requests
       const startTime = Date.now();
-      const _promises = Array(10).fill(_null).map(() => 
+      const _promises = Array(10).fill(null).map(() => 
         supabase.from('profiles').select('count').limit(1)
       );
       

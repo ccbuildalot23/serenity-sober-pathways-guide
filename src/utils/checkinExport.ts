@@ -40,7 +40,7 @@ async function exportAsCSV(data: CheckinHistoryData[], _filters: FilterOptions) 
     item.energy_rating?.toString() || '',
     item.hope_rating?.toString() || '',
     item.sleep_quality?.toString() || '',
-    item.medication_taken === _null ? '' : item.medication_taken ? 'Yes' : 'No',
+    item.medication_taken === null ? '' : item.medication_taken ? 'Yes' : 'No',
     item.phq2_score?.toString() || '',
     item.gad2_score?.toString() || '',
     item._triggers ? item._triggers.join('; ') : '',
@@ -97,7 +97,7 @@ async function exportAsJSON(data: CheckinHistoryData[], _filters: FilterOptions)
     }))
   };
 
-  const _jsonContent = JSON.stringify(_exportData, _null, 2);
+  const _jsonContent = JSON.stringify(_exportData, null, 2);
   
   await downloadFile(
     _jsonContent,

@@ -101,7 +101,7 @@ export class HIPAADataExportService {
       // Compile all user data
       const _categories = Array.isArray(request._data_categories) 
         ? request._data_categories.map(cat => String(cat))
-        : [String(request._data_categories)].filter(_Boolean);
+        : [String(request._data_categories)].filter(Boolean);
         
       const _exportData = await this.compileUserData(
         request.user_id,

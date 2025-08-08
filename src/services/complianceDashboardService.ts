@@ -260,7 +260,7 @@ class ComplianceDashboardService {
     const { data, error } = await supabase
       .from('compliance_requirements')
       .select('*')
-      .not('_due_date', 'is', _null)
+      .not('_due_date', 'is', null)
       .lte('_due_date', _thirtyDaysFromNow)
       .not('compliance_status', 'eq', 'compliant')
       .order('_due_date', { ascending: true });

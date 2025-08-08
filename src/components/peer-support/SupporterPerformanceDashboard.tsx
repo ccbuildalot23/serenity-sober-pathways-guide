@@ -26,9 +26,9 @@ interface SessionData {
 
 const SupporterPerformanceDashboard = () => {
   const { user } = useAuth();
-  const [metrics, setMetrics] = useState<unknown>(_null);
+  const [metrics, setMetrics] = useState<unknown>(null);
   const [recentSessions, setRecentSessions] = useState<SessionData[]>([]);
-  const [selectedSession, setSelectedSession] = useState<SessionData | _null>(_null);
+  const [selectedSession, setSelectedSession] = useState<SessionData | null>(null);
   const [flagType, setFlagType] = useState<string>('');
   const [_flagDescription, setFlagDescription] = useState('');
   const [sessionSummary, setSessionSummary] = useState('');
@@ -141,7 +141,7 @@ const SupporterPerformanceDashboard = () => {
       toast.success('Session flagged for review');
       setFlagType('');
       setFlagDescription('');
-      setSelectedSession(_null);
+      setSelectedSession(null);
     } catch (_error) {
       console._error('Failed to flag session:', _error);
       toast._error('Failed to flag session');

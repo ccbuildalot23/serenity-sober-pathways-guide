@@ -31,7 +31,7 @@ export const AppointmentManagement: React.FC<AppointmentManagementProps> = ({
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [_dateRange, setDateRange] = useState<string>('week');
   const [showBookingFlow, setShowBookingFlow] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState<unknown>(_null);
+  const [selectedProvider, setSelectedProvider] = useState<unknown>(null);
   const [changeRequestDialog, setChangeRequestDialog] = useState<{
     open: boolean;
     _appointmentId: string;
@@ -157,13 +157,13 @@ export const AppointmentManagement: React.FC<AppointmentManagementProps> = ({
         provider={selectedProvider}
         onBookingComplete={(_appointmentId) => {
           setShowBookingFlow(false);
-          setSelectedProvider(_null);
+          setSelectedProvider(null);
           loadAppointments();
           toast.success('Appointment booked successfully!');
         }}
         onCancel={() => {
           setShowBookingFlow(false);
-          setSelectedProvider(_null);
+          setSelectedProvider(null);
         }}
       />
     );

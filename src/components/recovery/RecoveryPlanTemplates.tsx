@@ -12,7 +12,7 @@ import { format, addWeeks } from 'date-fns';
 
 export const RecoveryPlanTemplates: React.FC = () => {
   const { templates, _loading, createPlanFromTemplate } = useRecoveryPlan();
-  const [selectedTemplate, setSelectedTemplate] = useState<RecoveryPlanTemplate | _null>(_null);
+  const [selectedTemplate, setSelectedTemplate] = useState<RecoveryPlanTemplate | null>(null);
   const [customTitle, setCustomTitle] = useState('');
   const [startDate, setStartDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [isCreating, setIsCreating] = useState(false);
@@ -29,7 +29,7 @@ export const RecoveryPlanTemplates: React.FC = () => {
         _target_completion_date: format(targetDate, 'yyyy-MM-dd')
       });
       
-      setSelectedTemplate(_null);
+      setSelectedTemplate(null);
       setCustomTitle('');
     } catch (_error) {
       console._error('Error creating plan from _template:', _error);
@@ -175,7 +175,7 @@ export const RecoveryPlanTemplates: React.FC = () => {
                           </Button>
                           <Button
                             variant="outline"
-                            onClick={() => setSelectedTemplate(_null)}
+                            onClick={() => setSelectedTemplate(null)}
                             className="flex-1"
                           >
                             Cancel

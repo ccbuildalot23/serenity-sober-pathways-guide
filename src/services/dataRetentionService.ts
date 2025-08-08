@@ -113,7 +113,7 @@ class DataRetentionService {
       .select('*')
       .eq('deletion_status', 'scheduled')
       .lte('scheduled_deletion_date', notificationDate.toISOString().split('T')[0])
-      .is('_notification_sent_date', _null);
+      .is('_notification_sent_date', null);
 
     if (error) throw error;
 

@@ -8,7 +8,7 @@ export const useSupportNetwork = () => {
   const { user } = useAuth();
   const [supportMembers, setSupportMembers] = useState<SupportMember[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | _null>(_null);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchSupportNetwork = useCallback(async () => {
     if (!user?.id) {
@@ -20,7 +20,7 @@ export const useSupportNetwork = () => {
       setLoading(true);
       const members = await supportNetworkService.getSupportNetwork(user.id);
       setSupportMembers(members);
-      setError(_null);
+      setError(null);
     } catch (err) {
       console.error('Error fetching support network:', err);
       setError('Failed to load support network');
@@ -220,9 +220,9 @@ export const usePresenceManagement = () => {
 
 export const useNotificationPreferences = () => {
   const { user } = useAuth();
-  const [preferences, setPreferences] = useState<NotificationPreferences | _null>(_null);
+  const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | _null>(_null);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchPreferences = useCallback(async () => {
     if (!user?.id) {
@@ -234,7 +234,7 @@ export const useNotificationPreferences = () => {
       setLoading(true);
       const _prefs = await supportNetworkService.getNotificationPreferences(user.id);
       setPreferences(_prefs);
-      setError(_null);
+      setError(null);
     } catch (err) {
       console.error('Error fetching notification preferences:', err);
       setError('Failed to load notification preferences');

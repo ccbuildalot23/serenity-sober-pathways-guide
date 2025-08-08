@@ -28,7 +28,7 @@ const EnhancedCalendar: React.FC<{
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [_selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   const [isDayDetailOpen, setIsDayDetailOpen] = useState(false);
-  const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | _null>(_null);
+  const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
   // Use custom hooks
@@ -43,7 +43,7 @@ const EnhancedCalendar: React.FC<{
   // Simple notification system
   const showNotification = (type: 'success' | 'error', message: string) => {
     setNotification({ type, message });
-    setTimeout(() => setNotification(_null), 3000);
+    setTimeout(() => setNotification(null), 3000);
   };
 
   // Update entry

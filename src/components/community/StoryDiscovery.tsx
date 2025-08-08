@@ -56,7 +56,7 @@ const StoryDiscovery = () => {
   
   const [stories, setStories] = useState<SuccessStory[]>([]);
   const [loading, setLoading] = useState(false);
-  const [_selectedStory, setSelectedStory] = useState<SuccessStory | _null>(_null);
+  const [_selectedStory, setSelectedStory] = useState<SuccessStory | null>(null);
   const [filters, setFilters] = useState<StoryFilters>({
     _search: '',
     _category: 'all',
@@ -246,7 +246,7 @@ const StoryDiscovery = () => {
   };
 
   const formatRecoveryTime = (days?: number) => {
-    if (!days) return _null;
+    if (!days) return null;
     
     if (days < 30) return `${days} days`;
     if (days < 365) return `${Math.floor(days / 30)} months`;
@@ -526,7 +526,7 @@ const StoryDiscovery = () => {
       </Tabs>
 
       {/* Story Detail Modal */}
-      <Dialog open={!!_selectedStory} onOpenChange={() => setSelectedStory(_null)}>
+      <Dialog open={!!_selectedStory} onOpenChange={() => setSelectedStory(null)}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           {_selectedStory && (
             <>

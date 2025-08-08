@@ -9,7 +9,7 @@ export function useCalendarData(
 ) {
   const [monthEntries, setMonthEntries] = useState<MoodEntry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | _null>(_null);
+  const [error, setError] = useState<string | null>(null);
 
   // Enhanced mock data for demo
   const getMockData = (): MoodEntry[] => {
@@ -97,7 +97,7 @@ export function useCalendarData(
       }
 
       setIsLoading(true);
-      setError(_null);
+      setError(null);
 
       try {
         const { data: checkins, error } = await supabase

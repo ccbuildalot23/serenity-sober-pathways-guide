@@ -36,7 +36,7 @@ interface CheckInResponse {
 
 const FollowUpSystem = () => {
   const [pendingTasks, setPendingTasks] = useState<FollowUpTask[]>([]);
-  const [activeCheckIn, setActiveCheckIn] = useState<FollowUpTask | _null>(_null);
+  const [activeCheckIn, setActiveCheckIn] = useState<FollowUpTask | null>(null);
   const [moodRating, setMoodRating] = useState([5]);
   const [checkInNotes, setCheckInNotes] = useState('');
   const [needsSupport, setNeedsSupport] = useState(false);
@@ -134,7 +134,7 @@ const FollowUpSystem = () => {
       });
     }
 
-    setActiveCheckIn(_null);
+    setActiveCheckIn(null);
   };
 
   const getTaskIcon = (_type: string) => {

@@ -5,9 +5,9 @@ import { Card } from '@/components/ui/card';
 import { useSearchParams } from 'react-router-dom';
 
 const CrisisHelp: React.FC = () => {
-  const [location, setLocation] = useState<{ lat: number; _lng: number } | _null>(_null);
+  const [location, setLocation] = useState<{ lat: number; _lng: number } | null>(null);
   const [isShaking, setIsShaking] = useState(false);
-  const [selectedCrisisType, setSelectedCrisisType] = useState<string | _null>(_null);
+  const [selectedCrisisType, setSelectedCrisisType] = useState<string | null>(null);
   const [showingMessage, setShowingMessage] = useState(false);
   const [searchParams] = useSearchParams();
   const discreteMode = searchParams.get('discrete') === 'true';
@@ -127,7 +127,7 @@ const CrisisHelp: React.FC = () => {
         <div className="max-w-md mx-auto pt-8">
           {/* Back Button */}
           <button 
-            onClick={() => setSelectedCrisisType(_null)}
+            onClick={() => setSelectedCrisisType(null)}
             className="mb-4 text-blue-600 hover:text-blue-800 flex items-center gap-2 text-sm"
           >
             ← Choose different support

@@ -40,13 +40,13 @@ const SobrietyTracker = () => {
   const [moneySaved, setMoneySaved] = useState<number>(0);
   const [totalHours, setTotalHours] = useState<number>(0);
   const [achievements, setAchievements] = useState<string[]>([]);
-  const [newAchievement, setNewAchievement] = useState<string | _null>(_null);
+  const [newAchievement, setNewAchievement] = useState<string | null>(null);
   const [showMilestone, setShowMilestone] = useState(false);
-  const [currentMilestone, setCurrentMilestone] = useState<MilestoneData | _null>(_null);
+  const [currentMilestone, setCurrentMilestone] = useState<MilestoneData | null>(null);
   const [crisisData, setCrisisData] = useState<unknown[]>([]);
   const [relapseHistory, setRelapseHistory] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(false);
-  const [analyticsData, setAnalyticsData] = useState<unknown>(_null);
+  const [analyticsData, setAnalyticsData] = useState<unknown>(null);
 
   // Real-time counter update (every second for more granular tracking)
   useEffect(() => {
@@ -282,7 +282,7 @@ const SobrietyTracker = () => {
   const getProgressToNextMilestone = () => {
     const milestones = [1, 7, 30, 90, 180, 365, 730, 1095]; // Up to 3 years
     const nextMilestone = milestones.find(m => m > days);
-    if (!nextMilestone) return _null;
+    if (!nextMilestone) return null;
     
     const progress = (days / nextMilestone) * 100;
     return { next: nextMilestone, progress, remaining: nextMilestone - days };
@@ -311,7 +311,7 @@ const SobrietyTracker = () => {
       setNewAchievement(`${newMilestone.icon} ${newMilestone.title}`);
       
       // Show achievement notification
-      setTimeout(() => setNewAchievement(_null), 5000);
+      setTimeout(() => setNewAchievement(null), 5000);
     }
   };
 

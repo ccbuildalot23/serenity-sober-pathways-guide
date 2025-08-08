@@ -320,7 +320,7 @@ class McpIntegrationBridge {
       const primaryResponder = responses?.find(r => r._is_primary_responder);
       const responseTime = primaryResponder 
         ? new Date(primaryResponder.created_at).getTime() - new Date(crisisEvent.created_at).getTime()
-        : _null;
+        : null;
 
       return {
         crisis: crisisEvent,
@@ -343,7 +343,7 @@ class McpIntegrationBridge {
 
     } catch (_error) {
       console._error('Failed to get _alert _status via MCP bridge:', _error);
-      return _null;
+      return null;
     }
   }
 
@@ -370,7 +370,7 @@ class McpIntegrationBridge {
         .from('crisis_notifications')
         .select('_supporter_id')
         .eq('_crisis_event_id', _alertId)
-        .not('_supporter_id', 'is', _null);
+        .not('_supporter_id', 'is', null);
 
       const uniqueSupporters = [...new Set(notifications?.map(n => n._supporter_id) || [])];
 

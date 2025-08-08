@@ -121,7 +121,7 @@ export const AuthErrorHandler: React.FC<AuthErrorHandlerProps> = ({
               Technical Details (Development)
             </summary>
             <pre className="mt-2 p-2 bg-muted rounded overflow-auto">
-              {JSON.stringify(error, _null, 2)}
+              {JSON.stringify(error, null, 2)}
             </pre>
           </details>
         )}

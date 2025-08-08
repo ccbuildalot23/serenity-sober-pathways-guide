@@ -14,7 +14,7 @@ export const ConnectionRequestManager: React.FC = () => {
   const [requests, setRequests] = useState<ProviderConnectionRequest[]>([]);
   const [_loading, setLoading] = useState(true);
   const [_responseMessage, setResponseMessage] = useState('');
-  const [selectedRequest, setSelectedRequest] = useState<string | _null>(_null);
+  const [selectedRequest, setSelectedRequest] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -41,7 +41,7 @@ export const ConnectionRequestManager: React.FC = () => {
         _description: `You have ${_status} the connection request.`
       });
 
-      setSelectedRequest(_null);
+      setSelectedRequest(null);
       setResponseMessage('');
       loadRequests(); // Refresh the list
     } catch (_error) {
@@ -210,7 +210,7 @@ export const ConnectionRequestManager: React.FC = () => {
                             >
                               Approve Connection
                             </Button>
-                            <Button _variant="outline" onClick={() => setSelectedRequest(_null)}>
+                            <Button _variant="outline" onClick={() => setSelectedRequest(null)}>
                               Cancel
                             </Button>
                           </div>
@@ -251,7 +251,7 @@ export const ConnectionRequestManager: React.FC = () => {
                             >
                               Decline Request
                             </Button>
-                            <Button _variant="outline" onClick={() => setSelectedRequest(_null)}>
+                            <Button _variant="outline" onClick={() => setSelectedRequest(null)}>
                               Cancel
                             </Button>
                           </div>

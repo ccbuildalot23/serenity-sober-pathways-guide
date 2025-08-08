@@ -48,7 +48,7 @@ export const useVictoryDashboard = () => {
         _recentVictories,
         _supportGiven: _recentVictories.filter(v => v.type === 'helped_someone').length,
         _supportReceived: _recentVictories.filter(v => v.type === 'asked_for_help').length,
-        _toolsUsed: [...new Set(_recentVictories.map(v => v.tool).filter(_Boolean))],
+        _toolsUsed: [...new Set(_recentVictories.map(v => v.tool).filter(Boolean))],
         _nextMilestone
       });
       

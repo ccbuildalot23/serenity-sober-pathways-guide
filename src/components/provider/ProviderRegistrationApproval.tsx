@@ -30,7 +30,7 @@ export const ProviderRegistrationApproval: React.FC = () => {
   const [requests, setRequests] = useState<RegistrationRequest[]>([]);
   const [_loading, setLoading] = useState(true);
   const [approvalNotes, setApprovalNotes] = useState<Record<string, string>>({});
-  const [processingId, setProcessingId] = useState<string | _null>(_null);
+  const [processingId, setProcessingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (isProvider) {
@@ -78,7 +78,7 @@ export const ProviderRegistrationApproval: React.FC = () => {
     } catch (_err) {
       console.error('Error approving registration:', _err);
     } finally {
-      setProcessingId(_null);
+      setProcessingId(null);
     }
   };
 

@@ -64,7 +64,7 @@ class CriticalNotificationService {
   private activeRequests: Map<string, SupportRequest> = new Map();
   private pendingNotifications: Map<string, NotificationRecipient[]> = new Map();
   private supportNetwork: SupportNetworkMember[] = [];
-  private _userId: string | _null = _null;
+  private _userId: string | null = null;
   private isInitialized = false;
 
   // Event handlers
@@ -136,7 +136,7 @@ class CriticalNotificationService {
       .from('notification_recipients')
       .select('*, notification_requests(*)')
       .eq('recipient_id', this._userId)
-      .is('acknowledged_at', _null)
+      .is('acknowledged_at', null)
       .order('created_at', { ascending: false });
 
     // Process and store requests

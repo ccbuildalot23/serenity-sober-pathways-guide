@@ -50,7 +50,7 @@ const PlayingItForward = () => {
   const { user } = useAuth();
   const { handleCrisisActivated } = useCrisisSystem();
   
-  const [currentPath, setCurrentPath] = useState<'using' | 'staying_clean' | _null>(_null);
+  const [currentPath, setCurrentPath] = useState<'using' | 'staying_clean' | null>(null);
   const [timeframe, setTimeframe] = useState<'immediate' | 'oneDay' | 'oneWeek' | 'oneMonth'>('immediate');
   const [userGoals, setUserGoals] = useState<PersonalGoal[]>([]);
   const [_showGoalSelection, setShowGoalSelection] = useState(true);
@@ -358,7 +358,7 @@ const PlayingItForward = () => {
   };
 
   const reset = () => {
-    setCurrentPath(_null);
+    setCurrentPath(null);
     setTimeframe('immediate');
     setShowGoalSelection(true);
     setSelectedGoals([]);
@@ -534,7 +534,7 @@ const PlayingItForward = () => {
 
   // Consequences visualization
   const consequences = decisionPaths[currentPath]?.consequences;
-  if (!consequences) return _null;
+  if (!consequences) return null;
 
   const currentConsequences = consequences[timeframe];
   const isUsingPath = currentPath === 'using';
@@ -668,7 +668,7 @@ const PlayingItForward = () => {
 
       {/* Action Buttons */}
       <div className="flex gap-4 justify-center">
-        <Button variant="ghost" onClick={() => setCurrentPath(_null)}>
+        <Button variant="ghost" onClick={() => setCurrentPath(null)}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           Compare Paths
         </Button>

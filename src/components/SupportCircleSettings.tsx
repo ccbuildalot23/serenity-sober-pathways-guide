@@ -27,7 +27,7 @@ interface FormErrors {
 const SupportCircleSettings = () => {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [testingContact, setTestingContact] = useState<string | _null>(_null);
+  const [testingContact, setTestingContact] = useState<string | null>(null);
   const [_loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -203,7 +203,7 @@ const SupportCircleSettings = () => {
     
     // Simulate API call
     setTimeout(() => {
-      setTestingContact(_null);
+      setTestingContact(null);
       console.log(`Test alert sent to ${contact._name} (${contact._phone}) via ${contact._contact_method}`);
       toast({
         title: "Test Alert Sent",
@@ -248,7 +248,7 @@ const SupportCircleSettings = () => {
           .update({
             _name: contact._name,
             _relationship: contact._relationship,
-            _phone: contact._phone || _null,
+            _phone: contact._phone || null,
             _contact_method: contact._contact_method,
             share_location: contact.share_location,
             _updated_at: new Date().toISOString()
@@ -271,7 +271,7 @@ const SupportCircleSettings = () => {
               user_id: user.id,
               _name: contact._name,
               _relationship: contact._relationship,
-              _phone: contact._phone || _null,
+              _phone: contact._phone || null,
               _contact_method: contact._contact_method,
               share_location: contact.share_location
             }))

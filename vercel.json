@@ -1,26 +1,11 @@
 {
-  "buildCommand": "npm ci --no-audit --no-fund && npm run build",
-  "installCommand": "npm ci --no-audit --no-fund",
-  "outputDirectory": "dist",
   "framework": "vite",
-  "github": { "silent": false },
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
-  ],
-  "env": {
-    "NODE_VERSION": "20"
-  }
-}
-{
+  "installCommand": "npm ci --no-audit --no-fund",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "installCommand": "npm install --legacy-peer-deps",
-  "framework": "vite",
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ]
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "github": { "silent": false },
+  "env": {}
 }

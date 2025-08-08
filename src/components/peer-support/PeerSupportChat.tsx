@@ -79,20 +79,20 @@ const PeerSupportChat = () => {
   const { user } = useAuth();
   const { handleCrisisActivated } = useCrisisSystem();
   const [view, setView] = useState<'main' | 'queue' | 'chat' | 'rating' | 'video'>('main');
-  const [videoSession, setVideoSession] = useState<unknown>(_null);
-  const [currentSession, setCurrentSession] = useState<ChatSession | _null>(_null);
+  const [videoSession, setVideoSession] = useState<unknown>(null);
+  const [currentSession, setCurrentSession] = useState<ChatSession | null>(null);
   const [messages, setMessages] = useState<EnhancedChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [queueStatus, setQueueStatus] = useState<QueueStatus | _null>(_null);
+  const [queueStatus, setQueueStatus] = useState<QueueStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
-  const [replyToMessage, setReplyToMessage] = useState<EnhancedChatMessage | _null>(_null);
-  const [fileUpload, setFileUpload] = useState<File | _null>(_null);
-  const [crisisDetected, setCrisisDetected] = useState<CrisisDetection | _null>(_null);
+  const [replyToMessage, setReplyToMessage] = useState<EnhancedChatMessage | null>(null);
+  const [fileUpload, setFileUpload] = useState<File | null>(null);
+  const [crisisDetected, setCrisisDetected] = useState<CrisisDetection | null>(null);
   const [showCrisisOverlay, setShowCrisisOverlay] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(_null);
-  const fileInputRef = useRef<HTMLInputElement>(_null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Real-time chat hook
   const {
@@ -109,7 +109,7 @@ const PeerSupportChat = () => {
     updateTypingStatus,
     updatePresence
   } = useRealtimePeerChat({
-    _sessionId: currentSession?.id || _null,
+    _sessionId: currentSession?.id || null,
     _onMessageReceived: (message) => {
       setMessages(prev => [...prev, message]);
       // Mark as read if not from current user
@@ -389,8 +389,8 @@ const PeerSupportChat = () => {
       );
 
       setNewMessage('');
-      setReplyToMessage(_null);
-      setFileUpload(_null);
+      setReplyToMessage(null);
+      setFileUpload(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -514,7 +514,7 @@ const PeerSupportChat = () => {
 
       toast.success('Thank you for your feedback!');
       setView('main');
-      setCurrentSession(_null);
+      setCurrentSession(null);
       setRating(0);
       setFeedback('');
     } catch (error: unknown) {
@@ -606,7 +606,7 @@ const PeerSupportChat = () => {
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    _onClick={() => setReplyToMessage(_null)}
+                    _onClick={() => setReplyToMessage(null)}
                     className="ml-2 h-6 w-6 p-0"
                   >
                     ×
@@ -674,7 +674,7 @@ const PeerSupportChat = () => {
                   variant="ghost" 
                   size="sm" 
                   _onClick={() => {
-                    setFileUpload(_null);
+                    setFileUpload(null);
                     if (fileInputRef.current) fileInputRef.current.value = '';
                   }}
                 >
@@ -855,7 +855,7 @@ const PeerSupportChat = () => {
               _onClick={() => joinQueue('normal')}
               disabled={loading}
             >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : _null}
+              {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Start Chat Now
             </Button>
           </CardContent>

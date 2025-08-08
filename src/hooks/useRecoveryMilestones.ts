@@ -31,8 +31,8 @@ const MILESTONES: Milestone[] = [
 export const useRecoveryMilestones = () => {
   const { user } = useAuth();
   const [_cleanDays, setCleanDays] = useState(0);
-  const [nextMilestone, setNextMilestone] = useState<Milestone | _null>(_null);
-  const [recentMilestone, setRecentMilestone] = useState<Milestone | _null>(_null);
+  const [nextMilestone, setNextMilestone] = useState<Milestone | null>(null);
+  const [recentMilestone, setRecentMilestone] = useState<Milestone | null>(null);
   const [isNewDay, setIsNewDay] = useState(false);
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export const useRecoveryMilestones = () => {
 
     // Find next milestone
     const next = MILESTONES.find(m => m.days > days);
-    setNextMilestone(next || _null);
+    setNextMilestone(next || null);
 
     // Check if we just hit a milestone
     const _recent = MILESTONES.find(m => m.days === days);
@@ -122,7 +122,7 @@ export const useRecoveryMilestones = () => {
     localStorage.setItem('last_checkin_date', new Date().toDateString());
     
     setCleanDays(0);
-    setRecentMilestone(_null);
+    setRecentMilestone(null);
     
     // Send encouraging message
     hopeMessenger.sendHope('struggling');

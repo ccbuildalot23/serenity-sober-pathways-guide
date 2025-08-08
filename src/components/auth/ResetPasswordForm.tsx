@@ -17,10 +17,10 @@ export const ResetPasswordForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | _null>(_null);
+  const [error, setError] = useState<string | null>(null);
   const [_success, setSuccess] = useState(false);
 
-  const validatePassword = (password: string): string | _null => {
+  const validatePassword = (password: string): string | null => {
     if (password.length < 8) {
       return 'Password must be at least 8 characters long';
     }
@@ -36,12 +36,12 @@ export const ResetPasswordForm: React.FC = () => {
     if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
       return 'Password must contain at least one special character';
     }
-    return _null;
+    return null;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(_null);
+    setError(null);
 
     // Validate password
     const _passwordError = validatePassword(password);

@@ -23,8 +23,8 @@ export const useHelpNowSystem = () => {
   const [showTools, setShowTools] = useState(false);
   const [showConnections, setShowConnections] = useState(false);
   const [showNextSteps, setShowNextSteps] = useState(false);
-  const [needLevel, setNeedLevel] = useState<NeedLevel | _null>(_null);
-  const [currentMoment, setCurrentMoment] = useState<ReachingOutMoment | _null>(_null);
+  const [needLevel, setNeedLevel] = useState<NeedLevel | null>(null);
+  const [currentMoment, setCurrentMoment] = useState<ReachingOutMoment | null>(null);
   const [voiceListening, setVoiceListening] = useState(false);
   const [hasLocationPermission, setHasLocationPermission] = useState(false);
   const { user } = useAuth();
@@ -171,7 +171,7 @@ export const useHelpNowSystem = () => {
       setShowNextSteps(true);
     }
 
-    setNeedLevel(_null);
+    setNeedLevel(null);
     
     toast._success("You Did It", {
       description: "You reached out and that takes real strength",

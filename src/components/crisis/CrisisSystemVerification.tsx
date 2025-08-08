@@ -304,7 +304,7 @@ export const CrisisSystemVerification: React.FC = () => {
 
     try {
       // Send multiple rapid requests
-      const _promises = Array(4).fill(_null).map(() => 
+      const _promises = Array(4).fill(null).map(() => 
         supabase.functions.invoke('send-crisis-sms', {
           body: { _customMessage: 'Rate limit test' }
         })

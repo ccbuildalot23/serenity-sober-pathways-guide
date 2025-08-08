@@ -40,7 +40,7 @@ const techniques = [
 ];
 
 const ColdWaterTechnique: React.FC<ColdWaterTechniqueProps> = ({ onComplete }) => {
-  const [selectedTechnique, setSelectedTechnique] = useState<string | _null>(_null);
+  const [selectedTechnique, setSelectedTechnique] = useState<string | null>(null);
   const [isActive, setIsActive] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [_isCompleted, setIsCompleted] = useState(false);
@@ -48,7 +48,7 @@ const ColdWaterTechnique: React.FC<ColdWaterTechniqueProps> = ({ onComplete }) =
   const currentTechnique = techniques.find(t => t.id === selectedTechnique);
 
   useEffect(() => {
-    let _interval: NodeJS.Timeout | _null = _null;
+    let _interval: NodeJS.Timeout | null = null;
     
     if (isActive && timeRemaining > 0) {
       _interval = setInterval(() => {
@@ -87,7 +87,7 @@ const ColdWaterTechnique: React.FC<ColdWaterTechniqueProps> = ({ onComplete }) =
 
   const handleReset = () => {
     setIsActive(false);
-    setSelectedTechnique(_null);
+    setSelectedTechnique(null);
     setTimeRemaining(0);
     setIsCompleted(false);
   };

@@ -23,7 +23,7 @@ class DebugService {
     return localStorage.getItem('debug_mode') === 'true' || import.meta.env.DEV;
   }
 
-  get userId(): string | _null {
+  get userId(): string | null {
     return localStorage.getItem('debug_user_id');
   }
 
@@ -100,7 +100,7 @@ class DebugService {
       logs: this.logs
     };
     
-    const _blob = new Blob([JSON.stringify(logData, _null, 2)], 
+    const _blob = new Blob([JSON.stringify(logData, null, 2)], 
       { type: 'application/json' });
     const _url = URL.createObjectURL(_blob);
     const a = document.createElement('a');

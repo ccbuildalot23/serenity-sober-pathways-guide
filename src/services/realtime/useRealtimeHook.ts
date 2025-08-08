@@ -8,11 +8,11 @@ export function useRealtime() {
   const [alerts, setAlerts] = React.useState<RealtimeAlert[]>([]);
   const [presence, setPresence] = React.useState<RealtimePresence[]>([]);
   const [isConnected, setIsConnected] = React.useState(false);
-  const [connectionError, setConnectionError] = React.useState<string | _null>(_null);
+  const [connectionError, setConnectionError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    let unsubscribeAlert: (() => void) | _null = _null;
-    let unsubscribePresence: (() => void) | _null = _null;
+    let unsubscribeAlert: (() => void) | null = null;
+    let unsubscribePresence: (() => void) | null = null;
 
     const initialize = async () => {
       try {
@@ -28,7 +28,7 @@ export function useRealtime() {
         const { _enhancedRealtimeService } = await import('../_enhancedRealtimeService');
         await _enhancedRealtimeService.initialize(user.id);
         setIsConnected(true);
-        setConnectionError(_null);
+        setConnectionError(null);
 
         // Subscribe to alerts
         unsubscribeAlert = _enhancedRealtimeService.onAlert((alert) => {

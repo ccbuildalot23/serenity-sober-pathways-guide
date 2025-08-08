@@ -17,13 +17,13 @@ interface UserProfile {
 
 export const useSecureProfileManagement = () => {
   const { user } = useAuth();
-  const [profile, setProfile] = useState<UserProfile | _null>(_null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
   const loadProfile = async () => {
     if (!user) {
-      setProfile(_null);
+      setProfile(null);
       setLoading(false);
       return;
     }

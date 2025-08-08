@@ -65,9 +65,9 @@ interface BackupStatus {
 }
 
 export const InfrastructureMonitoringDashboard: React.FC = () => {
-  const [systemHealth, setSystemHealth] = useState<SystemHealth | _null>(_null);
-  const [securityScanSummary, setSecurityScanSummary] = useState<SecurityScanSummary | _null>(_null);
-  const [backupStatus, setBackupStatus] = useState<BackupStatus | _null>(_null);
+  const [systemHealth, setSystemHealth] = useState<SystemHealth | null>(null);
+  const [securityScanSummary, setSecurityScanSummary] = useState<SecurityScanSummary | null>(null);
+  const [backupStatus, setBackupStatus] = useState<BackupStatus | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
   const [autoRefresh, setAutoRefresh] = useState(true);
@@ -338,7 +338,7 @@ export const InfrastructureMonitoringDashboard: React.FC = () => {
                         {result.details && (
                           <div className="text-xs text-gray-600 mt-2">
                             <pre className="whitespace-pre-wrap">
-                              {JSON.stringify(result.details, _null, 2)}
+                              {JSON.stringify(result.details, null, 2)}
                             </pre>
                           </div>
                         )}

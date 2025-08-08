@@ -23,12 +23,12 @@ interface AlertRecord {
 const AlertHistory = () => {
   const [groupBy, setGroupBy] = useState<'none' | 'timeOfDay' | 'dayOfWeek'>('none');
   const [chartPeriod, setChartPeriod] = useState<'week' | 'month'>('week');
-  const [editingNotes, setEditingNotes] = useState<string | _null>(_null);
+  const [editingNotes, setEditingNotes] = useState<string | null>(null);
   const [_notesText, setNotesText] = useState('');
   const [historyEnabled, setHistoryEnabled] = useState(() =>
     localStorage.getItem('alertHistoryEnabled') !== 'false'
   );
-  const [error, setError] = useState<string | _null>(_null);
+  const [error, setError] = useState<string | null>(null);
   const [alertHistory, setAlertHistory] = useState<AlertRecord[]>([]);
   
   const { toast } = useToast();
@@ -69,7 +69,7 @@ const AlertHistory = () => {
         ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
         setAlertHistory(_combinedAlerts);
-        setError(_null);
+        setError(null);
       } catch (_err) {
         console.error('Failed to load alert history:', _err);
         setError('Failed to load alert history. You may need to clear your browser storage.');
@@ -162,7 +162,7 @@ const AlertHistory = () => {
 
   const handleSaveNotes = (alertId: string) => {
     localStorage.setItem(`alert_notes_${alertId}`, _notesText);
-    setEditingNotes(_null);
+    setEditingNotes(null);
     setNotesText('');
     toast({
       title: "Notes saved",
@@ -231,7 +231,7 @@ const AlertHistory = () => {
             onSetEditingNotes={setEditingNotes}
             onSetNotesText={setNotesText}
             onSaveNotes={handleSaveNotes}
-            onCancelEdit={() => setEditingNotes(_null)}
+            onCancelEdit={() => setEditingNotes(null)}
           />
         </TabsContent>
         

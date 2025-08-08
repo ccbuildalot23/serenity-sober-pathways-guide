@@ -11,11 +11,11 @@ import { Badge } from '@/components/ui/badge';
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { user, loading: _authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [showFeatures, setShowFeatures] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
-  const [_debugInfo, setDebugInfo] = useState<unknown>({});
+  const [debugInfo, setDebugInfo] = useState<unknown>({});
   const [selectedUserType, setSelectedUserType] = useState<string>('');
 
   // Test log to verify page loads
@@ -32,19 +32,19 @@ const Auth = () => {
   // Update debug info
   useEffect(() => {
     setDebugInfo({
-      user: user ? { id: user.id, _email: user._email } : _null,
-      _authLoading,
+      user: user ? { id: user.id, email: user.email } : null,
+      authLoading,
       isRedirecting,
-      _pathname: window.location._pathname,
-      _timestamp: new Date().toISOString()
+      pathname: window.location.pathname,
+      timestamp: new Date().toISOString()
     });
   }, [user, _authLoading, isRedirecting]);
 
   // Redirect if user is already authenticated
   useEffect(() => {
-    console.log('Auth page - checking user:', { user, _authLoading, isRedirecting });
+    console.log('Auth page - checking user:', { user, authLoading, isRedirecting });
     
-    if (user && !_authLoading && !isRedirecting) {
+    if (user && !authLoading && !isRedirecting) {
       setIsRedirecting(true);
       console.log('User authenticated, preparing redirect...');
       
@@ -57,16 +57,16 @@ const Auth = () => {
         navigate('/dashboard');
       }, 1000);
     }
-  }, [user, _authLoading, isRedirecting, navigate]);
+  }, [user, authLoading, isRedirecting, navigate]);
 
   // Show features after a delay
   useEffect(() => {
-    const _timer = setTimeout(() => setShowFeatures(true), 500);
-    return () => clearTimeout(_timer);
+    const timer = setTimeout(() => setShowFeatures(true), 500);
+    return () => clearTimeout(timer);
   }, []);
 
   // Show loading state while checking auth status
-  if (_authLoading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-emerald-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -170,7 +170,7 @@ const Auth = () => {
                         Debug Information
                       </h4>
                       <pre className="text-xs bg-white dark:bg-gray-900 p-2 rounded overflow-auto max-h-40">
-                        {JSON.stringify(_debugInfo, _null, 2)}
+                        {JSON.stringify(debugInfo, null, 2)}
                       </pre>
                       <div className="mt-3 space-y-2">
                         <Button
@@ -189,7 +189,7 @@ const Auth = () => {
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            console.log('Current auth state:', { user, _authLoading });
+                            console.log('Current auth state:', { user, authLoading });
                             alert('Check console for auth state');
                           }}
                           className="w-full"

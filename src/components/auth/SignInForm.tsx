@@ -17,26 +17,26 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | _null>(_null);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const { signIn } = useAuth();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(_null);
+    setError(null);
     
     // Basic input validation
-    const _sanitizedEmail = email.trim().toLowerCase();
-    const _sanitizedPassword = password.trim();
+    const sanitizedEmail = email.trim().toLowerCase();
+    const sanitizedPassword = password.trim();
     
-    if (!_sanitizedEmail || !_sanitizedPassword) {
+    if (!sanitizedEmail || !sanitizedPassword) {
       setError('Email and password are required');
       return;
     }
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(_sanitizedEmail)) {
+    if (!emailRegex.test(sanitizedEmail)) {
       setError('Please enter a valid email address');
       return;
     }
@@ -46,7 +46,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
       console.log('Attempting sign in with enhanced auth client...');
 
       // Use enhanced auth client with retry logic
-      const result = await authClient.signIn(_sanitizedEmail, _sanitizedPassword);
+      const result = await authClient.signIn(sanitizedEmail, sanitizedPassword);
 
       if (!result.success) {
         setError(result.message);
@@ -55,7 +55,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
         if (result.message.includes('Network')) {
           toast({
             title: "Connection Issue",
-            _description: "Having trouble connecting to our servers. Please check your internet connection.",
+            description: "Having trouble connecting to our servers. Please check your internet connection.",
             variant: "default",
           });
         }
@@ -63,10 +63,10 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
       }
 
       // Success!
-      setError(_null);
+      setError(null);
       toast({
         title: "Welcome back!",
-        _description: "Signing you in...",
+        description: "Signing you in...",
       });
       
       // The auth context will handle the redirect

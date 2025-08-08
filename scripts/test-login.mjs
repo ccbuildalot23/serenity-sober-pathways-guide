@@ -10,8 +10,8 @@ async function testLogin() {
     console.log('🔍 Testing login functionality...\n');
     
     // Navigate to app
-    console.log('1. Navigating to http://localhost:8080/auth');
-    await page.goto('http://localhost:8080/auth');
+    console.log('1. Navigating to http://localhost:8086/auth');
+    await page.goto('http://localhost:8086/auth');
     await page.waitForTimeout(2000);
     
     // Take screenshot of auth page

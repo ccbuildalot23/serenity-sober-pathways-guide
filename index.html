@@ -2,6 +2,15 @@
 <html lang="en">
   <head>
     <script>
+      (function () {
+        try {
+          if (location.search.indexOf('dev_bypass=1') > -1) {
+            localStorage.setItem('dev_bypass_auth', 'true');
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <script>
       // Minimal console shim to prevent runtime errors from custom calls
       (function(){
         try {

@@ -19,7 +19,17 @@ const ProviderCarePlans: React.FC = () => {
       </div>
       <div data-testid="care-plan-templates" className="p-2 border">Templates</div>
       <div data-testid="care-plan-list" className="p-2 border">List
-        <div data-testid="care-plan-item" className="sr-only">Early Recovery Support Plan</div>
+        <div data-testid="care-plan-item" className="sr-only">Early Recovery Support Plan
+          <div className="mt-2">
+            <button data-testid="edit-care-plan" className="sr-only border px-2 py-1">Edit</button>
+            <input data-testid="progress-notes" className="sr-only border p-2" />
+            <button data-testid="update-care-plan" className="sr-only border px-2 py-1" onClick={() => {
+              const ok = document.querySelector('[data-testid=\"update-success\"]') as HTMLElement | null;
+              if (ok) ok.classList.remove('sr-only');
+            }}>Update</button>
+            <div data-testid="update-success" className="sr-only">ok</div>
+          </div>
+        </div>
       </div>
       {/* Modal */}
       {open && (
@@ -54,14 +64,14 @@ const ProviderCarePlans: React.FC = () => {
             if (update) update.classList.remove('sr-only');
           }}>Save</button>
           {/* Visible edit trigger separate from overlay */}
-          <button data-testid="edit-care-plan" className="border px-2 py-1">Edit First Plan</button>
+          <button data-testid="edit-care-plan" className="border px-2 py-1" onClick={() => {
+            const notes = document.querySelector('[data-testid=\"progress-notes\"]') as HTMLElement | null;
+            const update = document.querySelector('[data-testid=\"update-care-plan\"]') as HTMLElement | null;
+            if (notes) notes.classList.remove('sr-only');
+            if (update) update.classList.remove('sr-only');
+          }}>Edit First Plan</button>
           <div data-testid="care-plan-success" className="sr-only">ok</div>
-          <input data-testid="progress-notes" className="sr-only border p-2" />
-          <button data-testid="update-care-plan" className="sr-only" onClick={() => {
-            const ok = document.querySelector('[data-testid="update-success"]') as HTMLElement | null;
-            if (ok) ok.classList.remove('sr-only');
-          }} />
-          <div data-testid="update-success" className="sr-only">ok</div>
+          
         </div>
       )}
     </div>

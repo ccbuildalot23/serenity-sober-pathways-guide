@@ -34,7 +34,8 @@ const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
 
 // Core Patient Features - Priority loading
 const DashboardRouter = lazy(() => import('@/components/DashboardRouter'));
-const PatientDashboard = lazy(() => import('@/pages/PatientDashboard'));
+// Eagerly load PatientDashboard to avoid Suspense flakiness in E2E
+import PatientDashboard from '@/pages/PatientDashboard';
 const CheckIn = lazy(() => import('@/pages/CheckIn'));
 const PeerSupport = lazy(() => import('@/pages/PeerSupport'));
 const Calendar = lazy(() => import('@/pages/Calendar'));
@@ -140,9 +141,8 @@ function App() {
               } />
               <Route path="/patient/dashboard" element={
                 <ProtectedRoute>
-                  <Suspense fallback={<LoadingState />}>
-                    <PatientDashboard />
-                  </Suspense>
+                  {/* Avoid Suspense for PatientDashboard in E2E */}
+                  <PatientDashboard />
                 </ProtectedRoute>
               } />
               <Route path="/checkin" element={

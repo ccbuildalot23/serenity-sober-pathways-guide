@@ -94,9 +94,13 @@ const ProviderDashboard = () => {
               </Button>
               {menuOpen && (
                 <div className="absolute top-12 right-0 z-10 bg-popover border rounded-md shadow p-2 w-40">
-                  <a href="/profile" data-testid="profile-settings" className="block px-2 py-1 text-sm hover:underline">
+                  <button
+                    data-testid="profile-settings"
+                    className="block w-full text-left px-2 py-1 text-sm hover:underline"
+                    onClick={() => navigate('/provider/profile')}
+                  >
                     Profile Settings
-                  </a>
+                  </button>
                   <button
                     data-testid="logout-button"
                     className="block w-full text-left px-2 py-1 text-sm hover:underline"
@@ -112,12 +116,12 @@ const ProviderDashboard = () => {
             </div>
             {/* E2E-visible navigation and tabs */}
             <nav className="mt-4 flex gap-3 text-sm">
-              <button onClick={() => navigate('/provider/dashboard')} data-testid="nav-dashboard" className="underline">Dashboard</button>
-              <button onClick={() => navigate('/provider/patients')} data-testid="nav-patients" className="underline">Patients</button>
+              <a href="/provider/dashboard" data-testid="nav-dashboard" className="underline">Dashboard</a>
+              <a href="/provider/patients" data-testid="nav-patients" className="underline">Patients</a>
               {/* Tabs expected by tests */}
-              <button onClick={() => navigate('/provider/patients')} data-testid="patient-list-tab" className="underline">Patient List</button>
-              <button onClick={() => navigate('/provider/analytics')} data-testid="analytics-tab" className="underline">Analytics</button>
-              <button onClick={() => navigate('/provider/care-plans')} data-testid="care-plans-tab" className="underline">Care Plans</button>
+              <a href="/provider/patients" data-testid="patient-list-tab" className="underline">Patient List</a>
+              <a href="/provider/analytics" data-testid="analytics-tab" className="underline">Analytics</a>
+              <a href="/provider/care-plans" data-testid="care-plans-tab" className="underline">Care Plans</a>
             </nav>
           </div>
         </div>
@@ -128,7 +132,7 @@ const ProviderDashboard = () => {
         <div className="sr-only" aria-hidden>
           <div data-testid="notification-center">anchor</div>
           <div data-testid="provider-notifications">anchor</div>
-          <div data-testid="notifications-panel">anchor</div>
+          <div data-testid="notifications-panel-anchor">anchor</div>
           <div data-testid="notification-settings">anchor</div>
           <div data-testid="notification-preferences">anchor</div>
           <div data-testid="email-alerts">anchor</div>

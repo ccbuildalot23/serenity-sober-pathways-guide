@@ -32,7 +32,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
       return false;
     }
   })();
-  const shouldBypass = urlBypass || storageBypass || (isDev && bypassAuth);
+  // SECURITY: Only allow bypass in development (used by Playwright and local dev)
+  const shouldBypass = isDev && (urlBypass || storageBypass || bypassAuth);
 
   // Show loading state while checking auth
   if (!shouldBypass && (authLoading || roleLoading)) {

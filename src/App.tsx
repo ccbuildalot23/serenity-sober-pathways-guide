@@ -20,6 +20,7 @@ import HomePage from '@/pages/HomePage';
 // LAZY LOADED ROUTES - Load on demand to reduce bundle size
 // Auth Pages
 const ResetPassword = lazy(() => import('@/pages/ResetPassword'));
+const ForgotPassword = lazy(() => import('@/pages/ForgotPassword'));
 
 // Landing Pages
 const Platform = lazy(() => import('@/pages/Platform'));
@@ -108,6 +109,7 @@ function App() {
               <Route path="/auth" element={<Auth />} />
               <Route path="/login" element={<Login />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/platform" element={<Platform />} />
               <Route path="/providers" element={<Providers />} />
               <Route path="/pilot" element={<Pilot />} />

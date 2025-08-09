@@ -16,8 +16,8 @@ export const useMobileOptimization = () => {
   // Initialize mobile optimizations
   useEffect(() => {
     const initMobileFeatures = async () => {
-      // Gate service worker to development/E2E only to avoid race conditions in tests
-      if (!import.meta.env.SSR && import.meta.env.DEV) {
+      // Disable SW by default; enable only when VITE_ENABLE_SW === 'true'
+      if (!import.meta.env.SSR && import.meta.env.VITE_ENABLE_SW === 'true') {
         await serviceWorkerManager.register();
         await serviceWorkerManager.cacheCriticalResources();
       }

@@ -20,8 +20,8 @@ test.describe('Patient Profile', () => {
     // Navigate directly to profile with bypass flag set
     await page.goto('/profile?dev_bypass=1');
     await expect(page).toHaveURL(/\/profile(\?|$)/,{timeout:30000});
-    // Wait for deterministic ready marker
-    await page.locator('[data-testid="profile-ready"]').waitFor({ state: 'attached', timeout: 30000 });
+    // Wait for deterministic page-level marker
+    await page.locator('[data-testid="page-profile-ready"]').waitFor({ state: 'attached', timeout: 30000 });
     // Assert profile fields that are always present (fallbacks render under bypass)
     await page.locator('[data-testid="profile-email"]').waitFor({ state: 'attached', timeout: 30000 });
     await expect(page.locator('[data-testid="profile-email"]')).toBeVisible({ timeout: 30000 });
@@ -42,7 +42,7 @@ test.describe('Patient Profile', () => {
   test('can sign out from profile', async ({ page }) => {
     await page.goto('/profile?dev_bypass=1');
     await expect(page).toHaveURL(/\/profile(\?|$)/,{timeout:30000});
-    await page.locator('[data-testid="profile-ready"]').waitFor({ state: 'attached', timeout: 30000 });
+    await page.locator('[data-testid="page-profile-ready"]').waitFor({ state: 'attached', timeout: 30000 });
     await page.locator('[data-testid="profile-email"]').waitFor({ state: 'attached', timeout: 30000 });
     await expect(page.locator('[data-testid="profile-email"]')).toBeVisible({ timeout: 30000 });
 

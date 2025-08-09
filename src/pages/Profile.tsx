@@ -6,7 +6,7 @@ import UserProfile from '@/components/UserProfile';
 
 const Profile: React.FC = () => {
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-4 space-y-4" data-testid="page-profile-ready">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">

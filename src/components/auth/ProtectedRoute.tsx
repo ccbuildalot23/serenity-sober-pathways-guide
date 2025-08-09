@@ -32,9 +32,24 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
       return false;
     }
   })();
+  // Playwright global test flag
+  const pwBypass = (() => {
+    try {
+      // @ts-ignore
+      return typeof window !== 'undefined' && !!(window as any).__PW_TEST__;
+    } catch {
+      return false;
+    }
+  })();
   // Allow explicit URL/storage bypass in any environment (used by E2E),
   // and keep in-session button bypass restricted to dev.
-  const shouldBypass = urlBypass || storageBypass || (isDev && bypassAuth);
+  const shouldBypass = urlBypass || storageBypass || pwBypass || (isDev && bypassAuth);
+
+  // E2E/dev bypass should only skip authentication requirements, not role enforcement.
+  // If no role is required, allow immediate render under bypass to avoid loading/redirect.
+  if (shouldBypass && !requiredRole) {
+    return <>{children}</>;
+  }
 
   // Show loading state while checking auth
   if (!shouldBypass && (authLoading || roleLoading)) {
@@ -97,8 +112,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
   }
 
   // Enforce role-based access if a role is required
-  if (!shouldBypass && requiredRole && !canAccess(requiredRole)) {
-    return <Navigate to="/auth" state={{ from: location, reason: 'forbidden' }} replace />;
+  if (requiredRole && !canAccess(requiredRole)) {
+    return <Navigate to="/access-denied" state={{ from: location, reason: 'forbidden' }} replace />;
   }
 
   return <>{children}</>;

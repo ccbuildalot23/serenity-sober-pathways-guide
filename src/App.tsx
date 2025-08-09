@@ -72,7 +72,9 @@ const PilotReadinessAssessment = lazy(() => import('@/pages/PilotReadinessAssess
 const SecurityFixesStatus = lazy(() => import('@/pages/SecurityFixesStatus'));
 const ComprehensiveSupportPage = lazy(() => import('@/pages/ComprehensiveSupportPage').then(module => ({ default: module.ComprehensiveSupportPage })));
 const SecurityAudit = lazy(() => import('@/pages/SecurityAudit'));
-const Profile = lazy(() => import('@/pages/Profile'));
+// Eagerly load Profile to eliminate flakiness under E2E bypass
+import Profile from '@/pages/Profile';
+import AccessDenied from '@/pages/AccessDenied';
 
 const queryClient = new QueryClient();
 
@@ -118,6 +120,7 @@ function App() {
               <Route path="/supporter-signup" element={<SupporterSignup />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/access-denied" element={<AccessDenied />} />
 
               {/* Crisis Routes - Always accessible */}
               <Route path="/crisis" element={<CrisisHelp />} />
@@ -172,9 +175,8 @@ function App() {
               } />
               <Route path="/profile" element={
                 <ProtectedRoute>
-                  <Suspense fallback={<LoadingState />}>
-                    <Profile />
-                  </Suspense>
+                  {/* Avoid Suspense for Profile to ensure immediate render of ready marker in E2E */}
+                  <Profile />
                 </ProtectedRoute>
               } />
               <Route path="/motivation" element={

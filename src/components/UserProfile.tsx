@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +8,7 @@ import { LogOut, User } from 'lucide-react';
 
 const UserProfile: React.FC = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const bypassActive = (() => {
     try {
@@ -22,13 +24,12 @@ const UserProfile: React.FC = () => {
   })();
 
   const handleSignOut = async () => {
-    try {
-      await signOut();
-    } catch {}
-    try {
-      localStorage.removeItem('dev_bypass_auth');
-    } catch {}
-    window.location.href = '/auth';
+    // Remove bypass first so subsequent navigations aren't short-circuited
+    try { localStorage.removeItem('dev_bypass_auth'); } catch {}
+    // Navigate immediately via client router to avoid WebKit delays
+    navigate('/auth', { replace: true });
+    // Fire-and-forget auth sign out; don't block navigation
+    try { void signOut(); } catch {}
   };
 
   // Always render a profile shell so E2E can assert fields; fill with fallbacks when bypassing.

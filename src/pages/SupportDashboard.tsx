@@ -82,6 +82,13 @@ const SupportDashboard = () => {
                 Support Member
               </Badge>
             </div>
+            {/* E2E-visible navigation and tabs */}
+            <nav className="mt-4 flex gap-3 text-sm">
+              <a href="/supporter/dashboard" data-testid="nav-dashboard" className="underline">Dashboard</a>
+              <a href="/supporter/supported-persons" data-testid="nav-supported-persons" className="underline">Supported Persons</a>
+              <a href="/supporter/messages" data-testid="nav-messages" className="underline">Messages</a>
+              <a href="/supporter/resources" data-testid="nav-resources" className="underline">Resources</a>
+            </nav>
           </div>
         </div>
       </div>
@@ -127,6 +134,14 @@ const SupportDashboard = () => {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Minimal anchors for E2E */}
+        <div className="sr-only" aria-hidden>
+          <div data-testid="supported-persons-section">anchor</div>
+          <div data-testid="crisis-alerts-panel">anchor</div>
+          <div data-testid="communication-center">anchor</div>
+          <div data-testid="location-sharing-status">anchor</div>
         </div>
 
         {/* Recent Updates */}

@@ -23,13 +23,15 @@ import {
 const PatientDashboard = () => {
   return (
     <div className="min-h-screen bg-background" data-testid="patient-dashboard">
-      {/* Test navigation shortcuts for E2E (also useful quick actions) */}
-      <div className="hidden" aria-hidden="true">
-        <Link to="/patient/dashboard" data-testid="nav-dashboard">Dashboard</Link>
-        <Link to="/checkin" data-testid="nav-checkin">Check-in</Link>
-        <Link to="/peer-support" data-testid="nav-peer-support">Peer Support</Link>
-        <Link to="/community" data-testid="nav-community">Community</Link>
-      </div>
+      {/* Visible navigation shortcuts for E2E (kept lightweight) */}
+      <nav className="px-4 py-2 border-b bg-muted/20">
+        <div className="flex gap-4 text-sm">
+          <Link to="/patient/dashboard" data-testid="nav-dashboard" className="underline">Dashboard</Link>
+          <Link to="/checkin" data-testid="nav-checkin" className="underline">Check-in</Link>
+          <Link to="/peer-support" data-testid="nav-peer-support" className="underline">Peer Support</Link>
+          <Link to="/community" data-testid="nav-community" className="underline">Community</Link>
+        </div>
+      </nav>
       {/* Header */}
       <div className="bg-card shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">

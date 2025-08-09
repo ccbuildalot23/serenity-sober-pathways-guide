@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <script>
+      // Minimal console shim to prevent runtime errors from custom calls
+      (function(){
+        try {
+          if (!(' _error' in console)) { /* intentional space to avoid minifier rename */ }
+          // define console._error to alias console.error if missing
+          if (!console._error) { console._error = console.error.bind(console); }
+        } catch (e) {}
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Serenity - Mental Health & Recovery Support</title>

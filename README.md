@@ -142,3 +142,20 @@ MIT
 - Commits follow Conventional Commits (enforced by commitlint via Husky)
 - Open PRs with a clear summary and link to related ADRs
 - CI runs Playwright and uploads artifacts to each run
+
+## Deploy Troubleshooting (Vercel)
+
+If a white screen occurs on Preview/Prod with console errors like `auth-core-*.js Cannot read properties of undefined (reading 'createContext')` or `vendor-*.js Cannot access 'e' before initialization`:
+
+1. Use default Vite chunking
+   - Remove any custom `rollupOptions.output.manualChunks` and avoid `splitVendorChunkPlugin`.
+2. Rebuild fresh (no prebuilt artifacts)
+   - `npx vercel --yes` (or `vercel build` + deploy) so new chunks are generated server-side.
+3. Gate service worker to development
+   - Avoid SW registration in production until verified.
+4. Prevent stale HTML
+   - Add `no-store` header for `/index.html` in `vercel.json`.
+5. Guard against legacy token replacements
+   - Run `node scripts/fix-tokens.cjs` before build. Package.json: `"build": "npm run fix:tokens && tsc && vite build"`.
+
+After deploy, hard refresh and verify console is clean and routes render.

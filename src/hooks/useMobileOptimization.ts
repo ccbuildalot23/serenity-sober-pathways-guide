@@ -16,11 +16,12 @@ export const useMobileOptimization = () => {
   // Initialize mobile optimizations
   useEffect(() => {
     const initMobileFeatures = async () => {
-      // Register service worker for offline support
-      await serviceWorkerManager.register();
-      
-      // Cache critical crisis resources
-      await serviceWorkerManager.cacheCriticalResources();
+      // Enable service worker for PWA functionality
+      // Use Vite environment variables instead of process.env
+      if (!import.meta.env.SSR) {
+        await serviceWorkerManager.register();
+        await serviceWorkerManager.cacheCriticalResources();
+      }
       
       // Enable shake detection on mobile
       if (mobileCrisis.isMobile) {

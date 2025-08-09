@@ -18,12 +18,17 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        crisis: "bg-red-600 text-white hover:bg-red-700 font-semibold shadow-lg",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
+        default: "h-10 px-4 py-2 md:h-10 md:px-4",
+        sm: "h-9 rounded-md px-3 md:h-9 md:px-3",
+        lg: "h-11 rounded-md px-8 md:h-11 md:px-8",
+        icon: "h-10 w-10 md:h-10 md:w-10",
+        // Mobile-optimized sizes (minimum 44px height for touch targets)
+        mobile: "min-h-[44px] px-4 py-3",
+        mobileLg: "min-h-[48px] px-6 py-3",
+        mobileIcon: "min-h-[44px] min-w-[44px]",
       },
     },
     defaultVariants: {

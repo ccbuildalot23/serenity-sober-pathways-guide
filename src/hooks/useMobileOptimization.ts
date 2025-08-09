@@ -16,9 +16,8 @@ export const useMobileOptimization = () => {
   // Initialize mobile optimizations
   useEffect(() => {
     const initMobileFeatures = async () => {
-      // Enable service worker for PWA functionality
-      // Use Vite environment variables instead of process.env
-      if (!import.meta.env.SSR) {
+      // Gate service worker to development/E2E only to avoid race conditions in tests
+      if (!import.meta.env.SSR && import.meta.env.DEV) {
         await serviceWorkerManager.register();
         await serviceWorkerManager.cacheCriticalResources();
       }

@@ -46,6 +46,7 @@ const Progress = lazy(() => import('@/pages/Progress'));
 import SupportDashboard from '@/pages/SupportDashboard';
 import ProviderDashboard from '@/pages/ProviderDashboard';
 import ProviderProfile from '@/pages/ProviderProfile';
+import SupporterProfile from '@/pages/supporter/SupporterProfile';
 const ProviderPatients = lazy(() => import('@/pages/provider/ProviderPatients'));
 const ProviderAnalytics = lazy(() => import('@/pages/provider/ProviderAnalytics'));
 const ProviderCarePlans = lazy(() => import('@/pages/provider/ProviderCarePlans'));
@@ -299,6 +300,12 @@ function App() {
                   <Suspense fallback={<LoadingState />}>
                     <SupporterResources />
                   </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/supporter/profile" element={
+                <ProtectedRoute requiredRole="support_member">
+                  {/* Eager render */}
+                  <SupporterProfile />
                 </ProtectedRoute>
               } />
               <Route path="/supporter/supported-persons" element={

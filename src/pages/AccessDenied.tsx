@@ -19,7 +19,25 @@ const AccessDenied: React.FC = () => {
           </p>
           <div className="flex gap-2">
             <Button onClick={() => (window.location.href = '/auth')} variant="outline">Sign In</Button>
-            <Button onClick={() => (window.location.href = '/patient/dashboard')} variant="default" data-testid="return-to-dashboard">Return to Dashboard</Button>
+            <Button
+              onClick={() => {
+                try {
+                  const hinted = localStorage.getItem('pw_role');
+                  const target = hinted === 'provider'
+                    ? '/provider/dashboard'
+                    : hinted === 'support_member'
+                      ? '/supporter/dashboard'
+                      : '/patient/dashboard';
+                  window.location.href = target;
+                } catch {
+                  window.location.href = '/patient/dashboard';
+                }
+              }}
+              variant="default"
+              data-testid="return-to-dashboard"
+            >
+              Return to Dashboard
+            </Button>
           </div>
         </CardContent>
       </Card>

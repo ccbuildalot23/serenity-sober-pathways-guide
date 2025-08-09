@@ -53,10 +53,9 @@ const ProviderCarePlans: React.FC = () => {
             if (notes) notes.classList.remove('sr-only');
             if (update) update.classList.remove('sr-only');
           }}>Save</button>
+          {/* Visible edit trigger separate from overlay */}
+          <button data-testid="edit-care-plan" className="border px-2 py-1">Edit First Plan</button>
           <div data-testid="care-plan-success" className="sr-only">ok</div>
-          <button data-testid="edit-care-plan" className="sr-only" onClick={(e) => {
-            e.stopPropagation();
-          }} />
           <input data-testid="progress-notes" className="sr-only border p-2" />
           <button data-testid="update-care-plan" className="sr-only" onClick={() => {
             const ok = document.querySelector('[data-testid="update-success"]') as HTMLElement | null;

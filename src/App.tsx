@@ -84,6 +84,14 @@ function App() {
     };
     
     initializeSecurity();
+
+    // Preload critical lazy routes during dev/E2E to reduce flakiness
+    if (import.meta.env.DEV) {
+      Promise.allSettled([
+        import('@/pages/Profile'),
+        import('@/pages/PatientDashboard'),
+      ]).catch(() => {});
+    }
   }, []);
 
   return (

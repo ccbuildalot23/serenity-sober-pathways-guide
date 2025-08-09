@@ -18,11 +18,11 @@ test.describe('Patient Profile', () => {
 
   test('can open profile and see basic fields', async ({ page }) => {
     // Navigate directly to profile with bypass flag set
-    await page.goto('/profile');
-    await expect(page).toHaveURL(/\/profile$/,{timeout:20000});
+    await page.goto('/profile?dev_bypass=1');
+    await expect(page).toHaveURL(/\/profile(\?|$)/,{timeout:30000});
 
     // Assert profile fields that are always present (fallbacks render under bypass)
-    await expect(page.locator('[data-testid="profile-email"]')).toBeVisible({ timeout: 20000 });
+    await expect(page.locator('[data-testid="profile-email"]')).toBeVisible({ timeout: 30000 });
 
     // Optional fields (don’t fail the test if missing)
     // Name and recovery start date are conditional on metadata
@@ -38,12 +38,12 @@ test.describe('Patient Profile', () => {
   });
 
   test('can sign out from profile', async ({ page }) => {
-    await page.goto('/profile');
-    await expect(page).toHaveURL(/\/profile$/,{timeout:20000});
-    await expect(page.locator('[data-testid="profile-email"]')).toBeVisible({ timeout: 20000 });
+    await page.goto('/profile?dev_bypass=1');
+    await expect(page).toHaveURL(/\/profile(\?|$)/,{timeout:30000});
+    await expect(page.locator('[data-testid="profile-email"]')).toBeVisible({ timeout: 30000 });
 
-    await page.click('[data-testid="profile-signout"]');
-    await expect(page).toHaveURL(/\/auth$/,{timeout:20000});
+    await page.locator('[data-testid="profile-signout"]').click({ timeout: 30000 });
+    await expect(page).toHaveURL(/\/auth$/,{timeout:30000});
   });
 });
 

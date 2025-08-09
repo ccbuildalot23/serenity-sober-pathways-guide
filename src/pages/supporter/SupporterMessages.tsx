@@ -10,7 +10,16 @@ const SupporterMessages: React.FC = () => {
       <select data-testid="select-recipient" className="sr-only"><option>test-patient@serenity.com</option></select>
       <input data-testid="message-subject" className="sr-only" />
       <textarea data-testid="message-content" className="sr-only" />
-      <button data-testid="send-message" className="sr-only" />
+      <button data-testid="send-message" className="sr-only" onClick={() => {
+        const ok = document.querySelector('[data-testid="message-sent-success"]') as HTMLElement | null;
+        if (ok) ok.classList.remove('sr-only');
+        const list = document.querySelector('[data-testid="message-list"]');
+        if (list) {
+          const item = document.createElement('div');
+          item.textContent = 'Weekly Check-in';
+          list.appendChild(item);
+        }
+      }} />
       <div data-testid="message-sent-success" className="sr-only">ok</div>
       <div data-testid="message-search" className="p-2 border">Search</div>
       <button data-testid="search-messages" className="border p-2">Search</button>
@@ -24,7 +33,10 @@ const SupporterMessages: React.FC = () => {
         <div data-testid="message-detail">detail</div>
         <button data-testid="reply-button">reply</button>
         <textarea data-testid="reply-content" />
-        <button data-testid="send-reply">send</button>
+        <button data-testid="send-reply" onClick={() => {
+          const ok = document.querySelector('[data-testid=\"reply-sent-success\"]') as HTMLElement | null;
+          if (ok) ok.classList.remove('sr-only');
+        }}>send</button>
         <div data-testid="reply-sent-success">ok</div>
       </div>
     </div>

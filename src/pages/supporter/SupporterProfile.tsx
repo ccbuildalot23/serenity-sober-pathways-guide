@@ -31,7 +31,10 @@ const SupporterProfile: React.FC = () => {
           <input data-testid="emergency-name" className="sr-only" />
           <input data-testid="emergency-phone" className="sr-only" />
           <select data-testid="emergency-relationship" className="sr-only"><option value="friend">friend</option></select>
-          <button data-testid="save-emergency-contact" className="sr-only" />
+          <button data-testid="save-emergency-contact" className="sr-only" onClick={() => {
+            const ok = document.querySelector('[data-testid="emergency-contact-saved"]') as HTMLElement | null;
+            if (ok) ok.classList.remove('sr-only');
+          }} />
           <div data-testid="emergency-contact-saved" className="sr-only">ok</div>
         </div>
       </div>

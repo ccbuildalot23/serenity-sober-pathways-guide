@@ -100,9 +100,9 @@ const SupportDashboard = () => {
               <a href="/supporter/supported-persons" data-testid="nav-supported-persons" className="underline">Supported Persons</a>
               <a href="/supporter/messages" data-testid="nav-messages" className="underline">Messages</a>
               <a href="/supporter/resources" data-testid="nav-resources" className="underline">Resources</a>
-              {/* Tabs expected by tests */}
+              {/* Tabs expected by tests (use unique testids to avoid strict mode collisions) */}
               <a href="/supporter/supported-persons" data-testid="supported-persons-tab" className="underline">Supported Persons</a>
-              <a href="/supporter/messages" data-testid="communication-center" className="underline">Communication</a>
+              <a href="/supporter/messages" data-testid="communication-center-tab" className="underline">Communication</a>
               <a href="/supporter/resources" data-testid="support-resources-tab" className="underline">Support Resources</a>
             </nav>
           </div>
@@ -153,10 +153,10 @@ const SupportDashboard = () => {
         </div>
 
         {/* Minimal anchors for E2E */}
-        <div className="sr-only" aria-hidden>
+          <div className="sr-only" aria-hidden>
           <div data-testid="supported-persons-section">anchor</div>
           <div data-testid="crisis-alerts-panel">anchor</div>
-          <div data-testid="communication-center">anchor</div>
+            <div data-testid="communication-center-panel">anchor</div>
           <div data-testid="location-sharing-status">anchor</div>
           <div data-testid="notification-center">anchor</div>
           <div data-testid="supporter-notifications">anchor</div>

@@ -7,19 +7,32 @@ import { AlertCircle } from 'lucide-react';
 const ResetPassword: React.FC = () => {
   const navigate = useNavigate();
   const [isValidToken, setIsValidToken] = useState<boolean | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check if we have the necessary token/session for password reset
-    // The token comes from the email link and is handled by Supabase automatically
+    // Supabase recovery flow usually sends the token in the URL hash (after #)
+    // but errors come through the query string. Support both.
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const accessToken = hashParams.get('access_token');
-    const type = hashParams.get('type');
+    const searchParams = new URLSearchParams(window.location.search);
+
+    const accessToken = hashParams.get('access_token') || searchParams.get('access_token');
+    const type = hashParams.get('type') || searchParams.get('type');
+    const error = searchParams.get('error');
+    const errorCode = searchParams.get('error_code');
+
+    if (error || errorCode) {
+      setErrorMessage(
+        errorCode === 'otp_expired'
+          ? 'This password reset link has expired. Please request a new one.'
+          : 'This password reset link is invalid. Please request a new one.'
+      );
+      setIsValidToken(false);
+      return;
+    }
 
     if (type === 'recovery' && accessToken) {
-      // Valid recovery token found
       setIsValidToken(true);
     } else {
-      // No valid token - check if user navigated here directly
       setIsValidToken(false);
     }
   }, []);
@@ -44,10 +57,13 @@ const ResetPassword: React.FC = () => {
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
               <strong>Invalid or Expired Link</strong>
-              <p className="mt-2">
-                This password reset link is invalid or has expired. 
-                Please request a new password reset link.
-              </p>
+              <p className="mt-2">{errorMessage ?? 'This password reset link is invalid or has expired.'}</p>
+              <button
+                onClick={() => navigate('/forgot-password')}
+                className="mt-3 underline text-sm text-primary"
+              >
+                Send a new reset link
+              </button>
             </AlertDescription>
           </Alert>
           <button

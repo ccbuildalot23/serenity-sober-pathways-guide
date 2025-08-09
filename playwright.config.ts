@@ -22,10 +22,10 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 2 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
-    ['html'],
+    ['list'],
     ['json', { outputFile: 'test-results.json' }],
     ['junit', { outputFile: 'test-results.xml' }]
   ],
@@ -35,13 +35,13 @@ export default defineConfig({
     baseURL: 'http://localhost:8080',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    trace: process.env.CI ? 'retain-on-failure' : 'on-first-retry',
     
     /* Take screenshot on failure */
     screenshot: 'only-on-failure',
     
     /* Record video on retry */
-    video: 'retain-on-failure',
+    video: process.env.CI ? 'off' : 'retain-on-failure',
     
     /* Global timeout for each test */
     actionTimeout: 10000,
@@ -85,12 +85,19 @@ export default defineConfig({
   globalTeardown: './tests/utils/global-teardown.ts',
 
   /* Run your local dev server before starting the tests */
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:8080',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120000,
-  },
+  webServer: process.env.CI
+    ? {
+        command: 'npm run preview',
+        url: 'http://localhost:8080',
+        reuseExistingServer: false,
+        timeout: 120000,
+      }
+    : {
+        command: 'npm run dev',
+        url: 'http://localhost:8080',
+        reuseExistingServer: true,
+        timeout: 120000,
+      },
 
   /* Test timeout */
   timeout: 30000,

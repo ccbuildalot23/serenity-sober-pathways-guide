@@ -12,6 +12,7 @@
     "dev": "vite --host 0.0.0.0",
     "build": "npm run fix:tokens && tsc && vite build",
     "fix:tokens": "node scripts/fix-tokens.cjs",
+    "preview": "vite preview --port 8080 --host",
     "build:dev": "vite build --mode development",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 1000",
     "lint:fix": "eslint . --fix --report-unused-disable-directives",

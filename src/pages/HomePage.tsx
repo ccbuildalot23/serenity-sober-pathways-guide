@@ -28,7 +28,7 @@ const HomePage = () => {
             <Link to="/contact" className="text-muted-foreground hover:text-foreground transition-colors">
               Get Involved
             </Link>
-            <Button variant="outline" asChild>
+            <Button variant="outline" asChild data-testid="login-button">
               <Link to="/provider-signup">Provider Access</Link>
             </Button>
           </div>

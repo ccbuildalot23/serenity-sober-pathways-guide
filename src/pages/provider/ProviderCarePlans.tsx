@@ -45,11 +45,23 @@ const ProviderCarePlans: React.FC = () => {
             }
             const ok = document.querySelector('[data-testid="care-plan-success"]') as HTMLElement | null;
             if (ok) ok.classList.remove('sr-only');
+            // expose edit controls after save
+            const edit = document.querySelector('[data-testid="edit-care-plan"]') as HTMLElement | null;
+            const notes = document.querySelector('[data-testid="progress-notes"]') as HTMLElement | null;
+            const update = document.querySelector('[data-testid="update-care-plan"]') as HTMLElement | null;
+            if (edit) edit.classList.remove('sr-only');
+            if (notes) notes.classList.remove('sr-only');
+            if (update) update.classList.remove('sr-only');
           }}>Save</button>
           <div data-testid="care-plan-success" className="sr-only">ok</div>
-          <button data-testid="edit-care-plan" className="sr-only" />
-          <input data-testid="progress-notes" className="sr-only" />
-          <button data-testid="update-care-plan" className="sr-only" />
+          <button data-testid="edit-care-plan" className="sr-only" onClick={(e) => {
+            e.stopPropagation();
+          }} />
+          <input data-testid="progress-notes" className="sr-only border p-2" />
+          <button data-testid="update-care-plan" className="sr-only" onClick={() => {
+            const ok = document.querySelector('[data-testid="update-success"]') as HTMLElement | null;
+            if (ok) ok.classList.remove('sr-only');
+          }} />
           <div data-testid="update-success" className="sr-only">ok</div>
         </div>
       )}

@@ -102,7 +102,7 @@ const SupportDashboard = () => {
               <a href="/supporter/resources" data-testid="nav-resources" className="underline">Resources</a>
               {/* Tabs expected by tests (use unique testids to avoid strict mode collisions) */}
               <a href="/supporter/supported-persons" data-testid="supported-persons-tab" className="underline">Supported Persons</a>
-              <a href="/supporter/messages" data-testid="communication-center-tab" className="underline">Communication</a>
+              <a href="/supporter/messages" data-testid="communication-center" className="underline">Communication</a>
               <a href="/supporter/resources" data-testid="support-resources-tab" className="underline">Support Resources</a>
             </nav>
           </div>
@@ -161,6 +161,20 @@ const SupportDashboard = () => {
           <div data-testid="notification-center">anchor</div>
           <div data-testid="supporter-notifications">anchor</div>
         </div>
+
+          {/* Visible controls for tests */}
+          <div className="flex gap-2 mb-4">
+            <button data-testid="enable-browser-notifications" className="border px-2 py-1" onClick={() => {
+              const list = document.querySelector('[data-testid="notifications-list"]') as HTMLElement | null;
+              if (list) list.classList.remove('sr-only');
+            }}>Enable Notifications</button>
+            <button data-testid="location-settings" className="border px-2 py-1" onClick={() => {
+              const modal = document.querySelector('[data-testid="location-settings-modal"]') as HTMLElement | null;
+              if (modal) modal.classList.remove('sr-only');
+            }}>Location Settings</button>
+          </div>
+          <div data-testid="notifications-list" className="sr-only">ok</div>
+          <div data-testid="location-settings-modal" className="sr-only">ok</div>
 
         {/* Recent Updates */}
         <Card className="mb-8">

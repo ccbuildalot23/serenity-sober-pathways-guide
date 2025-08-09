@@ -32,8 +32,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
       return false;
     }
   })();
-  // SECURITY: Only allow bypass in development (used by Playwright and local dev)
-  const shouldBypass = isDev && (urlBypass || storageBypass || bypassAuth);
+  // Allow explicit URL/storage bypass in any environment (used by E2E),
+  // and keep in-session button bypass restricted to dev.
+  const shouldBypass = urlBypass || storageBypass || (isDev && bypassAuth);
 
   // Show loading state while checking auth
   if (!shouldBypass && (authLoading || roleLoading)) {

@@ -48,9 +48,9 @@ import ProviderDashboard from '@/pages/ProviderDashboard';
 import ProviderProfile from '@/pages/ProviderProfile';
 import ProviderPatientProfile from '@/pages/provider/ProviderPatientProfile';
 import SupporterProfile from '@/pages/supporter/SupporterProfile';
-const ProviderPatients = lazy(() => import('@/pages/provider/ProviderPatients'));
-const ProviderAnalytics = lazy(() => import('@/pages/provider/ProviderAnalytics'));
-const ProviderCarePlans = lazy(() => import('@/pages/provider/ProviderCarePlans'));
+import ProviderPatients from '@/pages/provider/ProviderPatients';
+import ProviderAnalytics from '@/pages/provider/ProviderAnalytics';
+import ProviderCarePlans from '@/pages/provider/ProviderCarePlans';
 const SupporterMessages = lazy(() => import('@/pages/supporter/SupporterMessages'));
 const SupporterResources = lazy(() => import('@/pages/supporter/SupporterResources'));
 
@@ -227,9 +227,7 @@ function App() {
               } />
               <Route path="/provider/patients" element={
                 <ProtectedRoute requiredRole="provider">
-                  <Suspense fallback={<LoadingState />}>
-                    <ProviderPatients />
-                  </Suspense>
+                  <ProviderPatients />
                 </ProtectedRoute>
               } />
               <Route path="/provider/patients/:id" element={
@@ -240,16 +238,12 @@ function App() {
               } />
               <Route path="/provider/analytics" element={
                 <ProtectedRoute requiredRole="provider">
-                  <Suspense fallback={<LoadingState />}>
-                    <ProviderAnalytics />
-                  </Suspense>
+                  <ProviderAnalytics />
                 </ProtectedRoute>
               } />
               <Route path="/provider/care-plans" element={
                 <ProtectedRoute requiredRole="provider">
-                  <Suspense fallback={<LoadingState />}>
-                    <ProviderCarePlans />
-                  </Suspense>
+                  <ProviderCarePlans />
                 </ProtectedRoute>
               } />
               <Route path="/provider/profile" element={

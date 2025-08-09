@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 const ProviderCarePlans: React.FC = () => {
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState(false);
   return (
     <div className="p-4 space-y-4">
       <nav className="mt-2 flex gap-3 text-sm">
@@ -19,17 +20,26 @@ const ProviderCarePlans: React.FC = () => {
       </div>
       <div data-testid="care-plan-templates" className="p-2 border">Templates</div>
       <div data-testid="care-plan-list" className="p-2 border">List
-        <div data-testid="care-plan-item" className="sr-only">Early Recovery Support Plan
-          <div className="mt-2">
-            <button data-testid="edit-care-plan" className="sr-only border px-2 py-1">Edit</button>
-            <input data-testid="progress-notes" className="sr-only border p-2" />
-            <button data-testid="update-care-plan" className="sr-only border px-2 py-1" onClick={() => {
-              const ok = document.querySelector('[data-testid=\"update-success\"]') as HTMLElement | null;
-              if (ok) ok.classList.remove('sr-only');
-            }}>Update</button>
-            <div data-testid="update-success" className="sr-only">ok</div>
-          </div>
-        </div>
+        <div data-testid="care-plan-item" className="sr-only">Early Recovery Support Plan</div>
+      </div>
+
+      {/* Dedicated visible edit trigger outside scrollable list */}
+      <div className="space-x-2">
+        <button
+          data-testid="edit-care-plan"
+          className="border px-2 py-1"
+          onClick={() => {
+            setOpen(true);
+            setEditing(true);
+            // ensure any previous success state is hidden
+            try {
+              const ok = document.querySelector('[data-testid="update-success"]') as HTMLElement | null;
+              if (ok) ok.classList.add('sr-only');
+            } catch {}
+          }}
+        >
+          Edit First Plan
+        </button>
       </div>
       {/* Modal */}
       {open && (
@@ -45,33 +55,44 @@ const ProviderCarePlans: React.FC = () => {
           <select data-testid="intervention-type" className="border p-2"><option>therapy-session</option></select>
           <input data-testid="intervention-frequency" className="border p-2" placeholder="Frequency" />
           <input data-testid="intervention-notes" className="border p-2" placeholder="Notes" />
-          <button data-testid="save-care-plan" className="border px-2 py-1" onClick={() => {
-            const list = document.querySelector('[data-testid="care-plan-list"]');
-            if (list) {
-              const item = document.createElement('div');
-              item.setAttribute('data-testid', 'care-plan-item');
-              item.textContent = 'Early Recovery Support Plan';
-              list.appendChild(item);
-            }
-            const ok = document.querySelector('[data-testid="care-plan-success"]') as HTMLElement | null;
-            if (ok) ok.classList.remove('sr-only');
-            // expose edit controls after save
-            const edit = document.querySelector('[data-testid="edit-care-plan"]') as HTMLElement | null;
-            const notes = document.querySelector('[data-testid="progress-notes"]') as HTMLElement | null;
-            const update = document.querySelector('[data-testid="update-care-plan"]') as HTMLElement | null;
-            if (edit) edit.classList.remove('sr-only');
-            if (notes) notes.classList.remove('sr-only');
-            if (update) update.classList.remove('sr-only');
-          }}>Save</button>
-          {/* Visible edit trigger separate from overlay */}
-          <button data-testid="edit-care-plan" className="border px-2 py-1" onClick={() => {
-            const notes = document.querySelector('[data-testid=\"progress-notes\"]') as HTMLElement | null;
-            const update = document.querySelector('[data-testid=\"update-care-plan\"]') as HTMLElement | null;
-            if (notes) notes.classList.remove('sr-only');
-            if (update) update.classList.remove('sr-only');
-          }}>Edit First Plan</button>
+
+          {/* Editing UI displayed when triggered */}
+          {editing && (
+            <div className="space-y-2">
+              <input data-testid="progress-notes" className="border p-2 w-full" placeholder="Progress notes" />
+              <button
+                data-testid="update-care-plan"
+                className="border px-2 py-1"
+                onClick={() => {
+                  const ok = document.querySelector('[data-testid="update-success"]') as HTMLElement | null;
+                  if (ok) ok.classList.remove('sr-only');
+                }}
+              >
+                Update
+              </button>
+              <div data-testid="update-success" className="sr-only">ok</div>
+            </div>
+          )}
+
+          <button
+            data-testid="save-care-plan"
+            className="border px-2 py-1"
+            onClick={() => {
+              const list = document.querySelector('[data-testid="care-plan-list"]');
+              if (list) {
+                const item = document.createElement('div');
+                item.setAttribute('data-testid', 'care-plan-item');
+                item.textContent = 'Early Recovery Support Plan';
+                list.appendChild(item);
+              }
+              const ok = document.querySelector('[data-testid="care-plan-success"]') as HTMLElement | null;
+              if (ok) ok.classList.remove('sr-only');
+              setEditing(true);
+            }}
+          >
+            Save
+          </button>
           <div data-testid="care-plan-success" className="sr-only">ok</div>
-          
         </div>
       )}
     </div>

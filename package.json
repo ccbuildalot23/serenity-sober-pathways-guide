@@ -17,7 +17,6 @@
     "lint": "eslint . --report-unused-disable-directives --max-warnings 1000",
     "lint:fix": "eslint . --fix --report-unused-disable-directives",
     "typecheck": "tsc --noEmit",
-    
     "test": "npx playwright test",
     "test:e2e": "npx playwright test tests/e2e/",
     "test:e2e:headed": "npx playwright test tests/e2e/ --headed",

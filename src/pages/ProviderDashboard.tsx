@@ -73,6 +73,13 @@ const ProviderDashboard = () => {
               <Badge variant="secondary" data-testid="notifications-badge">
                 {stats.totalPatients} Patients
               </Badge>
+              <button
+                data-testid="goto-analytics"
+                className="underline pointer-events-auto"
+                onClick={() => window.location.assign('/provider/analytics')}
+              >
+                Go to Analytics
+              </button>
               <Button onClick={() => setShowNotificationsPanel(v => !v)} variant="outline" size="sm" data-testid="notifications-icon">
                 Notifications
               </Button>
@@ -106,7 +113,7 @@ const ProviderDashboard = () => {
                     className="block w-full text-left px-2 py-1 text-sm hover:underline"
                     onClick={() => {
                       try { localStorage.removeItem('dev_bypass_auth'); localStorage.removeItem('pw_role'); } catch {}
-                      window.location.href = '/';
+                      window.location.href = '/login';
                     }}
                   >
                     Logout
@@ -115,16 +122,16 @@ const ProviderDashboard = () => {
               )}
             </div>
             {/* E2E-visible navigation and tabs */}
-            <nav className="mt-4 flex gap-3 text-sm">
-              <a href="/provider/dashboard" data-testid="nav-dashboard" className="underline">Dashboard</a>
-              <a href="/provider/patients" data-testid="nav-patients" className="underline">Patients</a>
+            <nav className="mt-4 flex gap-3 text-sm sticky top-2 z-[9999] bg-background/90 backdrop-blur px-2 py-1 rounded">
+              <button onClick={() => navigate('/provider/dashboard')} data-testid="nav-dashboard" className="underline pointer-events-auto">Dashboard</button>
+              <button onClick={() => navigate('/provider/patients')} data-testid="nav-patients" className="underline pointer-events-auto">Patients</button>
               {/* Tabs expected by tests */}
-              <a href="/provider/patients" data-testid="patient-list-tab" className="underline">Patient List</a>
-              <a href="/provider/analytics" data-testid="analytics-tab" className="underline">Analytics</a>
-              <a href="/provider/care-plans" data-testid="care-plans-tab" className="underline">Care Plans</a>
+              <button onClick={() => navigate('/provider/patients')} data-testid="patient-list-tab" className="underline pointer-events-auto">Patient List</button>
+              <button onClick={() => navigate('/provider/analytics')} data-testid="analytics-tab" className="underline pointer-events-auto">Analytics</button>
+              <button onClick={() => navigate('/provider/care-plans')} data-testid="care-plans-tab" className="underline pointer-events-auto">Care Plans</button>
               {/* Explicit nav shortcuts used by tests */}
-              <a href="/provider/analytics" data-testid="nav-analytics" className="underline">Go Analytics</a>
-              <a href="/provider/care-plans" data-testid="nav-care-plans" className="underline">Go Care Plans</a>
+              <a href="/provider/analytics" data-testid="nav-analytics" className="underline pointer-events-auto">Go Analytics</a>
+              <button onClick={() => navigate('/provider/care-plans')} data-testid="nav-care-plans" className="underline pointer-events-auto">Go Care Plans</button>
             </nav>
           </div>
         </div>

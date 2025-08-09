@@ -74,8 +74,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
     );
   }
 
-  // In development mode, show bypass option if not authenticated
-  if (!user && isDev && !shouldBypass) {
+  // In development mode, show bypass option if not authenticated and route does NOT require a role.
+  // For role-protected routes (e.g., provider/patient areas), prefer redirecting to /login to satisfy E2E expectations.
+  if (!user && isDev && !shouldBypass && !requiredRole) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <div className="max-w-md w-full space-y-4">

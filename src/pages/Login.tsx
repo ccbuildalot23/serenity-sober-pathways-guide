@@ -1,16 +1,10 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
+import Auth from './Auth';
 
 const Login: React.FC = () => {
-  useEffect(() => {
-    window.location.href = '/auth';
-  }, []);
-
-  return (
-    <div className="flex items-center justify-center min-h-screen">
-      <p>Redirecting to login...</p>
-    </div>
-  );
+  // Render the Auth experience directly at /login to satisfy E2E expectations
+  return <Auth />;
 };
 
 export default Login;

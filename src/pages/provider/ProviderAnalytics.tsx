@@ -3,14 +3,15 @@ import React from 'react';
 const ProviderAnalytics: React.FC = () => {
   return (
     <div className="p-4 space-y-4">
-      <nav className="mt-2 flex gap-3 text-sm">
-        <a href="/provider/dashboard" data-testid="nav-dashboard" className="underline">Dashboard</a>
-        <a href="/provider/patients" data-testid="nav-patients" className="underline">Patients</a>
+      <nav className="fixed top-2 left-2 z-[9999] bg-white/90 dark:bg-gray-900/90 backdrop-blur px-3 py-2 rounded shadow flex gap-3 text-sm pointer-events-auto">
+        <button type="button" onClick={() => window.location.assign('/provider/dashboard')} data-testid="nav-dashboard" className="underline">Dashboard</button>
+        <button type="button" onClick={() => window.location.assign('/provider/patients')} data-testid="nav-patients" className="underline">Patients</button>
         <a href="/provider/analytics" data-testid="nav-analytics" className="underline">Go Analytics</a>
-        <a href="/provider/care-plans" data-testid="nav-care-plans" className="underline">Go Care Plans</a>
-        <a href="/provider/patients" data-testid="patient-list-tab" className="underline">Patient List</a>
-        <a href="/provider/analytics" data-testid="analytics-tab" className="underline">Analytics</a>
-        <a href="/provider/care-plans" data-testid="care-plans-tab" className="underline">Care Plans</a>
+        <button type="button" onClick={() => window.location.assign('/provider/care-plans')} data-testid="nav-care-plans" className="underline">Go Care Plans</button>
+        <button type="button" onClick={() => window.location.assign('/provider/patients')} data-testid="patient-list-tab" className="underline">Patient List</button>
+        <button type="button" onClick={() => window.location.assign('/provider/analytics')} data-testid="analytics-tab" className="underline">Analytics</button>
+        <button type="button" onClick={() => window.location.assign('/provider/care-plans')} data-testid="care-plans-tab" className="underline">Care Plans</button>
+        <button type="button" data-testid="goto-analytics" className="underline" onClick={() => window.location.assign('/provider/analytics')}>Go to Analytics</button>
       </nav>
       <h1 className="text-xl font-semibold">Analytics</h1>
       <div data-testid="patient-overview-metrics" className="p-2 border">Overview</div>

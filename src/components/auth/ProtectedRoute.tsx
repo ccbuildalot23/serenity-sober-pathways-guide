@@ -41,6 +41,17 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
       return false;
     }
   })();
+
+  // In E2E/dev, optionally honor a role hint saved by SignInForm to route dashboards
+  const hintedRole: UserRole | null = (() => {
+    try {
+      const v = localStorage.getItem('pw_role');
+      if (v === 'provider' || v === 'support_member' || v === 'patient') return v as UserRole;
+      return null;
+    } catch {
+      return null;
+    }
+  })();
   // Allow explicit URL/storage bypass in any environment (used by E2E),
   // and keep in-session button bypass restricted to dev.
   const shouldBypass = urlBypass || storageBypass || pwBypass || (isDev && bypassAuth);

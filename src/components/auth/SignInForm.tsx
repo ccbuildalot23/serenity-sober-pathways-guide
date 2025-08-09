@@ -68,8 +68,20 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
         if (import.meta.env.DEV) {
           try {
             localStorage.setItem('dev_bypass_auth', 'true');
-            // Navigate directly to patient dashboard for recovery users
-            navigate('/patient/dashboard', { replace: true });
+            // Infer role from email for E2E flows
+            const lower = sanitizedEmail;
+            const inferredRole = lower.includes('provider')
+              ? 'provider'
+              : lower.includes('support')
+                ? 'support_member'
+                : 'patient';
+            localStorage.setItem('pw_role', inferredRole);
+            const target = inferredRole === 'provider'
+              ? '/provider/dashboard'
+              : inferredRole === 'support_member'
+                ? '/supporter/dashboard'
+                : '/patient/dashboard';
+            navigate(target, { replace: true });
             await new Promise(r => setTimeout(r, 300));
             return;
           } catch (_) {}
@@ -93,7 +105,19 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
       if (import.meta.env.DEV) {
         try {
           localStorage.setItem('dev_bypass_auth', 'true');
-          navigate('/patient/dashboard', { replace: true });
+          const lower = sanitizedEmail;
+          const inferredRole = lower.includes('provider')
+            ? 'provider'
+            : lower.includes('support')
+              ? 'support_member'
+              : 'patient';
+          localStorage.setItem('pw_role', inferredRole);
+          const target = inferredRole === 'provider'
+            ? '/provider/dashboard'
+            : inferredRole === 'support_member'
+              ? '/supporter/dashboard'
+              : '/patient/dashboard';
+          navigate(target, { replace: true });
           await new Promise(r => setTimeout(r, 300));
           return;
         } catch (_) {}

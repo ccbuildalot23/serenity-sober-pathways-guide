@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Phone, Heart, Users, Wind, Sparkles, ArrowLeft } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { checkinSubmissionService } from '@/services/checkinSubmissionService';
 
 const CheckIn = () => {
   const navigate = useNavigate();
@@ -42,15 +42,28 @@ const CheckIn = () => {
   const handleMoodSelect = async (selectedMood: 'struggling' | 'managing' | 'good') => {
     setMood(selectedMood);
     
-    // Save check-in
+    // Save check-in using normalized service/table
     try {
-      await supabase.from('check_ins').insert({
-        user_id: user?.id,
-        _mood: selectedMood,
-        _date: new Date().toISOString()
-      });
+      if (user?.id) {
+        const date = new Date().toISOString().slice(0, 10);
+        const data = checkinSubmissionService.prepareCheckinData(user.id, date, {
+          mood: selectedMood === 'good' ? 5 : selectedMood === 'managing' ? 3 : 1,
+          energy: 3,
+          hope: 3,
+          sobriety_confidence: 3,
+          recovery_importance: 3,
+          recovery_strength: 3,
+          support_needed: selectedMood === 'struggling',
+          phq2_q1: 0,
+          phq2_q2: 0,
+          gad2_q1: 0,
+          gad2_q2: 0,
+          notes: null,
+        } as any);
+        await checkinSubmissionService.submitCheckin(data, data as any);
+      }
     } catch (_error) {
-      console._error('Error saving check-in:', _error);
+      console._error ? console._error('Error saving check-in:', _error) : console.error('Error saving check-in:', _error);
     }
 
     // Show appropriate response
@@ -113,9 +126,10 @@ const CheckIn = () => {
             </div>
 
             {/* Three Mood Buttons */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6" data-testid="daily-checkin-section">
               <Button
                 onClick={() => handleMoodSelect('struggling')}
+                data-testid="mood-negative"
                 className="h-32 bg-red-600 hover:bg-red-700 text-white rounded-2xl shadow-xl transform hover:scale-105 transition-all"
               >
                 <div className="flex flex-col items-center gap-3">
@@ -126,6 +140,7 @@ const CheckIn = () => {
 
               <Button
                 onClick={() => handleMoodSelect('managing')}
+                data-testid="mood-neutral"
                 className="h-32 bg-yellow-600 hover:bg-yellow-700 text-white rounded-2xl shadow-xl transform hover:scale-105 transition-all"
               >
                 <div className="flex flex-col items-center gap-3">
@@ -136,6 +151,7 @@ const CheckIn = () => {
 
               <Button
                 onClick={() => handleMoodSelect('good')}
+                data-testid="mood-positive"
                 className="h-32 bg-green-600 hover:bg-green-700 text-white rounded-2xl shadow-xl transform hover:scale-105 transition-all"
               >
                 <div className="flex flex-col items-center gap-3">

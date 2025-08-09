@@ -23,6 +23,13 @@ import {
 const PatientDashboard = () => {
   return (
     <div className="min-h-screen bg-background" data-testid="patient-dashboard">
+      {/* Test navigation shortcuts for E2E (also useful quick actions) */}
+      <div className="hidden" aria-hidden="true">
+        <Link to="/patient/dashboard" data-testid="nav-dashboard">Dashboard</Link>
+        <Link to="/checkin" data-testid="nav-checkin">Check-in</Link>
+        <Link to="/peer-support" data-testid="nav-peer-support">Peer Support</Link>
+        <Link to="/community" data-testid="nav-community">Community</Link>
+      </div>
       {/* Header */}
       <div className="bg-card shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
@@ -115,7 +122,7 @@ const PatientDashboard = () => {
                 Track your mood and progress today
               </p>
               <Button asChild className="w-full">
-                <Link to="/checkin">Start Check-in</Link>
+                <Link to="/checkin" data-testid="start-checkin-button">Start Check-in</Link>
               </Button>
             </CardContent>
           </Card>

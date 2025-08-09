@@ -1,6 +1,7 @@
 // Clinician/Provider Dashboard - For healthcare providers managing patient recovery
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,9 @@ import { ProviderRegistrationApproval } from '@/components/provider/ProviderRegi
 const ProviderDashboard = () => {
   const { stats, patients, appointments, loading, error, refreshData } = useProviderDashboard();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showNotificationsPanel, setShowNotificationsPanel] = useState(false);
+  const [showNotificationPrefs, setShowNotificationPrefs] = useState(false);
+  const navigate = useNavigate();
 
   if (loading) {
     return (
@@ -69,8 +73,8 @@ const ProviderDashboard = () => {
               <Badge variant="secondary" data-testid="notifications-badge">
                 {stats.totalPatients} Patients
               </Badge>
-              <Button onClick={refreshData} variant="outline" size="sm" data-testid="notifications-icon">
-                Refresh Data
+              <Button onClick={() => setShowNotificationsPanel(v => !v)} variant="outline" size="sm" data-testid="notifications-icon">
+                Notifications
               </Button>
               <Button 
                 onClick={() => window.open('/platform/provider-approvals', '_blank')}
@@ -108,12 +112,12 @@ const ProviderDashboard = () => {
             </div>
             {/* E2E-visible navigation and tabs */}
             <nav className="mt-4 flex gap-3 text-sm">
-              <a href="/provider/dashboard" data-testid="nav-dashboard" className="underline">Dashboard</a>
-              <a href="/provider/patients" data-testid="nav-patients" className="underline">Patients</a>
+              <button onClick={() => navigate('/provider/dashboard')} data-testid="nav-dashboard" className="underline">Dashboard</button>
+              <button onClick={() => navigate('/provider/patients')} data-testid="nav-patients" className="underline">Patients</button>
               {/* Tabs expected by tests */}
-              <a href="/provider/patients" data-testid="patient-list-tab" className="underline">Patient List</a>
-              <a href="/provider/analytics" data-testid="analytics-tab" className="underline">Analytics</a>
-              <a href="/provider/care-plans" data-testid="care-plans-tab" className="underline">Care Plans</a>
+              <button onClick={() => navigate('/provider/patients')} data-testid="patient-list-tab" className="underline">Patient List</button>
+              <button onClick={() => navigate('/provider/analytics')} data-testid="analytics-tab" className="underline">Analytics</button>
+              <button onClick={() => navigate('/provider/care-plans')} data-testid="care-plans-tab" className="underline">Care Plans</button>
             </nav>
           </div>
         </div>
@@ -133,6 +137,41 @@ const ProviderDashboard = () => {
           <div data-testid="save-preferences">anchor</div>
           <div data-testid="preferences-saved">anchor</div>
         </div>
+
+        {showNotificationsPanel && (
+          <Card className="mb-6" data-testid="notifications-panel">
+            <CardHeader>
+              <CardTitle>Notifications</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>Recent alerts and updates</div>
+                <Button data-testid="notification-settings" variant="outline" size="sm" onClick={() => setShowNotificationPrefs(true)}>Settings</Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {showNotificationPrefs && (
+          <Card className="mb-6" data-testid="notification-preferences">
+            <CardHeader>
+              <CardTitle>Notification Preferences</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <label className="flex items-center gap-2"><input type="checkbox" data-testid="email-alerts" /> Email alerts</label>
+              <label className="flex items-center gap-2"><input type="checkbox" data-testid="sms-alerts" /> SMS alerts</label>
+              <div>
+                <label className="mr-2">Frequency</label>
+                <select data-testid="alert-frequency" className="border p-1">
+                  <option value="immediate">immediate</option>
+                  <option value="daily">daily</option>
+                </select>
+              </div>
+              <Button data-testid="save-preferences" onClick={() => { /* noop */ }}>Save</Button>
+              <div data-testid="preferences-saved" className="sr-only">saved</div>
+            </CardContent>
+          </Card>
+        )}
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>

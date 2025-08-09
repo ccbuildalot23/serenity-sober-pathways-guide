@@ -70,6 +70,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
             localStorage.setItem('dev_bypass_auth', 'true');
             // Navigate directly to patient dashboard for recovery users
             navigate('/patient/dashboard', { replace: true });
+            await new Promise(r => setTimeout(r, 300));
             return;
           } catch (_) {}
         }
@@ -93,6 +94,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
         try {
           localStorage.setItem('dev_bypass_auth', 'true');
           navigate('/patient/dashboard', { replace: true });
+          await new Promise(r => setTimeout(r, 300));
           return;
         } catch (_) {}
       }

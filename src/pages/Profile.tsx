@@ -2,6 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { User } from 'lucide-react';
+import UserProfile from '@/components/UserProfile';
 
 const Profile: React.FC = () => {
   return (
@@ -14,7 +15,7 @@ const Profile: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-600">Profile management coming soon.</p>
+          <UserProfile />
         </CardContent>
       </Card>
     </div>

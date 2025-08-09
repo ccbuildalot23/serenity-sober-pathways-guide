@@ -23,18 +23,18 @@ const UserProfile: React.FC = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div>
+        <div data-testid="profile-email">
           <p className="text-sm text-gray-600">Email</p>
           <p className="font-medium">{user.email}</p>
         </div>
         {user.user_metadata?.full_name && (
-          <div>
+          <div data-testid="profile-name">
             <p className="text-sm text-gray-600">Name</p>
             <p className="font-medium">{user.user_metadata.full_name}</p>
           </div>
         )}
         {user.user_metadata?.recovery_start_date && (
-          <div>
+          <div data-testid="profile-recovery-start">
             <p className="text-sm text-gray-600">Recovery Start Date</p>
             <p className="font-medium">{user.user_metadata.recovery_start_date}</p>
           </div>
@@ -43,6 +43,7 @@ const UserProfile: React.FC = () => {
           onClick={handleSignOut}
           variant="outline"
           className="w-full flex items-center gap-2"
+          data-testid="profile-signout"
         >
           <LogOut className="h-4 w-4" />
           Sign Out

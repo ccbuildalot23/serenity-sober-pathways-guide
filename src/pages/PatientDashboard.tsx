@@ -33,7 +33,7 @@ const PatientDashboard = () => {
       {/* Header */}
       <div className="bg-card shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
                 <Heart className="w-8 h-8 text-primary" />
@@ -47,6 +47,11 @@ const PatientDashboard = () => {
               <Shield className="w-3 h-3" />
               Patient Portal
             </Badge>
+            <div className="ml-auto">
+              <Button asChild variant="outline" size="sm">
+                <Link to="/profile" data-testid="nav-profile">Profile</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </div>

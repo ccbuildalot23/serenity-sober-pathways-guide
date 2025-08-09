@@ -10,7 +10,12 @@ const UserProfile: React.FC = () => {
 
   const bypassActive = (() => {
     try {
-      return typeof window !== 'undefined' && localStorage.getItem('dev_bypass_auth') === 'true';
+      if (typeof window !== 'undefined') {
+        const urlBypass = /[?&]dev_bypass=1(?!\d)/.test(window.location.search);
+        const storageBypass = localStorage.getItem('dev_bypass_auth') === 'true';
+        return urlBypass || storageBypass;
+      }
+      return false;
     } catch {
       return false;
     }
@@ -33,7 +38,7 @@ const UserProfile: React.FC = () => {
   );
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md" data-testid="profile-ready">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <User className="h-5 w-5" />

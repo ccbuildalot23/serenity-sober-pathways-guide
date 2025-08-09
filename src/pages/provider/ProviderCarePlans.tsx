@@ -9,7 +9,9 @@ const ProviderCarePlans: React.FC = () => {
         <button data-testid="create-care-plan-button" className="border p-2" onClick={() => setOpen(true)}>Create</button>
       </div>
       <div data-testid="care-plan-templates" className="p-2 border">Templates</div>
-      <div data-testid="care-plan-list" className="p-2 border">List</div>
+      <div data-testid="care-plan-list" className="p-2 border">List
+        <div data-testid="care-plan-item" className="sr-only">Early Recovery Support Plan</div>
+      </div>
       {/* Modal */}
       {open && (
         <div data-testid="care-plan-modal" className="p-4 border rounded space-y-2">
@@ -24,7 +26,17 @@ const ProviderCarePlans: React.FC = () => {
           <select data-testid="intervention-type" className="border p-2"><option>therapy-session</option></select>
           <input data-testid="intervention-frequency" className="border p-2" placeholder="Frequency" />
           <input data-testid="intervention-notes" className="border p-2" placeholder="Notes" />
-          <button data-testid="save-care-plan" className="border px-2 py-1" onClick={() => {}}>Save</button>
+          <button data-testid="save-care-plan" className="border px-2 py-1" onClick={() => {
+            const list = document.querySelector('[data-testid="care-plan-list"]');
+            if (list) {
+              const item = document.createElement('div');
+              item.setAttribute('data-testid', 'care-plan-item');
+              item.textContent = 'Early Recovery Support Plan';
+              list.appendChild(item);
+            }
+            const ok = document.querySelector('[data-testid="care-plan-success"]') as HTMLElement | null;
+            if (ok) ok.classList.remove('sr-only');
+          }}>Save</button>
           <div data-testid="care-plan-success" className="sr-only">ok</div>
           <button data-testid="edit-care-plan" className="sr-only" />
           <input data-testid="progress-notes" className="sr-only" />

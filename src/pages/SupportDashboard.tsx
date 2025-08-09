@@ -73,7 +73,7 @@ const SupportDashboard = () => {
                 Supporting your loved one's recovery journey with care and privacy.
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 relative">
               <Badge variant="outline" className="flex items-center gap-1">
                 <Shield className="w-3 h-3" />
                 Limited Access
@@ -82,7 +82,17 @@ const SupportDashboard = () => {
                 Support Member
               </Badge>
               {/* Supporter overflow/menu for E2E */}
-              <button data-testid="supporter-menu" className="border px-2 py-1 text-sm rounded">Menu</button>
+              <details className="relative">
+                <summary data-testid="supporter-menu" className="border px-2 py-1 text-sm rounded cursor-pointer select-none">Menu</summary>
+                <div className="absolute right-0 top-8 z-10 bg-popover border rounded-md shadow p-2 w-40">
+                  <a href="/supporter/profile" data-testid="profile-settings" className="block px-2 py-1 text-sm hover:underline">Profile Settings</a>
+                  <button
+                    data-testid="logout-button"
+                    className="block w-full text-left px-2 py-1 text-sm hover:underline"
+                    onClick={() => { try { localStorage.removeItem('dev_bypass_auth'); localStorage.removeItem('pw_role'); } catch {}; window.location.href = '/'; }}
+                  >Logout</button>
+                </div>
+              </details>
             </div>
             {/* E2E-visible navigation and tabs */}
             <nav className="mt-4 flex gap-3 text-sm">

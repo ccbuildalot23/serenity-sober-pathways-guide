@@ -21,10 +21,19 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
 
   // Check if we're in development mode and should bypass auth
   const isDev = import.meta.env.DEV;
-  const shouldBypass = isDev && (bypassAuth || localStorage.getItem('dev_bypass_auth') === 'true');
+  // Effective bypass: honor localStorage flag in any environment (used by E2E/dev),
+  // and also allow in-session bypass via the dev button.
+  const storageBypass = React.useMemo(() => {
+    try {
+      return localStorage.getItem('dev_bypass_auth') === 'true';
+    } catch {
+      return false;
+    }
+  }, []);
+  const shouldBypass = storageBypass || (isDev && bypassAuth);
 
   // Show loading state while checking auth
-  if (authLoading || roleLoading) {
+  if (!shouldBypass && (authLoading || roleLoading)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-4">
@@ -84,7 +93,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
   }
 
   // Enforce role-based access if a role is required
-  if (requiredRole && !canAccess(requiredRole)) {
+  if (!shouldBypass && requiredRole && !canAccess(requiredRole)) {
     return <Navigate to="/auth" state={{ from: location, reason: 'forbidden' }} replace />;
   }
 

@@ -44,6 +44,11 @@ const Progress = lazy(() => import('@/pages/Progress'));
 // Support & Provider Features
 const SupportDashboard = lazy(() => import('@/pages/SupportDashboard'));
 const ProviderDashboard = lazy(() => import('@/pages/ProviderDashboard'));
+const ProviderPatients = lazy(() => import('@/pages/provider/ProviderPatients'));
+const ProviderAnalytics = lazy(() => import('@/pages/provider/ProviderAnalytics'));
+const ProviderCarePlans = lazy(() => import('@/pages/provider/ProviderCarePlans'));
+const SupporterMessages = lazy(() => import('@/pages/supporter/SupporterMessages'));
+const SupporterResources = lazy(() => import('@/pages/supporter/SupporterResources'));
 
 // Recovery Tools - Secondary priority
 const Motivation = lazy(() => import('@/pages/Motivation'));
@@ -216,6 +221,27 @@ function App() {
                   </Suspense>
                 </ProtectedRoute>
               } />
+              <Route path="/provider/patients" element={
+                <ProtectedRoute requiredRole="provider">
+                  <Suspense fallback={<LoadingState />}>
+                    <ProviderPatients />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/provider/analytics" element={
+                <ProtectedRoute requiredRole="provider">
+                  <Suspense fallback={<LoadingState />}>
+                    <ProviderAnalytics />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/provider/care-plans" element={
+                <ProtectedRoute requiredRole="provider">
+                  <Suspense fallback={<LoadingState />}>
+                    <ProviderCarePlans />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
               <Route path="/clinical-protocols" element={
                 <ProtectedRoute requiredRole="provider">
                   <Suspense fallback={<LoadingState />}>
@@ -250,6 +276,27 @@ function App() {
                 <ProtectedRoute requiredRole="support_member">
                   <Suspense fallback={<LoadingState />}>
                     <SupportDashboard />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/supporter/messages" element={
+                <ProtectedRoute requiredRole="support_member">
+                  <Suspense fallback={<LoadingState />}>
+                    <SupporterMessages />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/supporter/resources" element={
+                <ProtectedRoute requiredRole="support_member">
+                  <Suspense fallback={<LoadingState />}>
+                    <SupporterResources />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/supporter/supported-persons" element={
+                <ProtectedRoute requiredRole="support_member">
+                  <Suspense fallback={<LoadingState />}>
+                    <div data-testid="supported-persons-list" className="p-4">Supported Persons List</div>
                   </Suspense>
                 </ProtectedRoute>
               } />

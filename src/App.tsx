@@ -42,8 +42,10 @@ const Calendar = lazy(() => import('@/pages/Calendar'));
 const Progress = lazy(() => import('@/pages/Progress'));
 
 // Support & Provider Features
-const SupportDashboard = lazy(() => import('@/pages/SupportDashboard'));
-const ProviderDashboard = lazy(() => import('@/pages/ProviderDashboard'));
+// Eagerly load provider/supporter dashboards to stabilize E2E visibility assertions
+import SupportDashboard from '@/pages/SupportDashboard';
+import ProviderDashboard from '@/pages/ProviderDashboard';
+import ProviderProfile from '@/pages/ProviderProfile';
 const ProviderPatients = lazy(() => import('@/pages/provider/ProviderPatients'));
 const ProviderAnalytics = lazy(() => import('@/pages/provider/ProviderAnalytics'));
 const ProviderCarePlans = lazy(() => import('@/pages/provider/ProviderCarePlans'));
@@ -240,6 +242,12 @@ function App() {
                   <Suspense fallback={<LoadingState />}>
                     <ProviderCarePlans />
                   </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/provider/profile" element={
+                <ProtectedRoute requiredRole="provider">
+                  {/* Eager component, no Suspense */}
+                  <ProviderProfile />
                 </ProtectedRoute>
               } />
               <Route path="/clinical-protocols" element={

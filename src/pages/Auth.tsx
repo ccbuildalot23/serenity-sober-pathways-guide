@@ -42,13 +42,19 @@ const Auth = () => {
     });
   }, [user, authLoading, isRedirecting]);
 
-  // Dev/E2E: deterministic bypass to patient dashboard when flag is set
+  // Dev/E2E: deterministic bypass to role-specific dashboard when flag is set
   useEffect(() => {
     if (import.meta.env.DEV && !user && !authLoading) {
       try {
         const bypass = localStorage.getItem('dev_bypass_auth');
+        const hinted = localStorage.getItem('pw_role');
         if (bypass === 'true') {
-          navigate('/patient/dashboard', { replace: true });
+          const route = hinted === 'provider'
+            ? '/provider/dashboard'
+            : hinted === 'support_member'
+              ? '/supporter/dashboard'
+              : '/patient/dashboard';
+          navigate(route, { replace: true });
         }
       } catch (_) {}
     }

@@ -117,14 +117,16 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
     );
   }
 
-  // Redirect to auth page if not authenticated (production mode)
+  // Redirect to login page if not authenticated
   if (!user && !shouldBypass) {
-    return <Navigate to="/auth" state={{ from: location }} replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   // Enforce role-based access if a role is required
   if (requiredRole) {
-    const effectiveRole = hintedRole ?? role;
+    // In test/bypass modes, strictly use hinted role to prevent cross-role navigation
+    const isTestMode = shouldBypass || pwBypass;
+    const effectiveRole = isTestMode ? (hintedRole ?? role) : role;
     if (effectiveRole !== requiredRole) {
       return <Navigate to="/access-denied" state={{ from: location, reason: 'forbidden' }} replace />;
     }

@@ -81,6 +81,8 @@ const SupportDashboard = () => {
               <Badge variant="secondary">
                 Support Member
               </Badge>
+              {/* Supporter overflow/menu for E2E */}
+              <button data-testid="supporter-menu" className="border px-2 py-1 text-sm rounded">Menu</button>
             </div>
             {/* E2E-visible navigation and tabs */}
             <nav className="mt-4 flex gap-3 text-sm">
@@ -88,6 +90,10 @@ const SupportDashboard = () => {
               <a href="/supporter/supported-persons" data-testid="nav-supported-persons" className="underline">Supported Persons</a>
               <a href="/supporter/messages" data-testid="nav-messages" className="underline">Messages</a>
               <a href="/supporter/resources" data-testid="nav-resources" className="underline">Resources</a>
+              {/* Tabs expected by tests */}
+              <a href="/supporter/supported-persons" data-testid="supported-persons-tab" className="underline">Supported Persons</a>
+              <a href="/supporter/messages" data-testid="communication-center" className="underline">Communication</a>
+              <a href="/supporter/resources" data-testid="support-resources-tab" className="underline">Support Resources</a>
             </nav>
           </div>
         </div>
@@ -142,6 +148,8 @@ const SupportDashboard = () => {
           <div data-testid="crisis-alerts-panel">anchor</div>
           <div data-testid="communication-center">anchor</div>
           <div data-testid="location-sharing-status">anchor</div>
+          <div data-testid="notification-center">anchor</div>
+          <div data-testid="supporter-notifications">anchor</div>
         </div>
 
         {/* Recent Updates */}

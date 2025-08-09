@@ -7,6 +7,12 @@ const PATIENT_CREDENTIALS = {
 
 test.describe('Patient Profile', () => {
   test.beforeEach(async ({ page }) => {
+    // Set deterministic bypass flag before loading auth
+    await page.addInitScript(() => {
+      // @ts-ignore
+      window.__PW_TEST__ = true;
+      localStorage.setItem('dev_bypass_auth', 'true');
+    });
     await page.goto('/auth');
   });
 

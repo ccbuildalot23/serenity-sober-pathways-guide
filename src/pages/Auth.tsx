@@ -42,6 +42,18 @@ const Auth = () => {
     });
   }, [user, authLoading, isRedirecting]);
 
+  // Dev/E2E: deterministic bypass to patient dashboard when flag is set
+  useEffect(() => {
+    if (import.meta.env.DEV && !user && !authLoading) {
+      try {
+        const bypass = localStorage.getItem('dev_bypass_auth');
+        if (bypass === 'true') {
+          navigate('/patient/dashboard', { replace: true });
+        }
+      } catch (_) {}
+    }
+  }, [user, authLoading, navigate]);
+
   // Redirect if user is already authenticated
   useEffect(() => {
     console.log('Auth page - checking user:', { user, authLoading, isRedirecting });

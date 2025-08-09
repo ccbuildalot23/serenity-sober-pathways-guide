@@ -126,7 +126,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
   if (requiredRole) {
     // In test/bypass modes, strictly use hinted role to prevent cross-role navigation
     const isTestMode = shouldBypass || pwBypass;
-    const effectiveRole = isTestMode ? (hintedRole ?? role) : role;
+    if (isTestMode && !hintedRole) {
+      // If test mode but no role hint, deny access to protected routes
+      return <Navigate to="/access-denied" state={{ from: location, reason: 'forbidden' }} replace />;
+    }
+    const effectiveRole = isTestMode ? hintedRole : role;
     if (effectiveRole !== requiredRole) {
       return <Navigate to="/access-denied" state={{ from: location, reason: 'forbidden' }} replace />;
     }

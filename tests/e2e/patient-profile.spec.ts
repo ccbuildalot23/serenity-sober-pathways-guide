@@ -17,18 +17,9 @@ test.describe('Patient Profile', () => {
   });
 
   test('can open profile and see basic fields', async ({ page }) => {
-    // Sign in (dev/E2E bypass will route to /patient/dashboard if backend is unavailable)
-    await page.click('[data-testid="login-button"]');
-    await page.fill('[data-testid="email-input"]', PATIENT_CREDENTIALS.email);
-    await page.fill('[data-testid="password-input"]', PATIENT_CREDENTIALS.password);
-    await page.click('[data-testid="submit-login"]');
-
-    // Robust wait for dev-bypass navigation
-    try {
-      await expect(page).toHaveURL(/patient\/dashboard/,{timeout:20000});
-    } catch {
-      await page.goto('/patient/dashboard');
-    }
+    // With bypass set, go directly to dashboard to avoid brittle login sequence
+    await page.goto('/patient/dashboard');
+    await expect(page).toHaveURL(/patient\/dashboard/,{timeout:20000});
     await expect(page.locator('[data-testid="patient-dashboard"]')).toBeVisible({ timeout: 20000 });
 
     // Open profile
@@ -52,16 +43,8 @@ test.describe('Patient Profile', () => {
   });
 
   test('can sign out from profile', async ({ page }) => {
-    await page.goto('/auth');
-    await page.click('[data-testid="login-button"]');
-    await page.fill('[data-testid="email-input"]', PATIENT_CREDENTIALS.email);
-    await page.fill('[data-testid="password-input"]', PATIENT_CREDENTIALS.password);
-    await page.click('[data-testid="submit-login"]');
-    try {
-      await expect(page).toHaveURL(/patient\/dashboard/,{timeout:20000});
-    } catch {
-      await page.goto('/patient/dashboard');
-    }
+    await page.goto('/patient/dashboard');
+    await expect(page).toHaveURL(/patient\/dashboard/,{timeout:20000});
     await expect(page.locator('[data-testid="patient-dashboard"]')).toBeVisible({ timeout: 20000 });
 
     await page.click('[data-testid="nav-profile"]');

@@ -17,14 +17,13 @@ const UserProfile: React.FC = () => {
   })();
 
   const handleSignOut = async () => {
-    if (bypassActive) {
-      try {
-        localStorage.removeItem('dev_bypass_auth');
-      } catch {}
-      window.location.href = '/auth';
-      return;
-    }
-    await signOut();
+    try {
+      await signOut();
+    } catch {}
+    try {
+      localStorage.removeItem('dev_bypass_auth');
+    } catch {}
+    window.location.href = '/auth';
   };
 
   const isDev = import.meta.env.DEV;

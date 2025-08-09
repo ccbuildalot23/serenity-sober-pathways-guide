@@ -3,11 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { ResetPasswordForm } from '@/components/auth/ResetPasswordForm';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const ResetPassword: React.FC = () => {
   const navigate = useNavigate();
   const [isValidToken, setIsValidToken] = useState<boolean | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [manualEmail, setManualEmail] = useState('');
+  const [manualCode, setManualCode] = useState('');
+  const [verifying, setVerifying] = useState(false);
 
   useEffect(() => {
     // Supabase recovery flow usually sends the token in the URL hash (after #)
@@ -36,6 +40,30 @@ const ResetPassword: React.FC = () => {
       setIsValidToken(false);
     }
   }, []);
+
+  const handleManualVerify = async () => {
+    setVerifying(true);
+    setErrorMessage(null);
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: manualEmail,
+        token: manualCode,
+        type: 'recovery',
+      });
+      if (error) {
+        setErrorMessage(error.message || 'Invalid code. Please try again.');
+        setIsValidToken(false);
+      } else {
+        // Session should be established; allow password reset form
+        setIsValidToken(true);
+      }
+    } catch (e) {
+      setErrorMessage('Unexpected error verifying code.');
+      setIsValidToken(false);
+    } finally {
+      setVerifying(false);
+    }
+  };
 
   if (isValidToken === null) {
     // Still checking
@@ -66,6 +94,35 @@ const ResetPassword: React.FC = () => {
               </button>
             </AlertDescription>
           </Alert>
+
+          {/* Manual OTP verify fallback */}
+          <div className="mt-6 border rounded-md p-4 bg-white">
+            <p className="text-sm mb-2 text-gray-700">Or enter the 6-digit code from your email:</p>
+            <div className="space-y-3">
+              <input
+                type="email"
+                placeholder="Email address"
+                value={manualEmail}
+                onChange={(e) => setManualEmail(e.target.value)}
+                className="w-full border px-3 py-2 rounded"
+              />
+              <input
+                type="text"
+                placeholder="6-digit code"
+                value={manualCode}
+                onChange={(e) => setManualCode(e.target.value)}
+                className="w-full border px-3 py-2 rounded tracking-widest"
+                maxLength={12}
+              />
+              <button
+                onClick={handleManualVerify}
+                disabled={verifying || !manualEmail || !manualCode}
+                className="w-full bg-primary text-white py-2 rounded disabled:opacity-50"
+              >
+                {verifying ? 'Verifying…' : 'Verify Code'}
+              </button>
+            </div>
+          </div>
           <button
             onClick={() => navigate('/auth')}
             className="mt-4 w-full text-center text-sm text-primary hover:underline"

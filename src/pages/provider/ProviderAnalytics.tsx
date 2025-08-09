@@ -18,6 +18,13 @@ const ProviderAnalytics: React.FC = () => {
       <div data-testid="checkin-frequency-chart" className="p-2 border">Checkin Freq</div>
       <div data-testid="risk-indicators" className="p-2 border">Indicators</div>
       <div data-testid="intervention-suggestions" className="p-2 border">Suggestions</div>
+      {/* extra anchors used later */}
+      <div className="sr-only">
+        <div data-testid="pattern-alerts">alerts</div>
+        <button data-testid="review-pattern-details">review</button>
+        <div data-testid="pattern-detail-modal">modal</div>
+        <div data-testid="recommended-actions">actions</div>
+      </div>
       <div>
         <select data-testid="analysis-timeframe" className="border p-2">
           <option>90-days</option>

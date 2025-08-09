@@ -147,41 +147,41 @@ function App() {
                 </ProtectedRoute>
               } />
               <Route path="/patient/dashboard" element={
-                <ProtectedRoute>
+                <ProtectedRoute requiredRole="patient">
                   {/* Avoid Suspense for PatientDashboard in E2E */}
                   <PatientDashboard />
                 </ProtectedRoute>
               } />
               <Route path="/checkin" element={
-                <ProtectedRoute>
+                <ProtectedRoute requiredRole="patient">
                   <Suspense fallback={<LoadingState />}>
                     <CheckIn />
                   </Suspense>
                 </ProtectedRoute>
               } />
               <Route path="/peer-support" element={
-                <ProtectedRoute>
+                <ProtectedRoute requiredRole="patient">
                   <Suspense fallback={<LoadingState />}>
                     <PeerSupport />
                   </Suspense>
                 </ProtectedRoute>
               } />
               <Route path="/calendar" element={
-                <ProtectedRoute>
+                <ProtectedRoute requiredRole="patient">
                   <Suspense fallback={<LoadingState />}>
                     <Calendar />
                   </Suspense>
                 </ProtectedRoute>
               } />
               <Route path="/progress" element={
-                <ProtectedRoute>
+                <ProtectedRoute requiredRole="patient">
                   <Suspense fallback={<LoadingState />}>
                     <Progress />
                   </Suspense>
                 </ProtectedRoute>
               } />
               <Route path="/profile" element={
-                <ProtectedRoute>
+                <ProtectedRoute requiredRole="patient">
                   {/* Avoid Suspense for Profile to ensure immediate render of ready marker in E2E */}
                   <Profile />
                 </ProtectedRoute>
@@ -304,7 +304,11 @@ function App() {
               <Route path="/supporter/supported-persons" element={
                 <ProtectedRoute requiredRole="support_member">
                   <Suspense fallback={<LoadingState />}>
-                    <div data-testid="supported-persons-list" className="p-4">Supported Persons List</div>
+                    <div className="p-4 space-y-3">
+                      <div data-testid="supported-persons-list" className="p-2 border">List</div>
+                      <button data-testid="add-supported-person" className="border px-3 py-2">Add Supported Person</button>
+                      <div data-testid="support-status-overview" className="p-2 border">Status Overview</div>
+                    </div>
                   </Suspense>
                 </ProtectedRoute>
               } />

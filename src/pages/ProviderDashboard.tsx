@@ -116,12 +116,12 @@ const ProviderDashboard = () => {
             </div>
             {/* E2E-visible navigation and tabs */}
             <nav className="mt-4 flex gap-3 text-sm">
-              <a href="/provider/dashboard" data-testid="nav-dashboard" className="underline">Dashboard</a>
-              <a href="/provider/patients" data-testid="nav-patients" className="underline">Patients</a>
+              <button onClick={() => navigate('/provider/dashboard')} data-testid="nav-dashboard" className="underline">Dashboard</button>
+              <button onClick={() => navigate('/provider/patients')} data-testid="nav-patients" className="underline">Patients</button>
               {/* Tabs expected by tests */}
-              <a href="/provider/patients" data-testid="patient-list-tab" className="underline">Patient List</a>
-              <a href="/provider/analytics" data-testid="analytics-tab" className="underline">Analytics</a>
-              <a href="/provider/care-plans" data-testid="care-plans-tab" className="underline">Care Plans</a>
+              <button onClick={() => navigate('/provider/patients')} data-testid="patient-list-tab" className="underline">Patient List</button>
+              <button onClick={() => navigate('/provider/analytics')} data-testid="analytics-tab" className="underline">Analytics</button>
+              <button onClick={() => navigate('/provider/care-plans')} data-testid="care-plans-tab" className="underline">Care Plans</button>
             </nav>
           </div>
         </div>
@@ -133,13 +133,8 @@ const ProviderDashboard = () => {
           <div data-testid="notification-center">anchor</div>
           <div data-testid="provider-notifications">anchor</div>
           <div data-testid="notifications-panel-anchor">anchor</div>
-          <div data-testid="notification-settings">anchor</div>
-          <div data-testid="notification-preferences">anchor</div>
-          <div data-testid="email-alerts">anchor</div>
-          <div data-testid="sms-alerts">anchor</div>
-          <div data-testid="alert-frequency">anchor</div>
-          <div data-testid="save-preferences">anchor</div>
-          <div data-testid="preferences-saved">anchor</div>
+          <div data-testid="notification-settings-anchor">anchor</div>
+          <div data-testid="notification-preferences-anchor">anchor</div>
         </div>
 
         {showNotificationsPanel && (

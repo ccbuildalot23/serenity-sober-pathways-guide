@@ -71,6 +71,7 @@ const PilotReadinessAssessment = lazy(() => import('@/pages/PilotReadinessAssess
 const SecurityFixesStatus = lazy(() => import('@/pages/SecurityFixesStatus'));
 const ComprehensiveSupportPage = lazy(() => import('@/pages/ComprehensiveSupportPage').then(module => ({ default: module.ComprehensiveSupportPage })));
 const SecurityAudit = lazy(() => import('@/pages/SecurityAudit'));
+const Profile = lazy(() => import('@/pages/Profile'));
 
 const queryClient = new QueryClient();
 
@@ -156,6 +157,13 @@ function App() {
                 <ProtectedRoute>
                   <Suspense fallback={<LoadingState />}>
                     <Progress />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<LoadingState />}>
+                    <Profile />
                   </Suspense>
                 </ProtectedRoute>
               } />

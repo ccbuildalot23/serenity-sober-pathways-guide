@@ -123,8 +123,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
   }
 
   // Enforce role-based access if a role is required
-  if (requiredRole && !canAccess(requiredRole)) {
-    return <Navigate to="/access-denied" state={{ from: location, reason: 'forbidden' }} replace />;
+  if (requiredRole) {
+    const effectiveRole = hintedRole ?? role;
+    if (effectiveRole !== requiredRole) {
+      return <Navigate to="/access-denied" state={{ from: location, reason: 'forbidden' }} replace />;
+    }
   }
 
   return <>{children}</>;

@@ -46,6 +46,7 @@ const Progress = lazy(() => import('@/pages/Progress'));
 import SupportDashboard from '@/pages/SupportDashboard';
 import ProviderDashboard from '@/pages/ProviderDashboard';
 import ProviderProfile from '@/pages/ProviderProfile';
+import ProviderPatientProfile from '@/pages/provider/ProviderPatientProfile';
 import SupporterProfile from '@/pages/supporter/SupporterProfile';
 const ProviderPatients = lazy(() => import('@/pages/provider/ProviderPatients'));
 const ProviderAnalytics = lazy(() => import('@/pages/provider/ProviderAnalytics'));
@@ -229,6 +230,12 @@ function App() {
                   <Suspense fallback={<LoadingState />}>
                     <ProviderPatients />
                   </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/provider/patients/:id" element={
+                <ProtectedRoute requiredRole="provider">
+                  {/* Eager stub */}
+                  <ProviderPatientProfile />
                 </ProtectedRoute>
               } />
               <Route path="/provider/analytics" element={

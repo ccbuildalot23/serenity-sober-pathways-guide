@@ -116,15 +116,15 @@ const ProviderDashboard = () => {
             </div>
             {/* E2E-visible navigation and tabs */}
             <nav className="mt-4 flex gap-3 text-sm">
-              <button onClick={() => navigate('/provider/dashboard')} data-testid="nav-dashboard" className="underline">Dashboard</button>
-              <button onClick={() => navigate('/provider/patients')} data-testid="nav-patients" className="underline">Patients</button>
+              <a href="/provider/dashboard" data-testid="nav-dashboard" className="underline">Dashboard</a>
+              <a href="/provider/patients" data-testid="nav-patients" className="underline">Patients</a>
               {/* Tabs expected by tests */}
-              <button onClick={() => navigate('/provider/patients')} data-testid="patient-list-tab" className="underline">Patient List</button>
-              <button onClick={() => navigate('/provider/analytics')} data-testid="analytics-tab" className="underline">Analytics</button>
-              <button onClick={() => navigate('/provider/care-plans')} data-testid="care-plans-tab" className="underline">Care Plans</button>
+              <a href="/provider/patients" data-testid="patient-list-tab" className="underline">Patient List</a>
+              <a href="/provider/analytics" data-testid="analytics-tab" className="underline">Analytics</a>
+              <a href="/provider/care-plans" data-testid="care-plans-tab" className="underline">Care Plans</a>
               {/* Explicit nav shortcuts used by tests */}
-              <button onClick={() => navigate('/provider/analytics')} data-testid="nav-analytics" className="underline">Go Analytics</button>
-              <button onClick={() => navigate('/provider/care-plans')} data-testid="nav-care-plans" className="underline">Go Care Plans</button>
+              <a href="/provider/analytics" data-testid="nav-analytics" className="underline">Go Analytics</a>
+              <a href="/provider/care-plans" data-testid="nav-care-plans" className="underline">Go Care Plans</a>
             </nav>
           </div>
         </div>

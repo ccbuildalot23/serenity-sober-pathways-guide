@@ -21,16 +21,18 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
 
   // Check if we're in development mode and should bypass auth
   const isDev = import.meta.env.DEV;
-  // Effective bypass: honor localStorage flag in any environment (used by E2E/dev),
+  // Effective bypass: honor localStorage flag or URL param in any environment (E2E/dev),
   // and also allow in-session bypass via the dev button.
-  const storageBypass = React.useMemo(() => {
+  const search = typeof window !== 'undefined' ? window.location.search : '';
+  const urlBypass = /[?&]dev_bypass=1(?!\d)/.test(search);
+  const storageBypass = (() => {
     try {
       return localStorage.getItem('dev_bypass_auth') === 'true';
     } catch {
       return false;
     }
-  }, []);
-  const shouldBypass = storageBypass || (isDev && bypassAuth);
+  })();
+  const shouldBypass = urlBypass || storageBypass || (isDev && bypassAuth);
 
   // Show loading state while checking auth
   if (!shouldBypass && (authLoading || roleLoading)) {

@@ -156,10 +156,22 @@ const SupportDashboard = () => {
           <div className="sr-only" aria-hidden>
           <div data-testid="supported-persons-section">anchor</div>
           <div data-testid="crisis-alerts-panel">anchor</div>
-            <div data-testid="communication-center-panel">anchor</div>
+            <div data-testid="communication-center">anchor</div>
           <div data-testid="location-sharing-status">anchor</div>
           <div data-testid="notification-center">anchor</div>
           <div data-testid="supporter-notifications">anchor</div>
+          <div data-testid="emergency-contacts-list">anchor</div>
+          <div data-testid="crisis-hotline-info">anchor</div>
+          <div data-testid="active-crisis-alert">anchor</div>
+          <div data-testid="crisis-alert-modal">anchor</div>
+          <div data-testid="crisis-patient-info">anchor</div>
+          <div data-testid="crisis-location">anchor</div>
+          <div data-testid="crisis-timestamp">anchor</div>
+          <div data-testid="call-patient-button">anchor</div>
+          <div data-testid="escalate-button">anchor</div>
+          <div data-testid="supported-persons-tab">anchor</div>
+          <div data-testid="supported-persons-list">anchor</div>
+          <div data-testid="add-supported-person">anchor</div>
         </div>
 
           {/* Visible controls for tests */}

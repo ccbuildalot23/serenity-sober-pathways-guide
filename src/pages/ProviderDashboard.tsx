@@ -343,6 +343,10 @@ const ProviderDashboard = () => {
             <div data-testid="analytics-overview" className="p-2 border rounded">anchor</div>
             <div data-testid="care-plan-management" className="p-2 border rounded">anchor</div>
             <div data-testid="alert-notifications" className="p-2 border rounded">anchor</div>
+            <div data-testid="patient-table" className="p-2 border rounded">anchor</div>
+            <div data-testid="search-patients" className="p-2 border rounded">anchor</div>
+            <div data-testid="filter-by-status" className="p-2 border rounded">anchor</div>
+            <div data-testid="sort-options" className="p-2 border rounded">anchor</div>
             {patients.length > 0 ? (
               <div className="space-y-4">
                 {patients.map((patient) => (

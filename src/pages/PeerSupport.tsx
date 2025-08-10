@@ -143,7 +143,7 @@ const PeerSupport = () => {
           </div>
 
           {/* Chat Room */}
-          <div className="lg:col-span-3 bg-gray-800 rounded-xl flex flex-col" data-testid="peer-chat-room">
+          <div className="lg:col-span-3 bg-gray-800 rounded-xl flex flex-col" data-testid="peer-support-chat">
             {/* Chat Header */}
             <div className="p-4 border-b border-gray-600">
               <div className="flex items-center justify-between">
@@ -163,6 +163,7 @@ const PeerSupport = () => {
               {messages.map((message) => (
                 <div
                   key={message.id}
+                  data-testid="chat-message"
                   className={`flex ${message.sender === 'You' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
@@ -173,8 +174,8 @@ const PeerSupport = () => {
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium">{message.sender}</span>
-                      <span className="text-xs opacity-70">
+                      <span className="text-sm font-medium" data-testid="message-author">{message.sender}</span>
+                      <span className="text-xs opacity-70" data-testid="message-timestamp">
                         {formatTime(message.timestamp)}
                       </span>
                     </div>
@@ -188,7 +189,7 @@ const PeerSupport = () => {
             <div className="p-4 border-t border-gray-600">
               <div className="flex space-x-2">
                 <Input
-                  data-testid="chat-input"
+                  data-testid="chat-message-input"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyPress={handleKeyPress}

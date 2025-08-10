@@ -70,12 +70,12 @@ const CrisisSupport = () => {
         </div>
 
         {/* Immediate Crisis Resources */}
-        <div className="space-y-4">
+        <div className="space-y-4" data-testid="crisis-modal">
           <h2 className="text-2xl font-semibold">Immediate Help</h2>
           
           <Button
             onClick={() => window.open('tel:988', '_self')}
-            data-testid="crisis-hotline-988"
+            data-testid="crisis-hotline-button"
             className="w-full h-16 bg-red-600 hover:bg-red-700 text-white rounded-xl"
           >
             <Phone className="w-6 h-6 mr-3" />
@@ -93,7 +93,7 @@ const CrisisSupport = () => {
 
           <Button
             onClick={() => setShowSupporterModal(true)}
-            data-testid="emergency-contacts"
+            data-testid="emergency-contact-button"
             className="w-full h-16 bg-purple-600 hover:bg-purple-700 text-white rounded-xl"
           >
             <Users className="w-6 h-6 mr-3" />
@@ -188,7 +188,7 @@ const CrisisSupport = () => {
                     id="send-location"
                     checked={sendLocation}
                     onCheckedChange={(checked) => setSendLocation(checked as boolean)}
-                    data-testid="send-location-toggle"
+                    data-testid="location-sharing-toggle"
                   />
                   <label htmlFor="send-location" className="text-sm font-medium text-gray-300">
                     Share my location with support team
@@ -200,7 +200,7 @@ const CrisisSupport = () => {
                     Message (optional)
                   </label>
                   <Textarea
-                    data-testid="crisis-message"
+                    data-testid="crisis-message-input"
                     placeholder="Describe what you're going through..."
                     value={crisisMessage}
                     onChange={(e) => setCrisisMessage(e.target.value)}
@@ -220,7 +220,7 @@ const CrisisSupport = () => {
                 </Button>
                 <Button
                   onClick={handleSendCrisisAlert}
-                  data-testid="send-crisis-alert"
+                  data-testid="submit-crisis-alert"
                   className="flex-1 bg-purple-600 hover:bg-purple-700"
                 >
                   Send Alert
@@ -233,11 +233,11 @@ const CrisisSupport = () => {
         {/* Alert Sent Confirmation */}
         {alertSent && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div className="bg-green-900/30 rounded-xl p-6 max-w-md w-full text-center" data-testid="alert-sent-confirmation">
+            <div className="bg-green-900/30 rounded-xl p-6 max-w-md w-full text-center" data-testid="crisis-alert-sent">
               <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">Alert Sent</h3>
               <p className="text-gray-300">
-                Support team has been notified and will respond as soon as possible.
+                Crisis alert sent to your support network
               </p>
             </div>
           </div>

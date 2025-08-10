@@ -19,6 +19,7 @@
     "typecheck": "tsc --noEmit",
     "test": "npx playwright test",
     "test:e2e": "npx playwright test tests/e2e/",
+    "test:e2e:mvp": "npx playwright test --config=playwright.config.mvp.ts",
     "test:e2e:headed": "npx playwright test tests/e2e/ --headed",
     "test:e2e:debug": "npx playwright test tests/e2e/ --debug",
     "test:patient": "npx playwright test tests/e2e/patient-journey.spec.ts",

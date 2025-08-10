@@ -71,38 +71,11 @@ export const ResetPasswordForm: React.FC = () => {
         return;
       }
 
-      // For password reset, we need to handle both cases:
-      // 1. User has an active session (from clicking the reset link)
-      // 2. User doesn't have a session but has a valid token
+      // For password reset, we'll use a simpler approach
+      // The token should already be processed by Supabase when the user clicks the link
+      // So we can just try to update the password directly
       
-      const { data: { user }, error: sessionError } = await supabase.auth.getUser();
-      
-      if (sessionError || !user) {
-        // No active session - this means the token hasn't been processed yet
-        // We need to process the token first
-        const searchParams = new URLSearchParams(window.location.search);
-        const code = searchParams.get('code');
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const accessToken = hashParams.get('access_token');
-        const token = code || accessToken;
-        
-        if (!token) {
-          setError('No reset token found. Please request a new password reset link.');
-          return;
-        }
-        
-        // Try to process the token to establish a session
-        const { error: tokenError } = await supabase.auth.verifyOtp({
-          token: token,
-          type: 'recovery'
-        });
-        
-        if (tokenError) {
-          console.error('Token verification failed:', tokenError);
-          setError('Invalid or expired reset link. Please request a new one.');
-          return;
-        }
-      }
+      console.log('Attempting to update password...');
 
       // Now try to update the password
       const { error } = await supabase.auth.updateUser({

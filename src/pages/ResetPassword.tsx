@@ -61,28 +61,12 @@ const ResetPassword: React.FC = () => {
     if (type === 'recovery' && finalToken) {
       console.log('Attempting to verify token with Supabase...');
       
-      // For password reset tokens, we need to use the correct approach
-      // The token should be used to establish a session, then update password
+      // For password reset, we'll use a simpler approach
+      // Just check if the token exists and has valid format
       try {
-        // Check if token format is valid
         if (finalToken && finalToken.length > 10) {
-          console.log('Token appears valid, attempting to establish session...');
-          
-          // Try to get user session from the token
-          const { data: { user }, error: sessionError } = await supabase.auth.getUser();
-          
-          if (sessionError) {
-            console.log('No active session, but token is present - allowing password reset...');
-            // If no session but we have a token, we'll allow the reset form
-            // The form will handle the actual password update
-            setIsValidToken(true);
-          } else if (user) {
-            console.log('User session found, allowing password reset...');
-            setIsValidToken(true);
-          } else {
-            console.log('No user found, but token present - allowing password reset...');
-            setIsValidToken(true);
-          }
+          console.log('Token appears valid, allowing password reset...');
+          setIsValidToken(true);
         } else {
           console.error('Token format appears invalid');
           setErrorMessage('Invalid token format. Please request a new reset link.');

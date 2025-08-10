@@ -49,7 +49,7 @@ test.describe('Real-time Communication System', () => {
 
     // Simulate receiving a real-time message
     await page.evaluate(() => {
-      const event = new CustomEvent('new-message', {
+      const event = new (window as any).CustomEvent('new-message', {
         detail: {
           id: 'msg-123',
           content: 'Great to see you here! Keep up the good work!',

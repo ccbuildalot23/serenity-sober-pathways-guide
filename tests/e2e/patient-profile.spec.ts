@@ -1,10 +1,5 @@
 import { test, expect } from '@playwright/test';
 
-const PATIENT_CREDENTIALS = {
-  email: 'test-patient@serenity.com',
-  password: 'TestSerenity2024!@#'
-};
-
 test.describe('Patient Profile', () => {
   test.beforeEach(async ({ page }) => {
     // Set deterministic bypass flag before loading auth

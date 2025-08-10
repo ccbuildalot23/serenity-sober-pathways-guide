@@ -78,10 +78,10 @@ test.describe('Crisis Support System', () => {
     // Check for crisis alerts panel
     await expect(page.locator('[data-testid="crisis-alerts-panel"]')).toBeVisible();
 
-    // Simulate receiving a crisis alert (this would normally come from real-time system)
-    await page.evaluate(() => {
-      // Simulate crisis alert notification
-      const event = new CustomEvent('crisis-alert', {
+            // Simulate receiving a crisis alert (this would normally come from real-time system)
+        await page.evaluate(() => {
+          // Simulate crisis alert notification
+          const event = new (window as any).CustomEvent('crisis-alert', {
         detail: {
           patientId: 'test-patient',
           message: 'I need immediate support right now',
@@ -122,7 +122,7 @@ test.describe('Crisis Support System', () => {
 
     // Simulate crisis alert
     await page.evaluate(() => {
-      const event = new CustomEvent('crisis-alert', {
+      const event = new (window as any).CustomEvent('crisis-alert', {
         detail: {
           patientId: 'test-patient',
           message: 'Emergency situation - need immediate help',
@@ -165,7 +165,7 @@ test.describe('Crisis Support System', () => {
 
     // Simulate crisis alert
     await page.evaluate(() => {
-      const event = new CustomEvent('crisis-alert', {
+      const event = new (window as any).CustomEvent('crisis-alert', {
         detail: {
           patientId: 'test-patient',
           message: 'Feeling better now, thanks for checking',
@@ -202,7 +202,7 @@ test.describe('Crisis Support System', () => {
 
     // Simulate crisis alert with high severity
     await page.evaluate(() => {
-      const event = new CustomEvent('crisis-alert', {
+      const event = new (window as any).CustomEvent('crisis-alert', {
         detail: {
           patientId: 'test-patient',
           message: 'Critical emergency - no response',

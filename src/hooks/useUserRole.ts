@@ -35,6 +35,9 @@ export const useUserRole = () => {
         case 'provider':
           _assignedRole = 'provider';
           break;
+        case 'admin':
+          _assignedRole = 'admin';
+          break;
         default:
           _assignedRole = 'patient';
       }
@@ -51,8 +54,11 @@ export const useUserRole = () => {
   const canAccess = (requiredRole: UserRole): boolean => {
     if (loading) return false;
     
-    // Provider can access everything
-    if (role === 'provider') return true;
+    // Admin can access everything
+    if (role === 'admin') return true;
+    
+    // Provider can access everything except admin
+    if (role === 'provider' && requiredRole !== 'admin') return true;
     
     // Support member can access support and patient features
     if (role === 'support_member' && (requiredRole === 'support_member' || requiredRole === 'patient')) {

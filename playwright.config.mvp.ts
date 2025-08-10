@@ -53,6 +53,7 @@ export default defineConfig({
     '**/basic-checkin.spec.ts',
     '**/simple-checkin-test.spec.ts',
     '**/debug-checkin-route.spec.ts',
+    '**/debug-full-checkin.spec.ts',
   ],
 
   /* Exclude SOC 2, NIST, and other advanced compliance tests */

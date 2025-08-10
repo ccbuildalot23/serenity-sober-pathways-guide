@@ -113,9 +113,9 @@ export const ResetPasswordForm: React.FC = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           {error && (
-            <Alert variant="destructive">
+            <Alert variant="destructive" data-testid="password-reset-form-error">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
@@ -127,6 +127,7 @@ export const ResetPasswordForm: React.FC = () => {
               <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
                 id="new-password"
+                data-testid="new-password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Enter new password"
                 value={password}
@@ -156,6 +157,7 @@ export const ResetPasswordForm: React.FC = () => {
               <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
                 id="confirm-password"
+                data-testid="confirm-password"
                 type={showConfirmPassword ? 'text' : 'password'}
                 placeholder="Confirm new password"
                 value={confirmPassword}

@@ -23,7 +23,11 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBack }
     
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!email.trim()) {
+      setError('Email address is required');
+      return;
+    }
+    if (!emailRegex.test(email.trim())) {
       setError('Please enter a valid email address');
       return;
     }
@@ -87,9 +91,9 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBack }
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           {error && (
-            <Alert variant="destructive">
+            <Alert variant="destructive" data-testid="password-reset-error">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>

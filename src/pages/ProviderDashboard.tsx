@@ -187,15 +187,15 @@ const ProviderDashboard = () => {
           </Card>
         )}
         {/* Stats Overview - Warm & Professional */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200 shadow-lg transition-all duration-300 hover:shadow-xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" data-testid="stats-overview">
+          <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200 shadow-lg transition-all duration-300 hover:shadow-xl" data-testid="today-checkins-card">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-emerald-700 mb-2">
                     Today's Check-ins
                   </p>
-                  <p className="text-3xl font-bold text-emerald-800">
+                  <p className="text-3xl font-bold text-emerald-800" data-testid="today-checkins-count">
                     {stats.todayCheckins}
                   </p>
                   <p className="text-xs text-emerald-600 font-medium">
@@ -209,14 +209,14 @@ const ProviderDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-200 shadow-lg transition-all duration-300 hover:shadow-xl">
+          <Card className="bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-200 shadow-lg transition-all duration-300 hover:shadow-xl" data-testid="community-mood-card">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-amber-700 mb-2">
                     Community Mood
                   </p>
-                  <p className="text-3xl font-bold text-amber-800">
+                  <p className="text-3xl font-bold text-amber-800" data-testid="community-mood-score">
                     {stats.averageMood}/10
                   </p>
                   <p className="text-xs text-amber-600 font-medium">
@@ -230,14 +230,14 @@ const ProviderDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-rose-50 to-pink-50 border-rose-200 shadow-lg transition-all duration-300 hover:shadow-xl">
+          <Card className="bg-gradient-to-br from-rose-50 to-pink-50 border-rose-200 shadow-lg transition-all duration-300 hover:shadow-xl" data-testid="care-alerts-card">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-rose-700 mb-2">
                     Care Alerts
                   </p>
-                  <p className="text-3xl font-bold text-rose-800">
+                  <p className="text-3xl font-bold text-rose-800" data-testid="care-alerts-count">
                     {stats.crisisAlerts.unresolved}
                   </p>
                   <p className="text-xs text-rose-600 font-medium">
@@ -251,14 +251,14 @@ const ProviderDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200 shadow-lg transition-all duration-300 hover:shadow-xl">
+          <Card className="bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200 shadow-lg transition-all duration-300 hover:shadow-xl" data-testid="recovery-community-card">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-indigo-700 mb-2">
                     Recovery Community
                   </p>
-                  <p className="text-3xl font-bold text-indigo-800">
+                  <p className="text-3xl font-bold text-indigo-800" data-testid="active-patients-count">
                     {stats.activePatients}
                   </p>
                   <p className="text-xs text-indigo-600 font-medium">
@@ -274,13 +274,13 @@ const ProviderDashboard = () => {
         </div>
 
         {/* Engagement Metrics - Celebrating Progress */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200 shadow-md transition-all duration-300 hover:shadow-lg">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" data-testid="engagement-metrics">
+          <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200 shadow-md transition-all duration-300 hover:shadow-lg" data-testid="weekly-engagement-card">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-blue-700 mb-2">Weekly Engagement</p>
-                  <p className="text-2xl font-bold text-blue-800">{stats.engagement.weeklyCompletionRate}%</p>
+                  <p className="text-2xl font-bold text-blue-800" data-testid="weekly-engagement-rate">{stats.engagement.weeklyCompletionRate}%</p>
                   <p className="text-xs text-blue-600 font-medium">{stats.engagement.lastWeekCheckins} connections this week</p>
                 </div>
                 <div className="p-2 bg-blue-500 rounded-lg">
@@ -290,12 +290,12 @@ const ProviderDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 shadow-md transition-all duration-300 hover:shadow-lg">
+          <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 shadow-md transition-all duration-300 hover:shadow-lg" data-testid="monthly-progress-card">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-green-700 mb-2">Monthly Progress</p>
-                  <p className="text-2xl font-bold text-green-800">{stats.engagement.monthlyCompletionRate}%</p>
+                  <p className="text-2xl font-bold text-green-800" data-testid="monthly-progress-rate">{stats.engagement.monthlyCompletionRate}%</p>
                   <p className="text-xs text-green-600 font-medium">30-day commitment strength</p>
                 </div>
                 <div className="p-2 bg-green-500 rounded-lg">
@@ -305,12 +305,12 @@ const ProviderDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200 shadow-md transition-all duration-300 hover:shadow-lg">
+          <Card className="bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200 shadow-md transition-all duration-300 hover:shadow-lg" data-testid="todays-sessions-card">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-orange-700 mb-2">Today's Sessions</p>
-                  <p className="text-2xl font-bold text-orange-800">{appointments.length}</p>
+                  <p className="text-2xl font-bold text-orange-800" data-testid="todays-sessions-count">{appointments.length}</p>
                   <p className="text-xs text-orange-600 font-medium">healing conversations ahead</p>
                 </div>
                 <div className="p-2 bg-orange-500 rounded-lg">
@@ -327,7 +327,7 @@ const ProviderDashboard = () => {
         </div>
 
         {/* Patient Overview - Compassionate Care Focus */}
-        <Card className="bg-gradient-to-br from-slate-50 to-gray-50 border-slate-200 shadow-lg">
+        <Card className="bg-gradient-to-br from-slate-50 to-gray-50 border-slate-200 shadow-lg" data-testid="patient-overview-card">
           <CardHeader className="bg-gradient-to-r from-teal-500 to-blue-500 text-white rounded-t-lg">
             <CardTitle className="flex items-center gap-3 text-xl">
               <div className="p-2 bg-white/20 rounded-full">
@@ -346,7 +346,7 @@ const ProviderDashboard = () => {
             {patients.length > 0 ? (
               <div className="space-y-4">
                 {patients.map((patient) => (
-                  <div key={patient.id} className="p-6 bg-white border border-teal-100 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg hover:border-teal-200">
+                  <div key={patient.id} className="p-6 bg-white border border-teal-100 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg hover:border-teal-200" data-testid={`patient-item-${patient.id}`}>
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-gradient-to-br from-teal-400 to-blue-500 rounded-full flex items-center justify-center shadow-md">
@@ -355,10 +355,10 @@ const ProviderDashboard = () => {
                           </span>
                         </div>
                         <div>
-                          <p className="font-semibold text-gray-800 text-lg">
+                          <p className="font-semibold text-gray-800 text-lg" data-testid={`patient-name-${patient.id}`}>
                             {patient.patient_name}
                           </p>
-                          <p className="text-sm text-teal-600 font-medium">
+                          <p className="text-sm text-teal-600 font-medium" data-testid={`patient-progress-${patient.id}`}>
                             {patient.relationship_type} • Progress: {patient.engagement_score}% complete
                           </p>
                         </div>
@@ -423,20 +423,20 @@ const ProviderDashboard = () => {
                     </div>
 
                     <div className="flex flex-wrap gap-3 mt-6">
-                      <Button variant="outline" size="sm" className="bg-teal-50 border-teal-200 text-teal-700 hover:bg-teal-100">
+                      <Button variant="outline" size="sm" className="bg-teal-50 border-teal-200 text-teal-700 hover:bg-teal-100" data-testid={`view-journey-${patient.id}`}>
                         <Eye className="w-4 h-4 mr-2" />
                         View Journey
                       </Button>
-                      <Button variant="outline" size="sm" className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100">
+                      <Button variant="outline" size="sm" className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100" data-testid={`add-care-note-${patient.id}`}>
                         <FileText className="w-4 h-4 mr-2" />
                         Add Care Note
                       </Button>
-                      <Button variant="outline" size="sm" className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100">
+                      <Button variant="outline" size="sm" className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100" data-testid={`connect-patient-${patient.id}`}>
                         <UserCheck className="w-4 h-4 mr-2" />
                         Connect
                       </Button>
                       {patient.crisis_status.risk_level === 'high' && (
-                        <Button className="bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white shadow-md" size="sm">
+                        <Button className="bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white shadow-md" size="sm" data-testid={`immediate-support-${patient.id}`}>
                           <AlertTriangle className="w-4 h-4 mr-2" />
                           Immediate Support
                         </Button>

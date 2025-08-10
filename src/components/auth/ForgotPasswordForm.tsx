@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Loader2, Mail, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { emailService } from '@/services/emailService';
 
 interface ForgotPasswordFormProps {
   onBack?: () => void;
@@ -32,27 +33,23 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBack }
       return;
     }
 
+    // Check rate limiting before attempting
+    const rateLimitCheck = emailService.canRequestReset(email);
+    if (!rateLimitCheck.allowed) {
+      setError(`Too many password reset attempts. Please wait ${rateLimitCheck.retryAfter} minutes before trying again.`);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      // Use the correct production URL for password reset redirects
-      const baseUrl = import.meta.env.VITE_PUBLIC_SITE_URL || 'https://serenity-sober-pathways-guide.vercel.app';
-      
-      // First, try to get the current session to see if user exists
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      
-      // Send password reset email
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${baseUrl}/reset-password`,
-      });
+      // Use the new email service with proper rate limiting and error handling
+      const result = await emailService.sendPasswordResetEmail(email);
 
-      console.log('Password reset email sent:', { email, baseUrl, error });
-
-      if (error) {
-        console.error('Password reset error:', error);
-        setError(error.message || 'Failed to send reset email. Please try again.');
-      } else {
+      if (result.success) {
         setSuccess(true);
+      } else {
+        setError(result.message);
       }
     } catch (err) {
       console.error('Unexpected error:', err);

@@ -22,13 +22,20 @@ const ResetPassword: React.FC = () => {
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const searchParams = new URLSearchParams(window.location.search);
 
+    // Try to get token from multiple possible sources
     const accessToken = hashParams.get('access_token') || searchParams.get('access_token');
-    const type = hashParams.get('type') || searchParams.get('type');
+    const code = searchParams.get('code'); // Supabase sometimes sends 'code' instead of 'access_token'
+    const type = hashParams.get('type') || searchParams.get('type') || 'recovery';
     const error = searchParams.get('error');
     const errorCode = searchParams.get('error_code');
     const errorDescription = searchParams.get('error_description');
 
+    // Use accessToken if available, otherwise use code
+    const finalToken = accessToken || code;
+
     console.log('Debug - accessToken:', accessToken);
+    console.log('Debug - code:', code);
+    console.log('Debug - finalToken:', finalToken);
     console.log('Debug - type:', type);
     console.log('Debug - error:', error);
     console.log('Debug - errorCode:', errorCode);
@@ -51,12 +58,12 @@ const ResetPassword: React.FC = () => {
       return;
     }
 
-    if (type === 'recovery' && accessToken) {
+    if (type === 'recovery' && finalToken) {
       console.log('Attempting to verify token with Supabase...');
       
       // Try to verify the token with Supabase
       supabase.auth.verifyOtp({
-        token: accessToken,
+        token: finalToken,
         type: 'recovery'
       }).then(({ data, error }) => {
         if (error) {
@@ -76,6 +83,8 @@ const ResetPassword: React.FC = () => {
       console.log('No valid token found in URL');
       console.log('Type:', type);
       console.log('AccessToken present:', !!accessToken);
+      console.log('Code present:', !!code);
+      console.log('FinalToken present:', !!finalToken);
       setIsValidToken(false);
     }
   }, []);

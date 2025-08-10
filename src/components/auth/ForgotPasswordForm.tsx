@@ -35,11 +35,18 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBack }
     setIsLoading(true);
 
     try {
-      // Always send users to the public site URL to avoid Vercel preview protection redirects
-      const baseUrl = import.meta.env.VITE_PUBLIC_SITE_URL || window.location.origin;
+      // Use the correct production URL for password reset redirects
+      const baseUrl = import.meta.env.VITE_PUBLIC_SITE_URL || 'https://serenity-sober-pathways-guide.vercel.app';
+      
+      // First, try to get the current session to see if user exists
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      // Send password reset email
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${baseUrl}/reset-password`,
       });
+
+      console.log('Password reset email sent:', { email, baseUrl, error });
 
       if (error) {
         console.error('Password reset error:', error);

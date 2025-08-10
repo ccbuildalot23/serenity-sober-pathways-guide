@@ -10,10 +10,14 @@ const ResetPassword: React.FC = () => {
   const [isValidToken, setIsValidToken] = useState<boolean | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [manualEmail, setManualEmail] = useState('');
-  const [manualCode, setManualCode] = useState('');
   const [verifying, setVerifying] = useState(false);
 
   useEffect(() => {
+    // Debug: Log the current URL to see what we're working with
+    console.log('ResetPassword URL:', window.location.href);
+    console.log('Hash:', window.location.hash);
+    console.log('Search:', window.location.search);
+
     // Supabase recovery flow usually sends the token in the URL hash (after #)
     // but errors come through the query string. Support both.
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -23,6 +27,11 @@ const ResetPassword: React.FC = () => {
     const type = hashParams.get('type') || searchParams.get('type');
     const error = searchParams.get('error');
     const errorCode = searchParams.get('error_code');
+
+    console.log('Debug - accessToken:', accessToken);
+    console.log('Debug - type:', type);
+    console.log('Debug - error:', error);
+    console.log('Debug - errorCode:', errorCode);
 
     if (error || errorCode) {
       setErrorMessage(
@@ -35,8 +44,22 @@ const ResetPassword: React.FC = () => {
     }
 
     if (type === 'recovery' && accessToken) {
-      setIsValidToken(true);
+      // Try to verify the token with Supabase
+      supabase.auth.verifyOtp({
+        token: accessToken,
+        type: 'recovery'
+      }).then(({ data, error }) => {
+        if (error) {
+          console.error('Token verification failed:', error);
+          setErrorMessage('This password reset link is invalid or has expired.');
+          setIsValidToken(false);
+        } else {
+          console.log('Token verified successfully:', data);
+          setIsValidToken(true);
+        }
+      });
     } else {
+      console.log('No valid token found in URL');
       setIsValidToken(false);
     }
   }, []);
@@ -45,21 +68,18 @@ const ResetPassword: React.FC = () => {
     setVerifying(true);
     setErrorMessage(null);
     try {
-      const { data, error } = await supabase.auth.verifyOtp({
-        email: manualEmail,
-        token: manualCode,
-        type: 'recovery',
+      // Send a new password reset email to the provided email address
+      const { error } = await supabase.auth.resetPasswordForEmail(manualEmail, {
+        redirectTo: window.location.origin + '/reset-password',
       });
+      
       if (error) {
-        setErrorMessage(error.message || 'Invalid code. Please try again.');
-        setIsValidToken(false);
+        setErrorMessage(error.message || 'Failed to send reset email. Please try again.');
       } else {
-        // Session should be established; allow password reset form
-        setIsValidToken(true);
+        setErrorMessage('A new password reset email has been sent to your email address. Please check your inbox and click the link in the email.');
       }
     } catch (e) {
-      setErrorMessage('Unexpected error verifying code.');
-      setIsValidToken(false);
+      setErrorMessage('Unexpected error sending reset email.');
     } finally {
       setVerifying(false);
     }
@@ -95,9 +115,9 @@ const ResetPassword: React.FC = () => {
             </AlertDescription>
           </Alert>
 
-          {/* Manual OTP verify fallback */}
+          {/* Manual email reset fallback */}
           <div className="mt-6 border rounded-md p-4 bg-white">
-            <p className="text-sm mb-2 text-gray-700">Or enter the 6-digit code from your email:</p>
+            <p className="text-sm mb-2 text-gray-700">Or enter your email to receive a new reset link:</p>
             <div className="space-y-3">
               <input
                 type="email"
@@ -106,20 +126,12 @@ const ResetPassword: React.FC = () => {
                 onChange={(e) => setManualEmail(e.target.value)}
                 className="w-full border px-3 py-2 rounded"
               />
-              <input
-                type="text"
-                placeholder="6-digit code"
-                value={manualCode}
-                onChange={(e) => setManualCode(e.target.value)}
-                className="w-full border px-3 py-2 rounded tracking-widest"
-                maxLength={12}
-              />
               <button
                 onClick={handleManualVerify}
-                disabled={verifying || !manualEmail || !manualCode}
+                disabled={verifying || !manualEmail}
                 className="w-full bg-primary text-white py-2 rounded disabled:opacity-50"
               >
-                {verifying ? 'Verifying…' : 'Verify Code'}
+                {verifying ? 'Sending…' : 'Send New Reset Link'}
               </button>
             </div>
           </div>

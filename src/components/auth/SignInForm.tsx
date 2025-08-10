@@ -73,14 +73,18 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
         try {
           localStorage.setItem('dev_bypass_auth', 'true');
           localStorage.setItem('pw_role', inferredRole);
-        } catch {}
+          console.log(`E2E mode: Set role hint to ${inferredRole} for ${sanitizedEmail}`);
+        } catch (e) {
+          console.error('Failed to set localStorage in E2E mode:', e);
+        }
         const target = inferredRole === 'provider'
           ? '/provider/dashboard'
           : inferredRole === 'support_member'
             ? '/supporter/dashboard'
             : '/patient/dashboard';
+        console.log(`E2E mode: Navigating to ${target}`);
         navigate(target, { replace: true });
-        await new Promise(r => setTimeout(r, 100));
+        await new Promise(r => setTimeout(r, 500)); // Increased timeout for WebKit
         return;
       }
 

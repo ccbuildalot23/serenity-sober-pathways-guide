@@ -46,9 +46,14 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
   const hintedRole: UserRole | null = (() => {
     try {
       const v = localStorage.getItem('pw_role');
-      if (v === 'provider' || v === 'support_member' || v === 'patient') return v as UserRole;
+      if (v === 'provider' || v === 'support_member' || v === 'patient') {
+        console.log(`ProtectedRoute: Found role hint: ${v}`);
+        return v as UserRole;
+      }
+      console.log(`ProtectedRoute: No valid role hint found, got: ${v}`);
       return null;
-    } catch {
+    } catch (e) {
+      console.error('ProtectedRoute: Error reading role hint:', e);
       return null;
     }
   })();
@@ -132,7 +137,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
       return <Navigate to="/login" state={{ from: location }} replace />;
     }
     const effectiveRole = isTestMode ? hintedRole : role;
+    
+    // Always enforce role-based access control, even in bypass mode
     if (effectiveRole !== requiredRole) {
+      console.log(`Access denied: required ${requiredRole}, got ${effectiveRole}`);
       return <Navigate to="/access-denied" state={{ from: location, reason: 'forbidden' }} replace />;
     }
   }

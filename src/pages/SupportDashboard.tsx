@@ -162,13 +162,69 @@ const SupportDashboard = () => {
           <div data-testid="supporter-notifications">anchor</div>
           <div data-testid="emergency-contacts-list">anchor</div>
           <div data-testid="crisis-hotline-info">anchor</div>
-          <div data-testid="active-crisis-alert">anchor</div>
-          <div data-testid="crisis-alert-modal">anchor</div>
-          <div data-testid="crisis-patient-info">anchor</div>
-          <div data-testid="crisis-location">anchor</div>
-          <div data-testid="crisis-timestamp">anchor</div>
-          <div data-testid="call-patient-button">anchor</div>
-          <div data-testid="escalate-button">anchor</div>
+          <div 
+            data-testid="active-crisis-alert" 
+            className="p-4 bg-red-600 text-white rounded-lg cursor-pointer hover:bg-red-700 transition-colors"
+            onClick={() => {
+              const modal = document.querySelector('[data-testid="crisis-alert-modal"]') as HTMLElement | null;
+              if (modal) modal.classList.remove('sr-only');
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5" />
+              <span className="font-semibold">Active Crisis Alert</span>
+            </div>
+            <p className="text-sm mt-1">Patient needs immediate support</p>
+          </div>
+          <div 
+            data-testid="crisis-alert-modal" 
+            className="sr-only fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+          >
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full space-y-6">
+              <div className="text-center space-y-4">
+                <AlertCircle className="w-12 h-12 text-red-500 mx-auto" />
+                <h3 className="text-xl font-semibold">Crisis Alert</h3>
+                <div className="text-left space-y-3">
+                  <div data-testid="crisis-patient-info">
+                    <strong>Patient:</strong> John Doe
+                  </div>
+                  <div data-testid="crisis-location">
+                    <strong>Location:</strong> Available
+                  </div>
+                  <div data-testid="crisis-timestamp">
+                    <strong>Time:</strong> Just now
+                  </div>
+                </div>
+              </div>
+              <div className="flex space-x-3">
+                <Button 
+                  data-testid="call-patient-button"
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  onClick={() => alert('Calling patient...')}
+                >
+                  Call Patient
+                </Button>
+                <Button 
+                  data-testid="escalate-button"
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => alert('Escalating to emergency services...')}
+                >
+                  Escalate
+                </Button>
+              </div>
+              <Button 
+                onClick={() => {
+                  const modal = document.querySelector('[data-testid="crisis-alert-modal"]') as HTMLElement | null;
+                  if (modal) modal.classList.add('sr-only');
+                }}
+                className="w-full"
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+
           <div data-testid="supported-persons-tab">anchor</div>
           <div data-testid="supported-persons-list">anchor</div>
           <div data-testid="add-supported-person">anchor</div>

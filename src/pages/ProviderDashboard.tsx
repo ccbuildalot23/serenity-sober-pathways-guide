@@ -348,7 +348,7 @@ const ProviderDashboard = () => {
             <div data-testid="filter-by-status" className="p-2 border rounded">anchor</div>
             <div data-testid="sort-options" className="p-2 border rounded">anchor</div>
             {patients.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-4" data-testid="patient-list">
                 {patients.map((patient) => (
                   <div key={patient.id} className="p-6 bg-white border border-teal-100 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg hover:border-teal-200" data-testid={`patient-item-${patient.id}`}>
                     <div className="flex items-center justify-between mb-4">

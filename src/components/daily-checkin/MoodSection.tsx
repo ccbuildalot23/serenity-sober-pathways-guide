@@ -47,6 +47,7 @@ export const MoodSection: React.FC<MoodSectionProps> = ({ mood, onMoodChange }) 
               variant="outline"
               size="sm"
               onClick={() => handleMoodChange(option.value)}
+              data-testid={`mood-${option.value <= 4 ? 'negative' : option.value <= 6 ? 'neutral' : 'positive'}`}
               className={`p-3 h-auto flex flex-col items-center space-y-1 border-2 transition-all ${
                 mood === option.value 
                   ? `${option.color} text-white border-transparent` 

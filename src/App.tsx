@@ -175,6 +175,13 @@ function App() {
                   </Suspense>
                 </ProtectedRoute>
               } />
+              <Route path="/patient/peer-support" element={
+                <ProtectedRoute requiredRole="patient">
+                  <Suspense fallback={<LoadingState />}>
+                    <PeerSupport />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
               <Route path="/calendar" element={
                 <ProtectedRoute requiredRole="patient">
                   <Suspense fallback={<LoadingState />}>
@@ -365,7 +372,7 @@ function App() {
                 </ProtectedRoute>
               } />
               <Route path="/community" element={
-                <ProtectedRoute requiredRole="admin">
+                <ProtectedRoute>
                   <Suspense fallback={<LoadingState />}>
                     <Community />
                   </Suspense>

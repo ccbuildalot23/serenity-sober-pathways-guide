@@ -52,6 +52,7 @@ export default defineConfig({
     '**/hipaa-compliance.spec.ts',
     '**/basic-checkin.spec.ts',
     '**/simple-checkin-test.spec.ts',
+    '**/debug-checkin-route.spec.ts',
   ],
 
   /* Exclude SOC 2, NIST, and other advanced compliance tests */
@@ -61,6 +62,7 @@ export default defineConfig({
     '**/accessibility-compliance.spec.ts',
     '**/clinical-workflows.spec.ts',
     '**/realtime-communication.spec.ts',
+    '**/debug-checkin.spec.ts',
     '**/debug-checkin.spec.ts',
   ],
 });

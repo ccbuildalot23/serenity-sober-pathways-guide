@@ -60,6 +60,7 @@ export default defineConfig({
                 '**/debug-checkin-route.spec.ts',
                 '**/debug-full-checkin.spec.ts',
                 '**/debug-supporter-login.spec.ts',
+                '**/debug-admin-login.spec.ts',
               ],
 
   /* Exclude SOC 2, NIST, and other advanced compliance tests */

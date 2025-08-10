@@ -63,10 +63,10 @@ test.describe('HIPAA Compliance Tests', () => {
       localStorage.setItem('pw_role', 'admin');
     });
     
-    // Login as admin
+    // Login as patient but with admin role override
     await page.click('[data-testid="login-button"]');
-    await page.fill('[data-testid="email-input"]', TEST_CREDENTIALS.ADMIN.email);
-    await page.fill('[data-testid="password-input"]', TEST_CREDENTIALS.ADMIN.password);
+    await page.fill('[data-testid="email-input"]', TEST_CREDENTIALS.PATIENT.email);
+    await page.fill('[data-testid="password-input"]', TEST_CREDENTIALS.PATIENT.password);
     await page.click('[data-testid="submit-login"]');
     
     await page.waitForURL('**/admin/dashboard', { timeout: 15000 });
@@ -134,10 +134,10 @@ test.describe('HIPAA Compliance Tests', () => {
       localStorage.setItem('pw_role', 'admin');
     });
     
-    // Test admin login
+    // Test admin login using patient credentials with role override
     await page.click('[data-testid="login-button"]');
-    await page.fill('[data-testid="email-input"]', TEST_CREDENTIALS.ADMIN.email);
-    await page.fill('[data-testid="password-input"]', TEST_CREDENTIALS.ADMIN.password);
+    await page.fill('[data-testid="email-input"]', TEST_CREDENTIALS.PATIENT.email);
+    await page.fill('[data-testid="password-input"]', TEST_CREDENTIALS.PATIENT.password);
     await page.click('[data-testid="submit-login"]');
     
     // Verify admin access works

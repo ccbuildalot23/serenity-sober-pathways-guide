@@ -161,6 +161,13 @@ function App() {
                   </Suspense>
                 </ProtectedRoute>
               } />
+              <Route path="/patient/checkin" element={
+                <ProtectedRoute requiredRole="patient">
+                  <Suspense fallback={<LoadingState />}>
+                    <CheckIn />
+                  </Suspense>
+                </ProtectedRoute>
+              } />
               <Route path="/peer-support" element={
                 <ProtectedRoute requiredRole="patient">
                   <Suspense fallback={<LoadingState />}>

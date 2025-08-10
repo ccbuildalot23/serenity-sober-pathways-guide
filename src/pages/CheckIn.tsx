@@ -1,100 +1,133 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useNavigate } from 'react-router-dom';
-import { Phone, Heart, Users, Wind, Sparkles, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { checkinSubmissionService } from '@/services/checkinSubmissionService';
+
+interface CheckInData {
+  mood: 'positive' | 'neutral' | 'negative';
+  moodDescription: string;
+  activities: string[];
+  sleepRating: number;
+  energy: number;
+  hope: number;
+  sobrietyConfidence: number;
+  recoveryImportance: number;
+  recoveryStrength: number;
+  supportNeeded: boolean;
+}
 
 const CheckIn = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [_mood, setMood] = useState<'struggling' | 'managing' | 'good' | null>(null);
-  const [showSupport, setShowSupport] = useState(false);
-  const [showEncouragement, setShowEncouragement] = useState(false);
-  const [showShareHope, setShowShareHope] = useState(false);
-  const [savedReason, setSavedReason] = useState('');
-  const [breathingActive, setBreathingActive] = useState(false);
-  const [breathCount, setBreathCount] = useState(0);
+  const [step, setStep] = useState<'mood' | 'details' | 'activities' | 'sleep' | 'complete'>('mood');
+  const [checkInData, setCheckInData] = useState<CheckInData>({
+    mood: 'neutral',
+    moodDescription: '',
+    activities: [],
+    sleepRating: 3,
+    energy: 3,
+    hope: 3,
+    sobrietyConfidence: 3,
+    recoveryImportance: 3,
+    recoveryStrength: 3,
+    supportNeeded: false,
+  });
+  const [showSupportResources, setShowSupportResources] = useState(false);
 
-  useEffect(() => {
-    // Load saved "Why I Got Clean" _reason
-    const _reason = localStorage.getItem('why_i_got_clean');
-    if (_reason) setSavedReason(_reason);
-  }, []);
+  const activities = [
+    { id: 'exercise', label: 'Exercise' },
+    { id: 'meditation', label: 'Meditation' },
+    { id: 'journaling', label: 'Journaling' },
+    { id: 'therapy', label: 'Therapy' },
+    { id: 'support-group', label: 'Support Group' },
+    { id: 'reading', label: 'Reading' },
+    { id: 'hobby', label: 'Hobby/Creative Activity' },
+  ];
 
-  // Breathing timer
-  useEffect(() => {
-    if (breathingActive) {
-      const _interval = setInterval(() => {
-        setBreathCount(prev => {
-          if (prev >= 60) {
-            setBreathingActive(false);
-            return 0;
-          }
-          return prev + 1;
-        });
-      }, 1000);
-      return () => clearInterval(_interval);
-    }
-  }, [breathingActive]);
+  const handleMoodSelect = (mood: 'positive' | 'neutral' | 'negative') => {
+    setCheckInData(prev => ({
+      ...prev,
+      mood,
+      supportNeeded: mood === 'negative',
+    }));
+    setStep('details');
+  };
 
-  const handleMoodSelect = async (selectedMood: 'struggling' | 'managing' | 'good') => {
-    setMood(selectedMood);
-    
-    // Save check-in using normalized service/table
+  const handleActivityToggle = (activityId: string) => {
+    setCheckInData(prev => ({
+      ...prev,
+      activities: prev.activities.includes(activityId)
+        ? prev.activities.filter(id => id !== activityId)
+        : [...prev.activities, activityId],
+    }));
+  };
+
+  const handleSleepRating = (rating: number) => {
+    setCheckInData(prev => ({ ...prev, sleepRating: rating }));
+  };
+
+  const handleSubmit = async () => {
     try {
       if (user?.id) {
         const date = new Date().toISOString().slice(0, 10);
         const data = checkinSubmissionService.prepareCheckinData(user.id, date, {
-          mood: selectedMood === 'good' ? 5 : selectedMood === 'managing' ? 3 : 1,
-          energy: 3,
-          hope: 3,
-          sobriety_confidence: 3,
-          recovery_importance: 3,
-          recovery_strength: 3,
-          support_needed: selectedMood === 'struggling',
+          mood: checkInData.mood === 'positive' ? 5 : checkInData.mood === 'neutral' ? 3 : 1,
+          energy: checkInData.energy,
+          hope: checkInData.hope,
+          sobriety_confidence: checkInData.sobrietyConfidence,
+          recovery_importance: checkInData.recoveryImportance,
+          recovery_strength: checkInData.recoveryStrength,
+          support_needed: checkInData.supportNeeded,
           phq2_q1: 0,
           phq2_q2: 0,
           gad2_q1: 0,
           gad2_q2: 0,
-          notes: null,
+          notes: checkInData.moodDescription,
+          activities: checkInData.activities.join(','),
+          sleep_quality: checkInData.sleepRating,
         } as any);
         await checkinSubmissionService.submitCheckin(data, data as any);
+        
+        if (checkInData.mood === 'negative') {
+          setShowSupportResources(true);
+        } else {
+          setStep('complete');
+        }
       }
-    } catch (_error) {
-      console._error ? console._error('Error saving check-in:', _error) : console.error('Error saving check-in:', _error);
-    }
-
-    // Show appropriate response
-    if (selectedMood === 'struggling') {
-      setShowSupport(true);
-    } else if (selectedMood === 'managing') {
-      setShowEncouragement(true);
-    } else {
-      setShowShareHope(true);
+    } catch (error) {
+      console.error('Error saving check-in:', error);
     }
   };
 
-  const callSomeone = () => {
-    const savedNumber = localStorage.getItem('support_person_number');
-    if (savedNumber) {
-      window.location.href = `tel:${savedNumber}`;
-    } else {
-      const number = prompt("Enter a support person's number (we'll save it for next time):");
-      if (number) {
-        localStorage.setItem('support_person_number', number);
-        window.location.href = `tel:${number}`;
-      }
+  const getMoodColor = (mood: string) => {
+    switch (mood) {
+      case 'positive': return 'bg-green-600 hover:bg-green-700';
+      case 'neutral': return 'bg-yellow-600 hover:bg-yellow-700';
+      case 'negative': return 'bg-red-600 hover:bg-red-700';
+      default: return 'bg-gray-600 hover:bg-gray-700';
     }
   };
 
-  const saveWhyIGotClean = () => {
-    const _reason = prompt("Why did you get clean? (We'll show this when you need it most):", savedReason);
-    if (_reason) {
-      localStorage.setItem('why_i_got_clean', _reason);
-      setSavedReason(_reason);
-      alert("Saved! We'll remind you of this when things get tough.");
+  const getMoodEmoji = (mood: string) => {
+    switch (mood) {
+      case 'positive': return '😊';
+      case 'neutral': return '😐';
+      case 'negative': return '😔';
+      default: return '😐';
+    }
+  };
+
+  const getMoodLabel = (mood: string) => {
+    switch (mood) {
+      case 'positive': return 'Positive';
+      case 'neutral': return 'Neutral';
+      case 'negative': return 'Negative';
+      default: return 'Neutral';
     }
   };
 
@@ -103,215 +136,300 @@ const CheckIn = () => {
       <div className="max-w-2xl mx-auto px-4 py-8 space-y-8">
         {/* Back Button */}
         <Button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/patient/dashboard')}
           variant="ghost"
           className="text-gray-400 hover:text-white"
+          data-testid="back-to-dashboard"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
+          Back to Dashboard
         </Button>
 
-        {/* Main Question */}
-        {!_mood && (
-          <div className="text-center space-y-8">
-            <div className="space-y-4">
-              <h1 className="text-4xl font-bold">How Are You Today?</h1>
-              <p className="text-xl text-gray-300">
-                {new Date().toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  _month: 'long', 
-                  _day: 'numeric' 
-                })}
-              </p>
-            </div>
+        {/* Header */}
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl font-bold">Daily Check-In</h1>
+          <p className="text-xl text-gray-300">
+            {new Date().toLocaleDateString('en-US', { 
+              weekday: 'long', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
+          </p>
+        </div>
 
-            {/* Three Mood Buttons */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6" data-testid="daily-checkin-section">
-              <Button
-                onClick={() => handleMoodSelect('struggling')}
-                data-testid="mood-negative"
-                className="h-32 bg-red-600 hover:bg-red-700 text-white rounded-2xl shadow-xl transform hover:scale-105 transition-all"
-              >
-                <div className="flex flex-col items-center gap-3">
-                  <span className="text-4xl">😔</span>
-                  <span className="text-2xl font-bold">Struggling</span>
-                </div>
-              </Button>
-
-              <Button
-                onClick={() => handleMoodSelect('managing')}
-                data-testid="mood-neutral"
-                className="h-32 bg-yellow-600 hover:bg-yellow-700 text-white rounded-2xl shadow-xl transform hover:scale-105 transition-all"
-              >
-                <div className="flex flex-col items-center gap-3">
-                  <span className="text-4xl">😐</span>
-                  <span className="text-2xl font-bold">Managing</span>
-                </div>
-              </Button>
-
-              <Button
-                onClick={() => handleMoodSelect('good')}
-                data-testid="mood-positive"
-                className="h-32 bg-green-600 hover:bg-green-700 text-white rounded-2xl shadow-xl transform hover:scale-105 transition-all"
-              >
-                <div className="flex flex-col items-center gap-3">
-                  <span className="text-4xl">😊</span>
-                  <span className="text-2xl font-bold">Good</span>
-                </div>
-              </Button>
-            </div>
-
-            <p className="text-gray-400">Just pick one. No judgment here.</p>
-          </div>
-        )}
-
-        {/* Struggling Response */}
-        {showSupport && (
-          <div className="space-y-8 animate-fade-in">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold">You're Brave for Being Here</h2>
-              <p className="text-xl text-gray-300">
-                It takes real courage to admit when we're struggling. You just took the first step.
-              </p>
-            </div>
-
-            {/* Immediate Actions */}
-            <div className="grid grid-cols-1 gap-4">
-              <Button
-                onClick={callSomeone}
-                className="h-20 bg-green-600 hover:bg-green-700 text-white rounded-xl"
-              >
-                <Phone className="w-6 h-6 mr-3" />
-                <span className="text-xl">Call Someone Now</span>
-              </Button>
-
-              {!breathingActive ? (
-                <Button
-                  onClick={() => setBreathingActive(true)}
-                  className="h-20 bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
-                >
-                  <Wind className="w-6 h-6 mr-3" />
-                  <span className="text-xl">60-Second Breathing</span>
-                </Button>
-              ) : (
-                <div className="bg-blue-900/30 rounded-xl p-6 text-center">
-                  <div className="text-3xl font-bold text-blue-400 mb-2">
-                    {breathCount <= 4 ? "Breathe In" : 
-                     breathCount <= 8 ? "Hold" : 
-                     breathCount <= 12 ? "Breathe Out" : 
-                     "Repeat..."}
-                  </div>
-                  <div className="text-lg text-gray-300">{60 - breathCount}s left</div>
-                </div>
-              )}
-
-              <Button
-                onClick={() => {
-                  if (savedReason) {
-                    alert(`Remember why you got clean:\n\n"${savedReason}"\n\nYou've come too far to give up now.`);
-                  } else {
-                    saveWhyIGotClean();
-                  }
-                }}
-                className="h-20 bg-purple-600 hover:bg-purple-700 text-white rounded-xl"
-              >
-                <Heart className="w-6 h-6 mr-3" />
-                <span className="text-xl">Why I Got Clean</span>
-              </Button>
-            </div>
-
-            <div className="text-center space-y-4">
-              <p className="text-gray-400">You've survived 100% of your worst days.</p>
-              <Button
-                onClick={() => navigate('/crisis-intervention')}
-                variant="outline"
-                className="border-red-600 text-red-400 hover:bg-red-900/20"
-              >
-                I Need More Help
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Managing Response */}
-        {showEncouragement && (
-          <div className="space-y-8 animate-fade-in">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold">You're Doing The Work</h2>
-              <p className="text-xl text-gray-300">
-                Managing is winning. Every minute clean is a victory.
-              </p>
-              <div className="bg-yellow-900/30 rounded-xl p-6">
-                <p className="text-lg italic">
-                  "Progress, not perfection."
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4">
-              <Button
-                onClick={() => navigate('/crisis-toolkit')}
-                className="h-16 bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
-              >
-                <span className="text-lg">Practice a Grounding Tool</span>
-              </Button>
-              <Button
-                onClick={() => navigate('/support')}
-                className="h-16 bg-purple-600 hover:bg-purple-700 text-white rounded-xl"
-              >
-                <Users className="w-5 h-5 mr-2" />
-                <span className="text-lg">Connect with Peers</span>
-              </Button>
-            </div>
-
+        {/* Step 1: Mood Selection */}
+        {step === 'mood' && (
+          <div className="space-y-8" data-testid="daily-checkin-section">
             <div className="text-center">
+              <h2 className="text-2xl font-semibold mb-4">How are you feeling today?</h2>
+              <p className="text-gray-400">Select the option that best describes your current mood</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Button
-                onClick={() => navigate('/')}
+                onClick={() => handleMoodSelect('positive')}
+                data-testid="mood-positive"
+                className={`h-32 ${getMoodColor('positive')} text-white rounded-2xl shadow-xl transform hover:scale-105 transition-all`}
+              >
+                <div className="flex flex-col items-center gap-3">
+                  <span className="text-4xl">{getMoodEmoji('positive')}</span>
+                  <span className="text-2xl font-bold">Positive</span>
+                </div>
+              </Button>
+
+              <Button
+                onClick={() => handleMoodSelect('neutral')}
+                data-testid="mood-neutral"
+                className={`h-32 ${getMoodColor('neutral')} text-white rounded-2xl shadow-xl transform hover:scale-105 transition-all`}
+              >
+                <div className="flex flex-col items-center gap-3">
+                  <span className="text-4xl">{getMoodEmoji('neutral')}</span>
+                  <span className="text-2xl font-bold">Neutral</span>
+                </div>
+              </Button>
+
+              <Button
+                onClick={() => handleMoodSelect('negative')}
+                data-testid="mood-negative"
+                className={`h-32 ${getMoodColor('negative')} text-white rounded-2xl shadow-xl transform hover:scale-105 transition-all`}
+              >
+                <div className="flex flex-col items-center gap-3">
+                  <span className="text-4xl">{getMoodEmoji('negative')}</span>
+                  <span className="text-2xl font-bold">Negative</span>
+                </div>
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Mood Details */}
+        {step === 'details' && (
+          <div className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-semibold mb-4">Tell us more about your day</h2>
+              <p className="text-gray-400">Share what's on your mind (optional but helpful)</p>
+            </div>
+
+            <div className="space-y-4">
+              <label className="block text-sm font-medium text-gray-300">
+                How are you feeling today?
+              </label>
+              <Textarea
+                data-testid="mood-description"
+                placeholder="Describe your mood, thoughts, or any challenges you're facing..."
+                value={checkInData.moodDescription}
+                onChange={(e) => setCheckInData(prev => ({ ...prev, moodDescription: e.target.value }))}
+                className="bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+                rows={4}
+              />
+            </div>
+
+            <div className="flex justify-between">
+              <Button
+                onClick={() => setStep('mood')}
                 variant="outline"
                 className="border-gray-600 text-gray-300"
               >
-                Back to Home
+                Back
+              </Button>
+              <Button
+                onClick={() => setStep('activities')}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                Continue
               </Button>
             </div>
           </div>
         )}
 
-        {/* Good Response */}
-        {showShareHope && (
-          <div className="space-y-8 animate-fade-in">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold">That's Beautiful!</h2>
-              <p className="text-xl text-gray-300">
-                Your strength today could save someone's life tomorrow.
-              </p>
-              <div className="inline-flex items-center gap-2 bg-green-900/30 text-green-400 px-6 py-3 rounded-full">
-                <Sparkles className="w-5 h-5" />
-                <span className="font-semibold">You're an inspiration</span>
-              </div>
+        {/* Step 3: Activities */}
+        {step === 'activities' && (
+          <div className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-semibold mb-4">What activities did you do today?</h2>
+              <p className="text-gray-400">Select all that apply</p>
             </div>
 
-            <div className="bg-gray-800 rounded-xl p-6 text-center">
-              <p className="text-lg mb-4">
-                Someone out there is struggling and needs to hear your story.
-              </p>
+            <div className="space-y-3">
+              {activities.map((activity) => (
+                <div key={activity.id} className="flex items-center space-x-3">
+                  <Checkbox
+                    id={activity.id}
+                    checked={checkInData.activities.includes(activity.id)}
+                    onCheckedChange={() => handleActivityToggle(activity.id)}
+                    data-testid={`activity-${activity.id}`}
+                  />
+                  <label htmlFor={activity.id} className="text-sm font-medium text-gray-300">
+                    {activity.label}
+                  </label>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-between">
               <Button
-                onClick={() => navigate('/support')}
+                onClick={() => setStep('details')}
+                variant="outline"
+                className="border-gray-600 text-gray-300"
+              >
+                Back
+              </Button>
+              <Button
+                onClick={() => setStep('sleep')}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                Continue
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Sleep Rating */}
+        {step === 'sleep' && (
+          <div className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-semibold mb-4">How did you sleep last night?</h2>
+              <p className="text-gray-400">Rate your sleep quality from 1 (poor) to 5 (excellent)</p>
+            </div>
+
+            <div className="flex justify-center space-x-2">
+              {[1, 2, 3, 4, 5].map((rating) => (
+                <Button
+                  key={rating}
+                  onClick={() => handleSleepRating(rating)}
+                  data-testid={`sleep-rating-${rating}`}
+                  variant={checkInData.sleepRating === rating ? "default" : "outline"}
+                  className={`w-12 h-12 rounded-full ${
+                    checkInData.sleepRating === rating 
+                      ? 'bg-blue-600 hover:bg-blue-700' 
+                      : 'border-gray-600 text-gray-300 hover:bg-gray-700'
+                  }`}
+                >
+                  {rating}
+                </Button>
+              ))}
+            </div>
+
+            <div className="text-center text-sm text-gray-400">
+              {checkInData.sleepRating === 1 && "Poor - Very restless"}
+              {checkInData.sleepRating === 2 && "Fair - Some difficulty"}
+              {checkInData.sleepRating === 3 && "Average - Normal sleep"}
+              {checkInData.sleepRating === 4 && "Good - Restful sleep"}
+              {checkInData.sleepRating === 5 && "Excellent - Very restful"}
+            </div>
+
+            <div className="flex justify-between">
+              <Button
+                onClick={() => setStep('activities')}
+                variant="outline"
+                className="border-gray-600 text-gray-300"
+              >
+                Back
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                data-testid="submit-checkin"
                 className="bg-green-600 hover:bg-green-700"
               >
-                <Heart className="w-5 h-5 mr-2" />
-                Share Hope with Others
+                Submit Check-In
               </Button>
             </div>
+          </div>
+        )}
 
-            <div className="text-center space-y-4">
-              <p className="text-gray-400">Keep doing what you're doing. It's working.</p>
-              <Button
-                onClick={() => navigate('/')}
-                variant="outline"
-                className="border-gray-600 text-gray-300"
-              >
-                Back to Home
-              </Button>
+        {/* Step 5: Completion */}
+        {step === 'complete' && (
+          <div className="space-y-8 text-center">
+            <div className="space-y-4">
+              <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
+              <h2 className="text-3xl font-bold">Check-in Complete!</h2>
+              <p className="text-xl text-gray-300">
+                Thank you for taking the time to check in today.
+              </p>
+            </div>
+
+            <div className="bg-gray-800 rounded-xl p-6">
+              <h3 className="text-lg font-semibold mb-2">Your Check-in Summary</h3>
+              <div className="space-y-2 text-sm text-gray-300">
+                <p><strong>Mood:</strong> {getMoodLabel(checkInData.mood)}</p>
+                <p><strong>Activities:</strong> {checkInData.activities.length > 0 ? checkInData.activities.join(', ') : 'None selected'}</p>
+                <p><strong>Sleep Quality:</strong> {checkInData.sleepRating}/5</p>
+              </div>
+            </div>
+
+            <div data-testid="checkin-success-message" className="bg-green-900/30 rounded-xl p-4">
+              <p className="text-green-400 font-medium">Check-in completed successfully</p>
+            </div>
+
+            <Button
+              onClick={() => navigate('/patient/dashboard')}
+              data-testid="return-to-dashboard"
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Return to Dashboard
+            </Button>
+          </div>
+        )}
+
+        {/* Support Resources Modal */}
+        {showSupportResources && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full space-y-6" data-testid="support-resources-modal">
+              <div className="text-center space-y-4">
+                <AlertCircle className="w-12 h-12 text-red-500 mx-auto" />
+                <h3 className="text-xl font-semibold">We're Here for You</h3>
+                <p className="text-gray-300">
+                  It sounds like you're having a tough time. Here are some resources that might help:
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <Button
+                  onClick={() => window.open('tel:988', '_self')}
+                  data-testid="crisis-hotline-988"
+                  className="w-full bg-red-600 hover:bg-red-700"
+                >
+                  Call 988 - Suicide & Crisis Lifeline
+                </Button>
+                <Button
+                  onClick={() => window.open('sms:988', '_self')}
+                  data-testid="text-crisis-line"
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                >
+                  Text 988 - Crisis Text Line
+                </Button>
+                <Button
+                  onClick={() => navigate('/crisis-support')}
+                  data-testid="emergency-contacts"
+                  className="w-full bg-purple-600 hover:bg-purple-700"
+                >
+                  Emergency Contacts
+                </Button>
+                <Button
+                  onClick={() => navigate('/breathing-exercises')}
+                  data-testid="breathing-exercises"
+                  className="w-full bg-green-600 hover:bg-green-700"
+                >
+                  Breathing Exercises
+                </Button>
+              </div>
+
+              <div className="flex space-x-3">
+                <Button
+                  onClick={() => setShowSupportResources(false)}
+                  variant="outline"
+                  className="flex-1 border-gray-600 text-gray-300"
+                >
+                  Close
+                </Button>
+                <Button
+                  onClick={() => navigate('/patient/dashboard')}
+                  data-testid="return-to-dashboard"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                >
+                  Return to Dashboard
+                </Button>
+              </div>
             </div>
           </div>
         )}

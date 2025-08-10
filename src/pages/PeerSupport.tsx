@@ -1,220 +1,282 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Users, Heart, Mic, MicOff, ArrowLeft, Send } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { ArrowLeft, Send, Users, MessageCircle, Heart, Shield, AlertCircle, Sparkles } from 'lucide-react';
+
+interface Message {
+  id: string;
+  text: string;
+  sender: string;
+  timestamp: Date;
+}
+
+interface Peer {
+  id: string;
+  name: string;
+  status: 'online' | 'offline';
+  lastSeen?: Date;
+}
 
 const PeerSupport = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [anonymousName, setAnonymousName] = useState('');
-  const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<Array<{id: string, name: string, message: string, time: string}>>([]);
-  const [recording, setRecording] = useState(false);
-  const [isInRoom, setIsInRoom] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: '1',
+      text: 'Welcome to the peer support chat! How is everyone doing today?',
+      sender: 'Sarah M.',
+      timestamp: new Date(Date.now() - 300000), // 5 minutes ago
+    },
+    {
+      id: '2',
+      text: 'Hi everyone! Day 15 for me and feeling strong 💪',
+      sender: 'Mike R.',
+      timestamp: new Date(Date.now() - 180000), // 3 minutes ago
+    },
+    {
+      id: '3',
+      text: 'That\'s amazing Mike! Keep up the great work!',
+      sender: 'Lisa K.',
+      timestamp: new Date(Date.now() - 60000), // 1 minute ago
+    },
+  ]);
+  const [newMessage, setNewMessage] = useState('');
+  const [showGuidelines, setShowGuidelines] = useState(false);
 
-  useEffect(() => {
-    // Generate anonymous name like "Day47Hope"
-    const days = Math.floor(Math.random() * 365) + 1;
-    const suffixes = ['Hope', 'Strong', 'Free', 'Clean', 'Brave', 'Light'];
-    const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
-    setAnonymousName(`Day${days}${suffix}`);
+  const peers: Peer[] = [
+    { id: '1', name: 'Sarah M.', status: 'online' },
+    { id: '2', name: 'Mike R.', status: 'online' },
+    { id: '3', name: 'Lisa K.', status: 'online' },
+    { id: '4', name: 'David P.', status: 'offline', lastSeen: new Date(Date.now() - 3600000) },
+    { id: '5', name: 'Emma W.', status: 'offline', lastSeen: new Date(Date.now() - 7200000) },
+  ];
 
-    // Add some example messages
-    setMessages([
-      {
-        id: '1',
-        name: 'Day892Strong',
-        message: 'Welcome! Everyone here understands what you\'re going through.',
-        time: '2 min ago'
-      },
-      {
-        id: '2',
-        name: 'Day14Hope',
-        message: 'Day 14 here. The cravings are real but we\'re stronger together.',
-        time: '5 min ago'
-      },
-      {
-        id: '3',
-        name: 'Day1Brave',
-        message: 'Just made it through my first 24 hours. Thank you all for being here.',
-        time: '8 min ago'
-      }
-    ]);
-  }, []);
-
-  const joinRoom = () => {
-    setIsInRoom(true);
-    // Add join message
-    setMessages(prev => [...prev, {
-      id: Date.now().toString(),
-      name: 'System',
-      message: `${anonymousName} joined the room`,
-      time: 'now'
-    }]);
-  };
-
-  const sendMessage = () => {
-    if (!message.trim()) return;
-    
-    setMessages(prev => [...prev, {
-      id: Date.now().toString(),
-      name: anonymousName,
-      message: message,
-      time: 'now'
-    }]);
-    setMessage('');
-  };
-
-  const toggleRecording = () => {
-    setRecording(!recording);
-    if (!recording) {
-      // Start recording
-      setTimeout(() => {
-        setRecording(false);
-        alert('Voice message saved. In the full version, this would be shared anonymously.');
-      }, 3000);
+  const handleSendMessage = () => {
+    if (newMessage.trim()) {
+      const message: Message = {
+        id: Date.now().toString(),
+        text: newMessage,
+        sender: 'You',
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, message]);
+      setNewMessage('');
     }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         {/* Header */}
-        <div className="mb-8">
+        <div className="flex items-center justify-between">
           <Button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/patient/dashboard')}
             variant="ghost"
-            className="text-gray-400 hover:text-white mb-4"
+            className="text-gray-400 hover:text-white"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
+            Back to Dashboard
           </Button>
           
-          <div className="text-center space-y-4">
-            <h1 className="text-4xl font-bold">Talk to Someone Who Gets It</h1>
-            <p className="text-xl text-gray-300">
-              Everyone here has been where you are. No judgment, just understanding.
-            </p>
+          <div className="text-center">
+            <h1 className="text-3xl font-bold">Peer Support Chat</h1>
+            <p className="text-gray-400">Connect with others on the recovery journey</p>
           </div>
+
+          <Button
+            onClick={() => setShowGuidelines(true)}
+            variant="outline"
+            className="border-gray-600 text-gray-300"
+          >
+            <Shield className="w-4 h-4 mr-2" />
+            Guidelines
+          </Button>
         </div>
 
-        {/* Join Room */}
-        {!isInRoom ? (
-          <div className="space-y-8">
-            <div className="bg-gray-800 rounded-2xl p-8 text-center space-y-6">
-              <div className="space-y-4">
-                <p className="text-lg text-gray-300">
-                  You'll be known as: <span className="text-blue-400 font-bold">{anonymousName}</span>
-                </p>
-                <p className="text-sm text-gray-500">
-                  Your real name is never shared. Complete anonymity, always.
-                </p>
-              </div>
-              
-              <Button
-                onClick={joinRoom}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-xl rounded-xl"
-              >
-                <Users className="w-6 h-6 mr-3" />
-                Join Support Room
-              </Button>
-              
-              <p className="text-sm text-gray-500">
-                24/7 moderated by people in long-term recovery
-              </p>
-            </div>
-
-            {/* Share Your Story Option */}
-            <div className="bg-purple-900/20 rounded-2xl p-8 border border-purple-800/50">
-              <h2 className="text-2xl font-bold mb-4 text-center">Share Your Story</h2>
-              <p className="text-gray-300 mb-6 text-center">
-                Record your recovery story anonymously. It might be exactly what someone needs to hear today.
-              </p>
-              <div className="text-center">
-                <Button
-                  onClick={toggleRecording}
-                  className={recording ? "bg-red-600 hover:bg-red-700" : "bg-purple-600 hover:bg-purple-700"}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[600px]">
+          {/* Peer List */}
+          <div className="bg-gray-800 rounded-xl p-4 space-y-4" data-testid="peer-list">
+            <h2 className="text-lg font-semibold flex items-center">
+              <Users className="w-5 h-5 mr-2" />
+              Online Peers ({peers.filter(p => p.status === 'online').length})
+            </h2>
+            
+            <div className="space-y-2">
+              {peers.map((peer) => (
+                <div
+                  key={peer.id}
+                  className="flex items-center justify-between p-2 rounded-lg bg-gray-700"
                 >
-                  {recording ? <MicOff className="w-5 h-5 mr-2" /> : <Mic className="w-5 h-5 mr-2" />}
-                  {recording ? "Stop Recording" : "Record Your Story"}
-                </Button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          /* Chat Room */
-          <div className="bg-gray-800 rounded-2xl overflow-hidden">
-            {/* Room Header */}
-            <div className="bg-gray-700 p-4 border-b border-gray-600">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-semibold">Recovery Support Room</h2>
-                  <p className="text-sm text-gray-400">17 people here · All anonymous</p>
-                </div>
-                <Button
-                  onClick={() => setIsInRoom(false)}
-                  variant="outline"
-                  className="border-gray-600 text-gray-300"
-                >
-                  Leave Room
-                </Button>
-              </div>
-            </div>
-
-            {/* Messages */}
-            <div className="h-96 overflow-y-auto p-6 space-y-4">
-              {messages.map(msg => (
-                <div key={msg.id} className={msg.name === 'System' ? 'text-center' : ''}>
-                  {msg.name === 'System' ? (
-                    <p className="text-sm text-gray-500 italic">{msg.message}</p>
-                  ) : (
-                    <div className={msg.name === anonymousName ? 'ml-auto max-w-xs' : 'max-w-xs'}>
-                      <div className={`rounded-xl p-3 ${
-                        msg.name === anonymousName 
-                          ? 'bg-blue-600 text-white' 
-                          : 'bg-gray-700 text-gray-100'
-                      }`}>
-                        <p className="text-xs font-semibold mb-1">{msg.name}</p>
-                        <p>{msg.message}</p>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1 px-2">{msg.time}</p>
-                    </div>
+                  <div className="flex items-center space-x-2">
+                    <div
+                      className={`w-2 h-2 rounded-full ${
+                        peer.status === 'online' ? 'bg-green-500' : 'bg-gray-500'
+                      }`}
+                    />
+                    <span className="text-sm font-medium">{peer.name}</span>
+                  </div>
+                  {peer.status === 'offline' && peer.lastSeen && (
+                    <span className="text-xs text-gray-400">
+                      {formatTime(peer.lastSeen)}
+                    </span>
                   )}
                 </div>
               ))}
             </div>
 
-            {/* Input */}
-            <div className="p-4 border-t border-gray-600">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                  placeholder="Type your message..."
-                  className="flex-1 bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <Button
-                  onClick={sendMessage}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  <Send className="w-5 h-5" />
-                </Button>
-              </div>
-              <p className="text-xs text-gray-500 mt-2 text-center">
-                <Heart className="w-3 h-3 inline mr-1" />
-                This is a safe space. Be kind to yourself and others.
+            <div className="pt-4 border-t border-gray-600">
+              <p className="text-xs text-gray-400">
+                This is a safe space for mutual support. Be kind and respectful to everyone.
               </p>
             </div>
           </div>
-        )}
 
-        {/* Hope Message */}
-        <div className="mt-8 text-center text-gray-400">
-          <p className="text-lg">We recover together. No one does this alone.</p>
+          {/* Chat Room */}
+          <div className="lg:col-span-3 bg-gray-800 rounded-xl flex flex-col" data-testid="peer-chat-room">
+            {/* Chat Header */}
+            <div className="p-4 border-b border-gray-600">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold flex items-center">
+                  <MessageCircle className="w-5 h-5 mr-2" />
+                  Recovery Support Group
+                </h3>
+                <div className="flex items-center space-x-2 text-sm text-gray-400">
+                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                  <span>Live</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 p-4 space-y-4 overflow-y-auto" data-testid="chat-messages">
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${message.sender === 'You' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-xs lg:max-w-md p-3 rounded-lg ${
+                      message.sender === 'You'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-700 text-gray-200'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-medium">{message.sender}</span>
+                      <span className="text-xs opacity-70">
+                        {formatTime(message.timestamp)}
+                      </span>
+                    </div>
+                    <p className="text-sm">{message.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Message Input */}
+            <div className="p-4 border-t border-gray-600">
+              <div className="flex space-x-2">
+                <Input
+                  data-testid="chat-input"
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Type your message..."
+                  className="flex-1 bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                />
+                <Button
+                  onClick={handleSendMessage}
+                  data-testid="send-message-button"
+                  disabled={!newMessage.trim()}
+                  className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600"
+                >
+                  <Send className="w-4 h-4" />
+                </Button>
+              </div>
+              <p className="text-xs text-gray-400 mt-2">
+                Press Enter to send, Shift+Enter for new line
+              </p>
+            </div>
+          </div>
         </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Button
+            onClick={() => navigate('/crisis-support')}
+            className="h-16 bg-red-600 hover:bg-red-700"
+          >
+            <AlertCircle className="w-5 h-5 mr-2" />
+            Crisis Support
+          </Button>
+          
+          <Button
+            onClick={() => navigate('/community')}
+            className="h-16 bg-green-600 hover:bg-green-700"
+          >
+            <Heart className="w-5 h-5 mr-2" />
+            Community
+          </Button>
+          
+          <Button
+            onClick={() => navigate('/motivation')}
+            className="h-16 bg-purple-600 hover:bg-purple-700"
+          >
+            <Sparkles className="w-5 h-5 mr-2" />
+            Motivation
+          </Button>
+        </div>
+
+        {/* Community Guidelines Modal */}
+        {showGuidelines && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full space-y-6" data-testid="guidelines-modal">
+              <div className="text-center space-y-4">
+                <Shield className="w-12 h-12 text-blue-500 mx-auto" />
+                <h3 className="text-xl font-semibold">Community Guidelines</h3>
+                <div className="text-left space-y-3 text-sm text-gray-300" data-testid="guidelines-content">
+                  <p><strong>Community Guidelines</strong></p>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>Be kind and supportive to others</li>
+                    <li>Respect everyone's privacy and confidentiality</li>
+                    <li>No judgment or criticism</li>
+                    <li>Share from your own experience</li>
+                    <li>If you're in crisis, contact emergency services</li>
+                    <li>No medical advice - consult professionals</li>
+                    <li>Keep conversations recovery-focused</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="flex space-x-3">
+                <Button
+                  onClick={() => setShowGuidelines(false)}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                >
+                  I Understand
+                </Button>
+                <Button
+                  onClick={() => setShowGuidelines(false)}
+                  variant="outline"
+                  className="flex-1 border-gray-600 text-gray-300"
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

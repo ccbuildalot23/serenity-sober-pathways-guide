@@ -83,6 +83,7 @@ const PatientDashboard = () => {
                   <p className="text-sm font-medium text-muted-foreground">Total Check-ins</p>
                   <p className="text-3xl font-bold text-foreground">0</p>
                   <p className="text-xs text-muted-foreground">completed</p>
+                  <p className="text-xs text-muted-foreground" data-testid="last-checkin-status">No recent check-ins</p>
                 </div>
                 <CheckCircle className="w-8 h-8 text-blue-600" />
               </div>

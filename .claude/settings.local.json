@@ -34,13 +34,15 @@
       "Bash(git merge:*)",
       "Bash(cat:*)",
       "Bash(timeout:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "mcp__Ref__ref_search_documentation",
+      "mcp__exa__web_search_exa"
     ],
     "deny": []
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "claude-flow",
     "ruv-swarm"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }

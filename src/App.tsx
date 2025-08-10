@@ -1,6 +1,7 @@
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { SensoryProvider } from '@/contexts/SensoryContext';
 import { useEffect, Suspense, lazy } from 'react';
 import { EnhancedSecurityInitializer } from '@/lib/enhancedSecurityInitializer';
 import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
@@ -111,11 +112,12 @@ function App() {
     <HealthcareErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <RealtimeNotifications />
-          <Toaster />
-          <BrowserRouter>
-            <SessionTimeoutManager />
-            <Routes>
+          <SensoryProvider>
+            <RealtimeNotifications />
+            <Toaster />
+            <BrowserRouter>
+              <SessionTimeoutManager />
+              <Routes>
               {/* Public Routes */}
               <Route path="/" element={<HomePage />} />
               <Route path="/auth" element={<Auth />} />
@@ -439,6 +441,7 @@ function App() {
               <Route path="*" element={<HomePage />} />
             </Routes>
           </BrowserRouter>
+          </SensoryProvider>
         </AuthProvider>
       </QueryClientProvider>
     </HealthcareErrorBoundary>

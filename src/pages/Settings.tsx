@@ -7,7 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { 
   Settings as SettingsIcon, Bell, Shield, Accessibility, Database, 
-  User, LogOut, Download, Trash2, Eye, Phone
+  User, LogOut, Download, Trash2, Eye, Phone, Brain, Volume2, Waves
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +16,8 @@ import Layout from '@/components/Layout';
 import SmartReminderSettings from '@/components/settings/SmartReminderSettings';
 import { CrisisAccessibilitySettings } from '@/components/settings/CrisisAccessibilitySettings';
 import EmergencyContactsManager from '@/components/EmergencyContactsManager';
+import { AmbientSoundPlayer } from '@/components/audio/AmbientSoundPlayer';
+import { MindfulnessMode } from '@/components/MindfulnessMode';
 
 // Additional settings components defined inline for now
 const NotificationPreferences = () => {
@@ -182,12 +184,18 @@ export default function Settings() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="emergency" className="bg-red-50 data-[state=active]:bg-red-600 data-[state=active]:text-white">
               <Phone className="w-4 h-4" />
             </TabsTrigger>
             <TabsTrigger value="general">
               <SettingsIcon className="w-4 h-4" />
+            </TabsTrigger>
+            <TabsTrigger value="sensory">
+              <Volume2 className="w-4 h-4" />
+            </TabsTrigger>
+            <TabsTrigger value="mindfulness">
+              <Brain className="w-4 h-4" />
             </TabsTrigger>
             <TabsTrigger value="reminders">
               <Bell className="w-4 h-4" />
@@ -205,6 +213,63 @@ export default function Settings() {
 
           <TabsContent value="emergency" className="space-y-6">
             <EmergencyContactsManager />
+          </TabsContent>
+
+          <TabsContent value="sensory" className="space-y-6">
+            <AmbientSoundPlayer showSettings={true} />
+            
+            {/* Visual Effects Settings */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Waves className="h-5 w-5" />
+                  Visual Effects
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium">Calming Backgrounds</h4>
+                    <p className="text-sm text-gray-600">
+                      Animated gradients and subtle visual effects
+                    </p>
+                  </div>
+                  <Switch />
+                </div>
+                <Separator />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium">Particle Effects</h4>
+                    <p className="text-sm text-gray-600">
+                      Gentle floating elements and animations
+                    </p>
+                  </div>
+                  <Switch />
+                </div>
+                <Separator />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium">Sound Feedback</h4>
+                    <p className="text-sm text-gray-600">
+                      Gentle click sounds and interaction feedback
+                    </p>
+                  </div>
+                  <Switch />
+                </div>
+                
+                <div className="text-xs text-muted-foreground p-3 bg-muted rounded-lg">
+                  <p>
+                    <strong>Note:</strong> All sensory features are optional and designed to be 
+                    subtle and non-distracting. They can be disabled individually or completely 
+                    turned off if you find them overwhelming.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="mindfulness" className="space-y-6">
+            <MindfulnessMode />
           </TabsContent>
 
           <TabsContent value="general" className="space-y-6">

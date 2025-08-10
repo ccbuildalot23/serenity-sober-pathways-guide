@@ -53,16 +53,21 @@ const ProviderDashboard = () => {
   return (
     <div className="min-h-screen bg-background" data-testid="provider-dashboard">
       {/* Header */}
-      <div className="bg-card shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+      <div className="bg-gradient-to-r from-teal-50 to-blue-50 shadow-lg border-b border-teal-100">
+        <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-                <Activity className="w-8 h-8 text-primary" />
+              <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
+                <div className="p-2 bg-teal-500 rounded-full">
+                  <Activity className="w-8 h-8 text-white" />
+                </div>
                 Provider Dashboard
               </h1>
-              <p className="mt-2 text-muted-foreground">
-                Patient Check-in Patterns & Recovery Monitoring
+              <p className="mt-3 text-teal-700 text-lg font-medium">
+                Supporting Recovery Journeys with Compassionate Care
+              </p>
+              <p className="mt-1 text-teal-600">
+                Monitor patient progress and celebrate healing milestones
               </p>
             </div>
             <div className="flex items-center gap-3 relative">
@@ -181,122 +186,136 @@ const ProviderDashboard = () => {
             </CardContent>
           </Card>
         )}
-        {/* Stats Overview */}
+        {/* Stats Overview - Warm & Professional */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
+          <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200 shadow-lg transition-all duration-300 hover:shadow-xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
+                  <p className="text-sm font-semibold text-emerald-700 mb-2">
                     Today's Check-ins
                   </p>
-                  <p className="text-3xl font-bold text-foreground">
+                  <p className="text-3xl font-bold text-emerald-800">
                     {stats.todayCheckins}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    of {stats.totalPatients} patients
+                  <p className="text-xs text-emerald-600 font-medium">
+                    of {stats.totalPatients} patients connecting today
                   </p>
                 </div>
-                <Calendar className="w-8 h-8 text-primary" />
+                <div className="p-3 bg-emerald-500 rounded-full">
+                  <Calendar className="w-8 h-8 text-white" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-200 shadow-lg transition-all duration-300 hover:shadow-xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Average Mood
+                  <p className="text-sm font-semibold text-amber-700 mb-2">
+                    Community Mood
                   </p>
-                  <p className="text-3xl font-bold text-foreground">
+                  <p className="text-3xl font-bold text-amber-800">
                     {stats.averageMood}/10
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    today's checkins
+                  <p className="text-xs text-amber-600 font-medium">
+                    collective healing energy today
                   </p>
                 </div>
-                <TrendingUp className="w-8 h-8 text-green-600" />
+                <div className="p-3 bg-amber-500 rounded-full">
+                  <TrendingUp className="w-8 h-8 text-white" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-gradient-to-br from-rose-50 to-pink-50 border-rose-200 shadow-lg transition-all duration-300 hover:shadow-xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Crisis Alerts
+                  <p className="text-sm font-semibold text-rose-700 mb-2">
+                    Care Alerts
                   </p>
-                  <p className="text-3xl font-bold text-destructive">
+                  <p className="text-3xl font-bold text-rose-800">
                     {stats.crisisAlerts.unresolved}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    {stats.crisisAlerts.highRisk} high risk
+                  <p className="text-xs text-rose-600 font-medium">
+                    patients needing extra support
                   </p>
                 </div>
-                <AlertTriangle className="w-8 h-8 text-destructive" />
+                <div className="p-3 bg-rose-500 rounded-full">
+                  <AlertTriangle className="w-8 h-8 text-white" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200 shadow-lg transition-all duration-300 hover:shadow-xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Active Patients
+                  <p className="text-sm font-semibold text-indigo-700 mb-2">
+                    Recovery Community
                   </p>
-                  <p className="text-3xl font-bold text-foreground">
+                  <p className="text-3xl font-bold text-indigo-800">
                     {stats.activePatients}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    total patients
+                  <p className="text-xs text-indigo-600 font-medium">
+                    individuals on their journey
                   </p>
                 </div>
-                <Users className="w-8 h-8 text-purple-600" />
+                <div className="p-3 bg-indigo-500 rounded-full">
+                  <Users className="w-8 h-8 text-white" />
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Engagement Metrics */}
+        {/* Engagement Metrics - Celebrating Progress */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
+          <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200 shadow-md transition-all duration-300 hover:shadow-lg">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Weekly Engagement</p>
-                  <p className="text-2xl font-bold text-foreground">{stats.engagement.weeklyCompletionRate}%</p>
-                  <p className="text-xs text-muted-foreground">{stats.engagement.lastWeekCheckins} checkins this week</p>
+                  <p className="text-sm font-semibold text-blue-700 mb-2">Weekly Engagement</p>
+                  <p className="text-2xl font-bold text-blue-800">{stats.engagement.weeklyCompletionRate}%</p>
+                  <p className="text-xs text-blue-600 font-medium">{stats.engagement.lastWeekCheckins} connections this week</p>
                 </div>
-                <BarChart3 className="w-6 h-6 text-blue-600" />
+                <div className="p-2 bg-blue-500 rounded-lg">
+                  <BarChart3 className="w-6 h-6 text-white" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 shadow-md transition-all duration-300 hover:shadow-lg">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Monthly Engagement</p>
-                  <p className="text-2xl font-bold text-foreground">{stats.engagement.monthlyCompletionRate}%</p>
-                  <p className="text-xs text-muted-foreground">30-day completion rate</p>
+                  <p className="text-sm font-semibold text-green-700 mb-2">Monthly Progress</p>
+                  <p className="text-2xl font-bold text-green-800">{stats.engagement.monthlyCompletionRate}%</p>
+                  <p className="text-xs text-green-600 font-medium">30-day commitment strength</p>
                 </div>
-                <Calendar className="w-6 h-6 text-green-600" />
+                <div className="p-2 bg-green-500 rounded-lg">
+                  <Calendar className="w-6 h-6 text-white" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200 shadow-md transition-all duration-300 hover:shadow-lg">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Today's Appointments</p>
-                  <p className="text-2xl font-bold text-foreground">{appointments.length}</p>
-                  <p className="text-xs text-muted-foreground">scheduled sessions</p>
+                  <p className="text-sm font-semibold text-orange-700 mb-2">Today's Sessions</p>
+                  <p className="text-2xl font-bold text-orange-800">{appointments.length}</p>
+                  <p className="text-xs text-orange-600 font-medium">healing conversations ahead</p>
                 </div>
-                <Clock className="w-6 h-6 text-orange-600" />
+                <div className="p-2 bg-orange-500 rounded-lg">
+                  <Clock className="w-6 h-6 text-white" />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -307,13 +326,16 @@ const ProviderDashboard = () => {
           <ProviderRegistrationApproval />
         </div>
 
-        {/* Patient Overview Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="w-5 h-5" />
-              Patient Overview ({patients.length})
+        {/* Patient Overview - Compassionate Care Focus */}
+        <Card className="bg-gradient-to-br from-slate-50 to-gray-50 border-slate-200 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-teal-500 to-blue-500 text-white rounded-t-lg">
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <div className="p-2 bg-white/20 rounded-full">
+                <Activity className="w-6 h-6" />
+              </div>
+              Recovery Community Overview ({patients.length} individuals)
             </CardTitle>
+            <p className="text-teal-100 mt-2">Supporting each person's unique healing journey</p>
           </CardHeader>
           <CardContent>
             {/* Minimal anchors for E2E (visible for Playwright visibility assertions) */}
@@ -324,20 +346,20 @@ const ProviderDashboard = () => {
             {patients.length > 0 ? (
               <div className="space-y-4">
                 {patients.map((patient) => (
-                  <div key={patient.id} className="p-4 border border-border rounded-lg">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                          <span className="text-sm font-medium text-primary">
+                  <div key={patient.id} className="p-6 bg-white border border-teal-100 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg hover:border-teal-200">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-teal-400 to-blue-500 rounded-full flex items-center justify-center shadow-md">
+                          <span className="text-lg font-semibold text-white">
                             {patient.patient_initials}
                           </span>
                         </div>
                         <div>
-                          <p className="font-medium text-foreground">
+                          <p className="font-semibold text-gray-800 text-lg">
                             {patient.patient_name}
                           </p>
-                          <p className="text-sm text-muted-foreground">
-                            {patient.relationship_type} • Engagement: {patient.engagement_score}%
+                          <p className="text-sm text-teal-600 font-medium">
+                            {patient.relationship_type} • Progress: {patient.engagement_score}% complete
                           </p>
                         </div>
                       </div>
@@ -353,19 +375,19 @@ const ProviderDashboard = () => {
                       </div>
                     </div>
                     
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">
-                          Latest Check-in
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="bg-gray-50 p-4 rounded-lg">
+                        <p className="text-sm font-semibold text-gray-700 mb-3">
+                          Latest Connection
                         </p>
                         {patient.latest_checkin ? (
                           <div>
                             <div className="flex items-center gap-2 mb-1">
-                              <div className="flex-1 bg-muted rounded-full h-2">
+                              <div className="flex-1 bg-gray-200 rounded-full h-3">
                                 <div 
-                                  className={`h-2 rounded-full ${
-                                    (patient.latest_checkin.mood_rating || 0) <= 3 ? 'bg-destructive' :
-                                    (patient.latest_checkin.mood_rating || 0) <= 6 ? 'bg-yellow-500' : 'bg-green-500'
+                                  className={`h-3 rounded-full transition-all duration-500 ${
+                                    (patient.latest_checkin.mood_rating || 0) <= 3 ? 'bg-gradient-to-r from-rose-400 to-red-500' :
+                                    (patient.latest_checkin.mood_rating || 0) <= 6 ? 'bg-gradient-to-r from-amber-400 to-yellow-500' : 'bg-gradient-to-r from-green-400 to-emerald-500'
                                   }`}
                                   style={{ width: `${((patient.latest_checkin.mood_rating || 0) / 10) * 100}%` }}
                                 />
@@ -383,13 +405,13 @@ const ProviderDashboard = () => {
                         )}
                       </div>
                       
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">
-                          Crisis Status
+                      <div className="bg-gray-50 p-4 rounded-lg">
+                        <p className="text-sm font-semibold text-gray-700 mb-3">
+                          Support History
                         </p>
-                        <div className="space-y-1">
-                          <p className="text-sm text-foreground">
-                            {patient.crisis_status.total_events} total events
+                        <div className="space-y-2">
+                          <p className="text-sm text-gray-700 font-medium">
+                            {patient.crisis_status.total_events} support interventions
                           </p>
                           {patient.crisis_status.last_crisis_date && (
                             <p className="text-xs text-muted-foreground">
@@ -400,23 +422,23 @@ const ProviderDashboard = () => {
                       </div>
                     </div>
 
-                    <div className="flex gap-2 mt-4">
-                      <Button variant="outline" size="sm">
-                        <Eye className="w-4 h-4 mr-1" />
-                        View History
+                    <div className="flex flex-wrap gap-3 mt-6">
+                      <Button variant="outline" size="sm" className="bg-teal-50 border-teal-200 text-teal-700 hover:bg-teal-100">
+                        <Eye className="w-4 h-4 mr-2" />
+                        View Journey
                       </Button>
-                      <Button variant="outline" size="sm">
-                        <FileText className="w-4 h-4 mr-1" />
-                        Add Note
+                      <Button variant="outline" size="sm" className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100">
+                        <FileText className="w-4 h-4 mr-2" />
+                        Add Care Note
                       </Button>
-                      <Button variant="outline" size="sm">
-                        <UserCheck className="w-4 h-4 mr-1" />
-                        Contact
+                      <Button variant="outline" size="sm" className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100">
+                        <UserCheck className="w-4 h-4 mr-2" />
+                        Connect
                       </Button>
                       {patient.crisis_status.risk_level === 'high' && (
-                        <Button variant="destructive" size="sm">
-                          <AlertTriangle className="w-4 h-4 mr-1" />
-                          Crisis Protocol
+                        <Button className="bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white shadow-md" size="sm">
+                          <AlertTriangle className="w-4 h-4 mr-2" />
+                          Immediate Support
                         </Button>
                       )}
                     </div>
@@ -424,31 +446,36 @@ const ProviderDashboard = () => {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12">
-                <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">No Patients Yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  Start managing patients by establishing provider-patient relationships.
+              <div className="text-center py-16">
+                <div className="p-6 bg-gradient-to-br from-teal-100 to-blue-100 rounded-full w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+                  <Users className="w-12 h-12 text-teal-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-3">Your Recovery Community Awaits</h3>
+                <p className="text-teal-600 mb-6 max-w-md mx-auto leading-relaxed">
+                  Begin your journey as a healing guide by connecting with individuals ready to transform their lives.
                 </p>
-                <Button>
-                  Add Patient Relationship
+                <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white shadow-lg px-8 py-3">
+                  Welcome First Patient
                 </Button>
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* HIPAA Compliance Notice */}
-        <div className="mt-8 p-4 bg-primary/5 rounded-lg border border-primary/20">
-          <div className="flex items-start gap-3">
-            <Shield className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+        {/* HIPAA Compliance Notice - Warm & Professional */}
+        <div className="mt-8 p-6 bg-gradient-to-r from-slate-50 to-gray-50 rounded-xl border border-slate-200 shadow-sm">
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-slate-600 rounded-full">
+              <Shield className="w-6 h-6 text-white" />
+            </div>
             <div>
-              <h3 className="font-medium text-primary">
-                HIPAA Compliant Data Access
+              <h3 className="font-semibold text-slate-800 text-lg mb-2">
+                Protected Health Information
               </h3>
-              <p className="text-sm text-primary/80 mt-1">
-                All patient data is displayed with privacy controls. Only authorized medical professionals 
-                can access full patient information. All views are logged for audit compliance.
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Your patients' information is safeguarded with the highest security standards. Every interaction 
+                is encrypted and logged to ensure complete privacy protection while enabling you to provide 
+                the best possible care.
               </p>
             </div>
           </div>

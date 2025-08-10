@@ -16,6 +16,11 @@ export const TEST_CREDENTIALS = {
     email: 'test-supporter@serenity.com',
     password: 'TestSerenity2024!@#',
     role: 'support_member'
+  },
+  ADMIN: {
+    email: 'test-admin@serenity.com',
+    password: 'TestSerenity2024!@#',
+    role: 'admin'
   }
 } as const;
 

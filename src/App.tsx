@@ -37,7 +37,8 @@ const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
 const DashboardRouter = lazy(() => import('@/components/DashboardRouter'));
 // Eagerly load PatientDashboard to avoid Suspense flakiness in E2E
 import PatientDashboard from '@/pages/PatientDashboard';
-const CheckIn = lazy(() => import('@/pages/CheckIn'));
+// Eagerly load CheckIn to avoid lazy loading issues in E2E
+import CheckIn from '@/pages/CheckIn';
 const PeerSupport = lazy(() => import('@/pages/PeerSupport'));
 const Calendar = lazy(() => import('@/pages/Calendar'));
 const Progress = lazy(() => import('@/pages/Progress'));
@@ -158,16 +159,12 @@ function App() {
               } />
               <Route path="/checkin" element={
                 <ProtectedRoute requiredRole="patient">
-                  <Suspense fallback={<LoadingState />}>
-                    <CheckIn />
-                  </Suspense>
+                  <CheckIn />
                 </ProtectedRoute>
               } />
               <Route path="/patient/checkin" element={
                 <ProtectedRoute requiredRole="patient">
-                  <Suspense fallback={<LoadingState />}>
-                    <CheckIn />
-                  </Suspense>
+                  <CheckIn />
                 </ProtectedRoute>
               } />
               <Route path="/peer-support" element={

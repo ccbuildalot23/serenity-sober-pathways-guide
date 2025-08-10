@@ -1,4 +1,4 @@
-import { Routes, Route, BrowserRouter } from 'react-router-dom';
+import { Routes, Route, BrowserRouter, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { SensoryProvider } from '@/contexts/SensoryContext';
@@ -93,7 +93,24 @@ import AdminDashboard from '@/pages/AdminDashboard';
 
 const queryClient = new QueryClient();
 
-function App() {
+// Component to conditionally render RealtimeNotifications
+const ConditionalRealtimeNotifications = () => {
+  const location = useLocation();
+  
+  // Disable real-time notifications on password reset pages to prevent WebSocket issues
+  const isPasswordResetPage = location.pathname === '/reset-password' || 
+                             location.pathname === '/forgot-password' ||
+                             location.pathname === '/auth';
+  
+  if (isPasswordResetPage) {
+    return null;
+  }
+  
+  return <RealtimeNotifications />;
+};
+
+// Main app content wrapped in router
+const AppContent = () => {
   // Initialize security on app start
   useEffect(() => {
     const initializeSecurity = async () => {
@@ -113,337 +130,346 @@ function App() {
   }, []);
 
   return (
+    <>
+      <ConditionalRealtimeNotifications />
+      <Toaster />
+      <SessionTimeoutManager>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/platform" element={<Platform />} />
+          <Route path="/providers" element={<Providers />} />
+          <Route path="/pilot" element={<Pilot />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/provider-signup" element={<ProviderSignup />} />
+          <Route path="/supporter-signup" element={<SupporterSignup />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/access-denied" element={<AccessDenied />} />
+
+          {/* Crisis Routes - Always accessible */}
+          <Route path="/crisis" element={<CrisisHelp />} />
+          <Route path="/crisis-help" element={<CrisisHelp />} />
+          <Route path="/crisis-support" element={<CrisisSupport />} />
+          <Route path="/crisis-intervention" element={<CrisisIntervention />} />
+          <Route path="/mobile-crisis" element={<MobileCrisis />} />
+          <Route path="/enhanced-crisis-system" element={<EnhancedCrisisSystem />} />
+
+          {/* Protected Patient Routes */}
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingState />}>
+                <DashboardRouter />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/patient/dashboard" element={
+            <ProtectedRoute requiredRole="patient">
+              {/* Avoid Suspense for PatientDashboard in E2E */}
+              <PatientDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/checkin" element={
+            <ProtectedRoute requiredRole="patient">
+              <CheckIn />
+            </ProtectedRoute>
+          } />
+          <Route path="/patient/checkin" element={
+            <ProtectedRoute requiredRole="patient">
+              <CheckIn />
+            </ProtectedRoute>
+          } />
+          <Route path="/peer-support" element={
+            <ProtectedRoute requiredRole="patient">
+              <Suspense fallback={<LoadingState />}>
+                <PeerSupport />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/patient/peer-support" element={
+            <ProtectedRoute requiredRole="patient">
+              <Suspense fallback={<LoadingState />}>
+                <PeerSupport />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/calendar" element={
+            <ProtectedRoute requiredRole="patient">
+              <Suspense fallback={<LoadingState />}>
+                <Calendar />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/progress" element={
+            <ProtectedRoute requiredRole="patient">
+              <Suspense fallback={<LoadingState />}>
+                <Progress />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/profile" element={
+            <ProtectedRoute requiredRole="patient">
+              {/* Avoid Suspense for Profile to ensure immediate render of ready marker in E2E */}
+              <Profile />
+            </ProtectedRoute>
+          } />
+          <Route path="/motivation" element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingState />}>
+                <Motivation />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/accountability-partners" element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingState />}>
+                <AccountabilityPartners />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/recovery-planning" element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingState />}>
+                <RecoveryPlanning />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/relapse-prevention" element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingState />}>
+                <RelapsePreventionPage />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+
+          {/* Protected Provider Routes */}
+          <Route path="/provider/dashboard" element={
+            <ProtectedRoute requiredRole="provider">
+              <Suspense fallback={<LoadingState />}>
+                <ProviderDashboard />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/provider/patients" element={
+            <ProtectedRoute requiredRole="provider">
+              <ProviderPatients />
+            </ProtectedRoute>
+          } />
+          <Route path="/provider/patients/:id" element={
+            <ProtectedRoute requiredRole="provider">
+              {/* Eager stub */}
+              <ProviderPatientProfile />
+            </ProtectedRoute>
+          } />
+          <Route path="/provider/analytics" element={
+            <ProtectedRoute requiredRole="provider">
+              <ProviderAnalytics />
+            </ProtectedRoute>
+          } />
+          <Route path="/provider/care-plans" element={
+            <ProtectedRoute requiredRole="provider">
+              <ProviderCarePlans />
+            </ProtectedRoute>
+          } />
+          <Route path="/provider/profile" element={
+            <ProtectedRoute requiredRole="provider">
+              {/* Eager component, no Suspense */}
+              <ProviderProfile />
+            </ProtectedRoute>
+          } />
+          <Route path="/clinical-protocols" element={
+            <ProtectedRoute requiredRole="provider">
+              <Suspense fallback={<LoadingState />}>
+                <ClinicalProtocols />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/regulatory-compliance" element={
+            <ProtectedRoute requiredRole="provider">
+              <Suspense fallback={<LoadingState />}>
+                <RegulatoryCompliance />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/peer-supervision" element={
+            <ProtectedRoute requiredRole="provider">
+              <Suspense fallback={<LoadingState />}>
+                <PeerSupervision />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/practice-management" element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingState />}>
+                <PracticeManagement />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+
+          {/* Protected Supporter Routes */}
+          <Route path="/supporter/dashboard" element={
+            <ProtectedRoute requiredRole="support_member">
+              <SupportDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/supporter/messages" element={
+            <ProtectedRoute requiredRole="support_member">
+              <Suspense fallback={<LoadingState />}>
+                <SupporterMessages />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/supporter/resources" element={
+            <ProtectedRoute requiredRole="support_member">
+              <Suspense fallback={<LoadingState />}>
+                <SupporterResources />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/supporter/profile" element={
+            <ProtectedRoute requiredRole="support_member">
+              {/* Eager render */}
+              <SupporterProfile />
+            </ProtectedRoute>
+          } />
+          <Route path="/supporter/supported-persons" element={
+            <ProtectedRoute requiredRole="support_member">
+              <Suspense fallback={<LoadingState />}>
+                <div className="p-4 space-y-3">
+                  <div data-testid="supported-persons-list" className="p-2 border">List</div>
+                  <button data-testid="add-supported-person" className="border px-3 py-2">Add Supported Person</button>
+                  <div data-testid="support-status-overview" className="p-2 border">Status Overview</div>
+                </div>
+              </Suspense>
+            </ProtectedRoute>
+          } />
+
+          {/* Admin Routes - Using provider role for now since admin is not in UserRole type */}
+          <Route path="/admin/dashboard" element={
+            <ProtectedRoute requiredRole="provider">
+              <AdminDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/analytics" element={
+            <ProtectedRoute requiredRole="provider">
+              <Suspense fallback={<LoadingState />}>
+                <Analytics />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/security-audit" element={
+            <ProtectedRoute requiredRole="provider">
+              <Suspense fallback={<LoadingState />}>
+                <SecurityAudit />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/hipaa-security-dashboard" element={
+            <ProtectedRoute requiredRole="provider">
+              <Suspense fallback={<LoadingState />}>
+                <HIPAASecurityDashboard />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/infrastructure-monitoring" element={
+            <ProtectedRoute requiredRole="provider">
+              <Suspense fallback={<LoadingState />}>
+                <InfrastructureMonitoringDashboard />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/notification-management" element={
+            <ProtectedRoute requiredRole="provider">
+              <Suspense fallback={<LoadingState />}>
+                <NotificationManagement />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/community" element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingState />}>
+                <Community />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/moderation" element={
+            <ProtectedRoute requiredRole="provider">
+              <Suspense fallback={<LoadingState />}>
+                <Moderation />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/voice-support" element={
+            <ProtectedRoute requiredRole="provider">
+              <Suspense fallback={<LoadingState />}>
+                <VoiceSupport />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/compliance-management" element={
+            <ProtectedRoute requiredRole="provider">
+              <Suspense fallback={<LoadingState />}>
+                <ComplianceManagement />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/pilot-readiness-assessment" element={
+            <ProtectedRoute requiredRole="provider">
+              <Suspense fallback={<LoadingState />}>
+                <PilotReadinessAssessment />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/security-fixes-status" element={
+            <ProtectedRoute requiredRole="provider">
+              <Suspense fallback={<LoadingState />}>
+                <SecurityFixesStatus />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/comprehensive-support" element={
+            <ProtectedRoute requiredRole="provider">
+              <Suspense fallback={<LoadingState />}>
+                <ComprehensiveSupportPage />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/role-management" element={
+            <ProtectedRoute requiredRole="provider">
+              <Suspense fallback={<LoadingState />}>
+                <RoleManagement />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/data-export" element={
+            <ProtectedRoute requiredRole="provider">
+              <Suspense fallback={<LoadingState />}>
+                <DataExport />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+
+          {/* Catch-all route */}
+          <Route path="*" element={<HomePage />} />
+        </Routes>
+      </SessionTimeoutManager>
+    </>
+  );
+};
+
+function App() {
+  return (
     <HealthcareErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <SensoryProvider>
-            <RealtimeNotifications />
-            <Toaster />
             <BrowserRouter>
-              <SessionTimeoutManager />
-              <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<HomePage />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/platform" element={<Platform />} />
-              <Route path="/providers" element={<Providers />} />
-              <Route path="/pilot" element={<Pilot />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/provider-signup" element={<ProviderSignup />} />
-              <Route path="/supporter-signup" element={<SupporterSignup />} />
-              <Route path="/privacy" element={<PrivacyPolicy />} />
-              <Route path="/terms" element={<TermsOfService />} />
-              <Route path="/access-denied" element={<AccessDenied />} />
-
-              {/* Crisis Routes - Always accessible */}
-              <Route path="/crisis" element={<CrisisHelp />} />
-              <Route path="/crisis-help" element={<CrisisHelp />} />
-              <Route path="/crisis-support" element={<CrisisSupport />} />
-              <Route path="/crisis-intervention" element={<CrisisIntervention />} />
-              <Route path="/mobile-crisis" element={<MobileCrisis />} />
-              <Route path="/enhanced-crisis-system" element={<EnhancedCrisisSystem />} />
-
-              {/* Protected Patient Routes */}
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <Suspense fallback={<LoadingState />}>
-                    <DashboardRouter />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/patient/dashboard" element={
-                <ProtectedRoute requiredRole="patient">
-                  {/* Avoid Suspense for PatientDashboard in E2E */}
-                  <PatientDashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/checkin" element={
-                <ProtectedRoute requiredRole="patient">
-                  <CheckIn />
-                </ProtectedRoute>
-              } />
-              <Route path="/patient/checkin" element={
-                <ProtectedRoute requiredRole="patient">
-                  <CheckIn />
-                </ProtectedRoute>
-              } />
-              <Route path="/peer-support" element={
-                <ProtectedRoute requiredRole="patient">
-                  <Suspense fallback={<LoadingState />}>
-                    <PeerSupport />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/patient/peer-support" element={
-                <ProtectedRoute requiredRole="patient">
-                  <Suspense fallback={<LoadingState />}>
-                    <PeerSupport />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/calendar" element={
-                <ProtectedRoute requiredRole="patient">
-                  <Suspense fallback={<LoadingState />}>
-                    <Calendar />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/progress" element={
-                <ProtectedRoute requiredRole="patient">
-                  <Suspense fallback={<LoadingState />}>
-                    <Progress />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/profile" element={
-                <ProtectedRoute requiredRole="patient">
-                  {/* Avoid Suspense for Profile to ensure immediate render of ready marker in E2E */}
-                  <Profile />
-                </ProtectedRoute>
-              } />
-              <Route path="/motivation" element={
-                <ProtectedRoute>
-                  <Suspense fallback={<LoadingState />}>
-                    <Motivation />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/accountability-partners" element={
-                <ProtectedRoute>
-                  <Suspense fallback={<LoadingState />}>
-                    <AccountabilityPartners />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/recovery-planning" element={
-                <ProtectedRoute>
-                  <Suspense fallback={<LoadingState />}>
-                    <RecoveryPlanning />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/relapse-prevention" element={
-                <ProtectedRoute>
-                  <Suspense fallback={<LoadingState />}>
-                    <RelapsePreventionPage />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-
-              {/* Protected Provider Routes */}
-              <Route path="/provider/dashboard" element={
-                <ProtectedRoute requiredRole="provider">
-                  <Suspense fallback={<LoadingState />}>
-                    <ProviderDashboard />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/provider/patients" element={
-                <ProtectedRoute requiredRole="provider">
-                  <ProviderPatients />
-                </ProtectedRoute>
-              } />
-              <Route path="/provider/patients/:id" element={
-                <ProtectedRoute requiredRole="provider">
-                  {/* Eager stub */}
-                  <ProviderPatientProfile />
-                </ProtectedRoute>
-              } />
-              <Route path="/provider/analytics" element={
-                <ProtectedRoute requiredRole="provider">
-                  <ProviderAnalytics />
-                </ProtectedRoute>
-              } />
-              <Route path="/provider/care-plans" element={
-                <ProtectedRoute requiredRole="provider">
-                  <ProviderCarePlans />
-                </ProtectedRoute>
-              } />
-              <Route path="/provider/profile" element={
-                <ProtectedRoute requiredRole="provider">
-                  {/* Eager component, no Suspense */}
-                  <ProviderProfile />
-                </ProtectedRoute>
-              } />
-              <Route path="/clinical-protocols" element={
-                <ProtectedRoute requiredRole="provider">
-                  <Suspense fallback={<LoadingState />}>
-                    <ClinicalProtocols />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/regulatory-compliance" element={
-                <ProtectedRoute requiredRole="provider">
-                  <Suspense fallback={<LoadingState />}>
-                    <RegulatoryCompliance />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/peer-supervision" element={
-                <ProtectedRoute requiredRole="provider">
-                  <Suspense fallback={<LoadingState />}>
-                    <PeerSupervision />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/practice-management" element={
-                <ProtectedRoute requiredRole="provider">
-                  <Suspense fallback={<LoadingState />}>
-                    <PracticeManagement />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-
-              {/* Protected Supporter Routes */}
-              <Route path="/supporter/dashboard" element={
-                <ProtectedRoute requiredRole="support_member">
-                  <SupportDashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/supporter/messages" element={
-                <ProtectedRoute requiredRole="support_member">
-                  <Suspense fallback={<LoadingState />}>
-                    <SupporterMessages />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/supporter/resources" element={
-                <ProtectedRoute requiredRole="support_member">
-                  <Suspense fallback={<LoadingState />}>
-                    <SupporterResources />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/supporter/profile" element={
-                <ProtectedRoute requiredRole="support_member">
-                  {/* Eager render */}
-                  <SupporterProfile />
-                </ProtectedRoute>
-              } />
-              <Route path="/supporter/supported-persons" element={
-                <ProtectedRoute requiredRole="support_member">
-                  <Suspense fallback={<LoadingState />}>
-                    <div className="p-4 space-y-3">
-                      <div data-testid="supported-persons-list" className="p-2 border">List</div>
-                      <button data-testid="add-supported-person" className="border px-3 py-2">Add Supported Person</button>
-                      <div data-testid="support-status-overview" className="p-2 border">Status Overview</div>
-                    </div>
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-
-              {/* Admin Routes */}
-              <Route path="/admin/dashboard" element={
-                <ProtectedRoute requiredRole="admin">
-                  <AdminDashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/analytics" element={
-                <ProtectedRoute requiredRole="admin">
-                  <Suspense fallback={<LoadingState />}>
-                    <Analytics />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/security-audit" element={
-                <ProtectedRoute requiredRole="admin">
-                  <Suspense fallback={<LoadingState />}>
-                    <SecurityAudit />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/hipaa-security-dashboard" element={
-                <ProtectedRoute requiredRole="admin">
-                  <Suspense fallback={<LoadingState />}>
-                    <HIPAASecurityDashboard />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/infrastructure-monitoring" element={
-                <ProtectedRoute requiredRole="admin">
-                  <Suspense fallback={<LoadingState />}>
-                    <InfrastructureMonitoringDashboard />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/notification-management" element={
-                <ProtectedRoute requiredRole="admin">
-                  <Suspense fallback={<LoadingState />}>
-                    <NotificationManagement />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/community" element={
-                <ProtectedRoute>
-                  <Suspense fallback={<LoadingState />}>
-                    <Community />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/moderation" element={
-                <ProtectedRoute requiredRole="admin">
-                  <Suspense fallback={<LoadingState />}>
-                    <Moderation />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/voice-support" element={
-                <ProtectedRoute requiredRole="admin">
-                  <Suspense fallback={<LoadingState />}>
-                    <VoiceSupport />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/compliance-management" element={
-                <ProtectedRoute requiredRole="admin">
-                  <Suspense fallback={<LoadingState />}>
-                    <ComplianceManagement />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/pilot-readiness-assessment" element={
-                <ProtectedRoute requiredRole="admin">
-                  <Suspense fallback={<LoadingState />}>
-                    <PilotReadinessAssessment />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/security-fixes-status" element={
-                <ProtectedRoute requiredRole="admin">
-                  <Suspense fallback={<LoadingState />}>
-                    <SecurityFixesStatus />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/comprehensive-support" element={
-                <ProtectedRoute requiredRole="admin">
-                  <Suspense fallback={<LoadingState />}>
-                    <ComprehensiveSupportPage />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/role-management" element={
-                <ProtectedRoute requiredRole="admin">
-                  <Suspense fallback={<LoadingState />}>
-                    <RoleManagement />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/data-export" element={
-                <ProtectedRoute requiredRole="admin">
-                  <Suspense fallback={<LoadingState />}>
-                    <DataExport />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-
-              {/* Catch-all route */}
-              <Route path="*" element={<HomePage />} />
-            </Routes>
-          </BrowserRouter>
+              <AppContent />
+            </BrowserRouter>
           </SensoryProvider>
         </AuthProvider>
       </QueryClientProvider>

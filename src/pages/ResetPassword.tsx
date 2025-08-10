@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ResetPasswordForm } from '@/components/auth/ResetPasswordForm';
+import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 
 const ResetPassword: React.FC = () => {
   const navigate = useNavigate();
@@ -27,23 +26,34 @@ const ResetPassword: React.FC = () => {
     const type = hashParams.get('type') || searchParams.get('type');
     const error = searchParams.get('error');
     const errorCode = searchParams.get('error_code');
+    const errorDescription = searchParams.get('error_description');
 
     console.log('Debug - accessToken:', accessToken);
     console.log('Debug - type:', type);
     console.log('Debug - error:', error);
     console.log('Debug - errorCode:', errorCode);
+    console.log('Debug - errorDescription:', errorDescription);
 
+    // Handle specific error cases from Supabase
     if (error || errorCode) {
-      setErrorMessage(
-        errorCode === 'otp_expired'
-          ? 'This password reset link has expired. Please request a new one.'
-          : 'This password reset link is invalid. Please request a new one.'
-      );
+      console.log('Supabase returned an error:', { error, errorCode, errorDescription });
+      
+      if (errorCode === 'otp_expired') {
+        setErrorMessage('This password reset link has expired. Please request a new one.');
+      } else if (errorCode === 'invalid_grant') {
+        setErrorMessage('This password reset link is invalid. Please request a new one.');
+      } else if (error === 'access_denied') {
+        setErrorMessage('Access denied. This password reset link may have been used already or is invalid.');
+      } else {
+        setErrorMessage(`Password reset error: ${errorDescription || error || 'Unknown error'}`);
+      }
       setIsValidToken(false);
       return;
     }
 
     if (type === 'recovery' && accessToken) {
+      console.log('Attempting to verify token with Supabase...');
+      
       // Try to verify the token with Supabase
       supabase.auth.verifyOtp({
         token: accessToken,
@@ -51,15 +61,21 @@ const ResetPassword: React.FC = () => {
       }).then(({ data, error }) => {
         if (error) {
           console.error('Token verification failed:', error);
-          setErrorMessage('This password reset link is invalid or has expired.');
+          setErrorMessage(`Token verification failed: ${error.message}`);
           setIsValidToken(false);
         } else {
           console.log('Token verified successfully:', data);
           setIsValidToken(true);
         }
+      }).catch((err) => {
+        console.error('Unexpected error during token verification:', err);
+        setErrorMessage('Unexpected error verifying token. Please try again.');
+        setIsValidToken(false);
       });
     } else {
       console.log('No valid token found in URL');
+      console.log('Type:', type);
+      console.log('AccessToken present:', !!accessToken);
       setIsValidToken(false);
     }
   }, []);
@@ -135,12 +151,15 @@ const ResetPassword: React.FC = () => {
               </button>
             </div>
           </div>
-          <button
-            onClick={() => navigate('/auth')}
-            className="mt-4 w-full text-center text-sm text-primary hover:underline"
-          >
-            Return to Sign In
-          </button>
+
+          <div className="mt-4 text-center">
+            <button
+              onClick={() => navigate('/auth')}
+              className="text-sm text-gray-600 underline"
+            >
+              Return to Sign In
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -149,11 +168,15 @@ const ResetPassword: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="max-w-md w-full">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Reset Your Password</h1>
-          <p className="mt-2 text-gray-600">Enter your new password below</p>
+        <h2 className="text-2xl font-bold text-center mb-6">Set New Password</h2>
+        <p className="text-center text-gray-600 mb-6">
+          Your reset link is valid. Please enter your new password below.
+        </p>
+        {/* Password reset form component would go here */}
+        <div className="text-center">
+          <p className="text-green-600">Token verified successfully!</p>
+          <p className="text-sm text-gray-500 mt-2">Password reset form would appear here.</p>
         </div>
-        <ResetPasswordForm />
       </div>
     </div>
   );

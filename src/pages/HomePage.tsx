@@ -29,7 +29,7 @@ const HomePage = () => {
               Get Involved
             </Link>
             <Button variant="outline" asChild data-testid="login-button">
-              <Link to="/provider-signup">Provider Access</Link>
+              <Link to="/login">Sign In</Link>
             </Button>
           </div>
         </div>

@@ -19,6 +19,10 @@ const Auth = () => {
   const [showDebug, setShowDebug] = useState(false);
   const [debugInfo, setDebugInfo] = useState<unknown>({});
   const [selectedUserType, setSelectedUserType] = useState<string>('');
+  
+  // Check if we're on the /login route to show login form directly
+  const isLoginRoute = window.location.pathname === '/login';
+  const [showLoginForm, setShowLoginForm] = useState(isLoginRoute);
 
   // Test log to verify page loads
   console.log('🎯 Auth page loaded successfully with new three-user-type design');
@@ -265,57 +269,63 @@ const Auth = () => {
               </AlertDescription>
             </Alert>
 
-            {/* User Type Selection */}
-            <div className="text-center space-y-4">
-              <p className="text-lg font-medium text-gray-800 dark:text-gray-200">
-                One platform, three perspectives, countless lives changed
-              </p>
-              
-              <div className="space-y-3">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  I am a:
-                </label>
-                <div className="space-y-2">
-                  {[
-                    { value: 'recovery', label: 'Person in Recovery' },
-                    { value: 'provider', label: 'Healthcare Provider' },
-                    { value: 'supporter', label: 'Personal Supporter' }
-                  ].map((option) => (
-                    <label key={option.value} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors">
-                      <input
-                        type="radio"
-                        name="userType"
-                        value={option.value}
-                        checked={selectedUserType === option.value}
-                        onChange={(e) => {
-                          const newValue = e.target.value;
-                          console.log('🎯 User type selected:', newValue);
-                          setSelectedUserType(newValue);
-                        }}
-                        className="text-blue-600"
-                      />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">{option.label}</span>
+            {/* User Type Selection - Show when not showing login form */}
+            {!showLoginForm && (
+              <>
+                <div className="text-center space-y-4">
+                  <p className="text-lg font-medium text-gray-800 dark:text-gray-200">
+                    One platform, three perspectives, countless lives changed
+                  </p>
+                  
+                  <div className="space-y-3">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      I am a:
                     </label>
-                  ))}
+                    <div className="space-y-2">
+                      {[
+                        { value: 'recovery', label: 'Person in Recovery' },
+                        { value: 'provider', label: 'Healthcare Provider' },
+                        { value: 'supporter', label: 'Personal Supporter' }
+                      ].map((option) => (
+                        <label key={option.value} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors">
+                          <input
+                            type="radio"
+                            name="userType"
+                            value={option.value}
+                            checked={selectedUserType === option.value}
+                            onChange={(e) => {
+                              const newValue = e.target.value;
+                              console.log('🎯 User type selected:', newValue);
+                              setSelectedUserType(newValue);
+                            }}
+                            className="text-blue-600"
+                          />
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{option.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            {/* Login Button */}
-            <Button
-              data-testid="login-button"
-              onClick={() => {
-                // This will trigger the login form to show
-                console.log('Login button clicked');
-              }}
-              className="w-full"
-              variant="outline"
-            >
-              Continue to Login
-            </Button>
+                {/* Login Button */}
+                <Button
+                  data-testid="login-button"
+                  onClick={() => {
+                    setShowLoginForm(true);
+                    console.log('Login button clicked - showing login form');
+                  }}
+                  className="w-full"
+                  variant="outline"
+                >
+                  Continue to Login
+                </Button>
+              </>
+            )}
 
-            {/* Auth Form */}
-            <AuthForm userType={selectedUserType} />
+            {/* Auth Form - Show when login form is requested or on /login route */}
+            {showLoginForm && (
+              <AuthForm userType={selectedUserType || 'recovery'} />
+            )}
 
             {/* Privacy Notice */}
             <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-6">

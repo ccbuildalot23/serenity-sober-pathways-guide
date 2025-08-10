@@ -65,6 +65,49 @@ const ProviderCarePlans: React.FC = () => {
           </div>
         </div>
 
+        {/* Care Plan Form */}
+        {open && (
+          <Card data-testid="care-plan-form" className="mb-8 bg-white shadow-lg border-teal-100">
+            <CardHeader>
+              <CardTitle>Create New Care Plan</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Plan Name</label>
+                  <input 
+                    type="text" 
+                    placeholder="Enter plan name..."
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Description</label>
+                  <textarea 
+                    placeholder="Enter plan description..."
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    rows={3}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    data-testid="save-care-plan"
+                    className="bg-teal-600 hover:bg-teal-700"
+                  >
+                    Save Plan
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => setOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Care Plan Templates */}
         <Card data-testid="care-plan-templates" className="mb-8 bg-white shadow-lg border-teal-100">
           <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-100">

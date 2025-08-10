@@ -88,6 +88,8 @@ const SecurityAudit = lazy(() => import('@/pages/SecurityAudit'));
 // Eagerly load Profile to eliminate flakiness under E2E bypass
 import Profile from '@/pages/Profile';
 import AccessDenied from '@/pages/AccessDenied';
+// Admin Dashboard - Eagerly loaded for HIPAA compliance
+import AdminDashboard from '@/pages/AdminDashboard';
 
 const queryClient = new QueryClient();
 
@@ -334,6 +336,11 @@ function App() {
               } />
 
               {/* Admin Routes */}
+              <Route path="/admin/dashboard" element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } />
               <Route path="/analytics" element={
                 <ProtectedRoute requiredRole="admin">
                   <Suspense fallback={<LoadingState />}>

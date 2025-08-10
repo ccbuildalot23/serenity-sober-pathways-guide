@@ -157,7 +157,7 @@ const SupportDashboard = () => {
           <div className="sr-only" aria-hidden>
           <div data-testid="supported-persons-section">anchor</div>
           <div data-testid="crisis-alerts-panel">anchor</div>
-            <div data-testid="communication-center">anchor</div>
+                                   <div data-testid="communication-center-anchor">anchor</div>
           <div data-testid="location-sharing-status">anchor</div>
           <div data-testid="notification-center">anchor</div>
           <div data-testid="supporter-notifications">anchor</div>
@@ -172,10 +172,10 @@ const SupportDashboard = () => {
         <div 
           data-testid="active-crisis-alert" 
           className="p-4 bg-red-600 text-white rounded-lg cursor-pointer hover:bg-red-700 transition-colors mb-4"
-          onClick={() => {
-            const modal = document.querySelector('[data-testid="crisis-alert-modal"]') as HTMLElement | null;
-            if (modal) modal.classList.remove('sr-only');
-          }}
+                     onClick={() => {
+             const modal = document.querySelector('[data-testid="crisis-alert-modal"]') as HTMLElement | null;
+             if (modal) modal.style.display = 'flex';
+           }}
         >
           <div className="flex items-center gap-2">
             <AlertCircle className="w-5 h-5" />
@@ -184,11 +184,12 @@ const SupportDashboard = () => {
           <p className="text-sm mt-1">Patient needs immediate support</p>
         </div>
 
-        {/* Crisis alert modal */}
-        <div 
-          data-testid="crisis-alert-modal" 
-          className="sr-only fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
-        >
+                 {/* Crisis alert modal */}
+         <div 
+           data-testid="crisis-alert-modal" 
+           className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+           style={{ display: 'none' }}
+         >
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full space-y-6">
             <div className="text-center space-y-4">
               <AlertCircle className="w-12 h-12 text-red-500 mx-auto" />
@@ -223,10 +224,10 @@ const SupportDashboard = () => {
               </Button>
             </div>
             <Button 
-              onClick={() => {
-                const modal = document.querySelector('[data-testid="crisis-alert-modal"]') as HTMLElement | null;
-                if (modal) modal.classList.add('sr-only');
-              }}
+                             onClick={() => {
+                 const modal = document.querySelector('[data-testid="crisis-alert-modal"]') as HTMLElement | null;
+                 if (modal) modal.style.display = 'none';
+               }}
               className="w-full"
             >
               Close

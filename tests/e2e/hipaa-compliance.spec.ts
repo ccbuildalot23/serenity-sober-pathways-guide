@@ -58,16 +58,16 @@ test.describe('HIPAA Compliance Tests', () => {
   });
 
   test('should enforce data retention and disposal policies', async ({ page }) => {
+    // Set admin role for testing before login
+    await page.evaluate(() => {
+      localStorage.setItem('pw_role', 'admin');
+    });
+    
     // Login as admin
     await page.click('[data-testid="login-button"]');
     await page.fill('[data-testid="email-input"]', TEST_CREDENTIALS.ADMIN.email);
     await page.fill('[data-testid="password-input"]', TEST_CREDENTIALS.ADMIN.password);
     await page.click('[data-testid="submit-login"]');
-    
-    // Set admin role for testing
-    await page.evaluate(() => {
-      localStorage.setItem('pw_role', 'admin');
-    });
     
     await page.waitForURL('**/admin/dashboard', { timeout: 15000 });
     await expect(page.locator('[data-testid="admin-dashboard"]')).toBeVisible();
@@ -129,16 +129,16 @@ test.describe('HIPAA Compliance Tests', () => {
     await page.goto('/auth');
     await expect(page.locator('[data-testid="login-button"]')).toBeVisible();
     
+    // Set admin role for testing before login
+    await page.evaluate(() => {
+      localStorage.setItem('pw_role', 'admin');
+    });
+    
     // Test admin login
     await page.click('[data-testid="login-button"]');
     await page.fill('[data-testid="email-input"]', TEST_CREDENTIALS.ADMIN.email);
     await page.fill('[data-testid="password-input"]', TEST_CREDENTIALS.ADMIN.password);
     await page.click('[data-testid="submit-login"]');
-    
-    // Set admin role for testing
-    await page.evaluate(() => {
-      localStorage.setItem('pw_role', 'admin');
-    });
     
     // Verify admin access works
     await page.waitForURL('**/admin/dashboard', { timeout: 15000 });

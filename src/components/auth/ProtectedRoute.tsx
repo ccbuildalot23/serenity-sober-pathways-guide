@@ -46,7 +46,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
   const hintedRole: UserRole | null = (() => {
     try {
       const v = localStorage.getItem('pw_role');
-      if (v === 'provider' || v === 'support_member' || v === 'patient') {
+      if (v === 'provider' || v === 'support_member' || v === 'patient' || v === 'admin') {
         console.log(`ProtectedRoute: Found role hint: ${v}`);
         return v as UserRole;
       }

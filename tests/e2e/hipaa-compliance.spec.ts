@@ -58,18 +58,22 @@ test.describe('HIPAA Compliance Tests', () => {
   });
 
   test('should enforce data retention and disposal policies', async ({ page }) => {
-    // Set admin role for testing before login
-    await page.evaluate(() => {
-      localStorage.setItem('pw_role', 'admin');
-    });
-    
-    // Login as patient but with admin role override
+    // Login as patient first
     await page.click('[data-testid="login-button"]');
     await page.fill('[data-testid="email-input"]', TEST_CREDENTIALS.PATIENT.email);
     await page.fill('[data-testid="password-input"]', TEST_CREDENTIALS.PATIENT.password);
     await page.click('[data-testid="submit-login"]');
     
-    await page.waitForURL('**/admin/dashboard', { timeout: 15000 });
+    // Wait for redirect to patient dashboard
+    await page.waitForURL('**/patient/dashboard', { timeout: 15000 });
+    
+    // Set admin role after successful login
+    await page.evaluate(() => {
+      localStorage.setItem('pw_role', 'admin');
+    });
+    
+    // Navigate to admin dashboard
+    await page.goto('/admin/dashboard');
     await expect(page.locator('[data-testid="admin-dashboard"]')).toBeVisible();
     
     // Test data retention settings
@@ -129,19 +133,23 @@ test.describe('HIPAA Compliance Tests', () => {
     await page.goto('/auth');
     await expect(page.locator('[data-testid="login-button"]')).toBeVisible();
     
-    // Set admin role for testing before login
-    await page.evaluate(() => {
-      localStorage.setItem('pw_role', 'admin');
-    });
-    
-    // Test admin login using patient credentials with role override
+    // Login as patient first
     await page.click('[data-testid="login-button"]');
     await page.fill('[data-testid="email-input"]', TEST_CREDENTIALS.PATIENT.email);
     await page.fill('[data-testid="password-input"]', TEST_CREDENTIALS.PATIENT.password);
     await page.click('[data-testid="submit-login"]');
     
-    // Verify admin access works
-    await page.waitForURL('**/admin/dashboard', { timeout: 15000 });
+    // Wait for redirect to patient dashboard
+    await page.waitForURL('**/patient/dashboard', { timeout: 15000 });
+    
+    // Set admin role after successful login
+    await page.evaluate(() => {
+      localStorage.setItem('pw_role', 'admin');
+    });
+    
+    // Navigate to admin dashboard
+    await page.goto('/admin/dashboard');
+    await expect(page.locator('[data-testid="admin-dashboard"]')).toBeVisible();
   });
 
   test('should implement secure API endpoints with proper authentication', async ({ page }) => {

@@ -39,22 +39,23 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
   },
 
-  /* Test files to include - ONLY MVP and HIPAA tests */
-  testMatch: [
-    '**/simple-test.spec.ts',
-    '**/login-test.spec.ts', 
-    '**/auth-reset.spec.ts',
-    '**/patient-journey.spec.ts',
-    '**/provider-journey.spec.ts',
-    '**/supporter-journey.spec.ts',
-    '**/crisis-support.spec.ts',
-    '**/patient-profile.spec.ts',
-    '**/hipaa-compliance.spec.ts',
-    '**/basic-checkin.spec.ts',
-    '**/simple-checkin-test.spec.ts',
-    '**/debug-checkin-route.spec.ts',
-    '**/debug-full-checkin.spec.ts',
-  ],
+                /* Test files to include - ONLY MVP and HIPAA tests */
+              testMatch: [
+                '**/simple-test.spec.ts',
+                '**/login-test.spec.ts', 
+                '**/auth-reset.spec.ts',
+                '**/patient-journey.spec.ts',
+                '**/provider-journey.spec.ts',
+                '**/supporter-journey.spec.ts',
+                '**/crisis-support.spec.ts',
+                '**/patient-profile.spec.ts',
+                '**/hipaa-compliance.spec.ts',
+                '**/basic-checkin.spec.ts',
+                '**/simple-checkin-test.spec.ts',
+                '**/debug-checkin-route.spec.ts',
+                '**/debug-full-checkin.spec.ts',
+                '**/debug-supporter-login.spec.ts',
+              ],
 
   /* Exclude SOC 2, NIST, and other advanced compliance tests */
   testIgnore: [

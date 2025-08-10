@@ -15,7 +15,7 @@ export const TEST_CREDENTIALS = {
   SUPPORTER: {
     email: 'test-supporter@serenity.com',
     password: 'TestSerenity2024!@#',
-    role: 'supporter'
+    role: 'support_member'
   }
 } as const;
 

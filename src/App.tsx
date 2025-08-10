@@ -61,7 +61,8 @@ const Motivation = lazy(() => import('@/pages/Motivation'));
 const AccountabilityPartners = lazy(() => import('@/pages/AccountabilityPartners'));
 const RecoveryPlanning = lazy(() => import('@/pages/RecoveryPlanning'));
 const RelapsePreventionPage = lazy(() => import('@/pages/RelapsePrevention'));
-const CrisisSupport = lazy(() => import('@/pages/CrisisSupport'));
+// Eagerly load CrisisSupport to avoid lazy loading issues in E2E
+import CrisisSupport from '@/pages/CrisisSupport';
 
 // Clinical & Admin Features - Lowest priority
 const ClinicalProtocols = lazy(() => import('@/pages/ClinicalProtocols'));
@@ -297,9 +298,7 @@ function App() {
               {/* Protected Supporter Routes */}
               <Route path="/supporter/dashboard" element={
                 <ProtectedRoute requiredRole="support_member">
-                  <Suspense fallback={<LoadingState />}>
-                    <SupportDashboard />
-                  </Suspense>
+                  <SupportDashboard />
                 </ProtectedRoute>
               } />
               <Route path="/supporter/messages" element={

@@ -92,12 +92,14 @@ const CheckIn = () => {
           sleep_quality: checkInData.sleepRating,
         } as any);
         
-        // Try to submit to database, but don't fail the UI if it fails
+        // Submit to database
         try {
           await checkinSubmissionService.submitCheckin(data, data as any);
+          console.log('Check-in saved successfully to database');
         } catch (dbError) {
-          console.error('Database submission failed (continuing for testing):', dbError);
-          // Continue with UI flow even if database fails
+          console.error('Database submission failed:', dbError);
+          // Show error but still continue with UI flow
+          toast.error('Check-in saved locally but failed to sync with server');
         }
         
         if (checkInData.mood === 'negative') {

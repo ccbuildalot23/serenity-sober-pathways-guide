@@ -1,7 +1,7 @@
 // Patient Dashboard - For users in recovery
 
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,8 +27,67 @@ import {
   Target,
   Award
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const PatientDashboard = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [dashboardData, setDashboardData] = useState({
+    recoveryStreak: 0,
+    totalCheckins: 0,
+    lastCheckinDate: null,
+    supportNetworkCount: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      loadDashboardData();
+    } else {
+      setLoading(false);
+    }
+  }, [user]);
+
+  const loadDashboardData = async () => {
+    if (!user?.id) return;
+
+    try {
+      // Load recovery streak
+      const { data: streakData } = await supabase.rpc('get_recovery_streak', { 
+        user_uuid: user.id 
+      });
+
+      // Load total check-ins
+      const { data: checkinsData, error: checkinsError } = await supabase
+        .from('daily_checkins')
+        .select('id, checkin_date, created_at')
+        .eq('user_id', user.id)
+        .eq('is_complete', true)
+        .order('checkin_date', { ascending: false });
+
+      // Load support network count
+      const { data: supportData, error: supportError } = await supabase
+        .from('support_network_members')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('status', 'active');
+
+      const lastCheckin = checkinsData && checkinsData.length > 0 ? checkinsData[0] : null;
+
+      setDashboardData({
+        recoveryStreak: streakData || 0,
+        totalCheckins: checkinsData?.length || 0,
+        lastCheckinDate: lastCheckin?.checkin_date || null,
+        supportNetworkCount: supportData?.length || 0
+      });
+
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="min-h-screen bg-gradient-therapeutic relative overflow-hidden" data-testid="patient-dashboard">
       {/* Floating Elements Background */}
@@ -113,7 +172,9 @@ const PatientDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-sage-600">Hope Journey</p>
-                    <p className="text-3xl font-bold text-sage-800">0</p>
+                    <p className="text-3xl font-bold text-sage-800">
+                      {loading ? '...' : dashboardData.recoveryStreak}
+                    </p>
                     <p className="text-xs text-sage-500">days of courage</p>
                   </div>
                   <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
@@ -134,9 +195,16 @@ const PatientDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-sage-600">Total Check-ins</p>
-                    <p className="text-3xl font-bold text-sage-800">0</p>
+                    <p className="text-3xl font-bold text-sage-800">
+                      {loading ? '...' : dashboardData.totalCheckins}
+                    </p>
                     <p className="text-xs text-sage-500">completed</p>
-                    <p className="text-xs text-sage-500" data-testid="last-checkin-status">No recent check-ins</p>
+                    <p className="text-xs text-sage-500" data-testid="last-checkin-status">
+                      {loading ? 'Loading...' : 
+                       dashboardData.lastCheckinDate ? 
+                       `Last: ${new Date(dashboardData.lastCheckinDate).toLocaleDateString()}` : 
+                       'No recent check-ins'}
+                    </p>
                   </div>
                   <div className="w-12 h-12 bg-sky-100 rounded-xl flex items-center justify-center">
                     <CheckCircle className="w-6 h-6 text-sky-600" />
@@ -157,7 +225,9 @@ const PatientDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-sage-600">Support Network</p>
-                    <p className="text-3xl font-bold text-sage-800">0</p>
+                    <p className="text-3xl font-bold text-sage-800">
+                      {loading ? '...' : dashboardData.supportNetworkCount}
+                    </p>
                     <p className="text-xs text-sage-500">connections</p>
                   </div>
                   <div className="w-12 h-12 bg-turquoise-100 rounded-xl flex items-center justify-center">

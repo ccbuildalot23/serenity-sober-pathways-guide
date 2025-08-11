@@ -73,61 +73,63 @@ export const TEST_DATA = {
 // Login helper functions
 export async function loginAsPatient(page: Page): Promise<void> {
   await page.goto('/');
-  await page.click('[data-testid="login-button"]');
-  await page.fill('[data-testid="email-input"]', TEST_CREDENTIALS.PATIENT.email);
-  await page.fill('[data-testid="password-input"]', TEST_CREDENTIALS.PATIENT.password);
-  await page.click('[data-testid="submit-login"]');
+  // Navigate to login form - the button might be in the auth page
+  await page.goto('/login');
+  await page.fill('#email', TEST_CREDENTIALS.PATIENT.email);
+  await page.fill('#password', TEST_CREDENTIALS.PATIENT.password);
+  await page.click('button[type="submit"]');
   await expect(page).toHaveURL('/patient/dashboard');
 }
 
 export async function loginAsProvider(page: Page): Promise<void> {
   await page.goto('/');
-  await page.click('[data-testid="login-button"]');
-  await page.fill('[data-testid="email-input"]', TEST_CREDENTIALS.PROVIDER.email);
-  await page.fill('[data-testid="password-input"]', TEST_CREDENTIALS.PROVIDER.password);
-  await page.click('[data-testid="submit-login"]');
+  await page.goto('/login');
+  await page.fill('#email', TEST_CREDENTIALS.PROVIDER.email);
+  await page.fill('#password', TEST_CREDENTIALS.PROVIDER.password);
+  await page.click('button[type="submit"]');
   await expect(page).toHaveURL('/provider/dashboard');
 }
 
 export async function loginAsSupporter(page: Page): Promise<void> {
   await page.goto('/');
-  await page.click('[data-testid="login-button"]');
-  await page.fill('[data-testid="email-input"]', TEST_CREDENTIALS.SUPPORTER.email);
-  await page.fill('[data-testid="password-input"]', TEST_CREDENTIALS.SUPPORTER.password);
-  await page.click('[data-testid="submit-login"]');
+  await page.goto('/login');
+  await page.fill('#email', TEST_CREDENTIALS.SUPPORTER.email);
+  await page.fill('#password', TEST_CREDENTIALS.SUPPORTER.password);
+  await page.click('button[type="submit"]');
   await expect(page).toHaveURL('/supporter/dashboard');
 }
 
 // Generic login function
 export async function loginAsRole(page: Page, role: 'patient' | 'provider' | 'supporter'): Promise<void> {
   const credentials = TEST_CREDENTIALS[role.toUpperCase() as keyof typeof TEST_CREDENTIALS];
-  await page.goto('/');
-  await page.click('[data-testid="login-button"]');
-  await page.fill('[data-testid="email-input"]', credentials.email);
-  await page.fill('[data-testid="password-input"]', credentials.password);
-  await page.click('[data-testid="submit-login"]');
+  await page.goto('/login');
+  await page.fill('#email', credentials.email);
+  await page.fill('#password', credentials.password);
+  await page.click('button[type="submit"]');
   await expect(page).toHaveURL(`/${role}/dashboard`);
 }
 
 // Logout helper
 export async function logout(page: Page): Promise<void> {
-  const menuSelectors = [
-    '[data-testid="user-menu"]',
-    '[data-testid="provider-menu"]',
-    '[data-testid="supporter-menu"]'
+  // Look for logout button in various possible locations
+  const logoutSelectors = [
+    '[data-testid="logout-button"]',
+    'button:has-text("Logout")',
+    'button:has-text("Sign Out")',
+    'a:has-text("Logout")',
+    'a:has-text("Sign Out")'
   ];
 
-  // Try to find and click the appropriate menu
-  for (const selector of menuSelectors) {
+  // Try to find and click the logout button
+  for (const selector of logoutSelectors) {
     if (await page.locator(selector).isVisible()) {
       await page.click(selector);
       break;
     }
   }
 
-  await page.click('[data-testid="logout-button"]');
-  await expect(page).toHaveURL('/');
-  await expect(page.locator('[data-testid="login-button"]')).toBeVisible();
+  // Verify we're back to the login page
+  await expect(page).toHaveURL(/\/login|\/$/);
 }
 
 // Check-in helper functions

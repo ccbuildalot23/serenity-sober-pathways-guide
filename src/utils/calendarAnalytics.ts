@@ -1,24 +1,25 @@
 
 import { MoodEntry } from '@/types/calendar';
 
-export function calculateMonthlyTrends(entries: MoodEntry[]) {
+export function calculateMonthlyTrends(entries: MoodEntry[] = []) {
   // Group by week
   const weeklyData: Record<string, { mood: number[]; energy: number[] }> = {};
   
-  entries.forEach(entry => {
+  const safe = Array.isArray(entries) ? entries : [];
+  safe.forEach(entry => {
     const weekNumber = getWeekNumber(entry.date);
     if (!weeklyData[weekNumber]) {
       weeklyData[weekNumber] = { mood: [], energy: [] };
     }
-    weeklyData[weekNumber].mood.push(entry.mood_rating);
-    weeklyData[weekNumber].energy.push(entry.energy_rating || 0);
+    weeklyData[weekNumber].mood.push(entry.mood_rating ?? 0);
+    weeklyData[weekNumber].energy.push(entry.energy_rating ?? 0);
   });
 
   // Calculate weekly averages
   const trends = Object.entries(weeklyData).map(([week, data]) => ({
     week: `Week ${week}`,
-    avgMood: data.mood.reduce((a, b) => a + b, 0) / data.mood.length,
-    avgEnergy: data.energy.reduce((a, b) => a + b, 0) / data.energy.length,
+    avgMood: data.mood.length ? data.mood.reduce((a, b) => a + b, 0) / data.mood.length : 0,
+    avgEnergy: data.energy.length ? data.energy.reduce((a, b) => a + b, 0) / data.energy.length : 0,
     entryCount: data.mood.length,
   }));
 
@@ -32,8 +33,9 @@ function getWeekNumber(date: Date): string {
   return weekNumber.toString();
 }
 
-export function calculateTriggerCounts(entries: MoodEntry[]): Record<string, number> {
-  const allTriggers = entries.flatMap(e => e.triggers || []);
+export function calculateTriggerCounts(entries: MoodEntry[] = []): Record<string, number> {
+  const safe = Array.isArray(entries) ? entries : [];
+  const allTriggers = safe.flatMap(e => e.triggers || []);
   return allTriggers.reduce((acc, trigger) => {
     acc[trigger] = (acc[trigger] || 0) + 1;
     return acc;
@@ -48,20 +50,22 @@ export function getTopTriggers(triggerCounts: Record<string, number>, count: num
 }
 
 // Add missing functions that were being imported
-export function analyzeCalendarPatterns(entries: MoodEntry[]) {
+export function analyzeCalendarPatterns(entries: MoodEntry[] = []) {
+  const safe = Array.isArray(entries) ? entries : [];
   const patterns = {
-    averageMood: entries.reduce((sum, entry) => sum + entry.mood_rating, 0) / entries.length || 0,
-    totalEntries: entries.length,
-    triggerCounts: calculateTriggerCounts(entries),
-    monthlyTrends: calculateMonthlyTrends(entries)
+    averageMood: safe.length ? safe.reduce((sum, entry) => sum + (entry.mood_rating ?? 0), 0) / safe.length : 0,
+    totalEntries: safe.length,
+    triggerCounts: calculateTriggerCounts(safe),
+    monthlyTrends: calculateMonthlyTrends(safe)
   };
   
   return patterns;
 }
 
-export function generateInsights(entries: MoodEntry[]) {
-  const insights = [];
-  const avgMood = entries.reduce((sum, entry) => sum + entry.mood_rating, 0) / entries.length || 0;
+export function generateInsights(entries: MoodEntry[] = []) {
+  const insights: string[] = [];
+  const safe = Array.isArray(entries) ? entries : [];
+  const avgMood = safe.length ? safe.reduce((sum, entry) => sum + (entry.mood_rating ?? 0), 0) / safe.length : 0;
   
   if (avgMood > 7) {
     insights.push("Your mood has been consistently positive this month!");
@@ -69,7 +73,7 @@ export function generateInsights(entries: MoodEntry[]) {
     insights.push("Consider reaching out for support if you're struggling.");
   }
   
-  const triggerCounts = calculateTriggerCounts(entries);
+  const triggerCounts = calculateTriggerCounts(safe);
   const topTrigger = Object.entries(triggerCounts).sort(([,a], [,b]) => b - a)[0];
   
   if (topTrigger) {
@@ -79,11 +83,12 @@ export function generateInsights(entries: MoodEntry[]) {
   return insights;
 }
 
-export function calculateStreaks(entries: MoodEntry[]) {
-  if (entries.length === 0) return { current: 0, longest: 0 };
+export function calculateStreaks(entries: MoodEntry[] = []) {
+  const safe = Array.isArray(entries) ? entries : [];
+  if (safe.length === 0) return { current: 0, longest: 0 };
   
   // Sort entries by date
-  const sortedEntries = [...entries].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const sortedEntries = [...safe].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   
   let currentStreak = 1;
   let longestStreak = 1;
@@ -118,11 +123,12 @@ export function calculateStreaks(entries: MoodEntry[]) {
   return { current: currentStreak, longest: longestStreak };
 }
 
-export function identifyTrends(entries: MoodEntry[]) {
-  if (entries.length < 7) return { trend: 'insufficient_data', change: 0 };
+export function identifyTrends(entries: MoodEntry[] = []) {
+  const safe = Array.isArray(entries) ? entries : [];
+  if (safe.length < 7) return { trend: 'insufficient_data', change: 0 };
   
   // Sort by date
-  const sorted = [...entries].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const sorted = [...safe].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   
   // Compare first half vs second half
   const midpoint = Math.floor(sorted.length / 2);

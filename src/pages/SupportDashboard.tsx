@@ -166,12 +166,6 @@ const SupportDashboard = () => {
           <div data-testid="supported-persons-tab">anchor</div>
           <div data-testid="supported-persons-list">anchor</div>
           <div data-testid="add-supported-person">anchor</div>
-          <div data-testid="support-status-overview">anchor</div>
-          <div data-testid="compose-message">anchor</div>
-          <div data-testid="location-sharing-toggle">anchor</div>
-          <div data-testid="educational-materials">anchor</div>
-          <div data-testid="supporter-name">anchor</div>
-          <div data-testid="notification-history">anchor</div>
         </div>
 
         {/* Visible crisis alert for testing */}

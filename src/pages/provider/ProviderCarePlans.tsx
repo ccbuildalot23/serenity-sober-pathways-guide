@@ -230,8 +230,8 @@ const ProviderCarePlans: React.FC = () => {
         </div>
         {/* Enhanced Modal */}
         {open && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <Card data-testid="care-plan-modal" className="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-40">
+            <Card data-testid="care-plan-modal" className="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white relative z-50">
               <CardHeader className="bg-gradient-to-r from-teal-500 to-blue-600 text-white">
                 <CardTitle className="flex items-center gap-3">
                   <Heart className="w-5 h-5" />
@@ -387,7 +387,7 @@ const ProviderCarePlans: React.FC = () => {
                 <div className="flex gap-3 pt-4 border-t">
                   <Button 
                     data-testid="save-care-plan"
-                    className="bg-teal-600 hover:bg-teal-700"
+                    className="bg-teal-600 hover:bg-teal-700 relative z-50"
                     onClick={() => {
                       setOpen(false);
                       // Show success message

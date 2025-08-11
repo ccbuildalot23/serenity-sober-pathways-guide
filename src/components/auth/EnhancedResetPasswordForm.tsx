@@ -58,6 +58,19 @@ export const EnhancedResetPasswordForm: React.FC = () => {
   const validateToken = async () => {
     setIsValidating(true);
     
+    // Check for error parameters first
+    const error = searchParams.get('error');
+    const errorCode = searchParams.get('error_code');
+    const errorDescription = searchParams.get('error_description');
+    
+    if (error || errorCode) {
+      setTokenValid(false);
+      setError(errorDescription || 'This password reset link is invalid or has expired.');
+      await hipaaAuditService.logPasswordResetFailed('unknown', `Error: ${error} - ${errorCode}`);
+      setIsValidating(false);
+      return;
+    }
+    
     // Get token from URL
     const code = searchParams.get('code');
     const hashParams = new URLSearchParams(window.location.hash.substring(1));

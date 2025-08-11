@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,198 +18,348 @@ import {
   Clock,
   Activity,
   UserCheck,
-  PhoneCall
+  PhoneCall,
+  Sparkles,
+  Leaf,
+  Star,
+  ArrowRight,
+  Plus,
+  Target,
+  Award
 } from 'lucide-react';
 
 const PatientDashboard = () => {
   return (
-    <div className="min-h-screen bg-background" data-testid="patient-dashboard">
-      {/* Visible navigation shortcuts for E2E (kept lightweight) */}
-      <nav className="px-4 py-2 border-b bg-muted/20">
-        <div className="flex gap-4 text-sm">
-          <Link to="/patient/dashboard" data-testid="nav-dashboard" className="underline">Dashboard</Link>
-          <Link to="/checkin" data-testid="nav-checkin" className="underline">Check-in</Link>
-          <Link to="/peer-support" data-testid="nav-peer-support" className="underline">Peer Support</Link>
-          <Link to="/community" data-testid="nav-community" className="underline">Community</Link>
-        </div>
-      </nav>
-      {/* Header */}
-      <div className="bg-card shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-                <Heart className="w-8 h-8 text-primary" />
-                Serenity Dashboard
-              </h1>
-              <p className="mt-2 text-muted-foreground">
-                Welcome back, Friend. Your journey matters.
-              </p>
-            </div>
-            <Badge variant="outline" className="flex items-center gap-1">
-              <Shield className="w-3 h-3" />
-              Patient Portal
-            </Badge>
-            <div className="ml-auto">
-              <Button asChild variant="outline" size="sm">
-                <Link to="/profile" data-testid="nav-profile">Profile</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-therapeutic relative overflow-hidden" data-testid="patient-dashboard">
+      {/* Floating Elements Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-32 h-32 bg-emerald-200/20 rounded-full animate-float"></div>
+        <div className="absolute top-40 right-20 w-24 h-24 bg-turquoise-200/20 rounded-full animate-float" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute bottom-32 left-1/4 w-20 h-20 bg-sky-200/20 rounded-full animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute bottom-20 right-1/3 w-28 h-28 bg-sage-200/20 rounded-full animate-float" style={{ animationDelay: '0.5s' }}></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        {/* Minimal mood tracker anchor for E2E assertions */}
-        <div data-testid="mood-tracker" className="sr-only">anchor</div>
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Hope Journey</p>
-                  <p className="text-3xl font-bold text-foreground">0</p>
-                  <p className="text-xs text-muted-foreground">days of courage</p>
-                </div>
-                <TrendingUp className="w-8 h-8 text-emerald-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Check-ins</p>
-                  <p className="text-3xl font-bold text-foreground">0</p>
-                  <p className="text-xs text-muted-foreground">completed</p>
-                  <p className="text-xs text-muted-foreground" data-testid="last-checkin-status">No recent check-ins</p>
-                </div>
-                <CheckCircle className="w-8 h-8 text-blue-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Support Network</p>
-                  <p className="text-3xl font-bold text-foreground">0</p>
-                  <p className="text-xs text-muted-foreground">connections</p>
-                </div>
-                <Users className="w-8 h-8 text-purple-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Tools Used</p>
-                  <p className="text-3xl font-bold text-foreground">0</p>
-                  <p className="text-xs text-muted-foreground">recovery tools</p>
-                </div>
-                <Calendar className="w-8 h-8 text-orange-600" />
-              </div>
-            </CardContent>
-          </Card>
+      {/* Navigation */}
+      <nav className="relative z-10 px-4 py-3 border-b border-sage-200 bg-white/60 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto flex gap-4 text-sm">
+          <Link to="/patient/dashboard" data-testid="nav-dashboard" className="text-sage-700 hover:text-emerald-600 transition-colors font-medium">Dashboard</Link>
+          <Link to="/checkin" data-testid="nav-checkin" className="text-sage-600 hover:text-emerald-600 transition-colors">Check-in</Link>
+          <Link to="/peer-support" data-testid="nav-peer-support" className="text-sage-600 hover:text-emerald-600 transition-colors">Peer Support</Link>
+          <Link to="/community" data-testid="nav-community" className="text-sage-600 hover:text-emerald-600 transition-colors">Community</Link>
         </div>
+      </nav>
 
-        {/* Action Cards */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-          {/* Daily Check-in */}
-          <Card data-testid="daily-checkin-section">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="w-5 h-5" />
-                Daily Check-in
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-4">
-                Track your mood and progress today
+      {/* Header */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="relative z-10 bg-white/80 backdrop-blur-sm border-b border-sage-200 shadow-soft"
+      >
+        <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <h1 className="text-4xl font-bold text-sage-800 flex items-center gap-3">
+                <div className="w-12 h-12 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-healing">
+                  <Heart className="w-7 h-7 text-white" />
+                </div>
+                Serenity Dashboard
+              </h1>
+              <p className="mt-3 text-lg text-sage-600">
+                Welcome back, Friend. Your journey matters.
               </p>
-              <Button asChild className="w-full">
-                <Link to="/checkin" data-testid="start-checkin-button">Start Check-in</Link>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              className="flex items-center gap-4"
+            >
+              <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 flex items-center gap-2 px-4 py-2">
+                <Shield className="w-4 h-4" />
+                Patient Portal
+              </Badge>
+              <Button asChild variant="outline" size="sm" className="border-sage-200 text-sage-700 hover:bg-sage-50">
+                <Link to="/profile" data-testid="nav-profile">Profile</Link>
               </Button>
-            </CardContent>
-          </Card>
+            </motion.div>
+          </div>
+        </div>
+      </motion.div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        {/* Mood tracker anchor for E2E */}
+        <div data-testid="mood-tracker" className="sr-only">anchor</div>
+        
+        {/* Quick Stats */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            <Card className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-soft hover:shadow-calm transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-sage-600">Hope Journey</p>
+                    <p className="text-3xl font-bold text-sage-800">0</p>
+                    <p className="text-xs text-sage-500">days of courage</p>
+                  </div>
+                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                    <TrendingUp className="w-6 h-6 text-emerald-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            <Card className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-soft hover:shadow-calm transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-sage-600">Total Check-ins</p>
+                    <p className="text-3xl font-bold text-sage-800">0</p>
+                    <p className="text-xs text-sage-500">completed</p>
+                    <p className="text-xs text-sage-500" data-testid="last-checkin-status">No recent check-ins</p>
+                  </div>
+                  <div className="w-12 h-12 bg-sky-100 rounded-xl flex items-center justify-center">
+                    <CheckCircle className="w-6 h-6 text-sky-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.7 }}
+          >
+            <Card className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-soft hover:shadow-calm transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-sage-600">Support Network</p>
+                    <p className="text-3xl font-bold text-sage-800">0</p>
+                    <p className="text-xs text-sage-500">connections</p>
+                  </div>
+                  <div className="w-12 h-12 bg-turquoise-100 rounded-xl flex items-center justify-center">
+                    <Users className="w-6 h-6 text-turquoise-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.8 }}
+          >
+            <Card className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-soft hover:shadow-calm transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-sage-600">Resources</p>
+                    <p className="text-3xl font-bold text-sage-800">12</p>
+                    <p className="text-xs text-sage-500">available</p>
+                  </div>
+                  <div className="w-12 h-12 bg-sage-100 rounded-xl flex items-center justify-center">
+                    <BookOpen className="w-6 h-6 text-sage-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </motion.div>
+
+        {/* Main Actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9 }}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8"
+        >
+          {/* Daily Check-in Section */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 1.0 }}
+            data-testid="daily-checkin-section"
+          >
+            <Card className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-soft">
+              <CardHeader>
+                <CardTitle className="text-xl font-bold text-sage-800 flex items-center gap-2">
+                  <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
+                    <CheckCircle className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  Daily Check-in
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sage-600">
+                  Take a moment to reflect on your day and track your progress.
+                </p>
+                <Button 
+                  asChild 
+                  className="w-full bg-gradient-primary hover:bg-gradient-primary/90 text-white font-semibold py-3 rounded-xl shadow-gentle hover:shadow-calm transition-all duration-300 transform hover:scale-[1.02]"
+                  data-testid="start-checkin-button"
+                >
+                  <Link to="/checkin" className="flex items-center justify-center gap-2">
+                    <Plus className="w-5 h-5" />
+                    Start Today's Check-in
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
 
           {/* Crisis Support */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5" />
-                Crisis Support
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-4">
-                Immediate help when you need it most
-              </p>
-              <Button asChild variant="destructive" className="w-full" data-testid="crisis-support-button">
-                <Link to="/crisis-support">Get Help Now</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 1.1 }}
+          >
+            <Card className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-soft">
+              <CardHeader>
+                <CardTitle className="text-xl font-bold text-sage-800 flex items-center gap-2">
+                  <div className="w-8 h-8 bg-sky-100 rounded-lg flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-sky-600" />
+                  </div>
+                  Crisis Support
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sage-600">
+                  Immediate help and resources when you need them most.
+                </p>
+                <Button 
+                  asChild 
+                  variant="outline"
+                  className="w-full border-sky-200 text-sky-700 hover:bg-sky-50 font-semibold py-3 rounded-xl transition-all duration-300"
+                  data-testid="crisis-support-button"
+                >
+                  <Link to="/crisis" className="flex items-center justify-center gap-2">
+                    <PhoneCall className="w-5 h-5" />
+                    Get Support Now
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </motion.div>
 
-        {/* Quick Actions */}
-        <div className="grid md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                Peer Support
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-4">
-                Connect with others on similar journeys
-              </p>
-              <Button asChild variant="outline" className="w-full" data-testid="peer-support-access">
-                <Link to="/peer-support">Join Community</Link>
-              </Button>
-            </CardContent>
-          </Card>
+        {/* Additional Features */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.2 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+        >
+          {/* Peer Support */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.3 }}
+            data-testid="peer-support-access"
+          >
+            <Card className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-soft hover:shadow-calm transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="text-center space-y-4">
+                  <div className="w-12 h-12 bg-turquoise-100 rounded-xl flex items-center justify-center mx-auto">
+                    <Users className="w-6 h-6 text-turquoise-600" />
+                  </div>
+                  <h3 className="font-semibold text-sage-800">Peer Support</h3>
+                  <p className="text-sm text-sage-600">Connect with others on similar journeys</p>
+                  <Button asChild variant="outline" size="sm" className="border-turquoise-200 text-turquoise-700 hover:bg-turquoise-50">
+                    <Link to="/peer-support">Connect</Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5" />
-                Resources
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-4">
-                Educational materials and tools
-              </p>
-              <Button asChild variant="outline" className="w-full">
-                <Link to="/resources">Browse Resources</Link>
-              </Button>
-            </CardContent>
-          </Card>
+          {/* Community */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.4 }}
+            data-testid="community-access"
+          >
+            <Card className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-soft hover:shadow-calm transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="text-center space-y-4">
+                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mx-auto">
+                    <Heart className="w-6 h-6 text-emerald-600" />
+                  </div>
+                  <h3 className="font-semibold text-sage-800">Community</h3>
+                  <p className="text-sm text-sage-600">Join our supportive community</p>
+                  <Button asChild variant="outline" size="sm" className="border-emerald-200 text-emerald-700 hover:bg-emerald-50">
+                    <Link to="/community">Join</Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <UserCheck className="w-5 h-5" />
-                Community
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-4">
-                Engage with the recovery community
-              </p>
-              <Button asChild variant="outline" className="w-full" data-testid="community-access">
-                <Link to="/community">Visit Community</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+          {/* Progress */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.5 }}
+            data-testid="progress-nav"
+          >
+            <Card className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-soft hover:shadow-calm transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="text-center space-y-4">
+                  <div className="w-12 h-12 bg-sky-100 rounded-xl flex items-center justify-center mx-auto">
+                    <Target className="w-6 h-6 text-sky-600" />
+                  </div>
+                  <h3 className="font-semibold text-sage-800">Progress</h3>
+                  <p className="text-sm text-sage-600">Track your recovery journey</p>
+                  <Button asChild variant="outline" size="sm" className="border-sky-200 text-sky-700 hover:bg-sky-50">
+                    <Link to="/progress">View</Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </motion.div>
+
+        {/* Encouragement Message */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 1.6 }}
+          className="mt-8 text-center"
+        >
+          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <Sparkles className="w-5 h-5 text-emerald-600" />
+              <h3 className="text-lg font-semibold text-emerald-800">You're Doing Great!</h3>
+              <Sparkles className="w-5 h-5 text-emerald-600" />
+            </div>
+            <p className="text-emerald-700">
+              Every step forward is a victory. Remember, you're not alone on this journey.
+            </p>
+          </div>
+        </motion.div>
       </div>
     </div>
   );

@@ -1,397 +1,327 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, TrendingUp, Heart, Stethoscope, Building2, BarChart3, ArrowRight, CircleDollarSign, Users, FlaskConical, Lightbulb } from "lucide-react";
-import { Link } from "react-router-dom";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { 
+  Heart, 
+  Shield, 
+  Users, 
+  Leaf, 
+  Sparkles, 
+  ArrowRight, 
+  Play,
+  CheckCircle,
+  Star,
+  Quote
+} from 'lucide-react';
 
-const HomePage = () => {
+const HomePage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-primary/5">
+    <div className="min-h-screen bg-gradient-therapeutic">
+      {/* Floating Elements Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-32 h-32 bg-emerald-200/20 rounded-full animate-float"></div>
+        <div className="absolute top-40 right-20 w-24 h-24 bg-turquoise-200/20 rounded-full animate-float" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute bottom-32 left-1/4 w-20 h-20 bg-sky-200/20 rounded-full animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute bottom-20 right-1/3 w-28 h-28 bg-sage-200/20 rounded-full animate-float" style={{ animationDelay: '0.5s' }}></div>
+      </div>
+
       {/* Navigation */}
-      <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
-              <div className="w-4 h-4 bg-white rounded-sm"></div>
+      <nav className="relative z-10 px-6 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center space-x-3"
+          >
+            <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center shadow-healing">
+              <Heart className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xl font-semibold text-foreground">Serenity</span>
-          </div>
-          <div className="hidden md:flex items-center space-x-6">
-            <Link to="/platform" className="text-muted-foreground hover:text-foreground transition-colors">
-              Platform
+            <span className="text-2xl font-bold text-sage-800">Serenity</span>
+          </motion.div>
+          
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center space-x-6"
+          >
+            <Link 
+              to="/auth" 
+              className="text-sage-700 hover:text-emerald-600 font-medium transition-colors duration-300"
+            >
+              Sign In
             </Link>
-            <Link to="/providers" className="text-muted-foreground hover:text-foreground transition-colors">
-              For Providers
+            <Link 
+              to="/auth" 
+              className="bg-gradient-primary text-white px-6 py-3 rounded-xl font-medium shadow-gentle hover:shadow-calm transition-all duration-300 transform hover:scale-105"
+            >
+              Get Started
             </Link>
-            <Link to="/pilot" className="text-muted-foreground hover:text-foreground transition-colors">
-              Pilot Program
-            </Link>
-            <Link to="/contact" className="text-muted-foreground hover:text-foreground transition-colors">
-              Get Involved
-            </Link>
-            <Button variant="outline" asChild data-testid="login-button">
-              <Link to="/login">Sign In</Link>
-            </Button>
-          </div>
+          </motion.div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 text-center">
-        <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-          You're Not Alone. Help is Here Right Now.
-        </h1>
-        <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-          24/7 crisis support and recovery tools. No shame, no judgment. Just real help when you need it most.
-        </p>
-        {/* CRISIS-FIRST HERO BUTTONS */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white text-lg py-6 px-8" asChild>
-            <Link to="/contact">I Need Help Right Now</Link>
-          </Button>
-          <Button size="lg" variant="outline" asChild>
-            <Link to="/auth">Start My Recovery Journey</Link>
-          </Button>
-          <Button size="lg" variant="ghost" asChild>
-            <Link to="/providers">For Healthcare Providers</Link>
-          </Button>
+      <section className="relative z-10 px-6 py-20">
+        <div className="max-w-7xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="mb-8"
+          >
+            <h1 className="text-5xl md:text-7xl font-bold text-sage-800 mb-6 leading-tight">
+              Your Journey to
+              <span className="block bg-gradient-primary bg-clip-text text-transparent">
+                Serenity Begins
+              </span>
+              <span className="block text-sage-700">Here</span>
+            </h1>
+            
+            <p className="text-xl md:text-2xl text-sage-600 max-w-3xl mx-auto leading-relaxed mb-8">
+              A compassionate, HIPAA-compliant platform supporting your recovery journey with 
+              evidence-based tools, community support, and professional guidance.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16"
+          >
+            <Link 
+              to="/auth"
+              className="group bg-gradient-primary text-white px-8 py-4 rounded-2xl font-semibold text-lg shadow-gentle hover:shadow-calm transition-all duration-300 transform hover:scale-105 flex items-center space-x-3"
+            >
+              <span>Start Your Journey</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+            </Link>
+            
+            <button className="group bg-white/80 backdrop-blur-sm text-sage-700 px-8 py-4 rounded-2xl font-semibold text-lg shadow-soft hover:shadow-gentle transition-all duration-300 border border-sage-200 flex items-center space-x-3">
+              <Play className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+              <span>Watch Demo</span>
+            </button>
+          </motion.div>
         </div>
       </section>
 
-      {/* Trust Indicators */}
-      <section className="border-y border-border bg-muted/30">
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid md:grid-cols-3 gap-6 text-center">
-            <div className="flex items-center justify-center space-x-3">
-              <Shield className="w-6 h-6 text-primary" />
-              <span className="font-medium text-foreground">HIPAA Compliant</span>
-            </div>
-            <div className="flex items-center justify-center space-x-3">
-              <TrendingUp className="w-6 h-6 text-accent" />
-              <span className="font-medium text-foreground">85% Pilot Enrollment</span>
-            </div>
-            <div className="flex items-center justify-center space-x-3">
-              <Stethoscope className="w-6 h-6 text-secondary" />
-              <span className="font-medium text-foreground">Clinical Advisory Board</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Value Proposition */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="grid md:grid-cols-3 gap-8">
-          <Card className="text-center border-0 shadow-lg">
-            <CardHeader>
-              <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mx-auto mb-4">
-                <Stethoscope className="w-8 h-8 text-white" />
-              </div>
-              <CardTitle className="text-primary">Retain High-Value Patients</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Stop losing $45,000-$135,000 annually in referred substance abuse cases
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="text-center border-0 shadow-lg">
-            <CardHeader>
-              <div className="w-16 h-16 bg-secondary rounded-xl flex items-center justify-center mx-auto mb-4">
-                <Heart className="w-8 h-8 text-white" />
-              </div>
-              <CardTitle className="text-secondary">24/7 Recovery Support</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Evidence-based tools and anonymous crisis support between sessions
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="text-center border-0 shadow-lg">
-            <CardHeader>
-              <div className="w-16 h-16 bg-accent rounded-xl flex items-center justify-center mx-auto mb-4">
-                <Building2 className="w-8 h-8 text-white" />
-              </div>
-              <CardTitle className="text-accent">Reduce Readmissions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                25% reduction in 30-day readmissions with continuous care
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Giving Back Section */}
-      <section className="bg-gradient-to-br from-primary/5 to-secondary/5 py-20">
-        <div className="container mx-auto px-4">
-          {/* Hero Statement */}
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center space-x-2 bg-primary/10 rounded-full px-6 py-2 mb-6">
-              <CircleDollarSign className="w-5 h-5 text-primary" />
-              <span className="text-sm font-medium text-primary">5% Pledge</span>
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-              Every Subscription Funds Breakthrough Research
+      {/* Features Section */}
+      <section className="relative z-10 px-6 py-20 bg-white/60 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-sage-800 mb-6">
+              Healing Features for Your Recovery
             </h2>
-            <p className="text-xl text-muted-foreground max-w-4xl mx-auto mb-4">
-              When providers choose Serenity, they're not just transforming their practice — they're investing in the science that will save lives tomorrow.
+            <p className="text-xl text-sage-600 max-w-2xl mx-auto">
+              Comprehensive tools and support designed to nurture your well-being and guide your path to recovery.
             </p>
-            <p className="text-lg font-medium text-primary">
-              5% of our profits fund the future of recovery. Written into our charter since day one.
-            </p>
-          </div>
+          </motion.div>
 
-          {/* The Why */}
-          <div className="bg-background/80 backdrop-blur-sm rounded-2xl p-8 mb-12 border border-border shadow-lg">
-            <div className="text-center mb-8">
-              <h3 className="text-2xl font-bold text-foreground mb-4">Why We Give Back</h3>
-              <p className="text-lg text-muted-foreground italic">
-                "Recovery taught us that healing happens in community. Commercial success without giving back is just profit without purpose."
-              </p>
-            </div>
-            <div className="grid md:grid-cols-2 gap-8">
-              <div>
-                <h4 className="font-semibold text-foreground mb-3">Our Foundation</h4>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li>• Recovery gave us a second chance at life</li>
-                  <li>• We build technology from lived experience</li>
-                  <li>• Every feature comes from real recovery insights</li>
-                  <li>• Success means lifting others behind us</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-foreground mb-3">Our Mission</h4>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li>• We measure success in lives transformed, not just revenue</li>
-                  <li>• Built by people in recovery, for people seeking recovery</li>
-                  <li>• This is how healthcare companies should operate</li>
-                  <li>• Every dollar earned is a vote for evidence-based recovery</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Impact Metrics */}
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
-            <Card className="text-center border-0 shadow-lg bg-background/90 backdrop-blur-sm">
-              <CardHeader>
-                <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <CircleDollarSign className="w-8 h-8 text-white" />
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                icon: Heart,
+                title: "Daily Check-ins",
+                description: "Gentle mood tracking and progress monitoring to support your emotional well-being.",
+                color: "emerald"
+              },
+              {
+                icon: Shield,
+                title: "Crisis Support",
+                description: "Immediate access to crisis resources and professional help when you need it most.",
+                color: "turquoise"
+              },
+              {
+                icon: Users,
+                title: "Peer Community",
+                description: "Connect with others on similar journeys in a safe, supportive environment.",
+                color: "sky"
+              },
+              {
+                icon: Leaf,
+                title: "Recovery Tools",
+                description: "Evidence-based resources and exercises to strengthen your recovery foundation.",
+                color: "sage"
+              },
+              {
+                icon: Sparkles,
+                title: "Professional Guidance",
+                description: "Access to licensed healthcare providers and recovery specialists.",
+                color: "emerald"
+              },
+              {
+                icon: CheckCircle,
+                title: "Progress Tracking",
+                description: "Celebrate milestones and track your growth with meaningful insights.",
+                color: "turquoise"
+              }
+            ].map((feature, index) => (
+              <motion.div
+                key={feature.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="group bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-soft hover:shadow-calm transition-all duration-300 border border-sage-100 hover:border-emerald-200"
+              >
+                <div className={`w-16 h-16 bg-gradient-to-br from-${feature.color}-100 to-${feature.color}-200 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                  <feature.icon className={`w-8 h-8 text-${feature.color}-600`} />
                 </div>
-                <CardTitle className="text-primary">Impact Today</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold text-foreground mb-2">$0</p>
-                <p className="text-muted-foreground">Donated to date</p>
-                <p className="text-sm text-muted-foreground mt-2">Ready for Year 2 growth</p>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center border-0 shadow-lg bg-background/90 backdrop-blur-sm">
-              <CardHeader>
-                <div className="w-16 h-16 bg-secondary rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <TrendingUp className="w-8 h-8 text-white" />
-                </div>
-                <CardTitle className="text-secondary">By 2030</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold text-foreground mb-2">$1M+</p>
-                <p className="text-muted-foreground">Annual research funding</p>
-                <p className="text-sm text-muted-foreground mt-2">Projected annual giving</p>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center border-0 shadow-lg bg-background/90 backdrop-blur-sm">
-              <CardHeader>
-                <div className="w-16 h-16 bg-accent rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <Users className="w-8 h-8 text-white" />
-                </div>
-                <CardTitle className="text-accent">Future Impact</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold text-foreground mb-2">20+</p>
-                <p className="text-muted-foreground">Researchers funded</p>
-                <p className="text-sm text-muted-foreground mt-2">100+ studies, countless breakthroughs</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Recipients */}
-          <div className="bg-background/80 backdrop-blur-sm rounded-2xl p-8 mb-12 border border-border shadow-lg">
-            <h3 className="text-2xl font-bold text-foreground text-center mb-8">Where Your Subscription Goes</h3>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <FlaskConical className="w-6 h-6 text-white" />
-                </div>
-                <h4 className="font-semibold text-foreground mb-2">40%</h4>
-                <p className="text-sm text-muted-foreground">National Institute on Drug Abuse</p>
-              </div>
-              <div className="text-center">
-                <div className="w-12 h-12 bg-secondary rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <Building2 className="w-6 h-6 text-white" />
-                </div>
-                <h4 className="font-semibold text-foreground mb-2">30%</h4>
-                <p className="text-sm text-muted-foreground">Recovery Research Institute at Mass General</p>
-              </div>
-              <div className="text-center">
-                <div className="w-12 h-12 bg-accent rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <Lightbulb className="w-6 h-6 text-white" />
-                </div>
-                <h4 className="font-semibold text-foreground mb-2">20%</h4>
-                <p className="text-sm text-muted-foreground">Addiction Policy Forum Innovation Grants</p>
-              </div>
-              <div className="text-center">
-                <div className="w-12 h-12 bg-primary/80 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <Heart className="w-6 h-6 text-white" />
-                </div>
-                <h4 className="font-semibold text-foreground mb-2">10%</h4>
-                <p className="text-sm text-muted-foreground">Serenity Community Innovation Award</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Circular Flow Diagram */}
-          <div className="bg-background/80 backdrop-blur-sm rounded-2xl p-8 mb-12 border border-border shadow-lg">
-            <h3 className="text-2xl font-bold text-foreground text-center mb-8">The Circle of Innovation</h3>
-            <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8">
-              <div className="flex flex-col items-center">
-                <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-3">
-                  <Stethoscope className="w-8 h-8 text-white" />
-                </div>
-                <p className="text-sm font-medium text-center">Providers</p>
-              </div>
-              <ArrowRight className="w-6 h-6 text-muted-foreground rotate-90 md:rotate-0" />
-              <div className="flex flex-col items-center">
-                <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mb-3">
-                  <Heart className="w-8 h-8 text-white" />
-                </div>
-                <p className="text-sm font-medium text-center">Serenity</p>
-              </div>
-              <ArrowRight className="w-6 h-6 text-muted-foreground rotate-90 md:rotate-0" />
-              <div className="flex flex-col items-center">
-                <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mb-3">
-                  <FlaskConical className="w-8 h-8 text-white" />
-                </div>
-                <p className="text-sm font-medium text-center">Research</p>
-              </div>
-              <ArrowRight className="w-6 h-6 text-muted-foreground rotate-90 md:rotate-0" />
-              <div className="flex flex-col items-center">
-                <div className="w-16 h-16 bg-primary/80 rounded-full flex items-center justify-center mb-3">
-                  <Lightbulb className="w-8 h-8 text-white" />
-                </div>
-                <p className="text-sm font-medium text-center">Breakthroughs</p>
-              </div>
-              <ArrowRight className="w-6 h-6 text-muted-foreground rotate-90 md:rotate-0" />
-              <div className="flex flex-col items-center">
-                <div className="w-16 h-16 bg-secondary/80 rounded-full flex items-center justify-center mb-3">
-                  <Building2 className="w-8 h-8 text-white" />
-                </div>
-                <p className="text-sm font-medium text-center">Better Treatment</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Call to Action */}
-          <div className="text-center">
-            <h3 className="text-2xl font-bold text-foreground mb-4">
-              Join Providers Who Believe Success Means Giving Back
-            </h3>
-            <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
-              Your subscription directly funds the next treatment breakthrough. Together, we're building an evidence base that works.
-            </p>
-            <Button size="lg" asChild className="hover:scale-105 transition-transform">
-              <Link to="/providers">Start Free Trial</Link>
-            </Button>
+                <h3 className="text-xl font-semibold text-sage-800 mb-4">{feature.title}</h3>
+                <p className="text-sage-600 leading-relaxed">{feature.description}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Problem Statement */}
-      <section className="bg-muted/20 py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-foreground mb-6">
-            The Hidden Crisis in Mental Healthcare
-          </h2>
-          <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-6 mb-8 inline-block">
-            <BarChart3 className="w-12 h-12 text-destructive mx-auto mb-4" />
-            <p className="text-4xl font-bold text-destructive mb-2">60%</p>
-            <p className="text-muted-foreground">of therapists refer substance abuse cases elsewhere</p>
+      {/* Testimonials Section */}
+      <section className="relative z-10 px-6 py-20">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-sage-800 mb-6">
+              Stories of Hope & Healing
+            </h2>
+            <p className="text-xl text-sage-600 max-w-2xl mx-auto">
+              Real experiences from our community members who have found strength and support on their recovery journey.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                quote: "Serenity has been my anchor during the most challenging times. The daily check-ins help me stay connected to my progress.",
+                author: "Sarah M.",
+                role: "Recovery Journey: 18 months",
+                rating: 5
+              },
+              {
+                quote: "The community here is incredible. I've found friends who truly understand what I'm going through.",
+                author: "Michael R.",
+                role: "Recovery Journey: 9 months",
+                rating: 5
+              },
+              {
+                quote: "Professional, compassionate, and always there when I need support. This platform has changed my life.",
+                author: "Jennifer L.",
+                role: "Recovery Journey: 2 years",
+                rating: 5
+              }
+            ].map((testimonial, index) => (
+              <motion.div
+                key={testimonial.author}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.2 }}
+                className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-soft hover:shadow-calm transition-all duration-300 border border-sage-100"
+              >
+                <div className="flex mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 text-emerald-500 fill-current" />
+                  ))}
+                </div>
+                <Quote className="w-8 h-8 text-emerald-300 mb-4" />
+                <p className="text-sage-700 text-lg leading-relaxed mb-6 italic">
+                  "{testimonial.quote}"
+                </p>
+                <div>
+                  <p className="font-semibold text-sage-800">{testimonial.author}</p>
+                  <p className="text-sage-600 text-sm">{testimonial.role}</p>
+                </div>
+              </motion.div>
+            ))}
           </div>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-            Healthcare providers are losing valuable patients and revenue while individuals in recovery 
-            struggle with gaps in care between sessions, leading to higher relapse rates and readmissions.
-          </p>
-          <Button size="lg" asChild>
-            <Link to="/platform">Learn About Our Solution</Link>
-          </Button>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="relative z-10 px-6 py-20">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="bg-gradient-healing rounded-3xl p-12 shadow-seren"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-sage-800 mb-6">
+              Ready to Begin Your Healing Journey?
+            </h2>
+            <p className="text-xl text-sage-600 mb-8 max-w-2xl mx-auto">
+              Join thousands of others who have found hope, support, and strength through Serenity. 
+              Your path to recovery starts with a single step.
+            </p>
+            <Link 
+              to="/auth"
+              className="inline-flex items-center space-x-3 bg-gradient-primary text-white px-8 py-4 rounded-2xl font-semibold text-lg shadow-gentle hover:shadow-calm transition-all duration-300 transform hover:scale-105"
+            >
+              <span>Start Your Free Journey</span>
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+            <p className="text-sage-500 text-sm mt-4">
+              No credit card required • HIPAA compliant • 24/7 support
+            </p>
+          </motion.div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-background">
-        <div className="container mx-auto px-4 py-12">
+      <footer className="relative z-10 px-6 py-12 bg-sage-900 text-white">
+        <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <h3 className="font-semibold text-foreground mb-4">Platform</h3>
-              <div className="space-y-2">
-                <Link to="/platform" className="block text-muted-foreground hover:text-foreground transition-colors">
-                  How It Works
-                </Link>
-                <Link to="/platform#security" className="block text-muted-foreground hover:text-foreground transition-colors">
-                  Security
-                </Link>
-                <Link to="/providers#pricing" className="block text-muted-foreground hover:text-foreground transition-colors">
-                  Pricing
-                </Link>
-                <Link to="/auth" className="block text-muted-foreground hover:text-foreground transition-colors">
-                  Login
-                </Link>
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                  <Heart className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-xl font-bold">Serenity</span>
               </div>
+              <p className="text-sage-300 leading-relaxed">
+                Supporting your recovery journey with compassion, evidence-based tools, and a caring community.
+              </p>
             </div>
+            
             <div>
-              <h3 className="font-semibold text-foreground mb-4">Company</h3>
-              <div className="space-y-2">
-                <Link to="/contact" className="block text-muted-foreground hover:text-foreground transition-colors">
-                  About Us
-                </Link>
-                <Link to="/pilot" className="block text-muted-foreground hover:text-foreground transition-colors">
-                  Pilot Program
-                </Link>
-                <Link to="/contact" className="block text-muted-foreground hover:text-foreground transition-colors">
-                  Careers
-                </Link>
-                <Link to="/contact" className="block text-muted-foreground hover:text-foreground transition-colors">
-                  Contact
-                </Link>
-              </div>
+              <h3 className="font-semibold mb-4">Platform</h3>
+              <ul className="space-y-2 text-sage-300">
+                <li><Link to="/auth" className="hover:text-white transition-colors">Sign In</Link></li>
+                <li><Link to="/auth" className="hover:text-white transition-colors">Get Started</Link></li>
+                <li><Link to="/about" className="hover:text-white transition-colors">About</Link></li>
+                <li><Link to="/support" className="hover:text-white transition-colors">Support</Link></li>
+              </ul>
             </div>
+            
             <div>
-              <h3 className="font-semibold text-foreground mb-4">Resources</h3>
-              <div className="space-y-2">
-                <span className="block text-muted-foreground">Blog</span>
-                <span className="block text-muted-foreground">Research</span>
-                <span className="block text-muted-foreground">Support</span>
-                <span className="block text-muted-foreground">FAQ</span>
-              </div>
+              <h3 className="font-semibold mb-4">Resources</h3>
+              <ul className="space-y-2 text-sage-300">
+                <li><Link to="/crisis" className="hover:text-white transition-colors">Crisis Support</Link></li>
+                <li><Link to="/community" className="hover:text-white transition-colors">Community</Link></li>
+                <li><Link to="/tools" className="hover:text-white transition-colors">Recovery Tools</Link></li>
+                <li><Link to="/providers" className="hover:text-white transition-colors">Find Providers</Link></li>
+              </ul>
             </div>
+            
             <div>
-              <h3 className="font-semibold text-foreground mb-4">Legal</h3>
-              <div className="space-y-2">
-                <span className="block text-muted-foreground">Privacy Policy</span>
-                <span className="block text-muted-foreground">Terms of Service</span>
-                <span className="block text-muted-foreground">HIPAA Notice</span>
-                <span className="block text-muted-foreground">Security</span>
-              </div>
+              <h3 className="font-semibold mb-4">Legal</h3>
+              <ul className="space-y-2 text-sage-300">
+                <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+                <li><Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
+                <li><Link to="/hipaa" className="hover:text-white transition-colors">HIPAA Compliance</Link></li>
+                <li><Link to="/accessibility" className="hover:text-white transition-colors">Accessibility</Link></li>
+              </ul>
             </div>
           </div>
-          <div className="border-t border-border mt-8 pt-8 text-center">
-            <p className="text-muted-foreground">
-              © 2025 Check-In Solutions LLC - Building recovery technology with lived experience
-            </p>
+          
+          <div className="border-t border-sage-800 mt-8 pt-8 text-center text-sage-400">
+            <p>&copy; 2024 Serenity Sober Pathways Guide. All rights reserved. Made with ❤️ for recovery.</p>
           </div>
         </div>
       </footer>

@@ -5,7 +5,26 @@ import { AuthDebugPanel } from '@/components/auth/AuthDebugPanel';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
-import { Loader2, Shield, Heart, Brain, Users, Bug, AlertCircle, Stethoscope, HeartHandshake, CheckCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Loader2, 
+  Shield, 
+  Heart, 
+  Brain, 
+  Users, 
+  Bug, 
+  AlertCircle, 
+  Stethoscope, 
+  HeartHandshake, 
+  CheckCircle,
+  Sparkles,
+  Leaf,
+  Star,
+  ArrowRight,
+  Lock,
+  Eye,
+  EyeOff
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -98,505 +117,217 @@ const Auth = () => {
   // Show loading state while checking auth status
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-emerald-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-600" />
-          <p className="text-gray-600 dark:text-gray-400">Checking authentication...</p>
+      <div className="min-h-screen bg-gradient-therapeutic flex items-center justify-center">
+        {/* Floating Elements Background */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-10 w-32 h-32 bg-emerald-200/20 rounded-full animate-float"></div>
+          <div className="absolute top-40 right-20 w-24 h-24 bg-turquoise-200/20 rounded-full animate-float" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute bottom-32 left-1/4 w-20 h-20 bg-sky-200/20 rounded-full animate-float" style={{ animationDelay: '2s' }}></div>
         </div>
-      </div>
-    );
-  }
 
-  // Show redirecting state
-  if (isRedirecting && user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-emerald-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center animate-pulse">
-            <Shield className="w-8 h-8 text-green-600" />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
+          <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-healing">
+            <Loader2 className="w-8 h-8 text-white animate-spin" />
           </div>
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Welcome back!</h2>
-          <p className="text-gray-600 dark:text-gray-400">Redirecting to your dashboard...</p>
-          <Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-600" />
-        </div>
+          <h2 className="text-2xl font-bold text-sage-800 mb-2">Welcome to Serenity</h2>
+          <p className="text-sage-600">Preparing your secure environment...</p>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      <div className="flex flex-col lg:flex-row min-h-screen">
-        {/* Left side - Auth Form */}
-        <div className="flex-1 flex items-center justify-center p-6 lg:p-8 lg:max-w-md lg:min-w-[400px]">
-          <div className="w-full max-w-md space-y-8">
-            {/* Header */}
-            <div className="text-center space-y-4 animate-fade-in">
-              <div className="flex items-center justify-center space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <Heart className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent">
-                    Serenity
-                  </h1>
-                  <p className="text-sm text-muted-foreground">Support Platform</p>
-                </div>
-                <ThemeToggle />
-              </div>
-              <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-                  Supporting Recovery Together
-                </h2>
-                <p className="text-base text-muted-foreground">
-                  Whether you're in recovery, a healthcare provider, or a caring supporter - Serenity is built for you
-                </p>
-              </div>
-            </div>
-
-            {/* Development Mode Tools */}
-            {import.meta.env.DEV && (
-              <div className="space-y-3">
-                <Alert className="bg-blue-50 border-blue-200">
-                  <AlertDescription className="text-sm">
-                    <strong>Development Mode Active</strong>
-                    <div className="mt-2 space-y-2">
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => navigate('/')}
-                          className="flex-1"
-                        >
-                          Skip to Home
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => navigate('/checkin')}
-                          className="flex-1"
-                        >
-                          Skip to Check-in
-                        </Button>
-                      </div>
-                      <Button
-                        variant="link"
-                        size="sm"
-                        onClick={() => setShowDebug(!showDebug)}
-                        className="w-full"
-                      >
-                        <Bug className="w-3 h-3 mr-1" />
-                        {showDebug ? 'Hide' : 'Show'} Debug Info
-                      </Button>
-                    </div>
-                  </AlertDescription>
-                </Alert>
-
-                {/* Debug Panel */}
-                {showDebug && (
-                  <>
-                    <AuthDebugPanel />
-                    <Card className="bg-gray-50 dark:bg-gray-800">
-                      <CardContent className="pt-4">
-                        <h4 className="font-semibold mb-2 flex items-center gap-2">
-                          <Bug className="w-4 h-4" />
-                          Debug Information
-                        </h4>
-                        <pre className="text-xs bg-white dark:bg-gray-900 p-2 rounded overflow-auto max-h-40">
-                          {JSON.stringify(debugInfo, null, 2)}
-                        </pre>
-                        <div className="mt-3 space-y-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              localStorage.clear();
-                              sessionStorage.clear();
-                              window.location.reload();
-                            }}
-                            className="w-full"
-                          >
-                            Clear Storage & Reload
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              console.log('Current auth state:', { user, authLoading });
-                              alert('Check console for auth state');
-                            }}
-                            className="w-full"
-                          >
-                            Log Auth State
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </>
-                )}
-              </div>
-            )}
-
-            {/* Auth Error Alert */}
-            {localStorage.getItem('auth_error') && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  {localStorage.getItem('auth_error')}
-                  <button
-                    onClick={() => {
-                      localStorage.removeItem('auth_error');
-                      window.location.reload();
-                    }}
-                    className="block mt-2 text-sm underline"
-                  >
-                    Clear error
-                  </button>
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {/* Temporary Database Issue Notice */}
-            <Alert className="border-amber-200 bg-amber-50 dark:bg-amber-900/20">
-              <AlertCircle className="h-4 w-4 text-amber-600" />
-              <AlertDescription className="text-amber-700 dark:text-amber-300">
-                <strong>Notice:</strong> We're currently experiencing database configuration issues. 
-                If you're unable to sign in or create an account, please try the following:
-                <ul className="mt-2 ml-4 list-disc text-sm">
-                  <li>Use the development mode buttons above to skip authentication</li>
-                  <li>Contact support if you need immediate access</li>
-                  <li>Check back later as we're working on resolving this issue</li>
-                </ul>
-              </AlertDescription>
-            </Alert>
-
-            {/* User Type Selection - Show when not showing login form */}
-            {!showLoginForm && (
-              <>
-                <div className="text-center space-y-4">
-                  <p className="text-lg font-medium text-gray-800 dark:text-gray-200">
-                    One platform, three perspectives, countless lives changed
-                  </p>
-                  
-                  <div className="space-y-3">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      I am a:
-                    </label>
-                    <div className="space-y-2">
-                      {[
-                        { value: 'recovery', label: 'Person in Recovery' },
-                        { value: 'provider', label: 'Healthcare Provider' },
-                        { value: 'supporter', label: 'Personal Supporter' }
-                      ].map((option) => (
-                        <label key={option.value} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors">
-                          <input
-                            type="radio"
-                            name="userType"
-                            value={option.value}
-                            checked={selectedUserType === option.value}
-                            onChange={(e) => {
-                              const newValue = e.target.value;
-                              console.log('🎯 User type selected:', newValue);
-                              setSelectedUserType(newValue);
-                            }}
-                            className="text-blue-600"
-                          />
-                          <span className="text-sm text-gray-700 dark:text-gray-300">{option.label}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Login Button */}
-                <Button
-                  data-testid="login-button"
-                  onClick={() => {
-                    setShowLoginForm(true);
-                    console.log('Login button clicked - showing login form');
-                  }}
-                  className="w-full"
-                  variant="outline"
-                >
-                  Continue to Login
-                </Button>
-              </>
-            )}
-
-            {/* Auth Form - Show when login form is requested or on /login route */}
-            {showLoginForm && (
-              <AuthForm userType={selectedUserType || 'recovery'} />
-            )}
-
-            {/* Privacy Notice */}
-            <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-6">
-              By signing in, you agree to our{' '}
-              <a href="/terms" className="underline hover:text-gray-700 dark:hover:text-gray-300">
-                Terms of Service
-              </a>{' '}
-              and{' '}
-              <a href="/privacy" className="underline hover:text-gray-700 dark:hover:text-gray-300">
-                Privacy Policy
-              </a>
-            </p>
-          </div>
-        </div>
-
-        {/* Right side - User Type Cards and Features */}
-        <div className="flex-1 bg-gradient-to-br from-blue-50 via-white to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-          <div className="p-6 lg:p-8 h-full overflow-y-auto">
-            <div className={`max-w-4xl mx-auto space-y-8 transition-all duration-1000 ${showFeatures ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              
-              {/* Header */}
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-emerald-600 rounded-2xl flex items-center justify-center shadow-xl mx-auto animate-float">
-                  <Heart className="w-8 h-8 text-white" />
-                </div>
-                <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200">
-                  Choose Your Journey
-                </h2>
-                <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl mx-auto">
-                  Serenity serves the entire recovery ecosystem with specialized tools and features for each role
-                </p>
-              </div>
-
-              {/* User Type Selection Cards */}
-              <div className="grid md:grid-cols-3 gap-6">
-                {/* Person in Recovery Card */}
-                <Card 
-                  className="group border-0 shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-emerald-200 dark:hover:border-emerald-800 cursor-pointer bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20"
-                  onClick={() => {
-                    setSelectedUserType('recovery');
-                    console.log('✅ Recovery card clicked - user type set to: recovery');
-                  }}
-                >
-                  <CardHeader className="text-center pb-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg mx-auto mb-4 group-hover:scale-110 transition-transform">
-                      <Shield className="w-8 h-8 text-white" />
-                    </div>
-                    <CardTitle className="text-xl font-bold text-emerald-800 dark:text-emerald-200">
-                      I'm in Recovery
-                    </CardTitle>
-                    <p className="text-sm text-emerald-600 dark:text-emerald-300 font-medium">
-                      Take control of your journey with evidence-based tools
-                    </p>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                      <li className="flex items-center">
-                        <CheckCircle className="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" />
-                        Daily check-ins & mood tracking
-                      </li>
-                      <li className="flex items-center">
-                        <CheckCircle className="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" />
-                        Crisis support network
-                      </li>
-                      <li className="flex items-center">
-                        <CheckCircle className="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" />
-                        Anonymous community support
-                      </li>
-                      <li className="flex items-center">
-                        <CheckCircle className="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" />
-                        Mental health assessments
-                      </li>
-                    </ul>
-                    <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
-                      Start Your Recovery Journey
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                {/* Healthcare Provider Card */}
-                <Card 
-                  className="group border-0 shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-blue-200 dark:hover:border-blue-800 cursor-pointer bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20"
-                  onClick={() => {
-                    setSelectedUserType('provider');
-                    console.log('✅ Provider card clicked - user type set to: provider');
-                  }}
-                >
-                  <CardHeader className="text-center pb-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg mx-auto mb-4 group-hover:scale-110 transition-transform">
-                      <Stethoscope className="w-8 h-8 text-white" />
-                    </div>
-                    <CardTitle className="text-xl font-bold text-blue-800 dark:text-blue-200">
-                      I'm a Healthcare Provider
-                    </CardTitle>
-                    <p className="text-sm text-blue-600 dark:text-blue-300 font-medium">
-                      Support your patients with clinical-grade monitoring tools
-                    </p>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                      <li className="flex items-center">
-                        <CheckCircle className="w-4 h-4 text-blue-500 mr-2 flex-shrink-0" />
-                        Patient progress dashboards
-                      </li>
-                      <li className="flex items-center">
-                        <CheckCircle className="w-4 h-4 text-blue-500 mr-2 flex-shrink-0" />
-                        Evidence-based assessments
-                      </li>
-                      <li className="flex items-center">
-                        <CheckCircle className="w-4 h-4 text-blue-500 mr-2 flex-shrink-0" />
-                        Secure communication
-                      </li>
-                      <li className="flex items-center">
-                        <CheckCircle className="w-4 h-4 text-blue-500 mr-2 flex-shrink-0" />
-                        Treatment plan integration
-                      </li>
-                    </ul>
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                      Explore Provider Tools
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                {/* Personal Supporter Card */}
-                <Card 
-                  className="group border-0 shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-purple-200 dark:hover:border-purple-800 cursor-pointer bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20"
-                  onClick={() => {
-                    setSelectedUserType('supporter');
-                    console.log('✅ Supporter card clicked - user type set to: supporter');
-                  }}
-                >
-                  <CardHeader className="text-center pb-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg mx-auto mb-4 group-hover:scale-110 transition-transform">
-                      <HeartHandshake className="w-8 h-8 text-white" />
-                    </div>
-                    <CardTitle className="text-xl font-bold text-purple-800 dark:text-purple-200">
-                      I'm Supporting Someone
-                    </CardTitle>
-                    <p className="text-sm text-purple-600 dark:text-purple-300 font-medium">
-                      Be part of their support network with the right tools
-                    </p>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                      <li className="flex items-center">
-                        <CheckCircle className="w-4 h-4 text-purple-500 mr-2 flex-shrink-0" />
-                        Crisis alert notifications
-                      </li>
-                      <li className="flex items-center">
-                        <CheckCircle className="w-4 h-4 text-purple-500 mr-2 flex-shrink-0" />
-                        Educational resources
-                      </li>
-                      <li className="flex items-center">
-                        <CheckCircle className="w-4 h-4 text-purple-500 mr-2 flex-shrink-0" />
-                        Communication guidelines
-                      </li>
-                      <li className="flex items-center">
-                        <CheckCircle className="w-4 h-4 text-purple-500 mr-2 flex-shrink-0" />
-                        Progress celebration tools
-                      </li>
-                    </ul>
-                    <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
-                      Learn How to Help
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Updated Feature Cards with Badges */}
-              <div className="space-y-6">
-                <div className="text-center">
-                  <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">
-                    Core Features
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Discover how our platform serves each user type
-                  </p>
-                </div>
-
-                <div className="grid md:grid-cols-3 gap-4">
-                  <Card className="border-0 shadow-md transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
-                    <CardContent className="p-4 flex items-start space-x-4">
-                      <div className="w-10 h-10 bg-pink-100 dark:bg-pink-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Heart className="w-6 h-6 text-pink-600 dark:text-pink-400" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <h3 className="font-semibold text-gray-800 dark:text-gray-200">Daily Check-ins</h3>
-                          <Badge variant="secondary" className="text-xs">Recovery & Providers</Badge>
-                        </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Track mood, energy, and recovery progress with simple daily check-ins
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-0 shadow-md transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
-                    <CardContent className="p-4 flex items-start space-x-4">
-                      <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Brain className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <h3 className="font-semibold text-gray-800 dark:text-gray-200">Mental Health Screening</h3>
-                          <Badge variant="default" className="text-xs">All Users</Badge>
-                        </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Monitor mental wellness with evidence-based assessments
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-0 shadow-md transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
-                    <CardContent className="p-4 flex items-start space-x-4">
-                      <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <h3 className="font-semibold text-gray-800 dark:text-gray-200">Community Support</h3>
-                          <Badge variant="outline" className="text-xs">Recovery & Supporters</Badge>
-                        </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Connect with others and build your support network
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-
-              {/* Footer Information */}
-              <div className="grid md:grid-cols-3 gap-6 pt-8 border-t border-gray-200 dark:border-gray-700">
-                <div className="text-center space-y-2">
-                  <h4 className="font-semibold text-emerald-600 dark:text-emerald-400">For Those in Recovery</h4>
-                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                    <li>Privacy-first design</li>
-                    <li>Anonymous options</li>
-                    <li>24/7 support access</li>
-                  </ul>
-                </div>
-                <div className="text-center space-y-2">
-                  <h4 className="font-semibold text-blue-600 dark:text-blue-400">For Providers</h4>
-                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                    <li>HIPAA considerations</li>
-                    <li>Clinical insights</li>
-                    <li>Patient engagement tools</li>
-                  </ul>
-                </div>
-                <div className="text-center space-y-2">
-                  <h4 className="font-semibold text-purple-600 dark:text-purple-400">For Supporters</h4>
-                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                    <li>Educational resources</li>
-                    <li>Healthy boundaries</li>
-                    <li>Effective communication</li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="text-center pt-6">
-                <div className="flex items-center justify-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-                  <Shield className="w-4 h-4" />
-                  <span>Your data is encrypted and secure</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-therapeutic relative overflow-hidden">
+      {/* Floating Elements Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-32 h-32 bg-emerald-200/20 rounded-full animate-float"></div>
+        <div className="absolute top-40 right-20 w-24 h-24 bg-turquoise-200/20 rounded-full animate-float" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute bottom-32 left-1/4 w-20 h-20 bg-sky-200/20 rounded-full animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute bottom-20 right-1/3 w-28 h-28 bg-sage-200/20 rounded-full animate-float" style={{ animationDelay: '0.5s' }}></div>
       </div>
+
+      {/* Header */}
+      <header className="relative z-10 px-6 py-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center space-x-3"
+          >
+            <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center shadow-healing">
+              <Heart className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-2xl font-bold text-sage-800">Serenity</span>
+          </motion.div>
+          
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center space-x-4"
+          >
+            <ThemeToggle />
+            {showDebug && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowDebug(!showDebug)}
+                className="border-sage-200 text-sage-700 hover:bg-sage-50"
+              >
+                <Bug className="w-4 h-4 mr-2" />
+                Debug
+              </Button>
+            )}
+          </motion.div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="relative z-10 px-6 py-12">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            
+            {/* Left Column - Welcome & Features */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <div className="mb-8">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="inline-flex items-center space-x-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-6"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>HIPAA-Compliant Recovery Platform</span>
+                </motion.div>
+                
+                <h1 className="text-4xl lg:text-5xl font-bold text-sage-800 mb-6 leading-tight">
+                  Your Journey to
+                  <span className="block bg-gradient-primary bg-clip-text text-transparent">
+                    Recovery Begins
+                  </span>
+                  <span className="block text-sage-700">Here</span>
+                </h1>
+                
+                <p className="text-xl text-sage-600 mb-8 leading-relaxed">
+                  A compassionate, secure platform supporting your recovery with evidence-based tools, 
+                  community support, and professional guidance.
+                </p>
+              </div>
+
+              {/* Features Grid */}
+              <AnimatePresence>
+                {showFeatures && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.4 }}
+                    className="grid grid-cols-1 sm:grid-cols-2 gap-6"
+                  >
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.5 }}
+                      className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-sage-200 shadow-soft"
+                    >
+                      <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mb-4">
+                        <Shield className="w-6 h-6 text-emerald-600" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-sage-800 mb-2">Secure & Private</h3>
+                      <p className="text-sage-600 text-sm">HIPAA-compliant with end-to-end encryption</p>
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.6 }}
+                      className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-sage-200 shadow-soft"
+                    >
+                      <div className="w-12 h-12 bg-turquoise-100 rounded-xl flex items-center justify-center mb-4">
+                        <HeartHandshake className="w-6 h-6 text-turquoise-600" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-sage-800 mb-2">Community Support</h3>
+                      <p className="text-sage-600 text-sm">Connect with peers and supporters</p>
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.7 }}
+                      className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-sage-200 shadow-soft"
+                    >
+                      <div className="w-12 h-12 bg-sky-100 rounded-xl flex items-center justify-center mb-4">
+                        <Brain className="w-6 h-6 text-sky-600" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-sage-800 mb-2">Evidence-Based</h3>
+                      <p className="text-sage-600 text-sm">Tools backed by clinical research</p>
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.8 }}
+                      className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-sage-200 shadow-soft"
+                    >
+                      <div className="w-12 h-12 bg-sage-100 rounded-xl flex items-center justify-center mb-4">
+                        <Stethoscope className="w-6 h-6 text-sage-600" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-sage-800 mb-2">Professional Care</h3>
+                      <p className="text-sage-600 text-sm">Connect with healthcare providers</p>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+
+            {/* Right Column - Auth Form */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+            >
+              <Card className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-calm">
+                <CardHeader className="text-center pb-6">
+                  <motion.div
+                    initial={{ scale: 0.9 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.5 }}
+                    className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-healing"
+                  >
+                    <Lock className="w-8 h-8 text-white" />
+                  </motion.div>
+                  <CardTitle className="text-2xl font-bold text-sage-800">
+                    Welcome Back
+                  </CardTitle>
+                  <p className="text-sage-600 mt-2">
+                    Sign in to continue your recovery journey
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <AuthForm />
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        </div>
+      </main>
+
+      {/* Debug Panel */}
+      {showDebug && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="fixed bottom-4 right-4 z-50"
+        >
+          <AuthDebugPanel debugInfo={debugInfo} />
+        </motion.div>
+      )}
     </div>
   );
 };

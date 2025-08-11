@@ -70,6 +70,8 @@
     "@radix-ui/react-toast": "^1.1.5",
     "@radix-ui/react-tooltip": "^1.0.7",
     "@supabase/supabase-js": "^2.54.0",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16",
     "@tanstack/react-query": "^5.84.2",
     "@tanstack/react-table": "^8.11.8",
     "@types/dompurify": "^3.2.0",

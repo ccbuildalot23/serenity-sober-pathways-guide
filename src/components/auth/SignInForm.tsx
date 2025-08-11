@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,8 +8,19 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { authClient } from '@/integrations/supabase/auth-client';
-import { Loader2, WifiOff, AlertCircle } from 'lucide-react';
+import { 
+  Loader2, 
+  WifiOff, 
+  AlertCircle, 
+  Mail, 
+  Lock, 
+  Eye, 
+  EyeOff,
+  Heart,
+  Sparkles
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 
 interface SignInFormProps {
   userType?: string;
@@ -19,6 +31,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
   const { signIn } = useAuth();
   const navigate = useNavigate();
@@ -98,138 +111,169 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
         if (result.message.includes('Network')) {
           toast({
             title: "Connection Issue",
-            description: "Having trouble connecting to our servers. Please check your internet connection.",
-            variant: "default",
+            description: "Please check your internet connection and try again.",
+            variant: "destructive",
           });
-        }
-        // In dev/E2E, allow bypass so flows can be tested without live auth
-        if (import.meta.env.DEV) {
-          try {
-            localStorage.setItem('dev_bypass_auth', 'true');
-            // Infer role from email for E2E flows
-            const lower = sanitizedEmail;
-            const inferredRole = lower.includes('provider')
-              ? 'provider'
-              : lower.includes('support')
-                ? 'support_member'
-                : 'patient';
-            localStorage.setItem('pw_role', inferredRole);
-            const target = inferredRole === 'provider'
-              ? '/provider/dashboard'
-              : inferredRole === 'support_member'
-                ? '/supporter/dashboard'
-                : '/patient/dashboard';
-            navigate(target, { replace: true });
-            await new Promise(r => setTimeout(r, 300));
-            return;
-          } catch (_) {}
         }
         return;
       }
 
-      // Success!
-      setError(null);
+      // Success - auth context will handle redirect
       toast({
         title: "Welcome back!",
-        description: "Signing you in...",
+        description: "You've successfully signed in to your recovery journey.",
       });
-      
-      // The auth context will handle the redirect
-      console.log('Sign in successful, auth state will update...');
-      
-    } catch (error: unknown) {
-      console.error('Sign in exception:', error);
-      // In dev/E2E, if auth service is unavailable, bypass for test flows
-      if (import.meta.env.DEV) {
-        try {
-          localStorage.setItem('dev_bypass_auth', 'true');
-          const lower = sanitizedEmail;
-          const inferredRole = lower.includes('provider')
-            ? 'provider'
-            : lower.includes('support')
-              ? 'support_member'
-              : 'patient';
-          localStorage.setItem('pw_role', inferredRole);
-          const target = inferredRole === 'provider'
-            ? '/provider/dashboard'
-            : inferredRole === 'support_member'
-              ? '/supporter/dashboard'
-              : '/patient/dashboard';
-          navigate(target, { replace: true });
-          await new Promise(r => setTimeout(r, 300));
-          return;
-        } catch (_) {}
-      }
-      setError('An unexpected error occurred. Please check your connection and try again.');
+
+    } catch (err) {
+      console.error('Sign in error:', err);
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSignIn} className="space-y-4">
-      {error && (
-        <Alert variant={error.includes('Network') ? 'default' : 'destructive'}>
-          {error.includes('Network') && <WifiOff className="h-4 w-4" />}
-          {!error.includes('Network') && <AlertCircle className="h-4 w-4" />}
-          <AlertDescription>
-            {error}
-            {error.includes('Network') && (
-              <div className="mt-2 text-sm">
-                <strong>Troubleshooting tips:</strong>
-                <ul className="list-disc list-inside mt-1">
-                  <li>Check your internet connection</li>
-                  <li>Try refreshing the page</li>
-                  <li>Disable ad blockers or VPN</li>
-                  <li>Check if cookies are enabled</li>
-                </ul>
-              </div>
-            )}
-          </AlertDescription>
-        </Alert>
-      )}
-      
-      <div>
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          data-testid="email-input"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          autoComplete="email"
-          disabled={loading}
-          maxLength={254}
-          placeholder="Enter your email address"
-        />
-      </div>
-      
-      <div>
-        <Label htmlFor="password">Password</Label>
-        <Input
-          id="password"
-          data-testid="password-input"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          autoComplete="current-password"
-          disabled={loading}
-          maxLength={128}
-          placeholder="Enter your password"
-        />
-      </div>
-      
-      <Button 
-        type="submit" 
-        className="w-full" 
-        disabled={loading}
-        data-testid="submit-login"
+    <motion.form
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      onSubmit={handleSignIn}
+      className="space-y-6"
+    >
+      {/* Welcome Message */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="text-center mb-6"
       >
-        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        {loading ? 'Signing in...' : 'Sign In'}
-      </Button>
-    </form>
+        <div className="inline-flex items-center space-x-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-4">
+          <Heart className="w-4 h-4" />
+          <span>Welcome to your recovery journey</span>
+        </div>
+        <p className="text-sage-600 text-sm">
+          Sign in to access your personalized recovery tools and support network
+        </p>
+      </motion.div>
+
+      {/* Error Alert */}
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Alert variant="destructive" className="border-red-200 bg-red-50">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="text-red-700">
+                {error}
+              </AlertDescription>
+            </Alert>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Email Field */}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.3 }}
+        className="space-y-2"
+      >
+        <Label htmlFor="email" className="text-sage-700 font-medium">
+          Email Address
+        </Label>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Mail className="h-5 w-5 text-sage-400" />
+          </div>
+          <Input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your email"
+            className="pl-10 border-sage-200 focus:border-emerald-300 focus:ring-emerald-200 bg-white/80 backdrop-blur-sm"
+            required
+          />
+        </div>
+      </motion.div>
+
+      {/* Password Field */}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.4 }}
+        className="space-y-2"
+      >
+        <Label htmlFor="password" className="text-sage-700 font-medium">
+          Password
+        </Label>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Lock className="h-5 w-5 text-sage-400" />
+          </div>
+          <Input
+            id="password"
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter your password"
+            className="pl-10 pr-10 border-sage-200 focus:border-emerald-300 focus:ring-emerald-200 bg-white/80 backdrop-blur-sm"
+            required
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-sage-400 hover:text-sage-600 transition-colors"
+          >
+            {showPassword ? (
+              <EyeOff className="h-5 w-5" />
+            ) : (
+              <Eye className="h-5 w-5" />
+            )}
+          </button>
+        </div>
+      </motion.div>
+
+      {/* Sign In Button */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <Button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-gradient-primary hover:bg-gradient-primary/90 text-white font-semibold py-3 rounded-xl shadow-gentle hover:shadow-calm transition-all duration-300 transform hover:scale-[1.02] disabled:transform-none disabled:opacity-70"
+        >
+          {loading ? (
+            <div className="flex items-center space-x-2">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span>Signing in...</span>
+            </div>
+          ) : (
+            <div className="flex items-center space-x-2">
+              <Sparkles className="h-5 w-5" />
+              <span>Continue Your Journey</span>
+            </div>
+          )}
+        </Button>
+      </motion.div>
+
+      {/* Help Text */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6 }}
+        className="text-center"
+      >
+        <p className="text-xs text-sage-500">
+          Need help? Contact our support team for assistance
+        </p>
+      </motion.div>
+    </motion.form>
   );
 };

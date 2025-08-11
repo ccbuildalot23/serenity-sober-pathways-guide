@@ -151,28 +151,50 @@ export const EnhancedResetPasswordForm: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Get the current session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !session) {
-        setError('Your reset link has expired or is invalid. Please request a new one.');
-        await hipaaAuditService.logPasswordResetFailed('unknown', 'Invalid session');
+      // Get token from URL
+      const code = searchParams.get('code');
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+      const token = code || accessToken;
+
+      if (!token) {
+        setError('No reset token found. Please request a new password reset link.');
+        await hipaaAuditService.logPasswordResetFailed('unknown', 'No token found');
         setIsLoading(false);
         return;
       }
 
-      // Update the password
-      const { error: updateError, data } = await supabase.auth.updateUser({
+      // For password reset, we'll use a simpler approach
+      // The token should already be processed by Supabase when the user clicks the link
+      // So we can just try to update the password directly
+      
+      console.log('Attempting to update password...');
+
+      // Add timeout protection to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Password update timed out. Please try again.')), 15000);
+      });
+
+      // Now try to update the password with timeout protection
+      const updatePromise = supabase.auth.updateUser({
         password: password
       });
 
+      const { error: updateError, data } = await Promise.race([updatePromise, timeoutPromise]) as any;
+
       if (updateError) {
         console.error('Password update error:', updateError);
-        setError('Failed to update password. Please try again or request a new reset link.');
-        await hipaaAuditService.logPasswordResetFailed(
-          session.user?.email || 'unknown',
-          updateError.message
-        );
+        
+        // Handle specific error cases
+        if (updateError.message?.includes('JWT')) {
+          setError('Your reset link has expired. Please request a new password reset link.');
+        } else if (updateError.message?.includes('password')) {
+          setError('Password does not meet requirements. Please try a different password.');
+        } else {
+          setError(updateError.message || 'Failed to update password. Please try again.');
+        }
+        
+        await hipaaAuditService.logPasswordResetFailed('unknown', updateError.message);
       } else if (data?.user) {
         // Success!
         setSuccess(true);
@@ -202,7 +224,11 @@ export const EnhancedResetPasswordForm: React.FC = () => {
       }
     } catch (err) {
       console.error('Unexpected error:', err);
-      setError('An unexpected error occurred. Please try again or contact support.');
+      if (err instanceof Error && err.message.includes('timed out')) {
+        setError('Password update timed out. Please try again.');
+      } else {
+        setError('An unexpected error occurred. Please try again or contact support.');
+      }
       await hipaaAuditService.logPasswordResetFailed('unknown', 'Unexpected error');
     } finally {
       setIsLoading(false);

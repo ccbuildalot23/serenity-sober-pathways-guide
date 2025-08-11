@@ -117,32 +117,28 @@ export class SecurityComplianceService {
     // Enhanced Content Security Policy
     const _cspDirectives = [
       "default-src 'self'",
-      `script-src 'self' '_nonce-${_nonce}' 'strict-dynamic'`,
-      `style-src 'self' '_nonce-${_nonce}' https://fonts.googleapis.com`,
-      "font-src 'self' https://fonts.gstatic.com _data:",
-      "img-src 'self' _data: blob: https:",
-      "connect-src 'self' https://tqyiqstpvwztvofrxpuf.supabase.co wss://tqyiqstpvwztvofrxpuf.supabase.co",
-      "frame-src 'none'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com data:",
+      "img-src 'self' data: blob: https: https://vercel.live",
+      "connect-src 'self' https://tqyiqstpvwztvofrxpuf.supabase.co wss://tqyiqstpvwztvofrxpuf.supabase.co https://*.supabase.co wss://*.supabase.co https://api.ipify.org https://vercel.live",
+      "frame-src 'self' https://vercel.live",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
-      "frame-ancestors 'none'",
-      "upgrade-insecure-requests",
-      "block-all-mixed-content"
+      "frame-ancestors 'self'",
+      "upgrade-insecure-requests"
     ].join('; ');
 
     this.setMetaTag('Content-Security-Policy', _cspDirectives);
     this.setMetaTag('X-Content-Type-Options', 'nosniff');
-    this.setMetaTag('X-Frame-Options', 'DENY');
+    this.setMetaTag('X-Frame-Options', 'SAMEORIGIN');
     this.setMetaTag('X-XSS-Protection', '1; mode=block');
     this.setMetaTag('Referrer-Policy', 'strict-origin-when-cross-origin');
     this.setMetaTag('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
-    this.setMetaTag('Cross-Origin-Embedder-Policy', 'require-corp');
-    this.setMetaTag('Cross-Origin-Opener-Policy', 'same-origin');
-    this.setMetaTag('Cross-Origin-Resource-Policy', 'same-origin');
 
     // Store _nonce for use
-    document.documentElement.setAttribute('_data-csp-_nonce', _nonce);
+    document.documentElement.setAttribute('data-csp-nonce', _nonce);
   }
 
   /**

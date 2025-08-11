@@ -10,16 +10,16 @@ export class SecurityHeaders {
     // Enhanced Content Security Policy for better security
     const _cspDirectives = [
       "default-src 'self'",
-      `script-src 'self' '_nonce-${_nonce}'`, // Remove unsafe-inline and unsafe-eval
-      `style-src 'self' '_nonce-${_nonce}' https://fonts.googleapis.com`,
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com data:",
-      "img-src 'self' data: blob: https:",
-      "connect-src 'self' https://osfgyoupkmjbxwodsoqh.supabase.co wss://osfgyoupkmjbxwodsoqh.supabase.co https://*.supabase.co wss://*.supabase.co",
-      "frame-src 'none'",
+      "img-src 'self' data: blob: https: https://vercel.live",
+      "connect-src 'self' https://tqyiqstpvwztvofrxpuf.supabase.co wss://tqyiqstpvwztvofrxpuf.supabase.co https://*.supabase.co wss://*.supabase.co https://api.ipify.org https://vercel.live",
+      "frame-src 'self' https://vercel.live",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
-      "frame-ancestors 'none'",
+      "frame-ancestors 'self'",
       "upgrade-insecure-requests"
     ].join('; ');
 
@@ -27,7 +27,7 @@ export class SecurityHeaders {
     
     // Basic security headers only
     this.setMetaTag('X-Content-Type-Options', 'nosniff');
-    this.setMetaTag('X-Frame-Options', 'DENY');
+    this.setMetaTag('X-Frame-Options', 'SAMEORIGIN');
     this.setMetaTag('Referrer-Policy', 'strict-origin-when-cross-origin');
     
     // Store _nonce for potential use
@@ -36,35 +36,28 @@ export class SecurityHeaders {
     console.log('Simplified security headers applied');
   }
 
-  private static setMetaTag(_name: string, _content: string) {
-    // Remove existing meta tag if it exists
-    const existing = document.querySelector(`meta[http-equiv="${_name}"]`);
+  private static setMetaTag(name: string, content: string) {
+    const existing = document.querySelector(`meta[http-equiv="${name}"]`);
     if (existing) {
       existing.remove();
     }
 
-    // Create new meta tag
     const meta = document.createElement('meta');
-    meta.setAttribute('http-equiv', _name);
-    meta.setAttribute('_content', _content);
+    meta.setAttribute('http-equiv', name);
+    meta.setAttribute('content', content);
     document.head.appendChild(meta);
   }
 
-  private static setNonce(_nonce: string) {
-    // Store _nonce in a data attribute for potential use
-    document.documentElement.setAttribute('data-csp-_nonce', _nonce);
+  private static setNonce(nonce: string) {
+    document.documentElement.setAttribute('data-csp-nonce', nonce);
   }
 
-  static validateEnvironment() {
-    // Basic environment validation without excessive logging
+  static validateEnvironment(): boolean {
     if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-      console.warn('Supabase configuration incomplete - some features may not work');
+      console.error('Missing required environment variables for Supabase');
+      return false;
     }
-
-    // Check for secure context in production
-    if (import.meta.env.PROD && !this.isSecureContext()) {
-      console.error('SECURITY WARNING: Application should run over HTTPS in production');
-    }
+    return true;
   }
 
   static sanitizeUserInput(input: string): string {

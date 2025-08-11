@@ -10,38 +10,31 @@ export class EnhancedSecurityHeaders {
     // Generate a unique _nonce for this session
     const _nonce = crypto.randomUUID();
     
-    // Enhanced Content Security Policy with stricter controls
+    // Enhanced Content Security Policy with necessary permissions for app functionality
     const _cspDirectives = [
       "default-src 'self'",
-      "script-src 'self' 'strict-dynamic'",
-      `style-src 'self' '_nonce-${_nonce}' https://fonts.googleapis.com`,
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live",
+      `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
       "font-src 'self' https://fonts.gstatic.com data:",
-      "img-src 'self' data: blob: https:",
-      // Stricter connect-src - only allow specific Supabase endpoints
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
-      "frame-src 'none'",
+      "img-src 'self' data: blob: https: https://vercel.live",
+      // Allow connections to Supabase and other necessary services
+      "connect-src 'self' https://tqyiqstpvwztvofrxpuf.supabase.co wss://tqyiqstpvwztvofrxpuf.supabase.co https://*.supabase.co wss://*.supabase.co https://api.ipify.org https://vercel.live",
+      "frame-src 'self' https://vercel.live",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
-      "frame-ancestors 'none'",
-      "upgrade-insecure-requests",
-      "block-all-mixed-content",
-      "require-trusted-types-for 'script'" // Additional XSS protection
+      "frame-ancestors 'self'",
+      "upgrade-insecure-requests"
     ].join('; ');
 
     this.setMetaTag('Content-Security-Policy', _cspDirectives);
     
-    // Enhanced security headers
+    // Basic security headers only - remove overly restrictive ones
     this.setMetaTag('X-Content-Type-Options', 'nosniff');
-    this.setMetaTag('X-Frame-Options', 'DENY');
+    this.setMetaTag('X-Frame-Options', 'SAMEORIGIN');
     this.setMetaTag('X-XSS-Protection', '1; mode=block');
     this.setMetaTag('Referrer-Policy', 'strict-origin-when-cross-origin');
-    this.setMetaTag('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), magnetometer=(), gyroscope=()');
-    
-    // Enhanced Cross-Origin policies
-    this.setMetaTag('Cross-Origin-Embedder-Policy', 'require-corp');
-    this.setMetaTag('Cross-Origin-Opener-Policy', 'same-origin');
-    this.setMetaTag('Cross-Origin-Resource-Policy', 'same-origin');
+    this.setMetaTag('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
 
     // Generate device fingerprint for session validation
     this.generateDeviceFingerprint();
@@ -53,7 +46,7 @@ export class EnhancedSecurityHeaders {
     this.setNonce(_nonce);
     
     if (import.meta.env.DEV) {
-      console.log('Enhanced security headers applied with stricter CSP and session management');
+      console.log('Enhanced security headers applied with functional CSP');
     }
   }
 

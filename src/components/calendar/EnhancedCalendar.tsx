@@ -32,13 +32,14 @@ const EnhancedCalendar: React.FC<{
   const [showFilters, setShowFilters] = useState(false);
 
   // Use custom hooks
-  const { monthEntries, _isLoading, error } = useCalendarData(_selectedMonth, _user, supabase);
-  const { filters, setFilters, _filteredEntries } = useCalendarFilters(monthEntries);
+  const { monthEntries, isLoading, error } = useCalendarData(_selectedMonth, _user, supabase);
+  const safeEntries = Array.isArray(monthEntries) ? monthEntries : [];
+  const { filters, setFilters, _filteredEntries } = useCalendarFilters(safeEntries);
   const { handleExport } = useCalendarExport();
   const monthStats = useCalendarStats(_filteredEntries);
 
   // Get available triggers for filter
-  const availableTriggers = Array.from(new Set(monthEntries.flatMap(e => e.triggers || [])));
+  const availableTriggers = Array.from(new Set(safeEntries.flatMap(e => e.triggers || [])));
 
   // Simple notification system
   const showNotification = (type: 'success' | 'error', message: string) => {
@@ -94,7 +95,7 @@ const EnhancedCalendar: React.FC<{
     return "Every day is a new opportunity to grow 🌅";
   };
 
-  if (_isLoading) {
+  if (isLoading) {
     return <CalendarLoadingState />;
   }
 

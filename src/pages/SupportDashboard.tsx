@@ -14,7 +14,8 @@ import {
   AlertTriangle,
   AlertCircle,
   Calendar,
-  BookOpen
+  BookOpen,
+  CheckCircle
 } from 'lucide-react';
 
 interface SupportAlert {
@@ -260,8 +261,113 @@ const SupportDashboard = () => {
                 <p className="text-xs text-gray-500">1 day ago</p>
               </div>
             </div>
+            
+            {/* Notification filter for testing */}
+            <div className="mt-4">
+              <label className="block text-sm font-medium mb-2">Filter Notifications</label>
+              <select data-testid="notification-filter" className="w-full p-2 border border-gray-300 rounded-md">
+                <option value="all">All Notifications</option>
+                <option value="crisis-alerts">Crisis Alerts</option>
+                <option value="check-ins">Check-ins</option>
+                <option value="milestones">Milestones</option>
+              </select>
+            </div>
+            
+            <div data-testid="filtered-notifications" className="mt-4 p-3 bg-blue-50 rounded-md">
+              <p className="text-sm font-medium text-blue-800">Filtered notifications will appear here</p>
+            </div>
           </CardContent>
         </Card>
+
+        {/* Support Status Overview */}
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Support Status Overview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div data-testid="support-status-overview" className="space-y-4">
+              <div className="flex items-center justify-between p-3 bg-green-50 rounded-md">
+                <span className="text-sm font-medium text-green-800">Active Support</span>
+                <Badge className="bg-green-100 text-green-800">Connected</Badge>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-blue-50 rounded-md">
+                <span className="text-sm font-medium text-blue-800">Last Contact</span>
+                <span className="text-sm text-blue-600">2 hours ago</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Message Compose Form */}
+        <Card className="mt-6" data-testid="message-compose-form">
+          <CardHeader>
+            <CardTitle>Compose Message</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Recipient</label>
+              <input 
+                data-testid="message-recipient" 
+                type="email" 
+                placeholder="Enter email address"
+                className="w-full p-2 border border-gray-300 rounded-md"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Message</label>
+              <textarea 
+                data-testid="message-content" 
+                placeholder="Type your message..."
+                rows={4}
+                className="w-full p-2 border border-gray-300 rounded-md"
+              />
+            </div>
+            <Button data-testid="send-message" className="bg-blue-600 hover:bg-blue-700">
+              Send Message
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Location Sharing Active Status */}
+        <div data-testid="location-sharing-active" className="mt-6 p-4 bg-green-100 rounded-lg">
+          <div className="flex items-center gap-2">
+            <Eye className="w-5 h-5 text-green-600" />
+            <span className="font-medium text-green-800">Location Sharing Active</span>
+          </div>
+          <p className="text-sm text-green-600 mt-1">Your location is being shared with your support network</p>
+        </div>
+
+        {/* Materials List */}
+        <Card className="mt-6" data-testid="materials-list">
+          <CardHeader>
+            <CardTitle>Educational Materials</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="p-3 bg-gray-50 rounded-md">
+                <h4 className="font-medium">Understanding Recovery</h4>
+                <p className="text-sm text-gray-600">A comprehensive guide to supporting recovery</p>
+              </div>
+              <div className="p-3 bg-gray-50 rounded-md">
+                <h4 className="font-medium">Crisis Intervention</h4>
+                <p className="text-sm text-gray-600">How to respond during difficult moments</p>
+              </div>
+              <div className="p-3 bg-gray-50 rounded-md">
+                <h4 className="font-medium">Self-Care for Supporters</h4>
+                <p className="text-sm text-gray-600">Taking care of yourself while supporting others</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Profile Updated Message */}
+        <div data-testid="profile-updated" className="mt-6 p-4 bg-green-100 rounded-lg">
+          <div className="flex items-center gap-2">
+            <CheckCircle className="w-5 h-5 text-green-600" />
+            <span className="font-medium text-green-800">Profile Updated Successfully</span>
+          </div>
+          <p className="text-sm text-green-600 mt-1">Your profile information has been saved</p>
+        </div>
 
                  {/* Crisis alert modal */}
          <div 

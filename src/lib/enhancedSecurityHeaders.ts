@@ -7,14 +7,11 @@ export class EnhancedSecurityHeaders {
   private static deviceFingerprint: string | null = null;
   
   static applyEnhancedSecurity() {
-    // Generate a unique _nonce for this session
-    const _nonce = crypto.randomUUID();
-    
     // Enhanced Content Security Policy with necessary permissions for app functionality
     const _cspDirectives = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live",
-      `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com data:",
       "img-src 'self' data: blob: https: https://vercel.live",
       // Allow connections to Supabase and other necessary services
@@ -23,7 +20,6 @@ export class EnhancedSecurityHeaders {
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
-      "frame-ancestors 'self'",
       "upgrade-insecure-requests"
     ].join('; ');
 
@@ -41,9 +37,6 @@ export class EnhancedSecurityHeaders {
     
     // Set up session timeout monitoring
     this.initializeSessionTimeout();
-    
-    // Store _nonce for potential use
-    this.setNonce(_nonce);
     
     if (import.meta.env.DEV) {
       console.log('Enhanced security headers applied with functional CSP');

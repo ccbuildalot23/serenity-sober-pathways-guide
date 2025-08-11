@@ -112,8 +112,6 @@ export class SecurityComplianceService {
    * Enhanced security headers configuration
    */
   applyEnhancedSecurityHeaders(): void {
-    const _nonce = crypto.randomUUID();
-    
     // Enhanced Content Security Policy
     const _cspDirectives = [
       "default-src 'self'",
@@ -126,7 +124,6 @@ export class SecurityComplianceService {
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
-      "frame-ancestors 'self'",
       "upgrade-insecure-requests"
     ].join('; ');
 
@@ -136,9 +133,6 @@ export class SecurityComplianceService {
     this.setMetaTag('X-XSS-Protection', '1; mode=block');
     this.setMetaTag('Referrer-Policy', 'strict-origin-when-cross-origin');
     this.setMetaTag('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
-
-    // Store _nonce for use
-    document.documentElement.setAttribute('data-csp-nonce', _nonce);
   }
 
   /**

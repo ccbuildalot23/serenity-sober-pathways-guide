@@ -4,9 +4,6 @@
  */
 export class SecurityHeaders {
   static applySecurity() {
-    // Generate a unique _nonce for this session
-    const _nonce = crypto.randomUUID();
-    
     // Enhanced Content Security Policy for better security
     const _cspDirectives = [
       "default-src 'self'",
@@ -19,7 +16,6 @@ export class SecurityHeaders {
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
-      "frame-ancestors 'self'",
       "upgrade-insecure-requests"
     ].join('; ');
 
@@ -29,9 +25,6 @@ export class SecurityHeaders {
     this.setMetaTag('X-Content-Type-Options', 'nosniff');
     this.setMetaTag('X-Frame-Options', 'SAMEORIGIN');
     this.setMetaTag('Referrer-Policy', 'strict-origin-when-cross-origin');
-    
-    // Store _nonce for potential use
-    this.setNonce(_nonce);
     
     console.log('Simplified security headers applied');
   }

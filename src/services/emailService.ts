@@ -80,6 +80,9 @@ class EmailService {
       // Use the correct production URL
       const baseUrl = import.meta.env.VITE_PUBLIC_SITE_URL || 'https://serenity-sober-pathways-guide.vercel.app';
       
+      console.log('Sending password reset email to:', sanitizedEmail);
+      console.log('Redirect URL:', `${baseUrl}/reset-password`);
+      
       const { error } = await supabase.auth.resetPasswordForEmail(sanitizedEmail, {
         redirectTo: `${baseUrl}/reset-password`,
       });

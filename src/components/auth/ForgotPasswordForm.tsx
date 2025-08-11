@@ -16,25 +16,27 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBack }
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [_success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     
+    const emailValue = email.trim();
+    
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email.trim()) {
+    if (!emailValue) {
       setError('Email address is required');
       return;
     }
-    if (!emailRegex.test(email.trim())) {
+    if (!emailRegex.test(emailValue)) {
       setError('Please enter a valid email address');
       return;
     }
 
     // Check rate limiting before attempting
-    const rateLimitCheck = emailService.canRequestReset(email);
+    const rateLimitCheck = emailService.canRequestReset(emailValue);
     if (!rateLimitCheck.allowed) {
       setError(`Too many password reset attempts. Please wait ${rateLimitCheck.retryAfter} minutes before trying again.`);
       return;
@@ -43,23 +45,27 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBack }
     setIsLoading(true);
 
     try {
+      console.log('Attempting password reset for:', emailValue);
+      
       // Use the new email service with proper rate limiting and error handling
-      const result = await emailService.sendPasswordResetEmail(email);
+      const result = await emailService.sendPasswordResetEmail(emailValue);
+
+      console.log('Password reset result:', result);
 
       if (result.success) {
         setSuccess(true);
       } else {
-        setError(result.message);
+        setError(result.message || 'Failed to send reset email. Please try again later.');
       }
     } catch (err) {
-      console.error('Unexpected error:', err);
+      console.error('Unexpected error in password reset:', err);
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (_success) {
+  if (success) {
     return (
       <Card className="w-full">
         <CardContent className="pt-6">

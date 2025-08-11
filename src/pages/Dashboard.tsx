@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useCrisisSMS } from '@/hooks/useCrisisSMS';
 import { useEmergencyContacts } from '@/hooks/useEmergencyContacts';
-import { Phone, Heart, Users, Sparkles, AlertCircle, MessageSquare, MapPin } from 'lucide-react';
+import { Phone, Heart, Users, Sparkles, AlertCircle, MessageSquare, MapPin, Calendar, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -18,6 +18,8 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
+import { OneTapCrisisButton } from '@/components/crisis/OneTapCrisisButton';
+import { ShameFreeCheckIn } from '@/components/daily-checkin/ShameFreeCheckIn';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -30,7 +32,20 @@ const Dashboard = () => {
   const [showCrisisModal, setShowCrisisModal] = useState(false);
   const [includeLocation, setIncludeLocation] = useState(true);
   const [crisisMessage, setCrisisMessage] = useState('');
+  const [showCheckIn, setShowCheckIn] = useState(false);
   
+  // Check if user has completed check-in today
+  const hasCheckedInToday = () => {
+    const lastCheckIn = localStorage.getItem('last_checkin');
+    if (!lastCheckIn) return false;
+    
+    const checkInData = JSON.parse(lastCheckIn);
+    const today = new Date().toDateString();
+    const checkInDate = new Date(checkInData.date).toDateString();
+    
+    return today === checkInDate;
+  };
+
   // Handle crisis button click
   const handleCrisisClick = () => {
     if (contacts.length === 0) {
@@ -97,6 +112,25 @@ const Dashboard = () => {
               </div>
             )}
           </div>
+
+          {/* Daily Check-in Status */}
+          <div className="mb-8">
+            {hasCheckedInToday() ? (
+              <div className="inline-flex items-center gap-2 bg-green-900/30 text-green-400 px-6 py-3 rounded-full">
+                <CheckCircle className="w-5 h-5" />
+                <span className="font-semibold">Check-in completed today</span>
+              </div>
+            ) : (
+              <Button
+                onClick={() => setShowCheckIn(true)}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl text-lg font-semibold shadow-lg"
+              >
+                <Calendar className="w-5 h-5 mr-2" />
+                Complete Daily Check-in
+              </Button>
+            )}
+          </div>
+
           {/* Three Big Action Buttons */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto px-4">
             {/* I NEED HELP NOW Button - ENHANCED WITH SMS */}
@@ -128,25 +162,25 @@ const Dashboard = () => {
 
             {/* Just Checking In Button */}
             <Button
-              _onClick={() => navigate('/checkin')}
-              className="h-32 md:h-40 bg-green-600 hover:bg-green-700 text-white rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200"
+              onClick={() => setShowCheckIn(true)}
+              className="h-32 md:h-40 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200"
             >
               <div className="flex flex-col items-center gap-3">
                 <Heart className="w-12 h-12" />
                 <span className="text-2xl font-bold">Just Checking In</span>
-                <span className="text-sm opacity-90">How are you today?</span>
+                <span className="text-sm opacity-90">Daily wellness check</span>
               </div>
             </Button>
 
-            {/* Talk to Someone Button */}
+            {/* Find Support Button */}
             <Button
-              _onClick={() => navigate('/support')}
-              className="h-32 md:h-40 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200"
+              onClick={() => navigate('/peer-support')}
+              className="h-32 md:h-40 bg-green-600 hover:bg-green-700 text-white rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200"
             >
               <div className="flex flex-col items-center gap-3">
                 <Users className="w-12 h-12" />
-                <span className="text-2xl font-bold">Talk to Someone</span>
-                <span className="text-sm opacity-90">Connect with peers who understand</span>
+                <span className="text-2xl font-bold">Find Support</span>
+                <span className="text-sm opacity-90">Connect with community</span>
               </div>
             </Button>
           </div>
@@ -217,86 +251,72 @@ const Dashboard = () => {
         <p className="text-sm">You matter. Recovery is possible. We're here for you 24/7.</p>
       </div>
       
-      {/* Crisis Confirmation Modal */}
+      {/* Crisis Modal */}
       <Dialog open={showCrisisModal} onOpenChange={setShowCrisisModal}>
-        <DialogContent className="bg-gray-900 text-white border-gray-700 max-w-md">
+        <DialogContent className="max-w-md mx-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-xl">
-              <AlertCircle className="w-6 h-6 text-red-500" />
+            <DialogTitle className="text-center text-xl font-bold text-gray-800">
               Send Crisis Alert?
             </DialogTitle>
-            <DialogDescription className="text-gray-300 pt-4">
-              This will immediately notify your {contacts.length} emergency contact{contacts.length !== 1 ? 's' : ''}:
+            <DialogDescription className="text-center text-gray-600">
+              This will notify your emergency contacts and provide immediate support.
             </DialogDescription>
           </DialogHeader>
-          
-          <div className="space-y-4 py-4">
-            {/* Show contacts who will be notified */}
-            <div className="bg-gray-800 rounded-lg p-3 space-y-2">
-              {contacts.slice(0, 3).map((contact, _idx) => (
-                <div key={contact.id} className="flex items-center gap-2 text-sm">
-                  <MessageSquare className="w-4 h-4 text-blue-400" />
-                  <span>{contact.name}</span>
-                  <span className="text-gray-500">({contact.relationship || 'Support'})</span>
-                </div>
-              ))}
-              {contacts.length > 3 && (
-                <div className="text-sm text-gray-500">...and {contacts.length - 3} more</div>
-              )}
-            </div>
-            
-            {/* Location sharing option */}
-            <div className="flex items-center gap-2">
+
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
               <Checkbox
-                id="location"
+                id="includeLocation"
                 checked={includeLocation}
                 onCheckedChange={(checked) => setIncludeLocation(checked as boolean)}
-                className="border-gray-600"
               />
-              <label htmlFor="location" className="flex items-center gap-2 text-sm cursor-pointer">
-                <MapPin className="w-4 h-4" />
-                Include my current location
+              <label htmlFor="includeLocation" className="text-sm text-gray-700">
+                Include my location for emergency services
               </label>
             </div>
-            
-            {/* Optional custom message */}
+
             <div className="space-y-2">
-              <label className="text-sm text-gray-400">Add a message (_optional):</label>
+              <label className="text-sm font-medium text-gray-700">
+                Optional message (keep it brief):
+              </label>
               <textarea
                 value={crisisMessage}
                 onChange={(e) => setCrisisMessage(e.target.value)}
-                placeholder="Let them know what you need..."
-                className="w-full h-20 bg-gray-800 border border-gray-700 rounded-lg p-2 text-sm text-white placeholder-gray-500 resize-none"
-                maxLength={160}
+                placeholder="I need help right now..."
+                className="w-full p-3 border border-gray-300 rounded-lg resize-none"
+                rows={3}
               />
             </div>
           </div>
-          
-          <DialogFooter className="flex gap-3">
+
+          <DialogFooter className="flex-col space-y-2">
             <Button
-              variant="outline"
-              _onClick={() => setShowCrisisModal(false)}
-              className="bg-gray-800 hover:bg-gray-700 border-gray-700"
+              onClick={sendCrisisAlert}
+              disabled={sending}
+              className="w-full bg-red-600 hover:bg-red-700 text-white"
             >
-              Cancel
+              {sending ? 'Sending Alert...' : 'Send Crisis Alert'}
             </Button>
             <Button
-              _onClick={sendCrisisAlert}
-              disabled={sending}
-              className="bg-red-600 hover:bg-red-700 text-white min-w-[120px]"
+              variant="outline"
+              onClick={() => setShowCrisisModal(false)}
+              className="w-full"
             >
-              {sending ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Sending...
-                </div>
-              ) : (
-                'Send Alert'
-              )}
+              Cancel
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Check-in Modal */}
+      <Dialog open={showCheckIn} onOpenChange={setShowCheckIn}>
+        <DialogContent className="max-w-4xl mx-auto max-h-[90vh] overflow-y-auto">
+          <ShameFreeCheckIn />
+        </DialogContent>
+      </Dialog>
+
+      {/* One-Tap Crisis Button - Always Available */}
+      <OneTapCrisisButton />
     </div>
   );
 };

@@ -67,7 +67,7 @@ class RealtimeNotificationService {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        console.error('No authenticated user for realtime notifications');
+        // Don't log error - this is expected for unauthenticated users
         return;
       }
 

@@ -129,7 +129,6 @@ export class SecurityComplianceService {
 
     this.setMetaTag('Content-Security-Policy', _cspDirectives);
     this.setMetaTag('X-Content-Type-Options', 'nosniff');
-    this.setMetaTag('X-Frame-Options', 'SAMEORIGIN');
     this.setMetaTag('X-XSS-Protection', '1; mode=block');
     this.setMetaTag('Referrer-Policy', 'strict-origin-when-cross-origin');
     this.setMetaTag('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');

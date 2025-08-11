@@ -2,9 +2,16 @@
 import React, { useCallback } from 'react';
 import { toast } from 'sonner';
 import { useRealtimeUpdates } from '@/hooks/useRealtimeUpdates';
+import { useAuth } from '@/contexts/AuthContext';
 import { AlertTriangle, Heart, TrendingUp, ShieldAlert, CheckCircle } from 'lucide-react';
 
 const RealtimeNotifications: React.FC = () => {
+  const { user } = useAuth();
+
+  // Don't initialize realtime if no user is authenticated
+  if (!user) {
+    return null;
+  }
   const handleCrisisEvent = useCallback((payload: unknown) => {
     const eventData = payload.new;
     const eventTime = new Date(eventData.created_at).toLocaleTimeString();

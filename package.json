@@ -119,6 +119,7 @@
     "husky": "^9.1.7",
     "lovable-tagger": "^1.0.0",
     "postcss": "^8.4.33",
+    "puppeteer": "^24.16.1",
     "tailwindcss": "^3.4.0",
     "terser": "^5.43.1",
     "typescript": "^5.7.2",

@@ -23,7 +23,6 @@ export class SecurityHeaders {
     
     // Basic security headers only
     this.setMetaTag('X-Content-Type-Options', 'nosniff');
-    this.setMetaTag('X-Frame-Options', 'SAMEORIGIN');
     this.setMetaTag('Referrer-Policy', 'strict-origin-when-cross-origin');
     
     console.log('Simplified security headers applied');

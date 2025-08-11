@@ -47,7 +47,7 @@ const MobileCrisisInterface: React.FC = () => {
     { id: '3', name: 'Crisis Text Line', phone: '741741', type: 'professional' },
   ];
 
-  const supportContacts: Contact[] = offlineData.contacts.slice(0, 3);
+  const supportContacts: Contact[] = (offlineData._contacts || []).slice(0, 3);
 
   // Get user location for emergency services
   useEffect(() => {

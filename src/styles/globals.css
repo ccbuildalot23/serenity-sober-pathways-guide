@@ -92,6 +92,36 @@
     -moz-osx-font-smoothing: grayscale;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
+
+  /* CRITICAL FIX: Ensure input and textarea text is always visible */
+  input, textarea {
+    color: #1f2937 !important;
+    background-color: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: #9ca3af !important;
+  }
+
+  input:focus, textarea:focus {
+    color: #1f2937 !important;
+    background-color: #ffffff !important;
+    border-color: #3b82f6 !important;
+    outline: none !important;
+  }
+
+  /* Error message visibility */
+  .error-message {
+    color: #dc2626 !important;
+    background-color: #fef2f2 !important;
+  }
+
+  /* Success message visibility */
+  .success-message {
+    color: #10b981 !important;
+    background-color: #f0fdf4 !important;
+  }
   
   /* Smooth scroll behavior */
   html {

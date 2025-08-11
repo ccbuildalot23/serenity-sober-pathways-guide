@@ -23,6 +23,10 @@ import HomePage from '@/pages/HomePage';
 const ResetPassword = lazy(() => import('@/pages/ResetPassword'));
 const ForgotPassword = lazy(() => import('@/pages/ForgotPassword'));
 
+// Support Pages
+const SupportNetwork = lazy(() => import('@/pages/SupportNetwork'));
+const SupporterDashboard = lazy(() => import('@/pages/SupporterDashboard'));
+
 // Landing Pages
 const Platform = lazy(() => import('@/pages/Platform'));
 const Providers = lazy(() => import('@/pages/Providers'));
@@ -197,6 +201,13 @@ const AppContent = () => {
               </Suspense>
             </ProtectedRoute>
           } />
+          <Route path="/support-network" element={
+            <ProtectedRoute requiredRole="patient">
+              <Suspense fallback={<LoadingState />}>
+                <SupportNetwork />
+              </Suspense>
+            </ProtectedRoute>
+          } />
           <Route path="/calendar" element={
             <ProtectedRoute requiredRole="patient">
               <Suspense fallback={<LoadingState />}>
@@ -313,7 +324,9 @@ const AppContent = () => {
           {/* Protected Supporter Routes */}
           <Route path="/supporter/dashboard" element={
             <ProtectedRoute requiredRole="support_member">
-              <SupportDashboard />
+              <Suspense fallback={<LoadingState />}>
+                <SupporterDashboard />
+              </Suspense>
             </ProtectedRoute>
           } />
           <Route path="/supporter/messages" element={

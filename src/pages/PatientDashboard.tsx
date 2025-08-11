@@ -151,7 +151,8 @@ const PatientDashboard = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.7 }}
           >
-            <Card className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-soft hover:shadow-calm transition-all duration-300">
+            <Card className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-soft hover:shadow-calm transition-all duration-300 cursor-pointer"
+                  onClick={() => navigate('/support-network')}>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>

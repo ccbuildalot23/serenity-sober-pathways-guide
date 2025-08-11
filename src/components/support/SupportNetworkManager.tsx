@@ -26,6 +26,7 @@ import {
 import { useSupportNetwork } from '@/hooks/useSupportNetwork';
 import { useEmergencyContacts } from '@/hooks/useEmergencyContacts';
 import { supabase } from '@/integrations/supabase/client';
+import { emergencyFallback } from '@/lib/emergencyFallback';
 import { toast } from 'sonner';
 
 interface AddContactForm {
@@ -81,44 +82,61 @@ export const SupportNetworkManager: React.FC = () => {
     try {
       let supporterId = null;
       
-      // If email provided, check if user exists or create profile
-      if (addForm.email) {
-        const { data: existingUser } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('email', addForm.email.trim())
-          .single();
-        
-        if (existingUser) {
-          supporterId = existingUser.id;
-        } else {
-          // Create new profile for external contact
-          const { data: newProfile, error: profileError } = await supabase
+      try {
+        // If email provided, check if user exists or create profile
+        if (addForm.email) {
+          const { data: existingUser } = await supabase
             .from('profiles')
-            .insert({
-              full_name: addForm.name.trim(),
-              email: addForm.email.trim(),
-              phone: addForm.phone.trim() || null
-            })
             .select('id')
+            .eq('email', addForm.email.trim())
             .single();
           
-          if (profileError) throw profileError;
-          supporterId = newProfile.id;
+          if (existingUser) {
+            supporterId = existingUser.id;
+          } else {
+            // Create new profile for external contact
+            const { data: newProfile, error: profileError } = await supabase
+              .from('profiles')
+              .insert({
+                full_name: addForm.name.trim(),
+                email: addForm.email.trim(),
+                phone: addForm.phone.trim() || null
+              })
+              .select('id')
+              .single();
+            
+            if (profileError) throw profileError;
+            supporterId = newProfile.id;
+          }
         }
-      }
 
-      // Add to support network
-      await addSupportMember(supporterId || 'external', addForm.relationship);
+        // Add to support network
+        await addSupportMember(supporterId || 'external', addForm.relationship);
 
-      // Add to emergency contacts if flagged
-      if (addForm.isEmergencyContact) {
-        await addContact({
+        // Add to emergency contacts if flagged
+        if (addForm.isEmergencyContact) {
+          await addContact({
+            name: addForm.name.trim(),
+            phone_number: addForm.phone.trim(),
+            relationship: addForm.relationship,
+            priority_order: emergencyContacts.length + 1
+          });
+        }
+
+      } catch (dbError) {
+        console.warn('Database connection failed, using emergency fallback:', dbError);
+        
+        // Save to emergency fallback
+        emergencyFallback.saveContact({
           name: addForm.name.trim(),
-          phone_number: addForm.phone.trim(),
+          email: addForm.email.trim(),
+          phone: addForm.phone.trim(),
           relationship: addForm.relationship,
-          priority_order: emergencyContacts.length + 1
+          is_emergency_contact: addForm.isEmergencyContact,
+          permissions: addForm.permissions
         });
+        
+        toast.warning('Database unavailable - Contact saved locally');
       }
 
       // Reset form

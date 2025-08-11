@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { checkinSubmissionService } from '@/services/checkinSubmissionService';
+import { emergencyFallback } from '@/lib/emergencyFallback';
 
 interface CheckInData {
   mood: 'positive' | 'neutral' | 'negative';
@@ -98,8 +99,22 @@ const CheckIn = () => {
           console.log('Check-in saved successfully to database');
         } catch (dbError) {
           console.error('Database submission failed:', dbError);
-          // Show error but still continue with UI flow
-          toast.error('Check-in saved locally but failed to sync with server');
+          
+          // Save to emergency fallback
+          const date = new Date().toISOString().slice(0, 10);
+          emergencyFallback.saveCheckin({
+            date,
+            mood: checkInData.mood === 'positive' ? 5 : checkInData.mood === 'neutral' ? 3 : 1,
+            energy: checkInData.energy,
+            hope: checkInData.hope,
+            sobriety_confidence: checkInData.sobrietyConfidence,
+            recovery_importance: checkInData.recoveryImportance,
+            recovery_strength: checkInData.recoveryStrength,
+            support_needed: checkInData.supportNeeded,
+            notes: checkInData.moodDescription
+          });
+          
+          toast.warning('Database unavailable - Check-in saved locally');
         }
         
         if (checkInData.mood === 'negative') {

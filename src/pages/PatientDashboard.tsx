@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { emergencyFallback } from '@/lib/emergencyFallback';
 
 const PatientDashboard = () => {
   const navigate = useNavigate();
@@ -53,37 +54,68 @@ const PatientDashboard = () => {
     if (!user?.id) return;
 
     try {
-      // Load recovery streak
-      const { data: streakData } = await supabase.rpc('get_recovery_streak', { 
-        user_uuid: user.id 
-      });
+      // Try to load from Supabase first
+      let recoveryStreak = 0;
+      let totalCheckins = 0;
+      let lastCheckinDate = null;
+      let supportNetworkCount = 0;
 
-      // Load total check-ins
-      const { data: checkinsData, error: checkinsError } = await supabase
-        .from('daily_checkins')
-        .select('id, checkin_date, created_at')
-        .eq('user_id', user.id)
-        .eq('is_complete', true)
-        .order('checkin_date', { ascending: false });
+      try {
+        // Load recovery streak
+        const { data: streakData } = await supabase.rpc('get_recovery_streak', { 
+          user_uuid: user.id 
+        });
 
-      // Load support network count
-      const { data: supportData, error: supportError } = await supabase
-        .from('support_network_members')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('status', 'active');
+        // Load total check-ins
+        const { data: checkinsData, error: checkinsError } = await supabase
+          .from('daily_checkins')
+          .select('id, checkin_date, created_at')
+          .eq('user_id', user.id)
+          .eq('is_complete', true)
+          .order('checkin_date', { ascending: false });
 
-      const lastCheckin = checkinsData && checkinsData.length > 0 ? checkinsData[0] : null;
+        // Load support network count
+        const { data: supportData, error: supportError } = await supabase
+          .from('support_network_members')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('status', 'active');
+
+        const lastCheckin = checkinsData && checkinsData.length > 0 ? checkinsData[0] : null;
+
+        recoveryStreak = streakData || 0;
+        totalCheckins = checkinsData?.length || 0;
+        lastCheckinDate = lastCheckin?.checkin_date || null;
+        supportNetworkCount = supportData?.length || 0;
+
+      } catch (dbError) {
+        console.warn('Database connection failed, using emergency fallback:', dbError);
+        
+        // Use emergency fallback
+        recoveryStreak = emergencyFallback.getStreak();
+        totalCheckins = emergencyFallback.getTotalCheckins();
+        const lastCheckin = emergencyFallback.getLastCheckin();
+        lastCheckinDate = lastCheckin?.date || null;
+        supportNetworkCount = emergencyFallback.getContacts().length;
+      }
 
       setDashboardData({
-        recoveryStreak: streakData || 0,
-        totalCheckins: checkinsData?.length || 0,
-        lastCheckinDate: lastCheckin?.checkin_date || null,
-        supportNetworkCount: supportData?.length || 0
+        recoveryStreak,
+        totalCheckins,
+        lastCheckinDate,
+        supportNetworkCount
       });
 
     } catch (error) {
       console.error('Error loading dashboard data:', error);
+      
+      // Final fallback to emergency data
+      setDashboardData({
+        recoveryStreak: emergencyFallback.getStreak(),
+        totalCheckins: emergencyFallback.getTotalCheckins(),
+        lastCheckinDate: emergencyFallback.getLastCheckin()?.date || null,
+        supportNetworkCount: emergencyFallback.getContacts().length
+      });
     } finally {
       setLoading(false);
     }

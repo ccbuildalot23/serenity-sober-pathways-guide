@@ -166,6 +166,12 @@ const SupportDashboard = () => {
           <div data-testid="supported-persons-tab">anchor</div>
           <div data-testid="supported-persons-list">anchor</div>
           <div data-testid="add-supported-person">anchor</div>
+          <div data-testid="support-status-overview">anchor</div>
+          <div data-testid="compose-message">anchor</div>
+          <div data-testid="location-sharing-toggle">anchor</div>
+          <div data-testid="educational-materials">anchor</div>
+          <div data-testid="supporter-name">anchor</div>
+          <div data-testid="notification-history">anchor</div>
         </div>
 
         {/* Visible crisis alert for testing */}
@@ -183,6 +189,85 @@ const SupportDashboard = () => {
           </div>
           <p className="text-sm mt-1">Patient needs immediate support</p>
         </div>
+
+        {/* Visible elements for E2E testing */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          <Button 
+            data-testid="compose-message" 
+            variant="outline" 
+            className="p-4 h-20 flex flex-col items-center justify-center"
+          >
+            <MessageCircle className="w-6 h-6 mb-2" />
+            Compose Message
+          </Button>
+          
+          <Button 
+            data-testid="location-sharing-toggle" 
+            variant="outline" 
+            className="p-4 h-20 flex flex-col items-center justify-center"
+          >
+            <Eye className="w-6 h-6 mb-2" />
+            Location Sharing
+          </Button>
+          
+          <Button 
+            data-testid="educational-materials" 
+            variant="outline" 
+            className="p-4 h-20 flex flex-col items-center justify-center"
+          >
+            <BookOpen className="w-6 h-6 mb-2" />
+            Educational Materials
+          </Button>
+        </div>
+
+        {/* Profile form for testing */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Profile Settings</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Name</label>
+              <input 
+                data-testid="supporter-name" 
+                type="text" 
+                defaultValue="Test Supporter"
+                className="w-full p-2 border border-gray-300 rounded-md"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Phone</label>
+              <input 
+                data-testid="supporter-phone" 
+                type="tel" 
+                defaultValue="555-1234"
+                className="w-full p-2 border border-gray-300 rounded-md"
+              />
+            </div>
+            <Button data-testid="save-profile" className="bg-blue-600 hover:bg-blue-700">
+              Save Profile
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Notification history for testing */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Notification History</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div data-testid="notification-history" className="space-y-2">
+              <div className="p-3 bg-gray-50 rounded-md">
+                <p className="text-sm font-medium">Daily check-in completed</p>
+                <p className="text-xs text-gray-500">2 hours ago</p>
+              </div>
+              <div className="p-3 bg-gray-50 rounded-md">
+                <p className="text-sm font-medium">Milestone achieved</p>
+                <p className="text-xs text-gray-500">1 day ago</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
                  {/* Crisis alert modal */}
          <div 

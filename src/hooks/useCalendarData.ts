@@ -120,15 +120,15 @@ export function useCalendarData(
 
         if (error) throw error;
         
-        const _transformedData = (checkins || []).map((entry: unknown): MoodEntry => ({
-          id: entry.id,
-          date: new Date(entry.checkin_date),
-          _mood_rating: entry._mood_rating || 5,
-          _energy_rating: entry._energy_rating || 5,
-          triggers: entry.mood_triggers?.map((t: unknown) => t.trigger_name) || [],
-          gratitude: entry.gratitude_entries?.map((g: unknown) => g.gratitude_text) || [],
-          _notes: entry._notes || entry.support_needed || '',
-          _created_at: new Date(entry._created_at)
+        const _transformedData = (checkins || []).map((entry: any): MoodEntry => ({
+          id: entry?.id ?? crypto.randomUUID(),
+          date: new Date(entry?.checkin_date ?? Date.now()),
+          mood_rating: entry?._mood_rating ?? 5,
+          energy_rating: entry?._energy_rating ?? 5,
+          triggers: Array.isArray(entry?.mood_triggers) ? entry.mood_triggers.map((t: any) => t?.trigger_name).filter(Boolean) : [],
+          gratitude: Array.isArray(entry?.gratitude_entries) ? entry.gratitude_entries.map((g: any) => g?.gratitude_text).filter(Boolean) : [],
+          notes: entry?._notes || entry?.support_needed || '',
+          created_at: new Date(entry?._created_at ?? Date.now())
         }));
 
         setMonthEntries(_transformedData);

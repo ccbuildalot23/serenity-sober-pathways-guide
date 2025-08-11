@@ -9,10 +9,11 @@ export const getMoodColorClass = (mood: number): string => {
   return 'bg-emerald-500';
 };
 
-export const groupEntriesByDay = (entries: MoodEntry[]): Map<string, DayData> => {
+export const groupEntriesByDay = (entries: MoodEntry[] = []): Map<string, DayData> => {
+  const safeEntries = Array.isArray(entries) ? entries : [];
   const dayDataMap = new Map<string, DayData>();
   
-  entries.forEach(entry => {
+  safeEntries.forEach(entry => {
     const dateKey = format(entry.date, 'yyyy-MM-dd');
     if (!dayDataMap.has(dateKey)) {
       dayDataMap.set(dateKey, {
@@ -26,8 +27,8 @@ export const groupEntriesByDay = (entries: MoodEntry[]): Map<string, DayData> =>
 
   // Calculate averages
   dayDataMap.forEach(dayData => {
-    const totalMood = dayData.entries.reduce((sum, entry) => sum + entry.mood_rating, 0);
-    dayData.averageMood = totalMood / dayData.entries.length;
+    const totalMood = dayData.entries.reduce((sum, entry) => sum + (entry.mood_rating ?? 0), 0);
+    dayData.averageMood = dayData.entries.length > 0 ? totalMood / dayData.entries.length : 0;
   });
 
   return dayDataMap;

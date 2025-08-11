@@ -72,7 +72,7 @@ const EnhancedCalendar: React.FC<{
     setSelectedDate(date);
     const _dateKey = formatDate(date, 'yyyy-MM-dd');
     const dayData = dayDataMap.get(_dateKey);
-    if (dayData && dayData.entries.length > 0) {
+    if (dayData && Array.isArray(dayData.entries) && dayData.entries.length > 0) {
       setIsDayDetailOpen(true);
     } else {
       showNotification('error', 'No check-in for this day yet. Keep building your journey! 💪');

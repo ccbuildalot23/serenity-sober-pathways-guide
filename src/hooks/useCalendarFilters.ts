@@ -2,7 +2,7 @@
 import { useState, useMemo } from 'react';
 import { MoodEntry } from '@/types/calendar';
 
-export function useCalendarFilters(entries: MoodEntry[]) {
+export function useCalendarFilters(entries: MoodEntry[] = []) {
   const [filters, setFilters] = useState({
     minMood: 1,
     maxMood: 10,
@@ -11,9 +11,10 @@ export function useCalendarFilters(entries: MoodEntry[]) {
   });
 
   const filteredEntries = useMemo(() => {
-    return entries.filter(entry => {
+    const safe = Array.isArray(entries) ? entries : [];
+    return safe.filter(entry => {
       // Mood filter
-      if (entry.mood_rating < filters.minMood || entry.mood_rating > filters.maxMood) {
+      if ((entry.mood_rating ?? 0) < filters.minMood || (entry.mood_rating ?? 0) > filters.maxMood) {
         return false;
       }
 

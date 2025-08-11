@@ -43,7 +43,7 @@ export class EnhancedSecurityInitializer {
       }
       
     } catch (_error) {
-      console._error('❌ Enhanced security initialization failed:', _error);
+      console.error('❌ Enhanced security initialization failed:', _error);
       await EnhancedSecurityAuditService.logSecurityEvent({
         action: 'SECURITY_INITIALIZATION_FAILED',
         _details: { _error: _error instanceof Error ? _error.message : 'Unknown _error' },
@@ -119,7 +119,7 @@ export class EnhancedSecurityInitializer {
     let consoleUsageCount = 0;
     const originalConsole = { ...console };
     
-    ['log', 'warn', '_error', 'debug'].forEach(method => {
+    ['log', 'warn', 'error', 'debug'].forEach(method => {
       (console as any)[method] = (...args: unknown[]) => {
         consoleUsageCount++;
         if (consoleUsageCount > 50) {

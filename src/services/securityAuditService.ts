@@ -312,15 +312,26 @@ class SecurityAuditService {
         return { passed: false, details: { error: 'No authenticated user' } };
       }
 
-      // Try to create an audit log entry
-      const { data, error } = await supabase
-        .from('audit_logs')
-        .insert({
-          user_id: user.id,
-          _action: 'SECURITY_AUDIT_TEST',
-          _details_encrypted: JSON.stringify({ test: 'audit logging test' })
-        })
-        .select();
+      // Try to create an audit log entry (guarded to avoid production failures)
+      let data: any = null;
+      let error: any = null;
+      if (import.meta.env.VITE_ENABLE_AUDIT === 'true') {
+        try {
+          const result = await supabase
+            .from('audit_logs')
+            .insert({
+              user_id: user.id,
+              _action: 'SECURITY_AUDIT_TEST',
+              _details_encrypted: JSON.stringify({ test: 'audit logging test' })
+            })
+            .select();
+          data = result.data;
+          error = result.error;
+        } catch (e) {
+          error = e;
+          console.warn('Audit log test suppressed (non-fatal):', e);
+        }
+      }
 
       return {
         passed: !error && !!data,

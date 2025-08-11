@@ -57,7 +57,7 @@ const RELATIONSHIP_OPTIONS = [
 
 export const SupportNetworkManager: React.FC = () => {
   const { supportMembers, loading, addSupportMember, sendAlert } = useSupportNetwork();
-  const { emergencyContacts, addContact, deleteContact } = useEmergencyContacts();
+  const { emergencyContacts = [], addContact, deleteContact } = useEmergencyContacts() as any;
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [addForm, setAddForm] = useState<AddContactForm>({
     name: '',
@@ -369,11 +369,11 @@ export const SupportNetworkManager: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Users className="w-5 h-5 mr-2" />
-            Support Network ({supportMembers.length})
+            Support Network ({Array.isArray(supportMembers) ? supportMembers.length : 0})
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {supportMembers.length === 0 ? (
+          {(!Array.isArray(supportMembers) || supportMembers.length === 0) ? (
             <div className="text-center py-8">
               <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No contacts yet</h3>
@@ -385,7 +385,7 @@ export const SupportNetworkManager: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {supportMembers.map((member) => (
+              {Array.isArray(supportMembers) && supportMembers.map((member) => (
                 <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">

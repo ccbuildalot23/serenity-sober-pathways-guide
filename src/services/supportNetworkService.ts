@@ -59,7 +59,7 @@ export const supportNetworkService = {
   async getSupportNetwork(patientId: string): Promise<SupportMember[]> {
     console.log('Fetching support network for patient:', patientId);
 
-    const { data, _error } = await supabase
+    const { data, error } = await supabase
       .from('support_network')
       .select(`
         *,
@@ -70,25 +70,26 @@ export const supportNetworkService = {
       .eq('_status', 'active')
       .order('created_at', { ascending: false });
 
-    if (_error) {
-      console._error('Error fetching support network:', _error);
+    if (error) {
+      console.error('Error fetching support network:', error);
       throw new Error('Failed to fetch support network');
     }
 
-    return data?.map((member: unknown) => ({
-      id: member.id,
-      _support_member_id: member._support_member_id,
-      _relationship_type: member._relationship_type,
-      permissions: member.permissions,
-      _status: member._status,
-      last_activity: member.last_activity,
-      created_at: member.created_at,
-      member_name: member.profiles?.full_name || 'Unknown',
-      member_email: member.profiles?.email,
-      presence_status: member.support_member_presence?._status || 'offline',
-      last_seen: member.support_member_presence?.last_seen,
-      _do_not_disturb: member.support_member_presence?._do_not_disturb || false,
-    })) || [];
+    const rows: any[] = Array.isArray(data) ? data : [];
+    return rows.map((member: any) => ({
+      id: member?.id ?? crypto.randomUUID(),
+      _support_member_id: member?._support_member_id ?? '',
+      _relationship_type: member?._relationship_type ?? 'friend',
+      permissions: member?.permissions ?? { view_mood: false, view_checkins: false, crisis_alerts: true, milestone_alerts: false },
+      _status: member?._status ?? 'active',
+      last_activity: member?.last_activity ?? new Date().toISOString(),
+      created_at: member?.created_at ?? new Date().toISOString(),
+      member_name: member?.profiles?.full_name || 'Unknown',
+      member_email: member?.profiles?.email || '',
+      presence_status: member?.support_member_presence?._status || 'offline',
+      last_seen: member?.support_member_presence?.last_seen || null,
+      _do_not_disturb: member?.support_member_presence?._do_not_disturb || false,
+    }));
   },
 
   // Add new support member

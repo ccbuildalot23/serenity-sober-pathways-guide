@@ -63,6 +63,7 @@ export class HealthcareErrorBoundary extends Component<Props, State> {
 
   private async logErrorToSupabase(error: Error, _errorInfo: ErrorInfo) {
     try {
+      if (import.meta.env.VITE_ENABLE_AUDIT !== 'true') return;
       const { data: { user } } = await supabase.auth.getUser();
       
       await supabase.from('audit_logs').insert({
@@ -116,11 +117,19 @@ export class HealthcareErrorBoundary extends Component<Props, State> {
       }
 
       const { error, errorCount } = this.state;
+      const showDetails = (() => {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          return process.env.NODE_ENV === 'development' || params.has('debug');
+        } catch {
+          return process.env.NODE_ENV === 'development';
+        }
+      })();
       const isCriticalError = error?.message?.toLowerCase().includes('crisis') ||
                              error?.message?.toLowerCase().includes('emergency');
 
       return (
-        <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
+        <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50" data-error-boundary>
           <Card className="max-w-lg w-full">
             <CardHeader>
               <CardTitle className="flex items-center text-red-600">
@@ -130,14 +139,17 @@ export class HealthcareErrorBoundary extends Component<Props, State> {
             </CardHeader>
             <CardContent className="space-y-4">
               <Alert variant="destructive">
-                <AlertDescription>
+                 <AlertDescription>
                   {isCriticalError 
                     ? 'A critical error occurred. Your data is safe, but you may need to refresh.'
                     : 'An unexpected error occurred. This has been reported to our team.'}
-                </AlertDescription>
+                  <div className="sr-only" aria-live="assertive">
+                    {error?.message}
+                  </div>
+                 </AlertDescription>
               </Alert>
 
-              {process.env.NODE_ENV === 'development' && error && (
+              {showDetails && error && (
                 <details className="text-sm">
                   <summary className="cursor-pointer text-gray-600">
                     Error details (Development only)

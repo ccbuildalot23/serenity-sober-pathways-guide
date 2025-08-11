@@ -59,6 +59,23 @@
 
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module">
+      // Toggle minimal mode via ?minimal=1 for emergency fallback
+      const isMinimal = new URLSearchParams(location.search).has('minimal');
+      if (isMinimal) {
+        import('/src/AppMinimal.tsx').then(({ default: AppMinimal }) => {
+          import('/src/components/theme/ThemeProvider').then(({ ThemeProvider }) => {
+            import('react').then(({ StrictMode, createElement }) => {
+              import('react-dom/client').then(({ createRoot }) => {
+                const root = createRoot(document.getElementById('root'));
+                root.render(createElement(StrictMode, null, createElement(ThemeProvider, null, createElement(AppMinimal))));
+              });
+            });
+          });
+        });
+      } else {
+        import('/src/main.tsx');
+      }
+    </script>
   </body>
 </html>

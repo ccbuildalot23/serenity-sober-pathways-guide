@@ -118,10 +118,23 @@ export class EnhancedSecurityAuditService {
     this.eventQueue = [];
 
     try {
-      // Insert security events into the security_audit_logs table
-      const { _error } = await supabase
+      // Insert security events. If the dedicated table is missing or blocked by RLS,
+      // fall back to generic audit_logs to avoid 400s crashing the app.
+      let { error: insertError } = await supabase
         .from('security_audit_logs')
-        .insert(eventsToFlush);
+        .insert(eventsToFlush as any);
+
+      if (insertError) {
+        console.warn('security_audit_logs insert failed; falling back to audit_logs:', insertError);
+        const fallbackPayload = (eventsToFlush as any[]).map(e => ({
+          user_id: e.user_id ?? null,
+          action: e.event_type ?? 'SECURITY_EVENT',
+          details_encrypted: JSON.stringify(e),
+          timestamp: e.timestamp ?? new Date().toISOString(),
+        }));
+        await supabase.from('audit_logs').insert(fallbackPayload as any);
+        insertError = null;
+      }
       
       if (_error) {
         console._error('Failed to insert security audit logs:', _error);

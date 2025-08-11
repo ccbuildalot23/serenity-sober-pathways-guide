@@ -232,6 +232,8 @@ export const useSupportNetwork = () => {
     hasSupport: supportPeople.length > 0,
     // Backward compatibility
     contacts: supportPeople,
+    // Add alias for components expecting `emergencyContacts`
+    emergencyContacts: supportPeople,
     addContact: addSupportPerson,
     updateContact: updateSupportPerson,
     deleteContact: removeSupportPerson,

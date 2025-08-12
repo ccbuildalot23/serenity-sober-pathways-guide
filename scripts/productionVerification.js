@@ -1,7 +1,10 @@
 /* eslint-disable no-console */
-const { chromium } = require('playwright');
-const fs = require('fs');
-const path = require('path');
+import { chromium } from 'playwright';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 async function verifyProduction() {
   const evidenceDir = path.resolve(process.cwd(), 'verification');
@@ -158,7 +161,7 @@ async function verifyProduction() {
   return results;
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   verifyProduction().then((results) => {
     console.log('\n🎯 PRODUCTION VERIFICATION RESULTS:');
     console.log('=====================================');
@@ -190,6 +193,6 @@ if (require.main === module) {
   });
 }
 
-module.exports = { verifyProduction };
+export { verifyProduction };
 
 

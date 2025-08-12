@@ -11,6 +11,10 @@ export function register(_config?: {
   onSuccess?: (registration: ServiceWorkerRegistration) => void;
   onUpdate?: (registration: ServiceWorkerRegistration) => void;
 }) {
+  // Disable service worker in production to avoid stale bundles/blank screens
+  if (!import.meta || !import.meta.env || !import.meta.env.DEV) {
+    return;
+  }
   if ('serviceWorker' in navigator) {
     const publicUrl = new URL(window.location.href);
     if (publicUrl.origin !== window.location.origin) {

@@ -21,6 +21,7 @@ test.describe('Dashboard counter increments reliably', () => {
 
     // Go to check-in and submit a minimal valid check-in
     await page.goto('/checkin');
+    await page.waitForSelector('[data-testid="daily-checkin-section"]', { timeout: 10000 });
     await page.click('[data-testid="mood-neutral"]');
     await page.click('[data-testid="sleep-rating-3"]');
 

@@ -22,12 +22,13 @@ class SimpleCheckinService {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       
-      // Save check-in
-      await supabase.from('simple_checkins').insert({
+      // Save check-in (compat: use daily_checkins upsert to avoid 404 on simple_checkins)
+      await supabase.from('daily_checkins').upsert({
         user_id: user.id,
-        mood: mood,
-        date: new Date().toISOString().split('T')[0]
-      });
+        checkin_date: new Date().toISOString().split('T')[0],
+        notes: `simple:${mood}`,
+        is_complete: true
+      }, { onConflict: 'user_id,checkin_date' });
       
       // Update streak
       await this.updateStreak();
@@ -66,10 +67,10 @@ class SimpleCheckinService {
       const _today = new Date().toISOString().split('T')[0];
       
       const { data, _error } = await supabase
-        .from('simple_checkins')
+        .from('daily_checkins')
         .select('*')
         .eq('user_id', user.id)
-        .eq('date', _today)
+        .eq('checkin_date', _today)
         .single();
       
       if (_error && _error.code !== 'PGRST116') throw _error;
@@ -91,11 +92,11 @@ class SimpleCheckinService {
       startDate.setDate(startDate.getDate() - days);
       
       const { data, _error } = await supabase
-        .from('simple_checkins')
-        .select('*')
+        .from('daily_checkins')
+        .select('id, user_id, created_at, checkin_date, notes')
         .eq('user_id', user.id)
-        .gte('date', startDate.toISOString().split('T')[0])
-        .order('date', { ascending: false });
+        .gte('checkin_date', startDate.toISOString().split('T')[0])
+        .order('checkin_date', { ascending: false });
       
       if (_error) throw _error;
       
@@ -157,9 +158,11 @@ class SimpleCheckinService {
     const history = await this.getCheckinHistory(days);
     
     return history.reduce((summary, checkin) => {
-      summary[checkin.mood]++;
+      const tag = (checkin as any).notes as string | undefined;
+      const mood = tag && tag.startsWith('simple:') ? (tag.replace('simple:', '') as MoodToday) : undefined;
+      if (mood && (summary as any)[mood] !== undefined) (summary as any)[mood]++;
       return summary;
-    }, { struggling: 0, managing: 0, good: 0 });
+    }, { struggling: 0, managing: 0, good: 0 } as { struggling: number; managing: number; good: number });
   }
   
   // Get encouragement based on recent moods

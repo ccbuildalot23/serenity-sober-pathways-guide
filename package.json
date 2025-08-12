@@ -11,6 +11,7 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "npm run fix:tokens && tsc && vite build",
+    "vercel-build": "npm ci --legacy-peer-deps --no-audit --no-fund && npm run build",
     "fix:tokens": "node scripts/fix-tokens.cjs",
     "preview": "vite preview --port 8080 --host",
     "build:dev": "vite build --mode development",

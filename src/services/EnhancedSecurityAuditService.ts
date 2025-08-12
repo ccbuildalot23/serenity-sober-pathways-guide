@@ -127,18 +127,13 @@ export class EnhancedSecurityAuditService {
       if (insertError) {
         console.warn('security_audit_logs insert failed; falling back to audit_logs:', insertError);
         const fallbackPayload = (eventsToFlush as any[]).map(e => ({
-          user_id: e.user_id ?? null,
-          action: e.event_type ?? 'SECURITY_EVENT',
-          details_encrypted: JSON.stringify(e),
-          timestamp: e.timestamp ?? new Date().toISOString(),
+          user_id: (e as any)._user_id ?? null,
+          _action: e.event_type ?? 'SECURITY_EVENT',
+          _details_encrypted: JSON.stringify(e),
+          created_at: e.timestamp ?? new Date().toISOString(),
         }));
-        await supabase.from('audit_logs').insert(fallbackPayload as any);
-        insertError = null;
-      }
-      
-      if (_error) {
-        console._error('Failed to insert security audit logs:', _error);
-        throw _error;
+        const { error: fallbackError } = await supabase.from('audit_logs').insert(fallbackPayload as any);
+        if (fallbackError) throw fallbackError;
       }
 
       console.log(`Successfully logged ${eventsToFlush.length} security events`);

@@ -1,7 +1,7 @@
 // Patient Dashboard - For users in recovery
 
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -38,6 +38,7 @@ import '@/utils/patientJourneyTest';
 const PatientDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const location = useLocation();
   const [dashboardData, setDashboardData] = useState({
     recoveryStreak: 0,
     totalCheckins: 0,
@@ -61,6 +62,22 @@ const PatientDashboard = () => {
     };
     window.addEventListener('checkin:completed', handler as EventListener);
     return () => window.removeEventListener('checkin:completed', handler as EventListener);
+  }, [user?.id]);
+
+  // Refresh when navigated with state refresh hint
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const refreshToken = (location.state as any)?.refresh;
+    if (refreshToken && user?.id) {
+      loadDashboardData();
+    }
+  }, [location.state, user?.id]);
+
+  // Also refresh on window focus (covers tab return)
+  useEffect(() => {
+    const onFocus = () => { if (user?.id) loadDashboardData(); };
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
   }, [user?.id]);
 
   const loadDashboardData = async () => {

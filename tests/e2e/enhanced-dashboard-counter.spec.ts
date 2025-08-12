@@ -19,8 +19,9 @@ test.describe('Dashboard counter increments reliably', () => {
     const initialText = await page.locator('[data-testid="checkin-counter"]').textContent();
     const initialCount = parseInt(initialText || '0') || 0;
 
-    // Go to check-in and submit a minimal valid check-in
-    await page.goto('/checkin');
+    // Go to check-in via dashboard CTA to ensure routing/context
+    await page.click('[data-testid="start-checkin-button"]');
+    await page.waitForURL(/\/checkin$/);
     await page.waitForSelector('[data-testid="daily-checkin-section"]', { timeout: 10000 });
     await page.click('[data-testid="mood-neutral"]');
     await page.click('[data-testid="sleep-rating-3"]');

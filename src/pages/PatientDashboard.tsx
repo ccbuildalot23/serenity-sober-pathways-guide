@@ -70,12 +70,15 @@ const PatientDashboard = () => {
     const refreshToken = (location.state as any)?.refresh;
     if (refreshToken && user?.id) {
       loadDashboardData();
+      checkTodaysCheckinStatus();
     }
   }, [location.state, user?.id]);
 
   // Also refresh on window focus (covers tab return)
   useEffect(() => {
-    const onFocus = () => { if (user?.id) loadDashboardData(); };
+    const onFocus = () => { 
+      if (user?.id) loadDashboardData();
+    };
     window.addEventListener('focus', onFocus);
     return () => window.removeEventListener('focus', onFocus);
   }, [user?.id]);
@@ -92,6 +95,7 @@ const PatientDashboard = () => {
         filter: `user_id=eq.${user.id}`
       }, () => {
         loadDashboardData();
+        checkTodaysCheckinStatus();
       })
       .on('postgres_changes', {
         event: '*',
@@ -100,6 +104,7 @@ const PatientDashboard = () => {
         filter: `user_id=eq.${user.id}`
       }, () => {
         loadDashboardData();
+        checkTodaysCheckinStatus();
       })
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') {
@@ -115,6 +120,7 @@ const PatientDashboard = () => {
   const loadDashboardData = async () => {
     if (!user?.id) return;
     try {
+      setError(null);
       const data = await loadDashboardDataFixed();
       if (data) {
         setDashboardData({
@@ -123,10 +129,10 @@ const PatientDashboard = () => {
           lastCheckinDate: (data as any).lastCheckIn || null,
           supportNetworkCount: data.supportNetworkCount || 0,
         });
-        return;
       }
     } catch (error) {
       console.error('Error loading dashboard data:', error);
+      setError('Failed to load dashboard data. Please try refreshing.');
     } finally {
       setLoading(false);
     }
@@ -258,7 +264,11 @@ const PatientDashboard = () => {
                   <div>
                     <p className="text-sm font-medium text-sage-600">Hope Journey</p>
                     <p className="text-3xl font-bold text-sage-800">
-                      {loading ? '...' : dashboardData.recoveryStreak}
+                      {loading ? (
+                        <Loader2 className="w-8 h-8 animate-spin text-sage-400" />
+                      ) : (
+                        dashboardData.recoveryStreak
+                      )}
                     </p>
                     <p className="text-xs text-sage-500">days of courage</p>
                   </div>
@@ -281,11 +291,20 @@ const PatientDashboard = () => {
                   <div>
                     <p className="text-sm font-medium text-sage-600">Total Check-ins</p>
                     <p className="text-3xl font-bold text-sage-800" data-testid="checkin-counter">
-                      {loading ? '...' : dashboardData.totalCheckins}
+                      {loading ? (
+                        <Loader2 className="w-8 h-8 animate-spin text-sage-400" />
+                      ) : (
+                        dashboardData.totalCheckins
+                      )}
                     </p>
                     <p className="text-xs text-sage-500">completed</p>
                     <p className="text-xs text-sage-500" data-testid="last-checkin-status">
-                      {loading ? 'Loading...' : 
+                      {loading ? (
+                        <span className="flex items-center gap-1">
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                          Loading...
+                        </span>
+                      ) : 
                        dashboardData.lastCheckinDate ? 
                        `Last: ${new Date(dashboardData.lastCheckinDate).toLocaleDateString()}` : 
                        'No recent check-ins'}
@@ -311,7 +330,11 @@ const PatientDashboard = () => {
                   <div>
                     <p className="text-sm font-medium text-sage-600">Support Network</p>
                     <p className="text-3xl font-bold text-sage-800">
-                      {loading ? '...' : dashboardData.supportNetworkCount}
+                      {loading ? (
+                        <Loader2 className="w-8 h-8 animate-spin text-sage-400" />
+                      ) : (
+                        dashboardData.supportNetworkCount
+                      )}
                     </p>
                     <p className="text-xs text-sage-500">connections</p>
                   </div>
@@ -333,7 +356,13 @@ const PatientDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-sage-600">Resources</p>
-                    <p className="text-3xl font-bold text-sage-800">12</p>
+                    <p className="text-3xl font-bold text-sage-800">
+                      {loading ? (
+                        <Loader2 className="w-8 h-8 animate-spin text-sage-400" />
+                      ) : (
+                        12
+                      )}
+                    </p>
                     <p className="text-xs text-sage-500">available</p>
                   </div>
                   <div className="w-12 h-12 bg-sage-100 rounded-xl flex items-center justify-center">
@@ -373,14 +402,12 @@ const PatientDashboard = () => {
                   Take a moment to reflect on your day and track your progress.
                 </p>
                 <Button 
-                  asChild 
+                  onClick={() => navigate('/checkin')}
                   className="w-full bg-gradient-primary hover:bg-gradient-primary/90 text-white font-semibold py-3 rounded-xl shadow-gentle hover:shadow-calm transition-all duration-300 transform hover:scale-[1.02]"
                   data-testid="start-checkin-button"
                 >
-                  <Link to="/checkin" className="flex items-center justify-center gap-2">
-                    <Plus className="w-5 h-5" />
-                    Start Today's Check-in
-                  </Link>
+                  <Plus className="w-5 h-5 mr-2" />
+                  Start Today's Check-in
                 </Button>
               </CardContent>
             </Card>
@@ -426,7 +453,7 @@ const PatientDashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.2 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {/* Peer Support */}
           <motion.div
@@ -435,7 +462,10 @@ const PatientDashboard = () => {
             transition={{ delay: 1.3 }}
             data-testid="peer-support-access"
           >
-            <Card className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-soft hover:shadow-calm transition-all duration-300">
+            <Card 
+              className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-soft hover:shadow-calm transition-all duration-300 cursor-pointer"
+              onClick={() => navigate('/peer-support')}
+            >
               <CardContent className="p-6">
                 <div className="text-center space-y-4">
                   <div className="w-12 h-12 bg-turquoise-100 rounded-xl flex items-center justify-center mx-auto">
@@ -443,9 +473,37 @@ const PatientDashboard = () => {
                   </div>
                   <h3 className="font-semibold text-sage-800">Peer Support</h3>
                   <p className="text-sm text-sage-600">Connect with others on similar journeys</p>
-                  <Button asChild variant="outline" size="sm" className="border-turquoise-200 text-turquoise-700 hover:bg-turquoise-50">
-                    <Link to="/peer-support">Connect</Link>
-                  </Button>
+                  <div className="flex items-center justify-center gap-1 text-turquoise-700">
+                    <span className="text-sm font-medium">Connect</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Support Network */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.4 }}
+            data-testid="support-network-access"
+          >
+            <Card 
+              className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-soft hover:shadow-calm transition-all duration-300 cursor-pointer"
+              onClick={() => navigate('/support-network')}
+            >
+              <CardContent className="p-6">
+                <div className="text-center space-y-4">
+                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto">
+                    <UserCheck className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <h3 className="font-semibold text-sage-800">Support Network</h3>
+                  <p className="text-sm text-sage-600">Manage your personal support contacts</p>
+                  <div className="flex items-center justify-center gap-1 text-purple-700">
+                    <span className="text-sm font-medium">Manage</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -455,10 +513,13 @@ const PatientDashboard = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.4 }}
+            transition={{ delay: 1.5 }}
             data-testid="community-access"
           >
-            <Card className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-soft hover:shadow-calm transition-all duration-300">
+            <Card 
+              className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-soft hover:shadow-calm transition-all duration-300 cursor-pointer"
+              onClick={() => navigate('/community')}
+            >
               <CardContent className="p-6">
                 <div className="text-center space-y-4">
                   <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mx-auto">
@@ -466,9 +527,10 @@ const PatientDashboard = () => {
                   </div>
                   <h3 className="font-semibold text-sage-800">Community</h3>
                   <p className="text-sm text-sage-600">Join our supportive community</p>
-                  <Button asChild variant="outline" size="sm" className="border-emerald-200 text-emerald-700 hover:bg-emerald-50">
-                    <Link to="/community">Join</Link>
-                  </Button>
+                  <div className="flex items-center justify-center gap-1 text-emerald-700">
+                    <span className="text-sm font-medium">Join</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -478,10 +540,13 @@ const PatientDashboard = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.5 }}
+            transition={{ delay: 1.6 }}
             data-testid="progress-nav"
           >
-            <Card className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-soft hover:shadow-calm transition-all duration-300">
+            <Card 
+              className="bg-white/80 backdrop-blur-sm border-sage-200 shadow-soft hover:shadow-calm transition-all duration-300 cursor-pointer"
+              onClick={() => navigate('/progress')}
+            >
               <CardContent className="p-6">
                 <div className="text-center space-y-4">
                   <div className="w-12 h-12 bg-sky-100 rounded-xl flex items-center justify-center mx-auto">
@@ -489,9 +554,10 @@ const PatientDashboard = () => {
                   </div>
                   <h3 className="font-semibold text-sage-800">Progress</h3>
                   <p className="text-sm text-sage-600">Track your recovery journey</p>
-                  <Button asChild variant="outline" size="sm" className="border-sky-200 text-sky-700 hover:bg-sky-50">
-                    <Link to="/progress">View</Link>
-                  </Button>
+                  <div className="flex items-center justify-center gap-1 text-sky-700">
+                    <span className="text-sm font-medium">View</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -502,7 +568,7 @@ const PatientDashboard = () => {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 1.6 }}
+          transition={{ delay: 1.7 }}
           className="mt-8 text-center"
         >
           <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6">

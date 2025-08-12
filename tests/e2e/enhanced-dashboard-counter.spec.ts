@@ -2,16 +2,18 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Dashboard counter increments reliably', () => {
   test('increments after check-in and persists on reload', async ({ page }) => {
-    // Mark E2E mode for SignIn bypass logic
-    await page.addInitScript(() => { (window as any).__PW_TEST__ = true; });
+    // Force bypass + role before any script runs
+    await page.addInitScript(() => {
+      (window as any).__PW_TEST__ = true;
+      try {
+        localStorage.setItem('dev_bypass_auth', 'true');
+        localStorage.setItem('pw_role', 'patient');
+      } catch {}
+    });
 
-    // Login as patient (bypass mode routes directly)
-    await page.goto('/login');
-    await page.fill('#email', 'test-patient@serenity.com');
-    await page.fill('#password', 'TestSerenity2024!@#');
-    // Hitting Enter is more stable in E2E bypass mode (button can re-render)
-    await page.locator('#password').press('Enter');
-    await page.waitForURL(/\/patient\/dashboard/);
+    // Land directly on dashboard
+    await page.goto('/patient/dashboard');
+    await page.waitForLoadState('networkidle');
 
     // Read initial counter
     const initialText = await page.locator('[data-testid="checkin-counter"]').textContent();

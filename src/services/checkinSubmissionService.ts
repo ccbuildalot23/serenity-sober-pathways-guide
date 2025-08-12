@@ -91,6 +91,22 @@ export const checkinSubmissionService = {
       }
     }
 
+    // Verification query to ensure persistence
+    try {
+      const { data: verify, error: verifyError } = await supabase
+        .from('daily_checkins')
+        .select('*')
+        .eq('id', checkinId)
+        .single();
+      if (verifyError) {
+        console.error('🚨 VERIFICATION FAILED (daily_checkins):', verifyError);
+      } else {
+        console.log('✅ VERIFICATION QUERY OK (daily_checkins):', verify?.id);
+      }
+    } catch (err) {
+      console.error('🚨 Verification query threw:', err);
+    }
+
     return checkinResult;
   },
 

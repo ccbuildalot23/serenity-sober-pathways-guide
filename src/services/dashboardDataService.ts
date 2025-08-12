@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { emergencyFallback } from '@/lib/emergencyFallback';
 
 export interface DashboardStats {
   streak: number;
@@ -61,30 +62,39 @@ export const dashboardDataService = {
         console.warn('Error fetching streak data:', _streakError);
       }
 
-      // Get recent check-ins (last 7 days)
+      // Get recent check-ins (last 7 days) – tolerate schema differences
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      
-      const { data: recentCheckinsData, _error: _checkinsError } = await supabase
-        .from('daily_checkins')
-        .select('checkin_date, _mood_rating, _is_complete, _created_at')
-        .eq('user_id', _userId)
-        .gte('checkin_date', sevenDaysAgo.toISOString().split('T')[0])
-        .order('checkin_date', { ascending: false });
+      let recentCheckinsData: any[] | null = null;
+      try {
+        const recent = await supabase
+          .from('daily_checkins')
+          .select('checkin_date, mood_rating, created_at')
+          .eq('user_id', _userId)
+          .gte('created_at', sevenDaysAgo.toISOString())
+          .order('created_at', { ascending: false });
+        recentCheckinsData = recent.data || null;
+      } catch (_e) {
+        // best-effort only
+      }
 
       if (_checkinsError) {
         console.warn('Error fetching recent checkins:', _checkinsError);
       }
 
-      // Get total check-ins count
-      const { data: totalCheckinsData, _error: _totalCheckinsError } = await supabase
-        .from('daily_checkins')
-        .select('id', { count: 'exact' })
-        .eq('user_id', _userId)
-        .eq('_is_complete', true);
-
-      if (_totalCheckinsError) {
-        console.warn('Error fetching total checkins:', _totalCheckinsError);
+      // Get total check-ins count – use head:true to read count header; fall back to local cache
+      let totalCheckinsCount = 0;
+      try {
+        const { count } = await supabase
+          .from('daily_checkins')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', _userId);
+        totalCheckinsCount = count ?? 0;
+      } catch (_e) {
+        // ignore and use fallback
+      }
+      if (!totalCheckinsCount) {
+        totalCheckinsCount = emergencyFallback.getTotalCheckins();
       }
 
       // Get crisis events data
@@ -162,15 +172,15 @@ export const dashboardDataService = {
 
       const result: DashboardStats = {
         streak,
-        checkIns: totalCheckinsData?.length || 0,
+        checkIns: totalCheckinsCount,
         goals: {
           completed: completedGoals,
           total: totalGoals
         },
         recentCheckins: (recentCheckinsData || []).map(checkin => ({
-          date: checkin.checkin_date,
-          _mood_rating: checkin._mood_rating,
-          _is_complete: checkin._is_complete
+          date: checkin.checkin_date || checkin.created_at,
+          _mood_rating: checkin.mood_rating ?? null,
+          _is_complete: true
         })),
         crisisAlerts: {
           total: totalCrisisAlerts,

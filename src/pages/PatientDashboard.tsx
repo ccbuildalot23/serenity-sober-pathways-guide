@@ -30,6 +30,9 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { emergencyFallback } from '@/lib/emergencyFallback';
+import { testDatabaseConnection } from '@/utils/databaseTest';
+import { loadDashboardDataFixed } from '@/utils/databaseFix';
+import '@/utils/patientJourneyTest';
 
 const PatientDashboard = () => {
   const navigate = useNavigate();
@@ -52,81 +55,65 @@ const PatientDashboard = () => {
 
   const loadDashboardData = async () => {
     if (!user?.id) return;
-
     try {
-      // Try to load from Supabase first
-      let recoveryStreak = 0;
-      let totalCheckins = 0;
-      let lastCheckinDate = null;
-      let supportNetworkCount = 0;
-
-      try {
-        // Load recovery streak
-        const { data: streakData } = await supabase.rpc('get_recovery_streak', { 
-          user_uuid: user.id 
+      const data = await loadDashboardDataFixed();
+      if (data) {
+        setDashboardData({
+          recoveryStreak: data.currentStreak || 0,
+          totalCheckins: data.totalCheckIns || 0,
+          lastCheckinDate: (data as any).lastCheckIn || null,
+          supportNetworkCount: data.supportNetworkCount || 0,
         });
-
-        // Load total check-ins (be tolerant to schema differences and fall back to local)
-        const { data: checkinsData } = await supabase
-          .from('daily_checkins')
-          .select('id, checkin_date, created_at')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
-
-        // Load support network count
-        const { data: supportData, error: supportError } = await supabase
-          .from('support_network_members')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('status', 'active');
-
-        const lastCheckin = checkinsData && checkinsData.length > 0 ? checkinsData[0] : null;
-
-        recoveryStreak = streakData || 0;
-        totalCheckins = checkinsData?.length || 0;
-        lastCheckinDate = (lastCheckin?.checkin_date || lastCheckin?.created_at) || null;
-
-        // If no rows returned (or count appears zero), use local fallback so the UI reflects completion immediately
-        if (!totalCheckins || totalCheckins === 0) {
-          const localTotal = emergencyFallback.getTotalCheckins();
-          const localLast = emergencyFallback.getLastCheckin();
-          totalCheckins = localTotal;
-          lastCheckinDate = localLast?.date || lastCheckinDate;
-        }
-        supportNetworkCount = supportData?.length || 0;
-
-      } catch (dbError) {
-        console.warn('Database connection failed, using emergency fallback:', dbError);
-        
-        // Use emergency fallback
-        recoveryStreak = emergencyFallback.getStreak();
-        totalCheckins = emergencyFallback.getTotalCheckins();
-        const lastCheckin = emergencyFallback.getLastCheckin();
-        lastCheckinDate = lastCheckin?.date || null;
-        supportNetworkCount = emergencyFallback.getContacts().length;
+        return;
       }
-
-      setDashboardData({
-        recoveryStreak,
-        totalCheckins,
-        lastCheckinDate,
-        supportNetworkCount
-      });
-
     } catch (error) {
       console.error('Error loading dashboard data:', error);
-      
-      // Final fallback to emergency data
-      setDashboardData({
-        recoveryStreak: emergencyFallback.getStreak(),
-        totalCheckins: emergencyFallback.getTotalCheckins(),
-        lastCheckinDate: emergencyFallback.getLastCheckin()?.date || null,
-        supportNetworkCount: emergencyFallback.getContacts().length
-      });
     } finally {
       setLoading(false);
     }
   };
+
+  // Phase 1.2: Execute Database Test in Browser on mount for visibility
+  useEffect(() => {
+    (async () => {
+      try {
+        const results = await testDatabaseConnection();
+        console.log('🎯 DATABASE TEST RESULTS:', results);
+        if ((results as any).error) console.error('🚨 CRITICAL: Database completely broken');
+        // user comes from context; results.auth duplicates visibility for console only
+      } catch (err) {
+        console.error('🚨 Database test runner failed:', err);
+      }
+    })();
+  }, []);
+
+  // Phase 3.2: Real-Time Data Verification (logs only)
+  useEffect(() => {
+    if (!user?.id) return;
+    const interval = setInterval(async () => {
+      try {
+        console.log('🔄 REAL-TIME DATA CHECK...');
+        const { count: checkinsCount, error: checkinsError } = await supabase
+          .from('daily_checkins')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+
+        const { count: contactsCount, error: contactsError } = await supabase
+          .from('support_contacts')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+
+        console.log('📊 LIVE DATA CHECK:', {
+          daily_checkins: checkinsCount || 0,
+          support_contacts: contactsCount || 0,
+          errors: { checkinsError, contactsError },
+        });
+      } catch (e) {
+        console.error('Real-time data check failed:', e);
+      }
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [user?.id]);
   return (
     <div className="min-h-screen bg-gradient-therapeutic relative overflow-hidden" data-testid="patient-dashboard">
       {/* Floating Elements Background */}

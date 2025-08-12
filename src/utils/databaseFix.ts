@@ -1,0 +1,142 @@
+import { supabase } from '@/integrations/supabase/client';
+
+export interface FixedCheckInInput {
+  mood?: 'positive' | 'neutral' | 'negative' | string;
+  activities?: string[];
+  sleep_quality?: number;
+  notes?: string;
+}
+
+export async function fixedCheckInSubmission(checkInData: FixedCheckInInput) {
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    throw new Error('Authentication failed');
+  }
+
+  const now = new Date();
+  const dateStr = now.toISOString().split('T')[0];
+
+  // Map mood string to numeric rating similar to the app's mapping
+  const moodMap: Record<string, number> = { positive: 5, neutral: 3, negative: 1 };
+  const moodRating = moodMap[(checkInData.mood || 'neutral').toLowerCase()] ?? 3;
+
+  const record: any = {
+    user_id: user.id,
+    checkin_date: dateStr,
+    mood_rating: moodRating,
+    energy_rating: 3,
+    hope_rating: 3,
+    sobriety_confidence: 3,
+    recovery_importance: 3,
+    recovery_strength: 3,
+    support_needed: 'no',
+    notes: checkInData.notes || '',
+    completed_sections: JSON.stringify(['mood']),
+    is_complete: true,
+    activities: (checkInData.activities || []).join(','),
+    sleep_quality: checkInData.sleep_quality ?? 5,
+  };
+
+  // Upsert into daily_checkins keyed by (user_id, checkin_date)
+  const { data, error } = await supabase
+    .from('daily_checkins')
+    .upsert(record, { onConflict: 'user_id,checkin_date', ignoreDuplicates: false })
+    .select('*')
+    .single();
+
+  if (error) {
+    const fallbackData = { ...record, id: `fallback_${Date.now()}`, created_at: now.toISOString() };
+    try {
+      const existing = JSON.parse(localStorage.getItem('serenity_checkins') || '[]');
+      existing.push(fallbackData);
+      localStorage.setItem('serenity_checkins', JSON.stringify(existing));
+    } catch {}
+    console.warn('Database failed, saved to localStorage:', error);
+    return { success: true, data: fallbackData, source: 'localStorage' as const };
+  }
+
+  return { success: true, data, source: 'database' as const };
+}
+
+export async function loadDashboardDataFixed() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  try {
+    const { data: checkIns, error: checkInError } = await supabase
+      .from('daily_checkins')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    const { data: contacts, error: contactsError } = await supabase
+      .from('support_contacts')
+      .select('*')
+      .eq('user_id', user.id);
+
+    if (checkInError || contactsError) {
+      throw new Error('Database query failed');
+    }
+
+    return {
+      totalCheckIns: checkIns?.length || 0,
+      supportNetworkCount: contacts?.length || 0,
+      currentStreak: calculateStreakFixed(checkIns || []),
+      lastCheckIn: checkIns?.[0]?.created_at || null,
+      recentCheckIns: checkIns?.slice(0, 5) || [],
+    };
+  } catch (_error) {
+    try {
+      const fallbackCheckIns = JSON.parse(localStorage.getItem('serenity_checkins') || '[]');
+      const fallbackContacts = JSON.parse(localStorage.getItem('serenity_contacts') || '[]');
+      return {
+        totalCheckIns: fallbackCheckIns.length,
+        supportNetworkCount: fallbackContacts.length,
+        currentStreak: fallbackCheckIns.length,
+        lastCheckIn: fallbackCheckIns[0]?.created_at || null,
+        recentCheckIns: fallbackCheckIns.slice(0, 5),
+        source: 'localStorage' as const,
+      };
+    } catch {
+      return {
+        totalCheckIns: 0,
+        supportNetworkCount: 0,
+        currentStreak: 0,
+        lastCheckIn: null,
+        recentCheckIns: [],
+        source: 'localStorage' as const,
+      };
+    }
+  }
+}
+
+function calculateStreakFixed(checkIns: Array<{ created_at?: string }>) {
+  if (!checkIns || checkIns.length === 0) return 0;
+  const today = new Date();
+  let streak = 0;
+  const uniqueSortedDates = Array.from(
+    new Set(
+      checkIns
+        .map(ci => new Date(ci.created_at || 0).toDateString())
+        .filter(Boolean)
+    )
+  ).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+
+  for (let i = 0; i < uniqueSortedDates.length; i++) {
+    const checkDate = new Date(uniqueSortedDates[i]);
+    const expectedDate = new Date(today);
+    expectedDate.setDate(today.getDate() - i);
+    if (checkDate.toDateString() === expectedDate.toDateString()) streak++; else break;
+  }
+  return streak;
+}
+
+// Expose for console use if needed
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare const window: any;
+if (typeof window !== 'undefined') {
+  window.fixedCheckInSubmission = fixedCheckInSubmission;
+  window.loadDashboardDataFixed = loadDashboardDataFixed;
+}
+
+

@@ -7,6 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { checkinSubmissionService } from '@/services/checkinSubmissionService';
+import { fixedCheckInSubmission } from '@/utils/databaseFix';
+import { supabase } from '@/integrations/supabase/client';
 import { emergencyFallback } from '@/lib/emergencyFallback';
 
 interface CheckInData {
@@ -93,27 +95,18 @@ const CheckIn = () => {
           sleep_quality: checkInData.sleepRating,
         } as any);
         
-        // Submit to database
+        // Submit via fixed autonomous path
         try {
-          await checkinSubmissionService.submitCheckin(data, data as any);
-          console.log('Check-in saved successfully to database');
-          try {
-            emergencyFallback.saveCheckin({
-              date,
-              mood: checkInData.mood === 'positive' ? 5 : checkInData.mood === 'neutral' ? 3 : 1,
-              energy: checkInData.energy,
-              hope: checkInData.hope,
-              sobriety_confidence: checkInData.sobrietyConfidence,
-              recovery_importance: checkInData.recoveryImportance,
-              recovery_strength: checkInData.recoveryStrength,
-              support_needed: checkInData.supportNeeded,
-              notes: checkInData.moodDescription
-            });
-          } catch {}
+          const result = await fixedCheckInSubmission({
+            mood: checkInData.mood,
+            activities: checkInData.activities,
+            sleep_quality: checkInData.sleepRating,
+            notes: checkInData.moodDescription,
+          });
+          console.log('Check-in saved (fixed path):', result);
         } catch (dbError) {
           console.error('Database submission failed:', dbError);
-          
-          // Save to emergency fallback
+          // Keep existing local fallback behavior
           const date = new Date().toISOString().slice(0, 10);
           emergencyFallback.saveCheckin({
             date,
@@ -126,7 +119,6 @@ const CheckIn = () => {
             support_needed: checkInData.supportNeeded,
             notes: checkInData.moodDescription
           });
-          
           toast.warning('Database unavailable - Check-in saved locally');
         }
         

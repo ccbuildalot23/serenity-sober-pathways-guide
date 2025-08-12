@@ -54,6 +54,15 @@ const PatientDashboard = () => {
     }
   }, [user]);
 
+  // Listen for check-in completion events and refresh
+  useEffect(() => {
+    const handler = () => {
+      if (user?.id) loadDashboardData();
+    };
+    window.addEventListener('checkin:completed', handler as EventListener);
+    return () => window.removeEventListener('checkin:completed', handler as EventListener);
+  }, [user?.id]);
+
   const loadDashboardData = async () => {
     if (!user?.id) return;
     try {

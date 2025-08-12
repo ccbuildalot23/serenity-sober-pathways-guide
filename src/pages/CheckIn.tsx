@@ -104,6 +104,13 @@ const CheckIn = () => {
             notes: checkInData.moodDescription,
           });
           console.log('Check-in saved (fixed path):', result);
+
+          // Notify dashboard and any listeners to refresh immediately
+          try {
+            window.dispatchEvent(new CustomEvent('checkin:completed', {
+              detail: { when: Date.now(), userId: user.id }
+            }));
+          } catch (_) {}
         } catch (dbError) {
           console.error('Database submission failed:', dbError);
           // Keep existing local fallback behavior
@@ -404,7 +411,7 @@ const CheckIn = () => {
             </div>
 
             <Button
-              onClick={() => navigate('/patient/dashboard')}
+              onClick={() => navigate('/patient/dashboard', { state: { refresh: Date.now() } })}
               data-testid="return-to-dashboard"
               className="bg-blue-600 hover:bg-blue-700"
             >

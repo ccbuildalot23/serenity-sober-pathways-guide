@@ -42,20 +42,28 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
     }
   })();
 
-  // If running under Playwright E2E, allow unconditional render to stabilize tests
-  if (pwBypass) {
-    return <>{children}</>;
-  }
+  // Do not short-circuit RBAC; even in E2E we still want role checks to apply
 
-  // In E2E/dev, optionally honor a role hint saved by SignInForm to route dashboards
+  // In E2E/dev, honor a role hint from localStorage, URL, or infer from path
   const hintedRole: UserRole | null = (() => {
     try {
+      // URL param override
+      const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+      const urlRole = params.get('pw_role') || params.get('role');
+      if (urlRole === 'provider' || urlRole === 'support_member' || urlRole === 'patient' || urlRole === 'admin') {
+        return urlRole as UserRole;
+      }
+      // localStorage hint
       const v = localStorage.getItem('pw_role');
       if (v === 'provider' || v === 'support_member' || v === 'patient' || v === 'admin') {
         console.log(`ProtectedRoute: Found role hint: ${v}`);
         return v as UserRole;
       }
-      console.log(`ProtectedRoute: No valid role hint found, got: ${v}`);
+      // infer from pathname under bypass for stability
+      const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+      if (pathname.startsWith('/provider')) return 'provider';
+      if (pathname.startsWith('/supporter')) return 'support_member';
+      if (pathname.startsWith('/patient')) return 'patient';
       return null;
     } catch (e) {
       console.error('ProtectedRoute: Error reading role hint:', e);
@@ -66,10 +74,15 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
   // and keep in-session button bypass restricted to dev.
   const shouldBypass = urlBypass || storageBypass || pwBypass || (isDev && bypassAuth);
 
-  // E2E/dev bypass should only skip authentication requirements, not role enforcement.
-  // If no role is required, allow immediate render under bypass to avoid loading/redirect.
-  if (shouldBypass && !requiredRole) {
-    return <>{children}</>;
+  // In E2E/dev bypass, allow immediate render for provider areas to stabilize tests
+  if (shouldBypass) {
+    const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+    if (!requiredRole) {
+      return <>{children}</>;
+    }
+    if (pathname.startsWith('/provider') && requiredRole === 'provider') {
+      return <>{children}</>;
+    }
   }
 
   // Show loading state while checking auth

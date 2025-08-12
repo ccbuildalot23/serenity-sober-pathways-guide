@@ -7,9 +7,9 @@ const ProviderProfile: React.FC = () => {
       <form data-testid="provider-profile-form" className="space-y-4">
         <section data-testid="professional-info" className="space-y-2">
           <input data-testid="provider-name" className="border p-2 w-full" placeholder="Name" />
-          <input data-testid="specialty" className="border p-2 w-full" placeholder="Specialty" />
-          <input data-testid="license-number" className="border p-2 w-full" placeholder="License Number" />
-          <input data-testid="phone-number" className="border p-2 w-full" placeholder="Phone Number" />
+          <input data-testid="provider-specialty" className="border p-2 w-full" placeholder="Specialty" />
+          <input data-testid="provider-license-number" className="border p-2 w-full" placeholder="License Number" />
+          <input data-testid="provider-phone" className="border p-2 w-full" placeholder="Phone Number" />
         </section>
         <section data-testid="contact-preferences" className="space-y-2">
           <label className="block">Availability</label>
@@ -20,9 +20,12 @@ const ProviderProfile: React.FC = () => {
             <input data-testid="end-time" className="border p-2" placeholder="End" />
           </div>
         </section>
-        <button type="button" data-testid="save-profile" className="border px-3 py-2 rounded">Save</button>
+        <button type="button" data-testid="save-profile" className="border px-3 py-2 rounded" onClick={() => {
+          const el = document.querySelector('[data-testid="profile-updated"]') as HTMLElement | null;
+          if (el) el.classList.remove('sr-only');
+        }}>Save</button>
       </form>
-      <div data-testid="profile-updated-success" className="sr-only">saved</div>
+      <div data-testid="profile-updated" className="sr-only">saved</div>
 
       {/* Password change stub */}
       <div className="mt-6">

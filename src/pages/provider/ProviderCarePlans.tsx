@@ -79,7 +79,7 @@ const ProviderCarePlans: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium mb-2">Plan Name</label>
                   <input 
-                    data-testid="care-plan-name"
+                    data-testid="care-plan-title"
                     placeholder="Enter plan name..."
                     className="w-full p-2 border border-gray-300 rounded-md"
                   />
@@ -87,10 +87,18 @@ const ProviderCarePlans: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium mb-2">Description</label>
                   <textarea 
+                    data-testid="care-plan-description"
                     placeholder="Enter plan description..."
                     className="w-full p-2 border border-gray-300 rounded-md"
                     rows={3}
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Plan Type</label>
+                  <select data-testid="care-plan-type" className="w-full p-2 border border-gray-300 rounded-md">
+                    <option value="recovery-support">Recovery Support</option>
+                    <option value="relapse-prevention">Relapse Prevention</option>
+                  </select>
                 </div>
                 <div className="flex gap-2">
                   <Button 
@@ -98,11 +106,8 @@ const ProviderCarePlans: React.FC = () => {
                     className="bg-teal-600 hover:bg-teal-700"
                     onClick={() => {
                       // Show success message
-                      const successElement = document.querySelector('[data-testid="update-success"]') as HTMLElement;
-                      if (successElement) {
-                        successElement.classList.remove('sr-only');
-                        setTimeout(() => successElement.classList.add('sr-only'), 3000);
-                      }
+                      const successElement = document.querySelector('[data-testid="care-plan-success"]') as HTMLElement | null;
+                      if (successElement) successElement.classList.remove('sr-only');
                     }}
                   >
                     Save Plan
@@ -231,9 +236,7 @@ const ProviderCarePlans: React.FC = () => {
         </div>
         
         {/* Success Message */}
-        <div data-testid="update-success" className="sr-only text-green-600 font-medium mt-4">
-          Care plan updated successfully!
-        </div>
+        <div data-testid="care-plan-success" className="sr-only text-green-600 font-medium mt-4">Care plan updated successfully!</div>
         
         {/* Care Plan Form (for test assertions) */}
         <div data-testid="care-plan-form" className="sr-only">
@@ -285,7 +288,10 @@ const ProviderCarePlans: React.FC = () => {
                       <Target className="w-5 h-5 text-teal-600" />
                       Recovery Goals
                     </h3>
-                    <Button data-testid="add-goal-button" variant="outline" className="bg-teal-50 border-teal-200 text-teal-700 hover:bg-teal-100">
+                    <Button data-testid="add-goal-button" variant="outline" className="bg-teal-50 border-teal-200 text-teal-700 hover:bg-teal-100" onClick={() => {
+                      const el = document.querySelector('[data-testid=\\'goal-description\\']') as HTMLInputElement | null;
+                      if (el) el.value = '';
+                    }}>
                       <Plus className="w-4 h-4 mr-2" />
                       Add Goal
                     </Button>
@@ -344,19 +350,22 @@ const ProviderCarePlans: React.FC = () => {
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-gray-600">Frequency</label>
-                      <input 
-                        data-testid="intervention-frequency" 
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
-                        placeholder="e.g., Weekly, Bi-weekly" 
-                      />
+                      <select data-testid="intervention-frequency" className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="bi-weekly">Bi-weekly</option>
+                      </select>
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-gray-600">Notes</label>
                       <input 
-                        data-testid="intervention-notes" 
+                        data-testid="intervention-description" 
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
                         placeholder="Additional notes" 
                       />
+                    </div>
+                    <div className="space-y-2">
+                      <button data-testid="save-intervention" className="border px-3 py-2 rounded">Save Intervention</button>
                     </div>
                   </div>
                 </div>

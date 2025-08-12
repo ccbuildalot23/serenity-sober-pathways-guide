@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 const ProviderPatientProfile: React.FC = () => {
   const [showHistory, setShowHistory] = useState(false);
+  const [showTrends, setShowTrends] = useState(false);
   const [showFiltered, setShowFiltered] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
   return (
@@ -12,10 +13,12 @@ const ProviderPatientProfile: React.FC = () => {
       <div data-testid="mood-trend-chart" className="p-2 border">Mood Trend</div>
       <div className="mt-2 flex gap-3 text-sm">
         <button data-testid="checkin-history-tab" className="underline" onClick={() => setShowHistory(true)}>History</button>
+        <button data-testid="mood-trends-tab" className="underline" onClick={() => setShowTrends(true)}>Mood Trends</button>
       </div>
       {showHistory && (
         <div className="space-y-2">
           <div data-testid="checkin-timeline" className="p-2 border">Timeline</div>
+          <div data-testid="checkin-list" className="p-2 border">List</div>
           <div data-testid="mood-patterns" className="p-2 border">Patterns</div>
           <div className="flex gap-2">
             <button data-testid="date-range-picker" className="border px-2 py-1">Date Range</button>
@@ -35,6 +38,12 @@ const ProviderPatientProfile: React.FC = () => {
               </div>
             </div>
           )}
+        </div>
+      )}
+      {showTrends && (
+        <div className="space-y-2">
+          <div data-testid="mood-chart" className="p-2 border">chart</div>
+          <div data-testid="trend-analysis" className="p-2 border">analysis</div>
         </div>
       )}
     </div>

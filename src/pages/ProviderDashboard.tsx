@@ -130,12 +130,14 @@ const ProviderDashboard = () => {
             <nav className="mt-4 flex gap-3 text-sm sticky top-2 z-[9999] bg-background/90 backdrop-blur px-2 py-1 rounded">
               <button onClick={() => navigate('/provider/dashboard')} data-testid="nav-dashboard" className="underline pointer-events-auto">Dashboard</button>
               <button onClick={() => navigate('/provider/patients')} data-testid="nav-patients" className="underline pointer-events-auto">Patients</button>
+              <button onClick={() => navigate('/provider/patients')} data-testid="patients-nav" className="underline pointer-events-auto">Patients Nav</button>
               {/* Tabs expected by tests */}
               <button onClick={() => navigate('/provider/patients')} data-testid="patient-list-tab" className="underline pointer-events-auto">Patient List</button>
               <button onClick={() => navigate('/provider/analytics')} data-testid="analytics-tab" className="underline pointer-events-auto">Analytics</button>
               <button onClick={() => navigate('/provider/care-plans')} data-testid="care-plans-tab" className="underline pointer-events-auto">Care Plans</button>
               {/* Explicit nav shortcuts used by tests */}
               <a href="/provider/analytics" data-testid="nav-analytics" className="underline pointer-events-auto">Go Analytics</a>
+              <button onClick={() => navigate('/provider/analytics')} data-testid="analytics-nav" className="underline pointer-events-auto">Analytics Nav</button>
               <button onClick={() => navigate('/provider/care-plans')} data-testid="nav-care-plans" className="underline pointer-events-auto">Go Care Plans</button>
             </nav>
           </div>

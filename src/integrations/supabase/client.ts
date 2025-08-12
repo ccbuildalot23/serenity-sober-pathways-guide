@@ -3,9 +3,13 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-// Lovable environment: embed public Supabase credentials to avoid missing envs during preview
-const SUPABASE_URL = 'https://tqyiqstpvwztvofrxpuf.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeWlxc3Rwdnd6dHZvZnJ4cHVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyODIxNzksImV4cCI6MjA2NDg1ODE3OX0.EJPmyjD9cpZDa_PjxKkUiVpKfVmFAFofNSk58Ssqp_8';
+// Prefer env vars in production, fall back to embedded public credentials
+// Vite exposes envs on import.meta.env
+// Note: These are client-side anon values only
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const VITE_ENV: any = (typeof import.meta !== 'undefined' ? (import.meta as any).env : {}) || {};
+const SUPABASE_URL = VITE_ENV.VITE_SUPABASE_URL || 'https://tqyiqstpvwztvofrxpuf.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = VITE_ENV.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeWlxc3Rwdnd6dHZvZnJ4cHVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyODIxNzksImV4cCI6MjA2NDg1ODE3OX0.EJPmyjD9cpZDa_PjxKkUiVpKfVmFAFofNSk58Ssqp_8';
 
 // Note: These are public client-side values (anon key) safe to expose in frontend
 // If you deploy elsewhere, configure env vars in your hosting platform.

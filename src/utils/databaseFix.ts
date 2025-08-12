@@ -182,7 +182,7 @@ export async function getCurrentCheckinCounts(): Promise<{
     }
   } catch {}
   try {
-    const fallbackCheckIns = JSON.parse(localStorage.getItem('serenity_checkins') || '[]');
+    const fallbackCheckIns = JSON.parse(localStorage.getItem('emergency_checkins') || '[]');
     return {
       dailyCheckins: fallbackCheckIns.length,
       checkinEvents: fallbackCheckIns.length,

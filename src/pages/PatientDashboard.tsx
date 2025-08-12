@@ -80,6 +80,38 @@ const PatientDashboard = () => {
     return () => window.removeEventListener('focus', onFocus);
   }, [user?.id]);
 
+  // Realtime subscription: refresh when user's check-ins change
+  useEffect(() => {
+    if (!user?.id) return;
+    const channel = supabase
+      .channel(`checkins-realtime:${user.id}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'checkin_events',
+        filter: `user_id=eq.${user.id}`
+      }, () => {
+        loadDashboardData();
+      })
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'daily_checkins',
+        filter: `user_id=eq.${user.id}`
+      }, () => {
+        loadDashboardData();
+      })
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          // Initial sync already triggered by other effects
+        }
+      });
+
+    return () => {
+      try { supabase.removeChannel(channel); } catch {}
+    };
+  }, [user?.id]);
+
   const loadDashboardData = async () => {
     if (!user?.id) return;
     try {

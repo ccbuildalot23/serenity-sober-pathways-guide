@@ -8,8 +8,20 @@ import type { Database } from './types';
 // Note: These are client-side anon values only
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const VITE_ENV: any = (typeof import.meta !== 'undefined' ? (import.meta as any).env : {}) || {};
-const SUPABASE_URL = VITE_ENV.VITE_SUPABASE_URL || 'https://tqyiqstpvwztvofrxpuf.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY = VITE_ENV.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeWlxc3Rwdnd6dHZvZnJ4cHVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyODIxNzksImV4cCI6MjA2NDg1ODE3OX0.EJPmyjD9cpZDa_PjxKkUiVpKfVmFAFofNSk58Ssqp_8';
+
+function sanitize(value: unknown): string {
+  return (value ?? '').toString().trim();
+}
+
+function isValidUrl(value: string): boolean {
+  try { new URL(value); return true; } catch { return false; }
+}
+
+const ENV_URL = sanitize(VITE_ENV.VITE_SUPABASE_URL);
+const ENV_KEY = sanitize(VITE_ENV.VITE_SUPABASE_ANON_KEY);
+
+const SUPABASE_URL = isValidUrl(ENV_URL) ? ENV_URL : 'https://tqyiqstpvwztvofrxpuf.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = ENV_KEY.length > 10 ? ENV_KEY : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeWlxc3Rwdnd6dHZvZnJ4cHVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyODIxNzksImV4cCI6MjA2NDg1ODE3OX0.EJPmyjD9cpZDa_PjxKkUiVpKfVmFAFofNSk58Ssqp_8';
 
 // Note: These are public client-side values (anon key) safe to expose in frontend
 // If you deploy elsewhere, configure env vars in your hosting platform.

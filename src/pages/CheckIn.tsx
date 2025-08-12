@@ -155,7 +155,27 @@ const CheckIn = () => {
           setStep('complete');
         }
       } else {
-        // For testing purposes, still show completion even without user
+        // Bypass/no-auth mode: persist locally to ensure dashboard counters work in E2E
+        try {
+          const dateLocal = new Date().toISOString().slice(0, 10);
+          emergencyFallback.saveCheckin({
+            date: dateLocal,
+            mood: checkInData.mood === 'positive' ? 5 : checkInData.mood === 'neutral' ? 3 : 1,
+            energy: checkInData.energy,
+            hope: checkInData.hope,
+            sobriety_confidence: checkInData.sobrietyConfidence,
+            recovery_importance: checkInData.recoveryImportance,
+            recovery_strength: checkInData.recoveryStrength,
+            support_needed: checkInData.supportNeeded,
+            notes: checkInData.moodDescription
+          } as any);
+          try {
+            window.dispatchEvent(new CustomEvent('checkin:completed', {
+              detail: { when: Date.now(), userId: null }
+            }));
+          } catch {}
+        } catch {}
+        // For testing purposes, still show completion
         if (checkInData.mood === 'negative') {
           setShowSupportResources(true);
         } else {

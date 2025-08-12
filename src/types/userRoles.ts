@@ -1,6 +1,6 @@
 // MVP User Role System - Requirement #1: Three-user permission system with granular controls
 
-export type UserRole = 'patient' | 'provider' | 'support_member';
+export type UserRole = 'patient' | 'provider' | 'support_member' | 'admin';
 
 export interface UserPermissions {
   // Patient permissions
@@ -73,6 +73,23 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, UserPermissions> = {
     canAccessCareNavigation: true,
     hipaaAccessLevel: 'limited',
     dataRetentionPeriod: 90, // Limited retention for support members
+    requiresAuditLogging: true
+  }
+  ,
+  admin: {
+    canAccessOwnData: false,
+    canSubmitCheckIns: false,
+    canManageSupportNetwork: false,
+    canViewOwnProgress: false,
+    canAccessPatientDashboards: false,
+    canViewCheckInPatterns: false,
+    canManageCarePlans: false,
+    canAccessCrisisNotifications: false,
+    canReceiveCrisisAlerts: false,
+    canViewLimitedProgress: false,
+    canAccessCareNavigation: false,
+    hipaaAccessLevel: 'full',
+    dataRetentionPeriod: 2555,
     requiresAuditLogging: true
   }
 };

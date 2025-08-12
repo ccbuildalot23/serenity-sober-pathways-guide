@@ -82,7 +82,9 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
           ? 'provider'
           : lower.includes('support')
             ? 'support_member'
-            : 'patient';
+            : lower.includes('admin')
+              ? 'provider'
+              : 'patient';
         try {
           localStorage.setItem('dev_bypass_auth', 'true');
           localStorage.setItem('pw_role', inferredRole);
@@ -90,11 +92,13 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
         } catch (e) {
           console.error('Failed to set localStorage in E2E mode:', e);
         }
-        const target = inferredRole === 'provider'
-          ? '/provider/dashboard'
-          : inferredRole === 'support_member'
-            ? '/supporter/dashboard'
-            : '/patient/dashboard';
+        const target = lower.includes('admin')
+          ? '/admin/dashboard'
+          : inferredRole === 'provider'
+            ? '/provider/dashboard'
+            : inferredRole === 'support_member'
+              ? '/supporter/dashboard'
+              : '/patient/dashboard';
         console.log(`E2E mode: Navigating to ${target}`);
         navigate(target, { replace: true });
         await new Promise(r => setTimeout(r, 500)); // Increased timeout for WebKit
@@ -196,6 +200,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
             className="pl-10 border-sage-200 focus:border-emerald-300 focus:ring-emerald-200 bg-white/80 backdrop-blur-sm"
+            data-testid="email"
             required
           />
         </div>
@@ -222,6 +227,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your password"
             className="pl-10 pr-10 border-sage-200 focus:border-emerald-300 focus:ring-emerald-200 bg-white/80 backdrop-blur-sm"
+            data-testid="password"
             required
           />
           <button
@@ -248,6 +254,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
           type="submit"
           disabled={loading}
           className="w-full bg-gradient-primary hover:bg-gradient-primary/90 text-white font-semibold py-3 rounded-xl shadow-gentle hover:shadow-calm transition-all duration-300 transform hover:scale-[1.02] disabled:transform-none disabled:opacity-70"
+          data-testid="login-button submit-login"
         >
           {loading ? (
             <div className="flex items-center space-x-2">

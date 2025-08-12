@@ -58,7 +58,7 @@ export class EnhancedSecurityAuditService {
         await this.flushEvents();
       }
     } catch (_error) {
-      console._error('Failed to log security event:', _error);
+      console.error('Failed to log security event:', _error);
     }
   }
 
@@ -138,7 +138,7 @@ export class EnhancedSecurityAuditService {
 
       console.log(`Successfully logged ${eventsToFlush.length} security events`);
     } catch (_error) {
-      console._error('Failed to flush security events:', _error);
+      console.error('Failed to flush security events:', _error);
       // Re-queue events on failure
       this.eventQueue.unshift(...eventsToFlush);
     }
@@ -370,8 +370,8 @@ export class EnhancedSecurityAuditService {
       );
       
       return report;
-    } catch (_error) {
-      console._error('Failed to generate security report:', _error);
+      } catch (_error) {
+        console.error('Failed to generate security report:', _error);
       await this.logSecurityEvent(
         'SECURITY_REPORT_FAILED',
         { _error: _error instanceof Error ? _error.message : 'Unknown _error' },

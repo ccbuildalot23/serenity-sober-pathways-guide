@@ -13,10 +13,10 @@ async function globalSetup(config: FullConfig) {
   
   try {
     // Check if the application is running
-    const baseURL = config.webServer?.url || config.use?.baseURL || 'http://localhost:3000';
+    const baseURL = config.webServer?.url || config.use?.baseURL || 'http://localhost:8080';
     console.log(`🔍 Checking if app is running at ${baseURL}`);
     
-    await page.goto(baseURL, { waitUntil: 'networkidle' });
+    await page.goto(baseURL, { waitUntil: 'domcontentloaded' });
     console.log('✅ Application is accessible');
     
     // Perform any additional setup tasks here
@@ -27,11 +27,15 @@ async function globalSetup(config: FullConfig) {
     
     console.log('🧹 Cleaning up previous test artifacts...');
     
-    // Clear any existing local storage/session storage
-    await page.evaluate(() => {
-      localStorage.clear();
-      sessionStorage.clear();
+    // Force E2E bypass so protected routes render; mount login form once to stabilize input locators
+    await page.goto(`${baseURL}/login?dev_bypass=1`, { waitUntil: 'domcontentloaded' });
+    await page.addInitScript(() => {
+      try {
+        localStorage.setItem('dev_bypass_auth', 'true');
+      } catch {}
     });
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    try { await page.waitForSelector('[data-testid="email"]', { timeout: 5000 }); } catch {}
     
     // You could add database seeding here if needed
     // await seedTestDatabase();

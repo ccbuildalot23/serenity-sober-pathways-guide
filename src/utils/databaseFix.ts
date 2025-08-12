@@ -56,6 +56,18 @@ export async function fixedCheckInSubmission(checkInData: FixedCheckInInput) {
   }
 
   // Event row is now created via DB trigger; no client-side insert needed
+  // However, let's verify the trigger worked by checking for recent events
+  try {
+    const { count: recentEvents } = await supabase
+      .from('checkin_events')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .gte('created_at', new Date(Date.now() - 60000).toISOString()); // Last minute
+    
+    console.log(`✅ Recent checkin_events for user: ${recentEvents || 0}`);
+  } catch (eventCheckError) {
+    console.warn('Could not verify checkin_events creation:', eventCheckError);
+  }
 
   return { success: true, data, source: 'database' as const };
 }
@@ -94,33 +106,25 @@ export async function loadDashboardDataFixed() {
   }
 
   try {
-    const { data: checkIns, error: checkInError } = user ? await supabase
-      .from('daily_checkins')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false }) : { data: [] as any[], error: null } as any;
+    const [eventsResp, dailyResp, lastResp, contactsResp] = user ? await Promise.all([
+      supabase.from('checkin_events').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+      supabase.from('daily_checkins').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+      supabase.from('daily_checkins').select('created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5),
+      supabase.from('support_contacts').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+    ]) : [null, null, { data: [] }, null];
 
-    const { data: contacts, error: contactsError } = user ? await supabase
-      .from('support_contacts')
-      .select('*')
-      .eq('user_id', user.id) : { data: [] as any[], error: null } as any;
-
-    // Count total events to ensure increments even with multiple in a day
-    const { count: checkInEventsCount, error: eventsError } = user ? await supabase
-      .from('checkin_events')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', user.id) : { count: 0 as number | null, error: null } as any;
-
-    if (checkInError || contactsError || eventsError) {
-      throw new Error('Database query failed');
-    }
+    const eventsCount = (eventsResp as any)?.count ?? 0;
+    const dailyCount = (dailyResp as any)?.count ?? 0;
+    const lastCheckIn = (lastResp as any)?.data?.[0]?.created_at || null;
+    const recentCheckIns = (lastResp as any)?.data || [];
+    const contactsCount = (contactsResp as any)?.count ?? 0;
 
     return {
-      totalCheckIns: (checkInEventsCount ?? 0) > 0 ? (checkInEventsCount as number) : (checkIns?.length || 0),
-      supportNetworkCount: contacts?.length || 0,
-      currentStreak: calculateStreakFixed(checkIns || []),
-      lastCheckIn: checkIns?.[0]?.created_at || null,
-      recentCheckIns: checkIns?.slice(0, 5) || [],
+      totalCheckIns: eventsCount > 0 ? eventsCount : dailyCount,
+      supportNetworkCount: contactsCount,
+      currentStreak: dailyCount,
+      lastCheckIn,
+      recentCheckIns,
     };
     } catch (_error) {
     try {

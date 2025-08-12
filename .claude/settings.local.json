@@ -36,7 +36,8 @@
       "Bash(timeout:*)",
       "Bash(curl:*)",
       "mcp__Ref__ref_search_documentation",
-      "mcp__exa__web_search_exa"
+      "mcp__exa__web_search_exa",
+      "Bash(psql:*)"
     ],
     "deny": []
   },

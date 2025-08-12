@@ -416,10 +416,10 @@ const CheckIn = () => {
         {/* Support Resources Modal */}
         {showSupportResources && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full space-y-6" data-testid="support-resources-modal">
+            <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full space-y-6" data-testid="support-resources">
               <div className="text-center space-y-4">
                 <AlertCircle className="w-12 h-12 text-red-500 mx-auto" />
-                <h3 className="text-xl font-semibold">We're Here for You</h3>
+                <h3 className="text-xl font-semibold" data-testid="crisis-support-offer">We're Here for You</h3>
                 <p className="text-gray-300">
                   It sounds like you're having a tough time. Here are some resources that might help:
                 </p>

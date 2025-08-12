@@ -14,7 +14,7 @@ const AccessDenied: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p data-testid="access-denied-message" className="text-sm text-muted-foreground mb-4">
+          <p data-testid="access-denied" className="text-sm text-muted-foreground mb-4">
             You do not have permission to access this area.
           </p>
           <div className="flex gap-2">

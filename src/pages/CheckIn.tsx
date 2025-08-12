@@ -283,6 +283,7 @@ const CheckIn = () => {
               </Button>
               <Button
                 onClick={() => setStep('activities')}
+                data-testid="continue-to-activities"
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 Continue
@@ -325,6 +326,7 @@ const CheckIn = () => {
               </Button>
               <Button
                 onClick={() => setStep('sleep')}
+                data-testid="continue-to-sleep"
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 Continue

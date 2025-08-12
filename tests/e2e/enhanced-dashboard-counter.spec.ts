@@ -24,6 +24,8 @@ test.describe('Dashboard counter increments reliably', () => {
     await page.waitForURL(/\/checkin$/);
     await page.waitForSelector('[data-testid="daily-checkin-section"]', { timeout: 10000 });
     await page.click('[data-testid="mood-neutral"]');
+    await page.click('[data-testid="continue-to-activities"]');
+    await page.click('[data-testid="continue-to-sleep"]');
     await page.click('[data-testid="sleep-rating-3"]');
 
     const postPromise = page.waitForResponse(r => r.url().includes('/rest/v1/checkin_events') && r.request().method() === 'POST');

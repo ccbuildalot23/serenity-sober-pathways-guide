@@ -43,7 +43,8 @@
     "lighthouse:validate": "node scripts/lighthouse-validate.js",
     "lighthouse:test": "node scripts/lighthouse-validate.js --test",
     "lighthouse:local": "node scripts/lighthouse-validate.js --test --url http://localhost:5173",
-    "prepare": "husky"
+    "prepare": "husky",
+    "verify-production": "node scripts/productionVerification.js"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",

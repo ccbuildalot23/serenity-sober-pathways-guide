@@ -32,6 +32,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { emergencyFallback } from '@/lib/emergencyFallback';
 import { testDatabaseConnection } from '@/utils/databaseTest';
 import { loadDashboardDataFixed } from '@/utils/databaseFix';
+import '@/utils/autonomousTest';
 import '@/utils/patientJourneyTest';
 
 const PatientDashboard = () => {

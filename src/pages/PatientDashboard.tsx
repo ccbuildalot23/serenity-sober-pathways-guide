@@ -66,13 +66,12 @@ const PatientDashboard = () => {
           user_uuid: user.id 
         });
 
-        // Load total check-ins
-        const { data: checkinsData, error: checkinsError } = await supabase
+        // Load total check-ins (be tolerant to schema differences and fall back to local)
+        const { data: checkinsData } = await supabase
           .from('daily_checkins')
           .select('id, checkin_date, created_at')
           .eq('user_id', user.id)
-          .eq('is_complete', true)
-          .order('checkin_date', { ascending: false });
+          .order('created_at', { ascending: false });
 
         // Load support network count
         const { data: supportData, error: supportError } = await supabase
@@ -85,7 +84,15 @@ const PatientDashboard = () => {
 
         recoveryStreak = streakData || 0;
         totalCheckins = checkinsData?.length || 0;
-        lastCheckinDate = lastCheckin?.checkin_date || null;
+        lastCheckinDate = (lastCheckin?.checkin_date || lastCheckin?.created_at) || null;
+
+        // If no rows returned (or count appears zero), use local fallback so the UI reflects completion immediately
+        if (!totalCheckins || totalCheckins === 0) {
+          const localTotal = emergencyFallback.getTotalCheckins();
+          const localLast = emergencyFallback.getLastCheckin();
+          totalCheckins = localTotal;
+          lastCheckinDate = localLast?.date || lastCheckinDate;
+        }
         supportNetworkCount = supportData?.length || 0;
 
       } catch (dbError) {

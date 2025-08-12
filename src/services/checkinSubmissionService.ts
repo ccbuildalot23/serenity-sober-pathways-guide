@@ -36,7 +36,7 @@ export const checkinSubmissionService = {
       .from('daily_checkins')
       .upsert(_checkinData, { 
         onConflict: 'user_id,checkin_date',
-        _ignoreDuplicates: false 
+        ignoreDuplicates: false 
       })
       .select('id')
       .single();

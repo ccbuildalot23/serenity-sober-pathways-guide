@@ -97,6 +97,19 @@ const CheckIn = () => {
         try {
           await checkinSubmissionService.submitCheckin(data, data as any);
           console.log('Check-in saved successfully to database');
+          try {
+            emergencyFallback.saveCheckin({
+              date,
+              mood: checkInData.mood === 'positive' ? 5 : checkInData.mood === 'neutral' ? 3 : 1,
+              energy: checkInData.energy,
+              hope: checkInData.hope,
+              sobriety_confidence: checkInData.sobrietyConfidence,
+              recovery_importance: checkInData.recoveryImportance,
+              recovery_strength: checkInData.recoveryStrength,
+              support_needed: checkInData.supportNeeded,
+              notes: checkInData.moodDescription
+            });
+          } catch {}
         } catch (dbError) {
           console.error('Database submission failed:', dbError);
           

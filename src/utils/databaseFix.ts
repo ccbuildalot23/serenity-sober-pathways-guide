@@ -79,6 +79,31 @@ export async function loadDashboardDataFixed() {
   })();
   if (!user && !bypass) return null;
 
+  // In bypass mode without a user session, prefer localStorage-backed counts immediately
+  if (!user && bypass) {
+    try {
+      const fallbackCheckIns = JSON.parse(localStorage.getItem('serenity_checkins') || '[]');
+      const fallbackContacts = JSON.parse(localStorage.getItem('serenity_contacts') || '[]');
+      return {
+        totalCheckIns: fallbackCheckIns.length,
+        supportNetworkCount: fallbackContacts.length,
+        currentStreak: fallbackCheckIns.length,
+        lastCheckIn: fallbackCheckIns[0]?.created_at || null,
+        recentCheckIns: fallbackCheckIns.slice(0, 5),
+        source: 'localStorage' as const,
+      };
+    } catch {
+      return {
+        totalCheckIns: 0,
+        supportNetworkCount: 0,
+        currentStreak: 0,
+        lastCheckIn: null,
+        recentCheckIns: [],
+        source: 'localStorage' as const,
+      };
+    }
+  }
+
   try {
     const { data: checkIns, error: checkInError } = user ? await supabase
       .from('daily_checkins')

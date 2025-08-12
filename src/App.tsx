@@ -94,6 +94,10 @@ import Profile from '@/pages/Profile';
 import AccessDenied from '@/pages/AccessDenied';
 // Admin Dashboard - Eagerly loaded for HIPAA compliance
 import AdminDashboard from '@/pages/AdminDashboard';
+// Expose autonomous helpers globally so production verification can run on any route
+import '@/utils/databaseTest';
+import '@/utils/autonomousTest';
+import '@/utils/databaseFix';
 
 const queryClient = new QueryClient();
 

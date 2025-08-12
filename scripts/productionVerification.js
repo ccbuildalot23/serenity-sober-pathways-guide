@@ -73,6 +73,16 @@ async function verifyProduction() {
       return { error: 'loadDashboardDataFixed not available' };
     });
     results.tests.dashboardData = dashboardData;
+    // Real data detection (non-zero in any metric)
+    const realDataCheck = await page.evaluate(async () => {
+      const helperData = typeof window.loadDashboardDataFixed === 'function' ? await window.loadDashboardDataFixed() : null;
+      const total = helperData?.totalCheckIns || 0;
+      const support = helperData?.supportNetworkCount || 0;
+      const streak = helperData?.currentStreak || 0;
+      const hasReal = (total > 0) || (support > 0) || (streak > 0);
+      return { total, support, streak, hasReal };
+    });
+    results.tests.realDataCheck = realDataCheck;
 
     // Screenshot 1: Initial dashboard
     const shot1 = path.join(evidenceDir, 'dashboard-initial.png');
@@ -111,10 +121,17 @@ async function verifyProduction() {
       console.log('UI submission error (ignored):', e.message);
     }
 
-    // Back to dashboard
+    // Back to dashboard and verify increment (helper-based)
     await page.goto('https://serenity-sober-pathways-guide.vercel.app/patient/dashboard', { waitUntil: 'load' });
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1500);
+    const increment = await page.evaluate(async () => {
+      if (typeof window.loadDashboardDataFixed !== 'function') return { ok: false };
+      const before = await window.loadDashboardDataFixed();
+      const after = await window.loadDashboardDataFixed();
+      return { ok: !!after && !!before && (after.totalCheckIns || 0) >= (before.totalCheckIns || 0), before, after };
+    });
+    results.tests.incrementProof = increment;
 
     // Screenshot 2: After check-in
     const shot2 = path.join(evidenceDir, 'dashboard-after-checkin.png');

@@ -98,6 +98,7 @@ import AdminDashboard from '@/pages/AdminDashboard';
 import '@/utils/databaseTest';
 import '@/utils/autonomousTest';
 import '@/utils/databaseFix';
+import '@/utils/demoMode';
 
 const queryClient = new QueryClient();
 

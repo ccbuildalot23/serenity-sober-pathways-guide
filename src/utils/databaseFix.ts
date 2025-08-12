@@ -82,8 +82,8 @@ export async function loadDashboardDataFixed() {
   // In bypass mode without a user session, prefer localStorage-backed counts immediately
   if (!user && bypass) {
     try {
-      const fallbackCheckIns = JSON.parse(localStorage.getItem('serenity_checkins') || '[]');
-      const fallbackContacts = JSON.parse(localStorage.getItem('serenity_contacts') || '[]');
+      const fallbackCheckIns = JSON.parse(localStorage.getItem('emergency_checkins') || '[]');
+      const fallbackContacts = JSON.parse(localStorage.getItem('emergency_contacts') || '[]');
       return {
         totalCheckIns: fallbackCheckIns.length,
         supportNetworkCount: fallbackContacts.length,
@@ -133,10 +133,11 @@ export async function loadDashboardDataFixed() {
       lastCheckIn: checkIns?.[0]?.created_at || null,
       recentCheckIns: checkIns?.slice(0, 5) || [],
     };
-  } catch (_error) {
+    } catch (_error) {
     try {
-      const fallbackCheckIns = JSON.parse(localStorage.getItem('serenity_checkins') || '[]');
-      const fallbackContacts = JSON.parse(localStorage.getItem('serenity_contacts') || '[]');
+        // Use emergencyFallback storage to stay consistent with CheckIn fallback
+        const fallbackCheckIns = JSON.parse(localStorage.getItem('emergency_checkins') || '[]');
+        const fallbackContacts = JSON.parse(localStorage.getItem('emergency_contacts') || '[]');
       return {
         totalCheckIns: fallbackCheckIns.length,
         supportNetworkCount: fallbackContacts.length,

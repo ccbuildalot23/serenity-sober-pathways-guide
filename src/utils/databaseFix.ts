@@ -133,6 +133,40 @@ export async function loadDashboardDataFixed() {
   }
 }
 
+// Returns counts from DB when authenticated, else falls back to localStorage
+export async function getCurrentCheckinCounts(): Promise<{
+  dailyCheckins: number;
+  checkinEvents: number;
+  source: 'database' | 'localStorage';
+}> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const [eventsResp, dcsResp] = await Promise.all([
+        supabase.from('checkin_events').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+        supabase.from('daily_checkins').select('id').eq('user_id', user.id)
+      ]);
+      const events = (eventsResp as any)?.count ?? 0;
+      const dcs = (dcsResp as any)?.data ?? [];
+      return {
+        dailyCheckins: (dcs?.length || 0),
+        checkinEvents: events as number,
+        source: 'database'
+      };
+    }
+  } catch {}
+  try {
+    const fallbackCheckIns = JSON.parse(localStorage.getItem('serenity_checkins') || '[]');
+    return {
+      dailyCheckins: fallbackCheckIns.length,
+      checkinEvents: fallbackCheckIns.length,
+      source: 'localStorage'
+    };
+  } catch {
+    return { dailyCheckins: 0, checkinEvents: 0, source: 'localStorage' };
+  }
+}
+
 function calculateStreakFixed(checkIns: Array<{ created_at?: string }>) {
   if (!checkIns || checkIns.length === 0) return 0;
   const today = new Date();
@@ -160,6 +194,7 @@ declare const window: any;
 if (typeof window !== 'undefined') {
   window.fixedCheckInSubmission = fixedCheckInSubmission;
   window.loadDashboardDataFixed = loadDashboardDataFixed;
+    window.getCurrentCheckinCounts = getCurrentCheckinCounts;
 }
 
 

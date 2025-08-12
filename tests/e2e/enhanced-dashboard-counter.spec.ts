@@ -9,7 +9,8 @@ test.describe('Dashboard counter increments reliably', () => {
     await page.goto('/login');
     await page.fill('#email', 'test-patient@serenity.com');
     await page.fill('#password', 'TestSerenity2024!@#');
-    await page.click('button[type="submit"]');
+    // Hitting Enter is more stable in E2E bypass mode (button can re-render)
+    await page.locator('#password').press('Enter');
     await page.waitForURL(/\/patient\/dashboard/);
 
     // Read initial counter

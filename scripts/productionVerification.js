@@ -30,7 +30,21 @@ async function verifyProduction() {
   try {
     console.log('🤖 Starting automated production verification...');
 
-    // Go to production dashboard (will route to auth if needed)
+    // Ensure we are authenticated first
+    await page.goto('https://serenity-sober-pathways-guide.vercel.app/login', { waitUntil: 'load' });
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(1000);
+    try {
+      await page.fill('#email', 'test-patient@serenity.com');
+      await page.fill('#password', 'TestSerenity2024!@#');
+      await page.click('button[type="submit"]');
+      await page.waitForURL('**/patient/dashboard', { timeout: 15000 });
+      await page.waitForLoadState('networkidle');
+    } catch (e) {
+      console.log('Login step encountered an issue (proceeding):', e.message);
+    }
+
+    // Go to production dashboard (now should be authenticated or bypassed)
     await page.goto('https://serenity-sober-pathways-guide.vercel.app/patient/dashboard', { waitUntil: 'load' });
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);

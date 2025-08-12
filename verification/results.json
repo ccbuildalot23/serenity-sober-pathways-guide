@@ -1,0 +1,120 @@
+{
+  "timestamp": "2025-08-12T01:35:11.878Z",
+  "productionUrl": "https://serenity-sober-pathways-guide.vercel.app",
+  "tests": {
+    "databaseConnection": {
+      "connection": true,
+      "auth": false,
+      "daily_checkins": 0,
+      "simple_checkins": 0,
+      "contacts": 0,
+      "user": null
+    },
+    "autonomousTests": {
+      "timestamp": "2025-08-12T01:35:57.119Z",
+      "tests": {
+        "authentication": {
+          "passed": false,
+          "userId": null,
+          "error": null
+        },
+        "checkInSubmission": {
+          "passed": false,
+          "error": "Authentication failed"
+        },
+        "dashboardLoading": {
+          "passed": true,
+          "totalCheckIns": 0,
+          "supportNetworkCount": 0,
+          "source": "database",
+          "error": null
+        },
+        "dataPersistence": {
+          "passed": true,
+          "persistentData": true,
+          "error": null
+        }
+      }
+    },
+    "dashboardData": {
+      "totalCheckIns": 0,
+      "supportNetworkCount": 0,
+      "currentStreak": 0,
+      "lastCheckIn": null,
+      "recentCheckIns": []
+    },
+    "realDataCheck": {
+      "total": 0,
+      "support": 0,
+      "streak": 0,
+      "hasReal": false
+    },
+    "incrementProof": {
+      "ok": true,
+      "before": {
+        "totalCheckIns": 0,
+        "supportNetworkCount": 0,
+        "currentStreak": 0,
+        "lastCheckIn": null,
+        "recentCheckIns": []
+      },
+      "after": {
+        "totalCheckIns": 0,
+        "supportNetworkCount": 0,
+        "currentStreak": 0,
+        "lastCheckIn": null,
+        "recentCheckIns": []
+      }
+    },
+    "finalVerification": {
+      "databaseConnection": {
+        "connection": true,
+        "auth": false,
+        "daily_checkins": 0,
+        "simple_checkins": 0,
+        "contacts": 0,
+        "user": null
+      },
+      "dashboardData": {
+        "totalCheckIns": 0,
+        "supportNetworkCount": 0,
+        "currentStreak": 0,
+        "lastCheckIn": null,
+        "recentCheckIns": []
+      }
+    }
+  },
+  "screenshots": [
+    "dashboard-initial.png",
+    "dashboard-after-checkin.png",
+    "dashboard-after-refresh.png",
+    "support-network.png",
+    "dashboard-mobile.png"
+  ],
+  "consoleErrors": [
+    "Refused to connect to 'wss://tqyiqstpvwztvofrxpuf.supabase.co/realtime/v1/websocket?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeWlxc3Rwdnd6dHZvZnJ4cHVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyODIxNzksImV4cCI6MjA2NDg1ODE3OX0.EJPmyjD9cpZDa_PjxKkUiVpKfVmFAFofNSk58Ssqp_8&vsn=1.0.0' because it violates the following Content Security Policy directive: \"connect-src 'self' https://api.vercel.com https://*.supabase.co https://api.ipify.org\".\n",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 400 ()",
+    "Failed to load resource: the server responded with a status of 400 ()",
+    "Failed to flush security events: ReferenceError: _error is not defined\n    at Da.flushEvents (https://serenity-sober-pathways-guide.vercel.app/assets/main-Cfs23Zgk.js:12:196204)",
+    "Refused to connect to 'wss://tqyiqstpvwztvofrxpuf.supabase.co/realtime/v1/websocket?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeWlxc3Rwdnd6dHZvZnJ4cHVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyODIxNzksImV4cCI6MjA2NDg1ODE3OX0.EJPmyjD9cpZDa_PjxKkUiVpKfVmFAFofNSk58Ssqp_8&vsn=1.0.0' because it violates the following Content Security Policy directive: \"connect-src 'self' https://api.vercel.com https://*.supabase.co https://api.ipify.org\".\n",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Refused to connect to 'wss://tqyiqstpvwztvofrxpuf.supabase.co/realtime/v1/websocket?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeWlxc3Rwdnd6dHZvZnJ4cHVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyODIxNzksImV4cCI6MjA2NDg1ODE3OX0.EJPmyjD9cpZDa_PjxKkUiVpKfVmFAFofNSk58Ssqp_8&vsn=1.0.0' because it violates the following Content Security Policy directive: \"connect-src 'self' https://api.vercel.com https://*.supabase.co https://api.ipify.org\".\n",
+    "Refused to connect to 'wss://tqyiqstpvwztvofrxpuf.supabase.co/realtime/v1/websocket?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeWlxc3Rwdnd6dHZvZnJ4cHVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyODIxNzksImV4cCI6MjA2NDg1ODE3OX0.EJPmyjD9cpZDa_PjxKkUiVpKfVmFAFofNSk58Ssqp_8&vsn=1.0.0' because it violates the following Content Security Policy directive: \"connect-src 'self' https://api.vercel.com https://*.supabase.co https://api.ipify.org\".\n",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Refused to connect to 'wss://tqyiqstpvwztvofrxpuf.supabase.co/realtime/v1/websocket?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeWlxc3Rwdnd6dHZvZnJ4cHVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyODIxNzksImV4cCI6MjA2NDg1ODE3OX0.EJPmyjD9cpZDa_PjxKkUiVpKfVmFAFofNSk58Ssqp_8&vsn=1.0.0' because it violates the following Content Security Policy directive: \"connect-src 'self' https://api.vercel.com https://*.supabase.co https://api.ipify.org\".\n",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Refused to connect to 'wss://tqyiqstpvwztvofrxpuf.supabase.co/realtime/v1/websocket?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeWlxc3Rwdnd6dHZvZnJ4cHVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyODIxNzksImV4cCI6MjA2NDg1ODE3OX0.EJPmyjD9cpZDa_PjxKkUiVpKfVmFAFofNSk58Ssqp_8&vsn=1.0.0' because it violates the following Content Security Policy directive: \"connect-src 'self' https://api.vercel.com https://*.supabase.co https://api.ipify.org\".\n",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()"
+  ],
+  "evidence": {
+    "initialCounts": {
+      "domCounts": {
+        "totalsText": "Dashboard\nCheck-in\nPeer Support\nCommunity\nSerenity Dashboard\n\nWelcome back, Friend. Your journey matters.\n\nPatient Portal\nProfile\nanchor\n\nHope Journey\n\n0\n\ndays of courage\n\nTotal Check-ins\n\n0\n\ncompleted\n\nNo recent check-ins\n\nSupport Network\n\n0\n\nconnections\n\nResources\n\n12\n\navailable\n\nDaily Check-in\n\nTake a moment to reflect on your day and track your progress.\n\nStart Today's Check-in\nCrisis Support\n\nImmediate help and resources when you need them most.\n\nGet Support Now\nPeer Support\n\nConnect with others on similar journeys\n\nConnect\nCommunity\n\nJoin our supportive community\n\nJoin\nProgress\n\nTrack your recovery journey\n\nView\nYou're Doing Great!\n\nEvery step forward is a victory. Remember, you're not alone on this journey."
+      },
+      "helperAvailable": true
+    }
+  }
+}

@@ -55,6 +55,19 @@ export async function fixedCheckInSubmission(checkInData: FixedCheckInInput) {
     return { success: true, data: fallbackData, source: 'localStorage' as const };
   }
 
+  // Also append an immutable event row for reliable counting
+  try {
+    await supabase.from('checkin_events').insert({
+      user_id: user.id,
+      mood_rating: record.mood_rating,
+      sleep_quality: record.sleep_quality,
+      activities: record.activities,
+      notes: record.notes,
+    });
+  } catch (e) {
+    console.warn('Failed to insert checkin_events row:', e);
+  }
+
   return { success: true, data, source: 'database' as const };
 }
 
@@ -78,12 +91,18 @@ export async function loadDashboardDataFixed() {
       .select('*')
       .eq('user_id', user.id) : { data: [] as any[], error: null } as any;
 
-    if (checkInError || contactsError) {
+    // Count total events to ensure increments even with multiple in a day
+    const { count: checkInEventsCount, error: eventsError } = user ? await supabase
+      .from('checkin_events')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id) : { count: 0 as number | null, error: null } as any;
+
+    if (checkInError || contactsError || eventsError) {
       throw new Error('Database query failed');
     }
 
     return {
-      totalCheckIns: checkIns?.length || 0,
+      totalCheckIns: (checkInEventsCount ?? 0) > 0 ? (checkInEventsCount as number) : (checkIns?.length || 0),
       supportNetworkCount: contacts?.length || 0,
       currentStreak: calculateStreakFixed(checkIns || []),
       lastCheckIn: checkIns?.[0]?.created_at || null,

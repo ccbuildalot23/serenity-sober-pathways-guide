@@ -248,7 +248,7 @@ const PatientDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-sage-600">Total Check-ins</p>
-                    <p className="text-3xl font-bold text-sage-800">
+                    <p className="text-3xl font-bold text-sage-800" data-testid="checkin-counter">
                       {loading ? '...' : dashboardData.totalCheckins}
                     </p>
                     <p className="text-xs text-sage-500">completed</p>

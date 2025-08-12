@@ -55,18 +55,7 @@ export async function fixedCheckInSubmission(checkInData: FixedCheckInInput) {
     return { success: true, data: fallbackData, source: 'localStorage' as const };
   }
 
-  // Also append an immutable event row for reliable counting
-  try {
-    await supabase.from('checkin_events').insert({
-      user_id: user.id,
-      mood_rating: record.mood_rating,
-      sleep_quality: record.sleep_quality,
-      activities: record.activities,
-      notes: record.notes,
-    });
-  } catch (e) {
-    console.warn('Failed to insert checkin_events row:', e);
-  }
+  // Event row is now created via DB trigger; no client-side insert needed
 
   return { success: true, data, source: 'database' as const };
 }

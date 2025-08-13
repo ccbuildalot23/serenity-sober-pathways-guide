@@ -265,9 +265,7 @@ const AppContent = () => {
           {/* Protected Provider Routes */}
           <Route path="/provider/dashboard" element={
             <ProtectedRoute requiredRole="provider">
-              <Suspense fallback={<LoadingState />}>
-                <ProviderDashboard />
-              </Suspense>
+              <ProviderDashboard />
             </ProtectedRoute>
           } />
           <Route path="/provider/patients" element={

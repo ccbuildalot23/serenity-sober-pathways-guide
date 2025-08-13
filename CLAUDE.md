@@ -1,272 +1,219 @@
-# Claude Code Configuration - SPARC Development Environment
+# CLAUDE.md
 
-## 🚨 CRITICAL: CONCURRENT EXECUTION & FILE MANAGEMENT
-
-**ABSOLUTE RULES**:
-1. ALL operations MUST be concurrent/parallel in a single message
-2. **NEVER save working files, text/mds and tests to the root folder**
-3. ALWAYS organize files in appropriate subdirectories
-
-### ⚡ GOLDEN RULE: "1 MESSAGE = ALL RELATED OPERATIONS"
-
-**MANDATORY PATTERNS:**
-- **TodoWrite**: ALWAYS batch ALL todos in ONE call (5-10+ todos minimum)
-- **Task tool**: ALWAYS spawn ALL agents in ONE message with full instructions
-- **File operations**: ALWAYS batch ALL reads/writes/edits in ONE message
-- **Bash commands**: ALWAYS batch ALL terminal operations in ONE message
-- **Memory operations**: ALWAYS batch ALL memory store/retrieve in ONE message
-
-### 📁 File Organization Rules
-
-**NEVER save to root folder. Use these directories:**
-- `/src` - Source code files
-- `/tests` - Test files
-- `/docs` - Documentation and markdown files
-- `/config` - Configuration files
-- `/scripts` - Utility scripts
-- `/examples` - Example code
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
-This project uses SPARC (Specification, Pseudocode, Architecture, Refinement, Completion) methodology with Claude-Flow orchestration for systematic Test-Driven Development.
+Serenity Sober Pathways is a HIPAA-compliant mental health and substance abuse recovery platform built with React, TypeScript, Vite, and Supabase. The application provides crisis support, daily check-ins, peer support, and provider dashboards for comprehensive recovery management.
 
-## SPARC Commands
+## Commands
 
-### Core Commands
-- `npx claude-flow sparc modes` - List available modes
-- `npx claude-flow sparc run <mode> "<task>"` - Execute specific mode
-- `npx claude-flow sparc tdd "<feature>"` - Run complete TDD workflow
-- `npx claude-flow sparc info <mode>` - Get mode details
-
-### Batchtools Commands
-- `npx claude-flow sparc batch <modes> "<task>"` - Parallel execution
-- `npx claude-flow sparc pipeline "<task>"` - Full pipeline processing
-- `npx claude-flow sparc concurrent <mode> "<tasks-file>"` - Multi-task processing
-
-### Build Commands
-- `npm run build` - Build project
-- `npm run test` - Run tests
-- `npm run lint` - Linting
-- `npm run typecheck` - Type checking
-
-## SPARC Workflow Phases
-
-1. **Specification** - Requirements analysis (`sparc run spec-pseudocode`)
-2. **Pseudocode** - Algorithm design (`sparc run spec-pseudocode`)
-3. **Architecture** - System design (`sparc run architect`)
-4. **Refinement** - TDD implementation (`sparc tdd`)
-5. **Completion** - Integration (`sparc run integration`)
-
-## Code Style & Best Practices
-
-- **Modular Design**: Files under 500 lines
-- **Environment Safety**: Never hardcode secrets
-- **Test-First**: Write tests before implementation
-- **Clean Architecture**: Separate concerns
-- **Documentation**: Keep updated
-
-## 🚀 Available Agents (54 Total)
-
-### Core Development
-`coder`, `reviewer`, `tester`, `planner`, `researcher`
-
-### Swarm Coordination
-`hierarchical-coordinator`, `mesh-coordinator`, `adaptive-coordinator`, `collective-intelligence-coordinator`, `swarm-memory-manager`
-
-### Consensus & Distributed
-`byzantine-coordinator`, `raft-manager`, `gossip-coordinator`, `consensus-builder`, `crdt-synchronizer`, `quorum-manager`, `security-manager`
-
-### Performance & Optimization
-`perf-analyzer`, `performance-benchmarker`, `task-orchestrator`, `memory-coordinator`, `smart-agent`
-
-### GitHub & Repository
-`github-modes`, `pr-manager`, `code-review-swarm`, `issue-tracker`, `release-manager`, `workflow-automation`, `project-board-sync`, `repo-architect`, `multi-repo-swarm`
-
-### SPARC Methodology
-`sparc-coord`, `sparc-coder`, `specification`, `pseudocode`, `architecture`, `refinement`
-
-### Specialized Development
-`backend-dev`, `mobile-dev`, `ml-developer`, `cicd-engineer`, `api-docs`, `system-architect`, `code-analyzer`, `base-template-generator`
-
-### Testing & Validation
-`tdd-london-swarm`, `production-validator`
-
-### Migration & Planning
-`migration-planner`, `swarm-init`
-
-## 🎯 Claude Code vs MCP Tools
-
-### Claude Code Handles ALL:
-- File operations (Read, Write, Edit, MultiEdit, Glob, Grep)
-- Code generation and programming
-- Bash commands and system operations
-- Implementation work
-- Project navigation and analysis
-- TodoWrite and task management
-- Git operations
-- Package management
-- Testing and debugging
-
-### MCP Tools ONLY:
-- Coordination and planning
-- Memory management
-- Neural features
-- Performance tracking
-- Swarm orchestration
-- GitHub integration
-
-**KEY**: MCP coordinates, Claude Code executes.
-
-## 🚀 Quick Setup
-
+### Development
 ```bash
-# Add Claude Flow MCP server
-claude mcp add claude-flow npx claude-flow@alpha mcp start
+npm run dev                    # Start development server on port 8080
+npm run build                  # Build for production
+npm run preview               # Preview production build
 ```
 
-## MCP Tool Categories
-
-### Coordination
-`swarm_init`, `agent_spawn`, `task_orchestrate`
-
-### Monitoring
-`swarm_status`, `agent_list`, `agent_metrics`, `task_status`, `task_results`
-
-### Memory & Neural
-`memory_usage`, `neural_status`, `neural_train`, `neural_patterns`
-
-### GitHub Integration
-`github_swarm`, `repo_analyze`, `pr_enhance`, `issue_triage`, `code_review`
-
-### System
-`benchmark_run`, `features_detect`, `swarm_monitor`
-
-## 📋 Agent Coordination Protocol
-
-### Every Agent MUST:
-
-**1️⃣ BEFORE Work:**
+### Testing
 ```bash
-npx claude-flow@alpha hooks pre-task --description "[task]"
-npx claude-flow@alpha hooks session-restore --session-id "swarm-[id]"
+npm run test                  # Run all Playwright tests
+npm run test:e2e              # Run E2E tests
+npm run test:patient          # Test patient journey
+npm run test:provider         # Test provider journey
+npm run test:supporter        # Test supporter journey
+npm run test:crisis           # Test crisis support
+npm run test:mobile           # Test mobile viewports
 ```
 
-**2️⃣ DURING Work:**
+### Code Quality
 ```bash
-npx claude-flow@alpha hooks post-edit --file "[file]" --memory-key "swarm/[agent]/[step]"
-npx claude-flow@alpha hooks notify --message "[what was done]"
+npm run lint                  # Run ESLint with up to 1000 warnings allowed
+npm run lint:fix              # Auto-fix linting issues
+npm run typecheck             # TypeScript type checking
+npm run validate:structure    # Validate project structure
 ```
 
-**3️⃣ AFTER Work:**
+### Deployment
 ```bash
-npx claude-flow@alpha hooks post-task --task-id "[task]"
-npx claude-flow@alpha hooks session-end --export-metrics true
+npm run vercel-build          # Build for Vercel deployment
+npm run deployment:check      # Check deployment readiness
+npm run verify-production     # Verify production deployment
+npm run lighthouse:validate   # Run Lighthouse performance checks
 ```
 
-## 🎯 Concurrent Execution Examples
+## Architecture
 
-### ✅ CORRECT (Single Message):
-```javascript
-[BatchTool]:
-  // Initialize swarm
-  mcp__claude-flow__swarm_init { topology: "mesh", maxAgents: 6 }
-  mcp__claude-flow__agent_spawn { type: "researcher" }
-  mcp__claude-flow__agent_spawn { type: "coder" }
-  mcp__claude-flow__agent_spawn { type: "tester" }
-  
-  // Spawn agents with Task tool
-  Task("Research agent: Analyze requirements...")
-  Task("Coder agent: Implement features...")
-  Task("Tester agent: Create test suite...")
-  
-  // Batch todos
-  TodoWrite { todos: [
-    {id: "1", content: "Research", status: "in_progress", priority: "high"},
-    {id: "2", content: "Design", status: "pending", priority: "high"},
-    {id: "3", content: "Implement", status: "pending", priority: "high"},
-    {id: "4", content: "Test", status: "pending", priority: "medium"},
-    {id: "5", content: "Document", status: "pending", priority: "low"}
-  ]}
-  
-  // File operations
-  Bash "mkdir -p app/{src,tests,docs}"
-  Write "app/src/index.js"
-  Write "app/tests/index.test.js"
-  Write "app/docs/README.md"
+### Core Technologies
+- **Frontend**: React 19 with TypeScript, Vite 5, TailwindCSS 3
+- **UI Components**: Radix UI, shadcn/ui components
+- **Backend**: Supabase (PostgreSQL, Auth, Realtime)
+- **Mobile**: Capacitor for iOS/Android builds
+- **Testing**: Playwright for E2E, multiple browser/device testing
+- **CI/CD**: GitHub Actions, Vercel deployment
+
+### Directory Structure
+```
+src/
+├── components/       # Reusable UI components (organized by feature)
+│   ├── crisis/      # Crisis management components
+│   ├── auth/        # Authentication components
+│   ├── dashboard/   # Dashboard components
+│   └── ui/          # Base UI components (shadcn)
+├── pages/           # Route components
+├── services/        # Business logic and API services
+├── hooks/           # Custom React hooks
+├── contexts/        # React contexts (Auth, Sensory)
+├── integrations/    # External service integrations
+├── types/           # TypeScript type definitions
+└── utils/           # Utility functions
 ```
 
-### ❌ WRONG (Multiple Messages):
-```javascript
-Message 1: mcp__claude-flow__swarm_init
-Message 2: Task("agent 1")
-Message 3: TodoWrite { todos: [single todo] }
-Message 4: Write "file.js"
-// This breaks parallel coordination!
+### Key Architectural Patterns
+
+#### Authentication Flow
+- Supabase Auth with PKCE flow for enhanced security
+- Role-based access control (patient, provider, supporter, admin)
+- Session management with 15-minute timeout for PHI access
+- Password reset flow with email verification
+
+#### Database Schema
+- PostgreSQL with Row Level Security (RLS)
+- Core tables: profiles, user_roles, daily_checkins, emergency_contacts
+- Support network system with tiered contacts
+- Crisis notification system with escalation levels
+
+#### Component Organization
+- Feature-based organization within components/
+- Separation of concerns: UI, business logic, data access
+- Custom hooks for shared logic
+- Context providers for global state
+
+#### Security & Compliance
+- HIPAA compliance with audit logging
+- Content Security Policy (CSP) headers
+- Secure storage with encryption at rest
+- Session security with automatic timeout
+
+## Environment Configuration
+
+### Required Environment Variables
+```bash
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-## Performance Benefits
+### Deployment Environments
+- **Development**: http://localhost:8080
+- **Production**: Vercel deployment with security headers
+- **Mobile**: Capacitor for iOS/Android apps
 
-- **84.8% SWE-Bench solve rate**
-- **32.3% token reduction**
-- **2.8-4.4x speed improvement**
-- **27+ neural models**
+## Testing Strategy
 
-## Hooks Integration
+### E2E Test Coverage
+- Patient journey: check-ins, crisis support, peer support
+- Provider journey: patient management, analytics
+- Supporter journey: crisis alerts, messaging
+- HIPAA compliance: security, audit trails
+- Mobile responsiveness: iOS/Android viewports
 
-### Pre-Operation
-- Auto-assign agents by file type
-- Validate commands for safety
-- Prepare resources automatically
-- Optimize topology by complexity
-- Cache searches
+### Test Credentials (Development)
+- Patient: test-patient@serenity.com / TestPass123!
+- Provider: test-provider@serenity.com / TestPass123!
+- Supporter: test-supporter@serenity.com / TestPass123!
 
-### Post-Operation
-- Auto-format code
-- Train neural patterns
-- Update memory
-- Analyze performance
-- Track token usage
+## Critical Features
 
-### Session Management
-- Generate summaries
-- Persist state
-- Track metrics
-- Restore context
-- Export workflows
+### Crisis Support System
+- One-tap emergency alerts
+- Multi-tier supporter notification
+- Offline mode with local caching
+- Voice-activated crisis assistance
+- Real-time escalation protocols
 
-## Advanced Features (v2.0.0)
+### Daily Check-In System
+- Mood, anxiety, sleep tracking
+- Pattern analysis and insights
+- FHIR-compatible data export
+- Celebration animations for milestones
 
-- 🚀 Automatic Topology Selection
-- ⚡ Parallel Execution (2.8-4.4x speed)
-- 🧠 Neural Training
-- 📊 Bottleneck Analysis
-- 🤖 Smart Auto-Spawning
-- 🛡️ Self-Healing Workflows
-- 💾 Cross-Session Memory
-- 🔗 GitHub Integration
+### Provider Dashboard
+- Patient management interface
+- Analytics and trend visualization
+- Care plan creation and tracking
+- Crisis alert monitoring
+- Secure messaging system
 
-## Integration Tips
+## Development Guidelines
 
-1. Start with basic swarm init
-2. Scale agents gradually
-3. Use memory for context
-4. Monitor progress regularly
-5. Train patterns from success
-6. Enable hooks automation
-7. Use GitHub tools first
+### Code Style
+- TypeScript strict mode disabled (gradual migration)
+- React functional components with hooks
+- TailwindCSS for styling
+- Component files < 500 lines
+- No hardcoded secrets or API keys
 
-## Support
+### Git Workflow
+- Main branch for production
+- Feature branches for development
+- Conventional commits enforced
+- Husky pre-commit hooks
+- CI/CD on push to main/develop
 
-- Documentation: https://github.com/ruvnet/claude-flow
-- Issues: https://github.com/ruvnet/claude-flow/issues
+### Performance Considerations
+- Lazy loading for routes
+- Image optimization
+- Code splitting by route
+- Service worker for offline support (dev only)
+- Chunk size limit: 500KB
 
----
+## Common Tasks
 
-Remember: **Claude Flow coordinates, Claude Code creates!**
+### Adding a New Feature
+1. Create feature branch from main
+2. Add components in appropriate feature folder
+3. Create/update services in src/services/
+4. Add types in src/types/
+5. Write E2E tests in tests/e2e/
+6. Update routing if needed
 
-# important-instruction-reminders
-Do what has been asked; nothing more, nothing less.
-NEVER create files unless they're absolutely necessary for achieving your goal.
-ALWAYS prefer editing an existing file to creating a new one.
-NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
-Never save working files, text/mds and tests to the root folder.
+### Debugging Authentication
+- Check Supabase dashboard for user status
+- Verify environment variables are set
+- Check browser console for auth errors
+- Review network tab for API calls
+- Test with AuthDebugPanel component
+
+### Mobile Development
+1. Build web assets: `npm run build`
+2. Sync with Capacitor: `npx cap sync`
+3. Open in IDE: `npx cap open ios/android`
+4. Test on device/simulator
+
+## Troubleshooting
+
+### White Screen Issues
+- Run `npm run fix:tokens` before build
+- Clear browser cache
+- Check for chunk loading errors
+- Verify Supabase connection
+
+### Authentication Failures
+- Verify Supabase URL and anon key
+- Check redirect URLs in Supabase dashboard
+- Ensure RLS policies are configured
+- Review auth session in localStorage
+
+### Build Failures
+- Run `npm ci --legacy-peer-deps`
+- Clear node_modules and reinstall
+- Check Node version (requires 22.x)
+- Verify all environment variables
+
+## Security Notes
+
+- All PHI data encrypted at rest
+- API keys only in environment variables
+- CSP headers configured for production
+- Regular security audits via GitHub Actions
+- Business Associate Agreements required for production

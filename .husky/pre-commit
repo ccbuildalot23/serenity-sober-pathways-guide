@@ -23,3 +23,17 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "✅ Pre-commit validation passed!"
+
+# Additional autonomous validator (HIPAA/security/tests)
+echo "🔐 Running HIPAA/security validator..."
+node scripts/autonomous-validator.mjs
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ Autonomous validator failed"
+  echo "Please address issues before committing."
+  echo ""
+  exit 1
+fi
+
+echo "✅ HIPAA/security validator passed!"

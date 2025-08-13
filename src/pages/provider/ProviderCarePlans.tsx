@@ -289,7 +289,7 @@ const ProviderCarePlans: React.FC = () => {
                       Recovery Goals
                     </h3>
                     <Button data-testid="add-goal-button" variant="outline" className="bg-teal-50 border-teal-200 text-teal-700 hover:bg-teal-100" onClick={() => {
-                      const el = document.querySelector('[data-testid=\\'goal-description\\']') as HTMLInputElement | null;
+                      const el = document.querySelector('[data-testid="goal-description"]') as HTMLInputElement | null;
                       if (el) el.value = '';
                     }}>
                       <Plus className="w-4 h-4 mr-2" />

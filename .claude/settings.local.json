@@ -37,7 +37,8 @@
       "Bash(curl:*)",
       "mcp__Ref__ref_search_documentation",
       "mcp__exa__web_search_exa",
-      "Bash(psql:*)"
+      "Bash(psql:*)",
+      "Bash(git remote get-url:*)"
     ],
     "deny": []
   },

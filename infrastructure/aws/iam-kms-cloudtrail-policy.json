@@ -1,0 +1,45 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "KMSKeyManagement",
+      "Effect": "Allow",
+      "Action": [
+        "kms:DescribeKey",
+        "kms:GetKeyPolicy",
+        "kms:PutKeyPolicy",
+        "kms:EnableKeyRotation",
+        "kms:GetKeyRotationStatus",
+        "kms:ListKeyPolicies",
+        "kms:CreateAlias",
+        "kms:DeleteAlias",
+        "kms:ListAliases"
+      ],
+      "Resource": [
+        "arn:aws:kms:us-east-1:662658456049:key/*",
+        "arn:aws:kms:us-east-1:662658456049:alias/*"
+      ]
+    },
+    {
+      "Sid": "CloudTrailKMSIntegration",
+      "Effect": "Allow",
+      "Action": [
+        "cloudtrail:UpdateTrail",
+        "cloudtrail:DescribeTrails",
+        "cloudtrail:GetTrailStatus",
+        "cloudtrail:StartLogging",
+        "cloudtrail:StopLogging"
+      ],
+      "Resource": "arn:aws:cloudtrail:us-east-1:662658456049:trail/serenity-hipaa-trail"
+    },
+    {
+      "Sid": "KMSListKeys",
+      "Effect": "Allow",
+      "Action": [
+        "kms:ListKeys",
+        "kms:ListAliases"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

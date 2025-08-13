@@ -38,7 +38,9 @@
       "mcp__Ref__ref_search_documentation",
       "mcp__exa__web_search_exa",
       "Bash(psql:*)",
-      "Bash(git remote get-url:*)"
+      "Bash(git remote get-url:*)",
+      "Bash(vercel:*)",
+      "Bash(aws iam put-user-policy:*)"
     ],
     "deny": []
   },

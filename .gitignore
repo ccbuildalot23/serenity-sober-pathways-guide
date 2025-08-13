@@ -167,3 +167,5 @@ hive-mind-prompt-*.txt
 .vercel
 *.msi
 .vercel
+
+.vercel

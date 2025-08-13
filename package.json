@@ -45,7 +45,10 @@
     "lighthouse:test": "node scripts/lighthouse-validate.js --test",
     "lighthouse:local": "node scripts/lighthouse-validate.js --test --url http://localhost:5173",
     "prepare": "husky",
-    "verify-production": "node scripts/productionVerification.js"
+    "verify-production": "node scripts/productionVerification.js",
+    "validate:hipaa": "node scripts/security-dependency-scan.js && npx playwright test tests/e2e/hipaa-compliance.spec.ts",
+    "validate:auto": "node scripts/autonomous-validator.mjs",
+    "validate:cloudtrail": "tsx scripts/validate-cloudtrail-hipaa.ts"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
@@ -125,6 +128,11 @@
     "tailwindcss": "^3.4.0",
     "terser": "^5.43.1",
     "typescript": "^5.7.2",
+    "tsx": "^4.19.2",
+    "@aws-sdk/client-cloudtrail": "^3.676.0",
+    "@aws-sdk/client-cloudwatch-logs": "^3.676.0",
+    "@aws-sdk/client-s3": "^3.676.0",
+    "@aws-sdk/client-kms": "^3.676.0",
     "vite": "^5.4.19"
   }
 }

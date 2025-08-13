@@ -1,0 +1,26 @@
+{
+  "name": "cloudtrail-hipaa-cdk",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "cdk": "bin/cloudtrail-hipaa.mjs"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "watch": "tsc -w",
+    "cdk:synth": "cdk synth",
+    "cdk:deploy": "cdk deploy",
+    "cdk:diff": "cdk diff"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.152.0",
+    "constructs": "^10.3.0",
+    "source-map-support": "^0.5.21"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
+}
+

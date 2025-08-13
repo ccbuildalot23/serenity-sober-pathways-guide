@@ -1,0 +1,33 @@
+name: Serenity HIPAA CI
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ develop ]
+
+jobs:
+  hipaa-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - name: Install
+        run: npm ci --legacy-peer-deps
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+      - name: Run HIPAA-focused tests
+        run: |
+          node scripts/security-dependency-scan.js
+          npx playwright test tests/e2e/hipaa-compliance.spec.ts
+          npx playwright test tests/e2e/hipaa-compliance-enhanced.spec.ts
+      - name: Build
+        run: npm run build
+      - name: Autonomous validator
+        run: node scripts/autonomous-validator.mjs
+
+
+

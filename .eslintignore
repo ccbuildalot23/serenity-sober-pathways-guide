@@ -1,0 +1,30 @@
+# Ignore build outputs
+dist
+build
+.vercel
+vercel
+
+# Ignore node modules
+node_modules
+
+# Ignore coverage
+coverage
+
+# Ignore config files
+*.config.js
+*.config.ts
+vite.config.ts
+
+# Ignore generated files
+*.min.js
+*.min.css
+
+# Ignore capacitor builds
+android
+ios
+
+# Ignore test fixtures
+fixtures
+
+# Ignore static assets
+public/assets

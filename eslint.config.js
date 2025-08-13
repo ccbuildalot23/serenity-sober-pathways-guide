@@ -10,6 +10,8 @@ export default [
       "node_modules/**/*",
       "coverage/**/*",
       "build/**/*",
+      ".vercel/**/*",
+      "vercel/**/*",
       "*.config.js",
       "scripts/**/*",
       "public/**/*",

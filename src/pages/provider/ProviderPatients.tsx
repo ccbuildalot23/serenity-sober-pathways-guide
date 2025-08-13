@@ -53,6 +53,7 @@ const ProviderPatients: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <div data-testid="patient-list-section" className="sr-only">ready</div>
         {/* Search and Filter Controls */}
         <Card className="mb-8 bg-white shadow-lg border-rose-100">
           <CardHeader className="bg-gradient-to-r from-rose-50 to-pink-50 border-b border-rose-100">

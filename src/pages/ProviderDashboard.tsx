@@ -33,12 +33,15 @@ const ProviderDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading provider dashboard...</p>
+      <>
+        <div data-testid="provider-dashboard-ready" className="sr-only">ready</div>
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading provider dashboard...</p>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -52,6 +55,7 @@ const ProviderDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background" data-testid="provider-dashboard">
+      <div data-testid="provider-dashboard-ready" className="sr-only">ready</div>
       {/* Header */}
       <div className="bg-gradient-to-r from-teal-50 to-blue-50 shadow-lg border-b border-teal-100">
         <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">

@@ -13,3 +13,4 @@ new CloudTrailHipaaStack(app, 'CloudTrailHipaaStack', {
 });
 
 
+

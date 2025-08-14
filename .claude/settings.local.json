@@ -56,7 +56,8 @@
       "Bash(\"C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe\" iam get-policy --policy-arn arn:aws:iam::aws:policy/service-role/ROSAKMSProviderPolicy)",
       "Bash(\"C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe\" iam get-policy-version --policy-arn arn:aws:iam::aws:policy/service-role/ROSAKMSProviderPolicy --version-id v1)",
       "mcp__exa__deep_researcher_start",
-      "mcp__exa__deep_researcher_check"
+      "mcp__exa__deep_researcher_check",
+      "Bash(where gh)"
     ],
     "deny": []
   },

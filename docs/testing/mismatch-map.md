@@ -1,102 +1,108 @@
 # Test-Implementation Mismatch Mapping
 
 ## Overview
-This document maps property name mismatches between test expectations and actual service implementations in the Serenity codebase. The primary pattern is that internal/private properties use underscore prefixes in implementations.
+This document maps the mismatches between test expectations and actual service implementations discovered during test alignment.
 
-## Property Name Mappings
+## Selector Mismatches (E2E Tests)
 
-### AgentResponse Interface
-| Test Expects | Implementation Has |
-|-------------|-------------------|
-| `message` | `_message` |
-| `confidence` | `_confidence` |
-| `metadata` | `_metadata` |
-| `requiresEscalation` | `_requiresEscalation` |
+### Authentication Forms
+| Test Expects | Implementation Has | Location |
+|--------------|-------------------|----------|
+| `[data-testid="email-input"]` | `[data-testid="email"]` | Login/Register forms |
+| `[data-testid="password-input"]` | `[data-testid="password"]` | Login/Register forms |
+| `[data-testid="login-button"]` | `[data-testid="login-button submit-login"]` | Login form |
 
-### User/Context Properties
-| Test Expects | Implementation Has |
-|-------------|-------------------|
-| `userId` | `_userId` |
-| `supporterId` | `_supporterId` |
-| `responseType` | `_responseType` |
-| `status` | `_status` |
-| `priority` | `_priority` |
+### Missing Elements
+| Test Expects | Status | Notes |
+|--------------|--------|-------|
+| `[data-testid="help-video"]` | Missing | Required for multimedia accessibility tests |
+| `[data-testid="video-captions"]` | Missing | Required for accessibility compliance |
+| `[data-testid="crisis-banner"]` | Missing | Expected in crisis support tests |
 
-### Service Response Properties
-| Test Expects | Implementation Has |
-|-------------|-------------------|
-| `isValid` | `_isValid` |
-| `adjustedLoss` | `_adjustedLoss` |
-| `warnings` | `_warnings` |
-| `score` | `_score` |
-| `conversionProbability` | `_conversionProbability` |
+## API Response Mismatches
 
-## Affected Test Files
+### Crisis Detection Service
+| Test Expects | Service Returns | File |
+|--------------|----------------|------|
+| `confidence > 0.6` | `confidence: 0.21` | `EnhancedCrisisDetection.test.ts` |
+| `riskLevel: "critical"` | `riskLevel: "low"` | `EnhancedCrisisDetection.test.ts` |
+| `isCrisis: true` | `isCrisis: false` | `EnhancedCrisisDetection.test.ts` |
 
-### Unit Tests
-1. **AISafetyMiddleware.test.ts**
-   - Uses `message` instead of `_message`
-   - Uses `confidence` instead of `_confidence`
-   - Mock implementations don't match interfaces
+### Financial Model Service
+| Test Expects | Issue | File |
+|--------------|-------|------|
+| `toBeFinite()` matcher | Jest matcher not available | `FinancialModelService.test.ts` |
+| Numeric validation | Tests use unavailable matchers | Multiple test files |
 
-2. **ProgressTrackingAgent.test.ts**
-   - All property references need underscore prefixes
-   - Context userId should be _userId
+### ROI Validation Service
+| Test Expects | Service Has | File |
+|--------------|------------|------|
+| `validateReferralLossRange()` | Method doesn't exist | `ROIValidationService.test.ts` |
+| `calculateROI()` | Different method signature | `ROIValidationService.test.ts` |
 
-3. **ClinicalDocumentationAgent.test.ts**
-   - Property name mismatches throughout
-   - Mock data doesn't match agent interfaces
+## Component Import Issues
 
-4. **EnhancedCrisisDetection.test.ts**
-   - Confidence property mismatches
-   - Message property references
+### PatientDashboard.tsx
+| Missing Import | Usage | Fixed |
+|---------------|-------|-------|
+| `Loader2` | Loading spinners | ✅ Yes |
 
-5. **EnhancedTenantSecurity.test.ts**
-   - userId references need underscores
+## Test Configuration Issues
 
-6. **ROIValidationService.test.ts**
-   - Missing methods: `validateReferralLossRange`, `getCMSReimbursementRate`, etc.
-   - Property mismatches in ValidationResult
+### Jest Configuration
+| Issue | Impact | Solution |
+|-------|--------|----------|
+| Missing `jest-extended` | `toBeFinite()` unavailable | Add to Jest setup |
+| Missing matchers | Unit tests fail | Configure additional matchers |
 
-7. **PredictiveSalesEngine.test.ts**
-   - LeadScore property mismatches
-   - Missing methods: `qualifyLead`, `predictConversion`, etc.
-   - Custom Jest matchers not defined
+### Playwright Configuration
+| Issue | Impact | Solution |
+|-------|--------|----------|
+| Timeout too short | E2E tests timeout | Increase from 10s to 30s |
+| Base URL mismatch | Tests can't find app | Verify localhost:8080 |
 
-### Integration Tests
-- Property name consistency issues across all integration tests
-- Mock data structures don't match service interfaces
+## Service Interface Mismatches
 
-### E2E Tests
-- Selector issues due to property name changes
-- Assertion failures on response properties
+### Payment Gateway Service
+| Test Interface | Actual Interface | Impact |
+|---------------|-----------------|--------|
+| `response.message` | `response._message` | Assertions fail |
+| `userId` | `_userId` | Property undefined |
+| `payment.status` | `payment._status` | Test failures |
 
-## Resolution Strategy
+### Billing Service
+| Test Interface | Actual Interface | Impact |
+|---------------|-----------------|--------|
+| Public properties | Underscore-prefixed | Tests can't access |
+| Method signatures | Different params | Call failures |
 
-### Phase 1: Quick Fixes
-- Update all test files to use underscore prefixes
-- Fix mock implementations to match interfaces
+## Recommended Fixes
 
-### Phase 2: Service Method Resolution
-- Add missing methods as stubs or update tests
-- Ensure all mocks properly implement interfaces
+### Priority 1 - Critical (Blocks all tests)
+1. ✅ Fix Loader2 import in PatientDashboard.tsx
+2. Standardize test selectors across all forms
+3. Add jest-extended to test configuration
 
-### Phase 3: Convention Standardization
-- Document underscore prefix convention
-- Create test templates with correct property names
-- Add linting rules to enforce conventions
+### Priority 2 - High (Major test failures)
+1. Align test selectors with implementation
+2. Fix service method signatures
+3. Update test expectations for crisis detection
 
-## Testing Command Sequence
-```bash
-# After fixes, run in this order:
-npm run test:unit        # Fix unit tests first
-npm run test:integration # Then integration
-npm run test:e2e         # Finally E2E
-npm run test:all         # Verify everything passes
-```
+### Priority 3 - Medium (Individual test failures)
+1. Add missing UI elements or update tests
+2. Fix property name conventions (remove underscores)
+3. Update test data fixtures
 
-## Notes
-- Underscore prefixes indicate internal/private properties
-- This convention should be consistently applied across all services
-- Test mocks must exactly match service interfaces
-- Consider adding TypeScript strict checks to catch these earlier
+## Naming Conventions
+
+### Proposed Standards
+- **Test selectors**: Use simple names without spaces (e.g., `email`, not `email-input`)
+- **API responses**: No underscore prefixes for public properties
+- **Service methods**: Consistent naming across tests and implementation
+- **Component imports**: All used components must be imported
+
+## Next Steps
+1. Fix all Priority 1 issues
+2. Run tests to verify fixes
+3. Address Priority 2 issues systematically
+4. Document any new conventions in api-conventions.md

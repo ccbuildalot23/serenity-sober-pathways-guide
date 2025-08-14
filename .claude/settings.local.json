@@ -61,7 +61,10 @@
       "Bash(sed:*)"
     ],
     "deny": [],
-    "defaultMode": "acceptEdits"
+    "defaultMode": "acceptEdits",
+    "additionalDirectories": [
+      "C:\\Users\\cmcal\\OneDrive\\Documents"
+    ]
   },
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [

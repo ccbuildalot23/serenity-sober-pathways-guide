@@ -3,7 +3,7 @@
  * Tests daily check-ins, risk scoring, and achievement tracking
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// Jest provides describe, it, expect, beforeEach, afterEach globally
 import { ProgressTrackingAgent } from '@/agents/ProgressTrackingAgent';
 import { AgentContext } from '@/agents/base/HealthcareAgent';
 
@@ -18,11 +18,11 @@ describe('ProgressTrackingAgent', () => {
   beforeEach(async () => {
     agent = new ProgressTrackingAgent();
     await agent.initialize(mockContext);
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    jest.restoreAllMocks();
   });
 
   describe('Daily Check-ins', () => {

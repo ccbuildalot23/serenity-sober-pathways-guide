@@ -5,7 +5,7 @@
  * with real database connections, external services, and end-to-end workflows.
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+// Jest provides describe, it, expect, beforeEach, afterEach globally
 import { financialModelService } from '@/services/FinancialModelService';
 import { roiValidationService } from '@/services/ROIValidationService';
 import { supabase } from '@/integrations/supabase/client';

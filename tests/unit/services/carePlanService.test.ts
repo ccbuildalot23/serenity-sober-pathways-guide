@@ -1,24 +1,24 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+// Jest provides describe, it, expect, beforeEach globally
 import { CarePlanService } from '@/services/carePlanService';
 import { supabase } from '@/integrations/supabase/client';
 
 // Mock Supabase client
-vi.mock('@/integrations/supabase/client', () => ({
+jest.mock('@/integrations/supabase/client', () => ({
   supabase: {
     auth: {
-      getUser: vi.fn()
+      getUser: jest.fn()
     },
-    from: vi.fn(() => ({
-      insert: vi.fn().mockReturnThis(),
-      select: vi.fn().mockReturnThis(),
-      update: vi.fn().mockReturnThis(),
-      delete: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      single: vi.fn(),
-      order: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockReturnThis(),
-      lte: vi.fn().mockReturnThis(),
-      gte: vi.fn().mockReturnThis()
+    from: jest.fn(() => ({
+      insert: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      update: jest.fn().mockReturnThis(),
+      delete: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn(),
+      order: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      lte: jest.fn().mockReturnThis(),
+      gte: jest.fn().mockReturnThis()
     }))
   }
 }));
@@ -28,7 +28,7 @@ describe('CarePlanService', () => {
   const mockPatient = { id: 'patient-456', email: 'patient@test.com' };
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
     (supabase.auth.getUser as any).mockResolvedValue({ data: { user: mockUser } });
   });
 
@@ -50,9 +50,9 @@ describe('CarePlanService', () => {
       };
 
       const fromMock = {
-        insert: vi.fn().mockReturnThis(),
-        select: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: mockCarePlan, error: null })
+        insert: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({ data: mockCarePlan, error: null })
       };
 
       (supabase.from as any).mockReturnValue(fromMock);
@@ -83,9 +83,9 @@ describe('CarePlanService', () => {
       ];
 
       const fromMock = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue({ data: mockPlans, error: null })
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        order: jest.fn().mockResolvedValue({ data: mockPlans, error: null })
       };
 
       (supabase.from as any).mockReturnValue(fromMock);
@@ -107,10 +107,10 @@ describe('CarePlanService', () => {
       };
 
       const fromMock = {
-        update: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        select: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: updatedPlan, error: null })
+        update: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({ data: updatedPlan, error: null })
       };
 
       (supabase.from as any).mockReturnValue(fromMock);
@@ -128,8 +128,8 @@ describe('CarePlanService', () => {
 
     it('should archive care plans properly', async () => {
       const fromMock = {
-        update: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockResolvedValue({ error: null })
+        update: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockResolvedValue({ error: null })
       };
 
       (supabase.from as any).mockReturnValue(fromMock);
@@ -155,9 +155,9 @@ describe('CarePlanService', () => {
       };
 
       const fromMock = {
-        insert: vi.fn().mockReturnThis(),
-        select: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: mockGoal, error: null })
+        insert: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({ data: mockGoal, error: null })
       };
 
       (supabase.from as any).mockReturnValue(fromMock);
@@ -182,10 +182,10 @@ describe('CarePlanService', () => {
       };
 
       const fromMock = {
-        update: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        select: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: updatedGoal, error: null })
+        update: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({ data: updatedGoal, error: null })
       };
 
       (supabase.from as any).mockReturnValue(fromMock);
@@ -209,9 +209,9 @@ describe('CarePlanService', () => {
       ];
 
       const fromMock = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue({ data: mockGoals, error: null })
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        order: jest.fn().mockResolvedValue({ data: mockGoals, error: null })
       };
 
       (supabase.from as any).mockReturnValue(fromMock);
@@ -237,9 +237,9 @@ describe('CarePlanService', () => {
       };
 
       const fromMock = {
-        insert: vi.fn().mockReturnThis(),
-        select: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: mockNote, error: null })
+        insert: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({ data: mockNote, error: null })
       };
 
       (supabase.from as any).mockReturnValue(fromMock);
@@ -263,10 +263,10 @@ describe('CarePlanService', () => {
       ];
 
       const fromMock = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        order: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue({ data: mockNotes, error: null })
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        order: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockResolvedValue({ data: mockNotes, error: null })
       };
 
       (supabase.from as any).mockReturnValue(fromMock);
@@ -289,8 +289,8 @@ describe('CarePlanService', () => {
       ];
 
       const fromMock = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockResolvedValue({ data: mockPlans, error: null })
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockResolvedValue({ data: mockPlans, error: null })
       };
 
       (supabase.from as any).mockReturnValue(fromMock);
@@ -315,9 +315,9 @@ describe('CarePlanService', () => {
       ];
 
       const fromMock = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue({ data: mockGoals, error: null })
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        order: jest.fn().mockResolvedValue({ data: mockGoals, error: null })
       };
 
       (supabase.from as any).mockReturnValue(fromMock);
@@ -334,10 +334,10 @@ describe('CarePlanService', () => {
       ];
 
       const fromMock = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        lte: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue({ data: mockPlans, error: null })
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        lte: jest.fn().mockReturnThis(),
+        order: jest.fn().mockResolvedValue({ data: mockPlans, error: null })
       };
 
       (supabase.from as any).mockReturnValue(fromMock);
@@ -369,11 +369,11 @@ describe('CarePlanService', () => {
       // Mock the sequence of calls
       let callCount = 0;
       const fromMock = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: originalPlan, error: null }),
-        order: vi.fn().mockResolvedValue({ data: originalGoals, error: null }),
-        insert: vi.fn().mockReturnThis()
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({ data: originalPlan, error: null }),
+        order: jest.fn().mockResolvedValue({ data: originalGoals, error: null }),
+        insert: jest.fn().mockReturnThis()
       };
 
       // Simulate different returns for different calls

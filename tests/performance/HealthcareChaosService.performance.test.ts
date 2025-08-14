@@ -3,7 +3,7 @@
  * Load testing and performance validation for chaos engineering scenarios
  */
 
-import { describe, beforeAll, afterAll, beforeEach, it, expect } from 'vitest';
+// Jest provides describe, beforeAll, afterAll, beforeEach, it, expect globally
 import { performance } from 'perf_hooks';
 import { healthcareChaosService } from '@/services/HealthcareChaosService';
 

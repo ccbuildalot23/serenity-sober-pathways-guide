@@ -12,7 +12,7 @@
  * - Integration with ROIValidationService
  */
 
-import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
+// Jest provides describe, it, expect, beforeEach globally
 import { 
   FinancialModelService,
   type LTVMetrics,
@@ -27,13 +27,13 @@ import { enhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditSe
 import { roiValidationService } from '@/services/ROIValidationService';
 
 // Mock dependencies
-vi.mock('@/integrations/supabase/client', () => ({
+jest.mock('@/integrations/supabase/client', () => ({
   supabase: {
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          single: vi.fn(),
-          eq: vi.fn(() => ({ count: 'exact', head: true }))
+    from: jest.fn(() => ({
+      select: jest.fn(() => ({
+        eq: jest.fn(() => ({
+          single: jest.fn(),
+          eq: jest.fn(() => ({ count: 'exact', head: true }))
         })),
         count: 'exact',
         head: true
@@ -42,15 +42,15 @@ vi.mock('@/integrations/supabase/client', () => ({
   }
 }));
 
-vi.mock('@/services/EnhancedSecurityAuditService', () => ({
+jest.mock('@/services/EnhancedSecurityAuditService', () => ({
   enhancedSecurityAuditService: {
-    logSecurityEvent: vi.fn()
+    logSecurityEvent: jest.fn()
   }
 }));
 
-vi.mock('@/services/ROIValidationService', () => ({
+jest.mock('@/services/ROIValidationService', () => ({
   roiValidationService: {
-    validateProviderCalculations: vi.fn()
+    validateProviderCalculations: jest.fn()
   }
 }));
 
@@ -59,7 +59,7 @@ describe('FinancialModelService', () => {
   let mockSupabase: any;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
     financialModelService = FinancialModelService.getInstance();
     
     // Setup mock supabase responses
@@ -67,8 +67,8 @@ describe('FinancialModelService', () => {
     mockSupabase = supabase;
     
     // Default mock implementations
-    (enhancedSecurityAuditService.logSecurityEvent as Mock).mockResolvedValue(undefined);
-    (roiValidationService.validateProviderCalculations as Mock).mockResolvedValue({
+    (enhancedSecurityAuditService.logSecurityEvent as jest.MockedFunction<any>).mockResolvedValue(undefined);
+    (roiValidationService.validateProviderCalculations as jest.MockedFunction<any>).mockResolvedValue({
       providerId: 'test-provider',
       validationScore: 0.85,
       reimbursementAccuracy: 0.9,
@@ -85,9 +85,9 @@ describe('FinancialModelService', () => {
     it('should calculate LTV for a specific customer', async () => {
       // Mock customer data
       mockSupabase.from.mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
+        select: jest.fn().mockReturnValue({
+          eq: jest.fn().mockReturnValue({
+            single: jest.fn().mockResolvedValue({
               data: {
                 id: 'customer-1',
                 segment: 'growth',
@@ -128,8 +128,8 @@ describe('FinancialModelService', () => {
     it('should calculate LTV for a specific segment', async () => {
       // Mock segment data
       mockSupabase.from.mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockResolvedValue({
+        select: jest.fn().mockReturnValue({
+          eq: jest.fn().mockResolvedValue({
             data: [
               {
                 id: 'customer-1',
@@ -154,9 +154,9 @@ describe('FinancialModelService', () => {
 
     it('should handle LTV calculation errors gracefully', async () => {
       mockSupabase.from.mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockRejectedValue(new Error('Database error'))
+        select: jest.fn().mockReturnValue({
+          eq: jest.fn().mockReturnValue({
+            single: jest.fn().mockRejectedValue(new Error('Database error'))
           })
         })
       });
@@ -173,9 +173,9 @@ describe('FinancialModelService', () => {
     it('should validate LTV calculation formulas', async () => {
       // Mock specific values for formula validation
       mockSupabase.from.mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
+        select: jest.fn().mockReturnValue({
+          eq: jest.fn().mockReturnValue({
+            single: jest.fn().mockResolvedValue({
               data: {
                 id: 'test-customer',
                 segment: 'growth',
@@ -245,7 +245,7 @@ describe('FinancialModelService', () => {
 
     it('should handle zero customer acquisition safely', async () => {
       // Mock scenario with no customers acquired
-      vi.spyOn(financialModelService as any, 'getAcquisitionData').mockResolvedValue([
+      jest.spyOn(financialModelService as any, 'getAcquisitionData').mockResolvedValue([
         { channel: 'test_channel', segment: 'startup', customersAcquired: 0 }
       ]);
 
@@ -300,8 +300,8 @@ describe('FinancialModelService', () => {
 
     it('should calculate margin percentage correctly', async () => {
       // Mock specific values for margin calculation
-      vi.spyOn(financialModelService as any, 'getTotalActiveCustomers').mockResolvedValue(100);
-      vi.spyOn(financialModelService as any, 'getAverageMonthlyRevenue').mockResolvedValue(750);
+      jest.spyOn(financialModelService as any, 'getTotalActiveCustomers').mockResolvedValue(100);
+      jest.spyOn(financialModelService as any, 'getAverageMonthlyRevenue').mockResolvedValue(750);
 
       const cogsBreakdown = await financialModelService.calculateCOGS();
       
@@ -310,7 +310,7 @@ describe('FinancialModelService', () => {
     });
 
     it('should handle zero customers in COGS calculation', async () => {
-      vi.spyOn(financialModelService as any, 'getTotalActiveCustomers').mockResolvedValue(0);
+      jest.spyOn(financialModelService as any, 'getTotalActiveCustomers').mockResolvedValue(0);
 
       const cogsBreakdown = await financialModelService.calculateCOGS();
       
@@ -351,7 +351,7 @@ describe('FinancialModelService', () => {
     });
 
     it('should mark tiers as viable when validation score is high', async () => {
-      (roiValidationService.validateProviderCalculations as Mock).mockResolvedValue({
+      (roiValidationService.validateProviderCalculations as jest.MockedFunction<any>).mockResolvedValue({
         providerId: 'test-provider',
         validationScore: 0.85,
         reimbursementAccuracy: 0.9,
@@ -383,9 +383,9 @@ describe('FinancialModelService', () => {
     it('should calculate comprehensive SaaS metrics', async () => {
       // Mock customer counts for each segment
       mockSupabase.from.mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            eq: vi.fn().mockResolvedValue({ count: 50 })
+        select: jest.fn().mockReturnValue({
+          eq: jest.fn().mockReturnValue({
+            eq: jest.fn().mockResolvedValue({ count: 50 })
           })
         })
       });
@@ -484,9 +484,9 @@ describe('FinancialModelService', () => {
     it('should generate comprehensive investor report', async () => {
       // Mock all dependencies for report generation
       mockSupabase.from.mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            eq: vi.fn().mockResolvedValue({ count: 100 })
+        select: jest.fn().mockReturnValue({
+          eq: jest.fn().mockReturnValue({
+            eq: jest.fn().mockResolvedValue({ count: 100 })
           })
         })
       });
@@ -637,7 +637,7 @@ describe('FinancialModelService', () => {
       expect(roiValidationService.validateProviderCalculations).toHaveBeenCalledTimes(3);
 
       // Verify the mock provider data structure
-      const calls = (roiValidationService.validateProviderCalculations as Mock).mock.calls;
+      const calls = (roiValidationService.validateProviderCalculations as jest.MockedFunction<any>).mock.calls;
       calls.forEach(([mockProvider]) => {
         expect(mockProvider).toMatchObject({
           providerId: expect.stringMatching(/^mock-/),
@@ -654,7 +654,7 @@ describe('FinancialModelService', () => {
     });
 
     it('should handle ROI validation failures gracefully', async () => {
-      (roiValidationService.validateProviderCalculations as Mock).mockRejectedValue(
+      (roiValidationService.validateProviderCalculations as jest.MockedFunction<any>).mockRejectedValue(
         new Error('ROI validation failed')
       );
 
@@ -721,7 +721,7 @@ describe('FinancialModelService', () => {
 
     it('should handle division by zero in calculations', async () => {
       // Mock zero churn rate scenario
-      vi.spyOn(financialModelService as any, 'calculateChurnRate').mockResolvedValue(0);
+      jest.spyOn(financialModelService as any, 'calculateChurnRate').mockResolvedValue(0);
 
       const ltvMetrics = await financialModelService.calculateLTV('test-customer');
       
@@ -731,8 +731,8 @@ describe('FinancialModelService', () => {
 
     it('should handle empty data gracefully', async () => {
       mockSupabase.from.mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockResolvedValue({ data: [] })
+        select: jest.fn().mockReturnValue({
+          eq: jest.fn().mockResolvedValue({ data: [] })
         })
       });
 
@@ -751,8 +751,8 @@ describe('FinancialModelService', () => {
       }));
 
       mockSupabase.from.mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockResolvedValue({ data: largeDataset })
+        select: jest.fn().mockReturnValue({
+          eq: jest.fn().mockResolvedValue({ data: largeDataset })
         })
       });
 

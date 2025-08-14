@@ -3,7 +3,7 @@
  * Tests zero-trust architecture, per-tenant encryption, and HIPAA compliance
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// Jest provides describe, it, expect, beforeEach, afterEach globally
 import { EnhancedTenantSecurity } from '@/services/EnhancedTenantSecurity';
 
 describe('EnhancedTenantSecurity', () => {
@@ -13,11 +13,11 @@ describe('EnhancedTenantSecurity', () => {
 
   beforeEach(() => {
     service = new EnhancedTenantSecurity();
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    jest.restoreAllMocks();
   });
 
   describe('Tenant Isolation', () => {

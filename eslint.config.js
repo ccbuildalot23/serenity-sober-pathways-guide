@@ -21,7 +21,10 @@ export default [
       "playwright-report/**/*",
       ".claude-flow/**/*",
       ".roo/**/*",
-      "memory/**/*"
+      "memory/**/*",
+      "serenity-provider-portal/**/*",
+      "serenity-auth-mcp/**/*",
+      "infrastructure/**/*"
     ],
   },
   {
@@ -66,6 +69,9 @@ export default [
         btoa: 'readonly',
         atob: 'readonly',
         URLSearchParams: 'readonly',
+        MutationObserver: 'readonly',
+        PerformanceObserver: 'readonly',
+        PerformanceNavigationTiming: 'readonly',
         
         // Node globals
         process: 'readonly',
@@ -83,6 +89,20 @@ export default [
         // TypeScript/Node types
         NodeJS: 'readonly',
         React: 'readonly',
+        
+        // Jest globals
+        jest: 'readonly',
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        
+        // Cypress globals
+        cy: 'readonly',
       },
     },
     plugins: {

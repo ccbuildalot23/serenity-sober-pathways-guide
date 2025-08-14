@@ -3,38 +3,38 @@
  * Comprehensive test suite for healthcare chaos engineering
  */
 
-import { describe, beforeEach, afterEach, it, expect, vi, Mock } from 'vitest';
+// Jest provides describe, beforeEach, afterEach, it, expect globally
 import { healthcareChaosService, HealthcareChaosService } from '@/services/HealthcareChaosService';
 import { enhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
 import { roiValidationService } from '@/services/ROIValidationService';
 
 // Mock external dependencies
-vi.mock('@/integrations/supabase/client', () => ({
+jest.mock('@/integrations/supabase/client', () => ({
   supabase: {
-    from: vi.fn(() => ({
-      insert: vi.fn().mockResolvedValue({ data: null, error: null }),
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          gte: vi.fn().mockResolvedValue({ data: [], error: null })
+    from: jest.fn(() => ({
+      insert: jest.fn().mockResolvedValue({ data: null, error: null }),
+      select: jest.fn(() => ({
+        eq: jest.fn(() => ({
+          gte: jest.fn().mockResolvedValue({ data: [], error: null })
         }))
       }))
     })),
     auth: {
-      getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'test-user' } } })
+      getUser: jest.fn().mockResolvedValue({ data: { user: { id: 'test-user' } } })
     }
   }
 }));
 
-vi.mock('@/services/EnhancedSecurityAuditService', () => ({
+jest.mock('@/services/EnhancedSecurityAuditService', () => ({
   enhancedSecurityAuditService: {
-    logSecurityEvent: vi.fn().mockResolvedValue(undefined)
+    logSecurityEvent: jest.fn().mockResolvedValue(undefined)
   }
 }));
 
-vi.mock('@/services/ROIValidationService', () => ({
+jest.mock('@/services/ROIValidationService', () => ({
   roiValidationService: {
-    getInstance: vi.fn(),
-    validateProviderCalculations: vi.fn().mockResolvedValue({
+    getInstance: jest.fn(),
+    validateProviderCalculations: jest.fn().mockResolvedValue({
       validationScore: 0.9,
       reimbursementAccuracy: 0.95
     })
@@ -46,11 +46,11 @@ describe('HealthcareChaosService', () => {
 
   beforeEach(() => {
     chaosService = HealthcareChaosService.getInstance();
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    jest.restoreAllMocks();
   });
 
   describe('Crisis Response Time Testing', () => {
@@ -77,7 +77,7 @@ describe('HealthcareChaosService', () => {
 
     it('should detect SLA violations when response time exceeds 250ms', async () => {
       // Mock slow response times
-      const slowResponseSpy = vi.spyOn(chaosService as any, 'measureCrisisResponseTimes')
+      const slowResponseSpy = jest.spyOn(chaosService as any, 'measureCrisisResponseTimes')
         .mockResolvedValue({
           averageResponseTime: 350,
           maxResponseTime: 500,
@@ -106,7 +106,7 @@ describe('HealthcareChaosService', () => {
     });
 
     it('should generate appropriate recommendations for slow response times', async () => {
-      const slowResponseSpy = vi.spyOn(chaosService as any, 'measureCrisisResponseTimes')
+      const slowResponseSpy = jest.spyOn(chaosService as any, 'measureCrisisResponseTimes')
         .mockResolvedValue({
           averageResponseTime: 400,
           slaViolations: 3
@@ -144,7 +144,7 @@ describe('HealthcareChaosService', () => {
     });
 
     it('should detect tenant isolation breaches', async () => {
-      const isolationSpy = vi.spyOn(chaosService as any, 'performTenantIsolationTest')
+      const isolationSpy = jest.spyOn(chaosService as any, 'performTenantIsolationTest')
         .mockResolvedValue({
           tenantA: 'test-tenant-a-0',
           tenantB: 'test-tenant-b-0',
@@ -165,7 +165,7 @@ describe('HealthcareChaosService', () => {
     });
 
     it('should test row level security enforcement', async () => {
-      const rlsSpy = vi.spyOn(chaosService as any, 'testRowLevelSecurity')
+      const rlsSpy = jest.spyOn(chaosService as any, 'testRowLevelSecurity')
         .mockResolvedValue({ enforced: true, violations: [] });
 
       const result = await chaosService.testTenantIsolation(3);
@@ -177,7 +177,7 @@ describe('HealthcareChaosService', () => {
     });
 
     it('should generate security recommendations for isolation failures', async () => {
-      const isolationSpy = vi.spyOn(chaosService as any, 'performTenantIsolationTest')
+      const isolationSpy = jest.spyOn(chaosService as any, 'performTenantIsolationTest')
         .mockResolvedValue({
           dataLeakage: true,
           violations: ['Cross-tenant access detected']
@@ -212,7 +212,7 @@ describe('HealthcareChaosService', () => {
     });
 
     it('should detect encryption failures under stress', async () => {
-      const encryptionSpy = vi.spyOn(chaosService as any, 'testEncryptionUnderStress')
+      const encryptionSpy = jest.spyOn(chaosService as any, 'testEncryptionUnderStress')
         .mockResolvedValue({ maintained: false, errorRate: 0.05 });
 
       const result = await chaosService.testHIPAAComplianceUnderStress(15);
@@ -226,7 +226,7 @@ describe('HealthcareChaosService', () => {
     });
 
     it('should detect audit logging failures under load', async () => {
-      const auditSpy = vi.spyOn(chaosService as any, 'testAuditLoggingUnderLoad')
+      const auditSpy = jest.spyOn(chaosService as any, 'testAuditLoggingUnderLoad')
         .mockResolvedValue({ complete: false, logLoss: 15 });
 
       const result = await chaosService.testHIPAAComplianceUnderStress(20);
@@ -239,7 +239,7 @@ describe('HealthcareChaosService', () => {
     });
 
     it('should test Business Associate Agreement compliance', async () => {
-      const baaSpy = vi.spyOn(chaosService as any, 'testBAAComplianceUnderStress')
+      const baaSpy = jest.spyOn(chaosService as any, 'testBAAComplianceUnderStress')
         .mockResolvedValue({ compliant: true, violations: [] });
 
       const result = await chaosService.testHIPAAComplianceUnderStress(10);
@@ -270,7 +270,7 @@ describe('HealthcareChaosService', () => {
     });
 
     it('should test crisis queue management under load', async () => {
-      const queueSpy = vi.spyOn(chaosService as any, 'testCrisisQueueManagement')
+      const queueSpy = jest.spyOn(chaosService as any, 'testCrisisQueueManagement')
         .mockResolvedValue({ queueProcessed: 50, averageWaitTime: 100 });
 
       const scenario = {
@@ -290,7 +290,7 @@ describe('HealthcareChaosService', () => {
     });
 
     it('should test escalation load balancing', async () => {
-      const escalationSpy = vi.spyOn(chaosService as any, 'testEscalationLoadBalancing')
+      const escalationSpy = jest.spyOn(chaosService as any, 'testEscalationLoadBalancing')
         .mockResolvedValue({ loadBalanced: true, evenDistribution: true });
 
       const scenario = {
@@ -329,7 +329,7 @@ describe('HealthcareChaosService', () => {
     });
 
     it('should test automatic rollback triggers', async () => {
-      const dbRollbackSpy = vi.spyOn(chaosService as any, 'testDatabaseRollback')
+      const dbRollbackSpy = jest.spyOn(chaosService as any, 'testDatabaseRollback')
         .mockResolvedValue({
           triggered: true,
           triggerCondition: 'database_error',
@@ -359,7 +359,7 @@ describe('HealthcareChaosService', () => {
     });
 
     it('should detect calculation accuracy issues under load', async () => {
-      const accuracySpy = vi.spyOn(chaosService as any, 'testROICalculationAccuracy')
+      const accuracySpy = jest.spyOn(chaosService as any, 'testROICalculationAccuracy')
         .mockResolvedValue({ errorRate: 0.02, calculationsCompleted: 200 });
 
       const result = await chaosService.testROICalculationsUnderLoad(10);
@@ -372,7 +372,7 @@ describe('HealthcareChaosService', () => {
     });
 
     it('should test provider validation under stress', async () => {
-      const validationSpy = vi.spyOn(chaosService as any, 'testProviderValidationUnderStress')
+      const validationSpy = jest.spyOn(chaosService as any, 'testProviderValidationUnderStress')
         .mockResolvedValue({ validationsCompleted: 50, errorRate: 0.001 });
 
       const result = await chaosService.testROICalculationsUnderLoad(10);
@@ -394,7 +394,7 @@ describe('HealthcareChaosService', () => {
     });
 
     it('should detect data corruption during chaos', async () => {
-      const consistencySpy = vi.spyOn(chaosService as any, 'monitorDataConsistency')
+      const consistencySpy = jest.spyOn(chaosService as any, 'monitorDataConsistency')
         .mockResolvedValue([{
           table: 'patient_data',
           recordsChecked: 5000,
@@ -413,7 +413,7 @@ describe('HealthcareChaosService', () => {
     });
 
     it('should test transaction integrity during failures', async () => {
-      const transactionSpy = vi.spyOn(chaosService as any, 'testTransactionIntegrity')
+      const transactionSpy = jest.spyOn(chaosService as any, 'testTransactionIntegrity')
         .mockResolvedValue({ transactionsChecked: 1000, rollbacksSuccessful: 1000 });
 
       const result = await chaosService.testDataConsistencyDuringChaos();
@@ -443,7 +443,7 @@ describe('HealthcareChaosService', () => {
     });
 
     it('should test system scaling under extreme load', async () => {
-      const scalingSpy = vi.spyOn(chaosService as any, 'testSystemScalingUnderLoad')
+      const scalingSpy = jest.spyOn(chaosService as any, 'testSystemScalingUnderLoad')
         .mockResolvedValue({ success: true, scaledCapacity: 10, responseTime: 180 });
 
       const massEvent = {
@@ -463,7 +463,7 @@ describe('HealthcareChaosService', () => {
     });
 
     it('should test crisis triage during mass events', async () => {
-      const triageSpy = vi.spyOn(chaosService as any, 'testCrisisTriageDuringMassEvent')
+      const triageSpy = jest.spyOn(chaosService as any, 'testCrisisTriageDuringMassEvent')
         .mockResolvedValue({ triageSuccess: true, criticalPatientsProcessed: 75 });
 
       const massEvent = {
@@ -483,7 +483,7 @@ describe('HealthcareChaosService', () => {
     });
 
     it('should test emergency communication systems', async () => {
-      const communicationSpy = vi.spyOn(chaosService as any, 'testEmergencyCommunicationSystems')
+      const communicationSpy = jest.spyOn(chaosService as any, 'testEmergencyCommunicationSystems')
         .mockResolvedValue({ success: true, notificationsSent: 800 });
 
       const massEvent = {
@@ -514,14 +514,14 @@ describe('HealthcareChaosService', () => {
         recommendations: []
       };
 
-      vi.spyOn(chaosService, 'testCrisisResponseTimes').mockResolvedValue(mockResults as any);
-      vi.spyOn(chaosService, 'testTenantIsolation').mockResolvedValue(mockResults as any);
-      vi.spyOn(chaosService, 'testHIPAAComplianceUnderStress').mockResolvedValue(mockResults as any);
-      vi.spyOn(chaosService, 'testConcurrentCrisisScenarios').mockResolvedValue(mockResults as any);
-      vi.spyOn(chaosService, 'testAutomaticRollbackMechanisms').mockResolvedValue(mockResults as any);
-      vi.spyOn(chaosService, 'testROICalculationsUnderLoad').mockResolvedValue(mockResults as any);
-      vi.spyOn(chaosService, 'testDataConsistencyDuringChaos').mockResolvedValue(mockResults as any);
-      vi.spyOn(chaosService, 'testHealthcareSpecificScenarios').mockResolvedValue(mockResults as any);
+      jest.spyOn(chaosService, 'testCrisisResponseTimes').mockResolvedValue(mockResults as any);
+      jest.spyOn(chaosService, 'testTenantIsolation').mockResolvedValue(mockResults as any);
+      jest.spyOn(chaosService, 'testHIPAAComplianceUnderStress').mockResolvedValue(mockResults as any);
+      jest.spyOn(chaosService, 'testConcurrentCrisisScenarios').mockResolvedValue(mockResults as any);
+      jest.spyOn(chaosService, 'testAutomaticRollbackMechanisms').mockResolvedValue(mockResults as any);
+      jest.spyOn(chaosService, 'testROICalculationsUnderLoad').mockResolvedValue(mockResults as any);
+      jest.spyOn(chaosService, 'testDataConsistencyDuringChaos').mockResolvedValue(mockResults as any);
+      jest.spyOn(chaosService, 'testHealthcareSpecificScenarios').mockResolvedValue(mockResults as any);
 
       const result = await chaosService.runComprehensiveChaosTestSuite();
 
@@ -552,14 +552,14 @@ describe('HealthcareChaosService', () => {
         recommendations: [{ priority: 'critical', category: 'test', description: 'test', actionItems: [], estimatedImpact: 'test' }]
       };
 
-      vi.spyOn(chaosService, 'testCrisisResponseTimes').mockResolvedValue(successResult as any);
-      vi.spyOn(chaosService, 'testTenantIsolation').mockResolvedValue(failureResult as any);
-      vi.spyOn(chaosService, 'testHIPAAComplianceUnderStress').mockResolvedValue(successResult as any);
-      vi.spyOn(chaosService, 'testConcurrentCrisisScenarios').mockResolvedValue(failureResult as any);
-      vi.spyOn(chaosService, 'testAutomaticRollbackMechanisms').mockResolvedValue(successResult as any);
-      vi.spyOn(chaosService, 'testROICalculationsUnderLoad').mockResolvedValue(successResult as any);
-      vi.spyOn(chaosService, 'testDataConsistencyDuringChaos').mockResolvedValue(failureResult as any);
-      vi.spyOn(chaosService, 'testHealthcareSpecificScenarios').mockResolvedValue(failureResult as any);
+      jest.spyOn(chaosService, 'testCrisisResponseTimes').mockResolvedValue(successResult as any);
+      jest.spyOn(chaosService, 'testTenantIsolation').mockResolvedValue(failureResult as any);
+      jest.spyOn(chaosService, 'testHIPAAComplianceUnderStress').mockResolvedValue(successResult as any);
+      jest.spyOn(chaosService, 'testConcurrentCrisisScenarios').mockResolvedValue(failureResult as any);
+      jest.spyOn(chaosService, 'testAutomaticRollbackMechanisms').mockResolvedValue(successResult as any);
+      jest.spyOn(chaosService, 'testROICalculationsUnderLoad').mockResolvedValue(successResult as any);
+      jest.spyOn(chaosService, 'testDataConsistencyDuringChaos').mockResolvedValue(failureResult as any);
+      jest.spyOn(chaosService, 'testHealthcareSpecificScenarios').mockResolvedValue(failureResult as any);
 
       const result = await chaosService.runComprehensiveChaosTestSuite();
 
@@ -596,14 +596,14 @@ describe('HealthcareChaosService', () => {
         recommendations: [recommendation1, recommendation2]
       };
 
-      vi.spyOn(chaosService, 'testCrisisResponseTimes').mockResolvedValue(resultWithRecs as any);
-      vi.spyOn(chaosService, 'testTenantIsolation').mockResolvedValue(resultWithRecs as any);
-      vi.spyOn(chaosService, 'testHIPAAComplianceUnderStress').mockResolvedValue({ ...resultWithRecs, success: true } as any);
-      vi.spyOn(chaosService, 'testConcurrentCrisisScenarios').mockResolvedValue({ ...resultWithRecs, success: true } as any);
-      vi.spyOn(chaosService, 'testAutomaticRollbackMechanisms').mockResolvedValue({ ...resultWithRecs, success: true } as any);
-      vi.spyOn(chaosService, 'testROICalculationsUnderLoad').mockResolvedValue({ ...resultWithRecs, success: true } as any);
-      vi.spyOn(chaosService, 'testDataConsistencyDuringChaos').mockResolvedValue({ ...resultWithRecs, success: true } as any);
-      vi.spyOn(chaosService, 'testHealthcareSpecificScenarios').mockResolvedValue({ ...resultWithRecs, success: true } as any);
+      jest.spyOn(chaosService, 'testCrisisResponseTimes').mockResolvedValue(resultWithRecs as any);
+      jest.spyOn(chaosService, 'testTenantIsolation').mockResolvedValue(resultWithRecs as any);
+      jest.spyOn(chaosService, 'testHIPAAComplianceUnderStress').mockResolvedValue({ ...resultWithRecs, success: true } as any);
+      jest.spyOn(chaosService, 'testConcurrentCrisisScenarios').mockResolvedValue({ ...resultWithRecs, success: true } as any);
+      jest.spyOn(chaosService, 'testAutomaticRollbackMechanisms').mockResolvedValue({ ...resultWithRecs, success: true } as any);
+      jest.spyOn(chaosService, 'testROICalculationsUnderLoad').mockResolvedValue({ ...resultWithRecs, success: true } as any);
+      jest.spyOn(chaosService, 'testDataConsistencyDuringChaos').mockResolvedValue({ ...resultWithRecs, success: true } as any);
+      jest.spyOn(chaosService, 'testHealthcareSpecificScenarios').mockResolvedValue({ ...resultWithRecs, success: true } as any);
 
       const result = await chaosService.runComprehensiveChaosTestSuite();
 
@@ -667,7 +667,7 @@ describe('HealthcareChaosService', () => {
 
   describe('Error Handling', () => {
     it('should handle experiment errors gracefully', async () => {
-      const processCrisisAlertSpy = vi.spyOn(chaosService as any, 'processCrisisAlert')
+      const processCrisisAlertSpy = jest.spyOn(chaosService as any, 'processCrisisAlert')
         .mockRejectedValue(new Error('Crisis processing failed'));
 
       const result = await chaosService.testCrisisResponseTimes(5);
@@ -686,7 +686,7 @@ describe('HealthcareChaosService', () => {
     });
 
     it('should clean up resources after experiments', async () => {
-      const cleanupSpy = vi.spyOn(chaosService as any, 'cleanupExperiment');
+      const cleanupSpy = jest.spyOn(chaosService as any, 'cleanupExperiment');
 
       await chaosService.testCrisisResponseTimes(3);
 
@@ -704,8 +704,8 @@ describe('HealthcareChaosService', () => {
 
     it('should handle storage failures gracefully', async () => {
       const { supabase } = await import('@/integrations/supabase/client');
-      const insertSpy = vi.mocked(supabase.from).mockReturnValue({
-        insert: vi.fn().mockRejectedValue(new Error('Storage failed'))
+      const insertSpy = jest.mocked(supabase.from).mockReturnValue({
+        insert: jest.fn().mockRejectedValue(new Error('Storage failed'))
       } as any);
 
       const result = await chaosService.testCrisisResponseTimes(1);
@@ -733,8 +733,8 @@ describe('HealthcareChaosService', () => {
 
     it('should store results in database', async () => {
       const { supabase } = await import('@/integrations/supabase/client');
-      const insertSpy = vi.mocked(supabase.from).mockReturnValue({
-        insert: vi.fn().mockResolvedValue({ data: null, error: null })
+      const insertSpy = jest.mocked(supabase.from).mockReturnValue({
+        insert: jest.fn().mockResolvedValue({ data: null, error: null })
       } as any);
 
       await chaosService.testCrisisResponseTimes(1);

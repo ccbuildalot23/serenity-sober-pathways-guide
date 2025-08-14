@@ -1,7 +1,7 @@
 /** @type {import('jest').Config} */
 export default {
   preset: 'ts-jest',
-  testEnvironment: 'node',
+  testEnvironment: 'jsdom',
   roots: ['<rootDir>/tests', '<rootDir>/src'],
   testMatch: [
     '**/tests/**/*.test.ts',
@@ -16,13 +16,19 @@ export default {
         allowSyntheticDefaultImports: true,
         moduleResolution: 'node',
         allowJs: true,
-        strict: false
+        strict: false,
+        baseUrl: '.',
+        paths: {
+          '@/*': ['./src/*']
+        }
       }
     }]
   },
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
-    '\\.(css|less|scss|sass)$': '<rootDir>/tests/__mocks__/styleMock.js'
+    '\\.(css|less|scss|sass)$': '<rootDir>/tests/__mocks__/styleMock.js',
+    '^@supabase/supabase-js$': '<rootDir>/tests/__mocks__/@supabase/supabase-js.ts',
+    '^stripe$': '<rootDir>/tests/__mocks__/stripe.ts'
   },
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',

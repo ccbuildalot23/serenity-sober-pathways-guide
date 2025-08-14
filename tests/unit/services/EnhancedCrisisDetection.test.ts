@@ -3,7 +3,7 @@
  * Tests multi-model consensus, 250ms SLA, and triple redundancy
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// Jest provides describe, it, expect, beforeEach, afterEach globally
 import { EnhancedCrisisDetection } from '@/services/EnhancedCrisisDetection';
 
 describe('EnhancedCrisisDetection', () => {
@@ -19,11 +19,11 @@ describe('EnhancedCrisisDetection', () => {
 
   beforeEach(() => {
     service = new EnhancedCrisisDetection();
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    jest.restoreAllMocks();
   });
 
   describe('Crisis Detection', () => {
@@ -171,7 +171,7 @@ describe('EnhancedCrisisDetection', () => {
 
     it('should handle model failures gracefully', async () => {
       // Simulate one model failing
-      vi.spyOn(service as any, 'runPrimaryModel').mockRejectedValueOnce(new Error('Model failed'));
+      jest.spyOn(service as any, 'runPrimaryModel').mockRejectedValueOnce(new Error('Model failed'));
       
       const message = "I need help";
       const result = await service.detectCrisis(message, mockCrisisContext);
@@ -184,8 +184,8 @@ describe('EnhancedCrisisDetection', () => {
 
     it('should escalate when redundancy fails', async () => {
       // Simulate multiple model failures
-      vi.spyOn(service as any, 'runPrimaryModel').mockRejectedValueOnce(new Error('Failed'));
-      vi.spyOn(service as any, 'runSecondaryModel').mockRejectedValueOnce(new Error('Failed'));
+      jest.spyOn(service as any, 'runPrimaryModel').mockRejectedValueOnce(new Error('Failed'));
+      jest.spyOn(service as any, 'runSecondaryModel').mockRejectedValueOnce(new Error('Failed'));
       
       const message = "Crisis situation";
       const result = await service.detectCrisis(message, mockCrisisContext);

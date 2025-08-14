@@ -162,6 +162,7 @@
     "glob": "^11.0.3",
     "husky": "^9.1.7",
     "jest": "^30.0.5",
+    "jest-environment-jsdom": "^30.0.5",
     "lovable-tagger": "^1.0.0",
     "ora": "^8.2.0",
     "postcss": "^8.4.33",

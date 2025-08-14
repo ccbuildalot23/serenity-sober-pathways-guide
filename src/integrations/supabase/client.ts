@@ -28,9 +28,23 @@ const SUPABASE_PUBLISHABLE_KEY = ENV_KEY.length > 10 ? ENV_KEY : 'eyJhbGciOiJIUz
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
+// Handle localStorage for both browser and test environments
+const getStorage = () => {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    return window.localStorage;
+  }
+  // Return a mock storage for test environment
+  return {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {}
+  };
+};
+
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: localStorage,
+    storage: getStorage(),
     persistSession: true,
     autoRefreshToken: true,
     // Enhanced security configuration

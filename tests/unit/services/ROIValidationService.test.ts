@@ -3,7 +3,7 @@
  * Tests provider economics validation and CMS data cross-referencing
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// Jest provides describe, it, expect, beforeEach, afterEach globally
 import { ROIValidationService } from '@/services/ROIValidationService';
 
 describe('ROIValidationService', () => {
@@ -21,11 +21,11 @@ describe('ROIValidationService', () => {
 
   beforeEach(() => {
     service = new ROIValidationService();
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    jest.restoreAllMocks();
   });
 
   describe('Provider Economics Validation', () => {

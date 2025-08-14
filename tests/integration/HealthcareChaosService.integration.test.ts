@@ -3,7 +3,7 @@
  * Tests real-world healthcare chaos engineering scenarios
  */
 
-import { describe, beforeAll, afterAll, beforeEach, afterEach, it, expect } from 'vitest';
+// Jest provides describe, beforeAll, afterAll, beforeEach, afterEach, it, expect globally
 import { healthcareChaosService } from '@/services/HealthcareChaosService';
 import { supabase } from '@/integrations/supabase/client';
 

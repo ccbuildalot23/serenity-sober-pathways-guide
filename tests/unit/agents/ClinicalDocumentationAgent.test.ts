@@ -3,7 +3,7 @@
  * Tests clinical note generation, CPT/ICD-10 suggestions, and billing optimization
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// Jest provides describe, it, expect, beforeEach, afterEach globally
 import { ClinicalDocumentationAgent } from '@/agents/ClinicalDocumentationAgent';
 import { AgentContext } from '@/agents/base/HealthcareAgent';
 
@@ -40,11 +40,11 @@ describe('ClinicalDocumentationAgent', () => {
   beforeEach(async () => {
     agent = new ClinicalDocumentationAgent();
     await agent.initialize(mockContext);
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    jest.restoreAllMocks();
   });
 
   describe('Clinical Note Generation', () => {

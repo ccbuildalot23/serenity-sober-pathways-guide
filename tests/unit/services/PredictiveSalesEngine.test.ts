@@ -3,7 +3,7 @@
  * Tests lead scoring, conversion optimization, and sales automation
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// Jest provides describe, it, expect, beforeEach, afterEach globally
 import { PredictiveSalesEngine } from '@/services/PredictiveSalesEngine';
 
 describe('PredictiveSalesEngine', () => {
@@ -28,11 +28,11 @@ describe('PredictiveSalesEngine', () => {
 
   beforeEach(() => {
     service = new PredictiveSalesEngine();
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    jest.restoreAllMocks();
   });
 
   describe('Lead Scoring', () => {

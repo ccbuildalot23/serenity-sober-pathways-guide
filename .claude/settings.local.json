@@ -54,7 +54,9 @@
       "Bash(\"C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe\" iam list-policies --scope AWS --query \"Policies[?contains(PolicyName, ''''ROSA'''') || contains(PolicyName, ''''KMS'''')].[PolicyName, Arn]\" --output table)",
       "Bash(\"C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe\" iam get-policy --policy-arn arn:aws:iam::aws:policy/ROSAKMSProviderPolicy)",
       "Bash(\"C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe\" iam get-policy --policy-arn arn:aws:iam::aws:policy/service-role/ROSAKMSProviderPolicy)",
-      "Bash(\"C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe\" iam get-policy-version --policy-arn arn:aws:iam::aws:policy/service-role/ROSAKMSProviderPolicy --version-id v1)"
+      "Bash(\"C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe\" iam get-policy-version --policy-arn arn:aws:iam::aws:policy/service-role/ROSAKMSProviderPolicy --version-id v1)",
+      "mcp__exa__deep_researcher_start",
+      "mcp__exa__deep_researcher_check"
     ],
     "deny": []
   },

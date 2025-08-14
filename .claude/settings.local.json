@@ -59,7 +59,8 @@
       "mcp__exa__deep_researcher_check",
       "Bash(where gh)"
     ],
-    "deny": []
+    "deny": [],
+    "defaultMode": "acceptEdits"
   },
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [

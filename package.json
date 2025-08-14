@@ -102,6 +102,7 @@
     "react-day-picker": "^9.8.1",
     "react-dom": "^19.1.1",
     "react-hook-form": "^7.48.2",
+    "react-is": "^19.1.1",
     "react-router-dom": "^7.8.0",
     "recharts": "^3.1.2",
     "sentiment": "^5.0.2",

@@ -1,0 +1,183 @@
+{
+  "title": "HIPAA Compliance Verification Report",
+  "generatedAt": "2025-08-14T00:27:13.201Z",
+  "duration": "1.1 seconds",
+  "summary": {
+    "totalChecks": 21,
+    "compliant": 12,
+    "partial": 6,
+    "nonCompliant": 2,
+    "notApplicable": 1,
+    "complianceScore": "75.0%"
+  },
+  "checks": [
+    {
+      "category": "Technical Safeguards",
+      "requirement": "164.312(a)(1) - Access Control",
+      "status": "NON_COMPLIANT",
+      "evidence": "RLS not fully configured",
+      "recommendation": "Enable RLS on all tables containing PHI"
+    },
+    {
+      "category": "Technical Safeguards",
+      "requirement": "164.312(a)(2)(i) - Unique User Identification",
+      "status": "COMPLIANT",
+      "evidence": "Supabase Auth provides unique UUID for each user"
+    },
+    {
+      "category": "Technical Safeguards",
+      "requirement": "164.312(a)(2)(iii) - Automatic Logoff",
+      "status": "COMPLIANT",
+      "evidence": "15-minute session timeout implemented for PHI access"
+    },
+    {
+      "category": "Technical Safeguards",
+      "requirement": "164.312(a)(2)(iv) - Encryption and Decryption",
+      "status": "COMPLIANT",
+      "evidence": "AES-256-GCM encryption verified for PHI at rest"
+    },
+    {
+      "category": "Administrative Safeguards",
+      "requirement": "164.308(a)(2) - Security Officer",
+      "status": "PARTIAL",
+      "evidence": "Security officer role defined in system",
+      "recommendation": "Document security officer appointment formally"
+    },
+    {
+      "category": "Administrative Safeguards",
+      "requirement": "164.308(a)(5) - Workforce Training",
+      "status": "PARTIAL",
+      "evidence": "System supports training tracking",
+      "recommendation": "Implement mandatory HIPAA training module"
+    },
+    {
+      "category": "Administrative Safeguards",
+      "requirement": "164.308(a)(4) - Access Authorization",
+      "status": "COMPLIANT",
+      "evidence": "Role-based access control (RBAC) implemented"
+    },
+    {
+      "category": "Administrative Safeguards",
+      "requirement": "164.308(b)(1) - Business Associate Agreements",
+      "status": "PARTIAL",
+      "evidence": "Supabase BAA available for production",
+      "recommendation": "Execute BAA with Supabase before production launch"
+    },
+    {
+      "category": "Physical Safeguards",
+      "requirement": "164.310(a)(1) - Facility Access Controls",
+      "status": "NOT_APPLICABLE",
+      "evidence": "Cloud-based infrastructure managed by Supabase",
+      "recommendation": "Verify Supabase SOC 2 compliance"
+    },
+    {
+      "category": "Physical Safeguards",
+      "requirement": "164.310(c) - Workstation Security",
+      "status": "PARTIAL",
+      "evidence": "Application enforces authentication",
+      "recommendation": "Implement device management policies"
+    },
+    {
+      "category": "Encryption",
+      "requirement": "Data at Rest Encryption",
+      "status": "COMPLIANT",
+      "evidence": "AES-256-GCM encryption verified with authentication tags"
+    },
+    {
+      "category": "Encryption",
+      "requirement": "PHI Field Encryption",
+      "status": "COMPLIANT",
+      "evidence": "Provider notes support encrypted content storage"
+    },
+    {
+      "category": "Encryption",
+      "requirement": "Data in Transit Encryption",
+      "status": "COMPLIANT",
+      "evidence": "TLS 1.3 enforced for all API communications"
+    },
+    {
+      "category": "Access Control",
+      "requirement": "Unauthorized Access Prevention",
+      "status": "COMPLIANT",
+      "evidence": "RLS blocks unauthorized access to PHI"
+    },
+    {
+      "category": "Access Control",
+      "requirement": "Patient Consent Management",
+      "status": "PARTIAL",
+      "evidence": "Consent tracking needs implementation"
+    },
+    {
+      "category": "Audit Logging",
+      "requirement": "164.312(b) - Audit Controls",
+      "status": "NON_COMPLIANT",
+      "evidence": "Audit logging not implemented",
+      "recommendation": "Implement comprehensive audit logging"
+    },
+    {
+      "category": "Audit Logging",
+      "requirement": "6-Year Audit Log Retention",
+      "status": "PARTIAL",
+      "evidence": "Database supports long-term storage",
+      "recommendation": "Implement automated archival policy"
+    },
+    {
+      "category": "Data Integrity",
+      "requirement": "164.312(c)(1) - Integrity",
+      "status": "COMPLIANT",
+      "evidence": "Data validation constraints enforced"
+    },
+    {
+      "category": "Data Integrity",
+      "requirement": "Data Versioning",
+      "status": "COMPLIANT",
+      "evidence": "Care plans include version tracking"
+    },
+    {
+      "category": "Transmission Security",
+      "requirement": "164.312(e)(1) - Transmission Security",
+      "status": "COMPLIANT",
+      "evidence": "HTTPS enforced with HSTS headers"
+    },
+    {
+      "category": "Transmission Security",
+      "requirement": "Secure Messaging",
+      "status": "COMPLIANT",
+      "evidence": "Provider-patient messaging with encryption"
+    }
+  ],
+  "recommendations": [
+    {
+      "requirement": "164.312(a)(1) - Access Control",
+      "recommendation": "Enable RLS on all tables containing PHI"
+    },
+    {
+      "requirement": "164.308(a)(2) - Security Officer",
+      "recommendation": "Document security officer appointment formally"
+    },
+    {
+      "requirement": "164.308(a)(5) - Workforce Training",
+      "recommendation": "Implement mandatory HIPAA training module"
+    },
+    {
+      "requirement": "164.308(b)(1) - Business Associate Agreements",
+      "recommendation": "Execute BAA with Supabase before production launch"
+    },
+    {
+      "requirement": "164.310(a)(1) - Facility Access Controls",
+      "recommendation": "Verify Supabase SOC 2 compliance"
+    },
+    {
+      "requirement": "164.310(c) - Workstation Security",
+      "recommendation": "Implement device management policies"
+    },
+    {
+      "requirement": "164.312(b) - Audit Controls",
+      "recommendation": "Implement comprehensive audit logging"
+    },
+    {
+      "requirement": "6-Year Audit Log Retention",
+      "recommendation": "Implement automated archival policy"
+    }
+  ]
+}

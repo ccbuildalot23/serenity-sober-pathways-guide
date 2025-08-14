@@ -1,0 +1,24 @@
+{
+  "timestamp": "2025-08-14T00:26:56.103Z",
+  "results": {
+    "tables": {
+      "passCount": 10,
+      "failCount": 0
+    },
+    "rls": {
+      "rlsPassCount": 3,
+      "rlsFailCount": 0
+    },
+    "encryption": {
+      "encPassCount": 3,
+      "encFailCount": 0
+    },
+    "constraints": {
+      "constraintPassCount": 2,
+      "constraintFailCount": 0
+    }
+  },
+  "totalPass": 18,
+  "totalFail": 0,
+  "passRate": 100
+}

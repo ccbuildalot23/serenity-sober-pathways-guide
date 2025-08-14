@@ -306,6 +306,17 @@ export class EncryptionService {
   }
 }
 
+// Export singleton instance for easier usage
+export const encryptionService = {
+  generateSecureKey: (keySize: number = 32) => EncryptionService.generateKey(),
+  encrypt: (data: string, context: string) => EncryptionService.encrypt(data, context),
+  decrypt: (data: string, context: string) => EncryptionService.decrypt(data, context),
+  hash: (data: string) => EncryptionService.hash(data),
+  verifyEncryption: () => EncryptionService.verifyEncryption(),
+  encryptProviderNote: (content: string, metadata: any) => EncryptionService.encryptProviderNote(content, metadata),
+  decryptProviderNote: (content: string, metadata: any) => EncryptionService.decryptProviderNote(content, metadata)
+};
+
 // Auto-verify on module load in development
 if (process.env.NODE_ENV === 'development') {
   EncryptionService.verifyEncryption().then(success => {

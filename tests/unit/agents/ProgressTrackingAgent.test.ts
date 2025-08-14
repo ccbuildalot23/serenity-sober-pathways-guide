@@ -10,7 +10,7 @@ import { AgentContext } from '@/agents/base/HealthcareAgent';
 describe('ProgressTrackingAgent', () => {
   let agent: ProgressTrackingAgent;
   const mockContext: AgentContext = {
-    userId: 'user-123',
+    _userId: 'user-123',
     sessionId: 'session-456',
     userRole: 'patient'
   };
@@ -32,9 +32,9 @@ describe('ProgressTrackingAgent', () => {
       const response = await agent.processInput(input, mockContext);
       
       expect(response).toBeDefined();
-      expect(response.confidence).toBeGreaterThan(0.8);
-      expect(response.metadata?.checkinComplete).toBe(true);
-      expect(response.message).toContain('Thank you for checking in');
+      expect(response._confidence).toBeGreaterThan(0.8);
+      expect(response._metadata?.checkinComplete).toBe(true);
+      expect(response._message).toContain('Thank you for checking in');
     });
 
     it('should detect concerning check-in patterns', async () => {
@@ -42,8 +42,8 @@ describe('ProgressTrackingAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.requiresEscalation).toBe(true);
-      expect(response.metadata?.riskLevel).toBeOneOf(['high', 'critical']);
+      expect(response._requiresEscalation).toBe(true);
+      expect(response._metadata?.riskLevel).toBeOneOf(['high', 'critical']);
       expect(response.actions).toContainEqual(
         expect.objectContaining({ type: 'escalate' })
       );
@@ -55,8 +55,8 @@ describe('ProgressTrackingAgent', () => {
       const response = await agent.processInput(input, mockContext);
       
       // Should normalize to valid ranges
-      expect(response.metadata?.checkinComplete).toBe(true);
-      expect(response.message).toBeDefined();
+      expect(response._metadata?.checkinComplete).toBe(true);
+      expect(response._message).toBeDefined();
     });
 
     it('should track medication adherence', async () => {
@@ -84,10 +84,10 @@ describe('ProgressTrackingAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.metadata?.riskScore).toBeDefined();
-      expect(response.metadata?.riskScore).toBeGreaterThanOrEqual(0);
-      expect(response.metadata?.riskScore).toBeLessThanOrEqual(100);
-      expect(response.metadata?.riskLevel).toBeOneOf(['low', 'medium', 'high', 'critical']);
+      expect(response._metadata?.riskScore).toBeDefined();
+      expect(response._metadata?.riskScore).toBeGreaterThanOrEqual(0);
+      expect(response._metadata?.riskScore).toBeLessThanOrEqual(100);
+      expect(response._metadata?.riskLevel).toBeOneOf(['low', 'medium', 'high', 'critical']);
     });
 
     it('should identify multiple risk factors', async () => {
@@ -95,8 +95,8 @@ describe('ProgressTrackingAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('risk');
-      expect(response.metadata?.riskLevel).not.toBe('low');
+      expect(response._message).toContain('risk');
+      expect(response._metadata?.riskLevel).not.toBe('low');
     });
 
     it('should track risk trends over time', async () => {
@@ -113,8 +113,8 @@ describe('ProgressTrackingAgent', () => {
       
       const response = await agent.processInput("Show my progress", mockContext);
       
-      expect(response.metadata?.trajectory).toBe('declining');
-      expect(response.requiresEscalation).toBe(false); // Not immediate crisis
+      expect(response._metadata?.trajectory).toBe('declining');
+      expect(response._requiresEscalation).toBe(false); // Not immediate crisis
     });
 
     it('should detect protective factors', async () => {
@@ -122,8 +122,8 @@ describe('ProgressTrackingAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('positive');
-      expect(response.metadata?.riskLevel).toBeOneOf(['low', 'medium']);
+      expect(response._message).toContain('positive');
+      expect(response._metadata?.riskLevel).toBeOneOf(['low', 'medium']);
     });
   });
 
@@ -133,9 +133,9 @@ describe('ProgressTrackingAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.metadata?.timeframe).toBe('week');
-      expect(response.message).toContain('progress');
-      expect(response.confidence).toBeGreaterThan(0.7);
+      expect(response._metadata?.timeframe).toBe('week');
+      expect(response._message).toContain('progress');
+      expect(response._confidence).toBeGreaterThan(0.7);
     });
 
     it('should identify improving trends', async () => {
@@ -143,8 +143,8 @@ describe('ProgressTrackingAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.metadata?.trajectory).toBeOneOf(['improving', 'stable', 'declining', 'crisis']);
-      expect(response.metadata?.confidenceLevel).toBeGreaterThan(0.5);
+      expect(response._metadata?.trajectory).toBeOneOf(['improving', 'stable', 'declining', 'crisis']);
+      expect(response._metadata?.confidenceLevel).toBeGreaterThan(0.5);
     });
 
     it('should provide actionable insights', async () => {
@@ -152,8 +152,8 @@ describe('ProgressTrackingAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toBeDefined();
-      expect(response.metadata?.insightCount).toBeGreaterThan(0);
+      expect(response._message).toBeDefined();
+      expect(response._metadata?.insightCount).toBeGreaterThan(0);
       expect(response.actions).toContainEqual(
         expect.objectContaining({ type: 'store' })
       );
@@ -166,9 +166,9 @@ describe('ProgressTrackingAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('achievement');
-      expect(response.metadata?.recentAchievements).toBeDefined();
-      expect(response.confidence).toBeGreaterThan(0.9);
+      expect(response._message).toContain('achievement');
+      expect(response._metadata?.recentAchievements).toBeDefined();
+      expect(response._confidence).toBeGreaterThan(0.9);
     });
 
     it('should celebrate milestones', async () => {
@@ -179,8 +179,8 @@ describe('ProgressTrackingAgent', () => {
       
       const response = await agent.processInput("Any new achievements?", mockContext);
       
-      expect(response.message).toContain('Congratulations');
-      expect(response.metadata?.achievements).toBeGreaterThan(0);
+      expect(response._message).toContain('Congratulations');
+      expect(response._metadata?.achievements).toBeGreaterThan(0);
     });
 
     it('should suggest next goals', async () => {
@@ -188,8 +188,8 @@ describe('ProgressTrackingAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('focus');
-      expect(response.confidence).toBeGreaterThan(0.7);
+      expect(response._message).toContain('focus');
+      expect(response._confidence).toBeGreaterThan(0.7);
     });
   });
 
@@ -204,8 +204,8 @@ describe('ProgressTrackingAgent', () => {
       
       for (const input of variations) {
         const response = await agent.processInput(input, mockContext);
-        expect(response.metadata?.checkinComplete).toBeDefined();
-        expect(response.confidence).toBeGreaterThan(0.6);
+        expect(response._metadata?.checkinComplete).toBeDefined();
+        expect(response._confidence).toBeGreaterThan(0.6);
       }
     });
 
@@ -214,9 +214,9 @@ describe('ProgressTrackingAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toBeDefined();
-      expect(response.confidence).toBeLessThan(0.8);
-      expect(response.requiresEscalation).toBe(false);
+      expect(response._message).toBeDefined();
+      expect(response._confidence).toBeLessThan(0.8);
+      expect(response._requiresEscalation).toBe(false);
     });
   });
 
@@ -226,8 +226,8 @@ describe('ProgressTrackingAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.requiresEscalation).toBe(true);
-      expect(response.metadata?.riskLevel).toBe('critical');
+      expect(response._requiresEscalation).toBe(true);
+      expect(response._metadata?.riskLevel).toBe('critical');
       expect(response.actions).toContainEqual(
         expect.objectContaining({
           type: 'escalate',
@@ -263,7 +263,7 @@ describe('ProgressTrackingAgent', () => {
           type: 'store',
           data: expect.objectContaining({
             type: 'daily_checkin',
-            userId: mockContext.userId
+            userId: mockContext._userId
           })
         })
       );
@@ -276,8 +276,8 @@ describe('ProgressTrackingAgent', () => {
       // Second check-in should have context
       const response = await agent.processInput("Feeling better today", mockContext);
       
-      expect(response.message).toBeDefined();
-      expect(response.confidence).toBeGreaterThan(0.7);
+      expect(response._message).toBeDefined();
+      expect(response._confidence).toBeGreaterThan(0.7);
     });
   });
 
@@ -293,7 +293,7 @@ describe('ProgressTrackingAgent', () => {
 
     it('should handle concurrent requests', async () => {
       const requests = Array(5).fill("Check-in: mood 6").map((input, i) => 
-        agent.processInput(input, { ...mockContext, userId: `user-${i}` })
+        agent.processInput(input, { ...mockContext, _userId: `user-${i}` })
       );
       
       const responses = await Promise.all(requests);
@@ -301,7 +301,7 @@ describe('ProgressTrackingAgent', () => {
       expect(responses).toHaveLength(5);
       responses.forEach(response => {
         expect(response).toBeDefined();
-        expect(response.confidence).toBeGreaterThan(0);
+        expect(response._confidence).toBeGreaterThan(0);
       });
     });
   });

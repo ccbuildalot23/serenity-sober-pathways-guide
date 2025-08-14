@@ -10,7 +10,7 @@ import { AgentContext } from '@/agents/base/HealthcareAgent';
 describe('ClinicalDocumentationAgent', () => {
   let agent: ClinicalDocumentationAgent;
   const mockContext: AgentContext = {
-    userId: 'provider-123',
+    _userId: 'provider-123',
     sessionId: 'session-456',
     userRole: 'provider'
   };
@@ -54,12 +54,12 @@ describe('ClinicalDocumentationAgent', () => {
       const response = await agent.processInput(input, mockContext);
       
       expect(response).toBeDefined();
-      expect(response.message).toContain('SOAP NOTE');
-      expect(response.message).toContain('SUBJECTIVE');
-      expect(response.message).toContain('OBJECTIVE');
-      expect(response.message).toContain('ASSESSMENT');
-      expect(response.message).toContain('PLAN');
-      expect(response.confidence).toBeGreaterThan(0.8);
+      expect(response._message).toContain('SOAP NOTE');
+      expect(response._message).toContain('SUBJECTIVE');
+      expect(response._message).toContain('OBJECTIVE');
+      expect(response._message).toContain('ASSESSMENT');
+      expect(response._message).toContain('PLAN');
+      expect(response._confidence).toBeGreaterThan(0.8);
     });
 
     it('should generate BIRP format notes', async () => {
@@ -67,11 +67,11 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('BIRP NOTE');
-      expect(response.message).toContain('BEHAVIOR');
-      expect(response.message).toContain('INTERVENTION');
-      expect(response.message).toContain('RESPONSE');
-      expect(response.message).toContain('PLAN');
+      expect(response._message).toContain('BIRP NOTE');
+      expect(response._message).toContain('BEHAVIOR');
+      expect(response._message).toContain('INTERVENTION');
+      expect(response._message).toContain('RESPONSE');
+      expect(response._message).toContain('PLAN');
     });
 
     it('should include risk assessment when required', async () => {
@@ -79,9 +79,9 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('RISK ASSESSMENT');
-      expect(response.message).toContain('substance');
-      expect(response.metadata?.format).toBeDefined();
+      expect(response._message).toContain('RISK ASSESSMENT');
+      expect(response._message).toContain('substance');
+      expect(response._metadata?.format).toBeDefined();
     });
 
     it('should adapt note length based on session duration', async () => {
@@ -91,9 +91,9 @@ describe('ClinicalDocumentationAgent', () => {
       const shortResponse = await agent.processInput(shortSession, mockContext);
       const longResponse = await agent.processInput(longSession, mockContext);
       
-      expect(shortResponse.message.length).toBeLessThan(longResponse.message.length);
-      expect(shortResponse.metadata?.billableTime).toBeLessThan(
-        longResponse.metadata?.billableTime || 0
+      expect(shortResponse._message.length).toBeLessThan(longResponse._message.length);
+      expect(shortResponse._metadata?.billableTime).toBeLessThan(
+        longResponse._metadata?.billableTime || 0
       );
     });
   });
@@ -104,9 +104,9 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('90837');
-      expect(response.message).toContain('60 minutes');
-      expect(response.metadata?.cptCodesCount).toBeGreaterThan(0);
+      expect(response._message).toContain('90837');
+      expect(response._message).toContain('60 minutes');
+      expect(response._metadata?.cptCodesCount).toBeGreaterThan(0);
     });
 
     it('should suggest codes for group therapy', async () => {
@@ -114,8 +114,8 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('90853');
-      expect(response.message).toContain('group');
+      expect(response._message).toContain('90853');
+      expect(response._message).toContain('group');
     });
 
     it('should add telehealth modifiers when applicable', async () => {
@@ -123,8 +123,8 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('95'); // Telehealth modifier
-      expect(response.message).toContain('telehealth');
+      expect(response._message).toContain('95'); // Telehealth modifier
+      expect(response._message).toContain('telehealth');
     });
 
     it('should validate time-based billing requirements', async () => {
@@ -132,8 +132,8 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('90834'); // Correct code for 45 minutes
-      expect(response.confidence).toBeGreaterThan(0.9);
+      expect(response._message).toContain('90834'); // Correct code for 45 minutes
+      expect(response._confidence).toBeGreaterThan(0.9);
     });
   });
 
@@ -143,9 +143,9 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('F41.1');
-      expect(response.message).toContain('anxiety');
-      expect(response.metadata?.icd10CodesCount).toBeGreaterThan(0);
+      expect(response._message).toContain('F41.1');
+      expect(response._message).toContain('anxiety');
+      expect(response._metadata?.icd10CodesCount).toBeGreaterThan(0);
     });
 
     it('should suggest codes for depression', async () => {
@@ -153,8 +153,8 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toMatch(/F3[23]\.\d/); // F32.x or F33.x
-      expect(response.message).toContain('depression');
+      expect(response._message).toMatch(/F3[23]\.\d/); // F32.x or F33.x
+      expect(response._message).toContain('depression');
     });
 
     it('should suggest codes for substance use disorders', async () => {
@@ -162,8 +162,8 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('F10');
-      expect(response.message).toContain('alcohol');
+      expect(response._message).toContain('F10');
+      expect(response._message).toContain('alcohol');
     });
 
     it('should identify primary vs secondary diagnoses', async () => {
@@ -171,9 +171,9 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('Primary');
-      expect(response.message).toContain('Secondary');
-      expect(response.metadata?.icd10CodesCount).toBeGreaterThanOrEqual(2);
+      expect(response._message).toContain('Primary');
+      expect(response._message).toContain('Secondary');
+      expect(response._metadata?.icd10CodesCount).toBeGreaterThanOrEqual(2);
     });
   });
 
@@ -183,8 +183,8 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.metadata?.billableTime).toBe(60); // Rounds to 60-minute code
-      expect(response.message).toContain('90837');
+      expect(response._metadata?.billableTime).toBe(60); // Rounds to 60-minute code
+      expect(response._message).toContain('90837');
     });
 
     it('should optimize code combinations for reimbursement', async () => {
@@ -192,8 +192,8 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('90791'); // Psychiatric diagnostic evaluation
-      expect(response.confidence).toBeGreaterThan(0.8);
+      expect(response._message).toContain('90791'); // Psychiatric diagnostic evaluation
+      expect(response._confidence).toBeGreaterThan(0.8);
     });
 
     it('should validate Medicare billing compliance', async () => {
@@ -201,8 +201,8 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('compliant');
-      expect(response.metadata?.complianceChecks).toBeDefined();
+      expect(response._message).toContain('compliant');
+      expect(response._metadata?.complianceChecks).toBeDefined();
     });
 
     it('should estimate reimbursement rates', async () => {
@@ -210,8 +210,8 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toMatch(/\$\d+/); // Contains dollar amount
-      expect(response.confidence).toBeGreaterThan(0.7);
+      expect(response._message).toMatch(/\$\d+/); // Contains dollar amount
+      expect(response._confidence).toBeGreaterThan(0.7);
     });
   });
 
@@ -221,8 +221,8 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('insufficient');
-      expect(response.metadata?.reviewRequired).toBe(true);
+      expect(response._message).toContain('insufficient');
+      expect(response._metadata?.reviewRequired).toBe(true);
     });
 
     it('should ensure medical necessity documentation', async () => {
@@ -230,7 +230,7 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('medical necessity');
+      expect(response._message).toContain('medical necessity');
       expect(response.actions).toContainEqual(
         expect.objectContaining({ type: 'store' })
       );
@@ -241,9 +241,9 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('risk assessment');
-      expect(response.message).toContain('required');
-      expect(response.metadata?.reviewRequired).toBe(true);
+      expect(response._message).toContain('risk assessment');
+      expect(response._message).toContain('required');
+      expect(response._metadata?.reviewRequired).toBe(true);
     });
 
     it('should validate HIPAA compliance', async () => {
@@ -251,8 +251,8 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('HIPAA');
-      expect(response.confidence).toBeGreaterThan(0.8);
+      expect(response._message).toContain('HIPAA');
+      expect(response._confidence).toBeGreaterThan(0.8);
     });
   });
 
@@ -262,8 +262,8 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.metadata?.format).toBeDefined();
-      expect(response.confidence).toBeGreaterThan(0.7);
+      expect(response._metadata?.format).toBeDefined();
+      expect(response._confidence).toBeGreaterThan(0.7);
     });
 
     it('should adapt to specialty requirements', async () => {
@@ -271,8 +271,8 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('medication');
-      expect(response.metadata?.format).toBeDefined();
+      expect(response._message).toContain('medication');
+      expect(response._metadata?.format).toBeDefined();
     });
   });
 
@@ -282,9 +282,9 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('treatment');
-      expect(response.message).toContain('goals');
-      expect(response.confidence).toBeGreaterThan(0.7);
+      expect(response._message).toContain('treatment');
+      expect(response._message).toContain('goals');
+      expect(response._confidence).toBeGreaterThan(0.7);
     });
 
     it('should track treatment goal progress', async () => {
@@ -292,7 +292,7 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('progress');
+      expect(response._message).toContain('progress');
       expect(response.actions).toBeDefined();
     });
   });
@@ -308,8 +308,8 @@ describe('ClinicalDocumentationAgent', () => {
       
       for (const input of variations) {
         const response = await agent.processInput(input, mockContext);
-        expect(response.message).toBeDefined();
-        expect(response.confidence).toBeGreaterThan(0.6);
+        expect(response._message).toBeDefined();
+        expect(response._confidence).toBeGreaterThan(0.6);
       }
     });
 
@@ -318,9 +318,9 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('60');
-      expect(response.message).toContain('CBT');
-      expect(response.message).toContain('anxiety');
+      expect(response._message).toContain('60');
+      expect(response._message).toContain('CBT');
+      expect(response._message).toContain('anxiety');
     });
   });
 
@@ -346,7 +346,7 @@ describe('ClinicalDocumentationAgent', () => {
       
       expect(responses).toHaveLength(5);
       responses.forEach(response => {
-        expect(response.confidence).toBeGreaterThan(0.5);
+        expect(response._confidence).toBeGreaterThan(0.5);
       });
     });
   });
@@ -377,9 +377,9 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toBeDefined();
-      expect(response.confidence).toBeLessThan(0.5);
-      expect(response.requiresEscalation).toBe(false);
+      expect(response._message).toBeDefined();
+      expect(response._confidence).toBeLessThan(0.5);
+      expect(response._requiresEscalation).toBe(false);
     });
 
     it('should provide guidance for invalid requests', async () => {
@@ -387,8 +387,8 @@ describe('ClinicalDocumentationAgent', () => {
       
       const response = await agent.processInput(input, mockContext);
       
-      expect(response.message).toContain('minimum');
-      expect(response.confidence).toBeGreaterThan(0.6);
+      expect(response._message).toContain('minimum');
+      expect(response._confidence).toBeGreaterThan(0.6);
     });
   });
 });

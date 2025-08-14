@@ -62,7 +62,8 @@
       "Bash(for:*)",
       "Bash(do sed -i \"s/from ''vitest''/from ''@jest\\/globals''/g\" \"$file\")",
       "Bash(done)",
-      "Bash(do sed -i \"s/vi\\.mock/jest.mock/g\" \"$file\")"
+      "Bash(do sed -i \"s/vi\\.mock/jest.mock/g\" \"$file\")",
+      "WebFetch(domain:docs.anthropic.com)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

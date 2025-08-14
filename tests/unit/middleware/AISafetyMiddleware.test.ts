@@ -29,10 +29,9 @@ describe('AISafetyMiddleware', () => {
   describe('processAgentResponse', () => {
     it('should process safe responses successfully', async () => {
       const agentResponse: AgentResponse = {
-        message: 'Take your medication as prescribed by your doctor.',
-        confidence: 0.95,
-        sources: [],
-        metadata: {}
+        _message: 'Take your medication as prescribed by your doctor.',
+        _confidence: 0.95,
+        _metadata: {}
       };
 
       // Mock safety checks passing
@@ -52,15 +51,14 @@ describe('AISafetyMiddleware', () => {
       expect(result).toBeDefined();
       expect(result.safetyScore).toBeGreaterThanOrEqual(0.85);
       expect(result.requiresReview).toBe(false);
-      expect(result.message).toBe(agentResponse.message);
+      expect(result._message).toBe(agentResponse._message);
     });
 
     it('should flag unsafe content below threshold', async () => {
       const unsafeResponse: AgentResponse = {
-        message: 'You should stop taking all medications immediately.',
-        confidence: 0.9,
-        sources: [],
-        metadata: {}
+        _message: 'You should stop taking all medications immediately.',
+        _confidence: 0.9,
+        _metadata: {}
       };
 
       // Mock safety checks failing
@@ -86,10 +84,9 @@ describe('AISafetyMiddleware', () => {
       middleware.configureSafety({ autoRemediate: true });
 
       const biasedResponse: AgentResponse = {
-        message: 'Addicts like you never recover anyway.',
-        confidence: 0.8,
-        sources: [],
-        metadata: {}
+        _message: 'Addicts like you never recover anyway.',
+        _confidence: 0.8,
+        _metadata: {}
       };
 
       mockAISafety.checkSafety = jest.fn().mockResolvedValue([
@@ -98,7 +95,7 @@ describe('AISafetyMiddleware', () => {
       ]);
 
       mockAISafety.applyAutoRemediation = jest.fn().mockResolvedValue({
-        message: 'Recovery is a journey that many people successfully navigate with the right support.',
+        _message: 'Recovery is a journey that many people successfully navigate with the right support.',
         remediated: true,
         changes: ['Removed stigmatizing language', 'Added supportive tone']
       });
@@ -111,16 +108,15 @@ describe('AISafetyMiddleware', () => {
       );
 
       expect(mockAISafety.applyAutoRemediation).toHaveBeenCalled();
-      expect(result.message).not.toContain('Addicts');
-      expect(result.message).toContain('Recovery is a journey');
+      expect(result._message).not.toContain('Addicts');
+      expect(result._message).toContain('Recovery is a journey');
     });
 
     it('should handle hallucination detection', async () => {
       const hallucinatedResponse: AgentResponse = {
-        message: 'According to our session on March 15th at 2pm, you mentioned...',
-        confidence: 0.7,
-        sources: [],
-        metadata: {}
+        _message: 'According to our session on March 15th at 2pm, you mentioned...',
+        _confidence: 0.7,
+        _metadata: {}
       };
 
       mockAISafety.checkSafety = jest.fn().mockResolvedValue([
@@ -144,10 +140,9 @@ describe('AISafetyMiddleware', () => {
       middleware.enableAgent('CrisisSupportAgent');
       
       const crisisResponse: AgentResponse = {
-        message: 'Call 911 if you are in immediate danger.',
-        confidence: 0.99,
-        sources: [],
-        metadata: {}
+        _message: 'Call 911 if you are in immediate danger.',
+        _confidence: 0.99,
+        _metadata: {}
       };
 
       mockAISafety.checkSafety = jest.fn().mockResolvedValue([
@@ -175,10 +170,9 @@ describe('AISafetyMiddleware', () => {
       middleware.configureSafety({ threshold: 0.95 });
 
       const response: AgentResponse = {
-        message: 'This is a test response.',
-        confidence: 0.85,
-        sources: [],
-        metadata: {}
+        _message: 'This is a test response.',
+        _confidence: 0.85,
+        _metadata: {}
       };
 
       mockAISafety.checkSafety = jest.fn().mockResolvedValue([
@@ -200,10 +194,9 @@ describe('AISafetyMiddleware', () => {
       middleware.disableAgent('RecoveryCoachAgent');
       
       const response: AgentResponse = {
-        message: 'Test message',
-        confidence: 0.9,
-        sources: [],
-        metadata: {}
+        _message: 'Test message',
+        _confidence: 0.9,
+        _metadata: {}
       };
 
       const result = await middleware.processAgentResponse(
@@ -231,10 +224,9 @@ describe('AISafetyMiddleware', () => {
   describe('Bias Detection', () => {
     it('should detect gender bias', async () => {
       const biasedResponse: AgentResponse = {
-        message: 'Women are naturally more emotional about recovery.',
-        confidence: 0.8,
-        sources: [],
-        metadata: {}
+        _message: 'Women are naturally more emotional about recovery.',
+        _confidence: 0.8,
+        _metadata: {}
       };
 
       mockAISafety.checkSafety = jest.fn().mockResolvedValue([
@@ -253,10 +245,9 @@ describe('AISafetyMiddleware', () => {
 
     it('should detect racial/ethnic bias', async () => {
       const biasedResponse: AgentResponse = {
-        message: 'People from certain backgrounds have higher addiction rates.',
-        confidence: 0.7,
-        sources: [],
-        metadata: {}
+        _message: 'People from certain backgrounds have higher addiction rates.',
+        _confidence: 0.7,
+        _metadata: {}
       };
 
       mockAISafety.checkSafety = jest.fn().mockResolvedValue([
@@ -276,10 +267,9 @@ describe('AISafetyMiddleware', () => {
 
     it('should detect stigmatizing language', async () => {
       const stigmatizingResponse: AgentResponse = {
-        message: 'Junkies and drunks need tough love.',
-        confidence: 0.75,
-        sources: [],
-        metadata: {}
+        _message: 'Junkies and drunks need tough love.',
+        _confidence: 0.75,
+        _metadata: {}
       };
 
       mockAISafety.checkSafety = jest.fn().mockResolvedValue([
@@ -302,10 +292,9 @@ describe('AISafetyMiddleware', () => {
   describe('Medical Safety', () => {
     it('should flag dangerous medical advice', async () => {
       const dangerousAdvice: AgentResponse = {
-        message: 'Mix these medications for better results.',
-        confidence: 0.6,
-        sources: [],
-        metadata: {}
+        _message: 'Mix these medications for better results.',
+        _confidence: 0.6,
+        _metadata: {}
       };
 
       mockAISafety.checkSafety = jest.fn().mockResolvedValue([
@@ -326,10 +315,9 @@ describe('AISafetyMiddleware', () => {
 
     it('should validate dosage recommendations', async () => {
       const dosageResponse: AgentResponse = {
-        message: 'Take 1000mg of this medication daily.',
-        confidence: 0.85,
-        sources: [],
-        metadata: {}
+        _message: 'Take 1000mg of this medication daily.',
+        _confidence: 0.85,
+        _metadata: {}
       };
 
       mockAISafety.checkSafety = jest.fn().mockResolvedValue([
@@ -351,10 +339,9 @@ describe('AISafetyMiddleware', () => {
     it('should handle high volume of requests', async () => {
       const promises = [];
       const response: AgentResponse = {
-        message: 'Standard response',
-        confidence: 0.9,
-        sources: [],
-        metadata: {}
+        _message: 'Standard response',
+        _confidence: 0.9,
+        _metadata: {}
       };
 
       mockAISafety.checkSafety = jest.fn().mockResolvedValue([
@@ -381,10 +368,9 @@ describe('AISafetyMiddleware', () => {
 
     it('should cache safety checks for identical content', async () => {
       const response: AgentResponse = {
-        message: 'Cached response content',
-        confidence: 0.9,
-        sources: [],
-        metadata: {}
+        _message: 'Cached response content',
+        _confidence: 0.9,
+        _metadata: {}
       };
 
       mockAISafety.checkSafety = jest.fn().mockResolvedValue([
@@ -403,10 +389,9 @@ describe('AISafetyMiddleware', () => {
 
     it('should handle safety check failures gracefully', async () => {
       const response: AgentResponse = {
-        message: 'Test response',
-        confidence: 0.9,
-        sources: [],
-        metadata: {}
+        _message: 'Test response',
+        _confidence: 0.9,
+        _metadata: {}
       };
 
       // Mock safety check throwing error
@@ -431,10 +416,9 @@ describe('AISafetyMiddleware', () => {
       const auditLog = jest.spyOn(middleware as any, 'logSafetyCheck');
       
       const response: AgentResponse = {
-        message: 'Audited response',
-        confidence: 0.9,
-        sources: [],
-        metadata: {}
+        _message: 'Audited response',
+        _confidence: 0.9,
+        _metadata: {}
       };
 
       mockAISafety.checkSafety = jest.fn().mockResolvedValue([
@@ -465,7 +449,7 @@ describe('AISafetyMiddleware', () => {
           `violation-agent-${i}`,
           'RecoveryCoachAgent',
           'Input',
-          { message: `Violation ${i}`, confidence: 0.8, sources: [], metadata: {} }
+          { _message: `Violation ${i}`, _confidence: 0.8, _metadata: {} }
         );
         
         if (result.requiresReview) {

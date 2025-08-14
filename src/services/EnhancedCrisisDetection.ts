@@ -599,48 +599,38 @@ export class EnhancedCrisisDetection {
     if (!providerId) return;
     
     await supabase.from('crisis_alerts').insert({
-      alert_id: consensus.alertId,
-      provider_id: providerId,
-      alert_type: 'provider',
-      risk_level: consensus.riskLevel,
-      confidence: consensus.confidence,
-      indicators: consensus.primaryIndicators,
-      created_at: new Date()
+      user_id: 'provider-' + providerId,
+      status: `provider_alert_${consensus.riskLevel}`,
+      message_sent: `Crisis detected with ${consensus.confidence} confidence`,
+      alert_time: new Date().toISOString()
     });
   }
 
   private async alertEmergencyContacts(userId: string, consensus: CrisisConsensus): Promise<void> {
     await supabase.from('crisis_alerts').insert({
-      alert_id: consensus.alertId,
       user_id: userId,
-      alert_type: 'emergency_contacts',
-      risk_level: consensus.riskLevel,
-      confidence: consensus.confidence,
-      indicators: consensus.primaryIndicators,
-      created_at: new Date()
+      status: `emergency_contacts_${consensus.riskLevel}`,
+      message_sent: `Crisis detected - emergency contacts notified`,
+      alert_time: new Date().toISOString()
     });
   }
 
   private async alertPlatformTeam(consensus: CrisisConsensus): Promise<void> {
     await supabase.from('crisis_alerts').insert({
-      alert_id: consensus.alertId,
-      alert_type: 'platform_team',
-      risk_level: consensus.riskLevel,
-      confidence: consensus.confidence,
-      indicators: consensus.primaryIndicators,
-      created_at: new Date()
+      user_id: 'platform-team',
+      status: `platform_alert_${consensus.riskLevel}`,
+      message_sent: `Crisis alert for platform team`,
+      alert_time: new Date().toISOString()
     });
   }
 
   private async documentIncident(consensus: CrisisConsensus, context: CrisisContext): Promise<void> {
-    await supabase.from('crisis_incidents').insert({
-      alert_id: consensus.alertId,
+    await supabase.from('crisis_events').insert({
       user_id: context.userId,
       risk_level: consensus.riskLevel,
-      confidence: consensus.confidence,
-      indicators: consensus.primaryIndicators,
-      context: context,
-      created_at: new Date()
+      cssrs_score: consensus.confidence * 10, // Convert to 0-10 scale
+      notes: `Crisis detected with indicators: ${consensus.primaryIndicators.join(', ')}`,
+      created_at: new Date().toISOString()
     });
   }
 
@@ -653,10 +643,11 @@ export class EnhancedCrisisDetection {
       .single();
 
     if (crisisPlan) {
-      await supabase.from('crisis_plan_activations').insert({
+      // Update crisis event to indicate plan was activated
+      await supabase.from('crisis_events').insert({
         user_id: userId,
-        plan_id: crisisPlan.id,
-        activated_at: new Date()
+        notes: `Crisis plan activated: ${crisisPlan.id}`,
+        created_at: new Date().toISOString()
       });
     }
   }
@@ -665,10 +656,10 @@ export class EnhancedCrisisDetection {
     // Check if alert was successfully sent
     const { data } = await supabase
       .from('crisis_alerts')
-      .select('delivered')
-      .eq('alert_id', alertId);
+      .select('status')
+      .eq('id', alertId);
     
-    return data?.every(alert => alert.delivered) || false;
+    return data?.every(alert => alert.status && !alert.status.includes('failed')) || false;
   }
 
   private startEscalationMonitoring(alertId: string, context: CrisisContext): void {

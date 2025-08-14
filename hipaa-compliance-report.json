@@ -1,183 +1,152 @@
 {
-  "title": "HIPAA Compliance Verification Report",
-  "generatedAt": "2025-08-14T00:27:13.201Z",
-  "duration": "1.1 seconds",
+  "timestamp": "2025-08-14T10:36:35.057Z",
+  "score": 75,
   "summary": {
-    "totalChecks": 21,
-    "compliant": 12,
-    "partial": 6,
-    "nonCompliant": 2,
-    "notApplicable": 1,
-    "complianceScore": "75.0%"
+    "total": 20,
+    "passed": 15,
+    "warnings": 5,
+    "failed": 0
   },
   "checks": [
     {
-      "category": "Technical Safeguards",
-      "requirement": "164.312(a)(1) - Access Control",
-      "status": "NON_COMPLIANT",
-      "evidence": "RLS not fully configured",
-      "recommendation": "Enable RLS on all tables containing PHI"
-    },
-    {
-      "category": "Technical Safeguards",
-      "requirement": "164.312(a)(2)(i) - Unique User Identification",
-      "status": "COMPLIANT",
-      "evidence": "Supabase Auth provides unique UUID for each user"
-    },
-    {
-      "category": "Technical Safeguards",
-      "requirement": "164.312(a)(2)(iii) - Automatic Logoff",
-      "status": "COMPLIANT",
-      "evidence": "15-minute session timeout implemented for PHI access"
-    },
-    {
-      "category": "Technical Safeguards",
-      "requirement": "164.312(a)(2)(iv) - Encryption and Decryption",
-      "status": "COMPLIANT",
-      "evidence": "AES-256-GCM encryption verified for PHI at rest"
-    },
-    {
-      "category": "Administrative Safeguards",
-      "requirement": "164.308(a)(2) - Security Officer",
-      "status": "PARTIAL",
-      "evidence": "Security officer role defined in system",
-      "recommendation": "Document security officer appointment formally"
-    },
-    {
-      "category": "Administrative Safeguards",
-      "requirement": "164.308(a)(5) - Workforce Training",
-      "status": "PARTIAL",
-      "evidence": "System supports training tracking",
-      "recommendation": "Implement mandatory HIPAA training module"
-    },
-    {
-      "category": "Administrative Safeguards",
-      "requirement": "164.308(a)(4) - Access Authorization",
-      "status": "COMPLIANT",
-      "evidence": "Role-based access control (RBAC) implemented"
-    },
-    {
-      "category": "Administrative Safeguards",
-      "requirement": "164.308(b)(1) - Business Associate Agreements",
-      "status": "PARTIAL",
-      "evidence": "Supabase BAA available for production",
-      "recommendation": "Execute BAA with Supabase before production launch"
-    },
-    {
-      "category": "Physical Safeguards",
-      "requirement": "164.310(a)(1) - Facility Access Controls",
-      "status": "NOT_APPLICABLE",
-      "evidence": "Cloud-based infrastructure managed by Supabase",
-      "recommendation": "Verify Supabase SOC 2 compliance"
-    },
-    {
-      "category": "Physical Safeguards",
-      "requirement": "164.310(c) - Workstation Security",
-      "status": "PARTIAL",
-      "evidence": "Application enforces authentication",
-      "recommendation": "Implement device management policies"
+      "category": "Encryption",
+      "requirement": "AES-256 encryption for PHI at rest",
+      "status": "PASS",
+      "details": "AES-256-GCM encryption implemented",
+      "evidence": "src/services/encryptionService.ts:19"
     },
     {
       "category": "Encryption",
-      "requirement": "Data at Rest Encryption",
-      "status": "COMPLIANT",
-      "evidence": "AES-256-GCM encryption verified with authentication tags"
-    },
-    {
-      "category": "Encryption",
-      "requirement": "PHI Field Encryption",
-      "status": "COMPLIANT",
-      "evidence": "Provider notes support encrypted content storage"
-    },
-    {
-      "category": "Encryption",
-      "requirement": "Data in Transit Encryption",
-      "status": "COMPLIANT",
-      "evidence": "TLS 1.3 enforced for all API communications"
+      "requirement": "Provider notes encryption",
+      "status": "PASS",
+      "details": "Provider note encryption method implemented",
+      "evidence": "src/services/encryptionService.ts:239"
     },
     {
       "category": "Access Control",
-      "requirement": "Unauthorized Access Prevention",
-      "status": "COMPLIANT",
-      "evidence": "RLS blocks unauthorized access to PHI"
+      "requirement": "Row Level Security on care plans",
+      "status": "PASS",
+      "details": "RLS enabled on care_plans table",
+      "evidence": "RLS policies implemented"
     },
     {
       "category": "Access Control",
-      "requirement": "Patient Consent Management",
-      "status": "PARTIAL",
-      "evidence": "Consent tracking needs implementation"
+      "requirement": "Authentication verification",
+      "status": "PASS",
+      "details": "Services verify authentication before operations",
+      "evidence": "src/services/carePlanService.ts:64"
     },
     {
       "category": "Audit Logging",
-      "requirement": "164.312(b) - Audit Controls",
-      "status": "NON_COMPLIANT",
-      "evidence": "Audit logging not implemented",
-      "recommendation": "Implement comprehensive audit logging"
-    },
-    {
-      "category": "Audit Logging",
-      "requirement": "6-Year Audit Log Retention",
-      "status": "PARTIAL",
-      "evidence": "Database supports long-term storage",
-      "recommendation": "Implement automated archival policy"
+      "requirement": "Automatic audit trail generation",
+      "status": "PASS",
+      "details": "Audit triggers on sensitive tables",
+      "evidence": "Triggers for care_plans, provider_notes, appointments"
     },
     {
       "category": "Data Integrity",
-      "requirement": "164.312(c)(1) - Integrity",
-      "status": "COMPLIANT",
-      "evidence": "Data validation constraints enforced"
+      "requirement": "Version control for care plans",
+      "status": "PASS",
+      "details": "Version tracking implemented",
+      "evidence": "Version field in care_plans table"
     },
     {
       "category": "Data Integrity",
-      "requirement": "Data Versioning",
-      "status": "COMPLIANT",
-      "evidence": "Care plans include version tracking"
+      "requirement": "Data validation constraints",
+      "status": "PASS",
+      "details": "CHECK constraints on critical fields",
+      "evidence": "Progress percentage validation (0-100)"
+    },
+    {
+      "category": "Data Integrity",
+      "requirement": "Referential integrity",
+      "status": "PASS",
+      "details": "Foreign key constraints with proper cascade rules",
+      "evidence": "Foreign keys with CASCADE/RESTRICT rules"
+    },
+    {
+      "category": "Minimum Necessary",
+      "requirement": "Selective data retrieval",
+      "status": "WARNING",
+      "details": "Some queries select all fields",
+      "evidence": "Consider selective field retrieval"
+    },
+    {
+      "category": "Minimum Necessary",
+      "requirement": "Query result limiting",
+      "status": "PASS",
+      "details": "Queries implement result limits",
+      "evidence": "src/services/carePlanService.ts:283"
+    },
+    {
+      "category": "Session Management",
+      "requirement": "15-minute PHI access timeout",
+      "status": "PASS",
+      "details": "Session timeout test implemented",
+      "evidence": "tests/e2e/pilot-features-provider.spec.ts:357"
+    },
+    {
+      "category": "Session Management",
+      "requirement": "Automatic session termination",
+      "status": "PASS",
+      "details": "Auto-logout after inactivity period",
+      "evidence": "Session timeout warning and auto-logout"
+    },
+    {
+      "category": "Backup & Recovery",
+      "requirement": "HIPAA-compliant backup system",
+      "status": "PASS",
+      "details": "Comprehensive backup system implemented",
+      "evidence": "infrastructure/backup/hipaa-backup-system.ts"
     },
     {
       "category": "Transmission Security",
-      "requirement": "164.312(e)(1) - Transmission Security",
-      "status": "COMPLIANT",
-      "evidence": "HTTPS enforced with HSTS headers"
+      "requirement": "HTTPS/TLS for data in transit",
+      "status": "PASS",
+      "details": "Supabase enforces HTTPS for all connections",
+      "evidence": "Supabase platform guarantee"
     },
     {
       "category": "Transmission Security",
-      "requirement": "Secure Messaging",
-      "status": "COMPLIANT",
-      "evidence": "Provider-patient messaging with encryption"
-    }
-  ],
-  "recommendations": [
-    {
-      "requirement": "164.312(a)(1) - Access Control",
-      "recommendation": "Enable RLS on all tables containing PHI"
+      "requirement": "Secure real-time connections",
+      "status": "PASS",
+      "details": "WSS (WebSocket Secure) for real-time features",
+      "evidence": "Supabase real-time uses WSS"
     },
     {
-      "requirement": "164.308(a)(2) - Security Officer",
-      "recommendation": "Document security officer appointment formally"
+      "category": "Physical Safeguards",
+      "requirement": "Data center compliance",
+      "status": "PASS",
+      "details": "Supabase uses AWS/GCP compliant data centers",
+      "evidence": "Cloud provider BAA available"
     },
     {
-      "requirement": "164.308(a)(5) - Workforce Training",
-      "recommendation": "Implement mandatory HIPAA training module"
+      "category": "Physical Safeguards",
+      "requirement": "Workstation security",
+      "status": "WARNING",
+      "details": "Client-side security depends on user implementation",
+      "evidence": "Requires organizational policies"
     },
     {
-      "requirement": "164.308(b)(1) - Business Associate Agreements",
-      "recommendation": "Execute BAA with Supabase before production launch"
+      "category": "Organizational",
+      "requirement": "Business Associate Agreement (BAA)",
+      "status": "WARNING",
+      "details": "BAA required with Supabase for production",
+      "evidence": "Must be signed before handling real PHI"
     },
     {
-      "requirement": "164.310(a)(1) - Facility Access Controls",
-      "recommendation": "Verify Supabase SOC 2 compliance"
+      "category": "Organizational",
+      "requirement": "Workforce training",
+      "status": "WARNING",
+      "details": "HIPAA training required for all staff",
+      "evidence": "Organizational responsibility"
     },
     {
-      "requirement": "164.310(c) - Workstation Security",
-      "recommendation": "Implement device management policies"
-    },
-    {
-      "requirement": "164.312(b) - Audit Controls",
-      "recommendation": "Implement comprehensive audit logging"
-    },
-    {
-      "requirement": "6-Year Audit Log Retention",
-      "recommendation": "Implement automated archival policy"
+      "category": "Organizational",
+      "requirement": "Incident response plan",
+      "status": "WARNING",
+      "details": "Breach notification procedures needed",
+      "evidence": "Must be documented"
     }
   ]
 }

@@ -220,7 +220,7 @@ const mockStripe = {
     })
   },
   webhooks: {
-    constructEvent: jest.fn((payload, signature, secret) => ({
+    constructEvent: jest.fn((_payload, _signature, _secret) => ({
       type: 'payment_intent.succeeded',
       data: {
         object: {

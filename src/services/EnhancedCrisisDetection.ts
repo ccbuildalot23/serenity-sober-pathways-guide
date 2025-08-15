@@ -645,10 +645,10 @@ export class EnhancedCrisisDetection {
     });
   }
 
-  private async alertPlatformTeam(consensus: CrisisConsensus): Promise<void> {
+  private async alertPlatformTeam(_consensus: CrisisConsensus): Promise<void> {
     await supabase.from('crisis_alerts').insert({
       user_id: 'platform-team',
-      status: `platform_alert_${consensus.riskLevel}`,
+      status: `platform_alert`,
       message_sent: `Crisis alert for platform team`,
       alert_time: new Date().toISOString()
     });

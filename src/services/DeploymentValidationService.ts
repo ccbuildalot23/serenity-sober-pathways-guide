@@ -8,9 +8,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { SOC2ComplianceService } from './SOC2ComplianceService';
 import { AISafetyGuard } from './AISafetyGuard';
 import { PaymentGatewayService } from './PaymentGatewayService';
-import { RolePermissionMiddleware } from '@/middleware/RolePermissionMiddleware';
+// import { RolePermissionMiddleware } from '@/middleware/RolePermissionMiddleware';
 import { HealthcareChaosService } from './HealthcareChaosService';
-import { PredictiveMonitoring } from './PredictiveMonitoring';
+// import { PredictiveMonitoring } from './PredictiveMonitoring';
 import { enhancedSecurityAuditService } from './EnhancedSecurityAuditService';
 
 export interface ValidationCheck {

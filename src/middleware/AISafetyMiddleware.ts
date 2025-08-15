@@ -242,7 +242,7 @@ export class AISafetyMiddleware {
   /**
    * Remediation methods for different safety concerns
    */
-  private remediateBias(message: string, check: SafetyCheck): string {
+  private remediateBias(message: string, _check: SafetyCheck): string {
     // Remove biased language and replace with neutral alternatives
     let remediated = message;
     
@@ -263,7 +263,7 @@ export class AISafetyMiddleware {
     return remediated;
   }
 
-  private remediateHallucination(message: string, check: SafetyCheck): string {
+  private remediateHallucination(message: string, _check: SafetyCheck): string {
     // Remove specific claims and add qualifiers
     let remediated = message;
     
@@ -300,7 +300,7 @@ export class AISafetyMiddleware {
     return remediated;
   }
 
-  private remediateMedicalInaccuracy(message: string, check: SafetyCheck): string {
+  private remediateMedicalInaccuracy(message: string, _check: SafetyCheck): string {
     // Add medical disclaimer and remove specific medical advice
     let remediated = message;
     
@@ -319,7 +319,7 @@ export class AISafetyMiddleware {
     return remediated;
   }
 
-  private remediateEthicalViolation(message: string, check: SafetyCheck): string {
+  private remediateEthicalViolation(message: string, _check: SafetyCheck): string {
     // Maintain professional boundaries
     let remediated = message;
     

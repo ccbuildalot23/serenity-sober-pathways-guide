@@ -346,6 +346,11 @@ export abstract class HealthcareAgent {
         return na;
       });
     }
+    // Provide public API without underscores as a compatibility layer for tests and UI code
+    (r as any).message = r._message ?? (r as any).message;
+    (r as any).confidence = r._confidence ?? (r as any).confidence;
+    (r as any).requiresEscalation = r._requiresEscalation ?? (r as any).requiresEscalation;
+    (r as any).metadata = r._metadata ?? (r as any).metadata;
     return r;
   }
 

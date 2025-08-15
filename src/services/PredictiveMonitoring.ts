@@ -84,6 +84,29 @@ export class PredictiveMonitoring {
     this.startMetricsCollection();
   }
 
+  // Public API used by integration tests to push metrics directly
+  async ingestMetrics(input: Partial<SystemMetrics> | Array<Partial<SystemMetrics>>): Promise<{ accepted: number }>{
+    const items = Array.isArray(input) ? input : [input];
+    const now = new Date();
+    for (const m of items) {
+      const metrics: SystemMetrics = {
+        timestamp: (m.timestamp as any) || now,
+        latency: Number((m as any).latency ?? 0),
+        errorRate: Number((m as any).errorRate ?? 0),
+        throughput: Number((m as any).throughput ?? 0),
+        cpuUsage: Number((m as any).cpuUsage ?? 0),
+        memoryUsage: Number((m as any).memoryUsage ?? 0),
+        dataConsistency: Number((m as any).dataConsistency ?? 1),
+        activeUsers: Number((m as any).activeUsers ?? 0),
+        crisisAlerts: Number((m as any).crisisAlerts ?? 0)
+      };
+      this.metricsHistory.push(metrics);
+      try { await this.storeMetrics(metrics); } catch {}
+      await this.analyzeAndPredict(metrics);
+    }
+    return { accepted: items.length };
+  }
+
   /**
    * Initialize ML models for prediction
    */
@@ -821,6 +844,11 @@ export class PredictiveMonitoring {
     return Array.from(this.predictions.values()).filter(
       p => p.timeToImpact > 0
     );
+  }
+
+  // Compatibility for tests
+  public async getPredictions(_: any): Promise<Prediction[]> {
+    return this.getCurrentPredictions();
   }
 
   /**

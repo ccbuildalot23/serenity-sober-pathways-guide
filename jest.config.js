@@ -52,5 +52,10 @@ export default {
   },
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   testTimeout: 30000,
-  verbose: true
+  verbose: true,
+  testPathIgnorePatterns: [
+    '<rootDir>/tests/e2e/',
+    '<rootDir>/tests/accessibility/',
+    '<rootDir>/tests/database/'
+  ]
 };

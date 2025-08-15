@@ -61,17 +61,24 @@ const mockStripe = {
     })
   },
   paymentIntents: {
-    create: jest.fn().mockResolvedValue({
-      id: 'pi_test123',
-      amount: 9900,
-      currency: 'usd',
-      status: 'requires_payment_method',
-      client_secret: 'pi_test123_secret'
+    create: jest.fn().mockImplementation((args?: any) => {
+      // Simulate failure scenario when description includes 'decline'
+      if (args && /decline/i.test(args.description || '')) {
+        return Promise.resolve({ id: 'pi_test123', amount: args.amount || 9900, currency: 'usd', status: 'requires_payment_method', last_payment_error: { message: 'Card declined' } });
+      }
+      return Promise.resolve({
+        id: 'pi_test123',
+        amount: (args?.amount) || 9900,
+        currency: 'usd',
+        status: 'requires_payment_method',
+        client_secret: 'pi_test123_secret'
+      });
     }),
     retrieve: jest.fn().mockResolvedValue({
       id: 'pi_test123',
       amount: 9900,
-      status: 'succeeded'
+      status: 'succeeded',
+      last_payment_error: { message: 'Card declined' }
     }),
     update: jest.fn().mockResolvedValue({
       id: 'pi_test123',

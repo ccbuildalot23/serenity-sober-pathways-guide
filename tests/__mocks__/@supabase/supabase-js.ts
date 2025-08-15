@@ -5,6 +5,10 @@
 export const createClient = jest.fn(() => {
   const mockSupabase = {
     auth: {
+      signUp: jest.fn().mockResolvedValue({
+        data: { user: { id: 'test-user-id', email: 'test@test.com' }, session: { access_token: 'test-token' } },
+        error: null
+      }),
       getUser: jest.fn().mockResolvedValue({
         data: { user: { id: 'test-user-id', email: 'test@test.com' } },
         error: null
@@ -25,7 +29,10 @@ export const createClient = jest.fn(() => {
       refreshSession: jest.fn().mockResolvedValue({
         data: { session: { access_token: 'refreshed-token' } },
         error: null
-      })
+      }),
+      admin: {
+        deleteUser: jest.fn().mockResolvedValue({ data: {}, error: null })
+      }
     },
     from: jest.fn((table: string) => ({
       select: jest.fn().mockReturnThis(),

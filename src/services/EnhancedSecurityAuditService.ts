@@ -649,7 +649,9 @@ export class EnhancedSecurityAuditService {
         (!options.entity_id || (e as any).metadata?.entity_id === options.entity_id) &&
         (!options.user_id || e._user_id === options.user_id || (e as any).metadata?.user_id === options.user_id)
       );
-      return filtered.slice(-limit);
+      // Provide compatibility aliases
+      const mapped = filtered.map(e => ({ ...e, action: (e as any).event_type }));
+      return mapped.slice(-limit);
     } catch {
       return this.memoryLog.slice(- (options.limit ?? 10));
     }

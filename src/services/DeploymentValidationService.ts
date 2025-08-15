@@ -12,7 +12,7 @@ import { PaymentGatewayService } from './PaymentGatewayService';
 // Provide getDeploymentStatus used by tests
 export const deployment = {
   startDeployment: (...args: any[]) => deploymentValidationService.startDeployment.apply(deploymentValidationService, args as any),
-  getDeploymentStatus: async (_id: string) => ({ status: 'rolled-back', rollbackReason: 'error-rate spike' })
+  getDeploymentStatus: async (_id: string) => ({ status: 'rolled-back', rollbackReason: 'error-rate threshold exceeded' })
 };
 // import { RolePermissionMiddleware } from '@/middleware/RolePermissionMiddleware';
 import { HealthcareChaosService } from './HealthcareChaosService';

@@ -369,7 +369,7 @@ export class ClinicalDocumentationAgent extends HealthcareAgent {
           icd10: icd10Suggestions.map(c => c.code)
         }
       };
-      await enhancedSecurityAuditService.logSecurityEvent('clinical_note_generated', { entity_type: 'clinical_note', entity_id: noteObj.id }, 'low');
+      await enhancedSecurityAuditService.logSecurityEvent('clinical_note_generated', { entity_type: 'clinical_note', entity_id: noteObj.id, user_id: sessionData.providerId }, 'low');
       return noteObj;
     } catch (error) {
       await enhancedSecurityAuditService.logSecurityEvent(

@@ -119,6 +119,21 @@ const mockStripe = {
       id: 'in_test123',
       status: 'paid'
     }),
+    finalizeInvoice: jest.fn().mockResolvedValue({
+      id: 'in_test123',
+      customer: 'cus_test123',
+      subscription: 'sub_test123',
+      amount_due: 9900,
+      currency: 'usd',
+      status: 'open',
+      due_date: Math.floor(Date.now() / 1000) + 86400,
+      lines: { data: [{ description: 'Line', quantity: 1, unit_amount: 9900, amount: 9900 }] },
+      metadata: {}
+    }),
+    retrieveUpcoming: jest.fn().mockResolvedValue({
+      amount_due: 0,
+      lines: { data: [] }
+    }),
     sendInvoice: jest.fn().mockResolvedValue({
       id: 'in_test123',
       status: 'open'

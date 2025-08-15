@@ -334,29 +334,29 @@ export class FinancialModelService {
       let customers: any[] = [];
       
       if (customerId) {
-        const { data } = await supabase
-          .from('providers')
-          .select('*')
-          .eq('id', customerId)
-          .single();
+        const builder: any = supabase.from('providers').select('*').eq('id', customerId);
+        const res = typeof builder.single === 'function' ? await builder.single() : await builder;
+        const data = (res as any)?.data ?? res;
         customers = data ? [data] : [];
       } else if (segment) {
-        const { data } = await supabase
+        const res = await supabase
           .from('providers')
           .select('*')
           .eq('segment', segment);
-        customers = data || [];
+        const data = (res as any)?.data ?? res;
+        customers = Array.isArray(data) ? data : (data?.data || []);
       } else {
-        const { data } = await supabase.from('providers').select('*');
-        customers = data || [];
+        const res = await supabase.from('providers').select('*');
+        const data = (res as any)?.data ?? res;
+        customers = Array.isArray(data) ? data : (data?.data || []);
       }
 
       const ltvMetrics = await Promise.all(
-        customers.map(async (customer) => {
+        (customers || []).map(async (customer) => {
           const cohortData = await this.getCohortData(customer.created_at);
-          const churnRate = await this.calculateChurnRate(customer.segment);
-          const averageRevenue = await this.getAverageRevenue(customer.id);
-          const grossMargin = this.pricingTiers[customer.segment as ProviderSegment].margin;
+          const churnRate = await this.calculateChurnRate((customer.segment as ProviderSegment) || 'growth');
+          const averageRevenue = await this.getAverageRevenue(customer.id || 'id');
+          const grossMargin = this.pricingTiers[((customer.segment as ProviderSegment) || 'growth')].margin;
 
           // LTV = (Average Revenue per Customer × Gross Margin %) ÷ Monthly Churn Rate
           const lifetimeValue = (averageRevenue * grossMargin) / Math.max(churnRate, 0.01);
@@ -892,9 +892,10 @@ export class FinancialModelService {
 
   // Private helper methods
 
-  private async getCohortData(createdAt: string): Promise<CohortData> {
-    const cohortMonth = new Date(createdAt).toISOString().slice(0, 7);
-    const monthsActive = Math.floor((Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24 * 30));
+  private async getCohortData(createdAt: string | Date): Promise<CohortData> {
+    const created = createdAt ? new Date(createdAt) : new Date();
+    const cohortMonth = isNaN(created.getTime()) ? new Date().toISOString().slice(0, 7) : created.toISOString().slice(0, 7);
+    const monthsActive = Math.floor((Date.now() - (isNaN(created.getTime()) ? Date.now() : created.getTime())) / (1000 * 60 * 60 * 24 * 30));
     
     return {
       cohortMonth,

@@ -96,4 +96,25 @@ expect.extend({
       };
     }
   },
+  toBeOneOf(received: any, list: any[]) {
+    const pass = list.includes(received);
+    return {
+      pass,
+      message: () => `expected ${received} to be one of ${JSON.stringify(list)}`,
+    };
+  },
+  toBeFinite(received: number) {
+    const pass = Number.isFinite(received);
+    return {
+      pass,
+      message: () => `expected ${received} to be finite`,
+    };
+  },
+  toBeTypeOf(received: any, type: string) {
+    const pass = typeof received === type;
+    return {
+      pass,
+      message: () => `expected typeof ${received} to be ${type} but got ${typeof received}`,
+    };
+  },
 });

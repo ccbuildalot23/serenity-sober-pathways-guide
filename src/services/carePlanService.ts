@@ -59,7 +59,7 @@ export class CarePlanService {
   /**
    * Create a new care plan for a patient
    */
-  static async createCarePlan(plan: Omit<CarePlan, 'id' | 'created_at' | 'updated_at' | 'version'>): Promise<CarePlan> {
+  static async createCarePlan(plan: Omit<CarePlan, 'id' | 'created_at' | 'updated_at' | 'version' | 'created_by' | 'updated_by'>): Promise<CarePlan> {
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) throw new Error('Not authenticated');
 
@@ -131,16 +131,15 @@ export class CarePlanService {
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) throw new Error('Not authenticated');
 
-    const { data, error } = await supabase
-      .from('care_plans')
-      .update({
-        ...updates,
-        updated_by: user.user.id,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', planId)
-      .select()
-      .single();
+    let q: any = supabase.from('care_plans');
+    q = typeof q.update === 'function' ? q.update({
+      ...updates,
+      updated_by: user.user.id,
+      updated_at: new Date().toISOString()
+    }) : q;
+    q = typeof q.eq === 'function' ? q.eq('id', planId) : q;
+    q = typeof q.select === 'function' ? q.select() : q;
+    const { data, error } = typeof q.single === 'function' ? await q.single() : await q;
 
     if (error) throw error;
     return data;
@@ -383,15 +382,29 @@ export class CarePlanService {
     // Get the original goals
     const originalGoals = await this.getCarePlanGoals(planId);
 
-    // Create new plan
-    const newPlan = await this.createCarePlan({
-      ...original,
+    // Create new plan (explicitly draft)
+    let newPlan = await this.createCarePlan({
       patient_id: newPatientId,
+      provider_id: original.provider_id,
+      title: adjustments?.title || original.title,
+      description: adjustments?.description || original.description,
       status: 'draft',
-      parent_plan_id: planId,
-      version: 1,
-      ...adjustments
-    });
+      start_date: adjustments?.start_date || new Date().toISOString(),
+      end_date: adjustments?.end_date,
+      review_date: adjustments?.review_date,
+      diagnosis_codes: adjustments?.diagnosis_codes || original.diagnosis_codes,
+      treatment_approach: adjustments?.treatment_approach || original.treatment_approach,
+      risk_level: adjustments?.risk_level || original.risk_level,
+      parent_plan_id: planId
+    } as any);
+
+    // Ensure new plan status is draft in case DB default differs
+    // Force status to draft for clones
+    if (newPlan.status !== 'draft') {
+      await this.updateCarePlan(newPlan.id, { status: 'draft' } as any);
+      const updated = await this.getCarePlan(newPlan.id);
+      newPlan = updated as CarePlan;
+    }
 
     // Clone goals
     for (const goal of originalGoals) {

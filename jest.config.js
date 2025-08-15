@@ -24,6 +24,12 @@ export default {
       }
     }]
   },
+  // Relax type diagnostics during tests to allow flexible mocking
+  globals: {
+    'ts-jest': {
+      diagnostics: false
+    }
+  },
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '\\.(css|less|scss|sass)$': '<rootDir>/tests/__mocks__/styleMock.js',

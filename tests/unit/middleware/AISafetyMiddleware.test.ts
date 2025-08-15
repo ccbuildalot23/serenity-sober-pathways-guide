@@ -9,7 +9,20 @@ import { AISafetyGuard } from '@/services/AISafetyGuard';
 import { AgentResponse } from '@/agents/base/HealthcareAgent';
 
 // Mock dependencies
-jest.mock('@/services/AISafetyGuard');
+jest.mock('@/services/AISafetyGuard', () => {
+  const original = jest.requireActual('@/services/AISafetyGuard');
+  return {
+    __esModule: true,
+    ...original,
+    AISafetyGuard: {
+      getInstance: jest.fn(() => ({
+        checkSafety: jest.fn(),
+        getMetrics: jest.fn().mockResolvedValue({ totalChecks: 0, failedChecks: 0, averageConfidence: 0 }),
+        applyAutoRemediation: jest.fn(async (_o: any, _c: any, message: string) => ({ _message: message, remediated: true, changes: [] }))
+      }))
+    }
+  };
+});
 jest.mock('@/services/EnhancedSecurityAuditService');
 
 describe('AISafetyMiddleware', () => {

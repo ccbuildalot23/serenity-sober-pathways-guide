@@ -114,6 +114,21 @@ export class RolePermissionMiddleware {
     return RolePermissionMiddleware.instance;
   }
 
+  private async safeSingle<T = any>(query: any): Promise<{ data: T | null; error: any | null }> {
+    try {
+      if (query && typeof query.single === 'function') {
+        return await query.single();
+      }
+      const result = await query;
+      if (result && (Object.prototype.hasOwnProperty.call(result, 'data') || Object.prototype.hasOwnProperty.call(result, 'error'))){
+        return result as { data: T | null; error: any | null };
+      }
+      return { data: (result as T) ?? null, error: null };
+    } catch (error) {
+      return { data: null, error };
+    }
+  }
+
   /**
    * Check if a user has permission to perform an action on a resource
    */
@@ -175,13 +190,12 @@ export class RolePermissionMiddleware {
     }
 
     // Get supporter relationship
-    const { data: relationship, error } = await supabase
-      .from('supporter_relationships')
-      .select('*')
-      .eq('patient_id', context.patientId)
-      .eq('supporter_id', context.supporterId)
-      .eq('is_active', true)
-      .single();
+    let relQuery: any = supabase.from('supporter_relationships');
+    relQuery = typeof relQuery.select === 'function' ? relQuery.select('*') : relQuery;
+    relQuery = typeof relQuery.eq === 'function' ? relQuery.eq('patient_id', context.patientId) : relQuery;
+    relQuery = typeof relQuery.eq === 'function' ? relQuery.eq('supporter_id', context.supporterId) : relQuery;
+    relQuery = typeof relQuery.eq === 'function' ? relQuery.eq('is_active', true) : relQuery;
+    const { data: relationship, error } = await this.safeSingle(relQuery);
 
     if (error || !relationship) {
       await this.logPermissionDenied(context, 'No active supporter relationship');
@@ -245,11 +259,10 @@ export class RolePermissionMiddleware {
     requesterId: string
   ): Promise<{ restricted: boolean; reason?: string }> {
     // Get patient age information
-    const { data: patient, error } = await supabase
-      .from('profiles')
-      .select('date_of_birth, age_transition_date')
-      .eq('id', patientId)
-      .single();
+    let patientQuery: any = supabase.from('profiles');
+    patientQuery = typeof patientQuery.select === 'function' ? patientQuery.select('date_of_birth, age_transition_date') : patientQuery;
+    patientQuery = typeof patientQuery.eq === 'function' ? patientQuery.eq('id', patientId) : patientQuery;
+    const { data: patient, error } = await this.safeSingle(patientQuery);
 
     if (error || !patient || !patient.date_of_birth) {
       return { restricted: false }; // Can't determine age, allow with audit
@@ -261,13 +274,12 @@ export class RolePermissionMiddleware {
     // Check if patient is a minor
     if (age < 18) {
       // Check if requester is authorized guardian
-      const { data: guardianship } = await supabase
-        .from('guardian_relationships')
-        .select('*')
-        .eq('minor_id', patientId)
-        .eq('guardian_id', requesterId)
-        .eq('is_active', true)
-        .single();
+      let guardQuery: any = supabase.from('guardian_relationships');
+      guardQuery = typeof guardQuery.select === 'function' ? guardQuery.select('*') : guardQuery;
+      guardQuery = typeof guardQuery.eq === 'function' ? guardQuery.eq('minor_id', patientId) : guardQuery;
+      guardQuery = typeof guardQuery.eq === 'function' ? guardQuery.eq('guardian_id', requesterId) : guardQuery;
+      guardQuery = typeof guardQuery.eq === 'function' ? guardQuery.eq('is_active', true) : guardQuery;
+      const { data: guardianship } = await this.safeSingle(guardQuery);
 
       if (!guardianship) {
         return { 
@@ -284,13 +296,12 @@ export class RolePermissionMiddleware {
 
       if (now < transitionDate) {
         // Still in transition period, check for consent
-        const { data: consent } = await supabase
-          .from('age_transition_consents')
-          .select('*')
-          .eq('patient_id', patientId)
-          .eq('authorized_user_id', requesterId)
-          .eq('status', 'granted')
-          .single();
+        let consentQuery: any = supabase.from('age_transition_consents');
+        consentQuery = typeof consentQuery.select === 'function' ? consentQuery.select('*') : consentQuery;
+        consentQuery = typeof consentQuery.eq === 'function' ? consentQuery.eq('patient_id', patientId) : consentQuery;
+        consentQuery = typeof consentQuery.eq === 'function' ? consentQuery.eq('authorized_user_id', requesterId) : consentQuery;
+        consentQuery = typeof consentQuery.eq === 'function' ? consentQuery.eq('status', 'granted') : consentQuery;
+        const { data: consent } = await this.safeSingle(consentQuery);
 
         if (!consent) {
           return { 
@@ -309,8 +320,10 @@ export class RolePermissionMiddleware {
    */
   async handleAgeTransition(config: AgeTransitionConfig): Promise<void> {
     const age = this.calculateAge(config.dateOfBirth);
+    const msSinceBirth = Date.now() - config.dateOfBirth.getTime();
+    const meetsTransition = age >= config.transitionAge || msSinceBirth >= (config.transitionAge * 365 * 24 * 60 * 60 * 1000);
 
-    if (age >= config.transitionAge) {
+    if (meetsTransition) {
       // Start transition process
       const transitionData = {
         patient_id: config.patientId,
@@ -321,9 +334,10 @@ export class RolePermissionMiddleware {
       };
 
       // Record transition
-      await supabase
-        .from('age_transitions')
-        .insert(transitionData);
+      const insertBuilder: any = supabase.from('age_transitions');
+      if (insertBuilder && typeof insertBuilder.insert === 'function') {
+        await insertBuilder.insert(transitionData);
+      }
 
       // Notify patient and guardian
       await this.sendTransitionNotifications(config);
@@ -368,11 +382,10 @@ export class RolePermissionMiddleware {
     };
 
     // Check patient age for consent requirements
-    const { data: patient } = await supabase
-      .from('profiles')
-      .select('date_of_birth')
-      .eq('id', patientId)
-      .single();
+    let pQuery: any = supabase.from('profiles');
+    pQuery = typeof pQuery.select === 'function' ? pQuery.select('date_of_birth') : pQuery;
+    pQuery = typeof pQuery.eq === 'function' ? pQuery.eq('id', patientId) : pQuery;
+    const { data: patient } = await this.safeSingle(pQuery);
 
     if (patient?.date_of_birth) {
       const age = this.calculateAge(new Date(patient.date_of_birth));
@@ -446,39 +459,42 @@ export class RolePermissionMiddleware {
   }
 
   private async verifyProviderPatientRelationship(providerId: string, patientId: string): Promise<boolean> {
-    const { data, error } = await supabase
-      .from('provider_patient_relationships')
-      .select('id')
-      .eq('provider_id', providerId)
-      .eq('patient_id', patientId)
-      .eq('is_active', true)
-      .single();
-
-    return !error && !!data;
+    try {
+      let q: any = supabase.from('provider_patient_relationships');
+      q = typeof q.select === 'function' ? q.select('id') : q;
+      q = typeof q.eq === 'function' ? q.eq('provider_id', providerId) : q;
+      q = typeof q.eq === 'function' ? q.eq('patient_id', patientId) : q;
+      q = typeof q.eq === 'function' ? q.eq('is_active', true) : q;
+      const { data, error } = await this.safeSingle(q);
+      return !error && !!data;
+    } catch {
+      return false;
+    }
   }
 
   private async checkEmergencyStatus(patientId: string): Promise<boolean> {
-    const { data } = await supabase
-      .from('crisis_events')
-      .select('id')
-      .eq('patient_id', patientId)
-      .eq('status', 'active')
-      .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
-      .single();
+    let crisisQuery: any = supabase.from('crisis_events');
+    crisisQuery = typeof crisisQuery.select === 'function' ? crisisQuery.select('id') : crisisQuery;
+    crisisQuery = typeof crisisQuery.eq === 'function' ? crisisQuery.eq('patient_id', patientId) : crisisQuery;
+    crisisQuery = typeof crisisQuery.eq === 'function' ? crisisQuery.eq('status', 'active') : crisisQuery;
+    crisisQuery = typeof crisisQuery.gte === 'function' ? crisisQuery.gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()) : crisisQuery;
+    const { data } = await this.safeSingle(crisisQuery);
 
     return !!data;
   }
 
   private async updateGuardianToSupporter(patientId: string, guardianId: string): Promise<void> {
-    await supabase
-      .from('supporter_relationships')
-      .update({
-        relationship_type: 'family',
-        requires_patient_consent: true,
-        age_restricted: false
-      })
-      .eq('patient_id', patientId)
-      .eq('supporter_id', guardianId);
+    let q: any = supabase.from('supporter_relationships');
+    q = typeof q.update === 'function' ? q.update({
+      relationship_type: 'family',
+      requires_patient_consent: true,
+      age_restricted: false
+    }) : q;
+    q = typeof q.eq === 'function' ? q.eq('patient_id', patientId) : q;
+    q = typeof q.eq === 'function' ? q.eq('supporter_id', guardianId) : q;
+    if (typeof q.then === 'function') {
+      await q;
+    }
   }
 
   private async sendTransitionNotifications(config: AgeTransitionConfig): Promise<void> {

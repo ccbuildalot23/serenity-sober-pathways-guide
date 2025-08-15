@@ -822,7 +822,8 @@ export class PredictiveSalesEngine {
                        (lead.behaviorData ? 0.3 : 0) + 
                        (lead.enrichmentData ? 0.4 : 0);
     
-    const componentVariance = Math.abs(Math.max(...Object.values(components)) - Math.min(...Object.values(components))) / 100;
+    const values = Object.values(components).map(v => Number(v) || 0);
+    const componentVariance = Math.abs(Math.max(...values) - Math.min(...values)) / 100;
     
     return Math.min(0.95, dataQuality + (0.3 - componentVariance));
   }

@@ -117,6 +117,7 @@ interface ComplianceCheck {
   recommendation?: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface TreatmentPlan {
   patientId: string;
   goals: TreatmentGoal[];
@@ -1193,7 +1194,7 @@ export class ClinicalDocumentationAgent extends HealthcareAgent {
     return intent;
   }
 
-  private async suggestBillingCodes(sessionData: any, context: AgentContext): Promise<AgentResponse> {
+  private async suggestBillingCodes(sessionData: any, _context: AgentContext): Promise<AgentResponse> {
     const session: ClinicalSession = {
       id: sessionData?.id || 'auto-session',
       patientId: 'auto',
@@ -1226,7 +1227,7 @@ export class ClinicalDocumentationAgent extends HealthcareAgent {
     } as any;
   }
 
-  private async generateTreatmentPlan(planData: any, context: AgentContext): Promise<AgentResponse> {
+  private async generateTreatmentPlan(_planData: any, _context: AgentContext): Promise<AgentResponse> {
     return {
       _message: "I'll help you create a comprehensive treatment plan based on the patient's needs and goals, and track progress over time.",
       _confidence: 0.8,
@@ -1235,7 +1236,7 @@ export class ClinicalDocumentationAgent extends HealthcareAgent {
     } as any;
   }
 
-  private async performComplianceCheck(noteData: any, context: AgentContext): Promise<AgentResponse> {
+  private async performComplianceCheck(noteData: any, _context: AgentContext): Promise<AgentResponse> {
     const text = (noteData?.text || '').toLowerCase();
     if (/brief note|short|too short|minimum/i.test(noteData?.text || '')) {
     return {
@@ -1290,7 +1291,7 @@ export class ClinicalDocumentationAgent extends HealthcareAgent {
     } as any;
   }
 
-  private async optimizeBilling(sessionData: any, context: AgentContext): Promise<AgentResponse> {
+  private async optimizeBilling(_sessionData: any, _context: AgentContext): Promise<AgentResponse> {
     const session: ClinicalSession = {
       id: 'auto', patientId: 'auto', providerId: 'auto', sessionDate: new Date(), sessionType: 'individual', duration: 60,
       modality: 'in_person', presentingConcerns: [], treatmentGoals: [], interventionsUsed: [], patientResponse: 'ok',
@@ -1310,7 +1311,7 @@ export class ClinicalDocumentationAgent extends HealthcareAgent {
     } as any;
   }
 
-  private async provideDocumentationGuidance(input: string, context: AgentContext): Promise<AgentResponse> {
+  private async provideDocumentationGuidance(_input: string, _context: AgentContext): Promise<AgentResponse> {
     return {
       _message: "I can help with clinical note generation, CPT/ICD-10 code suggestions, treatment planning, and billing optimization. What specific documentation support do you need?",
       _confidence: 0.7,

@@ -6,7 +6,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { enhancedSecurityAuditService } from './EnhancedSecurityAuditService';
-import { roiValidationService } from './ROIValidationService';
+// import { roiValidationService } from './ROIValidationService';
 import { deploymentValidationService } from './DeploymentValidationService';
 
 // Core interfaces for chaos engineering

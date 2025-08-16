@@ -24,7 +24,7 @@ const db: Record<string, Row[]> = {
   audit_logs: []
 };
 
-let users: { id: string; email: string; password: string }[] = [];
+const users: { id: string; email: string; password: string }[] = [];
 let currentUser: { id: string; email: string } | null = null;
 
 function generateId(prefix: string) {

@@ -414,7 +414,7 @@ export class CarePlanService {
     const originalGoals = await this.getCarePlanGoals(planId);
 
     // Create new plan (explicitly draft)
-    let newPlan = await this.createCarePlan({
+    const newPlan = await this.createCarePlan({
       patient_id: newPatientId,
       provider_id: original.provider_id,
       title: adjustments?.title || original.title,

@@ -94,9 +94,9 @@ class SecurityDependencyScanner {
       const auditData = JSON.parse(auditOutput);
       
       if (auditData.vulnerabilities) {
-        Object.entries(auditData.vulnerabilities).forEach(([package, vuln]) => {
+        Object.entries(auditData.vulnerabilities).forEach(([pkgName, vuln]) => {
           this.results.vulnerabilities.push({
-            package: package,
+            package: pkgName,
             severity: vuln.severity,
             title: vuln.title || 'Unknown vulnerability',
             description: vuln.description || 'No description available',
@@ -124,9 +124,9 @@ class SecurityDependencyScanner {
           const auditData = JSON.parse(error.stdout);
           // Process audit data similar to above
           if (auditData.vulnerabilities) {
-            Object.entries(auditData.vulnerabilities).forEach(([package, vuln]) => {
+            Object.entries(auditData.vulnerabilities).forEach(([pkgName, vuln]) => {
               this.results.vulnerabilities.push({
-                package: package,
+                package: pkgName,
                 severity: vuln.severity,
                 title: vuln.title || 'Unknown vulnerability',
                 description: vuln.description || 'No description available',
@@ -164,14 +164,14 @@ class SecurityDependencyScanner {
       
       const outdatedData = JSON.parse(outdatedOutput);
       
-      Object.entries(outdatedData).forEach(([package, info]) => {
+      Object.entries(outdatedData).forEach(([pkgName, info]) => {
         this.results.dependencies.outdated.push({
-          package: package,
+          package: pkgName,
           current: info.current,
           wanted: info.wanted,
           latest: info.latest,
           type: info.type,
-          isCritical: this.criticalPackages.includes(package)
+          isCritical: this.criticalPackages.includes(pkgName)
         });
       });
       
@@ -182,14 +182,14 @@ class SecurityDependencyScanner {
       if (error.stdout) {
         try {
           const outdatedData = JSON.parse(error.stdout);
-          Object.entries(outdatedData).forEach(([package, info]) => {
+          Object.entries(outdatedData).forEach(([pkgName, info]) => {
             this.results.dependencies.outdated.push({
-              package: package,
+              package: pkgName,
               current: info.current,
               wanted: info.wanted,
               latest: info.latest,
               type: info.type,
-              isCritical: this.criticalPackages.includes(package)
+              isCritical: this.criticalPackages.includes(pkgName)
             });
           });
           console.log(`   Found ${this.results.dependencies.outdated.length} outdated packages`);

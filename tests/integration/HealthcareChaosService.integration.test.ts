@@ -254,10 +254,8 @@ describe('HealthcareChaosService Integration Tests', () => {
 
       expect(result).toBeDefined();
 
-      // TODO: Implement facility_coordination_logs table
-      // For now, skip coordination verification since table doesn't exist
-      console.log('⚠️ Skipping facility coordination test - table not implemented');
-      const coordinationLogs = [];
+      // Test artifact fix: assert coordination logs from service result (not a local placeholder)
+      const coordinationLogs = (result as any).coordinationLogs ?? [];
 
       expect(coordinationLogs.length).toBeGreaterThan(0);
 
@@ -311,6 +309,8 @@ describe('HealthcareChaosService Integration Tests', () => {
   });
 
   describe('Performance Under Load Integration', () => {
+    // Timeout aligned to test duration (~60s sustained load)
+    jest.setTimeout(70_000);
     it('should maintain SLA under sustained high load', async () => {
       const loadDuration = 60000; // 1 minute
       const startTime = Date.now();

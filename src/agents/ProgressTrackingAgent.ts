@@ -296,7 +296,9 @@ export class ProgressTrackingAgent extends HealthcareAgent {
       
       // Determine if escalation is needed, and include explicit escalate action for severe cases
       const severeSignals = (checkin.mood <= 3) || (checkin.anxiety >= 9) || (checkin.sleep <= 3) || (checkin.cravings >= 8);
-      const requiresEscalation = riskScore.alertThreshold || riskScore.riskLevel === 'critical' || severeSignals;
+      const multipleRiskFactorsCount = checkin.riskFactors.filter(f => ['low_mood','high_anxiety','strong_cravings','sleep_deprivation'].includes(f)).length;
+      const multipleRiskFactors = multipleRiskFactorsCount >= 2;
+      const requiresEscalation = riskScore.alertThreshold || riskScore.riskLevel === 'critical' || severeSignals || multipleRiskFactors;
       if (requiresEscalation) {
         response.actions.push({ type: 'escalate', data: { reason: 'Severe risk indicators in check-in' }, priority: 'critical' } as any);
       }
@@ -307,7 +309,12 @@ export class ProgressTrackingAgent extends HealthcareAgent {
         _requiresEscalation: requiresEscalation,
         actions: response.actions,
         _metadata: {
-          riskLevel: (requiresEscalation && (riskScore.riskLevel === 'low' || riskScore.riskLevel === 'medium')) ? 'high' : riskScore.riskLevel,
+          riskLevel: (() => {
+            if (multipleRiskFactorsCount >= 3) return 'critical';
+            if (multipleRiskFactorsCount === 2) return 'high';
+            if (requiresEscalation && (riskScore.riskLevel === 'low' || riskScore.riskLevel === 'medium')) return 'high';
+            return riskScore.riskLevel;
+          })(),
           achievements: newAchievements.length,
           checkinComplete: true
         }

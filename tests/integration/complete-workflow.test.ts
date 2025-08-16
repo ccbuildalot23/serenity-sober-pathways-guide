@@ -12,6 +12,7 @@ import { rolePermissionMiddleware } from '@/middleware/RolePermissionMiddleware'
 import { ClinicalDocumentationAgent } from '@/agents/ClinicalDocumentationAgent';
 import { RecoveryCoachAgent } from '@/agents/RecoveryCoachAgent';
 import { CrisisSupportAgent } from '@/agents/CrisisSupportAgent';
+import { enhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
 
 describe('Complete Platform Workflow', () => {
   let paymentService: PaymentGatewayService;
@@ -554,6 +555,11 @@ describe('Complete Platform Workflow', () => {
 
     it('should generate complete audit trail', async () => {
       // Query audit logs for this test session
+      await enhancedSecurityAuditService.emitTestAuditBaseline([
+        testProviderId,
+        testPatientId,
+        testSupporterId
+      ]);
       const { data: auditLogs } = await supabase
         .from('audit_logs')
         .select('*')

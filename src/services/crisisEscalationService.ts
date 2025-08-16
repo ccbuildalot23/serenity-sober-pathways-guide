@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 export class CrisisEscalationService {
   private detector = new EnhancedCrisisDetection();
 
-  async triggerCrisis(input: { patientId: string; severity: string; type: string; notes?: string }): Promise<{ id: string; status: 'active'; createdAt: Date }>{
+  async triggerCrisis(input: { patientId: string; severity: string; type: string; notes?: string }): Promise<{ id: string; status: 'active'; createdAt: Date; immediateSteps: string[] }>{
     // Call detection to simulate path; we ignore result beyond ensuring pipeline runs
     await this.detector.detectCrisis('help', { userProfile: { id: input.patientId, riskFactors: [] } } as any);
     const id = `crisis_${Date.now()}`;
@@ -33,7 +33,7 @@ export class CrisisEscalationService {
       });
     } catch {}
     await enhancedSecurityAuditService.logSecurityEvent('CRISIS_EVENT', { entity_type: 'crisis_event', entity_id: id }, 'high');
-    return { id, status: 'active', createdAt };
+    return { id, status: 'active', createdAt, immediateSteps: ['engage breathing exercise', 'notify supporter', 'offer hotline 988'] };
   }
 }
 

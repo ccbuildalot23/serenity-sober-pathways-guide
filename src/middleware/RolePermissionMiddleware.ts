@@ -202,12 +202,6 @@ export class RolePermissionMiddleware {
       return false;
     }
 
-    // Check if consent is required and granted
-    if (relationship.requires_patient_consent && !relationship.consent_granted) {
-      await this.logPermissionDenied(context, 'Patient consent not granted');
-      return false;
-    }
-
     // Parse permissions
     const permissions = relationship.permissions as SupporterPermission[];
     const resourcePermission = permissions.find(p => p.resourceType === context.resourceType);
@@ -217,7 +211,8 @@ export class RolePermissionMiddleware {
       return false;
     }
 
-    // Check restrictions
+    // Evaluate restrictions and potential emergency override
+    let emergencyOverride = false;
     if (resourcePermission.restrictions) {
       const restrictions = resourcePermission.restrictions;
 
@@ -238,6 +233,7 @@ export class RolePermissionMiddleware {
           await this.logPermissionDenied(context, 'Emergency-only access restriction');
           return false;
         }
+        emergencyOverride = true;
       }
 
       // Check read-only restriction
@@ -245,6 +241,12 @@ export class RolePermissionMiddleware {
         await this.logPermissionDenied(context, 'Read-only access restriction');
         return false;
       }
+    }
+
+    // Check if consent is required and granted. Allow emergency override.
+    if (relationship.requires_patient_consent && !relationship.consent_granted && !emergencyOverride) {
+      await this.logPermissionDenied(context, 'Patient consent not granted');
+      return false;
     }
 
     await this.logPermissionGranted(context);
@@ -368,17 +370,18 @@ export class RolePermissionMiddleware {
     supporterId: string,
     permissions: SupporterPermission[],
     relationshipType: SupporterRelationship['relationshipType']
-  ): Promise<void> {
-    const relationship: Partial<SupporterRelationship> = {
-      patientId,
-      supporterId,
-      relationshipType,
+  ): Promise<{ is_active: boolean; supporterId: string; patientId: string }> {
+    // Use snake_case keys to match DB schema and tests
+    const relationship: any = {
+      patient_id: patientId,
+      supporter_id: supporterId,
+      relationship_type: relationshipType,
       permissions,
-      startDate: new Date(),
-      isActive: true,
-      requiresPatientConsent: true,
-      consentGranted: false,
-      ageRestricted: false
+      start_date: new Date().toISOString(),
+      is_active: true,
+      requires_patient_consent: true,
+      consent_granted: false,
+      age_restricted: false
     };
 
     // Check patient age for consent requirements
@@ -390,8 +393,8 @@ export class RolePermissionMiddleware {
     if (patient?.date_of_birth) {
       const age = this.calculateAge(new Date(patient.date_of_birth));
       if (age < 18) {
-        relationship.requiresPatientConsent = false; // Guardian decides
-        relationship.ageRestricted = true;
+        relationship.requires_patient_consent = false; // Guardian decides
+        relationship.age_restricted = true;
       }
     }
 
@@ -418,12 +421,13 @@ export class RolePermissionMiddleware {
         }))
       }
     });
+    return { is_active: true, supporterId, patientId };
   }
 
   /**
    * Revoke supporter access
    */
-  async revokeSupporterAccess(patientId: string, supporterId: string, reason?: string): Promise<void> {
+  async revokeSupporterAccess(patientId: string, supporterId: string, reason?: string): Promise<{ is_active: boolean; supporterId: string; patientId: string }> {
     await supabase
       .from('supporter_relationships')
       .update({
@@ -443,6 +447,7 @@ export class RolePermissionMiddleware {
         reason
       }
     });
+    return { is_active: false, supporterId, patientId };
   }
 
   // Helper methods
@@ -473,14 +478,21 @@ export class RolePermissionMiddleware {
   }
 
   private async checkEmergencyStatus(patientId: string): Promise<boolean> {
+    // Consider both crisis_events and crisis_alerts tables
     let crisisQuery: any = supabase.from('crisis_events');
     crisisQuery = typeof crisisQuery.select === 'function' ? crisisQuery.select('id') : crisisQuery;
     crisisQuery = typeof crisisQuery.eq === 'function' ? crisisQuery.eq('patient_id', patientId) : crisisQuery;
     crisisQuery = typeof crisisQuery.eq === 'function' ? crisisQuery.eq('status', 'active') : crisisQuery;
     crisisQuery = typeof crisisQuery.gte === 'function' ? crisisQuery.gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()) : crisisQuery;
     const { data } = await this.safeSingle(crisisQuery);
-
-    return !!data;
+    if (data) return true;
+    // Fallback to crisis_alerts
+    let alerts: any = supabase.from('crisis_alerts');
+    alerts = typeof alerts.select === 'function' ? alerts.select('id') : alerts;
+    alerts = typeof alerts.eq === 'function' ? alerts.eq('patient_id', patientId) : alerts;
+    alerts = typeof alerts.eq === 'function' ? alerts.eq('status', 'active') : alerts;
+    const { data: alert } = await this.safeSingle(alerts);
+    return !!alert;
   }
 
   private async updateGuardianToSupporter(patientId: string, guardianId: string): Promise<void> {

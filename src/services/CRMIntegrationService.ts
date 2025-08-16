@@ -562,12 +562,13 @@ export class CRMIntegrationService {
       clearInterval(this.syncTimer);
     }
 
+    const intervalMinutes = this.config?.syncInterval || 5;
     this.syncTimer = setInterval(async () => {
       if (this.isOnline) {
         await this.performBulkSync();
         await this.processSyncQueue();
       }
-    }, this.config!.syncInterval * 60000);
+    }, intervalMinutes * 60000);
   }
 
   /**

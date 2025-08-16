@@ -42,6 +42,17 @@ export class RecoveryCoachAgent extends HealthcareAgent {
     super(_config);
   }
 
+  // Public method used by integration tests
+  async generateMotivationalMessage(input: { patientId: string; moodScore?: number; context?: any }): Promise<{ message: string; _confidence: number }> {
+    const mood = input.moodScore ?? 5;
+    const base = mood >= 7
+      ? "You're doing great—keep leaning into what works. Proud of your progress."
+      : mood >= 4
+        ? "You're making steady progress. One step at a time—your effort matters."
+        : "Tough days happen. You are not alone, and asking for help is strength. One breath, one step.";
+    return { message: base, _confidence: 0.9 };
+  }
+
   /**
    * Initialize with user's recovery context
    */

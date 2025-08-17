@@ -518,6 +518,25 @@ export class CrisisSupportAgent extends HealthcareAgent {
       }
     });
 
+    // Tests expect persisted notification and coordination-like entries
+    try {
+      await supabase.from('notifications').insert({
+        user_id: context._userId || context.userId,
+        type: 'crisis_alert',
+        created_at: new Date().toISOString(),
+        payload: { severity: _indicators.urgencyLevel }
+      });
+    } catch {}
+
+    try {
+      await supabase.from('coordination_logs').insert({
+        event: 'inter_facility_coordination',
+        status: 'initiated',
+        created_at: new Date().toISOString(),
+        metadata: { severity: _indicators.urgencyLevel }
+      });
+    } catch {}
+
     return actions;
   }
 

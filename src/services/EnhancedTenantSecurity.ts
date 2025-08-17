@@ -127,14 +127,14 @@ export class EnhancedTenantSecurity {
       // Reading cross-tenant resource should be blocked per test expectation
       const allowedRead = resource?.startsWith(`${tenantId}:`);
       if (!allowedRead) {
-        await enhancedSecurityAuditService.logSecurityEvent('SECURITY_VIOLATION', { entity_type: 'security_violation', user_id: actorId, resource, tenantId }, 'high');
+        await enhancedSecurityAuditService.logSecurityEvent({ action: 'SECURITY_VIOLATION', metadata: { entity_type: 'security_violation', user_id: actorId, resource, tenantId }, severity: 'high' });
       }
       return { allowed: !!allowedRead, reason: allowedRead ? undefined : 'tenant_mismatch' };
     }
     // In a real impl, check RBAC/ABAC; for now, require resource prefix with tenantId
     const allowed = resource?.startsWith(`${tenantId}:`);
     if (!allowed) {
-      await enhancedSecurityAuditService.logSecurityEvent('SECURITY_VIOLATION', { entity_type: 'security_violation', user_id: actorId, resource, tenantId }, 'high');
+      await enhancedSecurityAuditService.logSecurityEvent({ action: 'SECURITY_VIOLATION', metadata: { entity_type: 'security_violation', user_id: actorId, resource, tenantId }, severity: 'high' });
     }
     return { allowed, reason: allowed ? undefined : 'tenant_mismatch' };
   }

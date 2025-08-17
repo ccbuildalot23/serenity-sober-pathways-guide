@@ -1,5 +1,6 @@
 // Jest setup file for global test configuration
 import 'dotenv/config';
+import { TextEncoder, TextDecoder } from 'util';
 
 // Mock environment variables for testing
 process.env.VITE_SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://test.supabase.co';
@@ -7,8 +8,22 @@ process.env.VITE_SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || 'test
 process.env.STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || 'sk_test_mock';
 process.env.STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_test_mock';
 process.env.NODE_ENV = 'test';
+// Mark integration context for certain helpers
+if (!process.env.INTEGRATION_TEST) {
+  process.env.INTEGRATION_TEST = '0';
+}
+
+// Polyfills for Node test environment
+// TextEncoder/TextDecoder for libraries that expect Web APIs
+if (!(global as any).TextEncoder) {
+  (global as any).TextEncoder = TextEncoder;
+}
+if (!(global as any).TextDecoder) {
+  (global as any).TextDecoder = TextDecoder as any;
+}
 
 // Mock browser APIs with working storage
+// Do not mock react here to avoid recursion; rely on moduleNameMapper
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {

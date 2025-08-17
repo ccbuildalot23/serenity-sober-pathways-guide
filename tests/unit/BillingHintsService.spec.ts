@@ -23,3 +23,4 @@ describe('BillingHintsService', () => {
 		await expect(getMonthlySummary(providerId, month, { user: { roles: ['viewer'] } } as any)).rejects.toBeInstanceOf(ForbiddenError);
 	});
 });
+

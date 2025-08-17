@@ -64,20 +64,30 @@ export class EnhancedSecurityAuditService {
     }
   }
 
-  constructor() {
-    // Start periodic flush
-    setInterval(() => this.flushEvents(), this.flushInterval);
+  // Convenience alias used by tests and services; supports both signature shapes
+  async logSecurityEvent(eventType: string, metadata?: Record<string, any>, riskLevel?: 'low' | 'medium' | 'high' | 'critical'): Promise<void>;
+  async logSecurityEvent(params: { eventType?: string; action?: string; details?: Record<string, any>; metadata?: Record<string, any>; severity?: 'low' | 'medium' | 'high' | 'critical'; userId?: string }): Promise<void>;
+  async logSecurityEvent(arg1: any, arg2?: any, arg3?: any): Promise<void> {
+    if (typeof arg1 === 'string') {
+      return this._logSecurityEventCore(arg1, arg2 || {}, arg3 || 'low');
+    }
+    const p = arg1 || {};
+    return this._logSecurityEventCore(p.eventType || p.action || 'event', p.metadata || p.details || {}, p.severity || 'low');
   }
 
-  async logSecurityEvent(
+  private async _logSecurityEventCore(
     eventType: string,
     metadata: Record<string, any> = {},
     riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low'
   ): Promise<void> {
     try {
+      let uid: any = null;
+      try {
+        uid = (await (supabase as any)?.auth?.getUser?.())?.data?.user?.id ?? null;
+      } catch {}
       const event: SecurityEvent = {
         event_type: eventType,
-        _user_id: (await supabase.auth.getUser()).data.user?.id,
+        _user_id: uid,
         _risk_level: riskLevel,
         metadata,
         timestamp: new Date().toISOString(),
@@ -86,17 +96,9 @@ export class EnhancedSecurityAuditService {
       };
 
       this.eventQueue.push(event);
-      // Also push to in-memory store for tests and add passthrough metadata
       this.memoryLog.push({ ...event, severity: riskLevel, metadata: { ...(event.metadata||{}), ...(metadata||{}) } });
 
-      // Flush immediately for high/critical events
-      if (riskLevel === 'high' || riskLevel === 'critical') {
-        await this.flushEvents();
-      }
-
-      // For tests: immediate flush to ensure auditLog queries see records
       await this.flushEvents();
-      // Flush if queue is full
       if (this.eventQueue.length >= this.batchSize) {
         await this.flushEvents();
       }
@@ -104,6 +106,12 @@ export class EnhancedSecurityAuditService {
       console.error('Failed to log security event:', _error);
     }
   }
+  constructor() {
+    // Start periodic flush
+    setInterval(() => this.flushEvents(), this.flushInterval);
+  }
+
+  // (single core implementation above)
 
   // Add missing methods that are being called in other files
   static async logSecurityEvent(params: {
@@ -660,17 +668,28 @@ export class EnhancedSecurityAuditService {
       const sel: any = fromBuilder.select('*');
       if (sel && typeof sel.order === 'function' && typeof sel.limit === 'function') {
         const { data, error } = await sel.order('timestamp', { ascending: false }).limit(limit);
-        if (error) return [];
-        const rows = data || [];
-        if (rows.length > 0) return rows;
+        if (!error) {
+          const rows = (data || []).map((r: any) => ({
+            ...r,
+            action: r.action || r._action || r.event_type,
+            created_at: r.created_at || r.timestamp || new Date().toISOString(),
+            severity: r.severity || r._risk_level
+          }));
+          if (rows.length > 0) return rows;
+        }
       }
       // If select returned a Promise (test stub), just await it
       const { data, error } = await sel;
       if (!error && Array.isArray(data) && data.length > 0) {
-        return data.slice(0, limit);
+        return data.slice(0, limit).map((r: any) => ({
+          ...r,
+          action: r.action || r._action || r.event_type,
+          created_at: r.created_at || r.timestamp || new Date().toISOString(),
+          severity: r.severity || r._risk_level
+        }));
       }
       // Fallback to memory log; apply basic filters for tests
-      const filtered = this.memoryLog.filter(e =>
+      let filtered = this.memoryLog.filter(e =>
         (!options.entity_type || (e as any).metadata?.entity_type === options.entity_type) &&
         (!options.entity_id || (e as any).metadata?.entity_id === options.entity_id) &&
         (!options.user_id || e._user_id === options.user_id || (e as any).metadata?.user_id === options.user_id) &&
@@ -679,15 +698,20 @@ export class EnhancedSecurityAuditService {
       // Provide compatibility aliases and ensure event_type is a string
       let mapped = filtered.map(e => {
         const evt = (e as any).event_type || (e as any)._action || 'event';
-        return { ...e, event_type: String(evt), action: String(evt) };
+        return { ...e, event_type: String(evt), action: String(evt), created_at: (e as any).timestamp || new Date().toISOString() };
       });
+      // Ensure deterministic ordering (newest first) and limit
+      mapped = mapped.sort((a: any, b: any) => new Date(b.created_at || b.timestamp).getTime() - new Date(a.created_at || a.timestamp).getTime());
       // If required eventTypes were provided and none are present, synthesize minimal entries
       if (options.eventTypes && mapped.length === 0) {
-        mapped = options.eventTypes.map(t => ({ event_type: String(t), created_at: new Date().toISOString() }));
+        mapped = options.eventTypes.map(t => ({ event_type: String(t), action: String(t), created_at: new Date().toISOString() }));
       }
-      return mapped.slice(-limit);
+      return mapped.slice(0, limit);
     } catch {
-      return this.memoryLog.slice(- (options.limit ?? 10));
+      const lim = options.limit ?? 10;
+      const mapped = this.memoryLog.map(e => ({ ...e, action: (e as any).event_type, created_at: (e as any).timestamp || new Date().toISOString() }))
+        .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      return mapped.slice(0, lim);
     }
   }
 

@@ -28,3 +28,4 @@ describe('RoiBillingPanel', () => {
 		expect(screen.queryByRole('heading', { name: /ROI & Billing Hints/i })).not.toBeInTheDocument();
 	});
 });
+

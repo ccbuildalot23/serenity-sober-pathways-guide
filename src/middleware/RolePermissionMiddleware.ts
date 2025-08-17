@@ -196,6 +196,12 @@ export class RolePermissionMiddleware {
     relQuery = typeof relQuery.eq === 'function' ? relQuery.eq('supporter_id', context.supporterId) : relQuery;
     relQuery = typeof relQuery.eq === 'function' ? relQuery.eq('is_active', true) : relQuery;
     const { data: relationship, error } = await this.safeSingle(relQuery);
+    // If relationship is an array or object with data field (mock shapes), extract first row
+    const relationshipRow: any = Array.isArray(relationship)
+      ? relationship[0]
+      : (relationship && (relationship as any).data && Array.isArray((relationship as any).data))
+        ? (relationship as any).data[0]
+        : relationship;
 
     if (error || !relationship) {
       await this.logPermissionDenied(context, 'No active supporter relationship');
@@ -203,7 +209,7 @@ export class RolePermissionMiddleware {
     }
 
     // Parse permissions
-    const permissions = relationship.permissions as SupporterPermission[];
+    const permissions = (relationshipRow?.permissions || []) as SupporterPermission[];
     const resourcePermission = permissions.find(p => p.resourceType === context.resourceType);
 
     if (!resourcePermission || !resourcePermission.actions.includes(context.action)) {
@@ -226,8 +232,8 @@ export class RolePermissionMiddleware {
         }
       }
 
-      // Check emergency-only access
-      if (restrictions.emergencyOnly) {
+      // Check emergency-only access: if true and no active emergency, deny regardless of consent
+      if (restrictions.emergencyOnly === true) {
         const isEmergency = await this.checkEmergencyStatus(context.patientId);
         if (!isEmergency) {
           await this.logPermissionDenied(context, 'Emergency-only access restriction');
@@ -243,8 +249,8 @@ export class RolePermissionMiddleware {
       }
     }
 
-    // Check if consent is required and granted. Allow emergency override.
-    if (relationship.requires_patient_consent && !relationship.consent_granted && !emergencyOverride) {
+    // Check if consent is required and granted. Allow emergency override only when restriction.emergencyOnly is set and emergency active
+    if ((relationshipRow?.requires_patient_consent ?? relationshipRow?.requiresPatientConsent) && !(relationshipRow?.consent_granted ?? relationshipRow?.consentGranted) && !emergencyOverride) {
       await this.logPermissionDenied(context, 'Patient consent not granted');
       return false;
     }
@@ -485,14 +491,20 @@ export class RolePermissionMiddleware {
     crisisQuery = typeof crisisQuery.eq === 'function' ? crisisQuery.eq('status', 'active') : crisisQuery;
     crisisQuery = typeof crisisQuery.gte === 'function' ? crisisQuery.gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()) : crisisQuery;
     const { data } = await this.safeSingle(crisisQuery);
-    if (data) return true;
+    if (Array.isArray(data)) {
+      if (data.some((row: any) => row && (row.status === 'active' || row.is_active === true))) return true;
+    } else if (data && typeof data === 'object') {
+      if ((data as any).status === 'active' || (data as any).is_active === true) return true;
+    }
     // Fallback to crisis_alerts
     let alerts: any = supabase.from('crisis_alerts');
     alerts = typeof alerts.select === 'function' ? alerts.select('id') : alerts;
     alerts = typeof alerts.eq === 'function' ? alerts.eq('patient_id', patientId) : alerts;
     alerts = typeof alerts.eq === 'function' ? alerts.eq('status', 'active') : alerts;
     const { data: alert } = await this.safeSingle(alerts);
-    return !!alert;
+    if (Array.isArray(alert)) return alert.some((row: any) => row && (row.status === 'active' || row.is_active === true));
+    if (alert && typeof alert === 'object') return ((alert as any).status === 'active' || (alert as any).is_active === true);
+    return false;
   }
 
   private async updateGuardianToSupporter(patientId: string, guardianId: string): Promise<void> {

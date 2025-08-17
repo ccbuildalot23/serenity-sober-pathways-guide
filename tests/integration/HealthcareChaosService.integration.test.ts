@@ -8,9 +8,10 @@ import { healthcareChaosService } from '@/services/HealthcareChaosService';
 import { supabase } from '@/integrations/supabase/client';
 
 describe('HealthcareChaosService Integration Tests', () => {
-  let testTenantIds: string[] = [];
-  let testPatientIds: string[] = [];
-  let testProviderIds: string[] = [];
+  const testTenantIds: string[] = [];
+  const testPatientIds: string[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _testProviderIds: string[] = [];
 
   beforeAll(async () => {
     // Set up test data for integration tests
@@ -62,7 +63,8 @@ describe('HealthcareChaosService Integration Tests', () => {
 
     it('should handle database connection failures during crisis', async () => {
       // Simulate database connection issues
-      const originalSupabase = global.supabase;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _originalSupabase = (global as any).supabase;
       
       try {
         // Temporarily disrupt database connection
@@ -289,7 +291,8 @@ describe('HealthcareChaosService Integration Tests', () => {
       const initialDataState = await captureDataState();
       
       // Start transactions that will fail
-      const failingTransactions = await initiateFailingTransactions(10);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _failingTransactions = await initiateFailingTransactions(10);
       
       const result = await healthcareChaosService.testDataConsistencyDuringChaos();
 
@@ -313,7 +316,8 @@ describe('HealthcareChaosService Integration Tests', () => {
     jest.setTimeout(70_000);
     it('should maintain SLA under sustained high load', async () => {
       const loadDuration = 60000; // 1 minute
-      const startTime = Date.now();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _startTime = Date.now();
       
       // Generate sustained load
       const loadPromise = generateSustainedLoad(loadDuration);
@@ -471,7 +475,7 @@ describe('HealthcareChaosService Integration Tests', () => {
       .in('id', allTenantIds);
   }
 
-  async function testCrossTenantDataAccess(tenantA: string, tenantB: string) {
+  async function testCrossTenantDataAccess(tenantA: string, _tenantB: string) {
     // Attempt to access tenant A's data as tenant B
     try {
       const { data, error } = await supabase
@@ -596,7 +600,7 @@ describe('HealthcareChaosService Integration Tests', () => {
     return facilities;
   }
 
-  async function cleanupTestFacilities(facilities: any[]) {
+  async function cleanupTestFacilities(_facilities: any[]) {
     // Clean up test facilities
   }
 
@@ -614,9 +618,9 @@ describe('HealthcareChaosService Integration Tests', () => {
     return testData;
   }
 
-  async function cleanupIntegratedTestData(testData: any) {
-    await cleanupTestPatients(testData.patients);
-    await cleanupTestEmergencyContacts(testData.contacts);
+  async function cleanupIntegratedTestData(_testData: any) {
+    await cleanupTestPatients(_testData.patients);
+    await cleanupTestEmergencyContacts(_testData.contacts);
   }
 
   async function simulateNetworkPartition() {
@@ -627,7 +631,7 @@ describe('HealthcareChaosService Integration Tests', () => {
     // Restore network connectivity
   }
 
-  async function verifyDataIntegrity(testData: any) {
+  async function verifyDataIntegrity(_testData: any) {
     // Verify all test data is still consistent
     return { consistent: true };
   }

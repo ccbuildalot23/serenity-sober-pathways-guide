@@ -2,6 +2,9 @@
 export default {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
+  testEnvironmentOptions: {
+    customExportConditions: ['node', 'node-addons']
+  },
   roots: ['<rootDir>/tests', '<rootDir>/src'],
   testMatch: [
     '**/tests/**/*.test.ts',
@@ -15,6 +18,7 @@ export default {
         esModuleInterop: true,
         allowSyntheticDefaultImports: true,
         moduleResolution: 'node',
+        jsx: 'react-jsx',
         allowJs: true,
         strict: false,
         baseUrl: '.',
@@ -34,8 +38,17 @@ export default {
     '^@/(.*)$': '<rootDir>/src/$1',
     '\\.(css|less|scss|sass)$': '<rootDir>/tests/__mocks__/styleMock.js',
     '^@supabase/supabase-js$': '<rootDir>/tests/__mocks__/@supabase/supabase-js.ts',
-    '^stripe$': '<rootDir>/tests/__mocks__/stripe.ts'
+    '^stripe$': '<rootDir>/tests/__mocks__/stripe.ts',
+    '^react$': '<rootDir>/node_modules/react/index.js',
+    '^react-dom$': '<rootDir>/node_modules/react-dom/index.js',
+    '^react/jsx-runtime$': '<rootDir>/node_modules/react/jsx-runtime.js',
+    '^react/jsx-dev-runtime$': '<rootDir>/node_modules/react/jsx-dev-runtime.js',
+    '^serenity-provider-portal/node_modules/react(?:/(.*))?$': '<rootDir>/node_modules/react/$1',
+    '^serenity-provider-portal/node_modules/react-dom(?:/(.*))?$': '<rootDir>/node_modules/react-dom/$1'
   },
+  transformIgnorePatterns: [
+    '/node_modules/(?!(jose)/)'
+  ],
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts',

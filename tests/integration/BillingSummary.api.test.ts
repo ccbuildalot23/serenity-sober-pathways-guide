@@ -20,3 +20,4 @@ describe('GET /api/billing/providers/:id/summary', () => {
 		expect(res.status).toBe(403);
 	});
 });
+

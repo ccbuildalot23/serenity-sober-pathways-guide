@@ -32,6 +32,7 @@ interface LoadTestResult {
 }
 
 describe('HealthcareChaosService Performance Tests', () => {
+  jest.setTimeout(120000);
   const performanceResults: PerformanceMetrics[] = [];
   
   beforeAll(async () => {

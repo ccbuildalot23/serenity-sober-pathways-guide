@@ -1,6 +1,7 @@
 // Jest setup file for global test configuration
 import 'dotenv/config';
 import { TextEncoder, TextDecoder } from 'util';
+import { randomUUID as nodeRandomUUID } from 'crypto';
 
 // Mock environment variables for testing
 process.env.VITE_SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://test.supabase.co';
@@ -20,6 +21,18 @@ if (!(global as any).TextEncoder) {
 }
 if (!(global as any).TextDecoder) {
   (global as any).TextDecoder = TextDecoder as any;
+}
+
+// crypto.randomUUID polyfill for older Node in jsdom
+if (!(global as any).crypto) {
+  (global as any).crypto = {} as any;
+}
+if (!(global as any).crypto.randomUUID) {
+  try {
+    (global as any).crypto.randomUUID = nodeRandomUUID;
+  } catch {
+    (global as any).crypto.randomUUID = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
 }
 
 // Mock browser APIs with working storage

@@ -1,15 +1,24 @@
 import { test, expect } from '@playwright/test';
 
-test('capture ROI panel screenshot', async ({ page }) => {
-	// dev server expected at 5173 in this repo; fall back to 4000 if needed
-	const url = process.env.E2E_BASE_URL || 'http://localhost:5173';
-	await page.goto(url);
-	await page.waitForLoadState('domcontentloaded');
-	// navigate to provider dashboard if route exists
-	// fallback: assume root renders dashboard in dev
-	await page.getByRole('heading', { name: /provider dashboard/i }).waitFor({ timeout: 10000 });
-	const panel = page.getByRole('region', { name: /Provider ROI & Billing Hints/i });
-	await expect(panel).toBeVisible();
-	await panel.screenshot({ path: 'docs/roi-panel-dev.png' });
+test('capture ROI panel screenshot', async ({ page, context }) => {
+	await context.route('**/api/billing/providers/**/summary**', async route => {
+		await route.fulfill({
+			status: 200,
+			contentType: 'application/json',
+			body: JSON.stringify({
+				minutesCCM: 45,
+				minutesBHI: 25,
+				retainedPatientsEstimate: 2,
+				suggestedCodes: [
+					{ code: '99490', reason: '≥20 CCM minutes', minutes: 30, confidence: 0.9, missing: [] },
+					{ code: '99484', reason: '≥20 BHI minutes', minutes: 20, confidence: 0.85, missing: ['note signature'] }
+				]
+			})
+		});
+	});
+	await page.goto('/?ff=billingHintsOn');
+	await page.getByTestId('roi-panel').waitFor({ timeout: 30000 });
+	await page.screenshot({ path: 'docs/roi-panel-dev.png', fullPage: false });
+	await expect(await page.getByTestId('roi-panel').locator('text=Suggested Codes').count()).toBeGreaterThan(0);
 });
 

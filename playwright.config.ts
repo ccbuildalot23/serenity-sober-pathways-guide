@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+const DEV_PORT = Number(process.env.VITE_PORT ?? '5174');
 
 /**
  * Serenity App E2E Test Configuration
@@ -32,7 +33,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.CI ? 'http://localhost:8080' : 'http://localhost:5173',
+    baseURL: `http://localhost:${DEV_PORT}`,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: process.env.CI ? 'retain-on-failure' : 'on-first-retry',
@@ -85,19 +86,12 @@ export default defineConfig({
   globalTeardown: './tests/utils/global-teardown.ts',
 
   /* Run your local dev server before starting the tests */
-  webServer: process.env.CI
-    ? {
-        command: 'npm run preview',
-        url: 'http://localhost:8080',
-        reuseExistingServer: false,
-        timeout: 120000,
-      }
-    : {
-        command: 'npm run dev',
-        url: 'http://localhost:5173',
-        reuseExistingServer: true,
-        timeout: 120000,
-      },
+  webServer: {
+    command: `pnpm --filter serenity-provider-portal dev`,
+    url: `http://localhost:${DEV_PORT}`,
+    reuseExistingServer: !process.env.CI,
+    timeout: 180000,
+  },
 
   /* Test timeout */
   timeout: 30000,

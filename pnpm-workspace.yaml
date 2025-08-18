@@ -1,6 +1,10 @@
 packages:
   - .
   - serenity-crisis-mcp
+  - serenity-provider-portal
+
+ignoredBuiltDependencies:
+  - cypress
 
 onlyBuiltDependencies:
   - '@swc/core'

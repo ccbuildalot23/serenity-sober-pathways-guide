@@ -3,6 +3,7 @@
 - Access control model: three-user architecture (patient, provider, practice admin).
 - PHI data map: profiles, interaction_events, minimal PHI in audit metadata only.
 - Audit logging: `AuditService` emits events; stored with WORM retention in prod.
+ - Export: run `tsx -r dotenv/config scripts/export-audit-logs.ts --from=YYYY-MM-DD --to=YYYY-MM-DD` to generate `exports/audit-logs-YYYYMMDD.csv` (pilot stub).
 - Encryption: at rest via Supabase Postgres; in transit via TLS.
 - Backups/retention: daily snapshots; 30-day retention.
 - Breach response contacts: security@serenity.example; on-call pager.

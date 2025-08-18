@@ -1,3 +1,35 @@
+name: CI
+
+on:
+  pull_request:
+    branches: ['**']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+      - name: Install deps
+        run: pnpm i
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+      - name: Seed (no-op if env missing)
+        run: pnpm run dev:seed
+      - name: Run Jest
+        run: pnpm test:jest
+      - name: Run e2e ROI screenshot
+        env:
+          VITE_PORT: '5174'
+        run: pnpm test:pw -g "capture ROI panel screenshot" --reporter=line
 name: CI/CD Pipeline
 
 on:

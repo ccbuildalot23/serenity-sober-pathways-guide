@@ -89,7 +89,7 @@ export default defineConfig({
   webServer: {
     command: `pnpm -C serenity-provider-portal dev -- --port ${DEV_PORT} --strictPort --host`,
     url: `http://localhost:${DEV_PORT}`,
-    timeout: 180000,
+    timeout: 240000,
     reuseExistingServer: !process.env.CI,
     env: { VITE_PORT: String(DEV_PORT) },
   },

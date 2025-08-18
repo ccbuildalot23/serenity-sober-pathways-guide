@@ -31,6 +31,8 @@ jobs:
       - name: Playwright e2e (ROI + CSV smoke)
         env:
           VITE_PORT: '5174'
+          SMOKE_TOKEN: 'ci-ok'
+          CI_PROVIDER_ID: 'demo-provider-0001'
         run: pnpm test:pw --reporter=line
 name: CI/CD Pipeline
 

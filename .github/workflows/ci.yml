@@ -18,19 +18,21 @@ jobs:
         with:
           node-version: '22'
           cache: 'pnpm'
-      - name: Install deps
+      - name: Install parent deps
         run: pnpm i
+      - name: Install portal deps (submodule)
+        run: pnpm -C serenity-provider-portal i
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
       - name: Seed (no-op if env missing)
         run: pnpm run dev:seed
       - name: Run Jest
         run: pnpm test:jest
-      - name: Run e2e ROI screenshot
+      - name: ROI screenshot e2e
         env:
           VITE_PORT: '5174'
         run: pnpm test:pw -g "capture ROI panel screenshot" --reporter=line
-      - name: Smoke CSV canary
+      - name: CSV smoke (canary)
         if: always()
         env:
           VITE_PORT: '5174'

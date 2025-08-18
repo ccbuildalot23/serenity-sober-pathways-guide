@@ -87,10 +87,11 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: `pnpm --filter serenity-provider-portal dev`,
+    command: `pnpm -C serenity-provider-portal dev`,
     url: `http://localhost:${DEV_PORT}`,
-    reuseExistingServer: !process.env.CI,
     timeout: 180000,
+    reuseExistingServer: !process.env.CI,
+    env: { VITE_PORT: String(DEV_PORT) },
   },
 
   /* Test timeout */

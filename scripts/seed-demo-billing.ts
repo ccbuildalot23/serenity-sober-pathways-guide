@@ -1,9 +1,16 @@
 #!/usr/bin/env ts-node
 
+import 'dotenv/config';
 import { createClient } from '@supabase/supabase-js';
 
 const url = process.env.SUPABASE_URL || '';
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || '';
+
+if (!url || !key) {
+	console.log('[seed] Missing SUPABASE_URL or key (SERVICE_ROLE_KEY/ANON_KEY). Skipping seed.');
+	process.exit(0);
+}
+
 const supabase = createClient(url, key);
 
 async function main() {

@@ -30,6 +30,11 @@ jobs:
         env:
           VITE_PORT: '5174'
         run: pnpm test:pw -g "capture ROI panel screenshot" --reporter=line
+      - name: Smoke CSV canary
+        if: always()
+        env:
+          VITE_PORT: '5174'
+        run: pnpm smoke:csv
 name: CI/CD Pipeline
 
 on:

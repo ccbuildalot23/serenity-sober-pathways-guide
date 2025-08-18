@@ -32,11 +32,20 @@ jobs:
         env:
           VITE_PORT: '5174'
         run: pnpm test:pw -g "capture ROI panel screenshot" --reporter=line
+      - name: Start portal for smoke (background)
+        env:
+          VITE_PORT: '5174'
+        run: nohup pnpm -C serenity-provider-portal dev -- --port 5174 --strictPort --host > portal.log 2>&1 &
+      - name: Wait for portal
+        run: pnpm dlx wait-on http://localhost:5174
       - name: CSV smoke (canary)
         if: always()
         env:
           VITE_PORT: '5174'
         run: pnpm smoke:csv
+      - name: Stop portal
+        if: always()
+        run: pkill -f "serenity-provider-portal"
 name: CI/CD Pipeline
 
 on:

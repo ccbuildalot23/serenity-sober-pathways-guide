@@ -1,5 +1,12 @@
 import { defineConfig, devices } from '@playwright/test';
 const DEV_PORT = Number(process.env.VITE_PORT ?? '5174');
+const fullMatrix = [
+  { name: 'chromium',      use: { ...devices['Desktop Chrome'] } },
+  { name: 'firefox',       use: { ...devices['Desktop Firefox'] } },
+  { name: 'webkit',        use: { ...devices['Desktop Safari'] } },
+  { name: 'Mobile Chrome', use: { ...devices['Pixel 7'] } },
+  { name: 'Mobile Safari', use: { ...devices['iPhone 12'] } },
+];
 
 /**
  * Serenity App E2E Test Configuration
@@ -53,13 +60,8 @@ export default defineConfig({
     },
   },
 
-  /* Configure projects for major browsers */
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    }
-  ],
+  /* Configure projects (chromium only on CI; full matrix locally) */
+  projects: process.env.CI ? [ fullMatrix[0] ] : fullMatrix,
 
   /* Global setup and teardown */
   globalSetup: './tests/utils/global-setup.ts',

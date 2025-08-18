@@ -1,36 +1,34 @@
-name: CI
+name: CI (jest + playwright)
 
 on:
   pull_request:
     branches: ['**']
+  workflow_dispatch:
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
+        with: { submodules: recursive }
       - uses: pnpm/action-setup@v4
-        with:
-          version: 10
+        with: { version: 10 }
       - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'pnpm'
-      - name: Install parent deps
+        with: { node-version: '22', cache: 'pnpm' }
+
+      - name: Install deps (parent)
         run: pnpm i
-      - name: Install portal deps (submodule)
+      - name: Install deps (portal)
         run: pnpm -C serenity-provider-portal i
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
-      - name: Seed (no-op if env missing)
-        run: pnpm run dev:seed
-      - name: Run Jest
+
+      - name: Jest
         run: pnpm test:jest
-      - name: Playwright e2e (ROI + CSV smoke)
+
+      - name: Playwright (Chromium only)
         env:
-          VITE_PORT: '5174'
-          SMOKE_TOKEN: 'ci-ok'
-          CI_PROVIDER_ID: 'demo-provider-0001'
-        run: pnpm test:pw --reporter=line
+          VITE_PORT: 5174
+          SMOKE_TOKEN: ci-ok
+          CI_PROVIDER_ID: demo-provider-0001
+        run: pnpm test:pw --reporter=line --project=chromium

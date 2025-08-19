@@ -1,0 +1,31 @@
+name: Post-merge CSV smoke
+
+on:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 10 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '22', cache: 'pnpm' }
+      - name: Install deps
+        run: pnpm i
+      - name: CSV smoke check
+        env:
+          PROD_URL: ${{ secrets.PROD_URL }}
+          SMOKE_TOKEN: ${{ secrets.SMOKE_TOKEN }}
+          CI_PROVIDER_ID: demo-provider-0001
+        run: |
+          set -e
+          month=$(date +%Y-%m)
+          url="${PROD_URL}/api/billing/providers/${CI_PROVIDER_ID}/summary.csv?month=${month}&smoke=1"
+          echo "Hitting: $url"
+          code=$(curl -s -o resp.csv -w "%{http_code}" -H "x-smoke-token: ${SMOKE_TOKEN}" "$url")
+          if [ "$code" != "200" ]; then
+            echo "Non-200: $code"; exit 1; fi
+          head -n1 resp.csv | grep -F "code,requirement,present,minutes,notes"
+

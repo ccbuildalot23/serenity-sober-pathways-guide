@@ -15,7 +15,7 @@
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "github": { "silent": false },
-  "ignoreCommand": "exit 0",
+  "ignoreCommand": null,
   "headers": [
     {
       "source": "/(.*)",

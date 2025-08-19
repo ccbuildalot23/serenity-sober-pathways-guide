@@ -9,18 +9,29 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Init portal submodule only
-        run: git submodule update --init serenity-provider-portal
+      - name: Checkout parent repo
+        uses: actions/checkout@v4
+
+      - name: Checkout portal repo (no submodule)
+        uses: actions/checkout@v4
+        with:
+          repository: ccbuildalot23/serenity-provider-portal
+          ref: feat/provider-roi-billing-panel
+          path: serenity-provider-portal
+          fetch-depth: 1
+
       - uses: pnpm/action-setup@v4
         with: { version: 10 }
+
       - uses: actions/setup-node@v4
         with: { node-version: '22', cache: 'pnpm' }
 
       - name: Install deps (parent)
         run: pnpm i
+
       - name: Install deps (portal)
         run: pnpm -C serenity-provider-portal i
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 

@@ -5,6 +5,9 @@ on:
     branches: ['**']
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -19,6 +22,7 @@ jobs:
           ref: feat/provider-roi-billing-panel
           path: serenity-provider-portal
           fetch-depth: 1
+          token: ${{ secrets.PORTAL_REPO_TOKEN }}
 
       - uses: pnpm/action-setup@v4
         with: { version: 10 }

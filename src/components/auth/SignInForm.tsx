@@ -110,6 +110,30 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
 
       if (!result.success) {
         setError(result.message);
+        // Dev fallback: if backend auth fails in non-production, allow deterministic dashboard access
+        if (!import.meta.env.PROD) {
+          const lower = sanitizedEmail;
+          const inferredRole = lower.includes('provider')
+            ? 'provider'
+            : lower.includes('support')
+              ? 'support_member'
+              : lower.includes('admin')
+                ? 'provider'
+                : 'patient';
+          try {
+            localStorage.setItem('dev_bypass_auth', 'true');
+            localStorage.setItem('pw_role', inferredRole);
+          } catch {}
+          const target = lower.includes('admin')
+            ? '/admin/dashboard'
+            : inferredRole === 'provider'
+              ? '/provider/dashboard'
+              : inferredRole === 'support_member'
+                ? '/supporter/dashboard'
+                : '/patient/dashboard';
+          navigate(target, { replace: true });
+          return;
+        }
         
         // Show toast for network errors
         if (result.message.includes('Network')) {

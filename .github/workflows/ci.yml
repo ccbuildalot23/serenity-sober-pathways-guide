@@ -23,7 +23,7 @@ jobs:
           ref: feat/provider-roi-billing-panel
           path: serenity-provider-portal
           fetch-depth: 1
-          token: ${{ secrets.PORTAL_REPO_TOKEN }}
+          # token not required if repo is public; if private, add a read-only token in repo secrets
 
       - name: Debug env
         run: |

@@ -72,7 +72,7 @@ export default defineConfig({
     command: `pnpm -C serenity-provider-portal dev -- --port ${DEV_PORT} --strictPort --host`,
     url: `http://localhost:${DEV_PORT}`,
     timeout: 240000,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true,
     env: { VITE_PORT: String(DEV_PORT) },
   },
 

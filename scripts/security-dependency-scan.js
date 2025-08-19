@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env -S node --experimental-default-type=commonjs
 
 /**
  * Security Dependency Scanning Script

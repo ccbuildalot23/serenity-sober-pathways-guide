@@ -24,6 +24,14 @@ jobs:
           fetch-depth: 1
           token: ${{ secrets.PORTAL_REPO_TOKEN }}
 
+      - name: Debug env
+        run: |
+          node -v || true
+          pnpm -v || true
+          git --version
+          ls -la
+          ls -la serenity-provider-portal || true
+
       - uses: pnpm/action-setup@v4
         with: { version: 10 }
 
@@ -34,7 +42,7 @@ jobs:
         run: pnpm i
 
       - name: Install deps (portal)
-        run: pnpm -C serenity-provider-portal i
+        run: pnpm --dir serenity-provider-portal i
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps

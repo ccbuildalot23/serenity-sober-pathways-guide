@@ -1,5 +1,13 @@
 packages:
-  # Main React application
-  - '.'
-  # MCP server (kept separate)
-  - 'serenity-crisis-mcp'
+  - .
+  - serenity-crisis-mcp
+  - serenity-provider-portal
+
+ignoredBuiltDependencies:
+  - cypress
+
+onlyBuiltDependencies:
+  - '@swc/core'
+  - esbuild
+  - puppeteer
+  - unrs-resolver

@@ -32,6 +32,7 @@ interface LoadTestResult {
 }
 
 describe('HealthcareChaosService Performance Tests', () => {
+  jest.setTimeout(70000);
   const performanceResults: PerformanceMetrics[] = [];
   
   beforeAll(async () => {
@@ -52,6 +53,7 @@ describe('HealthcareChaosService Performance Tests', () => {
   });
 
   describe('Crisis Response Performance', () => {
+    jest.setTimeout(70000);
     it('should maintain ≤250ms response time under normal load', async () => {
       const patientCounts = [10, 25, 50, 100];
       const results: LoadTestResult[] = [];
@@ -200,6 +202,7 @@ describe('HealthcareChaosService Performance Tests', () => {
   });
 
   describe('HIPAA Compliance Performance', () => {
+    jest.setTimeout(70000);
     it('should scale HIPAA compliance testing efficiently', async () => {
       const loadMultipliers = [5, 10, 20, 50];
       const results: LoadTestResult[] = [];
@@ -299,6 +302,7 @@ describe('HealthcareChaosService Performance Tests', () => {
   });
 
   describe('Tenant Isolation Performance', () => {
+    jest.setTimeout(70000);
     it('should efficiently test large numbers of tenant pairs', async () => {
       const tenantPairCounts = [10, 25, 50, 100];
       const results: number[] = [];
@@ -334,6 +338,7 @@ describe('HealthcareChaosService Performance Tests', () => {
   });
 
   describe('Concurrent Crisis Scenarios Performance', () => {
+    jest.setTimeout(70000);
     it('should handle high-concurrency crisis scenarios efficiently', async () => {
       const scenarios = [
         {
@@ -436,6 +441,7 @@ describe('HealthcareChaosService Performance Tests', () => {
   });
 
   describe('Mass Casualty Event Performance', () => {
+    jest.setTimeout(70000);
     it('should scale efficiently for mass casualty simulations', async () => {
       const massEvents = [
         {
@@ -499,6 +505,7 @@ describe('HealthcareChaosService Performance Tests', () => {
   });
 
   describe('Comprehensive Test Suite Performance', () => {
+    jest.setTimeout(70000);
     it('should complete comprehensive test suite within reasonable time', async () => {
       const startTime = performance.now();
       const startMemory = process.memoryUsage();

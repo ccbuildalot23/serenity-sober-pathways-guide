@@ -18,7 +18,9 @@
     "lint": "eslint . --report-unused-disable-directives --max-warnings 1000",
     "lint:fix": "eslint . --fix --report-unused-disable-directives",
     "typecheck": "tsc --noEmit",
-    "test": "npx playwright test",
+    "test:jest": "jest --runInBand",
+    "test:pw": "playwright test",
+    "test": "pnpm test:jest && pnpm test:pw",
     "test:unit": "jest tests/unit",
     "test:integration": "jest tests/integration",
     "test:all": "jest",
@@ -52,7 +54,9 @@
     "verify-production": "node scripts/productionVerification.js",
     "validate:hipaa": "node scripts/security-dependency-scan.js && npx playwright test tests/e2e/hipaa-compliance.spec.ts",
     "validate:auto": "node scripts/autonomous-validator.mjs",
-    "validate:cloudtrail": "tsx scripts/validate-cloudtrail-hipaa.ts"
+    "validate:cloudtrail": "tsx scripts/validate-cloudtrail-hipaa.ts",
+    "dev:seed": "tsx -r dotenv/config scripts/seed-demo-billing.ts",
+    "smoke:csv": "tsx -r dotenv/config scripts/smoke-csv.ts"
   },
   "dependencies": {
     "@daily-co/daily-js": "^0.82.0",
@@ -143,9 +147,11 @@
     "@capacitor/storage": "^1.2.5",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
-    "@jest/globals": "^30.0.5",
+    "@jest/globals": "^29.7.0",
     "@playwright/test": "^1.54.2",
-    "@types/jest": "^30.0.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.0.0",
+    "@types/jest": "^29.5.14",
     "@types/node": "^20.19.10",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
@@ -159,22 +165,33 @@
     "eslint": "^8.57.1",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.20",
+    "express": "^4.19.2",
     "glob": "^11.0.3",
     "husky": "^9.1.7",
-    "jest": "^30.0.5",
-    "jest-environment-jsdom": "^30.0.5",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "lovable-tagger": "^1.0.0",
     "ora": "^8.2.0",
     "postcss": "^8.4.33",
     "puppeteer": "^24.16.1",
+    "supertest": "^6.3.3",
     "tailwindcss": "^3.4.0",
     "terser": "^5.43.1",
-    "ts-jest": "^29.4.1",
+    "ts-jest": "^29.2.5",
     "tsx": "^4.20.4",
     "typescript": "^5.7.2",
     "vite": "^5.4.19",
+    "wait-on": "^8.0.4",
     "workbox-precaching": "^7.3.0",
     "workbox-routing": "^7.3.0",
     "workbox-strategies": "^7.3.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "jest": "29.x",
+      "ts-jest": "29.x",
+      "@types/jest": "29.x",
+      "@playwright/test": "1.54.x"
+    }
   }
 }

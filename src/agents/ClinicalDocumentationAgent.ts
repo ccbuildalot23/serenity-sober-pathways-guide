@@ -301,6 +301,7 @@ export class ClinicalDocumentationAgent extends HealthcareAgent {
   // Public API used by integration tests: fetch session by id and return structured object
   async generateClinicalNote(params: { sessionId: string; format?: 'SOAP'|'BIRP'; includeCodeSuggestions?: boolean }): Promise<{ id: string; content: string; suggestedCodes: { cpt: string[]; icd10: string[] }, subjective?: string, objective?: string, assessment?: string, plan?: string }> {
     const { sessionId, format } = params;
+    const noteId = `note_${Date.now()}`;
     // Fetch session from DB (created by createSession)
     const { data } = await supabase.from('clinical_sessions').select('*').eq('id', sessionId).single();
     const rec: any = data || {};
@@ -338,8 +339,12 @@ export class ClinicalDocumentationAgent extends HealthcareAgent {
       generatedAt: new Date()
     };
     const content = `${this.formatClinicalNote(generatedNote)}\n\n${this.formatBillingInformation(generatedNote)}`;
+    // Emit explicit audit event for tests expecting an audit trail with action clinical_note_generated
+    try {
+      await enhancedSecurityAuditService.logSecurityEvent('clinical_note_generated', { entity_type: 'clinical_note', entity_id: noteId, user_id: session.providerId }, 'low');
+    } catch {}
     return {
-      id: `note_${Date.now()}`,
+      id: noteId,
       content,
       suggestedCodes: { cpt: cptSuggestions.map(c => c.code), icd10: icd10Suggestions.map(c => c.code) },
       subjective: sections.subjective,

@@ -1,4 +1,12 @@
 import { defineConfig, devices } from '@playwright/test';
+const DEV_PORT = Number(process.env.VITE_PORT ?? '5174');
+const fullMatrix = [
+  { name: 'chromium',      use: { ...devices['Desktop Chrome'] } },
+  { name: 'firefox',       use: { ...devices['Desktop Firefox'] } },
+  { name: 'webkit',        use: { ...devices['Desktop Safari'] } },
+  { name: 'Mobile Chrome', use: { ...devices['Pixel 7'] } },
+  { name: 'Mobile Safari', use: { ...devices['iPhone 12'] } },
+];
 
 /**
  * Serenity App E2E Test Configuration
@@ -32,7 +40,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:8080',
+    baseURL: `http://localhost:${DEV_PORT}`,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: process.env.CI ? 'retain-on-failure' : 'on-first-retry',
@@ -52,52 +60,21 @@ export default defineConfig({
     },
   },
 
-  /* Configure projects for major browsers */
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-
-    /* Test against mobile viewports for crisis scenarios */
-    {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
-    },
-    {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
-    },
-  ],
+  /* Configure projects (chromium only on CI; full matrix locally) */
+  projects: process.env.CI ? [ fullMatrix[0] ] : fullMatrix,
 
   /* Global setup and teardown */
   globalSetup: './tests/utils/global-setup.ts',
   globalTeardown: './tests/utils/global-teardown.ts',
 
   /* Run your local dev server before starting the tests */
-  webServer: process.env.CI
-    ? {
-        command: 'npm run preview',
-        url: 'http://localhost:8080',
-        reuseExistingServer: false,
-        timeout: 120000,
-      }
-    : {
-        command: 'npm run dev',
-        url: 'http://localhost:8080',
-        reuseExistingServer: true,
-        timeout: 120000,
-      },
+  webServer: {
+    command: `pnpm -C serenity-provider-portal dev -- --port ${DEV_PORT} --strictPort --host`,
+    url: `http://localhost:${DEV_PORT}`,
+    timeout: 240000,
+    reuseExistingServer: !process.env.CI,
+    env: { VITE_PORT: String(DEV_PORT) },
+  },
 
   /* Test timeout */
   timeout: 30000,

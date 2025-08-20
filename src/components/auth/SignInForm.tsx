@@ -1,16 +1,15 @@
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
+// import { useAuth } from '@/contexts/AuthContext';
 import { authClient } from '@/integrations/supabase/auth-client';
 import { 
   Loader2, 
-  WifiOff, 
   AlertCircle, 
   Mail, 
   Lock, 
@@ -20,28 +19,27 @@ import {
   Sparkles
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
+// AnimatePresence is imported with motion above
 
 interface SignInFormProps {
   userType?: string;
 }
 
-export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
+export const SignInForm: React.FC<SignInFormProps> = ({ userType: _userType }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
-  const { signIn } = useAuth();
+  // const { signIn } = useAuth(); // not used here; authClient handles sign-in
   const navigate = useNavigate();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     
-    // Default user type in tests/dev if not selected
-    const effectiveUserType = userType ?? 'recovery';
+    // Default user type in tests/dev if not selected (unused here but kept for clarity)
     
     // Basic input validation
     const sanitizedEmail = email.trim().toLowerCase();

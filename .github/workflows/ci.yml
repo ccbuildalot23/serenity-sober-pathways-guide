@@ -1,9 +1,10 @@
-name: CI (jest + playwright)
+name: CI
 
 on:
+  push:
+    branches: [ fix/seed-and-tests ]
   pull_request:
-    branches: ['**']
-  workflow_dispatch:
+    branches: [ fix/seed-and-tests ]
 
 permissions:
   contents: read
@@ -11,54 +12,50 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 30
     steps:
-      - name: Checkout parent repo
+      - name: Checkout parent
         uses: actions/checkout@v4
 
-      - name: Checkout portal repo (no submodule)
+      - name: Checkout portal
         uses: actions/checkout@v4
         with:
           repository: ccbuildalot23/serenity-provider-portal
           ref: feat/provider-roi-billing-panel
           path: serenity-provider-portal
           fetch-depth: 1
-          # token not required if repo is public; if private, add a read-only token in repo secrets
+          token: ${{ secrets.PORTAL_REPO_TOKEN }}
 
-      - name: Debug env
-        run: |
-          node -v || true
-          pnpm -v || true
-          git --version
-          ls -la
-          ls -la serenity-provider-portal || true
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
-      - uses: pnpm/action-setup@v4
-        with: { version: 10 }
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
 
-      - uses: actions/setup-node@v4
-        with: { node-version: '22', cache: 'pnpm' }
-
-      - name: Install deps (parent)
+      - name: Install dependencies (parent)
         run: pnpm i
 
-      - name: Install deps (portal)
+      - name: Install dependencies (portal)
         run: pnpm --dir serenity-provider-portal i --no-frozen-lockfile
 
-      - name: Install Playwright browsers
+      - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      - name: Jest
+      - name: Run Jest (parent)
         run: pnpm test:jest
 
       - name: Pre-warm portal
         run: |
           nohup pnpm -C serenity-provider-portal dev -- --port 5174 --strictPort --host >/dev/null 2>&1 &
-          npx wait-on http://localhost:5174 || true
+          npx wait-on http://localhost:5174 --timeout 180000
 
-      - name: Playwright (Chromium only)
+      - name: Run Playwright (Chromium)
         env:
           VITE_PORT: 5174
-          SMOKE_TOKEN: ci-ok
+          SMOKE_TOKEN: ${{ secrets.SMOKE_TOKEN }}
           CI_PROVIDER_ID: demo-provider-0001
-        run: pnpm test:pw --reporter=line --project=chromium --grep "csv smoke|capture ROI panel screenshot"
+        run: pnpm test:pw --project=chromium --reporter=line

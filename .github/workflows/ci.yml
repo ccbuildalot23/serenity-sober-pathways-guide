@@ -50,6 +50,9 @@ jobs:
         run: pnpm test:unit
 
       - name: Pre-warm portal
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
           set -euo pipefail
           LOG=.prewarm.log
@@ -72,4 +75,6 @@ jobs:
           VITE_PORT: 5174
           SMOKE_TOKEN: ${{ secrets.SMOKE_TOKEN }}
           CI_PROVIDER_ID: demo-provider-0001
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: npx playwright test tests/e2e/csv-smoke.spec.ts tests/e2e/security-headers*.spec.ts --project=chromium --reporter=line

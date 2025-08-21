@@ -51,9 +51,21 @@ jobs:
 
       - name: Pre-warm portal
         run: |
-          nohup pnpm -C serenity-provider-portal dev -- --port 5174 --strictPort --host >/dev/null 2>&1 &
-          npx wait-on http://localhost:5174/api/healthz --timeout 240000
+          set -euo pipefail
+          LOG=.prewarm.log
+          (pnpm -C serenity-provider-portal dev -- --port 5174 --strictPort --host > $LOG 2>&1) &
+          for i in {1..120}; do
+            if curl -fsS http://localhost:5174/api/healthz >/dev/null 2>&1; then
+              echo "healthz OK"; break
+            fi
+            # if dev process crashed, surface logs and fail fast
+            if ! ps -ef | grep "[p]npm -C serenity-provider-portal dev" >/dev/null; then
+              echo "Dev process exited early. Last 200 lines:"; tail -n 200 $LOG || true; exit 1
+            fi
+            sleep 2
+          done
           curl -fsS http://localhost:5174/api/healthz
+          echo "Last 100 lines of dev log:"; tail -n 100 $LOG || true
 
       - name: Run Playwright (Chromium)
         env:

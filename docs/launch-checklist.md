@@ -1,3 +1,17 @@
+### Launch Checklist
+
+- CI green (Jest + Playwright Chromium smoke)
+- Portal builds without .env
+- Vercel preview ignored or non‑required on RC branch
+- Security headers present (CSP, HSTS, Referrer‑Policy, X‑Frame‑Options, X‑Content‑Type‑Options)
+- Supabase migrations applied (including `pilot_metrics`)
+- RLS policies verified
+- Secrets configured: SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, SMOKE_TOKEN, PROD_URL, CI_PROVIDER_ID, SENTRY_DSN
+- Post‑merge smoke workflow passing
+- Uptime checks enabled
+- Docs: pilot‑kit, runbook updated
+- Go/No‑Go items verified
+
 # Launch Checklist (Pilot)
 
 - [ ] Tests green (Jest + Playwright)

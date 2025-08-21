@@ -51,6 +51,7 @@ jobs:
 
       - name: Pre-warm portal
         env:
+          CI: true
           VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
@@ -63,12 +64,12 @@ jobs:
             fi
             # if dev process crashed, surface logs and fail fast
             if ! ps -ef | grep "[p]npm -C serenity-provider-portal dev" >/dev/null; then
-              echo "Dev process exited early. Last 200 lines:"; tail -n 200 $LOG || true; exit 1
+              echo "::group::Dev process exited early - last 400 lines"; (tail -n 400 $LOG || true); echo "::endgroup::"; exit 1
             fi
             sleep 2
           done
           curl -fsS http://localhost:5174/api/healthz
-          echo "Last 100 lines of dev log:"; tail -n 100 $LOG || true
+          echo "::group::Dev log tail"; (tail -n 100 $LOG || true); echo "::endgroup::"
 
       - name: Run Playwright (Chromium)
         env:

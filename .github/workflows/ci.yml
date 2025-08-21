@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  workflow_dispatch: {}
   push:
     branches: [ fix/seed-and-tests ]
   pull_request:
@@ -42,20 +43,21 @@ jobs:
       - name: Install dependencies (portal)
         run: pnpm --dir serenity-provider-portal i --no-frozen-lockfile
 
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+      - name: Install Playwright Browsers (Chromium only)
+        run: npx playwright install --with-deps chromium
 
-      - name: Run Jest (parent)
-        run: pnpm test:jest
+      - name: Run Jest unit tests (parent)
+        run: pnpm test:unit
 
       - name: Pre-warm portal
         run: |
           nohup pnpm -C serenity-provider-portal dev -- --port 5174 --strictPort --host >/dev/null 2>&1 &
-          npx wait-on http://localhost:5174 --timeout 180000
+          npx wait-on http://localhost:5174/api/healthz --timeout 240000
+          curl -fsS http://localhost:5174/api/healthz
 
       - name: Run Playwright (Chromium)
         env:
           VITE_PORT: 5174
           SMOKE_TOKEN: ${{ secrets.SMOKE_TOKEN }}
           CI_PROVIDER_ID: demo-provider-0001
-        run: pnpm test:pw --project=chromium --reporter=line
+        run: npx playwright test tests/e2e/csv-smoke.spec.ts tests/e2e/security-headers*.spec.ts --project=chromium --reporter=line

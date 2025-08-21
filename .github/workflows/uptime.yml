@@ -23,5 +23,7 @@ jobs:
         run: |
           set -e
           echo "Pinging $PROD_URL" && curl -fsSL "$PROD_URL/" >/dev/null
+          echo "Pinging healthz" && curl -fsSL "$PROD_URL/api/healthz" >/dev/null || true
           echo "Pinging CSV endpoint" && curl -fsSL -H "x-smoke-token: $SMOKE_TOKEN" "$PROD_URL/api/billing/providers/${CI_PROVIDER_ID}/summary.csv?month=$(date +%Y-%m)" >/dev/null
+
 

@@ -1,8 +1,4 @@
 {
-  "ignoreCommand": "if [ \"$VERCEL_GIT_COMMIT_REF\" = \"fix/seed-and-tests\" ]; then echo 'skipping preview for RC branch'; exit 0; else exit 1; fi"
-}
-
-{
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
   "installCommand": "npm ci --legacy-peer-deps --no-audit --no-fund",
@@ -19,7 +15,7 @@
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "github": { "silent": false },
-  "ignoreCommand": null,
+  "ignoreCommand": "if [ \"$VERCEL_GIT_COMMIT_REF\" = \"fix/seed-and-tests\" ]; then echo 'skip preview for RC branch'; exit 0; else exit 1; fi",
   "headers": [
     {
       "source": "/(.*)",

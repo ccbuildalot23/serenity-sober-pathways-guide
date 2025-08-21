@@ -59,8 +59,9 @@ export default defineConfig({
 
   // On CI, run only essential smoke specs to stabilize the pipeline
   testMatch: process.env.CI ? [
-    'tests/e2e/csv-smoke.spec.ts',
-    'tests/e2e/security-headers.spec.ts',
+    '**/csv-smoke.spec.ts',
+    '**/security-headers.spec.ts',
+    '**/security-headers-home.spec.ts',
   ] : undefined,
 
   /* Configure projects (chromium only on CI; full matrix locally) */

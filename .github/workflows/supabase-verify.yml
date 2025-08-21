@@ -1,0 +1,24 @@
+name: Supabase Verify
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify migrations present
+        run: |
+          grep -R "create table if not exists public.pilot_metrics" supabase/migrations || (echo "Missing pilot_metrics migration" && exit 1)
+      - name: Summarize RLS policies
+        run: |
+          grep -R "CREATE POLICY\|ENABLE ROW LEVEL SECURITY" supabase/migrations | wc -l
+
+

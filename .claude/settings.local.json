@@ -64,7 +64,8 @@
       "Bash(done)",
       "Bash(do sed -i \"s/vi\\.mock/jest.mock/g\" \"$file\")",
       "WebFetch(domain:docs.anthropic.com)",
-      "Bash(git submodule:*)"
+      "Bash(git submodule:*)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

@@ -23,6 +23,7 @@ export interface CrisisResponse {
   alerts_sent: number;
   timestamp: string;
   escalation_level: string;
+  alert_id?: string;
 }
 
 export interface CrisisHandlerConfig {

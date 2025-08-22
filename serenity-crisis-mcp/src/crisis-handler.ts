@@ -65,7 +65,7 @@ export class CrisisHandler {
   }
 
   /**
-   * Enhanced trigger function for direct SMS sending
+   * Enhanced trigger function for direct SMS sending with improved cascade timing
    */
   async triggerCrisisAlert(
     userId: string, 
@@ -74,6 +74,7 @@ export class CrisisHandler {
     message: string
   ): Promise<any> {
     const alertId = `alert_${Date.now()}_${userId}`;
+    const startTime = Date.now();
     console.log(`\n🚨 TRIGGERING CRISIS ALERT: ${alertId}`);
     console.log(`Severity: ${severity}, User: ${userId}`);
     
@@ -272,6 +273,130 @@ This is an automated crisis alert from Serenity Sober Pathways. Please respond i
   }
 
   /**
+   * Generate contextual crisis message based on severity and supporter type
+   */
+  async generateCrisisMessage(
+    context: {
+      severity: string,
+      location?: any,
+      patientName: string,
+      supporterType: string,
+      urgency: string
+    }
+  ): Promise<string> {
+    const emoji = this.getUrgencyEmoji(context.severity);
+    const locationInfo = context.location ? 
+      `\n📍 Location: ${context.location.lat}, ${context.location.lng}` : '';
+    
+    let template = '';
+    
+    switch (context.supporterType) {
+      case 'emergency':
+        template = `${emoji} IMMEDIATE ACTION NEEDED\n\n${context.patientName} is experiencing a ${context.severity} crisis and needs urgent support.${locationInfo}\n\nPlease respond IMMEDIATELY or call emergency services.\n\nReply with:\n- "YES" if you can help now\n- "NO" if unavailable\n- "911" to trigger emergency services`;
+        break;
+      
+      case 'primary':
+        template = `${emoji} CRISIS ALERT - PRIMARY SUPPORT\n\n${context.patientName} needs your help. They're experiencing a ${context.severity} situation.${locationInfo}\n\nAs their primary supporter, your response is critical.\n\nReply with:\n- "COMING" if on your way\n- "CALLING" to connect by phone\n- "HELP" if you need backup`;
+        break;
+      
+      case 'secondary':
+        template = `${emoji} SUPPORT NEEDED\n\n${context.patientName} is in crisis. Primary contacts have been notified but we need backup support.${locationInfo}\n\nCan you help?\n\nReply: YES/NO/LATER`;
+        break;
+      
+      default:
+        template = `${emoji} CRISIS NOTIFICATION\n\n${context.patientName} is experiencing difficulties and the support network has been activated.${locationInfo}\n\nYour awareness and potential support are appreciated.`;
+    }
+    
+    return template;
+  }
+
+  /**
+   * Cascade to supporters with intelligent timing (10s within tier, 30s between tiers)
+   */
+  async cascadeToSupportersWithTiming(
+    alertId: string,
+    supporters: SupporterInfo[]
+  ): Promise<any[]> {
+    const results: any[] = [];
+    const tierGroups = this.groupSupportersByTier(supporters);
+    
+    for (const [tier, tierSupporters] of Object.entries(tierGroups)) {
+      console.log(`\n📢 Notifying Tier ${tier} (${tierSupporters.length} supporters)`);
+      
+      // Notify all supporters in this tier with 10s delays between each
+      for (let i = 0; i < tierSupporters.length; i++) {
+        const supporter = tierSupporters[i];
+        
+        // Generate contextual message
+        const message = await this.generateCrisisMessage({
+          severity: 'high',
+          patientName: supporter.patientName || 'Your patient',
+          supporterType: tier === '1' ? 'emergency' : tier === '2' ? 'primary' : 'secondary',
+          urgency: 'immediate'
+        });
+        
+        // Send SMS
+        const result = await this.twilioService.sendCrisisSMS(
+          supporter.phone,
+          message,
+          alertId
+        );
+        
+        results.push({
+          supporter: supporter.name,
+          tier,
+          success: result.success,
+          timestamp: new Date().toISOString()
+        });
+        
+        // 10 second delay between supporters in same tier (except last one)
+        if (i < tierSupporters.length - 1) {
+          console.log('⏱️ Waiting 10 seconds before next supporter in tier...');
+          await this.delay(10000);
+        }
+      }
+      
+      // 30 second delay between tiers (except after last tier)
+      if (tier !== '3') {
+        console.log('⏱️ Waiting 30 seconds before next tier...');
+        await this.delay(30000);
+      }
+    }
+    
+    return results;
+  }
+
+  /**
+   * Group supporters by tier for cascade logic
+   */
+  private groupSupportersByTier(supporters: SupporterInfo[]): Record<string, SupporterInfo[]> {
+    const groups: Record<string, SupporterInfo[]> = {};
+    
+    supporters.forEach(supporter => {
+      const tier = supporter.tier?.toString() || '3';
+      if (!groups[tier]) {
+        groups[tier] = [];
+      }
+      groups[tier].push(supporter);
+    });
+    
+    // Sort by tier priority (1 = highest)
+    return Object.keys(groups)
+      .sort()
+      .reduce((sorted, key) => {
+        sorted[key] = groups[key];
+        return sorted;
+      }, {} as Record<string, SupporterInfo[]>);
+  }
+
+  /**
+   * Utility function for delays
+   */
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  /**
    * Track supporter response
    */
   async trackSupporterResponse(
@@ -339,9 +464,5 @@ This is an automated crisis alert from Serenity Sober Pathways. Please respond i
       escalated: true,
       timestamp: new Date().toISOString()
     };
-  }
-
-  private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }

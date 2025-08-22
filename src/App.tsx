@@ -49,7 +49,6 @@ const Progress = lazy(() => import('@/pages/Progress'));
 
 // Support & Provider Features
 // Eagerly load provider/supporter dashboards to stabilize E2E visibility assertions
-import SupportDashboard from '@/pages/SupportDashboard';
 import ProviderDashboard from '@/pages/ProviderDashboard';
 import ProviderProfile from '@/pages/ProviderProfile';
 import ProviderPatientProfile from '@/pages/provider/ProviderPatientProfile';

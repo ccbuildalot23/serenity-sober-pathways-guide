@@ -21,12 +21,13 @@ function useLocal<T>(key: string, initial: T) {
 }
 
 export default function AppMinimal() {
+  const [email, setEmail] = useLocal<string>('minimal_user', '');
+  const isAuthed = useMemo(() => !!email, [email]);
+  const [contacts, setContacts] = useLocal<Contact[]>('minimal_contacts', []);
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  
   try {
-    const [email, setEmail] = useLocal<string>('minimal_user', '');
-    const isAuthed = useMemo(() => !!email, [email]);
-    const [contacts, setContacts] = useLocal<Contact[]>('minimal_contacts', []);
-    const [name, setName] = useState('');
-    const [phone, setPhone] = useState('');
 
     const addContact = () => {
       if (!name || !phone) return;

@@ -44,7 +44,7 @@ async function main() {
     // Skip unit tests during pre-commit; they run in CI (VALIDATE_SCOPE=full)
 
     // Security dependency scan is fast and should run pre-commit
-    run('node scripts/security-dependency-scan.js');
+    run('node scripts/security-dependency-scan.cjs');
 
     console.log('✅ Autonomous validator checks passed (staged)');
   } catch (err) {

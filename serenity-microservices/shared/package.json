@@ -1,0 +1,30 @@
+{
+  "name": "@serenity/shared",
+  "version": "1.0.0",
+  "description": "Shared types, contracts, and utilities for Serenity microservices",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "clean": "rm -rf dist",
+    "prepublish": "npm run build"
+  },
+  "keywords": [
+    "serenity",
+    "microservices",
+    "shared",
+    "types",
+    "utilities"
+  ],
+  "author": "Serenity Team",
+  "license": "PROPRIETARY",
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.0"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ]
+}

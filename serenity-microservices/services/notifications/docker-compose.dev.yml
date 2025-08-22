@@ -1,0 +1,230 @@
+version: '3.8'
+
+services:
+  # Notification Service (Development)
+  notifications-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: serenity-notifications-dev
+    restart: unless-stopped
+    ports:
+      - "3003:3003"
+      - "9229:9229" # Debug port
+    environment:
+      NODE_ENV: development
+      PORT: 3003
+      HOST: 0.0.0.0
+      
+      # Database
+      DATABASE_URL: postgresql://notifications:dev123@postgres-dev:5432/serenity_notifications_dev
+      DB_HOST: postgres-dev
+      DB_PORT: 5432
+      DB_NAME: serenity_notifications_dev
+      DB_USER: notifications
+      DB_PASSWORD: dev123
+      DB_SSL: false
+      
+      # Redis
+      REDIS_URL: redis://redis-dev:6379
+      REDIS_HOST: redis-dev
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
+      REDIS_DB: 0
+      
+      # RabbitMQ
+      RABBITMQ_URL: amqp://notifications:dev123@rabbitmq-dev:5672
+      RABBITMQ_HOST: rabbitmq-dev
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: notifications
+      RABBITMQ_PASSWORD: dev123
+      RABBITMQ_VHOST: /
+      
+      # JWT
+      JWT_SECRET: dev-jwt-secret-key-not-for-production
+      JWT_EXPIRES_IN: 24h
+      
+      # Email (Development - use Ethereal or Mailtrap)
+      SENDGRID_API_KEY: ""
+      EMAIL_FROM: dev@serenity.com
+      EMAIL_FROM_NAME: "Serenity Platform (Dev)"
+      SMTP_HOST: smtp.ethereal.email
+      SMTP_PORT: 587
+      SMTP_SECURE: false
+      SMTP_USER: ${ETHEREAL_USER:-}
+      SMTP_PASSWORD: ${ETHEREAL_PASSWORD:-}
+      
+      # SMS (Development - Twilio test credentials)
+      TWILIO_ACCOUNT_SID: ${TWILIO_TEST_ACCOUNT_SID:-}
+      TWILIO_AUTH_TOKEN: ${TWILIO_TEST_AUTH_TOKEN:-}
+      TWILIO_PHONE_NUMBER: ${TWILIO_TEST_PHONE_NUMBER:-}
+      
+      # Push Notifications (Development)
+      FIREBASE_PROJECT_ID: ${FIREBASE_DEV_PROJECT_ID:-serenity-dev}
+      FIREBASE_PRIVATE_KEY: ${FIREBASE_DEV_PRIVATE_KEY:-}
+      FIREBASE_CLIENT_EMAIL: ${FIREBASE_DEV_CLIENT_EMAIL:-}
+      
+      # Rate Limiting (More lenient for development)
+      RATE_LIMIT_WINDOW_MS: 60000
+      RATE_LIMIT_MAX_REQUESTS: 1000
+      
+      # Encryption
+      ENCRYPTION_KEY: dev-32-character-encryption-key
+      HIPAA_ENCRYPTION_KEY: dev-32-character-hipaa-key-here
+      
+      # Monitoring
+      LOG_LEVEL: debug
+      ENABLE_REQUEST_LOGGING: true
+      
+      # HIPAA Compliance (Relaxed for development)
+      HIPAA_AUDIT_ENABLED: true
+      DATA_RETENTION_DAYS: 30
+      ENCRYPTION_AT_REST: false
+      
+      # Allowed Origins
+      ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:8080,http://localhost:3001"
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+      redis-dev:
+        condition: service_healthy
+      rabbitmq-dev:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - notification_dev_logs:/app/logs
+    networks:
+      - serenity-dev-network
+    command: ["npm", "run", "dev"]
+
+  # PostgreSQL Database (Development)
+  postgres-dev:
+    image: postgres:15-alpine
+    container_name: serenity-notifications-db-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: serenity_notifications_dev
+      POSTGRES_USER: notifications
+      POSTGRES_PASSWORD: dev123
+      POSTGRES_INITDB_ARGS: "--auth-host=md5 --auth-local=md5"
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+      - ./scripts/dev-seed.sql:/docker-entrypoint-initdb.d/99-seed.sql
+    networks:
+      - serenity-dev-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U notifications -d serenity_notifications_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Redis Cache (Development)
+  redis-dev:
+    image: redis:7-alpine
+    container_name: serenity-notifications-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6381:6379"
+    command: >
+      redis-server
+      --maxmemory 128mb
+      --maxmemory-policy allkeys-lru
+      --appendonly no
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - serenity-dev-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+
+  # RabbitMQ Message Queue (Development)
+  rabbitmq-dev:
+    image: rabbitmq:3.12-management-alpine
+    container_name: serenity-notifications-rabbitmq-dev
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: notifications
+      RABBITMQ_DEFAULT_PASS: dev123
+      RABBITMQ_DEFAULT_VHOST: /
+    ports:
+      - "5674:5672"   # AMQP port
+      - "15674:15672" # Management UI
+    volumes:
+      - rabbitmq_dev_data:/var/lib/rabbitmq
+    networks:
+      - serenity-dev-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # MailHog for email testing
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: serenity-notifications-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025" # SMTP port
+      - "8025:8025" # Web interface
+    networks:
+      - serenity-dev-network
+
+  # Redis Commander for Redis management
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: serenity-notifications-redis-commander
+    restart: unless-stopped
+    environment:
+      REDIS_HOSTS: local:redis-dev:6379
+    ports:
+      - "8081:8081"
+    networks:
+      - serenity-dev-network
+    depends_on:
+      - redis-dev
+
+  # pgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: serenity-notifications-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@serenity.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_dev_data:/var/lib/pgadmin
+    networks:
+      - serenity-dev-network
+    depends_on:
+      - postgres-dev
+
+networks:
+  serenity-dev-network:
+    driver: bridge
+
+volumes:
+  postgres_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+  rabbitmq_dev_data:
+    driver: local
+  notification_dev_logs:
+    driver: local
+  pgadmin_dev_data:
+    driver: local

@@ -1,0 +1,114 @@
+version: '3.8'
+
+services:
+  security-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: serenity-security-service
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=serenity_security
+      - DATABASE_USER=security_user
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_URL=postgresql://security_user:${DATABASE_PASSWORD}@postgres:5432/serenity_security
+      - JWT_SECRET=${JWT_SECRET}
+      - API_KEY_SECRET=${API_KEY_SECRET}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - RATE_LIMIT_WINDOW_MS=900000
+      - RATE_LIMIT_MAX_REQUESTS=100
+      - LOG_LEVEL=info
+      - AUDIT_RETENTION_DAYS=2555
+      - ENABLE_AUDIT_ENCRYPTION=true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - serenity-network
+    volumes:
+      - security-logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:size=100M
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: serenity-security-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=serenity_security
+      - POSTGRES_USER=security_user
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./src/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    networks:
+      - serenity-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U security_user -d serenity_security"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    security_opt:
+      - no-new-privileges:true
+    shm_size: 256MB
+
+  redis:
+    image: redis:7-alpine
+    container_name: serenity-security-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+    networks:
+      - serenity-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  serenity-network:
+    driver: bridge
+    name: serenity-network
+
+volumes:
+  postgres-data:
+    driver: local
+    name: serenity-security-postgres-data
+  redis-data:
+    driver: local
+    name: serenity-security-redis-data
+  security-logs:
+    driver: local
+    name: serenity-security-logs

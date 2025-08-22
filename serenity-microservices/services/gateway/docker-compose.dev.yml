@@ -1,0 +1,252 @@
+version: '3.8'
+
+services:
+  # API Gateway Service (Development)
+  gateway-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    image: serenity/api-gateway:dev
+    container_name: serenity-gateway-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+      - "9229:9229" # Debug port
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - HOST=0.0.0.0
+      
+      # Debug configuration
+      - DEBUG=serenity:*
+      - NODE_OPTIONS=--inspect=0.0.0.0:9229
+      
+      # Service Discovery
+      - SERVICE_DISCOVERY_TYPE=static
+      - SERVICE_NAME=api-gateway
+      - SERVICE_VERSION=1.0.0-dev
+      
+      # Redis Configuration
+      - REDIS_HOST=redis-dev
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=dev-password
+      - REDIS_DB=0
+      
+      # JWT Configuration (Development keys)
+      - JWT_SECRET=development-jwt-secret-change-in-production
+      - JWT_EXPIRES_IN=24h
+      - JWT_REFRESH_SECRET=development-refresh-secret
+      - JWT_REFRESH_EXPIRES_IN=7d
+      
+      # API Keys
+      - API_KEY_SALT=development-salt
+      - API_KEY_HEADER=X-API-Key
+      
+      # Rate Limiting (More lenient for development)
+      - RATE_LIMIT_WINDOW_MS=900000
+      - RATE_LIMIT_MAX_REQUESTS=1000
+      
+      # Circuit Breaker
+      - CIRCUIT_BREAKER_TIMEOUT=5000
+      - CIRCUIT_BREAKER_ERROR_THRESHOLD=70
+      - CIRCUIT_BREAKER_RESET_TIMEOUT=10000
+      
+      # Monitoring
+      - PROMETHEUS_ENABLED=true
+      - LOG_LEVEL=debug
+      - LOG_FORMAT=text
+      
+      # CORS (Development)
+      - CORS_ORIGIN=http://localhost:8080,http://localhost:3000,http://localhost:3001
+      - CORS_CREDENTIALS=true
+      
+      # File Upload
+      - MAX_FILE_SIZE=50485760  # 50MB for development
+      - ALLOWED_FILE_TYPES=image/jpeg,image/png,image/gif,application/pdf,text/plain
+      - UPLOAD_DIR=/app/uploads
+      
+      # WebSocket
+      - WS_ENABLED=true
+      - WS_PATH=/ws
+      
+      # GraphQL
+      - GRAPHQL_ENABLED=true
+      - GRAPHQL_PATH=/graphql
+      - GRAPHQL_PLAYGROUND=true
+      
+      # Security (Relaxed for development)
+      - HELMET_ENABLED=false
+      - COMPRESSION_ENABLED=true
+      - TRUST_PROXY=true
+      
+      # Mock Service URLs (for development without actual services)
+      - USER_SERVICE_URL=http://mock-user-service:3001
+      - NOTIFICATION_SERVICE_URL=http://mock-notification-service:3002
+      - CHECKIN_SERVICE_URL=http://mock-checkin-service:3003
+      - CRISIS_SERVICE_URL=http://mock-crisis-service:3004
+      - CLINICAL_SERVICE_URL=http://mock-clinical-service:3005
+      - SUPPORT_NETWORK_SERVICE_URL=http://mock-support-network-service:3006
+      - ANALYTICS_SERVICE_URL=http://mock-analytics-service:3007
+      - FILES_SERVICE_URL=http://mock-files-service:3008
+      - COMMUNICATION_SERVICE_URL=http://mock-communication-service:3009
+      
+    volumes:
+      - ./src:/app/src:ro
+      - ./package.json:/app/package.json:ro
+      - ./tsconfig.json:/app/tsconfig.json:ro
+      - gateway-dev-logs:/app/logs
+      - gateway-dev-uploads:/app/uploads
+      - /app/node_modules
+    networks:
+      - serenity-dev-network
+    depends_on:
+      - redis-dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Redis for development
+  redis-dev:
+    image: redis:7-alpine
+    container_name: serenity-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    environment:
+      - REDIS_PASSWORD=dev-password
+    command: redis-server --requirepass dev-password --appendonly yes
+    volumes:
+      - redis-dev-data:/data
+    networks:
+      - serenity-dev-network
+
+  # Mock services for development testing
+  mock-user-service:
+    image: mockserver/mockserver:latest
+    container_name: mock-user-service
+    restart: unless-stopped
+    ports:
+      - "3001:1080"
+    environment:
+      - MOCKSERVER_LOG_LEVEL=INFO
+    volumes:
+      - ./mocks/user-service.json:/opt/mockserver/config/user-service.json
+    networks:
+      - serenity-dev-network
+
+  mock-checkin-service:
+    image: mockserver/mockserver:latest
+    container_name: mock-checkin-service
+    restart: unless-stopped
+    ports:
+      - "3003:1080"
+    environment:
+      - MOCKSERVER_LOG_LEVEL=INFO
+    volumes:
+      - ./mocks/checkin-service.json:/opt/mockserver/config/checkin-service.json
+    networks:
+      - serenity-dev-network
+
+  mock-crisis-service:
+    image: mockserver/mockserver:latest
+    container_name: mock-crisis-service
+    restart: unless-stopped
+    ports:
+      - "3004:1080"
+    environment:
+      - MOCKSERVER_LOG_LEVEL=INFO
+    volumes:
+      - ./mocks/crisis-service.json:/opt/mockserver/config/crisis-service.json
+    networks:
+      - serenity-dev-network
+
+  # Development database (PostgreSQL)
+  postgres-dev:
+    image: postgres:15-alpine
+    container_name: serenity-postgres-dev
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=serenity_dev
+      - POSTGRES_USER=serenity_user
+      - POSTGRES_PASSWORD=dev-password
+      - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256
+    volumes:
+      - postgres-dev-data:/var/lib/postgresql/data
+      - ./scripts/init-dev-db.sql:/docker-entrypoint-initdb.d/init-dev-db.sql
+    networks:
+      - serenity-dev-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U serenity_user -d serenity_dev"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Prometheus for development
+  prometheus-dev:
+    image: prom/prometheus:latest
+    container_name: serenity-prometheus-dev
+    restart: unless-stopped
+    ports:
+      - "9091:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=24h'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./config/prometheus-dev.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-dev-data:/prometheus
+    networks:
+      - serenity-dev-network
+
+  # Redis Commander for Redis management
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis-commander
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOSTS=local:redis-dev:6379:0:dev-password
+    networks:
+      - serenity-dev-network
+    depends_on:
+      - redis-dev
+
+  # MailHog for email testing
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: serenity-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
+    networks:
+      - serenity-dev-network
+
+volumes:
+  gateway-dev-logs:
+    driver: local
+  gateway-dev-uploads:
+    driver: local
+  redis-dev-data:
+    driver: local
+  postgres-dev-data:
+    driver: local
+  prometheus-dev-data:
+    driver: local
+
+networks:
+  serenity-dev-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16

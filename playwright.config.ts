@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
-const DEV_PORT = Number(process.env.VITE_PORT ?? '5174');
+const DEV_PORT = Number(process.env.VITE_PORT ?? '8080');
 const fullMatrix = [
   { name: 'chromium',      use: { ...devices['Desktop Chrome'] } },
   { name: 'firefox',       use: { ...devices['Desktop Firefox'] } },

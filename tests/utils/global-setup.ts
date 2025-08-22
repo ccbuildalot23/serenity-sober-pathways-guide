@@ -3,9 +3,9 @@ import { chromium, FullConfig } from '@playwright/test';
 async function globalSetup(config: FullConfig) {
   console.log('🚀 Starting Playwright E2E Test Suite for Serenity App');
   console.log('📋 Test Credentials:');
-  console.log('  Patient: test-patient@serenity.com / TestSerenity2024!@#');
-  console.log('  Provider: test-provider@serenity.com / TestSerenity2024!@#');
-  console.log('  Supporter: test-supporter@serenity.com / TestSerenity2024!@#');
+  console.log('  Patient: test-patient@serenity.com / TestPass123!');
+  console.log('  Provider: test-provider@serenity.com / TestPass123!');
+  console.log('  Supporter: test-supporter@serenity.com / TestPass123!');
   
   // Launch browser for setup tasks
   const browser = await chromium.launch();
@@ -27,15 +27,14 @@ async function globalSetup(config: FullConfig) {
     
     console.log('🧹 Cleaning up previous test artifacts...');
     
-    // Force E2E bypass so protected routes render; mount login form once to stabilize input locators
-    await page.goto(`${baseURL}/login?dev_bypass=1`, { waitUntil: 'domcontentloaded' });
+    // Clear any previous auth bypass to ensure tests run with actual login
+    await page.goto(`${baseURL}`, { waitUntil: 'domcontentloaded' });
     await page.addInitScript(() => {
       try {
-        localStorage.setItem('dev_bypass_auth', 'true');
+        localStorage.removeItem('dev_bypass_auth');
+        localStorage.removeItem('pw_role');
       } catch {}
     });
-    await page.reload({ waitUntil: 'domcontentloaded' });
-    try { await page.waitForSelector('[data-testid="email"]', { timeout: 5000 }); } catch {}
     
     // You could add database seeding here if needed
     // await seedTestDatabase();

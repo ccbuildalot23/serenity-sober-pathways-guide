@@ -2,25 +2,19 @@ import { test, expect } from '@playwright/test';
 
 const PATIENT_CREDENTIALS = {
   email: 'test-patient@serenity.com',
-  password: 'TestSerenity2024!@#'
+  password: 'TestPass123!'
 };
 
 test.describe('Login Functionality Test', () => {
   test('should successfully log in and redirect to dashboard', async ({ page }) => {
     // Navigate to auth page
-    await page.goto('/auth');
+    await page.goto('/auth', { waitUntil: 'domcontentloaded' });
     
-    // Wait for page to load
-    await page.waitForLoadState('networkidle');
+    // Fill in credentials directly (no need to click login button first)
+    await page.fill('[data-testid="email"]', PATIENT_CREDENTIALS.email);
+    await page.fill('[data-testid="password"]', PATIENT_CREDENTIALS.password);
     
-    // Click login button
-    await page.click('[data-testid="login-button"]');
-    
-    // Fill in credentials
-    await page.fill('[data-testid="email-input"]', PATIENT_CREDENTIALS.email);
-    await page.fill('[data-testid="password-input"]', PATIENT_CREDENTIALS.password);
-    
-    // Submit login
+    // Submit login (button has both login-button and submit-login testids)
     await page.click('[data-testid="submit-login"]');
     
     // Wait for redirect

@@ -64,7 +64,11 @@
       "Bash(done)",
       "Bash(do sed -i \"s/vi\\.mock/jest.mock/g\" \"$file\")",
       "WebFetch(domain:docs.anthropic.com)",
-      "Bash(git submodule:*)"
+      "Bash(git submodule:*)",
+      "Bash(\"C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe\" sts get-caller-identity)",
+      "Bash(\"C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe\" ec2 describe-regions --query 'Regions[?OptInStatus==`opt-in-not-required` || OptInStatus==`opted-in`].RegionName' --output text)",
+      "Bash(\"C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe\" s3 ls)",
+      "Bash(\"C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe\" s3api get-bucket-location --bucket serenity-logs-662658456049-1755106249)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

@@ -27,6 +27,7 @@ const PartnershipNotifications: React.FC<PartnershipNotificationsProps> = ({ par
 
   useEffect(() => {
     loadNotifications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, partnership]);
 
   const loadNotifications = async () => {
@@ -110,6 +111,81 @@ const PartnershipNotifications: React.FC<PartnershipNotificationsProps> = ({ par
     }
   };
 
+  const handleQuickResponse = async (notificationId: string, responseType: 'acknowledge' | 'support' | 'celebrate') => {
+    try {
+      // Mark as read first
+      await markAsRead(notificationId);
+      
+      // Send appropriate response based on type
+      const notification = notifications.find(n => n.id === notificationId);
+      if (!notification) return;
+
+      let responseMessage = '';
+      switch (responseType) {
+        case 'acknowledge':
+          responseMessage = 'I see your update - thanks for sharing!';
+          break;
+        case 'support':
+          responseMessage = 'I\'m here for you. Let me know how I can help.';
+          break;
+        case 'celebrate':
+          responseMessage = 'Amazing progress! So proud of you! 🎉';
+          break;
+      }
+
+      await AccountabilityService.sendNotification(
+        notification.sender_id,
+        partnership.id,
+        'response',
+        responseMessage
+      );
+
+      // Show success feedback (you might want to add a toast notification here)
+      console.log('Response sent successfully');
+    } catch (error) {
+      console.error('Error sending quick response:', error);
+    }
+  };
+
+  const sendEncouragement = async () => {
+    try {
+      const partnerId = partnership.partner1_id === user?.id 
+        ? partnership.partner2_id 
+        : partnership.partner1_id;
+      
+      await AccountabilityService.sendNotification(
+        partnerId,
+        partnership.id,
+        'encouragement',
+        'Thinking of you! Keep up the great work - you\'ve got this! 💪'
+      );
+      
+      console.log('Encouragement sent!');
+    } catch (error) {
+      console.error('Error sending encouragement:', error);
+    }
+  };
+
+  const shareMilestone = async () => {
+    try {
+      const partnerId = partnership.partner1_id === user?.id 
+        ? partnership.partner2_id 
+        : partnership.partner1_id;
+      
+      // In a real implementation, you'd collect milestone details from the user
+      await AccountabilityService.sendNotification(
+        partnerId,
+        partnership.id,
+        'milestone_shared',
+        'I just reached a new milestone in my recovery journey!'
+      );
+      
+      console.log('Milestone shared!');
+    } catch (error) {
+      console.error('Error sharing milestone:', error);
+    }
+  };
+
   if (_loading) {
     return (
       <Card>
@@ -188,14 +264,36 @@ const PartnershipNotifications: React.FC<PartnershipNotificationsProps> = ({ par
                     </div>
 
                     {!notification._is_read && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => markAsRead(notification.id)}
-                        className="text-xs"
-                      >
-                        Mark read
-                      </Button>
+                      <div className="flex flex-col gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => markAsRead(notification.id)}
+                          className="text-xs"
+                        >
+                          Mark read
+                        </Button>
+                        {notification.notification_type === 'support_needed' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleQuickResponse(notification.id, 'support')}
+                            className="text-xs"
+                          >
+                            Offer Support
+                          </Button>
+                        )}
+                        {notification.notification_type === 'streak_milestone' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleQuickResponse(notification.id, 'celebrate')}
+                            className="text-xs"
+                          >
+                            Celebrate
+                          </Button>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -228,11 +326,19 @@ const PartnershipNotifications: React.FC<PartnershipNotificationsProps> = ({ par
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-3">
-            <Button variant="outline" size="sm">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={sendEncouragement}
+            >
               <MessageCircle className="w-4 h-4 mr-2" />
               Send Encouragement
             </Button>
-            <Button variant="outline" size="sm">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={shareMilestone}
+            >
               <TrendingUp className="w-4 h-4 mr-2" />
               Share Milestone
             </Button>

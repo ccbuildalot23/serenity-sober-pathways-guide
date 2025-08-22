@@ -1,0 +1,23 @@
+{
+  "name": "serenity-demo-director",
+  "version": "1.0.0",
+  "description": "Automated demo recording system for Serenity provider outreach",
+  "main": "automated-demo-director.js",
+  "scripts": {
+    "start": "node automated-demo-director.js",
+    "practice": "node automated-demo-director.js --practice",
+    "rehearse": "node practice-mode.js",
+    "process-video": "node video-processor.js",
+    "generate-emails": "node email-generator.js",
+    "test-audio": "node voice-guide.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "open": "^8.4.0",
+    "twilio": "^5.8.0"
+  },
+  "devDependencies": {
+    "chalk": "^5.3.0",
+    "ora": "^6.3.1"
+  }
+}

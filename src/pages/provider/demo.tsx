@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Clock, 
   DollarSign, 
@@ -14,23 +15,108 @@ import {
   Bell,
   TrendingUp,
   Heart,
-  AlertTriangle
+  AlertTriangle,
+  Phone,
+  MessageCircle,
+  Loader2
 } from 'lucide-react';
 
 export default function ProviderDemo() {
   const [currentDemo, setCurrentDemo] = useState<string>('crisis');
-  const [showVideo, setShowVideo] = useState(false);
+  const [isTriggering, setIsTriggering] = useState(false);
+  const [demoStatus, setDemoStatus] = useState<string>('');
+  const [smsCount, setSmsCount] = useState(0);
+  const [showPhoneNumber, setShowPhoneNumber] = useState(false);
+  const [countdown, setCountdown] = useState(0);
 
-  const triggerCrisisDemo = () => {
-    // Simulate crisis alert
-    alert('🚨 DEMO: Crisis alert triggered! Check your phone for SMS in 3... 2... 1...');
-    // In production, this would actually trigger an alert
+  const triggerCrisisDemo = async () => {
+    setIsTriggering(true);
+    setDemoStatus('Triggering crisis alert...');
+    setSmsCount(0);
+    
+    // Show countdown
+    setCountdown(3);
+    for (let i = 3; i > 0; i--) {
+      setCountdown(i);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    setCountdown(0);
+    
+    try {
+      // Check if we have Twilio configured
+      const twilioConfigured = process.env.VITE_TWILIO_CONFIGURED === 'true';
+      
+      if (twilioConfigured) {
+        // Real SMS trigger - call the MCP server
+        const response = await fetch('/api/crisis/demo-trigger', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            patientName: 'Sarah Johnson (Demo)',
+            location: 'Arlington, VA',
+            severity: 'high'
+          })
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          setDemoStatus('✅ Crisis alert sent successfully!');
+          setSmsCount(result.messagesSent || 2);
+          setShowPhoneNumber(true);
+        } else {
+          throw new Error('SMS service not available');
+        }
+      } else {
+        // Simulation mode
+        setDemoStatus('📱 SMS sending to support network...');
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        setSmsCount(1);
+        setDemoStatus('✅ Tier 1 notified (Primary counselor)');
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        setSmsCount(2);
+        setDemoStatus('✅ All supporters notified successfully!');
+      }
+      
+      // Show success for 5 seconds
+      setTimeout(() => {
+        setDemoStatus('');
+        setSmsCount(0);
+      }, 5000);
+      
+    } catch (error) {
+      setDemoStatus('⚠️ Demo mode - SMS would be sent in production');
+      setSmsCount(2);
+      setTimeout(() => {
+        setDemoStatus('');
+        setSmsCount(0);
+      }, 3000);
+    } finally {
+      setIsTriggering(false);
+    }
   };
 
-  const generateCPTDemo = () => {
-    // Simulate CPT code generation
-    const codes = ['90834', '99490', '90785'];
-    alert(`✅ Generated CPT codes: ${codes.join(', ')}\nEstimated reimbursement: $225.52`);
+  const [cptCodes, setCptCodes] = useState<string[]>([]);
+  const [reimbursement, setReimbursement] = useState(0);
+  
+  const generateCPTDemo = async () => {
+    setCptCodes([]);
+    setReimbursement(0);
+    
+    // Animate code generation
+    const codes = [
+      { code: '90834', desc: 'Individual Therapy (45 min)', amount: 120.00 },
+      { code: '99490', desc: 'Care Coordination', amount: 42.00 },
+      { code: '90785', desc: 'Interactive Complexity', amount: 15.52 },
+      { code: 'G2061', desc: 'Brief Communication', amount: 48.00 }
+    ];
+    
+    let total = 0;
+    for (const item of codes) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setCptCodes(prev => [...prev, item.code]);
+      total += item.amount;
+      setReimbursement(total);
+    }
   };
 
   return (
@@ -156,10 +242,47 @@ export default function ProviderDemo() {
                     <li>You're notified but not required to respond</li>
                     <li>Full audit trail for compliance</li>
                   </ol>
-                  <Button onClick={triggerCrisisDemo} size="lg" className="w-full">
-                    <Bell className="w-4 h-4 mr-2" />
-                    Trigger Demo Crisis Alert
+                  <Button 
+                    onClick={triggerCrisisDemo} 
+                    size="lg" 
+                    className="w-full"
+                    disabled={isTriggering}
+                  >
+                    {isTriggering ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        {countdown > 0 ? `Sending in ${countdown}...` : 'Triggering Alert...'}
+                      </>
+                    ) : (
+                      <>
+                        <Bell className="w-4 h-4 mr-2" />
+                        Trigger Demo Crisis Alert
+                      </>
+                    )}
                   </Button>
+                  
+                  {demoStatus && (
+                    <Alert className="mt-4">
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertDescription>
+                        {demoStatus}
+                        {smsCount > 0 && (
+                          <div className="mt-2">
+                            <Badge variant="secondary" className="mr-2">
+                              <MessageCircle className="w-3 h-3 mr-1" />
+                              {smsCount} SMS Sent
+                            </Badge>
+                            {showPhoneNumber && (
+                              <Badge variant="outline">
+                                <Phone className="w-3 h-3 mr-1" />
+                                Check 240-419-9375
+                              </Badge>
+                            )}
+                          </div>
+                        )}
+                      </AlertDescription>
+                    </Alert>
+                  )}
                 </div>
               )}
 
@@ -186,6 +309,25 @@ export default function ProviderDemo() {
                     <DollarSign className="w-4 h-4 mr-2" />
                     Generate CPT Codes
                   </Button>
+                  
+                  {cptCodes.length > 0 && (
+                    <Alert className="mt-4">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <AlertDescription>
+                        <div className="space-y-2">
+                          <p className="font-semibold">Generated CPT Codes:</p>
+                          <div className="flex gap-2 flex-wrap">
+                            {cptCodes.map(code => (
+                              <Badge key={code} variant="secondary">{code}</Badge>
+                            ))}
+                          </div>
+                          <p className="text-lg font-bold text-green-600">
+                            Total Reimbursement: ${reimbursement.toFixed(2)}
+                          </p>
+                        </div>
+                      </AlertDescription>
+                    </Alert>
+                  )}
                 </div>
               )}
 
@@ -303,12 +445,23 @@ export default function ProviderDemo() {
               Free access through December. 15-minute setup. White-glove onboarding.
             </p>
             <div className="flex gap-4 justify-center">
-              <Button size="lg" variant="secondary" className="text-lg px-8">
+              <Button 
+                size="lg" 
+                variant="secondary" 
+                className="text-lg px-8"
+                onClick={() => window.open('https://calendly.com/serenity-health/demo', '_blank')}
+              >
                 <CheckCircle className="w-5 h-5 mr-2" />
                 Start Free Pilot Now
               </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8 bg-white/10 text-white border-white">
-                Schedule Demo Call
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="text-lg px-8 bg-white/10 text-white border-white"
+                onClick={() => window.location.href = 'tel:+12404199375'}
+              >
+                <Phone className="w-5 h-5 mr-2" />
+                Call Now: 240-419-9375
               </Button>
             </div>
             <p className="mt-6 text-sm opacity-75">

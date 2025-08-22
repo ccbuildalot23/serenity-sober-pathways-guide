@@ -1,0 +1,673 @@
+name: Notification Service CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'services/notification-service/**'
+      - '.github/workflows/notification-service-ci.yml'
+      - 'infrastructure/k8s/notification-service/**'
+      - 'infrastructure/terraform/notification-service/**'
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'services/notification-service/**'
+      - '.github/workflows/notification-service-ci.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+      force_deploy:
+        description: 'Force deployment even if tests fail'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: serenity/notification-service
+  NODE_VERSION: '20'
+  PNPM_VERSION: '8'
+
+permissions:
+  contents: read
+  packages: write
+  security-events: write
+  id-token: write
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      notification-service: ${{ steps.changes.outputs.notification-service }}
+      infrastructure: ${{ steps.changes.outputs.infrastructure }}
+      workflows: ${{ steps.changes.outputs.workflows }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            notification-service:
+              - 'services/notification-service/**'
+            infrastructure:
+              - 'infrastructure/k8s/notification-service/**'
+              - 'infrastructure/terraform/notification-service/**'
+            workflows:
+              - '.github/workflows/notification-service-*.yml'
+
+  security-scan:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.notification-service == 'true' || needs.detect-changes.outputs.workflows == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        working-directory: ./services/notification-service
+        run: npm ci
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: './services/notification-service'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Run npm audit
+        working-directory: ./services/notification-service
+        run: npm audit --audit-level high
+        continue-on-error: false
+
+      - name: Check for secrets with TruffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./services/notification-service
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+
+      - name: HIPAA Compliance Check
+        working-directory: ./services/notification-service
+        run: |
+          echo "Running HIPAA compliance checks..."
+          
+          # Check for PHI handling patterns
+          if grep -r "ssn\|social.*security\|date.*birth" src/ --include="*.ts" --include="*.js"; then
+            echo "❌ Potential PHI patterns found - requires review"
+            exit 1
+          fi
+          
+          # Check for proper encryption patterns
+          if ! grep -r "crypto\|encrypt\|aes-256" src/ --include="*.ts" --include="*.js"; then
+            echo "❌ No encryption patterns found - HIPAA requires data encryption"
+            exit 1
+          fi
+          
+          # Check for audit logging
+          if ! grep -r "audit.*log\|compliance.*log" src/ --include="*.ts" --include="*.js"; then
+            echo "❌ No audit logging patterns found - HIPAA requires audit trails"
+            exit 1
+          fi
+          
+          echo "✅ Basic HIPAA compliance checks passed"
+
+  lint-and-type-check:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.notification-service == 'true' || needs.detect-changes.outputs.workflows == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        working-directory: ./services/notification-service
+        run: npm ci
+
+      - name: Run ESLint
+        working-directory: ./services/notification-service
+        run: npm run lint
+
+      - name: Type check
+        working-directory: ./services/notification-service
+        run: npx tsc --noEmit
+
+      - name: Check code formatting
+        working-directory: ./services/notification-service
+        run: |
+          if command -v prettier &> /dev/null; then
+            npx prettier --check "src/**/*.{ts,js,json}"
+          else
+            echo "Prettier not configured, skipping format check"
+          fi
+
+  unit-tests:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.notification-service == 'true' || needs.detect-changes.outputs.workflows == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ['18', '20']
+    
+    services:
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+      
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: test
+          POSTGRES_USER: test
+          POSTGRES_DB: notification_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        working-directory: ./services/notification-service
+        run: npm ci
+
+      - name: Run database migrations
+        working-directory: ./services/notification-service
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/notification_test
+        run: npm run db:migrate
+
+      - name: Run unit tests
+        working-directory: ./services/notification-service
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://test:test@localhost:5432/notification_test
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: test-secret-key-for-testing-only
+        run: npm run test:coverage
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./services/notification-service/coverage/lcov.info
+          flags: notification-service
+          name: notification-service-${{ matrix.node-version }}
+
+      - name: Check coverage threshold
+        working-directory: ./services/notification-service
+        run: |
+          COVERAGE=$(npm run test:coverage -- --silent | grep "All files" | awk '{print $10}' | sed 's/%//')
+          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+            echo "❌ Coverage $COVERAGE% is below 80% threshold"
+            exit 1
+          fi
+          echo "✅ Coverage $COVERAGE% meets 80% threshold"
+
+  integration-tests:
+    needs: [detect-changes, unit-tests]
+    if: needs.detect-changes.outputs.notification-service == 'true' || needs.detect-changes.outputs.workflows == 'true'
+    runs-on: ubuntu-latest
+    
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+      
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: test
+          POSTGRES_USER: test
+          POSTGRES_DB: notification_test
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        working-directory: ./services/notification-service
+        run: npm ci
+
+      - name: Start notification service
+        working-directory: ./services/notification-service
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://test:test@localhost:5432/notification_test
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: test-secret-key-for-testing-only
+          PORT: 3001
+        run: |
+          npm run build
+          npm start &
+          sleep 10
+
+      - name: Run integration tests
+        working-directory: ./services/notification-service
+        env:
+          TEST_BASE_URL: http://localhost:3001
+          NODE_ENV: test
+        run: |
+          if [ -d "tests/integration" ]; then
+            npm run test:integration
+          else
+            echo "No integration tests found, skipping..."
+          fi
+
+  build-and-push:
+    needs: [security-scan, lint-and-type-check, unit-tests]
+    if: always() && (needs.security-scan.result == 'success' || needs.security-scan.result == 'skipped') && (needs.lint-and-type-check.result == 'success' || needs.lint-and-type-check.result == 'skipped') && (needs.unit-tests.result == 'success' || needs.unit-tests.result == 'skipped')
+    runs-on: ubuntu-latest
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./services/notification-service
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NODE_VERSION=${{ env.NODE_VERSION }}
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+            REVISION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+
+      - name: Run Trivy vulnerability scanner on image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}
+          format: 'sarif'
+          output: 'trivy-image-results.sarif'
+
+      - name: Upload Trivy image scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-image-results.sarif'
+
+  performance-tests:
+    needs: [build-and-push, integration-tests]
+    if: needs.build-and-push.result == 'success' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    runs-on: ubuntu-latest
+    
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+      
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: test
+          POSTGRES_USER: test
+          POSTGRES_DB: notification_test
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Run performance tests
+        working-directory: ./services/notification-service
+        env:
+          K6_TEST_BASE_URL: http://localhost:3001
+        run: |
+          # Start service in background
+          npm ci
+          npm run build
+          NODE_ENV=test DATABASE_URL=postgresql://test:test@localhost:5432/notification_test REDIS_URL=redis://localhost:6379 npm start &
+          sleep 10
+          
+          # Create basic performance test if not exists
+          if [ ! -f "tests/performance/load-test.js" ]; then
+            mkdir -p tests/performance
+            cat > tests/performance/load-test.js << 'EOF'
+          import http from 'k6/http';
+          import { check, sleep } from 'k6';
+
+          export const options = {
+            thresholds: {
+              http_req_duration: ['p(95)<500'], // 95% of requests must complete below 500ms
+              http_req_failed: ['rate<0.1'],   // Less than 10% of requests can fail
+            },
+            stages: [
+              { duration: '30s', target: 20 },
+              { duration: '1m', target: 50 },
+              { duration: '30s', target: 0 },
+            ],
+          };
+
+          export default function () {
+            const response = http.get(__ENV.K6_TEST_BASE_URL + '/health');
+            check(response, {
+              'status is 200': (r) => r.status === 200,
+              'response time < 500ms': (r) => r.timings.duration < 500,
+            });
+            sleep(1);
+          }
+          EOF
+          fi
+          
+          # Run performance tests
+          k6 run tests/performance/load-test.js
+
+      - name: Performance benchmark validation
+        run: |
+          echo "✅ Performance tests completed - results logged above"
+
+  deploy-staging:
+    needs: [build-and-push, performance-tests]
+    if: needs.build-and-push.result == 'success' && (github.ref == 'refs/heads/develop' || github.event.inputs.environment == 'staging')
+    runs-on: ubuntu-latest
+    environment: staging
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Deploy to staging
+        env:
+          IMAGE_TAG: ${{ needs.build-and-push.outputs.image-tag }}
+        run: |
+          # Update kubeconfig
+          aws eks update-kubeconfig --name serenity-staging-cluster --region us-east-1
+          
+          # Deploy using Helm
+          helm upgrade --install notification-service \
+            ./infrastructure/helm/notification-service \
+            --namespace staging \
+            --create-namespace \
+            --set image.tag=${{ github.sha }} \
+            --set environment=staging \
+            --set replicaCount=2 \
+            --set resources.requests.memory=256Mi \
+            --set resources.requests.cpu=250m \
+            --set resources.limits.memory=512Mi \
+            --set resources.limits.cpu=500m \
+            --wait --timeout=300s
+
+      - name: Run staging smoke tests
+        run: |
+          kubectl get pods -n staging -l app=notification-service
+          kubectl logs -n staging -l app=notification-service --tail=50
+          
+          # Basic health check
+          STAGING_URL="https://notifications-staging.serenity.com"
+          for i in {1..10}; do
+            if curl -f "$STAGING_URL/health"; then
+              echo "✅ Staging deployment healthy"
+              break
+            fi
+            echo "Waiting for staging to be ready... ($i/10)"
+            sleep 30
+          done
+
+  deploy-production:
+    needs: [build-and-push, deploy-staging]
+    if: needs.build-and-push.result == 'success' && github.ref == 'refs/heads/main' && (github.event.inputs.environment == 'prod' || github.event_name == 'push')
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Blue-Green Deployment to Production
+        env:
+          IMAGE_TAG: ${{ needs.build-and-push.outputs.image-tag }}
+        run: |
+          # Update kubeconfig
+          aws eks update-kubeconfig --name serenity-production-cluster --region us-east-1
+          
+          # Deploy green environment
+          helm upgrade --install notification-service-green \
+            ./infrastructure/helm/notification-service \
+            --namespace production \
+            --create-namespace \
+            --set image.tag=${{ github.sha }} \
+            --set environment=production \
+            --set deployment.strategy=green \
+            --set replicaCount=3 \
+            --set resources.requests.memory=512Mi \
+            --set resources.requests.cpu=500m \
+            --set resources.limits.memory=1Gi \
+            --set resources.limits.cpu=1000m \
+            --wait --timeout=600s
+
+      - name: Production smoke tests on green
+        run: |
+          # Test green deployment
+          GREEN_URL="https://notifications-green.serenity.com"
+          
+          echo "Testing green deployment..."
+          for i in {1..10}; do
+            if curl -f "$GREEN_URL/health"; then
+              echo "✅ Green deployment healthy"
+              break
+            fi
+            echo "Waiting for green deployment... ($i/10)"
+            sleep 30
+          done
+          
+          # Run comprehensive tests
+          kubectl run test-pod --rm -i --restart=Never --image=curlimages/curl -- \
+            curl -f "$GREEN_URL/health" && \
+            curl -f "$GREEN_URL/metrics"
+
+      - name: Switch traffic to green (Blue-Green cutover)
+        run: |
+          echo "Switching traffic to green deployment..."
+          
+          # Update service selector to point to green
+          kubectl patch service notification-service -n production -p '{"spec":{"selector":{"deployment":"green"}}}'
+          
+          # Wait and verify
+          sleep 30
+          kubectl get pods -n production -l app=notification-service
+
+      - name: Cleanup old blue deployment
+        run: |
+          echo "Cleaning up old blue deployment after successful cutover..."
+          
+          # Remove blue deployment (previous version)
+          helm uninstall notification-service-blue -n production || echo "No blue deployment to remove"
+          
+          # Rename green to blue for next deployment cycle
+          kubectl patch deployment notification-service-green -n production -p '{"metadata":{"labels":{"deployment":"blue"}}}'
+
+  post-deploy-validation:
+    needs: [deploy-production]
+    if: always() && needs.deploy-production.result == 'success'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Production validation tests
+        env:
+          PROD_URL: https://notifications.serenity.com
+        run: |
+          echo "Running production validation..."
+          
+          # Health checks
+          curl -f "$PROD_URL/health" || exit 1
+          curl -f "$PROD_URL/metrics" || exit 1
+          
+          # Test key endpoints
+          curl -f -H "Authorization: Bearer ${{ secrets.PROD_TEST_TOKEN }}" \
+            "$PROD_URL/api/v1/notifications/test" || exit 1
+          
+          echo "✅ Production validation completed successfully"
+
+      - name: Update deployment status
+        run: |
+          echo "Deployment completed successfully!"
+          echo "- Environment: Production"
+          echo "- Image: ${{ needs.build-and-push.outputs.image-tag }}"
+          echo "- Commit: ${{ github.sha }}"
+          echo "- Deployed by: ${{ github.actor }}"
+
+  rollback:
+    if: failure() && github.ref == 'refs/heads/main'
+    needs: [deploy-production, post-deploy-validation]
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Rollback to previous version
+        run: |
+          echo "🚨 Initiating rollback due to deployment failure"
+          
+          # Update kubeconfig
+          aws eks update-kubeconfig --name serenity-production-cluster --region us-east-1
+          
+          # Rollback using Helm
+          helm rollback notification-service -n production
+          
+          # Verify rollback
+          kubectl get pods -n production -l app=notification-service
+          
+          echo "✅ Rollback completed"
+
+      - name: Notify team of rollback
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          text: "🚨 Notification Service deployment failed and was rolled back automatically. Please check the logs."
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

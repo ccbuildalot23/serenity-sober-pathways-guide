@@ -1,0 +1,515 @@
+# Blue-Green Deployment Configuration for Notification Service
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: notification-service-rollout
+  namespace: notification-service
+  labels:
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/component: rollout
+    app.kubernetes.io/part-of: serenity-platform
+  annotations:
+    # HIPAA compliance annotations
+    hipaa.serenity.com/compliant: "true"
+    hipaa.serenity.com/deployment-strategy: "blue-green"
+    deployment.kubernetes.io/change-cause: "Blue-green deployment for zero-downtime healthcare notifications"
+spec:
+  replicas: 3
+  strategy:
+    blueGreen:
+      # Traffic switching configuration
+      activeService: notification-service
+      previewService: notification-service-preview
+      
+      # Auto promotion configuration (disabled for critical healthcare service)
+      autoPromotionEnabled: false
+      
+      # Scale down delay after promotion
+      scaleDownDelaySeconds: 300  # 5 minutes for monitoring
+      prePromotionAnalysis:
+        templates:
+        - templateName: success-rate
+        args:
+        - name: service-name
+          value: notification-service-preview
+        - name: success-threshold
+          value: "95"
+      
+      postPromotionAnalysis:
+        templates:
+        - templateName: success-rate
+        args:
+        - name: service-name
+          value: notification-service
+        - name: success-threshold
+          value: "99"
+        
+      previewReplicaCount: 3
+      
+      # Rollback window (HIPAA requirement for quick recovery)
+      abortScaleDownDelaySeconds: 3600  # 1 hour rollback window
+      
+      # Anti-affinity to ensure deployment across nodes
+      antiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+  
+  selector:
+    matchLabels:
+      app: notification-service
+  
+  template:
+    metadata:
+      labels:
+        app: notification-service
+        version: blue
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+        # HIPAA annotations
+        hipaa.serenity.com/audit-logging: "enabled"
+        hipaa.serenity.com/encryption: "enabled"
+        hipaa.serenity.com/phi-handling: "enabled"
+    
+    spec:
+      serviceAccountName: notification-service
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+        seccompProfile:
+          type: RuntimeDefault
+      
+      containers:
+      - name: notification-service
+        image: ghcr.io/serenity/notification-service:latest
+        imagePullPolicy: IfNotPresent
+        
+        ports:
+        - name: http
+          containerPort: 3000
+          protocol: TCP
+        - name: metrics
+          containerPort: 9090
+          protocol: TCP
+        - name: websocket
+          containerPort: 3001
+          protocol: TCP
+        
+        env:
+        - name: DEPLOYMENT_COLOR
+          value: "blue"
+        - name: DEPLOYMENT_STRATEGY
+          value: "blue-green"
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        
+        envFrom:
+        - configMapRef:
+            name: notification-service-config
+        - secretRef:
+            name: notification-service-secrets
+        
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+            ephemeral-storage: "1Gi"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+            ephemeral-storage: "2Gi"
+        
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        
+        startupProbe:
+          httpGet:
+            path: /health/startup
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 30
+        
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1001
+        
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: logs
+          mountPath: /app/logs
+        - name: audit-logs
+          mountPath: /app/audit-logs
+      
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: logs
+        emptyDir: {}
+      - name: audit-logs
+        persistentVolumeClaim:
+          claimName: notification-service-audit-logs
+      
+      terminationGracePeriodSeconds: 30
+      
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - notification-service
+              topologyKey: kubernetes.io/hostname
+
+---
+# Analysis Template for Blue-Green Success Rate
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: success-rate
+  namespace: notification-service
+spec:
+  args:
+  - name: service-name
+  - name: success-threshold
+    value: "95"
+  
+  metrics:
+  - name: success-rate
+    interval: 60s
+    count: 5
+    successCondition: result[0] >= {{args.success-threshold}}
+    failureLimit: 3
+    provider:
+      prometheus:
+        address: http://prometheus.monitoring.svc.cluster.local:9090
+        query: |
+          (
+            sum(rate(http_requests_total{job="{{args.service-name}}",status=~"2.."}[5m])) /
+            sum(rate(http_requests_total{job="{{args.service-name}}"}[5m]))
+          ) * 100
+  
+  - name: error-rate
+    interval: 60s
+    count: 5
+    successCondition: result[0] <= 5
+    failureLimit: 3
+    provider:
+      prometheus:
+        address: http://prometheus.monitoring.svc.cluster.local:9090
+        query: |
+          (
+            sum(rate(http_requests_total{job="{{args.service-name}}",status=~"5.."}[5m])) /
+            sum(rate(http_requests_total{job="{{args.service-name}}"}[5m]))
+          ) * 100
+  
+  - name: latency-p95
+    interval: 60s
+    count: 5
+    successCondition: result[0] <= 0.5
+    failureLimit: 3
+    provider:
+      prometheus:
+        address: http://prometheus.monitoring.svc.cluster.local:9090
+        query: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{job="{{args.service-name}}"}[5m])) by (le)
+          )
+  
+  # HIPAA Compliance Check
+  - name: audit-log-failures
+    interval: 60s
+    count: 5
+    successCondition: result[0] == 0
+    failureLimit: 1
+    provider:
+      prometheus:
+        address: http://prometheus.monitoring.svc.cluster.local:9090
+        query: |
+          sum(increase(notification_audit_log_failures_total{job="{{args.service-name}}"}[5m]))
+  
+  # Critical notification queue check
+  - name: critical-queue-backlog
+    interval: 30s
+    count: 10
+    successCondition: result[0] <= 10
+    failureLimit: 3
+    provider:
+      prometheus:
+        address: http://prometheus.monitoring.svc.cluster.local:9090
+        query: |
+          sum(notification_queue_length{job="{{args.service-name}}",queue_type="critical"})
+
+---
+# Preview Service for Blue-Green Deployment
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service-preview
+  namespace: notification-service
+  labels:
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/component: preview-service
+    app.kubernetes.io/part-of: serenity-platform
+  annotations:
+    # Preview service annotations
+    deployment.kubernetes.io/purpose: "blue-green-preview"
+    hipaa.serenity.com/testing-environment: "true"
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3000
+    protocol: TCP
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+    protocol: TCP
+  - name: websocket
+    port: 3001
+    targetPort: 3001
+    protocol: TCP
+  selector:
+    app: notification-service
+
+---
+# Ingress for Preview Service (Internal Testing)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: notification-service-preview-ingress
+  namespace: notification-service
+  labels:
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/component: preview-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    
+    # Authentication for preview access
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: notification-service-preview-auth
+    nginx.ingress.kubernetes.io/auth-realm: "Notification Service Preview - Testing Only"
+    
+    # IP whitelist for testing teams only
+    nginx.ingress.kubernetes.io/whitelist-source-range: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+    
+    # Preview-specific headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Preview-Environment: true";
+      more_set_headers "X-Testing-Only: true";
+      more_set_headers "Cache-Control: no-cache, no-store, must-revalidate";
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - notifications-preview.serenity.local
+    secretName: notification-service-preview-tls
+  rules:
+  - host: notifications-preview.serenity.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: notification-service-preview
+            port:
+              number: 80
+
+---
+# Blue-Green Deployment Script ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: blue-green-deploy-scripts
+  namespace: notification-service
+data:
+  promote.sh: |
+    #!/bin/bash
+    set -euo pipefail
+    
+    echo "🔄 Starting Blue-Green Promotion for Notification Service"
+    echo "Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+    
+    # Validate environment
+    if [ -z "${KUBECONFIG:-}" ]; then
+      echo "❌ KUBECONFIG not set"
+      exit 1
+    fi
+    
+    # Check if kubectl is available
+    if ! command -v kubectl &> /dev/null; then
+      echo "❌ kubectl is not installed"
+      exit 1
+    fi
+    
+    # Check if argo rollouts CLI is available
+    if ! command -v kubectl-argo-rollouts &> /dev/null; then
+      echo "❌ kubectl argo-rollouts plugin is not installed"
+      exit 1
+    fi
+    
+    # Validate current rollout status
+    echo "📊 Checking current rollout status..."
+    ROLLOUT_STATUS=$(kubectl argo rollouts get rollout notification-service-rollout -n notification-service --no-color)
+    echo "$ROLLOUT_STATUS"
+    
+    # Check if preview is healthy
+    echo "🏥 Performing health checks on preview environment..."
+    PREVIEW_HEALTH=$(curl -f -s "http://notification-service-preview.notification-service.svc.cluster.local/health" | jq -r '.status')
+    
+    if [ "$PREVIEW_HEALTH" != "ok" ]; then
+      echo "❌ Preview environment health check failed"
+      exit 1
+    fi
+    
+    # HIPAA Compliance Check
+    echo "🏥 Performing HIPAA compliance validation..."
+    AUDIT_FAILURES=$(kubectl get --raw "/api/v1/query?query=sum(increase(notification_audit_log_failures_total[5m]))" | jq -r '.data.result[0].value[1]')
+    
+    if [ "${AUDIT_FAILURES:-0}" != "0" ]; then
+      echo "❌ HIPAA compliance check failed: ${AUDIT_FAILURES} audit log failures detected"
+      exit 1
+    fi
+    
+    # Promote the rollout
+    echo "🚀 Promoting rollout..."
+    kubectl argo rollouts promote notification-service-rollout -n notification-service
+    
+    # Wait for promotion to complete
+    echo "⏳ Waiting for promotion to complete..."
+    kubectl argo rollouts wait notification-service-rollout -n notification-service --timeout=600s
+    
+    echo "✅ Blue-Green promotion completed successfully"
+    
+    # Log the promotion for audit purposes
+    kubectl annotate rollout notification-service-rollout \
+      deployment.serenity.com/promoted-at="$(date -u +"%Y-%m-%d %H:%M:%S UTC")" \
+      deployment.serenity.com/promoted-by="${USER:-system}" \
+      -n notification-service
+    
+    echo "📝 Promotion logged for HIPAA audit compliance"
+    
+  rollback.sh: |
+    #!/bin/bash
+    set -euo pipefail
+    
+    echo "🔄 Starting Blue-Green Rollback for Notification Service"
+    echo "Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+    echo "⚠️  This will rollback to the previous stable version"
+    
+    # Validate environment
+    if [ -z "${KUBECONFIG:-}" ]; then
+      echo "❌ KUBECONFIG not set"
+      exit 1
+    fi
+    
+    # Emergency rollback - no questions asked for critical healthcare service
+    echo "🚨 Performing emergency rollback..."
+    kubectl argo rollouts abort notification-service-rollout -n notification-service
+    kubectl argo rollouts undo notification-service-rollout -n notification-service
+    
+    # Wait for rollback to complete
+    echo "⏳ Waiting for rollback to complete..."
+    kubectl argo rollouts wait notification-service-rollout -n notification-service --timeout=300s
+    
+    echo "✅ Emergency rollback completed"
+    
+    # Log the rollback for audit purposes
+    kubectl annotate rollout notification-service-rollout \
+      deployment.serenity.com/rollback-at="$(date -u +"%Y-%m-%d %H:%M:%S UTC")" \
+      deployment.serenity.com/rollback-by="${USER:-system}" \
+      deployment.serenity.com/rollback-reason="${ROLLBACK_REASON:-emergency}" \
+      -n notification-service
+    
+    # Send critical alert
+    echo "📢 Sending critical rollback notification..."
+    curl -X POST "${SLACK_WEBHOOK_URL}" \
+      -H 'Content-type: application/json' \
+      --data "{\"text\":\"🚨 CRITICAL: Notification Service rollback completed at $(date -u). Previous version restored for patient safety.\"}" || true
+    
+    echo "📝 Rollback logged for HIPAA audit compliance"
+    
+  health-check.sh: |
+    #!/bin/bash
+    set -euo pipefail
+    
+    SERVICE_URL="${1:-http://notification-service-preview.notification-service.svc.cluster.local}"
+    
+    echo "🏥 Running comprehensive health checks for: $SERVICE_URL"
+    
+    # Basic health check
+    echo "📊 Basic health check..."
+    HEALTH_STATUS=$(curl -f -s "$SERVICE_URL/health" | jq -r '.status')
+    if [ "$HEALTH_STATUS" != "ok" ]; then
+      echo "❌ Basic health check failed"
+      exit 1
+    fi
+    
+    # Readiness check
+    echo "📊 Readiness check..."
+    curl -f -s "$SERVICE_URL/health/ready" > /dev/null
+    
+    # Database connectivity
+    echo "📊 Database connectivity check..."
+    curl -f -s "$SERVICE_URL/health/database" > /dev/null
+    
+    # Redis connectivity  
+    echo "📊 Redis connectivity check..."
+    curl -f -s "$SERVICE_URL/health/redis" > /dev/null
+    
+    # HIPAA compliance check
+    echo "🏥 HIPAA compliance check..."
+    ENCRYPTION_STATUS=$(curl -f -s "$SERVICE_URL/health/security" | jq -r '.encryption.enabled')
+    if [ "$ENCRYPTION_STATUS" != "true" ]; then
+      echo "❌ HIPAA compliance check failed: encryption not enabled"
+      exit 1
+    fi
+    
+    echo "✅ All health checks passed"

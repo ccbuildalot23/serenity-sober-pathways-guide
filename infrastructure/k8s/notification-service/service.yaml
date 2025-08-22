@@ -1,0 +1,160 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: notification-service
+  labels:
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: serenity-platform
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+    prometheus.io/path: "/metrics"
+    # AWS Load Balancer Controller annotations
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internal"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-path: "/health"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-interval-seconds: "10"
+    service.beta.kubernetes.io/aws-load-balancer-healthy-threshold-count: "2"
+    service.beta.kubernetes.io/aws-load-balancer-unhealthy-threshold-count: "2"
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3000
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: 3000
+    protocol: TCP
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+    protocol: TCP
+  - name: websocket
+    port: 3001
+    targetPort: 3001
+    protocol: TCP
+  selector:
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/component: api
+
+---
+# Headless Service for StatefulSet (if needed for clustering)
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service-headless
+  namespace: notification-service
+  labels:
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: serenity-platform
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name: http
+    port: 3000
+    targetPort: 3000
+    protocol: TCP
+  - name: websocket
+    port: 3001
+    targetPort: 3001
+    protocol: TCP
+  selector:
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/component: api
+
+---
+# External Load Balancer Service (Production)
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service-external
+  namespace: notification-service
+  labels:
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/component: load-balancer
+    app.kubernetes.io/part-of: serenity-platform
+  annotations:
+    # AWS Load Balancer Controller annotations
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:us-east-1:ACCOUNT:certificate/CERT-ID"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "https"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-negotiation-policy: "ELBSecurityPolicy-TLS-1-2-2017-01"
+    
+    # Health check configuration
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-path: "/health"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-interval-seconds: "10"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-timeout-seconds: "5"
+    service.beta.kubernetes.io/aws-load-balancer-healthy-threshold-count: "2"
+    service.beta.kubernetes.io/aws-load-balancer-unhealthy-threshold-count: "2"
+    
+    # Access logging for HIPAA compliance
+    service.beta.kubernetes.io/aws-load-balancer-access-log-enabled: "true"
+    service.beta.kubernetes.io/aws-load-balancer-access-log-s3-bucket-name: "serenity-hipaa-access-logs"
+    service.beta.kubernetes.io/aws-load-balancer-access-log-s3-bucket-prefix: "notification-service"
+    
+    # Security groups
+    service.beta.kubernetes.io/aws-load-balancer-security-groups: "sg-notification-service-lb"
+    
+    # IP restrictions for HIPAA compliance
+    service.beta.kubernetes.io/aws-load-balancer-source-ranges: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+spec:
+  type: LoadBalancer
+  loadBalancerSourceRanges:
+  - "10.0.0.0/8"      # Internal networks only
+  - "172.16.0.0/12"   # Private networks
+  - "192.168.0.0/16"  # Local networks
+  ports:
+  - name: https
+    port: 443
+    targetPort: 3000
+    protocol: TCP
+  - name: websocket-secure
+    port: 3001
+    targetPort: 3001
+    protocol: TCP
+  selector:
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/component: api
+
+---
+# Service Monitor for Prometheus
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: notification-service
+  namespace: notification-service
+  labels:
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/component: monitoring
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: notification-service
+      app.kubernetes.io/component: api
+  endpoints:
+  - port: metrics
+    interval: 30s
+    scrapeTimeout: 10s
+    path: /metrics
+    scheme: http
+    honorLabels: true
+    # HIPAA: Ensure no PHI in metrics
+    metricRelabelings:
+    - sourceLabels: [__name__]
+      regex: '.*_(email|phone|ssn|patient_id).*'
+      action: drop
+    relabelings:
+    - sourceLabels: [__meta_kubernetes_pod_name]
+      targetLabel: pod
+    - sourceLabels: [__meta_kubernetes_pod_node_name]
+      targetLabel: node

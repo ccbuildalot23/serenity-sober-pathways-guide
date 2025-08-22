@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: notification-service
+  labels:
+    name: notification-service
+    app.kubernetes.io/name: serenity-notification
+    app.kubernetes.io/part-of: serenity-platform
+    environment: production
+  annotations:
+    kubernetes.io/managed-by: "helm"
+    meta.helm.sh/release-name: "notification-service"
+    meta.helm.sh/release-namespace: "notification-service"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: notification-service-staging
+  labels:
+    name: notification-service-staging
+    app.kubernetes.io/name: serenity-notification
+    app.kubernetes.io/part-of: serenity-platform
+    environment: staging
+  annotations:
+    kubernetes.io/managed-by: "helm"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: notification-service-dev
+  labels:
+    name: notification-service-dev
+    app.kubernetes.io/name: serenity-notification
+    app.kubernetes.io/part-of: serenity-platform
+    environment: development
+  annotations:
+    kubernetes.io/managed-by: "helm"

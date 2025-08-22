@@ -1,0 +1,277 @@
+# Prometheus alerting rules for Notification Service
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: notification-service-alerts
+  namespace: monitoring
+  labels:
+    app: notification-service
+    prometheus: kube-prometheus
+    role: alert-rules
+    release: prometheus-operator
+spec:
+  groups:
+  - name: notification-service.rules
+    interval: 30s
+    rules:
+    
+    # Service Availability Rules
+    - alert: NotificationServiceDown
+      expr: up{job="notification-service"} == 0
+      for: 1m
+      labels:
+        severity: critical
+        service: notification-service
+        category: availability
+        hipaa_critical: "true"
+      annotations:
+        summary: "Notification Service is down"
+        description: "Notification Service has been down for more than 1 minute. This affects critical healthcare notifications."
+        runbook_url: "https://runbooks.serenity.com/notification-service/down"
+        
+    - alert: NotificationServiceHighErrorRate
+      expr: (rate(http_requests_total{job="notification-service",status=~"5.."}[5m]) / rate(http_requests_total{job="notification-service"}[5m])) * 100 > 5
+      for: 5m
+      labels:
+        severity: warning
+        service: notification-service
+        category: error_rate
+      annotations:
+        summary: "High error rate in Notification Service"
+        description: "Error rate is {{ $value }}% for the last 5 minutes"
+        runbook_url: "https://runbooks.serenity.com/notification-service/high-error-rate"
+        
+    - alert: NotificationServiceHighLatency
+      expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="notification-service"}[5m])) > 0.5
+      for: 5m
+      labels:
+        severity: warning
+        service: notification-service
+        category: latency
+      annotations:
+        summary: "High latency in Notification Service"
+        description: "95th percentile latency is {{ $value }}s for the last 5 minutes"
+        runbook_url: "https://runbooks.serenity.com/notification-service/high-latency"
+        
+    # Resource Utilization Rules
+    - alert: NotificationServiceHighCPU
+      expr: rate(container_cpu_usage_seconds_total{pod=~"notification-service-.*"}[5m]) * 100 > 80
+      for: 10m
+      labels:
+        severity: warning
+        service: notification-service
+        category: resource_utilization
+      annotations:
+        summary: "High CPU usage in Notification Service"
+        description: "CPU usage is {{ $value }}% for pod {{ $labels.pod }}"
+        runbook_url: "https://runbooks.serenity.com/notification-service/high-cpu"
+        
+    - alert: NotificationServiceHighMemory
+      expr: (container_memory_usage_bytes{pod=~"notification-service-.*"} / container_spec_memory_limit_bytes{pod=~"notification-service-.*"}) * 100 > 85
+      for: 5m
+      labels:
+        severity: warning
+        service: notification-service
+        category: resource_utilization
+      annotations:
+        summary: "High memory usage in Notification Service"
+        description: "Memory usage is {{ $value }}% for pod {{ $labels.pod }}"
+        runbook_url: "https://runbooks.serenity.com/notification-service/high-memory"
+        
+    - alert: NotificationServiceOutOfMemory
+      expr: (container_memory_usage_bytes{pod=~"notification-service-.*"} / container_spec_memory_limit_bytes{pod=~"notification-service-.*"}) * 100 > 95
+      for: 1m
+      labels:
+        severity: critical
+        service: notification-service
+        category: resource_utilization
+        hipaa_critical: "true"
+      annotations:
+        summary: "Notification Service is running out of memory"
+        description: "Memory usage is {{ $value }}% for pod {{ $labels.pod }}. Service may crash soon."
+        runbook_url: "https://runbooks.serenity.com/notification-service/out-of-memory"
+        
+    # Notification-Specific Rules
+    - alert: NotificationQueueBacklog
+      expr: notification_queue_length{job="notification-service"} > 1000
+      for: 5m
+      labels:
+        severity: warning
+        service: notification-service
+        category: queue_management
+      annotations:
+        summary: "High notification queue backlog"
+        description: "Notification queue has {{ $value }} pending notifications"
+        runbook_url: "https://runbooks.serenity.com/notification-service/queue-backlog"
+        
+    - alert: CriticalNotificationQueueBacklog
+      expr: notification_queue_length{job="notification-service",queue_type="critical"} > 50
+      for: 1m
+      labels:
+        severity: critical
+        service: notification-service
+        category: queue_management
+        hipaa_critical: "true"
+      annotations:
+        summary: "Critical notification queue backlog"
+        description: "Critical notification queue has {{ $value }} pending notifications. Patient safety may be at risk."
+        runbook_url: "https://runbooks.serenity.com/notification-service/critical-queue-backlog"
+        
+    - alert: NotificationDeliveryFailureRate
+      expr: (rate(notification_delivery_failed_total{job="notification-service"}[5m]) / rate(notification_delivery_attempts_total{job="notification-service"}[5m])) * 100 > 10
+      for: 5m
+      labels:
+        severity: warning
+        service: notification-service
+        category: delivery_failure
+      annotations:
+        summary: "High notification delivery failure rate"
+        description: "Notification delivery failure rate is {{ $value }}% for {{ $labels.channel }} channel"
+        runbook_url: "https://runbooks.serenity.com/notification-service/delivery-failures"
+        
+    - alert: CriticalNotificationDeliveryFailure
+      expr: (rate(notification_delivery_failed_total{job="notification-service",priority="critical"}[5m]) / rate(notification_delivery_attempts_total{job="notification-service",priority="critical"}[5m])) * 100 > 5
+      for: 2m
+      labels:
+        severity: critical
+        service: notification-service
+        category: delivery_failure
+        hipaa_critical: "true"
+      annotations:
+        summary: "Critical notification delivery failures"
+        description: "Critical notification delivery failure rate is {{ $value }}% for {{ $labels.channel }} channel"
+        runbook_url: "https://runbooks.serenity.com/notification-service/critical-delivery-failures"
+        
+    # External Service Dependencies
+    - alert: DatabaseConnectionIssues
+      expr: notification_db_connections_failed_total{job="notification-service"} > 0
+      for: 1m
+      labels:
+        severity: critical
+        service: notification-service
+        category: database
+        hipaa_critical: "true"
+      annotations:
+        summary: "Database connection issues"
+        description: "{{ $value }} database connection failures detected"
+        runbook_url: "https://runbooks.serenity.com/notification-service/database-issues"
+        
+    - alert: RedisConnectionIssues
+      expr: notification_redis_connections_failed_total{job="notification-service"} > 0
+      for: 1m
+      labels:
+        severity: warning
+        service: notification-service
+        category: redis
+      annotations:
+        summary: "Redis connection issues"
+        description: "{{ $value }} Redis connection failures detected"
+        runbook_url: "https://runbooks.serenity.com/notification-service/redis-issues"
+        
+    - alert: ExternalServiceProviderFailure
+      expr: notification_external_service_failures_total{job="notification-service"} > 10
+      for: 5m
+      labels:
+        severity: warning
+        service: notification-service
+        category: external_services
+      annotations:
+        summary: "External service provider failures"
+        description: "{{ $value }} failures for {{ $labels.provider }} service in the last 5 minutes"
+        runbook_url: "https://runbooks.serenity.com/notification-service/external-service-failures"
+        
+    # Security and Compliance Rules
+    - alert: UnauthorizedAPIAccess
+      expr: rate(http_requests_total{job="notification-service",status="401"}[5m]) > 5
+      for: 2m
+      labels:
+        severity: warning
+        service: notification-service
+        category: security
+        hipaa_security: "true"
+      annotations:
+        summary: "High rate of unauthorized API access attempts"
+        description: "{{ $value }} unauthorized access attempts per second"
+        runbook_url: "https://runbooks.serenity.com/notification-service/unauthorized-access"
+        
+    - alert: AuditLogFailures
+      expr: notification_audit_log_failures_total{job="notification-service"} > 0
+      for: 1m
+      labels:
+        severity: critical
+        service: notification-service
+        category: compliance
+        hipaa_critical: "true"
+      annotations:
+        summary: "HIPAA audit log failures detected"
+        description: "{{ $value }} audit log write failures. This is a HIPAA compliance violation."
+        runbook_url: "https://runbooks.serenity.com/notification-service/audit-log-failures"
+        
+    - alert: EncryptionFailures
+      expr: notification_encryption_failures_total{job="notification-service"} > 0
+      for: 1m
+      labels:
+        severity: critical
+        service: notification-service
+        category: security
+        hipaa_critical: "true"
+      annotations:
+        summary: "Data encryption failures detected"
+        description: "{{ $value }} encryption failures. This is a HIPAA compliance violation."
+        runbook_url: "https://runbooks.serenity.com/notification-service/encryption-failures"
+        
+    # WebSocket Connection Rules
+    - alert: WebSocketConnectionDrops
+      expr: rate(websocket_connections_dropped_total{job="notification-service"}[5m]) > 10
+      for: 5m
+      labels:
+        severity: warning
+        service: notification-service
+        category: websocket
+      annotations:
+        summary: "High WebSocket connection drop rate"
+        description: "{{ $value }} WebSocket connections dropped per second"
+        runbook_url: "https://runbooks.serenity.com/notification-service/websocket-drops"
+        
+    - alert: WebSocketConnectionsHigh
+      expr: websocket_connections_active{job="notification-service"} > 10000
+      for: 5m
+      labels:
+        severity: warning
+        service: notification-service
+        category: websocket
+      annotations:
+        summary: "High number of active WebSocket connections"
+        description: "{{ $value }} active WebSocket connections"
+        runbook_url: "https://runbooks.serenity.com/notification-service/high-websocket-connections"
+
+  # Recording Rules for Performance Metrics
+  - name: notification-service.recording
+    interval: 30s
+    rules:
+    - record: notification_service:request_rate
+      expr: rate(http_requests_total{job="notification-service"}[5m])
+      
+    - record: notification_service:error_rate
+      expr: rate(http_requests_total{job="notification-service",status=~"5.."}[5m]) / rate(http_requests_total{job="notification-service"}[5m])
+      
+    - record: notification_service:latency_p95
+      expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="notification-service"}[5m]))
+      
+    - record: notification_service:latency_p99
+      expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket{job="notification-service"}[5m]))
+      
+    - record: notification_service:cpu_usage
+      expr: rate(container_cpu_usage_seconds_total{pod=~"notification-service-.*"}[5m]) * 100
+      
+    - record: notification_service:memory_usage
+      expr: (container_memory_usage_bytes{pod=~"notification-service-.*"} / container_spec_memory_limit_bytes{pod=~"notification-service-.*"}) * 100
+      
+    - record: notification_service:queue_utilization
+      expr: notification_queue_length{job="notification-service"} / notification_queue_capacity{job="notification-service"} * 100
+      
+    - record: notification_service:delivery_success_rate
+      expr: (rate(notification_delivery_success_total{job="notification-service"}[5m]) / rate(notification_delivery_attempts_total{job="notification-service"}[5m])) * 100
+      
+    - record: notification_service:sla_availability
+      expr: (1 - rate(up{job="notification-service"}[5m])) * 100

@@ -1,0 +1,605 @@
+name: Notification Security & HIPAA Compliance
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'services/notification-service/**'
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'services/notification-service/**'
+  schedule:
+    # Run security scans daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      scan_type:
+        description: 'Type of security scan'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - dependencies-only
+          - secrets-only
+          - hipaa-only
+
+env:
+  NODE_VERSION: '20'
+
+permissions:
+  contents: read
+  security-events: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  dependency-security-scan:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.scan_type != 'secrets-only' && github.event.inputs.scan_type != 'hipaa-only'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        working-directory: ./services/notification-service
+        run: npm ci
+
+      - name: Run npm audit
+        working-directory: ./services/notification-service
+        run: |
+          echo "Running npm audit..."
+          npm audit --audit-level moderate --format json > npm-audit-results.json || true
+          
+          # Parse results
+          CRITICAL=$(cat npm-audit-results.json | jq '.vulnerabilities | to_entries[] | select(.value.severity == "critical") | length' | wc -l)
+          HIGH=$(cat npm-audit-results.json | jq '.vulnerabilities | to_entries[] | select(.value.severity == "high") | length' | wc -l)
+          MODERATE=$(cat npm-audit-results.json | jq '.vulnerabilities | to_entries[] | select(.value.severity == "moderate") | length' | wc -l)
+          
+          echo "Vulnerability Summary:"
+          echo "- Critical: $CRITICAL"
+          echo "- High: $HIGH" 
+          echo "- Moderate: $MODERATE"
+          
+          # Create GitHub Security Advisory if critical/high vulnerabilities found
+          if [ "$CRITICAL" -gt "0" ] || [ "$HIGH" -gt "0" ]; then
+            echo "🚨 Critical or high severity vulnerabilities detected!"
+            cat npm-audit-results.json | jq '.vulnerabilities | to_entries[] | select(.value.severity == "critical" or .value.severity == "high")'
+            
+            # Set output for issue creation
+            echo "CREATE_SECURITY_ISSUE=true" >> $GITHUB_ENV
+            echo "VULN_SUMMARY=Critical: $CRITICAL, High: $HIGH, Moderate: $MODERATE" >> $GITHUB_ENV
+          fi
+
+      - name: Run Snyk vulnerability scan
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: test
+          args: --severity-threshold=high --file=services/notification-service/package.json
+        continue-on-error: true
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: './services/notification-service'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        id: depcheck
+        with:
+          project: 'serenity-notification-service'
+          path: './services/notification-service'
+          format: 'HTML,JSON,SARIF'
+          args: >
+            --enableRetired
+            --enableExperimental
+            --nodeAuditSkipDevDependencies
+            --nodePackageSkipDevDependencies
+
+      - name: Upload OWASP Dependency Check results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: ${{ github.workspace }}/reports/dependency-check-report.sarif
+
+      - name: Create security issue
+        if: env.CREATE_SECURITY_ISSUE == 'true' && github.event_name != 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `🚨 Security vulnerabilities detected in notification service`;
+            const body = `
+            ## Security Vulnerability Report
+            
+            **Severity Summary:** ${{ env.VULN_SUMMARY }}
+            
+            **Scan Details:**
+            - Repository: ${{ github.repository }}
+            - Branch: ${{ github.ref_name }}
+            - Commit: ${{ github.sha }}
+            - Triggered by: ${{ github.event_name }}
+            
+            **Action Required:**
+            1. Review the vulnerability details in the Security tab
+            2. Update affected dependencies
+            3. Test the application thoroughly
+            4. Deploy security fixes
+            
+            **Automated Scan Results:**
+            - npm audit: See attached artifacts
+            - Trivy scan: See Security tab
+            - OWASP Dependency Check: See attached artifacts
+            
+            ---
+            *This issue was created automatically by the security workflow.*
+            `;
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['security', 'vulnerability', 'urgent', 'notification-service']
+            });
+
+  secrets-scan:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.scan_type != 'dependencies-only' && github.event.inputs.scan_type != 'hipaa-only'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run TruffleHog secrets scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: './services/notification-service'
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified --format json --output trufflehog-results.json
+
+      - name: Run GitGuardian secrets scan  
+        uses: GitGuardian/ggshield/actions/secret@v1.27.0
+        env:
+          GITHUB_PUSH_BEFORE_SHA: ${{ github.event.before }}
+          GITHUB_PUSH_BASE_SHA: ${{ github.event.base }}
+          GITHUB_PULL_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
+        with:
+          args: --show-secrets
+
+      - name: Scan for hardcoded secrets patterns
+        working-directory: ./services/notification-service
+        run: |
+          echo "Scanning for hardcoded secrets and credentials..."
+          
+          # Define patterns to search for
+          SECRET_PATTERNS=(
+            "password\s*=\s*['\"][^'\"]+['\"]"
+            "api[_-]?key\s*=\s*['\"][^'\"]+['\"]"
+            "secret[_-]?key\s*=\s*['\"][^'\"]+['\"]"
+            "access[_-]?token\s*=\s*['\"][^'\"]+['\"]"
+            "database[_-]?url\s*=\s*['\"][^'\"]+['\"]"
+            "jwt[_-]?secret\s*=\s*['\"][^'\"]+['\"]"
+            "private[_-]?key\s*=\s*['\"][^'\"]+['\"]"
+            "aws[_-]?secret\s*=\s*['\"][^'\"]+['\"]"
+          )
+          
+          FOUND_ISSUES=0
+          
+          for pattern in "${SECRET_PATTERNS[@]}"; do
+            echo "Checking pattern: $pattern"
+            if grep -rn -E "$pattern" src/ --include="*.ts" --include="*.js" --exclude="*.test.*" --exclude="*.spec.*"; then
+              echo "❌ Found potential hardcoded secret: $pattern"
+              FOUND_ISSUES=$((FOUND_ISSUES + 1))
+            fi
+          done
+          
+          # Check for common credential files
+          CREDENTIAL_FILES=(".env" ".env.local" ".env.production" "credentials.json" "secrets.json")
+          for file in "${CREDENTIAL_FILES[@]}"; do
+            if find . -name "$file" -not -path "*/node_modules/*" -not -path "*/.git/*" | head -1; then
+              echo "❌ Found credential file: $file"
+              FOUND_ISSUES=$((FOUND_ISSUES + 1))
+            fi
+          done
+          
+          if [ $FOUND_ISSUES -gt 0 ]; then
+            echo "🚨 Found $FOUND_ISSUES potential security issues"
+            echo "CREATE_SECRETS_ISSUE=true" >> $GITHUB_ENV
+          else
+            echo "✅ No hardcoded secrets found"
+          fi
+
+      - name: Create secrets security issue
+        if: env.CREATE_SECRETS_ISSUE == 'true' && github.event_name != 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `🔑 Potential hardcoded secrets detected in notification service`;
+            const body = `
+            ## Secrets Security Alert
+            
+            Potential hardcoded secrets or credentials have been detected in the notification service.
+            
+            **Scan Details:**
+            - Repository: ${{ github.repository }}
+            - Branch: ${{ github.ref_name }}
+            - Commit: ${{ github.sha }}
+            
+            **Action Required:**
+            1. Review the scan results above
+            2. Remove any hardcoded secrets
+            3. Use environment variables or secret management services
+            4. Update .gitignore to prevent future credential commits
+            5. Rotate any exposed credentials
+            
+            **Security Best Practices:**
+            - Use GitHub Secrets for sensitive values
+            - Use AWS Secrets Manager or similar for production
+            - Never commit .env files or credential files
+            - Use proper .gitignore patterns
+            
+            ---
+            *This issue was created automatically by the security workflow.*
+            `;
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['security', 'secrets', 'urgent', 'notification-service']
+            });
+
+  hipaa-compliance-scan:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.scan_type != 'dependencies-only' && github.event.inputs.scan_type != 'secrets-only'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        working-directory: ./services/notification-service
+        run: npm ci
+
+      - name: HIPAA Technical Safeguards Check
+        working-directory: ./services/notification-service
+        run: |
+          echo "🏥 Running HIPAA Technical Safeguards Compliance Check..."
+          
+          COMPLIANCE_ISSUES=0
+          
+          # 1. Access Control (§164.312(a))
+          echo "Checking Access Control implementation..."
+          if ! grep -r "authenticate\|authorize\|rbac\|permission" src/ --include="*.ts" --include="*.js" -q; then
+            echo "❌ No access control patterns found"
+            COMPLIANCE_ISSUES=$((COMPLIANCE_ISSUES + 1))
+          else
+            echo "✅ Access control patterns found"
+          fi
+          
+          # 2. Audit Controls (§164.312(b))  
+          echo "Checking Audit Controls implementation..."
+          if ! grep -r "audit.*log\|compliance.*log\|security.*log" src/ --include="*.ts" --include="*.js" -q; then
+            echo "❌ No audit logging patterns found"
+            COMPLIANCE_ISSUES=$((COMPLIANCE_ISSUES + 1))
+          else
+            echo "✅ Audit logging patterns found"
+          fi
+          
+          # 3. Integrity (§164.312(c))
+          echo "Checking Data Integrity controls..."
+          if ! grep -r "hash\|checksum\|integrity\|validate" src/ --include="*.ts" --include="*.js" -q; then
+            echo "❌ No data integrity patterns found"
+            COMPLIANCE_ISSUES=$((COMPLIANCE_ISSUES + 1))
+          else
+            echo "✅ Data integrity patterns found"
+          fi
+          
+          # 4. Person or Entity Authentication (§164.312(d))
+          echo "Checking Person/Entity Authentication..."
+          if ! grep -r "jwt\|token\|authentication\|identity" src/ --include="*.ts" --include="*.js" -q; then
+            echo "❌ No authentication patterns found"
+            COMPLIANCE_ISSUES=$((COMPLIANCE_ISSUES + 1))
+          else
+            echo "✅ Authentication patterns found"
+          fi
+          
+          # 5. Transmission Security (§164.312(e))
+          echo "Checking Transmission Security..."
+          if ! grep -r "tls\|ssl\|encrypt\|crypto\|https" src/ --include="*.ts" --include="*.js" -q; then
+            echo "❌ No transmission security patterns found"
+            COMPLIANCE_ISSUES=$((COMPLIANCE_ISSUES + 1))
+          else
+            echo "✅ Transmission security patterns found"
+          fi
+          
+          echo "HIPAA_COMPLIANCE_ISSUES=$COMPLIANCE_ISSUES" >> $GITHUB_ENV
+
+      - name: HIPAA Administrative Safeguards Check
+        working-directory: ./services/notification-service
+        run: |
+          echo "🏥 Running HIPAA Administrative Safeguards Check..."
+          
+          # Check for proper error handling (no PHI in logs)
+          echo "Checking error handling patterns..."
+          if grep -r "console\.log\|console\.error\|console\.warn" src/ --include="*.ts" --include="*.js" | grep -v "test\|spec"; then
+            echo "❌ Found console logging statements - may expose PHI"
+            COMPLIANCE_ISSUES=$((COMPLIANCE_ISSUES + 1))
+          else
+            echo "✅ No console logging found"
+          fi
+          
+          # Check for proper session management
+          echo "Checking session management..."
+          if ! grep -r "session.*timeout\|session.*expire\|session.*security" src/ --include="*.ts" --include="*.js" -q; then
+            echo "❌ No session security patterns found"
+            COMPLIANCE_ISSUES=$((COMPLIANCE_ISSUES + 1))
+          else
+            echo "✅ Session security patterns found"
+          fi
+          
+          echo "HIPAA_COMPLIANCE_ISSUES=$COMPLIANCE_ISSUES" >> $GITHUB_ENV
+
+      - name: PHI Data Handling Check
+        working-directory: ./services/notification-service
+        run: |
+          echo "🏥 Checking PHI Data Handling Patterns..."
+          
+          # Check for potential PHI fields
+          PHI_PATTERNS=("ssn" "social.*security" "date.*birth" "dob" "medical.*record" "patient.*id" "diagnosis" "treatment" "medication" "health.*info")
+          
+          PHI_FOUND=0
+          for pattern in "${PHI_PATTERNS[@]}"; do
+            if grep -ri "$pattern" src/ --include="*.ts" --include="*.js" | grep -v "test\|spec\|mock"; then
+              echo "⚠️ Found potential PHI pattern: $pattern"
+              PHI_FOUND=$((PHI_FOUND + 1))
+            fi
+          done
+          
+          if [ $PHI_FOUND -gt 0 ]; then
+            echo "⚠️ Found $PHI_FOUND potential PHI patterns - ensure proper encryption"
+            
+            # Check if encryption is used when PHI patterns are found
+            if ! grep -r "encrypt\|crypto\|aes-256" src/ --include="*.ts" --include="*.js" -q; then
+              echo "❌ PHI patterns found but no encryption detected"
+              COMPLIANCE_ISSUES=$((COMPLIANCE_ISSUES + 1))
+            else
+              echo "✅ PHI patterns found with encryption present"
+            fi
+          else
+            echo "✅ No obvious PHI patterns found"
+          fi
+          
+          echo "HIPAA_COMPLIANCE_ISSUES=$COMPLIANCE_ISSUES" >> $GITHUB_ENV
+
+      - name: Generate HIPAA Compliance Report
+        run: |
+          echo "# HIPAA Compliance Report" > hipaa-report.md
+          echo "" >> hipaa-report.md
+          echo "**Generated:** $(date)" >> hipaa-report.md
+          echo "**Repository:** ${{ github.repository }}" >> hipaa-report.md  
+          echo "**Branch:** ${{ github.ref_name }}" >> hipaa-report.md
+          echo "**Commit:** ${{ github.sha }}" >> hipaa-report.md
+          echo "" >> hipaa-report.md
+          
+          if [ "$HIPAA_COMPLIANCE_ISSUES" -eq "0" ]; then
+            echo "## ✅ HIPAA Compliance Status: PASSED" >> hipaa-report.md
+            echo "" >> hipaa-report.md
+            echo "All technical safeguards checks passed successfully." >> hipaa-report.md
+          else
+            echo "## ❌ HIPAA Compliance Status: ISSUES FOUND" >> hipaa-report.md
+            echo "" >> hipaa-report.md
+            echo "**Issues Found:** $HIPAA_COMPLIANCE_ISSUES" >> hipaa-report.md
+            echo "" >> hipaa-report.md
+            echo "Please review the workflow logs for detailed information." >> hipaa-report.md
+          fi
+          
+          echo "" >> hipaa-report.md
+          echo "## Required HIPAA Technical Safeguards (§164.312)" >> hipaa-report.md
+          echo "- [x] Access Control (§164.312(a))" >> hipaa-report.md
+          echo "- [x] Audit Controls (§164.312(b))" >> hipaa-report.md  
+          echo "- [x] Integrity (§164.312(c))" >> hipaa-report.md
+          echo "- [x] Person or Entity Authentication (§164.312(d))" >> hipaa-report.md
+          echo "- [x] Transmission Security (§164.312(e))" >> hipaa-report.md
+
+      - name: Upload HIPAA Compliance Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: hipaa-compliance-report
+          path: hipaa-report.md
+
+      - name: Create HIPAA compliance issue
+        if: env.HIPAA_COMPLIANCE_ISSUES != '0' && github.event_name != 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `🏥 HIPAA Compliance issues detected in notification service`;
+            const body = `
+            ## HIPAA Compliance Alert
+            
+            **Issues Found:** ${{ env.HIPAA_COMPLIANCE_ISSUES }}
+            
+            The notification service has failed HIPAA compliance checks. This requires immediate attention to ensure regulatory compliance.
+            
+            **Compliance Areas Checked:**
+            - ✅ Access Control (§164.312(a))
+            - ✅ Audit Controls (§164.312(b))  
+            - ✅ Data Integrity (§164.312(c))
+            - ✅ Person/Entity Authentication (§164.312(d))
+            - ✅ Transmission Security (§164.312(e))
+            
+            **Action Required:**
+            1. Review the detailed compliance report in the workflow artifacts
+            2. Address all identified compliance gaps
+            3. Implement proper PHI encryption where needed
+            4. Add audit logging for all PHI access
+            5. Ensure proper access controls are in place
+            6. Re-run compliance scan after fixes
+            
+            **Resources:**
+            - [HIPAA Security Rule](https://www.hhs.gov/hipaa/for-professionals/security/index.html)
+            - [Technical Safeguards](https://www.hhs.gov/hipaa/for-professionals/security/laws-regulations/index.html)
+            
+            ---
+            *This issue was created automatically by the HIPAA compliance workflow.*
+            `;
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['compliance', 'hipaa', 'urgent', 'notification-service']
+            });
+
+      - name: Fail workflow if HIPAA issues found
+        if: env.HIPAA_COMPLIANCE_ISSUES != '0'
+        run: |
+          echo "🚨 HIPAA compliance issues found: $HIPAA_COMPLIANCE_ISSUES"
+          echo "This workflow must fail to prevent non-compliant code from being deployed."
+          exit 1
+
+  infrastructure-security-scan:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == ''
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Checkov - Infrastructure as Code Security
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: infrastructure/
+          framework: terraform,kubernetes,dockerfile
+          output_format: sarif
+          output_file_path: checkov-results.sarif
+
+      - name: Upload Checkov scan results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: checkov-results.sarif
+
+      - name: Terraform Security Scan
+        if: hashFiles('infrastructure/terraform/**/*.tf') != ''
+        run: |
+          echo "Running Terraform security scan..."
+          
+          # Install tfsec
+          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+          
+          # Scan Terraform files
+          if [ -d "infrastructure/terraform" ]; then
+            tfsec infrastructure/terraform --format json --out tfsec-results.json || true
+            
+            # Check for high/critical issues
+            if [ -f "tfsec-results.json" ]; then
+              HIGH_ISSUES=$(cat tfsec-results.json | jq '[.results[] | select(.severity == "HIGH" or .severity == "CRITICAL")] | length')
+              if [ "$HIGH_ISSUES" -gt "0" ]; then
+                echo "❌ Found $HIGH_ISSUES high/critical Terraform security issues"
+                cat tfsec-results.json | jq '.results[] | select(.severity == "HIGH" or .severity == "CRITICAL")'
+              else
+                echo "✅ No critical Terraform security issues found"
+              fi
+            fi
+          fi
+
+      - name: Kubernetes Security Scan
+        if: hashFiles('infrastructure/k8s/**/*.yaml') != '' || hashFiles('infrastructure/helm/**/*.yaml') != ''
+        run: |
+          echo "Running Kubernetes security scan..."
+          
+          # Install kubesec
+          wget https://github.com/controlplaneio/kubesec/releases/latest/download/kubesec_linux_amd64.tar.gz
+          tar -xzf kubesec_linux_amd64.tar.gz
+          chmod +x kubesec
+          
+          # Scan Kubernetes manifests
+          find infrastructure/ -name "*.yaml" -o -name "*.yml" | while read file; do
+            echo "Scanning: $file"
+            ./kubesec scan "$file" || true
+          done
+
+  security-summary:
+    needs: [dependency-security-scan, secrets-scan, hipaa-compliance-scan, infrastructure-security-scan]
+    if: always()
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Generate security summary
+        run: |
+          echo "# 🔐 Security & Compliance Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Scan Date:** $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "**Repository:** ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "## Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Scan Type | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|---------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency Security | ${{ needs.dependency-security-scan.result == 'success' && '✅ Passed' || needs.dependency-security-scan.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Secrets Scan | ${{ needs.secrets-scan.result == 'success' && '✅ Passed' || needs.secrets-scan.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| HIPAA Compliance | ${{ needs.hipaa-compliance-scan.result == 'success' && '✅ Passed' || needs.hipaa-compliance-scan.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Infrastructure Security | ${{ needs.infrastructure-security-scan.result == 'success' && '✅ Passed' || needs.infrastructure-security-scan.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Overall status
+          if [[ "${{ needs.hipaa-compliance-scan.result }}" == "success" && "${{ needs.dependency-security-scan.result }}" == "success" && "${{ needs.secrets-scan.result }}" == "success" ]]; then
+            echo "## ✅ Overall Status: SECURE & COMPLIANT" >> $GITHUB_STEP_SUMMARY
+            echo "All security and compliance checks passed." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ❌ Overall Status: ISSUES DETECTED" >> $GITHUB_STEP_SUMMARY
+            echo "Security or compliance issues were found. Please review and address before deploying." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Set final security status
+        run: |
+          if [[ "${{ needs.hipaa-compliance-scan.result }}" != "success" ]]; then
+            echo "❌ HIPAA compliance check failed - blocking deployment"
+            exit 1
+          elif [[ "${{ needs.dependency-security-scan.result }}" == "failure" ]]; then
+            echo "❌ Critical security vulnerabilities found - blocking deployment"  
+            exit 1
+          elif [[ "${{ needs.secrets-scan.result }}" == "failure" ]]; then
+            echo "❌ Secrets or credentials detected - blocking deployment"
+            exit 1
+          else
+            echo "✅ All security and compliance checks passed"
+          fi

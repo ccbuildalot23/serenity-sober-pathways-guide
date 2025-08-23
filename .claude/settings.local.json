@@ -71,7 +71,9 @@
       "Bash(start http://localhost:8080/provider/dashboard)",
       "Bash(start http://localhost:8080)",
       "Bash(start http://localhost:8080/supporter/profile)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(gh pr create:*)",
+      "Bash(powershell:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

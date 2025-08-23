@@ -73,7 +73,11 @@
       "Bash(start http://localhost:8080/supporter/profile)",
       "Bash(rg:*)",
       "Bash(gh pr create:*)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(set VITE_PORT=8081)",
+      "Bash(tasklist:*)",
+      "Bash(gh pr comment:*)",
+      "Bash(\"C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe\" sts get-caller-identity)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

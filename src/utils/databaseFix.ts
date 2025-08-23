@@ -109,7 +109,7 @@ export async function loadDashboardDataFixed() {
     const [eventsResp, dailyResp, lastResp, contactsResp] = user ? await Promise.all([
       supabase.from('checkin_events').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
       supabase.from('daily_checkins').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
-      supabase.from('daily_checkins').select('created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5),
+      supabase.from('daily_checkins').select('created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(30),
       supabase.from('support_contacts').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
     ]) : [null, null, { data: [] }, null];
 
@@ -118,11 +118,14 @@ export async function loadDashboardDataFixed() {
     const lastCheckIn = (lastResp as any)?.data?.[0]?.created_at || null;
     const recentCheckIns = (lastResp as any)?.data || [];
     const contactsCount = (contactsResp as any)?.count ?? 0;
+    
+    // Calculate actual consecutive streak
+    const streak = calculateStreakFixed(recentCheckIns);
 
     return {
       totalCheckIns: eventsCount > 0 ? eventsCount : dailyCount,
       supportNetworkCount: contactsCount,
-      currentStreak: dailyCount,
+      currentStreak: streak,
       lastCheckIn,
       recentCheckIns,
     };
@@ -186,7 +189,7 @@ export async function getCurrentCheckinCounts(): Promise<{
   }
 }
 
-function calculateStreakFixed(checkIns: Array<{ created_at?: string }>) {
+export function calculateStreakFixed(checkIns: Array<{ created_at?: string }>) {
   if (!checkIns || checkIns.length === 0) return 0;
   const today = new Date();
   let streak = 0;

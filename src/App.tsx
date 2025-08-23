@@ -64,7 +64,7 @@ const SupporterResources = lazy(() => import('@/pages/supporter/SupporterResourc
 const Motivation = lazy(() => import('@/pages/Motivation'));
 const AccountabilityPartners = lazy(() => import('@/pages/AccountabilityPartners'));
 const RecoveryPlanning = lazy(() => import('@/pages/RecoveryPlanning'));
-const RelapsePreventionPage = lazy(() => import('@/pages/RelapsePrevention'));
+const RecoveryStrengthPage = lazy(() => import('@/pages/RelapsePrevention'));
 // Eagerly load CrisisSupport to avoid lazy loading issues in E2E
 import CrisisSupport from '@/pages/CrisisSupport';
 
@@ -257,7 +257,7 @@ const AppContent = () => {
           <Route path="/relapse-prevention" element={
             <ProtectedRoute>
               <Suspense fallback={<LoadingState />}>
-                <RelapsePreventionPage />
+                <RecoveryStrengthPage />
               </Suspense>
             </ProtectedRoute>
           } />

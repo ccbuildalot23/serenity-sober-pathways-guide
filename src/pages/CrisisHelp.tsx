@@ -130,7 +130,7 @@ const CrisisHelp: React.FC = () => {
           <div className="space-y-3 mb-6">
             {[
               { id: 'suicidal', label: 'Having thoughts of suicide or self-harm', icon: '🆘', color: 'red' },
-              { id: 'relapse', label: 'Struggling with urges to use/drink', icon: '⚠️', color: 'orange' },
+              { id: 'recovery', label: 'Struggling with recovery challenges', icon: '⚠️', color: 'orange' },
               { id: 'shame', label: 'Feeling overwhelmed by shame/guilt', icon: '💙', color: 'blue' },
               { id: 'panic', label: 'Having a panic attack or severe anxiety', icon: '🌊', color: 'purple' },
               { id: 'alone', label: 'Feeling completely alone and hopeless', icon: '🤗', color: 'green' },
@@ -176,7 +176,7 @@ const CrisisHelp: React.FC = () => {
                 <p className="text-gray-600">Suicidal thoughts are a sign you're in pain, not weak. Help is here.</p>
               </>
             )}
-            {selectedCrisisType === 'relapse' && (
+            {selectedCrisisType === 'recovery' && (
               <>
                 <h1 className="text-3xl font-bold mb-2">Urges Are Temporary</h1>
                 <p className="text-gray-600">You've overcome them before. Let's get you through this moment.</p>
@@ -222,7 +222,7 @@ const CrisisHelp: React.FC = () => {
               <span className="text-2xl font-bold">Call 988</span>
               <span className="text-sm opacity-90">
                 {selectedCrisisType === 'suicidal' ? 'Talk to someone who understands' :
-                 selectedCrisisType === 'relapse' ? 'Get addiction crisis support' :
+                 selectedCrisisType === 'recovery' ? 'Get recovery support' :
                  selectedCrisisType === 'shame' ? 'Speak with a counselor' :
                  selectedCrisisType === 'panic' ? 'Calm your anxiety with help' :
                  selectedCrisisType === 'alone' ? 'Connect with someone who cares' :
@@ -304,13 +304,13 @@ const CrisisHelp: React.FC = () => {
                   <h3 className="font-semibold">
                     {selectedCrisisType === 'panic' ? "The panic is passing" :
                      selectedCrisisType === 'shame' ? "I'm choosing self-compassion" :
-                     selectedCrisisType === 'relapse' ? "I'm staying strong" :
+                     selectedCrisisType === 'recovery' ? "I'm staying strong" :
                      "I'm safe for now"}
                   </h3>
                   <p className="text-sm text-gray-600">
                     {selectedCrisisType === 'panic' ? 'Continue with calming resources' :
                      selectedCrisisType === 'shame' ? 'Explore self-forgiveness tools' :
-                     selectedCrisisType === 'relapse' ? 'Build your recovery toolkit' :
+                     selectedCrisisType === 'recovery' ? 'Build your recovery toolkit' :
                      'Find ongoing support resources'}
                   </p>
                 </div>
@@ -328,7 +328,7 @@ const CrisisHelp: React.FC = () => {
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-gray-800">
               {selectedCrisisType === 'shame' ? 'Shame-Specific Support' :
-               selectedCrisisType === 'relapse' ? 'Addiction Crisis Resources' :
+               selectedCrisisType === 'recovery' ? 'Recovery Support Resources' :
                selectedCrisisType === 'panic' ? 'Anxiety Support' :
                'More Ways to Get Help'}
             </h2>
@@ -383,13 +383,13 @@ const CrisisHelp: React.FC = () => {
               <div>
                 <h3 className="font-semibold text-blue-900 mb-2">
                   {selectedCrisisType === 'shame' ? 'Build Your Shame Resilience Plan' :
-                   selectedCrisisType === 'relapse' ? 'Strengthen Your Recovery Plan' :
+                   selectedCrisisType === 'recovery' ? 'Strengthen Your Recovery Plan' :
                    selectedCrisisType === 'panic' ? 'Create Your Anxiety Toolkit' :
                    'Create Your Safety Plan'}
                 </h3>
                 <p className="text-sm text-blue-800">
                   {selectedCrisisType === 'shame' ? 'Identify your shame triggers and practice self-compassion responses.' :
-                   selectedCrisisType === 'relapse' ? 'Plan specific actions for when cravings hit and build your support network.' :
+                   selectedCrisisType === 'recovery' ? 'Plan specific actions for challenging moments and build your support network.' :
                    selectedCrisisType === 'panic' ? 'Prepare breathing exercises, grounding techniques, and comfort items.' :
                    'When you are feeling better, create a personalized safety plan with warning signs and coping strategies.'}
                 </p>

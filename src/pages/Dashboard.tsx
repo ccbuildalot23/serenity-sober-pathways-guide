@@ -175,40 +175,8 @@ const Dashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto px-4"
+            className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto px-4"
           >
-            {/* I NEED HELP NOW Button - ENHANCED WITH SMS */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.6 }}
-              whileHover={{ scale: 1.05 }}
-            >
-              <GlassCard 
-                onClick={handleCrisisClick}
-                className="h-32 md:h-40 bg-gradient-to-br from-red-500/90 to-rose-600/90 cursor-pointer flex flex-col items-center justify-center gap-3 relative overflow-hidden group border-red-200"
-              >
-                {/* Pulse animation for urgency */}
-                <div className="absolute inset-0 bg-red-400 opacity-0 group-hover:opacity-20 animate-pulse" />
-                <div className="flex flex-col items-center gap-3 relative z-10">
-                  <div className="relative">
-                    <Phone className="w-12 h-12 text-white" />
-                    {contacts.length > 0 && (
-                      <div className="absolute -top-2 -right-2 bg-white text-red-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
-                        {contacts.length}
-                      </div>
-                    )}
-                  </div>
-                  <span className="text-xl md:text-2xl font-bold text-white">I NEED HELP NOW</span>
-                  <span className="text-xs md:text-sm text-white/90">
-                    {contacts.length > 0 
-                      ? `Alerts ${contacts.length} contact${contacts.length !== 1 ? 's' : ''} + 988`
-                      : 'Crisis support available 24/7'
-                    }
-                  </span>
-                </div>
-              </GlassCard>
-            </motion.div>
 
             {/* Just Checking In Button */}
             <motion.div

@@ -8,14 +8,14 @@ import { AlertTriangle, Shield, Heart, Brain, Phone, Users, FileText, TrendingUp
 import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import TriggerManagementToolkit from '@/components/triggers/TriggerManagementToolkit';
-import RelapsePrevention from '@/components/cbt/relapse/RelapsePrevention';
+import RecoveryPrevention from '@/components/cbt/relapse/RelapsePrevention';
 import { PredictiveCrisisAlert } from '@/components/crisis/PredictiveCrisisAlert';
 import { PlayTheTapeButton } from '@/features/PlayTheTape';
 import { useNavigate } from 'react-router-dom';
 import { CrisisPatternAnalysisService } from '@/services/crisisPatternAnalysisService';
 import { useState as useReactState } from 'react';
 
-const RelapsePreventionPage: React.FC = () => {
+const RecoveryStrengthPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [_activeSection, setActiveSection] = useState('overview');
@@ -60,7 +60,7 @@ const RelapsePreventionPage: React.FC = () => {
 
   const userData = {
     sobrietyDays: 30, // Mock data - in production this would come from user profile
-    relapseHistory: []
+    recoveryHistory: []
   };
 
   const getRiskLevel = (score: number) => {
@@ -238,7 +238,7 @@ const RelapsePreventionPage: React.FC = () => {
       </GlassCard>
       
       <GlassCard className="overflow-hidden">
-        <RelapsePrevention />
+        <RecoveryPrevention />
       </GlassCard>
     </div>
   );
@@ -346,10 +346,10 @@ const RelapsePreventionPage: React.FC = () => {
               className="text-center space-y-2"
             >
               <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                Relapse Prevention Toolkit
+                Recovery Strength Toolkit
               </h1>
               <p className="text-slate-600">
-                Comprehensive tools to strengthen your recovery and prevent relapse
+                Comprehensive tools to strengthen your recovery journey
               </p>
             </motion.div>
           </div>
@@ -401,4 +401,4 @@ const RelapsePreventionPage: React.FC = () => {
   );
 };
 
-export default RelapsePreventionPage;
+export default RecoveryStrengthPage;

@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { OneTapCrisisButton } from '@/components/crisis/OneTapCrisisButton';
 
 interface SupportRequest {
   id: string;
@@ -425,6 +426,8 @@ const SupporterDashboard: React.FC = () => {
           </Card>
         </div>
       )}
+      {/* Crisis support button for supporters */}
+      <OneTapCrisisButton />
     </div>
   );
 };

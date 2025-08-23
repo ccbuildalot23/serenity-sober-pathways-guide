@@ -28,6 +28,7 @@ import {
 import { useProviderDashboard } from '@/hooks/useProviderDashboard';
 import { format, parseISO } from 'date-fns';
 import { ProviderRegistrationApproval } from '@/components/provider/ProviderRegistrationApproval';
+import { OneTapCrisisButton } from '@/components/crisis/OneTapCrisisButton';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const ProviderDashboard = () => {
@@ -580,6 +581,8 @@ const ProviderDashboard = () => {
           </div>
         </div>
       </div>
+      {/* Crisis support button for providers */}
+      <OneTapCrisisButton />
     </div>
   );
 };

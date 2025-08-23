@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useEnhancedSessionSecurity } from '@/hooks/useEnhancedSessionSecurity';
 import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
 import { supabase } from '@/integrations/supabase/client';
+import logger from '../services/loggerService';
 import { 
   Shield, 
   Lock, 
@@ -209,7 +210,7 @@ const HIPAASecurityDashboard: React.FC = () => {
       });
 
       // In a real implementation, this would download or display the report
-      console.log('Security Report:', report);
+      logger.debug('Security Report:', report, { component: 'HIPAASecurityDashboard' });
     } catch (_error) {
       console._error('Error generating security report:', _error);
       toast({

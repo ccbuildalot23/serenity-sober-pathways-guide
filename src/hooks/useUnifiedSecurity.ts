@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { sessionManager } from '@/lib/unifiedSessionManager';
 import { SecurityConfigValidator } from '@/lib/securityConfigValidator';
+import logger from '../services/loggerService';
 
 interface UnifiedSecurityState {
   _isSessionValid: boolean;
@@ -28,7 +29,7 @@ export const useUnifiedSecurity = () => {
 
   // Stable logging function
   const logSecurityEvent = useCallback((_eventType: string, _details?: unknown) => {
-    console.log('Security Event:', _eventType, _details);
+    logger.debug('Security Event:', _eventType, _details, { component: 'useUnifiedSecurity' });
   }, []);
 
   useEffect(() => {

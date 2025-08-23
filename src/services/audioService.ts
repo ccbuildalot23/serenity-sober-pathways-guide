@@ -1,3 +1,4 @@
+import logger from './loggerService';
 /**
  * Audio Service for ASMR and Calming Sensory Features
  * Implements Web Audio API with performance optimization and fallbacks
@@ -67,7 +68,7 @@ class AudioServiceClass {
         return { ...this.getDefaultPreferences(), ...JSON.parse(stored) };
       }
     } catch (error) {
-      console.warn('Failed to load audio preferences:', error);
+      logger.warn('Failed to load audio preferences:', error, { component: 'audioService' });
     }
     return this.getDefaultPreferences();
   }
@@ -96,7 +97,7 @@ class AudioServiceClass {
         this.isSupported = true;
       }
     } catch (error) {
-      console.warn('Web Audio API not supported:', error);
+      logger.warn('Web Audio API not supported:', error, { component: 'audioService' });
       this.isSupported = false;
     }
   }
@@ -115,7 +116,7 @@ class AudioServiceClass {
       // Load audio file
       const response = await fetch(track.url);
       if (!response.ok) {
-        console.warn(`Failed to load audio file: ${track.url}`);
+        logger.warn(`Failed to load audio file: ${track.url}`, { component: 'audioService' });
         return null;
       }
 
@@ -125,7 +126,7 @@ class AudioServiceClass {
       this.audioBuffers.set(track.id, audioBuffer);
       return audioBuffer;
     } catch (error) {
-      console.warn(`Error loading audio track ${track.id}:`, error);
+      logger.warn(`Error loading audio track ${track.id}:`, error, { component: 'audioService' });
       return null;
     }
   }
@@ -138,7 +139,7 @@ class AudioServiceClass {
     try {
       const track = this.defaultTracks.find(t => t.id === trackId);
       if (!track) {
-        console.warn(`Track not found: ${trackId}`);
+        logger.warn(`Track not found: ${trackId}`, { component: 'audioService' });
         return;
       }
 
@@ -189,7 +190,7 @@ class AudioServiceClass {
         };
       }
     } catch (error) {
-      console.warn(`Error playing track ${trackId}:`, error);
+      logger.warn(`Error playing track ${trackId}:`, error, { component: 'audioService' });
     }
   }
 
@@ -220,7 +221,7 @@ class AudioServiceClass {
         }, this.preferences.fadeOutDuration);
       }
     } catch (error) {
-      console.warn(`Error stopping track ${trackId}:`, error);
+      logger.warn(`Error stopping track ${trackId}:`, error, { component: 'audioService' });
     }
   }
 
@@ -273,7 +274,7 @@ class AudioServiceClass {
     try {
       localStorage.setItem('serenity-audio-preferences', JSON.stringify(this.preferences));
     } catch (error) {
-      console.warn('Failed to save audio preferences:', error);
+      logger.warn('Failed to save audio preferences:', error, { component: 'audioService' });
     }
   }
 

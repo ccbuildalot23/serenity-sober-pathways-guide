@@ -5,6 +5,7 @@
 
 import React, { useCallback, useEffect } from 'react';
 import { audioService, AudioPreferences } from '@/services/audioService';
+import logger from '../../services/loggerService';
 
 interface SoundEffectsProps {
   children?: React.ReactNode;
@@ -74,7 +75,7 @@ export class SoundEffectsManager {
         await audioService.playTrack(trackId, volume * 0.4); // Keep effects subtle
       }
     } catch (error) {
-      console.warn('Failed to play sound effect:', error);
+      logger.warn('Failed to play sound effect:', error, { component: 'SoundEffects' });
     }
   }
 

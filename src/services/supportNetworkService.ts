@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import logger from './loggerService';
 
 export interface SupportMember {
   id: string;
@@ -57,7 +58,7 @@ export interface NotificationPreferences {
 export const supportNetworkService = {
   // Get support network for a patient
   async getSupportNetwork(patientId: string): Promise<SupportMember[]> {
-    console.log('Fetching support network for patient:', patientId);
+    logger.debug('Fetching support network for patient:', patientId, { component: 'supportNetworkService' });
 
     const { data, error } = await supabase
       .from('support_network')
@@ -94,7 +95,7 @@ export const supportNetworkService = {
 
   // Add new support member
   async addSupportMember(patientId: string, supportMemberId: string, relationshipType: string): Promise<void> {
-    console.log('Adding support member:', { patientId, supportMemberId, relationshipType });
+    logger.debug('Adding support member:', { patientId, supportMemberId, relationshipType }, { component: 'supportNetworkService' });
 
     const { _error } = await supabase
       .from('support_network')
@@ -113,7 +114,7 @@ export const supportNetworkService = {
 
   // Update support member permissions
   async updateMemberPermissions(_membershipId: string, permissions: Partial<SupportMember['permissions']>): Promise<void> {
-    console.log('Updating member permissions:', { _membershipId, permissions });
+    logger.debug('Updating member permissions:', { _membershipId, permissions }, { component: 'supportNetworkService' });
 
     const { _error } = await supabase
       .from('support_network')
@@ -128,7 +129,7 @@ export const supportNetworkService = {
 
   // Update support member _status
   async updateMemberStatus(_membershipId: string, _status: SupportMember['_status']): Promise<void> {
-    console.log('Updating member _status:', { _membershipId, _status });
+    logger.debug('Updating member _status:', { _membershipId, _status }, { component: 'supportNetworkService' });
 
     const { _error } = await supabase
       .from('support_network')
@@ -143,7 +144,7 @@ export const supportNetworkService = {
 
   // Send alert to support member
   async sendAlert(supportMemberId: string, patientId: string, alertType: string, _message: string): Promise<void> {
-    console.log('Sending alert:', { supportMemberId, patientId, alertType, _message });
+    logger.debug('Sending alert:', { supportMemberId, patientId, alertType, _message }, { component: 'supportNetworkService' });
 
     // Insert into audit_logs for now - in production would integrate with actual notification system
     const { _error } = await supabase
@@ -167,7 +168,7 @@ export const supportNetworkService = {
 
   // Update user presence _status
   async updatePresence(userId: string, _status: PresenceStatus['_status'], doNotDisturb: boolean = false): Promise<void> {
-    console.log('Updating presence:', { userId, _status, doNotDisturb });
+    logger.debug('Updating presence:', { userId, _status, doNotDisturb }, { component: 'supportNetworkService' });
 
     const { _error } = await supabase
       .from('support_member_presence')
@@ -186,7 +187,7 @@ export const supportNetworkService = {
 
   // Get notification preferences
   async getNotificationPreferences(userId: string): Promise<NotificationPreferences | null> {
-    console.log('Fetching notification preferences for user:', userId);
+    logger.debug('Fetching notification preferences for user:', userId, { component: 'supportNetworkService' });
 
     const { data, _error } = await supabase
       .from('support_notification_preferences')
@@ -214,7 +215,7 @@ export const supportNetworkService = {
 
   // Update notification preferences
   async updateNotificationPreferences(userId: string, preferences: Partial<NotificationPreferences>): Promise<void> {
-    console.log('Updating notification preferences:', { userId, preferences });
+    logger.debug('Updating notification preferences:', { userId, preferences }, { component: 'supportNetworkService' });
 
     const { _error } = await supabase
       .from('support_notification_preferences')
@@ -231,7 +232,7 @@ export const supportNetworkService = {
 
   // Search for users to add as support members
   async searchUsers(query: string): Promise<{ id: string; full_name: string; email: string }[]> {
-    console.log('Searching users:', query);
+    logger.debug('Searching users:', query, { component: 'supportNetworkService' });
 
     const { data, _error } = await supabase
       .from('profiles')

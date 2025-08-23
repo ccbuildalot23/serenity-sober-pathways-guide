@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import logger from './loggerService';
 
 export interface SuccessStory {
   id: string;
@@ -538,7 +539,7 @@ export class SuccessStoryService {
     email_on_feature?: boolean;
   }): Promise<void> {
     // No-op until table exists
-    console.log('Preferences would be saved:', _preferences);
+    logger.debug('Preferences would be saved:', _preferences, { component: 'successStoryService' });
   }
 
   // Utility functions

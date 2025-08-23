@@ -11,6 +11,7 @@ import { useRecoveryPlan, usePlanGoals, usePlanMilestones } from '@/hooks/useRec
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Plus, GripVertical, Target, Calendar, Trophy, X } from 'lucide-react';
 import { format } from 'date-fns';
+import logger from '../../services/loggerService';
 
 interface GoalFormData {
   _title: string;
@@ -106,7 +107,7 @@ export const RecoveryPlanBuilder: React.FC = () => {
 
   const handleDragEnd = (_result: DropResult) => {
     // Handle reordering logic here
-    console.log('Drag ended:', _result);
+    logger.debug('Drag ended:', _result, { component: 'RecoveryPlanBuilder' });
   };
 
   const activePlans = plans.filter(p => p.status === 'active' || p.status === 'draft');

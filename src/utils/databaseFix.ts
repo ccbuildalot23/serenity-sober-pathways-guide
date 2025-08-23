@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import logger from '../services/loggerService';
 
 export interface FixedCheckInInput {
   mood?: 'positive' | 'neutral' | 'negative' | string;
@@ -51,7 +52,7 @@ export async function fixedCheckInSubmission(checkInData: FixedCheckInInput) {
       existing.push(fallbackData);
       localStorage.setItem('serenity_checkins', JSON.stringify(existing));
     } catch {}
-    console.warn('Database failed, saved to localStorage:', error);
+    logger.warn('Database failed, saved to localStorage:', error, { component: 'databaseFix' });
     return { success: true, data: fallbackData, source: 'localStorage' as const };
   }
 
@@ -64,9 +65,9 @@ export async function fixedCheckInSubmission(checkInData: FixedCheckInInput) {
       .eq('user_id', user.id)
       .gte('created_at', new Date(Date.now() - 60000).toISOString()); // Last minute
     
-    console.log(`✅ Recent checkin_events for user: ${recentEvents || 0}`);
+    logger.debug(`✅ Recent checkin_events for user: ${recentEvents || 0}`, { component: 'databaseFix' });
   } catch (eventCheckError) {
-    console.warn('Could not verify checkin_events creation:', eventCheckError);
+    logger.warn('Could not verify checkin_events creation:', eventCheckError, { component: 'databaseFix' });
   }
 
   return { success: true, data, source: 'database' as const };

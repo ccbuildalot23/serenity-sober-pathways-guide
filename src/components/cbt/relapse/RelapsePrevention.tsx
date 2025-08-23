@@ -7,13 +7,13 @@ import RiskMapper from './RiskMapper';
 import EmergencyActionPlan from './EmergencyActionPlan';
 import SupportNetworkVisualizer from './SupportNetworkVisualizer';
 
-const RelapsePrevention: React.FC = () => {
+const RecoveryStrengthening: React.FC = () => {
   const [activeModule, setActiveModule] = useState('mapping');
 
   const modules = [
     {
       id: 'mapping',
-      title: 'High-Risk Situation Mapper',
+      title: 'Challenge Situation Mapper',
       description: 'Identify triggers: people, places, things, emotions, and times',
       icon: MapPin,
       difficulty: 'Intermediate',
@@ -49,10 +49,10 @@ const RelapsePrevention: React.FC = () => {
     <div className="space-y-6">
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold serenity-navy mb-2">
-          Relapse Prevention Mastery
+          Recovery Strengthening Toolkit
         </h2>
         <p className="text-gray-600">
-          Identify triggers and build comprehensive prevention strategies
+          Identify challenges and build comprehensive strengthening strategies
         </p>
       </div>
 
@@ -113,4 +113,4 @@ const RelapsePrevention: React.FC = () => {
   );
 };
 
-export default RelapsePrevention;
+export default RecoveryStrengthening;

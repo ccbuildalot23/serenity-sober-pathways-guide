@@ -6,6 +6,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { enhancedSecurityAuditService } from './EnhancedSecurityAuditService';
+import logger from './loggerService';
 
 export interface AIOutput {
   agentId: string;
@@ -961,7 +962,7 @@ export class AISafetyGuard {
 
   private async notifyClinicalTeam(reviewRequest: any): Promise<void> {
     // Implementation would send notifications
-    console.log('Notifying clinical team of review request:', reviewRequest.id);
+    logger.debug('Notifying clinical team of review request:', reviewRequest.id, { component: 'AISafetyGuard' });
   }
 
   private async logSafetyCheck(output: AIOutput, checks: SafetyCheck[], requiresReview: boolean): Promise<void> {

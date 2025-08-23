@@ -1,6 +1,6 @@
 // Clinician/Provider Dashboard - Premium healthcare provider interface
 
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -587,4 +587,4 @@ const ProviderDashboard = () => {
   );
 };
 
-export default ProviderDashboard;
+export default memo(ProviderDashboard);

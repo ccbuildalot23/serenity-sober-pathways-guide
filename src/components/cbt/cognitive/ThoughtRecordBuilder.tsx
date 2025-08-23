@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Heart, Brain, Lightbulb, CheckCircle } from 'lucide-react';
+import logger from '../../../services/loggerService';
 
 interface ThoughtRecord {
   _situation: string;
@@ -57,7 +58,7 @@ const ThoughtRecordBuilder: React.FC = () => {
 
   const handleSave = () => {
     // Save to local storage or database
-    console.log('Saving thought _record:', _record);
+    logger.debug('Saving thought _record:', _record, { component: 'ThoughtRecordBuilder' });
     // Reset form
     setRecord({
       _situation: '',

@@ -1,3 +1,4 @@
+import logger from '../services/loggerService';
 
 /**
  * Security Validation Service
@@ -25,11 +26,11 @@ export class SecurityValidation {
 
     // Validate Supabase configuration
     if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-      console.warn('Supabase configuration incomplete');
+      logger.warn('Supabase configuration incomplete', { component: 'securityValidation' });
       this.logSecurityEvent('INCOMPLETE_SUPABASE_CONFIG');
     }
 
-    console.log('✅ Environment security validation passed');
+    logger.debug('✅ Environment security validation passed', { component: 'securityValidation' });
   }
 
   /**
@@ -153,7 +154,7 @@ export class SecurityValidation {
       ...details
     };
 
-    console.log(`Security Event: ${event}`, _securityEvent);
+    logger.debug(`Security Event: ${event}`, _securityEvent, { component: 'securityValidation' });
     this.storeSecurityEvent(_securityEvent);
   }
 
@@ -183,7 +184,7 @@ export class SecurityValidation {
       
       localStorage.setItem('security_events', JSON.stringify(securityLogs));
     } catch (_error) {
-      console.warn('Could not store security event:', _error);
+      logger.warn('Could not store security event:', _error, { component: 'securityValidation' });
     }
   }
 
@@ -195,7 +196,7 @@ export class SecurityValidation {
     this.preventClientSideEncryption();
     this.validateSecureContext();
     
-    console.log('🔒 Enhanced security validation system initialized');
+    logger.debug('🔒 Enhanced security validation system initialized', { component: 'securityValidation' });
   }
 
   static getSecurityEvents(): unknown[] {

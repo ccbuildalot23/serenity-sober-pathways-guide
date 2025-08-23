@@ -2,6 +2,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel, RealtimePresenceState } from '@supabase/realtime-js';
 import { v4 as uuidv4 } from 'uuid';
 import Sentiment from 'sentiment';
+import logger from './loggerService';
 
 /**
  * Enhanced Peer Community Service
@@ -347,10 +348,10 @@ export class PeerCommunityService {
         this.presenceState = channel.presenceState();
       })
       .on('presence', { event: 'join' }, ({ key, newPresences }) => {
-        console.log('User joined group:', key, newPresences);
+        logger.debug('User joined group:', key, newPresences, { component: 'peerCommunityService' });
       })
       .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
-        console.log('User left group:', key, leftPresences);
+        logger.debug('User left group:', key, leftPresences, { component: 'peerCommunityService' });
       })
       .on('broadcast', { event: 'message' }, (payload) => {
         // Handle incoming messages
@@ -358,7 +359,7 @@ export class PeerCommunityService {
       })
       .on('broadcast', { event: 'typing' }, (payload) => {
         // Handle typing indicators
-        console.log('User typing:', payload.payload);
+        logger.debug('User typing:', payload.payload, { component: 'peerCommunityService' });
       })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
@@ -585,7 +586,7 @@ export class PeerCommunityService {
 
   private async handleGroupMessage(chatId: string, message: any): Promise<void> {
     // Process incoming message
-    console.log(`Message in ${chatId}:`, message);
+    logger.debug(`Message in ${chatId}:`, message, { component: 'peerCommunityService' });
     
     // Check for crisis content
     if (message.sentiment && message.sentiment < -5) {

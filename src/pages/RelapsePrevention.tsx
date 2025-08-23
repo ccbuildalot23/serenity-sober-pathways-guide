@@ -8,7 +8,7 @@ import { AlertTriangle, Shield, Heart, Brain, Phone, Users, FileText, TrendingUp
 import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import TriggerManagementToolkit from '@/components/triggers/TriggerManagementToolkit';
-import RecoveryPrevention from '@/components/cbt/relapse/RelapsePrevention';
+import RecoveryStrengthening from '@/components/cbt/relapse/RecoveryStrengthening';
 import { PredictiveCrisisAlert } from '@/components/crisis/PredictiveCrisisAlert';
 import { PlayTheTapeButton } from '@/features/PlayTheTape';
 import { useNavigate } from 'react-router-dom';
@@ -238,7 +238,7 @@ const RecoveryStrengthPage: React.FC = () => {
       </GlassCard>
       
       <GlassCard className="overflow-hidden">
-        <RecoveryPrevention />
+        <RecoveryStrengthening />
       </GlassCard>
     </div>
   );
@@ -318,7 +318,7 @@ const RecoveryStrengthPage: React.FC = () => {
 
   const renderTools = () => (
     <div className="space-y-6">
-      <RelapsePrevention />
+      <RecoveryStrengthening />
     </div>
   );
 

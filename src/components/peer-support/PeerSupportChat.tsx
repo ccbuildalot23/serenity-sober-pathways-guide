@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { 
+import logger from '../../services/loggerService';
   MessageSquare, Send, Phone, AlertTriangle, Star, Clock,
   UserCheck, Users, Loader2, ThumbsUp, Calendar, Video,
   Paperclip, Smile
@@ -118,7 +119,7 @@ const PeerSupportChat = () => {
       }
     },
     onTypingUpdate: (_users) => {
-      console.log('Typing _users:', _users);
+      logger.debug('Typing _users:', _users, { component: 'PeerSupportChat' });
     }
   });
 

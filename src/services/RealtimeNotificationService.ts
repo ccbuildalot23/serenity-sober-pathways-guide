@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { toast } from 'sonner';
+import logger from './loggerService';
 
 export interface CrisisNotification {
   id: string;
@@ -92,7 +93,7 @@ class RealtimeNotificationService {
         })
         .subscribe((status) => {
           if (status === 'SUBSCRIBED') {
-            console.log('Connected to crisis notifications');
+            logger.debug('Connected to crisis notifications', { component: 'RealtimeNotificationService' });
             this.isConnected = true;
           } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
             this.handleDisconnection();
@@ -147,7 +148,7 @@ class RealtimeNotificationService {
     // Monitor connection health every 30 seconds
     setInterval(() => {
       if (!this.isConnected) {
-        console.log('Connection lost, attempting to reconnect...');
+        logger.debug('Connection lost, attempting to reconnect...', { component: 'RealtimeNotificationService' });
         this.attemptReconnection();
       }
     }, 30000);
@@ -155,12 +156,12 @@ class RealtimeNotificationService {
     // Listen for network changes
     if (typeof window !== 'undefined') {
       window.addEventListener('online', () => {
-        console.log('Network connection restored');
+        logger.debug('Network connection restored', { component: 'RealtimeNotificationService' });
         this.attemptReconnection();
       });
 
       window.addEventListener('offline', () => {
-        console.log('Network connection lost');
+        logger.debug('Network connection lost', { component: 'RealtimeNotificationService' });
         this.isConnected = false;
       });
     }
@@ -184,7 +185,7 @@ class RealtimeNotificationService {
     const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
 
     setTimeout(async () => {
-      console.log(`Reconnection attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
+      logger.debug(`Reconnection attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}`, { component: 'RealtimeNotificationService' });
       
       // Unsubscribe from all channels
       for (const channel of this.channels.values()) {
@@ -258,7 +259,7 @@ class RealtimeNotificationService {
     if (typeof window !== 'undefined' && 'Audio' in window) {
       const audio = new Audio('/notification-sound.mp3');
       audio.volume = 0.5;
-      audio.play().catch(e => console.log('Could not play notification sound:', e));
+      audio.play().catch(e => logger.debug('Could not play notification sound:', e, { component: 'RealtimeNotificationService' }));
     }
   }
 

@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { CheckCircle, Heart, Star, Calendar, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import logger from '../../services/loggerService';
 
 interface SafetyConfirmationProps {
   onSafetyConfirmed: () => void;
@@ -132,7 +133,7 @@ const SafetyConfirmation = ({
 
     // Simulate sending messages (in real app, this would use SMS service)
     for (const contact of enabledContacts) {
-      console.log(`Sending safety confirmation to ${contact.name}: ${safetyMessage}`);
+      logger.debug(`Sending safety confirmation to ${contact.name}: ${safetyMessage}`, { component: 'SafetyConfirmation' });
       
       // In a real app, you would send actual SMS/email here
       if (contact.notificationPreferences.preferredMethod === 'text' || 

@@ -108,7 +108,7 @@ class HopeMessengerService {
       "Your story could help someone today. Consider sharing.",
       "Isolation is the enemy. Reach out to someone.",
       "Someone needs to hear from you today.",
-      "Connection is the opposite of addiction. Who can you call?"
+      "Connection is the opposite of substance use. Who can you call?"
     ];
     
     const message = messages[Math.floor(Math.random() * messages.length)];

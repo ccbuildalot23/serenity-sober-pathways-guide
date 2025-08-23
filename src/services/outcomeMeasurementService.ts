@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import logger from './loggerService';
 
 /**
  * Evidence-Based Outcome Measurement Service
@@ -521,7 +522,7 @@ class OutcomeMeasurementService {
       if (contacts) {
         for (const contact of contacts) {
           // Send notifications (SMS/email implementation)
-          console.log('Notifying emergency contact:', contact);
+          logger.debug('Notifying emergency contact:', contact, { component: 'outcomeMeasurementService' });
         }
       }
     }

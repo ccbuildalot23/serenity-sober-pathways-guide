@@ -8,6 +8,7 @@ import { Trophy, Target, Users, Bell } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import logger from '../../services/loggerService';
 
 interface AccountabilityPartner {
   id: string;
@@ -140,7 +141,7 @@ const DailyAccountability: React.FC = () => {
       setStreak(streak + 1);
 
       // Notify accountability partners (simplified since notifications table doesn't exist)
-      console.log('Check-in completed, would notify partners:', partners.length);
+      logger.debug('Check-in completed, would notify partners:', partners.length, { component: 'DailyAccountability' });
 
       toast.success('Check-in complete! Keep up the great work!');
     } catch (_error) {

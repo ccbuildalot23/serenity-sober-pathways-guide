@@ -14,6 +14,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
+import logger from './loggerService';
 
 export interface CrisisAlertRequest {
   severity: 'low' | 'medium' | 'high' | 'critical';
@@ -100,7 +101,7 @@ export class CrisisNotificationIntegration {
         throw new Error('User not authenticated');
       }
 
-      console.log('[CrisisIntegration] Creating crisis alert:', request);
+      logger.debug('[CrisisIntegration] Creating crisis alert:', request, { component: 'CrisisNotificationIntegration' });
 
       // Create notification request in database
       const { data: notificationRequest, _error: _requestError } = await this.supabaseClient
@@ -201,7 +202,7 @@ export class CrisisNotificationIntegration {
         throw new Error('User not authenticated');
       }
 
-      console.log('[CrisisIntegration] Recording supporter response:', { _alertId, responseData });
+      logger.debug('[CrisisIntegration] Recording supporter response:', { _alertId, responseData }, { component: 'CrisisNotificationIntegration' });
 
       // Record response in database
       const { data: response, _error: responseError } = await this.supabaseClient
@@ -248,7 +249,7 @@ export class CrisisNotificationIntegration {
         await this.triggerEscalation(_alertId, 'emergency_services', 'Emergency services called');
       }
 
-      console.log('[CrisisIntegration] Supporter response recorded successfully:', coordination);
+      logger.debug('[CrisisIntegration] Supporter response recorded successfully:', coordination, { component: 'CrisisNotificationIntegration' });
 
       return {
         success: true,
@@ -269,7 +270,7 @@ export class CrisisNotificationIntegration {
     escalationRequest: EscalationRequest
   ): Promise<{ success: boolean; escalation: any }> {
     try {
-      console.log('[CrisisIntegration] Escalating crisis:', { _alertId, escalationRequest });
+      logger.debug('[CrisisIntegration] Escalating crisis:', { _alertId, escalationRequest }, { component: 'CrisisNotificationIntegration' });
 
       // Record escalation in database
       const { data: escalationId, _error: escalationError } = await this.supabaseClient
@@ -307,7 +308,7 @@ export class CrisisNotificationIntegration {
         await this.notifyNextTier(_alertId, escalationRequest._reason);
       }
 
-      console.log('[CrisisIntegration] Crisis escalated successfully:', escalation);
+      logger.debug('[CrisisIntegration] Crisis escalated successfully:', escalation, { component: 'CrisisNotificationIntegration' });
 
       return {
         success: true,
@@ -404,7 +405,7 @@ export class CrisisNotificationIntegration {
     }
   ): Promise<{ success: boolean }> {
     try {
-      console.log('[CrisisIntegration] Resolving crisis:', { _alertId, resolution });
+      logger.debug('[CrisisIntegration] Resolving crisis:', { _alertId, resolution }, { component: 'CrisisNotificationIntegration' });
 
       // Update crisis alert _status
       const { _error: updateError } = await this.supabaseClient
@@ -451,7 +452,7 @@ export class CrisisNotificationIntegration {
         .eq('crisis_alert_id', _alertId)
         .in('_status', ['queued', 'processing']);
 
-      console.log('[CrisisIntegration] Crisis resolved successfully');
+      logger.debug('[CrisisIntegration] Crisis resolved successfully', { component: 'CrisisNotificationIntegration' });
 
       return { success: true };
 

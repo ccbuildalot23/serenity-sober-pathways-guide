@@ -6,6 +6,7 @@ import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
 import { motion, AnimatePresence } from 'framer-motion';
+import logger from '../services/loggerService';
 import { 
   Loader2, 
   Shield, 
@@ -45,7 +46,7 @@ const Auth = () => {
   const [showLoginForm, setShowLoginForm] = useState(isLoginRoute);
 
   // Test log to verify page loads
-  console.log('🎯 Auth page loaded successfully with new three-user-type design');
+  logger.debug('🎯 Auth page loaded successfully with new three-user-type design', { component: 'Auth' });
 
   // Check URL params for debug mode
   useEffect(() => {
@@ -86,18 +87,18 @@ const Auth = () => {
 
   // Redirect if user is already authenticated
   useEffect(() => {
-    console.log('Auth page - checking user:', { user, authLoading, isRedirecting });
+    logger.debug('Auth page - checking user:', { user, authLoading, isRedirecting }, { component: 'Auth' });
     
     if (user && !authLoading && !isRedirecting) {
       setIsRedirecting(true);
-      console.log('User authenticated, preparing redirect...');
+      logger.debug('User authenticated, preparing redirect...', { component: 'Auth' });
       
       // Clear any error states
       localStorage.removeItem('auth_error');
       
       // Use user metadata directly for immediate, deterministic routing
       const userType = (user as any)?.user_metadata?.userType || 'recovery';
-      console.log('Determined userType for redirect:', userType);
+      logger.debug('Determined userType for redirect:', userType, { component: 'Auth' });
       
       const route = userType === 'provider'
         ? '/provider/dashboard'
@@ -136,6 +137,13 @@ const Auth = () => {
           </div>
           <h2 className="text-2xl font-bold text-sage-800 mb-2">Welcome to Serenity</h2>
           <p className="text-sage-600">Preparing your secure environment...</p>
+          <div 
+            className="mt-4 text-xs text-sage-500" 
+            data-testid="dashboard-status"
+            aria-label="Authentication status"
+          >
+            Verifying authentication...
+          </div>
         </motion.div>
       </div>
     );

@@ -2,6 +2,7 @@
 import { useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { RealtimeChannel } from '@supabase/supabase-js';
+import logger from '../services/loggerService';
 import {
   subscribeToCrisisEvents,
   subscribeToMoodUpdates,
@@ -26,12 +27,12 @@ export const useRealtimeUpdates = ({
   useEffect(() => {
     if (!user?.id) return;
 
-    console.log('Setting up real-time subscriptions for user:', user.id);
+    logger.debug('Setting up real-time subscriptions for user:', user.id, { component: 'useRealtimeUpdates' });
 
     // Subscribe to crisis events
     if (onCrisisEvent) {
       const _crisisChannel = subscribeToCrisisEvents(user.id, (_payload) => {
-        console.log('Crisis event received:', _payload);
+        logger.debug('Crisis event received:', _payload, { component: 'useRealtimeUpdates' });
         onCrisisEvent(_payload);
       });
       channelsRef.current.push(_crisisChannel);
@@ -40,7 +41,7 @@ export const useRealtimeUpdates = ({
     // Subscribe to mood updates
     if (onMoodUpdate) {
       const _moodChannel = subscribeToMoodUpdates(user.id, (_payload) => {
-        console.log('Mood update received:', _payload);
+        logger.debug('Mood update received:', _payload, { component: 'useRealtimeUpdates' });
         onMoodUpdate(_payload);
       });
       channelsRef.current.push(_moodChannel);
@@ -49,7 +50,7 @@ export const useRealtimeUpdates = ({
     // Subscribe to all check-in updates
     if (onCheckInUpdate) {
       const _checkInChannel = subscribeToAllCheckInUpdates(user.id, (_payload) => {
-        console.log('Check-in update received:', _payload);
+        logger.debug('Check-in update received:', _payload, { component: 'useRealtimeUpdates' });
         onCheckInUpdate(_payload);
       });
       channelsRef.current.push(_checkInChannel);
@@ -57,7 +58,7 @@ export const useRealtimeUpdates = ({
 
     // Cleanup function
     return () => {
-      console.log('Cleaning up real-time subscriptions');
+      logger.debug('Cleaning up real-time subscriptions', { component: 'useRealtimeUpdates' });
       channelsRef.current.forEach(channel => {
         unsubscribeFromChannel(channel);
       });

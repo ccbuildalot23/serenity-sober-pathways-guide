@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { SOC2ComplianceService } from './SOC2ComplianceService';
 import { AISafetyGuard } from './AISafetyGuard';
 import { PaymentGatewayService } from './PaymentGatewayService';
+import logger from './loggerService';
 // Note: EnhancedDeployment is implemented in a separate file to avoid redeclaration issues
 // Provide getDeploymentStatus used by tests
 export const deployment = {
@@ -107,7 +108,7 @@ export class DeploymentValidationService {
     const startTime = Date.now();
     const reportId = this.generateReportId();
     
-    console.log('🚀 Starting deployment validation...');
+    logger.debug('🚀 Starting deployment validation...', { component: 'DeploymentValidationService' });
     
     // Initialize all checks
     this.initializeChecks();
@@ -164,7 +165,7 @@ export class DeploymentValidationService {
     await this.storeReport(report);
     
     const duration = Date.now() - startTime;
-    console.log(`✅ Validation completed in ${duration}ms`);
+    logger.debug(`✅ Validation completed in ${duration}ms`, { component: 'DeploymentValidationService' });
     
     return report;
   }

@@ -6,6 +6,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { enhancedSecurityAuditService } from './EnhancedSecurityAuditService';
+import logger from './loggerService';
 
 interface SystemMetrics {
   timestamp: Date;
@@ -657,11 +658,11 @@ export class PredictiveMonitoring {
    * Execute a mitigation action
    */
   private async executeMitigation(action: MitigationAction): Promise<void> {
-    console.log(`Executing mitigation: ${action.description}`);
+    logger.debug(`Executing mitigation: ${action.description}`, { component: 'PredictiveMonitoring' });
     
     if (action.script) {
       // In production, this would execute the script
-      console.log(`Would execute: ${action.script}`);
+      logger.debug(`Would execute: ${action.script}`, { component: 'PredictiveMonitoring' });
     }
     
     // Log execution
@@ -784,22 +785,22 @@ export class PredictiveMonitoring {
 
   // Alert sending methods (stubs)
   private async sendSlackAlert(endpoint: string, message: any): Promise<void> {
-    console.log(`Slack alert to ${endpoint}:`, message);
+    logger.debug(`Slack alert to ${endpoint}:`, message, { component: 'PredictiveMonitoring' });
     // Implement Slack webhook
   }
 
   private async sendEmailAlert(endpoint: string, message: any): Promise<void> {
-    console.log(`Email alert to ${endpoint}:`, message);
+    logger.debug(`Email alert to ${endpoint}:`, message, { component: 'PredictiveMonitoring' });
     // Implement email sending
   }
 
   private async sendPagerDutyAlert(endpoint: string, message: any): Promise<void> {
-    console.log(`PagerDuty alert to ${endpoint}:`, message);
+    logger.debug(`PagerDuty alert to ${endpoint}:`, message, { component: 'PredictiveMonitoring' });
     // Implement PagerDuty integration
   }
 
   private async sendWebhookAlert(endpoint: string, message: any): Promise<void> {
-    console.log(`Webhook alert to ${endpoint}:`, message);
+    logger.debug(`Webhook alert to ${endpoint}:`, message, { component: 'PredictiveMonitoring' });
     // Implement generic webhook
   }
 

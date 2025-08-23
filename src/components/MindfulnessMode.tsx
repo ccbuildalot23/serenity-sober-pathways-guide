@@ -11,6 +11,7 @@ import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
+import logger from '../services/loggerService';
 import { 
   Brain, 
   Pause, 
@@ -91,7 +92,7 @@ export const MindfulnessMode: React.FC<{ className?: string }> = ({ className })
     try {
       localStorage.setItem('serenity-mindfulness-settings', JSON.stringify(settings));
     } catch (error) {
-      console.warn('Failed to save mindfulness settings:', error);
+      logger.warn('Failed to save mindfulness settings:', error, { component: 'MindfulnessMode' });
     }
   }, [settings]);
 

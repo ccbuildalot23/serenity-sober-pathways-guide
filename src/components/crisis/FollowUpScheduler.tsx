@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import logger from '../../services/loggerService';
 import { 
   Clock, 
   Calendar,
@@ -205,7 +206,7 @@ const FollowUpScheduler: React.FC<FollowUpSchedulerProps> = ({
     
     emergencyContacts.forEach(contact => {
       // This would typically integrate with SMS service
-      console.log(`Notifying ${contact.name} (${contact.phone}): ${message}`);
+      logger.debug(`Notifying ${contact.name} (${contact.phone}, { component: 'FollowUpScheduler' });: ${message}`);
     });
 
     toast.info(`Emergency contacts notified about follow-up`);

@@ -6,6 +6,7 @@
 import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import logger from './loggerService';
 
 // Notification types
 export type UrgencyLevel = 'crisis' | 'need_connection' | 'celebrate' | 'check_in';
@@ -93,7 +94,7 @@ class CriticalNotificationService {
     await this.loadPendingRequests();
     
     this.isInitialized = true;
-    console.log('Critical notification service initialized for user:', _userId);
+    logger.debug('Critical notification service initialized for user:', _userId, { component: 'criticalNotificationService' });
   }
 
   /**
@@ -395,7 +396,7 @@ class CriticalNotificationService {
   private playNotificationSound() {
     // Create and play a notification sound
     const audio = new Audio('/notification-sound.mp3');
-    audio.play().catch(e => console.log('Could not play sound:', e));
+    audio.play().catch(e => logger.debug('Could not play sound:', e, { component: 'criticalNotificationService' }););
   }
 
   /**
@@ -497,7 +498,7 @@ class CriticalNotificationService {
           });
         },
         (_error) => {
-          console.warn('Location _error:', _error);
+          logger.warn('Location _error:', _error, { component: 'criticalNotificationService' });
           resolve(_undefined);
         },
         {

@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { PaymentGatewayService } from '@/services/PaymentGatewayService';
 import { enhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
 import { FinancialModelService } from '@/services/FinancialModelService';
+import logger from '../services/loggerService';
 
 // Initialize Stripe with secret key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
@@ -60,7 +61,7 @@ export async function handleStripeWebhook(
  * Process individual webhook events
  */
 async function processWebhookEvent(event: Stripe.Event): Promise<void> {
-  console.log(`Processing webhook event: ${event.type}`);
+  logger.debug(`Processing webhook event: ${event.type}`, { component: 'stripe-webhook' });
   
   switch (event.type) {
     // Subscription lifecycle events
@@ -120,7 +121,7 @@ async function processWebhookEvent(event: Stripe.Event): Promise<void> {
       break;
       
     default:
-      console.log(`Unhandled webhook event type: ${event.type}`);
+      logger.debug(`Unhandled webhook event type: ${event.type}`, { component: 'stripe-webhook' });
   }
   
   // Log successful processing
@@ -131,7 +132,7 @@ async function processWebhookEvent(event: Stripe.Event): Promise<void> {
  * Subscription event handlers
  */
 async function handleSubscriptionCreated(subscription: Stripe.Subscription): Promise<void> {
-  console.log(`New subscription created: ${subscription.id}`);
+  logger.debug(`New subscription created: ${subscription.id}`, { component: 'stripe-webhook' });
   
   // Get plan details
   const planName = getPlanName(subscription);
@@ -178,7 +179,7 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription): Pro
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription): Promise<void> {
-  console.log(`Subscription updated: ${subscription.id}`);
+  logger.debug(`Subscription updated: ${subscription.id}`, { component: 'stripe-webhook' });
   
   const planName = getPlanName(subscription);
   const mrr = calculateMRR(subscription);
@@ -206,7 +207,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription): Pro
 }
 
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription): Promise<void> {
-  console.log(`Subscription cancelled: ${subscription.id}`);
+  logger.debug(`Subscription cancelled: ${subscription.id}`, { component: 'stripe-webhook' });
   
   // Update subscription status
   await supabase
@@ -233,7 +234,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription): Pro
 }
 
 async function handleTrialWillEnd(subscription: Stripe.Subscription): Promise<void> {
-  console.log(`Trial ending soon for subscription: ${subscription.id}`);
+  logger.debug(`Trial ending soon for subscription: ${subscription.id}`, { component: 'stripe-webhook' });
   
   // Send trial ending reminder
   await sendSubscriptionEmail(subscription, 'trial_ending');
@@ -251,7 +252,7 @@ async function handleTrialWillEnd(subscription: Stripe.Subscription): Promise<vo
  * Payment event handlers
  */
 async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent): Promise<void> {
-  console.log(`Payment succeeded: ${paymentIntent.id}`);
+  logger.debug(`Payment succeeded: ${paymentIntent.id}`, { component: 'stripe-webhook' });
   
   // Update payment record
   await supabase
@@ -272,7 +273,7 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent): Prom
 }
 
 async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent): Promise<void> {
-  console.log(`Payment failed: ${paymentIntent.id}`);
+  logger.debug(`Payment failed: ${paymentIntent.id}`, { component: 'stripe-webhook' });
   
   // Record failed payment
   await supabase
@@ -299,7 +300,7 @@ async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent): Promise
 }
 
 async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice): Promise<void> {
-  console.log(`Invoice payment succeeded: ${invoice.id}`);
+  logger.debug(`Invoice payment succeeded: ${invoice.id}`, { component: 'stripe-webhook' });
   
   // Update invoice record
   await supabase
@@ -319,7 +320,7 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice): Promise<v
 }
 
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice): Promise<void> {
-  console.log(`Invoice payment failed: ${invoice.id}`);
+  logger.debug(`Invoice payment failed: ${invoice.id}`, { component: 'stripe-webhook' });
   
   // Update invoice record
   await supabase
@@ -349,7 +350,7 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice): Promise<void
 }
 
 async function handleUpcomingInvoice(invoice: Stripe.Invoice): Promise<void> {
-  console.log(`Upcoming invoice: ${invoice.id}`);
+  logger.debug(`Upcoming invoice: ${invoice.id}`, { component: 'stripe-webhook' });
   
   // Send invoice preview to customer
   await sendUpcomingInvoiceNotification(invoice);
@@ -362,7 +363,7 @@ async function handleUpcomingInvoice(invoice: Stripe.Invoice): Promise<void> {
  * Customer event handlers
  */
 async function handleCustomerUpdated(customer: Stripe.Customer): Promise<void> {
-  console.log(`Customer updated: ${customer.id}`);
+  logger.debug(`Customer updated: ${customer.id}`, { component: 'stripe-webhook' });
   
   // Update customer record
   await supabase
@@ -379,7 +380,7 @@ async function handleCustomerUpdated(customer: Stripe.Customer): Promise<void> {
 }
 
 async function handleCustomerDeleted(customer: Stripe.Customer): Promise<void> {
-  console.log(`Customer deleted: ${customer.id}`);
+  logger.debug(`Customer deleted: ${customer.id}`, { component: 'stripe-webhook' });
   
   // Soft delete customer record
   await supabase
@@ -398,7 +399,7 @@ async function handleCustomerDeleted(customer: Stripe.Customer): Promise<void> {
  * Payment method event handlers
  */
 async function handlePaymentMethodAttached(paymentMethod: Stripe.PaymentMethod): Promise<void> {
-  console.log(`Payment method attached: ${paymentMethod.id}`);
+  logger.debug(`Payment method attached: ${paymentMethod.id}`, { component: 'stripe-webhook' });
   
   // Store payment method details (PCI-compliant)
   await supabase
@@ -419,7 +420,7 @@ async function handlePaymentMethodAttached(paymentMethod: Stripe.PaymentMethod):
 }
 
 async function handlePaymentMethodDetached(paymentMethod: Stripe.PaymentMethod): Promise<void> {
-  console.log(`Payment method detached: ${paymentMethod.id}`);
+  logger.debug(`Payment method detached: ${paymentMethod.id}`, { component: 'stripe-webhook' });
   
   // Mark payment method as removed
   await supabase
@@ -487,7 +488,7 @@ async function handlePlanChange(
   oldPlan: string,
   newPlan: string
 ): Promise<void> {
-  console.log(`Plan changed from ${oldPlan} to ${newPlan}`);
+  logger.debug(`Plan changed from ${oldPlan} to ${newPlan}`, { component: 'stripe-webhook' });
   
   // Calculate proration
   const proration = await calculateProration(subscription);
@@ -515,26 +516,26 @@ async function sendSubscriptionEmail(
   type: 'welcome' | 'cancelled' | 'trial_ending'
 ): Promise<void> {
   // Implementation would send actual emails
-  console.log(`Sending ${type} email for subscription ${subscription.id}`);
+  logger.debug(`Sending ${type} email for subscription ${subscription.id}`, { component: 'stripe-webhook' });
 }
 
 async function sendPaymentFailureNotification(paymentIntent: Stripe.PaymentIntent): Promise<void> {
-  console.log(`Sending payment failure notification for ${paymentIntent.id}`);
+  logger.debug(`Sending payment failure notification for ${paymentIntent.id}`, { component: 'stripe-webhook' });
   // Implementation would send actual notification
 }
 
 async function sendPaymentRetryNotification(invoice: Stripe.Invoice, daysUntilRetry: number): Promise<void> {
-  console.log(`Payment retry in ${daysUntilRetry} days for invoice ${invoice.id}`);
+  logger.debug(`Payment retry in ${daysUntilRetry} days for invoice ${invoice.id}`, { component: 'stripe-webhook' });
   // Implementation would send actual notification
 }
 
 async function sendFinalPaymentWarning(invoice: Stripe.Invoice): Promise<void> {
-  console.log(`Sending final payment warning for invoice ${invoice.id}`);
+  logger.debug(`Sending final payment warning for invoice ${invoice.id}`, { component: 'stripe-webhook' });
   // Implementation would send urgent notification
 }
 
 async function sendUpcomingInvoiceNotification(invoice: Stripe.Invoice): Promise<void> {
-  console.log(`Sending upcoming invoice notification for ${invoice.id}`);
+  logger.debug(`Sending upcoming invoice notification for ${invoice.id}`, { component: 'stripe-webhook' });
   // Implementation would send invoice preview
 }
 
@@ -543,12 +544,12 @@ async function sendPlanChangeNotification(
   oldPlan: string,
   newPlan: string
 ): Promise<void> {
-  console.log(`Sending plan change notification: ${oldPlan} -> ${newPlan}`);
+  logger.debug(`Sending plan change notification: ${oldPlan} -> ${newPlan}`, { component: 'stripe-webhook' });
   // Implementation would send notification
 }
 
 async function initiatePaymentRecovery(paymentIntent: Stripe.PaymentIntent): Promise<void> {
-  console.log(`Initiating payment recovery for ${paymentIntent.id}`);
+  logger.debug(`Initiating payment recovery for ${paymentIntent.id}`, { component: 'stripe-webhook' });
   
   // Create recovery task
   await supabase
@@ -565,7 +566,7 @@ async function initiatePaymentRecovery(paymentIntent: Stripe.PaymentIntent): Pro
 }
 
 async function handleSubscriptionSuspension(subscriptionId: string): Promise<void> {
-  console.log(`Suspending subscription ${subscriptionId} due to payment failure`);
+  logger.debug(`Suspending subscription ${subscriptionId} due to payment failure`, { component: 'stripe-webhook' });
   
   // Update subscription status
   await supabase
@@ -612,7 +613,7 @@ async function checkPaymentMethodStatus(customerId: string): Promise<void> {
 }
 
 async function sendCardExpiryWarning(customerId: string, paymentMethod: any): Promise<void> {
-  console.log(`Card expiring soon for customer ${customerId}`);
+  logger.debug(`Card expiring soon for customer ${customerId}`, { component: 'stripe-webhook' });
   // Implementation would send warning email
 }
 
@@ -633,7 +634,7 @@ async function checkAndResolvePaymentIssues(customerId: string): Promise<void> {
 }
 
 async function retryPayment(paymentTask: any): Promise<void> {
-  console.log(`Retrying payment ${paymentTask.payment_intent_id}`);
+  logger.debug(`Retrying payment ${paymentTask.payment_intent_id}`, { component: 'stripe-webhook' });
   // Implementation would retry the payment
 }
 
@@ -650,7 +651,7 @@ async function verifyPaymentMethodAvailability(customerId: string): Promise<void
 }
 
 async function sendNoPaymentMethodWarning(customerId: string): Promise<void> {
-  console.log(`No payment method available for customer ${customerId}`);
+  logger.debug(`No payment method available for customer ${customerId}`, { component: 'stripe-webhook' });
   // Implementation would send warning
 }
 

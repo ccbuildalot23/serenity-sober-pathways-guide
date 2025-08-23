@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { MetricWidget } from '@/components/ui/MetricWidget';
+import logger from '../services/loggerService';
 import { 
   Shield, Database, Clock, Trash2, Download, 
   Settings, AlertTriangle, CheckCircle, Users
@@ -23,7 +24,7 @@ const AdminDashboard: React.FC = () => {
 
   useEffect(() => {
     // Simulate loading admin data
-    console.log('Admin dashboard loaded for user:', user?.email);
+    logger.debug('Admin dashboard loaded for user:', user?.email, { component: 'AdminDashboard' });
   }, [user]);
 
   const handleDataRetentionSettings = () => {
@@ -44,7 +45,7 @@ const AdminDashboard: React.FC = () => {
 
   const initiateDisposal = () => {
     // Simulate disposal initiation
-    console.log('Initiating data disposal with reason:', disposalReason);
+    logger.debug('Initiating data disposal with reason:', disposalReason, { component: 'AdminDashboard' });
   };
 
   return (

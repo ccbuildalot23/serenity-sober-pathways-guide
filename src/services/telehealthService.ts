@@ -3,6 +3,7 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { addMinutes, isPast, isFuture } from 'date-fns';
 import ical from 'ical-generator';
 import { supabase } from '@/integrations/supabase/client';
+import logger from './loggerService';
 
 /**
  * HIPAA-Compliant Telehealth Service
@@ -484,7 +485,7 @@ class TelehealthService {
     if (error) throw error;
 
     // Simulate clearinghouse submission
-    console.log('Claim submitted to clearinghouse:', claimId);
+    logger.debug('Claim submitted to clearinghouse:', claimId, { component: 'telehealthService' });
   }
 
   /**
@@ -600,7 +601,7 @@ class TelehealthService {
   }
 
   private async handleJoinedMeeting(event: DailyEventObject): Promise<void> {
-    console.log('Joined meeting:', event);
+    logger.debug('Joined meeting:', event, { component: 'telehealthService' });
     
     if (this.currentSession) {
       this.currentSession.actualStart = new Date();
@@ -617,7 +618,7 @@ class TelehealthService {
   }
 
   private async handleLeftMeeting(event: DailyEventObject): Promise<void> {
-    console.log('Left meeting:', event);
+    logger.debug('Left meeting:', event, { component: 'telehealthService' });
     
     if (this.currentSession) {
       this.currentSession.actualEnd = new Date();
@@ -634,22 +635,22 @@ class TelehealthService {
   }
 
   private handleParticipantJoined(event: DailyEventObject): void {
-    console.log('Participant joined:', event);
+    logger.debug('Participant joined:', event, { component: 'telehealthService' });
     this.sessionListeners.forEach(listener => listener('participant-joined', event));
   }
 
   private handleParticipantLeft(event: DailyEventObject): void {
-    console.log('Participant left:', event);
+    logger.debug('Participant left:', event, { component: 'telehealthService' });
     this.sessionListeners.forEach(listener => listener('participant-left', event));
   }
 
   private handleRecordingStarted(event: DailyEventObject): void {
-    console.log('Recording started:', event);
+    logger.debug('Recording started:', event, { component: 'telehealthService' });
     this.sessionListeners.forEach(listener => listener('recording-started', event));
   }
 
   private handleRecordingStopped(event: DailyEventObject): void {
-    console.log('Recording stopped:', event);
+    logger.debug('Recording stopped:', event, { component: 'telehealthService' });
     this.sessionListeners.forEach(listener => listener('recording-stopped', event));
   }
 
@@ -722,7 +723,7 @@ class TelehealthService {
     });
 
     // In production, send via email
-    console.log('Calendar invite generated:', cal.toString());
+    logger.debug('Calendar invite generated:', cal.toString(, { component: 'telehealthService' }););
   }
 
   private async scheduleReminders(session: TelehealthSession): Promise<void> {

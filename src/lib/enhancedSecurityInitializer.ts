@@ -6,6 +6,7 @@
 import { SecurityHeaders } from './securityHeaders';
 import { securityComplianceService } from '@/services/securityComplianceService';
 import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
+import logger from '../services/loggerService';
 
 export class EnhancedSecurityInitializer {
   private static initialized = false;
@@ -17,7 +18,7 @@ export class EnhancedSecurityInitializer {
     }
 
     try {
-      console.log('🔒 Initializing enhanced security measures...');
+      logger.debug('🔒 Initializing enhanced security measures...', { component: 'enhancedSecurityInitializer' });
 
       // Validate environment before proceeding
       this.validateEnvironmentVariables();
@@ -36,10 +37,10 @@ export class EnhancedSecurityInitializer {
       await this.performSecurityHealthCheck();
 
       this.initialized = true;
-      console.log('✅ Enhanced security initialization complete');
+      logger.debug('✅ Enhanced security initialization complete', { component: 'enhancedSecurityInitializer' });
       
       if (this.securityIssues.length > 0) {
-        console.warn('⚠️ Security warnings detected:', this.securityIssues);
+        logger.warn('⚠️ Security warnings detected:', this.securityIssues, { component: 'enhancedSecurityInitializer' });
       }
       
     } catch (_error) {
@@ -167,7 +168,7 @@ export class EnhancedSecurityInitializer {
       });
 
     } catch (_error) {
-      console.warn('Security health check failed:', _error);
+      logger.warn('Security health check failed:', _error, { component: 'enhancedSecurityInitializer' });
     }
   }
 

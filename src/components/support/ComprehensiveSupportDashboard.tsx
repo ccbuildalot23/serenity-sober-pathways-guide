@@ -47,7 +47,7 @@ export const ComprehensiveSupportDashboard: React.FC = () => {
   const encouragements = [
     "It's not weak, it's smart",
     "Your network wants to hear from you", 
-    "Connection is the opposite of addiction",
+    "Connection is the opposite of substance use",
     "Asking for help is how we stay clean",
     "You're stronger when you're connected",
     "Recovery is a team sport",
@@ -470,7 +470,7 @@ export const ComprehensiveSupportDashboard: React.FC = () => {
                 "Your support network wants to hear from you"
               </div>
               <div className="text-sm text-purple-600">
-                Connection is the opposite of addiction. Every message strengthens your recovery.
+                Connection is the opposite of substance use. Every message strengthens your recovery.
               </div>
               <Badge variant="outline" className="bg-white/50 text-purple-700">
                 <Heart className="h-3 w-3 mr-1" />

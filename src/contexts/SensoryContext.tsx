@@ -6,6 +6,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { audioService, AudioPreferences } from '@/services/audioService';
 import { soundEffects } from '@/components/audio/SoundEffects';
+import logger from '../services/loggerService';
 
 export interface SensorySettings {
   // Audio settings
@@ -109,7 +110,7 @@ export const SensoryProvider: React.FC<SensoryProviderProps> = ({ children }) =>
         audioService.updatePreferences(merged.audioPreferences);
       }
     } catch (error) {
-      console.warn('Failed to load sensory settings:', error);
+      logger.warn('Failed to load sensory settings:', error, { component: 'SensoryContext' });
     } finally {
       setIsLoading(false);
     }
@@ -121,7 +122,7 @@ export const SensoryProvider: React.FC<SensoryProviderProps> = ({ children }) =>
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
       } catch (error) {
-        console.warn('Failed to save sensory settings:', error);
+        logger.warn('Failed to save sensory settings:', error, { component: 'SensoryContext' });
       }
     }
   }, [settings, isLoading]);

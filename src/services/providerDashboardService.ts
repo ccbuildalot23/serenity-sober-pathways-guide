@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import logger from './loggerService';
 
 export interface ProviderDashboardStats {
   totalPatients: number;
@@ -51,7 +52,7 @@ export interface ProviderAppointment {
 export const providerDashboardService = {
   async getProviderStats(_providerId: string): Promise<ProviderDashboardStats> {
     try {
-      console.log('Fetching provider dashboard stats for:', _providerId);
+      logger.debug('Fetching provider dashboard stats for:', _providerId, { component: 'providerDashboardService' });
 
       // Get all patients for this provider
       const { data: relationships, _error: _relationshipError } = await supabase
@@ -61,7 +62,7 @@ export const providerDashboardService = {
         .eq('status', 'active');
 
       if (_relationshipError) {
-        console.warn('Error fetching patient relationships:', _relationshipError);
+        logger.warn('Error fetching patient relationships:', _relationshipError, { component: 'providerDashboardService' });
         return this.getDefaultStats();
       }
 
@@ -80,7 +81,7 @@ export const providerDashboardService = {
         .eq('checkin_date', today);
 
       if (_todayError) {
-        console.warn('Error fetching today checkins:', _todayError);
+        logger.warn('Error fetching today checkins:', _todayError, { component: 'providerDashboardService' });
       }
 
       // Get crisis events for provider's patients (last 30 days)
@@ -94,7 +95,7 @@ export const providerDashboardService = {
         .gte('created_at', thirtyDaysAgo.toISOString());
 
       if (_crisisError) {
-        console.warn('Error fetching crisis events:', _crisisError);
+        logger.warn('Error fetching crisis events:', _crisisError, { component: 'providerDashboardService' });
       }
 
       // Get weekly check-ins for engagement metrics
@@ -108,7 +109,7 @@ export const providerDashboardService = {
         .gte('checkin_date', oneWeekAgo.toISOString().split('T')[0]);
 
       if (_weeklyError) {
-        console.warn('Error fetching weekly checkins:', _weeklyError);
+        logger.warn('Error fetching weekly checkins:', _weeklyError, { component: 'providerDashboardService' });
       }
 
       // Get monthly check-ins for engagement metrics
@@ -122,7 +123,7 @@ export const providerDashboardService = {
         .gte('checkin_date', oneMonthAgo.toISOString().split('T')[0]);
 
       if (_monthlyError) {
-        console.warn('Error fetching monthly checkins:', _monthlyError);
+        logger.warn('Error fetching monthly checkins:', _monthlyError, { component: 'providerDashboardService' });
       }
 
       // Calculate stats
@@ -172,7 +173,7 @@ export const providerDashboardService = {
         }
       };
 
-      console.log('Provider dashboard stats:', result);
+      logger.debug('Provider dashboard stats:', result, { component: 'providerDashboardService' });
       return result;
 
     } catch (_error) {
@@ -183,7 +184,7 @@ export const providerDashboardService = {
 
   async getPatientOverviews(_providerId: string): Promise<PatientOverview[]> {
     try {
-      console.log('Fetching patient overviews for provider:', _providerId);
+      logger.debug('Fetching patient overviews for provider:', _providerId, { component: 'providerDashboardService' });
 
       // Get patient relationships with profile data
       const { data: relationships, _error: _relationshipError } = await supabase
@@ -197,7 +198,7 @@ export const providerDashboardService = {
         .eq('status', 'active');
 
       if (_relationshipError) {
-        console.warn('Error fetching patient relationships:', _relationshipError);
+        logger.warn('Error fetching patient relationships:', _relationshipError, { component: 'providerDashboardService' });
         return [];
       }
 
@@ -215,7 +216,7 @@ export const providerDashboardService = {
         .order('checkin_date', { ascending: false });
 
       if (_checkinsError) {
-        console.warn('Error fetching latest checkins:', _checkinsError);
+        logger.warn('Error fetching latest checkins:', _checkinsError, { component: 'providerDashboardService' });
       }
 
       // Get crisis events for each patient
@@ -226,7 +227,7 @@ export const providerDashboardService = {
         .order('created_at', { ascending: false });
 
       if (_crisisError) {
-        console.warn('Error fetching crisis events:', _crisisError);
+        logger.warn('Error fetching crisis events:', _crisisError, { component: 'providerDashboardService' });
       }
 
       // Process data for each patient
@@ -277,7 +278,7 @@ export const providerDashboardService = {
         };
       });
 
-      console.log('Patient overviews:', patientOverviews);
+      logger.debug('Patient overviews:', patientOverviews, { component: 'providerDashboardService' });
       return patientOverviews;
 
     } catch (_error) {

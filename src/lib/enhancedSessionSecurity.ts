@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import logger from '../services/loggerService';
 
 export class EnhancedSessionSecurity {
   private static readonly SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
@@ -61,7 +62,7 @@ export class EnhancedSessionSecurity {
     
     // Validate device fingerprint
     if (!this.validateFingerprint()) {
-      console.warn('Device fingerprint mismatch detected');
+      logger.warn('Device fingerprint mismatch detected', { component: 'enhancedSessionSecurity' });
       this.logSecurityEvent('DEVICE_FINGERPRINT_MISMATCH');
     }
   }

@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { realtimeNotificationService } from './RealtimeNotificationService';
+import logger from './loggerService';
 
 // Interface matching MCP server's crisis _alert structure
 interface McpCrisisAlert {
@@ -414,7 +415,7 @@ class McpIntegrationBridge {
 
   private async handleCrisisEventFromMcp(crisisEvent: unknown) {
     // Process crisis events that come from MCP server
-    console.log('Received crisis event from MCP:', crisisEvent);
+    logger.debug('Received crisis event from MCP:', crisisEvent, { component: 'McpIntegrationBridge' });
     
     // Trigger in-app notifications based on MCP event
     if (crisisEvent.source === 'mcp' && crisisEvent._status === 'active') {
@@ -462,7 +463,7 @@ class McpIntegrationBridge {
 
   private async triggerEmergencyProtocol(crisisEventId: string, _alert: McpCrisisAlert) {
     // Emergency protocol for critical situations
-    console.log('EMERGENCY PROTOCOL TRIGGERED for crisis:', crisisEventId);
+    logger.debug('EMERGENCY PROTOCOL TRIGGERED for crisis:', crisisEventId, { component: 'McpIntegrationBridge' });
     
     // This would integrate with emergency services
     // For now, log and notify
@@ -512,7 +513,7 @@ class McpIntegrationBridge {
 
   private async contactEmergencyServices(crisisEventId: string) {
     // In production, this would actually contact emergency services
-    console.log('CONTACTING EMERGENCY SERVICES for crisis:', crisisEventId);
+    logger.debug('CONTACTING EMERGENCY SERVICES for crisis:', crisisEventId, { component: 'McpIntegrationBridge' });
     
     // Log the emergency contact
     await supabase

@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { enhancedSecurityAuditService } from './EnhancedSecurityAuditService';
 import { FinancialModelService } from './FinancialModelService';
 import { roiValidationService } from './ROIValidationService';
+import logger from './loggerService';
 
 // Initialize Stripe with secret key (should be in environment variables)
 // Stripe client will be initialized per-instance to allow Jest to inject mocks before construction
@@ -587,7 +588,7 @@ export class PaymentGatewayService {
           break;
 
         default:
-          console.log(`Unhandled webhook event: ${event.type}`);
+          logger.debug(`Unhandled webhook event: ${event.type}`, { component: 'PaymentGatewayService' });
       }
 
       // Log webhook processing
@@ -1004,7 +1005,7 @@ export class PaymentGatewayService {
   private async handleTrialEnding(subscription: Stripe.Subscription): Promise<void> {
     // Send trial ending notification
     // Implementation would send email to encourage conversion
-    console.log('Trial ending for subscription:', subscription.id);
+    logger.debug('Trial ending for subscription:', subscription.id, { component: 'PaymentGatewayService' });
   }
 }
 

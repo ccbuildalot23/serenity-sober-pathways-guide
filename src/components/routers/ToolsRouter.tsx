@@ -10,7 +10,7 @@ import { Target, Users, Calendar, Shield } from 'lucide-react';
 const Motivation = lazy(() => import('@/pages/Motivation'));
 const AccountabilityPartners = lazy(() => import('@/pages/AccountabilityPartners'));
 const RecoveryPlanning = lazy(() => import('@/pages/RecoveryPlanning'));
-const RecoveryStrengthPage = lazy(() => import('@/pages/RelapsePrevention'));
+const RecoveryStrengthPage = lazy(() => import('@/pages/RecoveryStrengthening'));
 
 // Tools directory component
 const ToolsDirectory = () => {
@@ -39,9 +39,9 @@ const ToolsDirectory = () => {
       color: 'text-purple-500'
     },
     {
-      name: 'relapse-prevention',
-      title: 'Relapse Prevention',
-      description: 'Tools to maintain your recovery',
+      name: 'recovery-strengthening',
+      title: 'Recovery Strengthening',
+      description: 'Tools to strengthen your recovery',
       icon: Shield,
       color: 'text-red-500'
     }
@@ -110,7 +110,7 @@ const ToolsRouter = () => {
         return <AccountabilityPartners />;
       case 'planning':
         return <RecoveryPlanning />;
-      case 'relapse-prevention':
+      case 'recovery-strengthening':
         return <RecoveryStrengthPage />;
       default:
         // Invalid tool name, redirect to directory

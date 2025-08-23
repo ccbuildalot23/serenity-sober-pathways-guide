@@ -1,6 +1,6 @@
 // Patient Dashboard - For users in recovery
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { MetricWidget } from '@/components/ui/MetricWidget';
+import logger from '../services/loggerService';
 import { 
   Heart, 
   Calendar, 
@@ -147,7 +148,7 @@ const PatientDashboard = () => {
     (async () => {
       try {
         const results = await testDatabaseConnection();
-        console.log('🎯 DATABASE TEST RESULTS:', results);
+        logger.debug('🎯 DATABASE TEST RESULTS:', results, { component: 'PatientDashboard' });
         if ((results as any).error) console.error('🚨 CRITICAL: Database completely broken');
         // user comes from context; results.auth duplicates visibility for console only
       } catch (err) {
@@ -161,7 +162,7 @@ const PatientDashboard = () => {
     if (!user?.id) return;
     const interval = setInterval(async () => {
       try {
-        console.log('🔄 REAL-TIME DATA CHECK...');
+        logger.debug('🔄 REAL-TIME DATA CHECK...', { component: 'PatientDashboard' });
         const { count: checkinsCount, error: checkinsError } = await supabase
           .from('daily_checkins')
           .select('id', { count: 'exact', head: true })
@@ -186,7 +187,7 @@ const PatientDashboard = () => {
   
   const checkTodaysCheckinStatus = async () => {
     // Placeholder function for E2E compatibility
-    console.log('Checking todays checkin status...');
+    logger.debug('Checking todays checkin status...', { component: 'PatientDashboard' });
   };
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-lavender-50 to-sky-50" data-testid="patient-dashboard">
@@ -535,4 +536,4 @@ const PatientDashboard = () => {
   );
 };
 
-export default PatientDashboard;
+export default memo(PatientDashboard);

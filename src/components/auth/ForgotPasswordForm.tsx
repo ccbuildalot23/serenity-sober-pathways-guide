@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Loader2, Mail, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { emailService } from '@/services/emailService';
+import logger from '../../services/loggerService';
 
 interface ForgotPasswordFormProps {
   onBack?: () => void;
@@ -45,12 +46,12 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBack }
     setIsLoading(true);
 
     try {
-      console.log('Attempting password reset for:', emailValue);
+      logger.debug('Attempting password reset for:', emailValue, { component: 'ForgotPasswordForm' });
       
       // Use the new email service with proper rate limiting and error handling
       const result = await emailService.sendPasswordResetEmail(emailValue);
 
-      console.log('Password reset result:', result);
+      logger.debug('Password reset result:', result, { component: 'ForgotPasswordForm' });
 
       if (result.success) {
         setSuccess(true);
@@ -121,13 +122,17 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBack }
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
                 className="pl-10"
+                data-testid="email-input"
+                aria-label="Email address for password reset"
+                aria-describedby="email-error"
                 autoComplete="email"
                 required
               />
             </div>
+            <div id="email-error" data-testid="email-error" className="sr-only" aria-live="polite"></div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="w-full" disabled={isLoading} data-testid="login-button submit-login" aria-label="Send password reset email">
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

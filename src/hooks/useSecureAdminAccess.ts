@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { securityComplianceService } from '@/services/securityComplianceService';
 import { supabase } from '@/integrations/supabase/client';
+import logger from '../services/loggerService';
 
 /**
  * SECURITY FIX: Secure admin access hook replacing hardcoded verification
@@ -13,7 +14,7 @@ export const useSecureAdminAccess = () => {
 
   const verifyAdminAccess = async (): Promise<boolean> => {
     if (!user) {
-      console.warn('Admin verification attempted without authenticated user');
+      logger.warn('Admin verification attempted without authenticated user', { component: 'useSecureAdminAccess' });
       return false;
     }
 

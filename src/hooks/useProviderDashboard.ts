@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import logger from '../services/loggerService';
 import { 
   providerDashboardService, 
   ProviderDashboardStats, 
@@ -82,7 +83,7 @@ export const useProviderDashboard = () => {
       return;
     }
 
-    console.log('Fetching provider dashboard data for user:', user.id);
+    logger.debug('Fetching provider dashboard data for user:', user.id, { component: 'useProviderDashboard' });
     
     try {
       setLoading(true);
@@ -92,7 +93,7 @@ export const useProviderDashboard = () => {
         providerDashboardService.getTodaysAppointments(user.id)
       ]);
       
-      console.log('Provider dashboard data fetched:', { _statsData, _patientsData, _appointmentsData });
+      logger.debug('Provider dashboard data fetched:', { _statsData, _patientsData, _appointmentsData }, { component: 'useProviderDashboard' });
       setStats(_statsData);
       setPatients(_patientsData);
       setAppointments(_appointmentsData);
@@ -108,7 +109,7 @@ export const useProviderDashboard = () => {
 
   const refreshData = useCallback(() => {
     if (user?.id) {
-      console.log('Refreshing provider dashboard data');
+      logger.debug('Refreshing provider dashboard data', { component: 'useProviderDashboard' });
       fetchData();
     }
   }, [user?.id, fetchData]);

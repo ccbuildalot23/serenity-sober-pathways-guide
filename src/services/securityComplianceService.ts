@@ -4,6 +4,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import logger from './loggerService';
 
 export class SecurityComplianceService {
   private static instance: SecurityComplianceService;
@@ -80,7 +81,7 @@ export class SecurityComplianceService {
         throw _error;
       }
 
-      console.log('Audit log cleanup completed successfully');
+      logger.debug('Audit log cleanup completed successfully', { component: 'securityComplianceService' });
     } catch (_error) {
       console._error('Failed to cleanup audit logs:', _error);
       throw _error;
@@ -171,10 +172,10 @@ export class SecurityComplianceService {
       // Validate environment
       const _securityIssues = this.validateEnvironmentSecurity();
       if (_securityIssues.length > 0) {
-        console.warn('Security issues detected:', _securityIssues);
+        logger.warn('Security issues detected:', _securityIssues, { component: 'securityComplianceService' });
       }
 
-      console.log('✅ Comprehensive security measures initialized');
+      logger.debug('✅ Comprehensive security measures initialized', { component: 'securityComplianceService' });
     } catch (_error) {
       console._error('❌ Security initialization failed:', _error);
     }

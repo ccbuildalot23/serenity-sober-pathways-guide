@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Checkbox } from '@/components/ui/checkbox';
+import logger from '../../services/loggerService';
 import { 
   AlertTriangle, 
   Phone, 
@@ -139,7 +140,7 @@ export const CrisisInterventionSystem: React.FC<CrisisInterventionSystemProps> =
           address = data.results[0].formatted_address;
         }
       } catch (error) {
-        console.log('Could not get address from coordinates');
+        logger.debug('Could not get address from coordinates', { component: 'CrisisInterventionSystem' });
       }
 
       return { lat: latitude, lng: longitude, address };

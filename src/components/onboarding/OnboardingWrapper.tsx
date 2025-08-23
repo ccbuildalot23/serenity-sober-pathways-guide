@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { OnboardingFlow, OnboardingData } from './OnboardingFlow';
+import logger from '../../services/loggerService';
 
 interface OnboardingWrapperProps {
   children: React.ReactNode;
@@ -19,7 +20,7 @@ export const OnboardingWrapper: React.FC<OnboardingWrapperProps> = ({ children }
           setShouldShowOnboarding(true);
         }
       } catch (error) {
-        console.log('Error checking onboarding status:', error);
+        logger.debug('Error checking onboarding status:', error, { component: 'OnboardingWrapper' });
         // If there's an error, default to showing onboarding
         setShouldShowOnboarding(true);
       } finally {
@@ -31,7 +32,7 @@ export const OnboardingWrapper: React.FC<OnboardingWrapperProps> = ({ children }
   }, []);
 
   const handleOnboardingComplete = (data: OnboardingData) => {
-    console.log('Onboarding completed with data:', data);
+    logger.debug('Onboarding completed with data:', data, { component: 'OnboardingWrapper' });
     setShouldShowOnboarding(false);
   };
 

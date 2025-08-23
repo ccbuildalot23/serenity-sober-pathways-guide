@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { recoveryNotificationService, RecoveryNotification, NotificationPreferences } from '@/services/recoveryNotificationService';
 import { supabase } from '@/integrations/supabase/client';
+import logger from '../services/loggerService';
 
 export function useRecoveryNotifications() {
   const { user } = useAuth();
@@ -142,7 +143,7 @@ export function useRecoveryNotifications() {
           filter: `user_id=eq.${user.id}`,
         },
         (payload) => {
-          console.log('Notification change:', payload);
+          logger.debug('Notification change:', payload, { component: 'useRecoveryNotifications' });
           
           if (payload.eventType === 'INSERT') {
             const newNotification = payload.new as RecoveryNotification;

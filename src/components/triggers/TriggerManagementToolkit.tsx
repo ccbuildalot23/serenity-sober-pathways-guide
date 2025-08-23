@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, AlertTriangle, Star } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import logger from '../../services/loggerService';
 
 interface Trigger {
   id: string;
@@ -63,7 +64,7 @@ const TriggerManagementToolkit: React.FC = () => {
       ];
 
       setTriggers(mockTriggers);
-      console.log('Loaded triggers (mock data):', mockTriggers);
+      logger.debug('Loaded triggers (mock data):', mockTriggers, { component: 'TriggerManagementToolkit' });
     } catch (error) {
       console.error('Error loading triggers:', error);
       toast.error('Failed to load triggers');
@@ -94,7 +95,7 @@ const TriggerManagementToolkit: React.FC = () => {
       });
 
       toast.success('Trigger added successfully');
-      console.log('Added trigger (mock):', trigger);
+      logger.debug('Added trigger (mock):', trigger, { component: 'TriggerManagementToolkit' });
     } catch (error) {
       console.error('Error adding trigger:', error);
       toast.error('Failed to add trigger');
@@ -105,7 +106,7 @@ const TriggerManagementToolkit: React.FC = () => {
     try {
       setTriggers(prev => prev.filter(t => t.id !== id));
       toast.success('Trigger deleted');
-      console.log('Deleted trigger (mock):', id);
+      logger.debug('Deleted trigger (mock):', id, { component: 'TriggerManagementToolkit' });
     } catch (error) {
       console.error('Error deleting trigger:', error);
       toast.error('Failed to delete trigger');

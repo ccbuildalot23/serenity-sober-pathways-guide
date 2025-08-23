@@ -6,6 +6,7 @@ import UnifiedCrisisService from '@/services/unifiedCrisisService';
 import { CrisisSyncService } from '@/services/crisisSyncService';
 import { generateUUID } from '@/utils/crisisDataUtils';
 import type { CrisisResolution, CheckInResponse, FollowUpTask } from '@/types/crisisData';
+import logger from '../services/loggerService';
 
 // Recovery-first offline support - works when they need it most
 export const useOfflineSupport = () => {
@@ -218,7 +219,7 @@ export const useOfflineSupport = () => {
     
     try {
       await CrisisSyncService.syncWithServer(user.id);
-      console.log('Synced offline support data with server');
+      logger.debug('Synced offline support data with server', { component: 'useOfflineCrisisData' });
       
       // Reload data from server after sync
       await loadFromDatabase();

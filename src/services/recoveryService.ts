@@ -1,3 +1,4 @@
+import logger from './loggerService';
 
 // Add type declarations for global window properties
 declare global {
@@ -33,7 +34,7 @@ class RecoveryService {
     setInterval(() => {
       if (navigator.onLine && this.failureCount > 0) {
         this.failureCount = Math.max(0, this.failureCount - 1);
-        console.log('Recovery: Decremented failure count to', this.failureCount);
+        logger.debug('Recovery: Decremented failure count to', this.failureCount, { component: 'recoveryService' });
       }
     }, 30000);
   }
@@ -53,7 +54,7 @@ class RecoveryService {
     if (this.recoveryInProgress) return;
     
     this.failureCount++;
-    console.warn(`Recovery: Connection failure detected (${this.failureCount}/${this.MAX_FAILURES})`);
+    logger.warn(`Recovery: Connection failure detected (${this.failureCount}/${this.MAX_FAILURES}, { component: 'recoveryService' });`);
     
     if (this.failureCount >= this.MAX_FAILURES) {
       this.initiateEmergencyRecovery();
@@ -64,7 +65,7 @@ class RecoveryService {
     if (this.recoveryInProgress) return;
     
     this.recoveryInProgress = true;
-    console.warn('Recovery: Initiating emergency recovery procedure...');
+    logger.warn('Recovery: Initiating emergency recovery procedure...', { component: 'recoveryService' });
     
     try {
       if (window.realtimeConnectionMonitor) {
@@ -99,7 +100,7 @@ class RecoveryService {
       
       sessionStorage.clear();
       
-      console.log('Recovery: Cleared problematic storage');
+      logger.debug('Recovery: Cleared problematic storage', { component: 'recoveryService' });
     } catch (_error) {
       console._error('Recovery: Failed to clear storage:', _error);
     }
@@ -109,7 +110,7 @@ class RecoveryService {
     try {
       const { enhancedRealtimeService } = await import('./enhancedRealtimeService');
       await enhancedRealtimeService.cleanup();
-      console.log('Recovery: Realtime service reset');
+      logger.debug('Recovery: Realtime service reset', { component: 'recoveryService' });
     } catch (_error) {
       console._error('Recovery: Failed to reset realtime service:', _error);
     }
@@ -137,7 +138,7 @@ class RecoveryService {
   }
 
   public manualRecovery() {
-    console.log('Recovery: Manual recovery initiated');
+    logger.debug('Recovery: Manual recovery initiated', { component: 'recoveryService' });
     this.failureCount = this.MAX_FAILURES;
     this.initiateEmergencyRecovery();
   }

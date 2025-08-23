@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import logger from './loggerService';
 
 export interface NotificationData {
   user_id: string;
@@ -68,7 +69,7 @@ class SupportNetworkNotificationService {
       const _supportNetwork = await this.getSupportNetwork(_userId);
       
       if (_supportNetwork.length === 0) {
-        console.log('No support network found for user:', _userId);
+        logger.debug('No support network found for user:', _userId, { component: 'supportNetworkNotificationService' });
         return;
       }
 
@@ -80,7 +81,7 @@ class SupportNetworkNotificationService {
       );
 
       if (_filteredMembers.length === 0) {
-        console.log('No eligible support members for this notification type');
+        logger.debug('No eligible support members for this notification type', { component: 'supportNetworkNotificationService' });
         return;
       }
 
@@ -113,7 +114,7 @@ class SupportNetworkNotificationService {
         await this.sendImmediateAlerts(_filteredMembers, notification);
       }
 
-      console.log(`Sent ${notifications.length} notifications to support network`);
+      logger.debug(`Sent ${notifications.length} notifications to support network`, { component: 'supportNetworkNotificationService' });
     } catch (_error) {
       console._error('Error notifying support network:', _error);
     }
@@ -182,10 +183,10 @@ class SupportNetworkNotificationService {
     for (const member of emergencyMembers) {
       if (member._contact_method === 'sms') {
         // SMS integration would go here
-        console.log(`SMS alert sent to ${member._supporter_name}`);
+        logger.debug(`SMS alert sent to ${member._supporter_name}`, { component: 'supportNetworkNotificationService' });
       } else if (member._contact_method === 'email') {
         // Email integration would go here
-        console.log(`Email alert sent to ${member._supporter_name}`);
+        logger.debug(`Email alert sent to ${member._supporter_name}`, { component: 'supportNetworkNotificationService' });
       }
     }
   }

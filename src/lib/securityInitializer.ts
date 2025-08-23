@@ -1,5 +1,6 @@
 
 import { SecurityHeaders } from './securityHeaders';
+import logger from '../services/loggerService';
 
 export class SecurityInitializer {
   private static initialized = false;
@@ -10,14 +11,14 @@ export class SecurityInitializer {
     }
 
     try {
-      console.log('🔒 Initializing security measures...');
+      logger.debug('🔒 Initializing security measures...', { component: 'securityInitializer' });
 
       // Apply basic security headers
       SecurityHeaders.applySecurity();
       SecurityHeaders.validateEnvironment();
 
       this.initialized = true;
-      console.log('✅ Security initialization complete');
+      logger.debug('✅ Security initialization complete', { component: 'securityInitializer' });
       
     } catch (_error) {
       console._error('❌ Security initialization failed:', _error);

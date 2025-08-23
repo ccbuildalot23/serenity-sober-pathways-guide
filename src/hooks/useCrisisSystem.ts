@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { voiceActivationService } from '@/services/voiceActivationService';
 import { connectToSupport } from '@/services/crisisEscalationService';
 import { useSecureAuditLogger } from '@/hooks/useSecureAuditLogger';
+import logger from '../services/loggerService';
 
 type NeedLevel = 'reaching_out' | 'needing_support' | 'needing_help_now' | 'emergency';
 
@@ -69,7 +70,7 @@ export const useHelpNowSystem = () => {
   };
 
   const handleVoiceActivatedHelp = useCallback(() => {
-    console.log('Voice-activated help request detected');
+    logger.debug('Voice-activated help request detected', { component: 'useCrisisSystem' });
     toast.info('We Heard You', {
       description: 'Getting help right away',
       _duration: 2000,
@@ -84,7 +85,7 @@ export const useHelpNowSystem = () => {
   }, []);
 
   const handleHelpActivated = useCallback(() => {
-    console.log('Help button activated - checking in');
+    logger.debug('Help button activated - checking in', { component: 'useCrisisSystem' });
     setShowCheckIn(true);
     log('help_requested');
     
@@ -108,7 +109,7 @@ export const useHelpNowSystem = () => {
           setCurrentMoment(moment);
         },
         (_error) => {
-          console.log('Location access failed:', _error);
+          logger.debug('Location access failed:', _error, { component: 'useCrisisSystem' });
           setCurrentMoment(moment);
         }
       );
@@ -124,7 +125,7 @@ export const useHelpNowSystem = () => {
   }, [hasLocationPermission, log]);
 
   const handleCheckInComplete = useCallback((level: NeedLevel) => {
-    console.log('Check-in completed with need level:', level);
+    logger.debug('Check-in completed with need level:', level, { component: 'useCrisisSystem' });
     setNeedLevel(level);
     setShowCheckIn(false);
     setShowSupport(true);

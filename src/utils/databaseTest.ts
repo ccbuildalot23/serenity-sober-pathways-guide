@@ -1,31 +1,32 @@
 import { supabase } from '@/integrations/supabase/client';
+import logger from '../services/loggerService';
 
 export async function testDatabaseConnection() {
   // Basic connectivity and auth checks + top patient tables
-  console.log('🔍 TESTING DATABASE CONNECTION...');
+  logger.debug('🔍 TESTING DATABASE CONNECTION...', { component: 'databaseTest' });
 
   try {
     const connection = await supabase.from('profiles').select('id').limit(1);
-    console.log('✅ Connection test:', connection.error ? 'FAILED' : 'SUCCESS', connection.error);
+    logger.debug('✅ Connection test:', connection.error ? 'FAILED' : 'SUCCESS', connection.error, { component: 'databaseTest' });
 
     const auth = await supabase.auth.getUser();
-    console.log('✅ Auth test:', auth.data.user ? 'AUTHENTICATED' : 'NOT AUTHENTICATED', auth.error);
+    logger.debug('✅ Auth test:', auth.data.user ? 'AUTHENTICATED' : 'NOT AUTHENTICATED', auth.error, { component: 'databaseTest' });
 
     const checkins = await supabase
       .from('daily_checkins')
       .select('id, user_id, created_at')
       .limit(5);
-    console.log('✅ Daily check-ins table:', checkins.data?.length || 0, 'records found', checkins.error);
+    logger.debug('✅ Daily check-ins table:', checkins.data?.length || 0, 'records found', checkins.error, { component: 'databaseTest' });
 
     // simple_checkins is deprecated; rely on daily_checkins only to avoid 404s
     const simpleCheckins = { data: [], error: null } as any;
-    console.log('ℹ️ Simple check-ins table skipped (deprecated)');
+    logger.debug('ℹ️ Simple check-ins table skipped (deprecated)', { component: 'databaseTest' });
 
     const contacts = await supabase
       .from('support_contacts')
       .select('id, user_id')
       .limit(5);
-    console.log('✅ Support contacts table:', contacts.data?.length || 0, 'records found', contacts.error);
+    logger.debug('✅ Support contacts table:', contacts.data?.length || 0, 'records found', contacts.error, { component: 'databaseTest' });
 
     return {
       connection: !connection.error,
@@ -62,7 +63,7 @@ export async function verifyDatabaseTables() {
     }
   }
 
-  console.log('🎯 TABLE VERIFICATION RESULTS:', results);
+  logger.debug('🎯 TABLE VERIFICATION RESULTS:', results, { component: 'databaseTest' });
   return results;
 }
 
@@ -82,7 +83,7 @@ export async function testRLSPolicies() {
       .limit(1);
 
     const passed = !error && (!data || data.length === 0);
-    console.log('✅ RLS test result (cross-user read blocked):', { passed, dataLength: data?.length || 0, error });
+    logger.debug('✅ RLS test result (cross-user read blocked):', { passed, dataLength: data?.length || 0, error }, { component: 'databaseTest' });
     return { passed, dataLength: data?.length || 0, error } as any;
   } catch (error) {
     console.error('🚨 RLS test failed:', error);

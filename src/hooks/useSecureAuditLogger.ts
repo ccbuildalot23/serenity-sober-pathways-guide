@@ -1,6 +1,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
 import { formRateLimiter } from '@/lib/enhancedInputValidation';
+import logger from '../services/loggerService';
 // DEDUPLICATION: Replaces useAuditLogger and useServerSideAuditLogger
 // Reason: provides RLS-compliant logging with rate limiting
 
@@ -14,14 +15,14 @@ export const useSecureAuditLogger = () => {
   const log = async (action: string, details?: Record<string, any>) => {
     // Check if user is authenticated (required for RLS)
     if (!user) {
-      console.warn('Cannot log audit event: User not authenticated');
+      logger.warn('Cannot log audit event: User not authenticated', { component: 'useSecureAuditLogger' });
       return;
     }
 
     // Rate limiting for audit logs
     const userKey = user.id;
     if (!formRateLimiter(userKey)) {
-      console.warn('Audit logging rate limited');
+      logger.warn('Audit logging rate limited', { component: 'useSecureAuditLogger' });
       return;
     }
 

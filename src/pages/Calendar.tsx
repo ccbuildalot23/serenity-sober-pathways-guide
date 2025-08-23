@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { MetricWidget } from '@/components/ui/MetricWidget';
 import { Calendar as CalendarIcon, TrendingUp, Heart } from 'lucide-react';
+import logger from '../services/loggerService';
 
 // Simple fallback calendar component
 const SimpleCalendar = () => {
@@ -99,7 +100,7 @@ const Calendar: React.FC = () => {
         setLoading(false);
       })
       .catch(_error => {
-        console.warn('EnhancedCalendar not available, using simple calendar', _error);
+        logger.warn('EnhancedCalendar not available, using simple calendar', _error, { component: 'Calendar' });
         setLoading(false);
       });
   }, []);

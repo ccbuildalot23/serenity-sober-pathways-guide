@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, Bell, Clock, Phone, Users, Activity, Shield } from 'lucide-react';
+import logger from '../../services/loggerService';
 
 interface CrisisAlert {
   id: string;
@@ -80,7 +81,7 @@ export default function CrisisMonitor() {
           table: 'crisis_alerts' 
         },
         (payload) => {
-          console.log('Crisis alert update:', payload);
+          logger.debug('Crisis alert update:', payload, { component: 'crisis-monitor' });
           loadActiveAlerts();
         }
       )
@@ -91,7 +92,7 @@ export default function CrisisMonitor() {
           table: 'sms_logs'
         },
         (payload) => {
-          console.log('SMS log update:', payload);
+          logger.debug('SMS log update:', payload, { component: 'crisis-monitor' });
           loadSMSStats();
         }
       )

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { offlineStorage } from '@/services/offlineStorageService';
+import logger from '../services/loggerService';
 
 interface OfflineData {
   checkIns: unknown[];
@@ -150,18 +151,18 @@ export const useOfflineSync = () => {
           switch (_item.type) {
             case 'save_checkIns':
               // Sync check-ins to server
-              console.log('Syncing check-ins:', _item.data);
+              logger.debug('Syncing check-ins:', _item.data, { component: 'useOfflineSync' });
               break;
             case 'save_recoveryPlan':
               // Sync recovery plan to server
-              console.log('Syncing recovery plan:', _item.data);
+              logger.debug('Syncing recovery plan:', _item.data, { component: 'useOfflineSync' });
               break;
             case 'save_contacts':
               // Sync _contacts to server
-              console.log('Syncing _contacts:', _item.data);
+              logger.debug('Syncing _contacts:', _item.data, { component: 'useOfflineSync' });
               break;
             default:
-              console.log('Unknown sync type:', _item.type);
+              logger.debug('Unknown sync type:', _item.type, { component: 'useOfflineSync' });
           }
         } catch (_error) {
           console._error('Failed to sync _item:', _item, _error);
@@ -171,7 +172,7 @@ export const useOfflineSync = () => {
           
           // Remove _item if too many retries
           if (_item.retryCount >= 3) {
-            console.warn('Removing _item after 3 failed attempts:', _item);
+            logger.warn('Removing _item after 3 failed attempts:', _item, { component: 'useOfflineSync' });
             continue;
           }
         }

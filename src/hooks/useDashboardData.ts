@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { dashboardDataService, UserProfile } from '@/services/dashboardDataService';
 import { victoryTracker } from '@/services/victoryTrackerService';
 import { hopeMessenger } from '@/services/hopeMessengerService';
+import logger from '../services/loggerService';
 
 // Victory-focused dashboard - celebrate every win
 export const useVictoryDashboard = () => {
@@ -27,7 +28,7 @@ export const useVictoryDashboard = () => {
       return;
     }
 
-    console.log('Loading your victories:', user.id);
+    logger.debug('Loading your victories:', user.id, { component: 'useDashboardData' });
     
     try {
       // Get clean days from localStorage
@@ -82,7 +83,7 @@ export const useVictoryDashboard = () => {
 
   const refreshVictories = useCallback(() => {
     if (user?.id) {
-      console.log('Refreshing victories');
+      logger.debug('Refreshing victories', { component: 'useDashboardData' });
       setLoading(true);
       fetchVictories();
     }

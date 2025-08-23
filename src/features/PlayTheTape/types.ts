@@ -1,5 +1,5 @@
 
-export interface RelapseEvent {
+export interface RecoveryChallenge {
   date: string;
   trigger: string;
   consequence: string;
@@ -8,7 +8,7 @@ export interface RelapseEvent {
 
 export interface UserData {
   sobrietyDays: number;
-  relapseHistory: RelapseEvent[];
+  challengeHistory: RecoveryChallenge[];
 }
 
 export interface GeneratedStory {

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -327,4 +327,4 @@ const DailyCheckIn = () => {
   );
 };
 
-export default DailyCheckIn;
+export default memo(DailyCheckIn);

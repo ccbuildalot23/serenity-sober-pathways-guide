@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Calendar, Users, BookOpen, DollarSign, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import logger from '../services/loggerService';
 
 const Pilot = () => {
   const [_formData, setFormData] = useState({
@@ -21,7 +22,7 @@ const Pilot = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Pilot application submitted:", _formData);
+    logger.debug("Pilot application submitted:", _formData, { component: 'Pilot' });
     // Handle form submission
   };
 

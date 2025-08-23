@@ -2,6 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { CheckinData, CheckinResponses } from '@/types/dailyCheckIn';
 import { toast } from 'sonner';
+import logger from './loggerService';
 
 export const checkinSubmissionService = {
   prepareCheckinData: (userId: string, date: string, responses: CheckinResponses): CheckinData => {
@@ -101,7 +102,7 @@ export const checkinSubmissionService = {
       if (verifyError) {
         console.error('🚨 VERIFICATION FAILED (daily_checkins):', verifyError);
       } else {
-        console.log('✅ VERIFICATION QUERY OK (daily_checkins):', verify?.id);
+        logger.debug('✅ VERIFICATION QUERY OK (daily_checkins):', verify?.id, { component: 'checkinSubmissionService' });
       }
     } catch (err) {
       console.error('🚨 Verification query threw:', err);

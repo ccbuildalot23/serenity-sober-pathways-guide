@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { 
+import logger from '../../services/loggerService';
   UserPlus, 
   Building, 
   Phone, 
@@ -108,7 +109,7 @@ export default function QuickOnboard() {
           })
         });
       } catch (error) {
-        console.log('Welcome SMS not sent (API not configured)');
+        logger.debug('Welcome SMS not sent (API not configured, { component: 'quick-onboard' });');
       }
       
       toast({

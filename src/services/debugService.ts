@@ -1,3 +1,4 @@
+import logger from './loggerService';
 
 interface DebugLogEntry {
   timestamp: string;
@@ -85,7 +86,7 @@ class DebugService {
   private async sendLogToServer(_logEntry: DebugLogEntry): Promise<void> {
     try {
       // In a real app, this would send to your logging service
-      console.warn('Critical log would be sent to server:', _logEntry);
+      logger.warn('Critical log would be sent to server:', _logEntry, { component: 'debugService' });
     } catch (_error) {
       console._error('Failed to send log to server:', _error);
     }

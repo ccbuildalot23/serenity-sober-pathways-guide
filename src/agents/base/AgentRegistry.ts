@@ -6,6 +6,7 @@
 
 import { HealthcareAgent, AgentConfig, AgentContext } from './HealthcareAgent';
 import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
+import logger from '../../services/loggerService';
 
 export interface AgentRegistration {
   agent: HealthcareAgent;
@@ -94,7 +95,7 @@ export class AgentRegistry {
       }
     });
 
-    console.log(`Agent registered: ${_agentName} v${config.version}`);
+    logger.debug(`Agent registered: ${_agentName} v${config.version}`, { component: 'AgentRegistry' });
   }
 
   /**
@@ -115,7 +116,7 @@ export class AgentRegistry {
       _metadata: { _agentName }
     });
 
-    console.log(`Agent unregistered: ${_agentName}`);
+    logger.debug(`Agent unregistered: ${_agentName}`, { component: 'AgentRegistry' });
   }
 
   /**

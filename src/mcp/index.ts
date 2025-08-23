@@ -9,6 +9,7 @@ import { MCPDataTransformer } from './transformer';
 import { MCPErrorHandler } from './error-handler';
 import { MCPConnectionPool } from './connection-pool';
 import type { MCPConfig, MCPResponse, MCPRequest } from './types';
+import logger from '../services/loggerService';
 
 export class MCPIntegration {
   private client: MCPClient;
@@ -36,7 +37,7 @@ export class MCPIntegration {
     try {
       const connection = await this.connectionPool.acquire(serverName);
       await this.authManager.authenticate(serverName);
-      console.log(`Connected to MCP server: ${serverName}`);
+      logger.debug(`Connected to MCP server: ${serverName}`, { component: 'index' });
     } catch (error) {
       await this.errorHandler.handle(error, 'connect', { serverName });
     }
@@ -191,7 +192,7 @@ export class MCPIntegration {
   async disconnect(serverName: string): Promise<void> {
     try {
       await this.connectionPool.release(serverName);
-      console.log(`Disconnected from MCP server: ${serverName}`);
+      logger.debug(`Disconnected from MCP server: ${serverName}`, { component: 'index' });
     } catch (error) {
       await this.errorHandler.handle(error, 'disconnect', { serverName });
     }

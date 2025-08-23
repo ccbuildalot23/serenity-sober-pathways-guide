@@ -1,4 +1,5 @@
 import { supabase } from './client';
+import logger from '../../services/loggerService';
 
 // Enhanced auth client with retry logic and better error handling
 export class AuthClient {
@@ -69,7 +70,7 @@ export class AuthClient {
     
     for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
       try {
-        console.log(`Signup attempt ${attempt} for ${email}...`);
+        logger.debug(`Signup attempt ${attempt} for ${email}...`, { component: 'auth-client' });
         
         const { data, error } = await supabase.auth.signUp({
           email: email.trim().toLowerCase(),
@@ -161,7 +162,7 @@ export class AuthClient {
     
     for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
       try {
-        console.log(`Signin attempt ${attempt} for ${email}...`);
+        logger.debug(`Signin attempt ${attempt} for ${email}...`, { component: 'auth-client' });
         
         const { data, error } = await supabase.auth.signInWithPassword({
           email: email.trim().toLowerCase(),
@@ -273,7 +274,7 @@ export class AuthClient {
     // Retry logic for reset password
     for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
       try {
-        console.log(`Password reset attempt ${attempt}/${this.maxRetries}...`);
+        logger.debug(`Password reset attempt ${attempt}/${this.maxRetries}...`, { component: 'auth-client' });
         
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/reset-password`,
@@ -286,7 +287,7 @@ export class AuthClient {
             lastError = error;
             
             if (attempt < this.maxRetries) {
-              console.log(`Network error, retrying in ${this.retryDelay}_ms...`);
+              logger.debug(`Network error, retrying in ${this.retryDelay}_ms...`, { component: 'auth-client' });
               await this.delay(this.retryDelay);
               continue;
             }
@@ -308,7 +309,7 @@ export class AuthClient {
         lastError = error;
         
         if (attempt < this.maxRetries) {
-          console.log(`Error on attempt ${attempt}, retrying...`);
+          logger.debug(`Error on attempt ${attempt}, retrying...`, { component: 'auth-client' });
           await this.delay(this.retryDelay);
         }
       }

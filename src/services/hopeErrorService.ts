@@ -1,6 +1,7 @@
 // Hope Error Service - Even errors can be encouraging
 
 import { toast } from 'sonner';
+import logger from './loggerService';
 
 // Error messages that don't make people feel worse
 const hopeErrorMessages = {
@@ -58,7 +59,7 @@ class HopeErrorService {
       duration: 4000,
       _action: {
         label: 'Dismiss',
-        _onClick: () => console.log('Dismissed')
+        _onClick: () => logger.debug('Dismissed', { component: 'hopeErrorService' });
       }
     });
     
@@ -146,7 +147,7 @@ class HopeErrorService {
       save: "Saved! You're building something beautiful.",
       update: "Updated! Progress, not perfection.",
       delete: "Removed. Making space for better things.",
-      send: "Sent! Connection is the opposite of addiction.",
+      send: "Sent! Connection is the opposite of substance use.",
       complete: "Complete! Look at you go!",
       default: "Success! You're doing great things."
     };

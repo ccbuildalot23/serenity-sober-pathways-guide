@@ -6,6 +6,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { enhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
+import logger from '../services/loggerService';
 
 export type UserRole = 'patient' | 'provider' | 'supporter' | 'admin';
 export type ResourceType = 'clinical_notes' | 'crisis_plans' | 'check_ins' | 'medications' | 
@@ -523,12 +524,12 @@ export class RolePermissionMiddleware {
 
   private async sendTransitionNotifications(config: AgeTransitionConfig): Promise<void> {
     // Implementation would send emails/SMS to patient and guardian
-    console.log('Sending age transition notifications', config);
+    logger.debug('Sending age transition notifications', config, { component: 'RolePermissionMiddleware' });
   }
 
   private async sendConsentRequest(patientId: string, supporterId: string): Promise<void> {
     // Implementation would send consent request to patient
-    console.log('Sending consent request', { patientId, supporterId });
+    logger.debug('Sending consent request', { patientId, supporterId }, { component: 'RolePermissionMiddleware' });
   }
 
   // Audit logging methods

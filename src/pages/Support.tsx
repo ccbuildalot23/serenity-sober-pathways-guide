@@ -349,7 +349,7 @@ const Support = () => {
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-gray-600">
-              Track and handle common relapse triggers
+              Track and handle common recovery challenges
             </p>
             <Button onClick={handleViewTriggers} className="w-full" variant="outline">
               <AlertTriangle className="w-4 h-4 mr-2" />

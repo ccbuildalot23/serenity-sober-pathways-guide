@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel } from '@supabase/supabase-js';
+import logger from '../services/loggerService';
 
 interface TypingUser {
   _user_id: string;
@@ -377,7 +378,7 @@ export const useRealtimePeerChat = ({
   useEffect(() => {
     if (!sessionId || !user) return;
 
-    console.log('Setting up real-time subscriptions for session:', sessionId);
+    logger.debug('Setting up real-time subscriptions for session:', sessionId, { component: 'useRealtimePeerChat' });
 
     // Messages channel
     const messagesChannel = supabase
@@ -391,14 +392,14 @@ export const useRealtimePeerChat = ({
           _filter: `session_id=eq.${sessionId}`
         },
         (payload) => {
-          console.log('Message update received:', payload);
+          logger.debug('Message update received:', payload, { component: 'useRealtimePeerChat' });
           if (payload.eventType === 'INSERT' && onMessageReceived) {
             onMessageReceived(payload.new as EnhancedMessage);
           }
         }
       )
       .subscribe((_status) => {
-        console.log('Messages channel _status:', _status);
+        logger.debug('Messages channel _status:', _status, { component: 'useRealtimePeerChat' });
         setIsConnected(_status === 'SUBSCRIBED');
       });
 

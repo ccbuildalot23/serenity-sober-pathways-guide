@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { 
+import logger from '../../services/loggerService';
   Bell, Mail, MessageSquare, Smartphone, 
   Shield, AlertTriangle, Check, Loader2,
   Phone, Zap, Users, Heart, Calendar, Brain, Activity, Target
@@ -348,7 +349,7 @@ export function EnhancedNotificationPreferences() {
 
         if (!error) {
           // In production, send actual WhatsApp message via Twilio
-          console.log(`WhatsApp verification code: ${verificationCode}`);
+          logger.debug(`WhatsApp verification code: ${verificationCode}`, { component: 'EnhancedNotificationPreferences' });
           
           toast({
             title: 'Verification Code Sent',

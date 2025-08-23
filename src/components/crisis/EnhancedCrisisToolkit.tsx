@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
+import logger from '../../services/loggerService';
 import { 
   Phone, Brain, Users, Headphones, Heart, AlertCircle, 
   MapPin, Mic, MicOff, WifiOff, Battery, Shield
@@ -72,7 +73,7 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
     if (hasLocationPermission) {
       getCurrentLocation()
         .then(_setLocation)
-        .catch(err => console.log('Location unavailable:', err));
+        .catch(err => logger.debug('Location unavailable:', err, { component: 'EnhancedCrisisToolkit' }););
     }
   }, [hasLocationPermission]);
 
@@ -196,7 +197,7 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
           id: 'support-chat',
           title: "Peer Support Chat",
           description: "Anonymous peer support",
-          action: () => console.log('Open chat'),
+          action: () => logger.debug('Open chat', { component: 'EnhancedCrisisToolkit' });,
           duration: "24/7"
         }
       ]
@@ -217,7 +218,7 @@ export const EnhancedCrisisToolkit: React.FC<EnhancedCrisisToolkitProps> = ({
           id: 'music',
           title: "Calming Music",
           description: "Soothing playlist",
-          action: () => console.log('Play music'),
+          action: () => logger.debug('Play music', { component: 'EnhancedCrisisToolkit' });,
           duration: "Varies"
         }
       ]

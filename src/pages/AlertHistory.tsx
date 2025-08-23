@@ -1,6 +1,7 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { GlassCard } from '@/components/ui/GlassCard';
 import { getSentAlerts } from '@/services/mockSmsService';
 import { getNotificationHistory } from '@/services/mockPushService';
 import { useToast } from '@/hooks/use-toast';
@@ -9,6 +10,7 @@ import AlertHistoryStats from '@/components/alert-history/AlertHistoryStats';
 import AlertHistoryControls from '@/components/alert-history/AlertHistoryControls';
 import AlertHistoryList from '@/components/alert-history/AlertHistoryList';
 import AlertHistoryCharts from '@/components/alert-history/AlertHistoryCharts';
+import { History } from 'lucide-react';
 
 interface AlertRecord {
   id: string;
@@ -201,48 +203,83 @@ const AlertHistory = () => {
   };
 
   return (
-    <div className="p-4 space-y-6 max-w-4xl mx-auto">
-      <AlertHistoryHeader
-        historyEnabled={historyEnabled}
-        onToggleHistory={handleToggleHistory}
-        onExportCSV={handleExportCSV}
-        error={error}
-      />
+    <div className="min-h-screen bg-gradient-to-br from-purple-50/50 via-blue-50/30 to-indigo-100/50">
+      {/* Glass morphism header */}
+      <div className="sticky top-0 z-10 bg-white/60 backdrop-blur-xl border-b border-white/20">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center space-x-3"
+          >
+            <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+              <History className="w-5 h-5 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              Alert History
+            </h1>
+          </motion.div>
+        </div>
+      </div>
+      
+      <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <GlassCard className="overflow-hidden">
+            <AlertHistoryHeader
+              historyEnabled={historyEnabled}
+              onToggleHistory={handleToggleHistory}
+              onExportCSV={handleExportCSV}
+              error={error}
+            />
+          </GlassCard>
+        </motion.div>
 
-      {/* Analytics Dashboard */}
-      <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="overview" className="space-y-4">
-          <AlertHistoryStats alertHistory={alertHistory} />
-          
-          <AlertHistoryControls 
-            groupBy={groupBy}
-            onGroupByChange={setGroupBy}
-          />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <GlassCard className="p-6">
+            <Tabs defaultValue="overview" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 bg-white/40 backdrop-blur-sm">
+                <TabsTrigger value="overview" className="data-[state=active]:bg-white/80">Overview</TabsTrigger>
+                <TabsTrigger value="analytics" className="data-[state=active]:bg-white/80">Analytics</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="overview" className="space-y-6 mt-6">
+                <AlertHistoryStats alertHistory={alertHistory} />
+                
+                <AlertHistoryControls 
+                  groupBy={groupBy}
+                  onGroupByChange={setGroupBy}
+                />
 
-          <AlertHistoryList
-            groupedAlerts={groupedAlerts}
-            editingNotes={editingNotes}
-            _notesText={_notesText}
-            onSetEditingNotes={setEditingNotes}
-            onSetNotesText={setNotesText}
-            onSaveNotes={handleSaveNotes}
-            onCancelEdit={() => setEditingNotes(null)}
-          />
-        </TabsContent>
-        
-        <TabsContent value="analytics" className="space-y-4">
-          <AlertHistoryCharts
-            chartData={chartData}
-            chartPeriod={chartPeriod}
-            onChartPeriodChange={setChartPeriod}
-          />
-        </TabsContent>
-      </Tabs>
+                <AlertHistoryList
+                  groupedAlerts={groupedAlerts}
+                  editingNotes={editingNotes}
+                  _notesText={_notesText}
+                  onSetEditingNotes={setEditingNotes}
+                  onSetNotesText={setNotesText}
+                  onSaveNotes={handleSaveNotes}
+                  onCancelEdit={() => setEditingNotes(null)}
+                />
+              </TabsContent>
+              
+              <TabsContent value="analytics" className="space-y-6 mt-6">
+                <AlertHistoryCharts
+                  chartData={chartData}
+                  chartPeriod={chartPeriod}
+                  onChartPeriodChange={setChartPeriod}
+                />
+              </TabsContent>
+            </Tabs>
+          </GlassCard>
+        </motion.div>
+      </div>
     </div>
   );
 };

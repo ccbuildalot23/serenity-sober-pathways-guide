@@ -29,6 +29,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { GlassCard } from '@/components/ui/GlassCard';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -141,14 +142,13 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-therapeutic relative overflow-hidden">
-      {/* Floating Elements Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-32 h-32 bg-emerald-200/20 rounded-full animate-float"></div>
-        <div className="absolute top-40 right-20 w-24 h-24 bg-turquoise-200/20 rounded-full animate-float" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute bottom-32 left-1/4 w-20 h-20 bg-sky-200/20 rounded-full animate-float" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute bottom-20 right-1/3 w-28 h-28 bg-sage-200/20 rounded-full animate-float" style={{ animationDelay: '0.5s' }}></div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-lavender-50 to-sky-50 relative overflow-hidden">
+      {/* Floating orbs background - disabled for performance */}
+      {/* <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-lavender-200/20 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute top-40 right-20 w-80 h-80 bg-sky-200/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute bottom-20 left-1/3 w-72 h-72 bg-emerald-200/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }}></div>
+      </div> */}
 
       {/* Header */}
       <header className="relative z-10 px-6 py-6">

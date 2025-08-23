@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { GlassCard } from '@/components/ui/GlassCard';
 import { Phone, MessageCircle, Heart, MapPin, ArrowLeft, Plus } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -19,72 +20,105 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/20 to-indigo-900/30">
       <div className="max-w-4xl mx-auto px-4 py-8">
 
         {/* Header */}
-        <div className="mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
           <Button
             onClick={() => navigate('/')}
             variant="ghost"
-            className="text-gray-400 hover:text-white mb-4"
+            className="text-white/70 hover:text-white mb-4 bg-white/10 backdrop-blur-sm"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
           
-          <div className="text-center space-y-4">
-            <h1 className="text-4xl font-bold">You're Going To Be Okay</h1>
-            <p className="text-xl text-gray-300">
+          <div className="text-center space-y-6">
+            <motion.h1
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-5xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
+            >
+              You're Going To Be Okay
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-xl text-white/90"
+            >
               Real people who care. They're waiting for your call right now.
-            </p>
-            <p className="text-lg text-green-400 font-medium">
+            </motion.p>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="text-lg text-emerald-400 font-medium"
+            >
               ✓ You matter. ✓ This feeling will pass. ✓ Help is one tap away.
-            </p>
+            </motion.p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Primary Crisis Lines */}
         <div className="space-y-6">
           {/* 988 Lifeline - HUGE */}
-          <Card className="bg-red-600 border-0">
-            <CardContent className="p-8">
-              <Button
-                onClick={() => window.location.href = 'tel:988'}
-                className="w-full h-24 bg-white hover:bg-gray-100 text-red-600 rounded-xl shadow-xl"
-              >
-                <div className="flex flex-col items-center gap-2">
-                  <Phone className="w-10 h-10" />
-                  <span className="text-3xl font-bold">988</span>
-                  <span className="text-sm">Suicide & Crisis Lifeline</span>
-                </div>
-              </Button>
-              <p className="text-center text-white/90 mt-4">
-                Free • Confidential • 24/7 • Trained counselors
-              </p>
-            </CardContent>
-          </Card>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+          >
+            <GlassCard className="bg-gradient-to-r from-red-500/20 to-rose-500/20 border-red-400/30">
+              <div className="p-8">
+                <Button
+                  onClick={() => window.location.href = 'tel:988'}
+                  className="w-full h-24 bg-white hover:bg-gray-100 text-red-600 rounded-xl shadow-xl"
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    <Phone className="w-10 h-10" />
+                    <span className="text-3xl font-bold">988</span>
+                    <span className="text-sm">Suicide & Crisis Lifeline</span>
+                  </div>
+                </Button>
+                <p className="text-center text-white/90 mt-4">
+                  Free • Confidential • 24/7 • Trained counselors
+                </p>
+              </div>
+            </GlassCard>
+          </motion.div>
 
           {/* Crisis Text Line */}
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader>
-              <CardTitle className="text-xl flex items-center gap-3">
-                <MessageCircle className="w-6 h-6" />
-                Crisis Text Line
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Button
-                onClick={() => window.open('sms:741741?body=HOME', '_self')}
-                className="w-full h-16 bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
-              >
-                Text HOME to 741741
-              </Button>
-              <p className="text-sm text-gray-400 mt-3 text-center">
-                Free 24/7 support via text message
-              </p>
-            </CardContent>
-          </Card>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.0 }}
+          >
+            <GlassCard className="bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border-blue-400/30">
+              <div className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                    <MessageCircle className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white">Crisis Text Line</h3>
+                </div>
+                <Button
+                  onClick={() => window.open('sms:741741?body=HOME', '_self')}
+                  className="w-full h-16 bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
+                >
+                  Text HOME to 741741
+                </Button>
+                <p className="text-sm text-white/70 mt-3 text-center">
+                  Free 24/7 support via text message
+                </p>
+              </div>
+            </GlassCard>
+          </motion.div>
 
           {/* SAMHSA Helpline */}
           <Card className="bg-gray-800 border-gray-700">

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { GlassCard } from '@/components/ui/GlassCard';
+import { MetricWidget } from '@/components/ui/MetricWidget';
 import { 
   Shield, Database, Clock, Trash2, Download, 
   Settings, AlertTriangle, CheckCircle, Users
@@ -45,14 +48,49 @@ const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6" data-testid="admin-dashboard">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <Badge variant="outline" className="text-green-600">
-          <Shield className="w-4 h-4 mr-2" />
-          HIPAA Compliant
-        </Badge>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-lavender-50 to-sky-50" data-testid="admin-dashboard">
+      {/* Premium Header */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative bg-white/60 backdrop-blur-xl border-b border-white/20 shadow-xl"
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-lavender-100/50 via-transparent to-sky-100/50" />
+        <div className="relative max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-3">
+                <motion.div 
+                  className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-lg"
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                >
+                  <Shield className="w-8 h-8 text-white" />
+                </motion.div>
+                Admin Dashboard
+              </h1>
+              <p className="mt-3 text-gray-700 text-lg font-medium">
+                System management and HIPAA compliance
+              </p>
+              <p className="mt-1 text-gray-600">
+                Ensuring secure operations and data protection
+              </p>
+            </motion.div>
+            
+            <div className="flex items-center gap-3 relative">
+              <Badge variant="outline" className="flex items-center gap-1">
+                <Shield className="w-3 h-3" />
+                HIPAA Secure
+              </Badge>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 space-y-8">
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-4">
@@ -63,49 +101,53 @@ const AdminDashboard: React.FC = () => {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">1,234</div>
-                <p className="text-xs text-muted-foreground">+12% from last month</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">System Health</CardTitle>
-                <CheckCircle className="h-4 w-4 text-green-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600">Healthy</div>
-                <p className="text-xs text-muted-foreground">All systems operational</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Security Status</CardTitle>
-                <Shield className="h-4 w-4 text-blue-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-blue-600">Secure</div>
-                <p className="text-xs text-muted-foreground">No security alerts</p>
-              </CardContent>
-            </Card>
-          </div>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          >
+            <MetricWidget
+              title="Active Users"
+              value={1234}
+              subtitle="+12% from last month"
+              icon={Users}
+              gradient="emerald"
+              delay={0.5}
+              trend={{ value: 12, isPositive: true }}
+            />
+            <MetricWidget
+              title="System Health"
+              value="Healthy"
+              subtitle="All systems operational"
+              icon={CheckCircle}
+              gradient="sky"
+              delay={0.6}
+              trend={{ value: 0, isPositive: true }}
+            />
+            <MetricWidget
+              title="Security Status"
+              value="Secure"
+              subtitle="No security alerts"
+              icon={Shield}
+              gradient="indigo"
+              delay={0.7}
+              trend={{ value: 0, isPositive: true }}
+            />
+          </motion.div>
         </TabsContent>
 
         <TabsContent value="retention" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="w-5 h-5" />
+          <GlassCard className="p-6 bg-white/80">
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                <div className="p-2 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg">
+                  <Clock className="w-5 h-5 text-white" />
+                </div>
                 Data Retention Settings
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </h3>
+            </div>
+            <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium">Retention Policy</label>
@@ -134,24 +176,27 @@ const AdminDashboard: React.FC = () => {
               <Button 
                 onClick={handleDataRetentionSettings}
                 data-testid="data-retention-settings"
-                className="w-full"
+                className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white"
+                size="sm"
               >
                 <Settings className="w-4 h-4 mr-2" />
                 Configure Retention Settings
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
         </TabsContent>
 
         <TabsContent value="disposal" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Trash2 className="w-5 h-5" />
+          <GlassCard className="p-6 bg-white/80">
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                <div className="p-2 bg-gradient-to-br from-red-400 to-rose-500 rounded-lg">
+                  <Trash2 className="w-5 h-5 text-white" />
+                </div>
                 Data Disposal Management
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </h3>
+            </div>
+            <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium">Disposal Reason</label>
                 <Textarea
@@ -165,16 +210,16 @@ const AdminDashboard: React.FC = () => {
               <Button 
                 onClick={initiateDisposal}
                 data-testid="initiate-disposal"
-                className="w-full"
-                variant="destructive"
+                className="w-full bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white"
+                size="sm"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Initiate Data Disposal
               </Button>
-              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+              <div className="p-4 bg-gradient-to-r from-yellow-50/80 to-amber-50/80 border border-yellow-200 rounded-xl mt-4">
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 text-yellow-600" />
-                  <span className="font-medium">Important Notice</span>
+                  <span className="font-medium text-yellow-800">Important Notice</span>
                 </div>
                 <p className="text-sm text-yellow-800 mt-1">
                   <span data-testid="disposal-confirmation">
@@ -182,19 +227,21 @@ const AdminDashboard: React.FC = () => {
                   </span>
                 </p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
         </TabsContent>
 
         <TabsContent value="backup" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Database className="w-5 h-5" />
+          <GlassCard className="p-6 bg-white/80">
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                <div className="p-2 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-lg">
+                  <Database className="w-5 h-5 text-white" />
+                </div>
                 Backup & Recovery Management
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </h3>
+            </div>
+            <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium">Backup Status</label>
@@ -221,7 +268,8 @@ const AdminDashboard: React.FC = () => {
                 <Button 
                   onClick={handleBackupManagement}
                   data-testid="backup-management"
-                  className="flex-1"
+                  className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
+                  size="sm"
                 >
                   <Database className="w-4 h-4 mr-2" />
                   Manage Backups
@@ -229,16 +277,18 @@ const AdminDashboard: React.FC = () => {
                 <Button 
                   onClick={handleRecoveryProcedures}
                   data-testid="recovery-procedures"
-                  className="flex-1"
+                  className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white"
+                  size="sm"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Recovery Procedures
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 };

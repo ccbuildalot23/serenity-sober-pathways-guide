@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Phone, MessageSquare, Heart, Users, MapPin, ChevronRight, Shield, Clock } from 'lucide-react';
+import { Phone, MessageSquare, Heart, Users, MapPin, ChevronRight, Shield, Clock, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useSearchParams } from 'react-router-dom';
@@ -70,7 +71,41 @@ const CrisisHelp: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-red-50 to-white p-4">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-rose-50">
+      {/* Premium Header */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative bg-white/60 backdrop-blur-xl border-b border-white/20 shadow-xl"
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-red-100/50 via-transparent to-rose-100/50" />
+        <div className="relative max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent flex items-center gap-3">
+              <motion.div 
+                className="p-3 bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl shadow-lg"
+                whileHover={{ scale: 1.1, rotate: 5 }}
+              >
+                <Heart className="w-8 h-8 text-white" />
+              </motion.div>
+              Crisis Help
+            </h1>
+            <p className="mt-3 text-gray-700 text-lg font-medium flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              Emergency resources and professional support
+            </p>
+            <p className="mt-1 text-gray-600">
+              Help is available 24/7 when you need it most
+            </p>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
       {/* Emergency Banner */}
       {isShaking && (
         <div className="fixed top-0 left-0 right-0 bg-red-600 text-white p-4 z-50 animate-pulse">
@@ -339,8 +374,8 @@ const CrisisHelp: React.FC = () => {
               </div>
             </Card>
           )}
-        </div>
-
+          </div>
+          
           {/* Crisis-Specific Safety Planning */}
           <div className="mt-8 p-4 bg-blue-50 rounded-lg">
             <div className="flex items-start gap-3">
@@ -384,6 +419,7 @@ const CrisisHelp: React.FC = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };

@@ -35,7 +35,7 @@ const PeerSupport = () => {
     },
     {
       id: '3',
-      text: 'That\'s amazing Mike! Keep up the great work!',
+      text: "That's amazing Mike! Keep up the great work!",
       sender: 'Lisa K.',
       timestamp: new Date(Date.now() - 60000), // 1 minute ago
     },
@@ -76,7 +76,41 @@ const PeerSupport = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      {/* Premium Header */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative bg-white/60 backdrop-blur-xl border-b border-white/20 shadow-xl"
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-100/50 via-transparent to-purple-100/50" />
+        <div className="relative max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-3">
+              <motion.div 
+                className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-lg"
+                whileHover={{ scale: 1.1, rotate: 5 }}
+              >
+                <Users className="w-8 h-8 text-white" />
+              </motion.div>
+              Peer Support
+            </h1>
+            <p className="mt-3 text-gray-700 text-lg font-medium flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              Connect with others on similar journeys
+            </p>
+            <p className="mt-1 text-gray-600">
+              Safe space for sharing and mutual support
+            </p>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8 text-gray-800">
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -278,6 +312,7 @@ const PeerSupport = () => {
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

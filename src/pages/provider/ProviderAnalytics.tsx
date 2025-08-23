@@ -184,15 +184,18 @@ const ProviderAnalytics: React.FC = () => {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <Card data-testid="risk-indicators" className="bg-white shadow-lg border-amber-100">
-            <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-100">
-              <CardTitle className="flex items-center gap-3 text-amber-800">
-                <AlertTriangle className="w-5 h-5" />
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.1 }}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8"
+        >
+          <GlassCard className="bg-white/80" gradient="coral" data-testid="risk-indicators">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-amber-600" />
                 Wellness Indicators
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
+              </h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                   <span className="text-green-700 font-medium">Sleep Quality</span>
@@ -207,17 +210,15 @@ const ProviderAnalytics: React.FC = () => {
                   <Badge className="bg-amber-100 text-amber-800">Moderate</Badge>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
 
-          <Card data-testid="intervention-suggestions" className="bg-white shadow-lg border-purple-100">
-            <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-100">
-              <CardTitle className="flex items-center gap-3 text-purple-800">
-                <Award className="w-5 h-5" />
+          <GlassCard className="bg-white/80" gradient="lavender" data-testid="intervention-suggestions">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <Award className="w-5 h-5 text-purple-600" />
                 Therapeutic Opportunities
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
+              </h3>
               <div className="space-y-3">
                 <div className="p-3 bg-teal-50 rounded-lg border border-teal-100">
                   <p className="text-sm font-medium text-teal-800 mb-1">Celebrate Progress</p>
@@ -232,9 +233,9 @@ const ProviderAnalytics: React.FC = () => {
                   <p className="text-xs text-green-600">Stress management techniques integration</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </GlassCard>
+        </motion.div>
         {/* Hidden elements for tests and anchors expected by E2E */}
         <div className="sr-only">
           <button data-testid="review-pattern-details">review</button>
@@ -246,14 +247,16 @@ const ProviderAnalytics: React.FC = () => {
           <div data-testid="improvement-indicators">improvements</div>
         </div>
         {/* Timeframe Analysis */}
-        <Card className="mb-8 bg-white shadow-lg border-gray-200">
-          <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-100">
-            <CardTitle className="flex items-center gap-3 text-gray-800">
-              <Clock className="w-5 h-5" />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.2 }}
+        >
+          <GlassCard className="mb-8 p-6 bg-white/80" gradient="premium">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <Clock className="w-5 h-5 text-slate-600" />
               Longitudinal Analysis
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
+            </h3>
             <div className="flex flex-wrap gap-4 items-end mb-6">
               <div>
                 <label className="text-sm font-semibold text-gray-700 mb-2 block">Analysis Period</label>
@@ -323,8 +326,8 @@ const ProviderAnalytics: React.FC = () => {
                 </CardContent>
               </Card>
             </div>
-          </CardContent>
-        </Card>
+          </GlassCard>
+        </motion.div>
         
         {/* Export Controls */}
         <div className="flex justify-end gap-4 mb-8">

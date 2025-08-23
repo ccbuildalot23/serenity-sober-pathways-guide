@@ -65,7 +65,13 @@
       "Bash(do sed -i \"s/vi\\.mock/jest.mock/g\" \"$file\")",
       "WebFetch(domain:docs.anthropic.com)",
       "Bash(git submodule:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "WebFetch(domain:jeton.com)",
+      "Bash(taskkill:*)",
+      "Bash(start http://localhost:8080/provider/dashboard)",
+      "Bash(start http://localhost:8080)",
+      "Bash(start http://localhost:8080/supporter/profile)",
+      "Bash(rg:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

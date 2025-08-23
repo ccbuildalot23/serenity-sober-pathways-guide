@@ -1,7 +1,8 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/GlassCard';
 import { Badge } from '@/components/ui/badge';
 import { 
   Users, 
@@ -21,30 +22,40 @@ const SupportNetwork: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50/50 via-blue-50/30 to-indigo-100/50">
+      {/* Glass morphism header */}
+      <div className="sticky top-0 z-10 bg-white/60 backdrop-blur-xl border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center space-x-4"
+            >
               <Button
                 onClick={() => navigate('/dashboard')}
                 variant="ghost"
                 size="sm"
-                className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                className="text-slate-600 hover:text-slate-900"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Dashboard
               </Button>
               <div className="flex items-center space-x-2">
-                <Users className="w-6 h-6 text-blue-600" />
-                <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+                <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg">
+                  <Users className="w-5 h-5 text-white" />
+                </div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                   Support Network
                 </h1>
               </div>
-            </div>
+            </motion.div>
             
-            <div className="flex items-center space-x-2">
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center space-x-2"
+            >
               <Button
                 onClick={() => navigate('/support/settings')}
                 variant="outline"
@@ -61,7 +72,7 @@ const SupportNetwork: React.FC = () => {
                 <Bell className="w-4 h-4 mr-2" />
                 Notifications
               </Button>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>
@@ -70,60 +81,88 @@ const SupportNetwork: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Quick Actions */}
         <div className="mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0">
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-3">
-                  <UserPlus className="w-8 h-8" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <GlassCard hover className="p-6 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border-blue-200/50">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl">
+                    <UserPlus className="w-6 h-6 text-white" />
+                  </div>
                   <div>
-                    <h3 className="font-semibold">Add New Contact</h3>
-                    <p className="text-blue-100 text-sm">Add someone to your support network</p>
+                    <h3 className="font-bold text-slate-800">Add New Contact</h3>
+                    <p className="text-slate-600 text-sm">Add someone to your support network</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </GlassCard>
+            </motion.div>
 
-            <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white border-0">
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-3">
-                  <MessageCircle className="w-8 h-8" />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <GlassCard hover className="p-6 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-emerald-200/50">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl">
+                    <MessageCircle className="w-6 h-6 text-white" />
+                  </div>
                   <div>
-                    <h3 className="font-semibold">Send Support Request</h3>
-                    <p className="text-green-100 text-sm">Ask for help when you need it</p>
+                    <h3 className="font-bold text-slate-800">Send Support Request</h3>
+                    <p className="text-slate-600 text-sm">Ask for help when you need it</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </GlassCard>
+            </motion.div>
 
-            <Card className="bg-gradient-to-r from-red-500 to-red-600 text-white border-0">
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-3">
-                  <AlertTriangle className="w-8 h-8" />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <GlassCard hover className="p-6 bg-gradient-to-r from-red-500/20 to-rose-500/20 border-red-200/50">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl">
+                    <AlertTriangle className="w-6 h-6 text-white" />
+                  </div>
                   <div>
-                    <h3 className="font-semibold">Crisis Alert</h3>
-                    <p className="text-red-100 text-sm">Immediate help in crisis</p>
+                    <h3 className="font-bold text-slate-800">Crisis Alert</h3>
+                    <p className="text-slate-600 text-sm">Immediate help in crisis</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </GlassCard>
+            </motion.div>
           </div>
         </div>
 
         {/* Support Network Manager */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <SupportNetworkManager />
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <GlassCard className="overflow-hidden">
+            <SupportNetworkManager />
+          </GlassCard>
+        </motion.div>
 
         {/* Help Section */}
-        <div className="mt-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Heart className="w-5 h-5 text-red-500" />
-                <span>How Your Support Network Works</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mt-8"
+        >
+          <GlassCard className="p-8">
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="p-3 bg-gradient-to-br from-rose-500 to-pink-600 rounded-xl">
+                <Heart className="w-6 h-6 text-white" />
+              </div>
+              <h2 className="text-xl font-bold text-slate-800">How Your Support Network Works</h2>
+            </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <h4 className="font-semibold text-gray-900 dark:text-white mb-3">For You (Person in Recovery)</h4>
@@ -169,9 +208,8 @@ const SupportNetwork: React.FC = () => {
                   </ul>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+          </GlassCard>
+        </motion.div>
       </div>
     </div>
   );

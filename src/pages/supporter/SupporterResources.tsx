@@ -1,13 +1,67 @@
 import React from 'react';
+import { motion } from 'framer-motion';
+import { GlassCard } from '@/components/ui/GlassCard';
+import { BookOpen, AlertTriangle, Users, Phone, Plus } from 'lucide-react';
 
 const SupporterResources: React.FC = () => {
   return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-xl font-semibold">Support Resources</h1>
-      <div data-testid="educational-materials" className="p-2 border">Educational Materials</div>
-      <div data-testid="crisis-response-guides" className="p-2 border">Crisis Response Guides</div>
-      <div data-testid="supporter-training" className="p-2 border">Supporter Training</div>
-      <div data-testid="professional-contacts" className="p-2 border">Professional Contacts</div>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50/50 via-blue-50/30 to-indigo-100/50">
+      {/* Glass morphism header */}
+      <div className="sticky top-0 z-10 bg-white/60 backdrop-blur-xl border-b border-white/20">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center space-x-3"
+          >
+            <div className="p-2 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg">
+              <BookOpen className="w-5 h-5 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+              Support Resources
+            </h1>
+          </motion.div>
+        </div>
+      </div>
+      
+      <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+            <GlassCard className="p-6 text-center" gradient="sky">
+              <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl w-fit mx-auto mb-4">
+                <BookOpen className="w-6 h-6 text-white" />
+              </div>
+              <div data-testid="educational-materials" className="font-semibold text-slate-800">Educational Materials</div>
+            </GlassCard>
+          </motion.div>
+          
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            <GlassCard className="p-6 text-center" gradient="coral">
+              <div className="p-3 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl w-fit mx-auto mb-4">
+                <AlertTriangle className="w-6 h-6 text-white" />
+              </div>
+              <div data-testid="crisis-response-guides" className="font-semibold text-slate-800">Crisis Response Guides</div>
+            </GlassCard>
+          </motion.div>
+          
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+            <GlassCard className="p-6 text-center" gradient="lavender">
+              <div className="p-3 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl w-fit mx-auto mb-4">
+                <Users className="w-6 h-6 text-white" />
+              </div>
+              <div data-testid="supporter-training" className="font-semibold text-slate-800">Supporter Training</div>
+            </GlassCard>
+          </motion.div>
+          
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+            <GlassCard className="p-6 text-center" gradient="sage">
+              <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl w-fit mx-auto mb-4">
+                <Phone className="w-6 h-6 text-white" />
+              </div>
+              <div data-testid="professional-contacts" className="font-semibold text-slate-800">Professional Contacts</div>
+            </GlassCard>
+          </motion.div>
+        </div>
 
       <button data-testid="view-education-materials" className="border px-3 py-2">Open Materials</button>
       <div data-testid="materials-library" className="sr-only">Library</div>
@@ -41,6 +95,7 @@ const SupporterResources: React.FC = () => {
         if (ok) ok.classList.remove('sr-only');
       }} />
       <div data-testid="contact-saved-success" className="sr-only">ok</div>
+      </div>
     </div>
   );
 };

@@ -15,6 +15,7 @@ import { KinesisClient, PutRecordCommand } from '@aws-sdk/client-kinesis';
 import { CloudWatchClient, PutMetricDataCommand } from '@aws-sdk/client-cloudwatch';
 import { EventBridgeClient, PutEventsCommand as EBPutEventsCommand } from '@aws-sdk/client-eventbridge';
 import { ComprehendMedicalClient, InferICD10CMCommand } from '@aws-sdk/client-comprehendmedical';
+import logger from '../../services/loggerService';
 
 interface PatientProfile {
   patientId: string;
@@ -259,7 +260,11 @@ export class PatientJourneyAgent {
     interventions: PersonalizedIntervention[];
     analytics: JourneyAnalytics;
   }> {
-    console.log(`📊 Tracking journey for patient ${patientId}`);
+    logger.info(`Tracking journey for patient`, {
+      component: 'PatientJourneyAgent',
+      action: 'journey_tracking_start',
+      patientId
+    });
 
     // Record event if provided
     if (event) {

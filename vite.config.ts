@@ -2,6 +2,8 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
+import compression from 'vite-plugin-compression';
+import { splitVendorChunkPlugin } from 'vite';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -25,6 +27,20 @@ export default defineConfig(({ mode }) => ({
       fastRefresh: mode === 'development'
     }),
     mode === 'development' && componentTagger(),
+    // Enable gzip and brotli compression for all assets
+    mode === 'production' && compression({
+      algorithm: 'gzip',
+      threshold: 1024, // Only compress files larger than 1KB
+      deleteOriginFile: false
+    }),
+    mode === 'production' && compression({
+      algorithm: 'brotliCompress',
+      ext: '.br',
+      threshold: 1024,
+      deleteOriginFile: false
+    }),
+    // Split vendor chunks automatically
+    splitVendorChunkPlugin()
   ].filter(Boolean),
   resolve: {
     alias: {
@@ -45,72 +61,92 @@ export default defineConfig(({ mode }) => ({
     // Target modern browsers for better optimization
     target: 'esnext',
     cssCodeSplit: true,
+    // Enable tree shaking
+    treeshake: mode === 'production',
+    // Terser options for aggressive optimization
+    terserOptions: mode === 'production' ? {
+      compress: {
+        drop_console: true, // Remove console.log
+        drop_debugger: true,
+        pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn'],
+        unused: true
+      },
+      mangle: {
+        safari10: true
+      }
+    } : undefined,
     rollupOptions: {
       output: {
-        // Manual chunking for optimal performance
-        manualChunks: {
-          // Critical crisis components - highest priority, separate chunk
-          'crisis-core': [
-            'src/pages/CrisisHelp.tsx',
-            'src/pages/CrisisSupport.tsx',
-            'src/components/crisis/EnhancedCrisisSystem.tsx',
-            'src/services/unifiedCrisisService.ts',
-            'src/hooks/useCrisisSystem.ts',
-            'src/hooks/useCrisisManagement.ts'
-          ],
-          // React and core dependencies
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          // UI library components
-          'ui-vendor': [
-            '@radix-ui/react-alert-dialog',
-            '@radix-ui/react-dialog',
-            '@radix-ui/react-dropdown-menu',
-            '@radix-ui/react-toast',
-            '@radix-ui/react-tabs',
-            '@radix-ui/react-select',
-            '@radix-ui/react-popover'
-          ],
-          // Data and state management
-          'data-vendor': [
-            '@tanstack/react-query',
-            '@supabase/supabase-js',
-            '@supabase/realtime-js',
-            'zustand'
-          ],
-          // Charts and visualization
-          'chart-vendor': ['recharts', 'framer-motion'],
-          // Date utilities (consolidate to avoid duplication)
-          'date-vendor': ['date-fns', 'date-fns-tz'],
-          // Core patient features
-          'patient-core': [
-            'src/pages/PatientDashboard.tsx',
-            'src/pages/CheckIn.tsx',
-            'src/components/DailyCheckIn.tsx',
-            'src/services/checkinSubmissionService.ts'
-          ],
-          // Provider features
-          'provider-core': [
-            'src/pages/ProviderDashboard.tsx',
-            'src/pages/provider/ProviderPatients.tsx',
-            'src/services/providerDashboardService.ts'
-          ],
-          // Supporter features
-          'supporter-core': [
-            'src/pages/SupportDashboard.tsx',
-            'src/pages/SupporterDashboard.tsx'
-          ],
-          // Administrative and compliance features
-          'admin-features': [
-            'src/pages/AdminDashboard.tsx',
-            'src/pages/HIPAASecurityDashboard.tsx',
-            'src/pages/SecurityAudit.tsx',
-            'src/services/EnhancedSecurityAuditService.ts'
-          ]
+        // Manual chunking for optimal performance - split large dependencies
+        manualChunks: (id) => {
+          // Split node_modules by size and usage patterns
+          if (id.includes('node_modules')) {
+            // Isolate the massive chart library (481KB -> separate chunk)
+            if (id.includes('recharts')) {
+              return 'charts';
+            }
+            // Isolate framer-motion (large animation library)
+            if (id.includes('framer-motion')) {
+              return 'animations';
+            }
+            // React core - keep together
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'react';
+            }
+            // Radix UI components - split into smaller chunks
+            if (id.includes('@radix-ui')) {
+              if (id.includes('dialog') || id.includes('popover') || id.includes('dropdown')) {
+                return 'radix-overlays';
+              }
+              return 'radix-ui';
+            }
+            // Supabase and data libs
+            if (id.includes('@supabase') || id.includes('@tanstack/react-query')) {
+              return 'data';
+            }
+            // Date libraries
+            if (id.includes('date-fns')) {
+              return 'date-utils';
+            }
+            // Other vendor code
+            return 'vendor';
+          }
+          
+          // Split app code by feature
+          if (id.includes('src/pages/')) {
+            if (id.includes('Crisis') || id.includes('crisis')) {
+              return 'crisis';
+            }
+            if (id.includes('Provider') || id.includes('provider')) {
+              return 'provider';
+            }
+            if (id.includes('Admin') || id.includes('admin')) {
+              return 'admin';
+            }
+            if (id.includes('Analytics') || id.includes('Chart') || id.includes('Progress')) {
+              return 'analytics';
+            }
+          }
+          
+          // Components with charts/animations - defer loading
+          if (id.includes('components/') && (
+            id.includes('Chart') || 
+            id.includes('Analytics') || 
+            id.includes('Progress') ||
+            id.includes('Visualization')
+          )) {
+            return 'analytics-components';
+          }
         },
-        // Optimize chunk names for caching
+        // Optimize chunk names for caching and loading priority
         chunkFileNames: (chunkInfo) => {
-          if (chunkInfo.name === 'crisis-core') {
-            return 'crisis-[hash].js'; // Priority loading
+          // Priority chunks load first
+          if (chunkInfo.name === 'crisis') {
+            return 'crisis-[hash].js';
+          }
+          // Defer heavy chunks to end
+          if (chunkInfo.name === 'charts' || chunkInfo.name === 'animations') {
+            return 'heavy/[name]-[hash].js';
           }
           return '[name]-[hash].js';
         },

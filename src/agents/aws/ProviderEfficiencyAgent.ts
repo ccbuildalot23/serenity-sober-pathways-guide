@@ -15,6 +15,7 @@ import { EventBridgeClient } from '@aws-sdk/client-eventbridge';
 import { LambdaClient } from '@aws-sdk/client-lambda';
 import { ComprehendClient, DetectSentimentCommand } from '@aws-sdk/client-comprehend';
 import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
+import logger from '../../services/loggerService';
 
 interface ProviderProfile {
   providerId: string;
@@ -235,7 +236,11 @@ export class ProviderEfficiencyAgent {
     automations: TaskAutomation[];
     insights: ProviderInsight[];
   }> {
-    console.log(`⚡ Optimizing efficiency for provider ${providerId}`);
+    logger.info(`Optimizing efficiency for provider`, {
+      component: 'ProviderEfficiencyAgent',
+      action: 'efficiency_optimization_start',
+      providerId
+    });
 
     // Get provider profile
     const profile = await this.getProviderProfile(providerId);
@@ -274,7 +279,11 @@ export class ProviderEfficiencyAgent {
    * Analyze team efficiency and load balancing
    */
   public async analyzeTeamEfficiency(teamId: string): Promise<TeamAnalytics> {
-    console.log(`👥 Analyzing team efficiency for ${teamId}`);
+    logger.info(`Analyzing team efficiency`, {
+      component: 'ProviderEfficiencyAgent',
+      action: 'team_analysis_start',
+      teamId
+    });
 
     // Get all providers in team
     const providers = await this.getTeamProviders(teamId);
@@ -857,12 +866,21 @@ export class ProviderEfficiencyAgent {
 
   private async applyScheduleOptimization(schedule: ScheduleOptimization): Promise<void> {
     // Apply schedule changes
-    console.log('Applying schedule optimization:', schedule.changes);
+    logger.info('Applying schedule optimization', {
+      component: 'ProviderEfficiencyAgent',
+      action: 'schedule_optimization',
+      changeCount: schedule.changes.length
+    });
   }
 
   private async deployAutomation(automation: TaskAutomation): Promise<void> {
     // Deploy automation
-    console.log('Deploying automation:', automation);
+    logger.info('Deploying task automation', {
+      component: 'ProviderEfficiencyAgent',
+      action: 'automation_deployment',
+      automationType: automation.type,
+      trigger: automation.trigger
+    });
   }
 
   private async getTeamProviders(_teamId: string): Promise<ProviderProfile[]> {
@@ -904,7 +922,11 @@ export class ProviderEfficiencyAgent {
 
   private async generateRebalancingPlan(loadBalancing: Record<string, unknown>): Promise<void> {
     // Generate patient redistribution plan
-    console.log('Generating rebalancing plan:', loadBalancing);
+    logger.info('Generating patient rebalancing plan', {
+      component: 'ProviderEfficiencyAgent',
+      action: 'rebalancing_plan',
+      loadBalancingStrategy: typeof loadBalancing
+    });
   }
 
   private async updateEfficiencyMetrics(

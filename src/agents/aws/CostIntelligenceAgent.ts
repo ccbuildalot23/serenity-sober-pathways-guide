@@ -15,6 +15,7 @@ import { S3Client, ListBucketsCommand, GetBucketLifecycleConfigurationCommand, P
 import { CloudWatchClient, PutMetricDataCommand } from '@aws-sdk/client-cloudwatch';
 import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import logger from '../../services/loggerService';
 
 interface CostAnalysis {
   period: {
@@ -180,7 +181,10 @@ export class CostIntelligenceAgent {
     governance: CostGovernance;
     automatedActions: AutomatedAction[];
   }> {
-    console.log('💰 Starting cost intelligence analysis...');
+    logger.info('Starting cost intelligence analysis', {
+      component: 'CostIntelligenceAgent',
+      action: 'cost_analysis_start'
+    });
 
     // Analyze current costs
     const analysis = await this.performCostAnalysis();

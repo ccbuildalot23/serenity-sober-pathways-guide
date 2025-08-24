@@ -6,6 +6,7 @@ import { AlertTriangle, Phone, MessageSquare, Heart } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import logger from '@/services/loggerService';
 
 const CrisisResponseSystem = () => {
   const [crisisLevel, setCrisisLevel] = useState<'low' | 'medium' | 'high' | null>(null);
@@ -47,11 +48,13 @@ const CrisisResponseSystem = () => {
       await Promise.all(_alertPromises);
 
       // Mock alert sending since we don't have support_alerts table
-      console.log('Crisis alert sent:', {
+      logger.security('Crisis alert sent', {
+        component: 'CrisisResponseSystem',
+        action: 'crisis_alert_sent',
         level,
         message: getCrisisMessage(level),
-        location: currentLocation,
-        contacts: contacts.length
+        contactCount: contacts.length,
+        userId: user?.id
       });
 
       toast.success(`Crisis alert sent to ${contacts.length} contacts`);

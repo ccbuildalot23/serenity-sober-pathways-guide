@@ -71,11 +71,13 @@ class DebugService {
       performance: 'color: #6B7280'
     };
     
-    console.log(
-      `%c[${category.toUpperCase()}] ${message}`, 
-      colors[category] || 'color: inherit',
-      data
-    );
+    // Use logger service instead of direct console.log
+    logger.debug(`[${category.toUpperCase()}] ${message}`, {
+      component: 'DebugService',
+      category,
+      userId: this.userId,
+      debugData: data
+    });
     
     // Send critical logs to server
     if (category === '_error' || category === 'critical') {

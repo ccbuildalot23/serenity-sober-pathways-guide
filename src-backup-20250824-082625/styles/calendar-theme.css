@@ -1,0 +1,179 @@
+/* Recovery-Focused Calendar Theme */
+
+/* Smooth animations for calendar interactions */
+@keyframes calendar-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+@keyframes sparkle {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1) rotate(180deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Calendar day hover effects */
+.calendar-day-cell {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.calendar-day-cell:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Mood gradient overlays */
+.mood-gradient-excellent {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.mood-gradient-good {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.mood-gradient-fair {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.mood-gradient-challenging {
+  background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+}
+
+/* Celebratory animations for good days */
+.celebrate-day {
+  animation: calendar-pulse 2s ease-in-out infinite;
+}
+
+.sparkle-icon {
+  animation: sparkle 3s ease-in-out infinite;
+}
+
+/* Soft shadows for depth */
+.card-soft-shadow {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
+              0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.card-soft-shadow:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08),
+              0 4px 6px -2px rgba(0, 0, 0, 0.04);
+}
+
+/* Chart styling enhancements */
+.recharts-tooltip-wrapper {
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+.recharts-tooltip-content {
+  border-radius: 12px !important;
+  border: none !important;
+  padding: 12px !important;
+  background: rgba(255, 255, 255, 0.98) !important;
+}
+
+/* Dark mode tooltip */
+.dark .recharts-tooltip-content {
+  background: rgba(31, 41, 55, 0.98) !important;
+  border: 1px solid rgba(75, 85, 99, 0.3) !important;
+}
+
+/* Progress bar animations */
+.progress-fill {
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Motivational badge pulse */
+.motivation-badge {
+  animation: calendar-pulse 3s ease-in-out infinite;
+}
+
+/* Calendar grid enhancements */
+.calendar-grid {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.dark .calendar-grid {
+  background: rgba(31, 41, 55, 0.7);
+}
+
+/* Smooth color transitions */
+.mood-indicator {
+  transition: all 0.3s ease;
+}
+
+/* Recovery milestone highlights */
+.milestone-glow {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+}
+
+/* Supportive message styling */
+.support-message {
+  background: linear-gradient(135deg, 
+    rgba(147, 51, 234, 0.1) 0%, 
+    rgba(236, 72, 153, 0.1) 100%);
+  backdrop-filter: blur(10px);
+}
+
+/* Loading state improvements */
+.calendar-loading {
+  background: linear-gradient(90deg,
+    rgba(229, 231, 235, 0) 0%,
+    rgba(229, 231, 235, 0.5) 50%,
+    rgba(229, 231, 235, 0) 100%);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Focus states for accessibility */
+.calendar-interactive:focus-visible {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .calendar-day-cell {
+    font-size: 0.875rem;
+  }
+  
+  .mood-indicator {
+    height: 2px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .calendar-no-print {
+    display: none !important;
+  }
+  
+  .calendar-grid {
+    background: white !important;
+    box-shadow: none !important;
+  }
+}

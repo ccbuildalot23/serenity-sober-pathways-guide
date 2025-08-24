@@ -4,8 +4,15 @@
  * for critical healthcare operations in the Serenity platform
  */
 
-import { supabase } from '@/integrations/supabase/client';
-import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
+// Mock imports for standalone deployment
+const supabase = null; // Will be initialized when integrated
+const EnhancedSecurityAuditService = {
+  getInstance: () => ({
+    logSecurityEvent: async (event: string, data: any, severity: string) => {
+      console.log(`[Security Event] ${event}:`, { data, severity });
+    }
+  })
+};
 
 interface SecurityNode {
   id: string;

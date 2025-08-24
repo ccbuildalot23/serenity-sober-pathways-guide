@@ -1,5 +1,6 @@
 // Performance monitoring for crisis features and bundle optimization
 import { lazyLoadingManager } from './lazyLoadingManager';
+import logger from '../services/loggerService';
 
 interface PerformanceMetrics {
   chunkLoadTime: number;
@@ -26,7 +27,11 @@ class PerformanceMonitor {
   endTimer(operation: string): number {
     const startTime = this.startTimes.get(operation);
     if (!startTime) {
-      console.warn(`No start time found for operation: ${operation}`);
+      logger.warn(`No start time found for operation: ${operation}`, {
+        component: 'PerformanceMonitor',
+        action: 'missing_timer',
+        operation
+      });
       return 0;
     }
 
@@ -35,11 +40,18 @@ class PerformanceMonitor {
     
     // Log performance for crisis-critical operations
     if (operation.includes('crisis')) {
-      console.log(`🚨 Crisis Feature Performance: ${operation} took ${duration.toFixed(2)}ms`);
+      logger.performance(`Crisis Feature Performance: ${operation}`, duration, {
+        component: 'PerformanceMonitor',
+        action: 'crisis_timing'
+      });
       
       // Alert if crisis features take too long
       if (duration > 1000) {
-        console.warn(`⚠️ Crisis feature loading slowly: ${duration.toFixed(2)}ms`);
+        logger.warn(`Crisis feature loading slowly: ${duration.toFixed(2)}ms`, {
+          component: 'PerformanceMonitor',
+          action: 'slow_crisis_load',
+          duration
+        });
       }
     }
 
@@ -59,16 +71,27 @@ class PerformanceMonitor {
         const module = await originalImport(path);
         const loadTime = performance.now() - startTime;
         
-        console.log(`📦 Chunk loaded: ${path} (${loadTime.toFixed(2)}ms)`);
+        logger.performance(`Chunk loaded: ${path}`, loadTime, {
+          component: 'PerformanceMonitor',
+          action: 'chunk_load'
+        });
         
         // Track crisis-related chunks specifically
         if (path.includes('crisis') || path.includes('Crisis')) {
-          console.log(`🚨 Crisis chunk loaded in ${loadTime.toFixed(2)}ms`);
+          logger.performance(`Crisis chunk loaded`, loadTime, {
+            component: 'PerformanceMonitor',
+            action: 'crisis_chunk_load',
+            path
+          });
         }
         
         return module;
       } catch (error) {
-        console.error(`❌ Failed to load chunk: ${path}`, error);
+        logger.error(`Failed to load chunk: ${path}`, error, {
+          component: 'PerformanceMonitor',
+          action: 'chunk_load_error',
+          path
+        });
         throw error;
       }
     };
@@ -82,10 +105,18 @@ class PerformanceMonitor {
     new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
         const lcp = entry as any;
-        console.log(`📊 LCP: ${lcp.startTime.toFixed(2)}ms`);
+        
+        logger.performance(`LCP`, lcp.startTime, {
+          component: 'PerformanceMonitor',
+          action: 'lcp_measurement'
+        });
         
         if (lcp.startTime > 2500) {
-          console.warn('⚠️ LCP is above recommended threshold (2.5s)');
+          logger.warn('LCP is above recommended threshold (2.5s)', {
+            component: 'PerformanceMonitor',
+            action: 'lcp_threshold_warning',
+            duration: lcp.startTime
+          });
         }
       }
     }).observe({ entryTypes: ['largest-contentful-paint'] });
@@ -94,10 +125,19 @@ class PerformanceMonitor {
     new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
         const fid = entry as any;
-        console.log(`📊 FID: ${fid.processingStart - fid.startTime}ms`);
+        const fidValue = fid.processingStart - fid.startTime;
         
-        if (fid.processingStart - fid.startTime > 100) {
-          console.warn('⚠️ FID is above recommended threshold (100ms)');
+        logger.performance(`FID`, fidValue, {
+          component: 'PerformanceMonitor',
+          action: 'fid_measurement'
+        });
+        
+        if (fidValue > 100) {
+          logger.warn('FID is above recommended threshold (100ms)', {
+            component: 'PerformanceMonitor',
+            action: 'fid_threshold_warning',
+            duration: fidValue
+          });
         }
       }
     }).observe({ entryTypes: ['first-input'] });
@@ -112,10 +152,17 @@ class PerformanceMonitor {
         }
       }
       
-      console.log(`📊 CLS: ${clsValue.toFixed(4)}`);
+      logger.performance(`CLS`, clsValue, {
+        component: 'PerformanceMonitor',
+        action: 'cls_measurement'
+      });
       
       if (clsValue > 0.1) {
-        console.warn('⚠️ CLS is above recommended threshold (0.1)');
+        logger.warn('CLS is above recommended threshold (0.1)', {
+          component: 'PerformanceMonitor',
+          action: 'cls_threshold_warning',
+          cls: clsValue
+        });
       }
     }).observe({ entryTypes: ['layout-shift'] });
   }
@@ -134,11 +181,18 @@ class PerformanceMonitor {
       
       if (crisisHelp) {
         const readyTime = performance.now() - crisisStartTime;
-        console.log(`🚨 Crisis features ready in ${readyTime.toFixed(2)}ms`);
+        logger.performance(`Crisis features ready`, readyTime, {
+          component: 'PerformanceMonitor',
+          action: 'crisis_ready'
+        });
         
         // Crisis features should be ready quickly
         if (readyTime > 500) {
-          console.warn(`⚠️ Crisis features took ${readyTime.toFixed(2)}ms to load - should be < 500ms`);
+          logger.warn(`Crisis features took ${readyTime.toFixed(2)}ms to load - should be < 500ms`, {
+            component: 'PerformanceMonitor',
+            action: 'crisis_slow_warning',
+            duration: readyTime
+          });
         }
         
         return true;
@@ -156,7 +210,10 @@ class PerformanceMonitor {
     // Timeout after 5 seconds
     setTimeout(() => {
       clearInterval(checkInterval);
-      console.error('❌ Crisis features not detected after 5 seconds');
+      logger.error('Crisis features not detected after 5 seconds', new Error('Crisis features timeout'), {
+        component: 'PerformanceMonitor',
+        action: 'crisis_features_timeout'
+      });
     }, 5000);
   }
 
@@ -184,22 +241,33 @@ class PerformanceMonitor {
         }
       });
       
-      console.log('📦 Bundle Size Report:');
-      console.log(`Total Size: ${(totalSize / 1024).toFixed(2)} KB`);
+      const bundleInfo = {
+        totalSizeKB: (totalSize / 1024),
+        largestChunks: Object.entries(chunkSizes)
+          .sort(([,a], [,b]) => b - a)
+          .slice(0, 10)
+          .map(([name, size]) => ({ name, sizeKB: (size / 1024) }))
+      };
       
-      // Log largest chunks first
-      Object.entries(chunkSizes)
-        .sort(([,a], [,b]) => b - a)
-        .slice(0, 10)
-        .forEach(([name, size]) => {
-          console.log(`  ${name}: ${(size / 1024).toFixed(2)} KB`);
-        });
+      logger.performance('Bundle Size Report', totalSize, {
+        component: 'PerformanceMonitor',
+        action: 'bundle_analysis',
+        ...bundleInfo
+      });
       
       // Alert if total bundle is too large
       if (totalSize > 1024 * 1024) { // 1MB
-        console.warn(`⚠️ Total bundle size (${(totalSize / 1024 / 1024).toFixed(2)} MB) exceeds 1MB target`);
+        logger.warn(`Total bundle size (${(totalSize / 1024 / 1024).toFixed(2)} MB) exceeds 1MB target`, {
+          component: 'PerformanceMonitor',
+          action: 'bundle_size_warning',
+          totalSizeMB: totalSize / 1024 / 1024
+        });
       } else {
-        console.log(`✅ Bundle size (${(totalSize / 1024).toFixed(2)} KB) is within target`);
+        logger.info(`Bundle size (${(totalSize / 1024).toFixed(2)} KB) is within target`, {
+          component: 'PerformanceMonitor',
+          action: 'bundle_size_ok',
+          totalSizeKB: totalSize / 1024
+        });
       }
     }
   }
@@ -209,7 +277,12 @@ class PerformanceMonitor {
    */
   monitorLazyLoading(): void {
     const preloadStatus = lazyLoadingManager.getPreloadStatus();
-    console.log('📊 Lazy Loading Status:', preloadStatus);
+    
+    logger.debug('Lazy Loading Status', {
+      component: 'PerformanceMonitor',
+      action: 'lazy_load_status',
+      ...preloadStatus
+    });
     
     // Monitor for lazy loading delays
     const observer = new MutationObserver((mutations) => {
@@ -217,7 +290,10 @@ class PerformanceMonitor {
         if (mutation.addedNodes) {
           mutation.addedNodes.forEach((node) => {
             if (node instanceof Element && node.hasAttribute('data-lazy-loading')) {
-              console.log('⏳ Lazy component loading detected');
+              logger.debug('Lazy component loading detected', {
+                component: 'PerformanceMonitor',
+                action: 'lazy_component_load'
+              });
             }
           });
         }
@@ -234,7 +310,10 @@ class PerformanceMonitor {
    * Initialize all performance monitoring
    */
   initialize(): void {
-    console.log('🎯 Performance Monitor initialized');
+    logger.info('Performance Monitor initialized', {
+      component: 'PerformanceMonitor',
+      action: 'initialize'
+    });
     
     this.monitorChunkLoading();
     this.monitorCoreWebVitals();
@@ -247,7 +326,11 @@ class PerformanceMonitor {
     // Log preload status
     setTimeout(() => {
       const status = lazyLoadingManager.getPreloadStatus();
-      console.log('📊 Component Preload Status:', status);
+      logger.debug('Component Preload Status', {
+        component: 'PerformanceMonitor',
+        action: 'preload_status',
+        ...status
+      });
     }, 1000);
   }
 

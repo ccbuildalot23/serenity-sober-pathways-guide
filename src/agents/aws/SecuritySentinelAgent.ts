@@ -13,6 +13,7 @@ import { GuardDutyClient, ListFindingsCommand, GetFindingsCommand } from '@aws-s
 import { SecurityHubClient } from '@aws-sdk/client-securityhub';
 import { IAMClient, GetCredentialReportCommand, GenerateCredentialReportCommand } from '@aws-sdk/client-iam';
 import { CloudWatchClient } from '@aws-sdk/client-cloudwatch';
+import logger from '../../services/loggerService';
 
 interface SecurityThreat {
   id: string;
@@ -208,7 +209,10 @@ export class SecuritySentinelAgent {
       const detectorId = process.env.GUARDDUTY_DETECTOR_ID || '';
       
       if (!detectorId) {
-        console.log('GuardDuty detector ID not configured');
+        logger.warn('GuardDuty detector ID not configured', {
+          component: 'SecuritySentinelAgent',
+          action: 'guardduty_config_missing'
+        });
         return threats;
       }
 
@@ -665,12 +669,22 @@ export class SecuritySentinelAgent {
   }
 
   private async logRemediationAction(action: AutoRemediationAction): Promise<void> {
-    console.log('Remediation action:', action);
+    logger.security('Remediation action executed', {
+      component: 'SecuritySentinelAgent',
+      action: 'remediation_executed',
+      remediationType: action.type,
+      resourceId: action.resourceId
+    });
     // Would log to CloudWatch or DynamoDB
   }
 
   private async sendAlert(severity: string, message: string, data: Record<string, unknown>): Promise<void> {
-    console.log(`[${severity}] Security Alert: ${message}`, data);
+    logger.security(`Security Alert: ${message}`, {
+      component: 'SecuritySentinelAgent',
+      action: 'security_alert',
+      severity,
+      ...data
+    });
     // Would send to SNS, PagerDuty, or other alerting service
   }
 }

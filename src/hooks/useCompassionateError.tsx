@@ -4,6 +4,7 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { hopeMessenger } from '@/services/hopeMessengerService';
+import logger from '@/services/loggerService';
 
 interface ErrorContext {
   action: string;
@@ -100,13 +101,12 @@ export const useCompassionateError = () => {
     }
 
     // Log for debugging without exposing technical details to user
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Error details:', {
-        type: errorType,
-        _context,
-        _stack: error._stack
-      });
-    }
+    logger.error('Compassionate error handled', error, {
+      component: 'useCompassionateError',
+      action: 'error_logged',
+      errorType,
+      context: _context?.action
+    });
   }, [errorCount]);
 
   const retryAction = useCallback(async (action: () => Promise<void>) => {

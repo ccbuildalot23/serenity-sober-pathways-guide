@@ -15,6 +15,7 @@ import { RDSClient, DescribeDBInstancesCommand } from '@aws-sdk/client-rds';
 import { IAMClient, ListUsersCommand, ListAccessKeysCommand } from '@aws-sdk/client-iam';
 import { CloudWatchClient, PutMetricDataCommand } from '@aws-sdk/client-cloudwatch';
 import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
+import logger from '../../services/loggerService';
 
 interface ComplianceRequirement {
   id: string;
@@ -238,7 +239,11 @@ export class ComplianceAuditorAgent {
    * Run comprehensive compliance audit
    */
   public async runComplianceAudit(framework: string = 'HIPAA'): Promise<ComplianceReport> {
-    console.log(`🔍 Starting ${framework} compliance audit...`);
+    logger.info(`Starting ${framework} compliance audit`, {
+      component: 'ComplianceAuditorAgent',
+      action: 'compliance_audit_start',
+      framework
+    });
 
     const requirements = this.getRequirementsByFramework(framework);
     const validationResults: ValidationResult[] = [];
@@ -259,12 +264,25 @@ export class ComplianceAuditorAgent {
 
           // Auto-remediate if available and non-compliant
           if (result.status === 'NON_COMPLIANT' && control.remediationMethod) {
-            console.log(`Auto-remediating control ${control.id}...`);
+            logger.warn(`Auto-remediating control ${control.id}`, {
+              component: 'ComplianceAuditorAgent',
+              action: 'auto_remediation_start',
+              controlId: control.id
+            });
             const remediation = await control.remediationMethod();
             if (remediation.success) {
-              console.log(`✅ Successfully remediated ${control.id}`);
+              logger.info(`Successfully remediated control`, {
+                component: 'ComplianceAuditorAgent',
+                action: 'remediation_success',
+                controlId: control.id
+              });
             } else {
-              console.log(`⚠️ Failed to remediate ${control.id}: ${remediation.error}`);
+              logger.error(`Failed to remediate control`, new Error(remediation.error), {
+                component: 'ComplianceAuditorAgent',
+                action: 'remediation_failure',
+                controlId: control.id,
+                error: remediation.error
+              });
             }
           }
         } catch (error) {
@@ -848,7 +866,11 @@ export class ComplianceAuditorAgent {
 
   private async storeReport(report: ComplianceReport): Promise<void> {
     // Store in S3 or DynamoDB
-    console.log('Storing compliance report:', report.reportId);
+    logger.info('Storing compliance report', {
+      component: 'ComplianceAuditorAgent',
+      action: 'report_storage',
+      reportId: report.reportId
+    });
   }
 
   private async sendComplianceAlerts(report: ComplianceReport): Promise<void> {

@@ -6,11 +6,54 @@
  * for production-ready deployment of Serenity Sober Pathways
  */
 
-import { byzantineSecurityManager } from '../infrastructure/security/byzantine-security-manager';
-import { crisisResponseSwarm } from '../infrastructure/swarms/crisis-response-swarm';
-import { ruvSwarmOrchestrator } from '../infrastructure/swarms/ruv-swarm-config';
-import chalk from 'chalk';
-import ora from 'ora';
+// Dynamic imports to avoid module resolution issues
+let byzantineSecurityManager: any;
+let crisisResponseSwarm: any;
+let ruvSwarmOrchestrator: any;
+let chalk: any;
+let ora: any;
+
+try {
+  const byzantineModule = require('../infrastructure/security/byzantine-security-manager');
+  byzantineSecurityManager = byzantineModule.byzantineSecurityManager;
+} catch {
+  console.log('Byzantine Security Manager not available');
+}
+
+try {
+  const crisisModule = require('../infrastructure/swarms/crisis-response-swarm');
+  crisisResponseSwarm = crisisModule.crisisResponseSwarm;
+} catch {
+  console.log('Crisis Response Swarm not available');
+}
+
+try {
+  const ruvModule = require('../infrastructure/swarms/ruv-swarm-config');
+  ruvSwarmOrchestrator = ruvModule.ruvSwarmOrchestrator;
+} catch {
+  console.log('RUV Swarm Orchestrator not available');
+}
+
+try {
+  chalk = require('chalk');
+  ora = require('ora');
+} catch {
+  // Fallback for missing dependencies
+  chalk = {
+    cyan: { bold: (s: string) => s },
+    gray: (s: string) => s,
+    green: (s: string) => s,
+    yellow: (s: string) => s,
+    red: (s: string) => s,
+    bold: (s: string) => s
+  };
+  ora = () => ({
+    start: (s: string) => console.log(`⏳ ${s}`),
+    succeed: (s: string) => console.log(`✅ ${s}`),
+    fail: (s: string) => console.log(`❌ ${s}`),
+    warn: (s: string) => console.log(`⚠️ ${s}`)
+  });
+}
 
 interface ActivationResult {
   feature: string;
@@ -21,7 +64,12 @@ interface ActivationResult {
 
 class AdvancedFeaturesActivator {
   private results: ActivationResult[] = [];
-  private spinner = ora();
+  private spinner = typeof ora === 'function' ? ora() : {
+    start: (s: string) => console.log(`⏳ ${s}`),
+    succeed: (s: string) => console.log(`✅ ${s}`),
+    fail: (s: string) => console.log(`❌ ${s}`),
+    warn: (s: string) => console.log(`⚠️ ${s}`)
+  };
 
   async activate(): Promise<void> {
     console.log(chalk.cyan.bold('\n🚀 Serenity Advanced Features Activation\n'));

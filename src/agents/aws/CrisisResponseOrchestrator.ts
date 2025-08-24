@@ -15,6 +15,7 @@ import { DynamoDBClient, PutItemCommand, UpdateItemCommand } from '@aws-sdk/clie
 import { ConnectClient, StartOutboundVoiceContactCommand } from '@aws-sdk/client-connect';
 import { PinpointClient, SendMessagesCommand } from '@aws-sdk/client-pinpoint';
 import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
+import logger from '../../services/loggerService';
 
 interface CrisisEvent {
   id: string;
@@ -155,7 +156,13 @@ export class CrisisResponseOrchestrator {
    * Main crisis response orchestration
    */
   public async handleCrisis(crisis: CrisisEvent): Promise<ResponsePlan> {
-    console.log(`🚨 Crisis detected for patient ${crisis.patientId}:`, crisis);
+    logger.security(`Crisis detected for patient ${crisis.patientId}`, {
+      component: 'CrisisResponseOrchestrator',
+      action: 'crisis_detected',
+      patientId: crisis.patientId,
+      severity: crisis.severity,
+      type: crisis.type
+    });
 
     // Create initial response plan
     const responsePlan = await this.createResponsePlan(crisis);
@@ -222,7 +229,11 @@ export class CrisisResponseOrchestrator {
       });
 
       await this.stepFunctionsClient.send(command);
-      console.log(`Step Functions workflow started for crisis ${crisis.id}`);
+      logger.info(`Step Functions workflow started for crisis ${crisis.id}`, {
+        component: 'CrisisResponseOrchestrator',
+        action: 'workflow_started',
+        crisisId: crisis.id
+      });
     } catch (error) {
       console.error('Failed to start crisis workflow:', error);
       // Fallback to manual orchestration
@@ -331,7 +342,11 @@ export class CrisisResponseOrchestrator {
       });
 
       await this.snsClient.send(command);
-      console.log(`Push notification sent to ${target}`);
+      logger.info(`Push notification sent`, {
+        component: 'CrisisResponseOrchestrator',
+        action: 'push_notification_sent',
+        target: '[REDACTED]'
+      });
     } catch (error) {
       console.error('Failed to send push notification:', error);
       throw error;
@@ -357,7 +372,11 @@ export class CrisisResponseOrchestrator {
       });
 
       const response = await this.connectClient.send(command);
-      console.log(`Voice call initiated to ${target}:`, response.ContactId);
+      logger.info(`Voice call initiated`, {
+        component: 'CrisisResponseOrchestrator',
+        action: 'voice_call_initiated',
+        contactId: response.ContactId
+      });
     } catch (error) {
       console.error('Failed to initiate voice call:', error);
       throw error;
@@ -390,7 +409,10 @@ export class CrisisResponseOrchestrator {
       });
 
       await this.pinpointClient.send(command);
-      console.log(`SMS sent to ${target}`);
+      logger.info(`SMS sent`, {
+        component: 'CrisisResponseOrchestrator',
+        action: 'sms_sent'
+      });
     } catch (error) {
       console.error('Failed to send SMS:', error);
       throw error;
@@ -413,7 +435,13 @@ export class CrisisResponseOrchestrator {
       
       // Check if we need to escalate
       if (elapsedMinutes > currentTierRule.timeoutMinutes && plan.status !== 'resolved') {
-        console.log(`Escalating crisis ${crisis.id} from tier ${plan.tier} to tier ${plan.tier + 1}`);
+        logger.security(`Escalating crisis ${crisis.id} from tier ${plan.tier} to tier ${plan.tier + 1}`, {
+          component: 'CrisisResponseOrchestrator',
+          action: 'crisis_escalation',
+          crisisId: crisis.id,
+          fromTier: plan.tier,
+          toTier: plan.tier + 1
+        });
         
         plan.tier = (plan.tier + 1) as ResponsePlan['tier'];
         plan.status = 'escalated';
@@ -647,21 +675,37 @@ export class CrisisResponseOrchestrator {
 
   private async manualOrchestration(crisis: CrisisEvent, _plan: ResponsePlan): Promise<void> {
     // Fallback orchestration without Step Functions
-    console.log('Executing manual orchestration for crisis:', crisis.id);
+    logger.warn('Executing manual orchestration for crisis', {
+      component: 'CrisisResponseOrchestrator',
+      action: 'manual_orchestration_fallback',
+      crisisId: crisis.id
+    });
   }
 
   private async startVideoSession(target: string, crisis: CrisisEvent): Promise<void> {
     // Implementation would use Amazon Chime SDK or similar
-    console.log(`Starting video session with ${target} for crisis ${crisis.id}`);
+    logger.info(`Starting video session for crisis`, {
+      component: 'CrisisResponseOrchestrator',
+      action: 'video_session_start',
+      crisisId: crisis.id
+    });
   }
 
   private async dispatchEmergencyServices(crisis: CrisisEvent): Promise<void> {
-    console.log(`🚨 DISPATCHING EMERGENCY SERVICES for crisis ${crisis.id}`);
+    logger.security(`DISPATCHING EMERGENCY SERVICES for crisis ${crisis.id}`, {
+      component: 'CrisisResponseOrchestrator',
+      action: 'emergency_services_dispatch',
+      crisisId: crisis.id
+    });
     // Implementation would integrate with local emergency services
   }
 
   private async requestWellnessCheck(crisis: CrisisEvent): Promise<void> {
-    console.log(`Requesting wellness check for crisis ${crisis.id}`);
+    logger.info(`Requesting wellness check for crisis`, {
+      component: 'CrisisResponseOrchestrator',
+      action: 'wellness_check_request',
+      crisisId: crisis.id
+    });
     // Implementation would coordinate with local services
   }
 
@@ -672,7 +716,12 @@ export class CrisisResponseOrchestrator {
 
   private async notifyEscalation(crisis: CrisisEvent, plan: ResponsePlan): Promise<void> {
     const message = `Crisis ${crisis.id} escalated to tier ${plan.tier}`;
-    console.log(message);
+    logger.security(message, {
+      component: 'CrisisResponseOrchestrator',
+      action: 'escalation_notification',
+      crisisId: crisis.id,
+      tier: plan.tier
+    });
     // Send escalation notifications
   }
 
@@ -706,15 +755,28 @@ export class CrisisResponseOrchestrator {
 
   private async storeOutcome(outcome: CrisisOutcome): Promise<void> {
     // Store in DynamoDB
-    console.log('Storing crisis outcome:', outcome);
+    logger.info('Storing crisis outcome', {
+      component: 'CrisisResponseOrchestrator',
+      action: 'outcome_storage',
+      crisisId: outcome.crisisId,
+      resolution: outcome.resolution
+    });
   }
 
   private async sendResolutionNotifications(crisis: CrisisEvent, _outcome: CrisisOutcome): Promise<void> {
-    console.log(`Sending resolution notifications for crisis ${crisis.id}`);
+    logger.info(`Sending resolution notifications for crisis`, {
+      component: 'CrisisResponseOrchestrator',
+      action: 'resolution_notifications',
+      crisisId: crisis.id
+    });
   }
 
   private async updateRiskProfile(patientId: string, _crisis: CrisisEvent, _outcome: CrisisOutcome): Promise<void> {
-    console.log(`Updating risk profile for patient ${patientId}`);
+    logger.info(`Updating risk profile for patient`, {
+      component: 'CrisisResponseOrchestrator',
+      action: 'risk_profile_update',
+      patientId
+    });
   }
 
   private async generateInsights(
@@ -736,7 +798,11 @@ export class CrisisResponseOrchestrator {
   }
 
   private async storeInsights(insights: string[]): Promise<void> {
-    console.log('Storing insights:', insights);
+    logger.info('Storing crisis insights', {
+      component: 'CrisisResponseOrchestrator',
+      action: 'insights_storage',
+      insightCount: insights.length
+    });
   }
 
   private async logCrisisEvent(crisis: CrisisEvent, plan: ResponsePlan): Promise<void> {

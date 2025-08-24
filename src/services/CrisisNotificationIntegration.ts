@@ -13,6 +13,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import logger from './loggerService';
 import type { Database } from '@/integrations/supabase/types';
 import logger from './loggerService';
 
@@ -167,9 +168,11 @@ export class CrisisNotificationIntegration {
         .update({ _status: 'notified', _notified_at: new Date().toISOString() })
         .eq('id', notificationRequest.id);
 
-      console.log('[CrisisIntegration] Crisis alert created successfully:', {
-        _alertId: crisisAlert,
-        mcpAlertId,
+      logger.security('Crisis alert created successfully', {
+        component: 'CrisisNotificationIntegration',
+        action: 'crisis_alert_created',
+        alertId: '[REDACTED]',
+        mcpAlertId: '[REDACTED]',
         supportersNotified,
         tiersActivated
       });

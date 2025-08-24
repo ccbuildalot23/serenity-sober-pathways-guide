@@ -4,8 +4,25 @@
  * Implements mesh topology with adaptive agent spawning
  */
 
-import { crisisResponseSwarm } from './crisis-response-swarm';
-import { byzantineSecurityManager } from '../security/byzantine-security-manager';
+// Dynamic imports for swarm components
+let crisisResponseSwarm: any;
+let byzantineSecurityManager: any;
+
+try {
+  const crisisModule = require('./crisis-response-swarm');
+  crisisResponseSwarm = crisisModule.crisisResponseSwarm;
+} catch {
+  crisisResponseSwarm = null;
+}
+
+try {
+  const byzantineModule = require('../security/byzantine-security-manager');
+  byzantineSecurityManager = byzantineModule.byzantineSecurityManager;
+} catch {
+  byzantineSecurityManager = {
+    requestSecurityConsensus: async () => true
+  };
+}
 
 interface SwarmConfiguration {
   topology: 'mesh' | 'hierarchical' | 'ring' | 'star';

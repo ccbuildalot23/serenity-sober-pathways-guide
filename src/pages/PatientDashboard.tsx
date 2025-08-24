@@ -173,10 +173,12 @@ const PatientDashboard = () => {
           .select('id', { count: 'exact', head: true })
           .eq('user_id', user.id);
 
-        console.log('📊 LIVE DATA CHECK:', {
-          daily_checkins: checkinsCount || 0,
-          support_contacts: contactsCount || 0,
-          errors: { checkinsError, contactsError },
+        logger.debug('Live data check', {
+          component: 'PatientDashboard',
+          action: 'live_data_check',
+          dailyCheckins: checkinsCount || 0,
+          supportContacts: contactsCount || 0,
+          hasErrors: !!(checkinsError || contactsError)
         });
       } catch (e) {
         console.error('Real-time data check failed:', e);

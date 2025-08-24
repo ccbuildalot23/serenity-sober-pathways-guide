@@ -1,0 +1,162 @@
+name: iOS App Store Deployment
+
+on:
+  push:
+    branches:
+      - main
+      - notification-microservice
+  workflow_dispatch:
+    inputs:
+      deploy_to_testflight:
+        description: 'Deploy to TestFlight'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+env:
+  NODE_VERSION: '22.x'
+  XCODE_VERSION: '15.0'
+
+jobs:
+  build-and-deploy:
+    name: Build iOS App and Deploy to TestFlight
+    runs-on: macos-latest
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: |
+          npm ci --legacy-peer-deps
+          npm install -g @capacitor/cli
+
+      - name: 🔨 Build web assets
+        run: |
+          npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: 📱 Sync with iOS platform
+        run: |
+          npx cap sync ios
+
+      - name: 🍎 Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app
+
+      - name: 🔐 Setup iOS certificates
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE }}
+          P12_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.IOS_PROVISION_PROFILE }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          # Create variables
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          # Import certificate and provisioning profile from secrets
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+          echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
+
+          # Create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # Import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+          # Apply provisioning profile
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+
+      - name: 📝 Update version and build number
+        run: |
+          cd ios/App
+          # Update version in Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString 1.0.0" App/Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${{ github.run_number }}" App/Info.plist
+
+      - name: 🏗️ Build iOS app
+        run: |
+          cd ios/App
+          xcodebuild -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -derivedDataPath build \
+            -archivePath build/App.xcarchive \
+            -sdk iphoneos \
+            -destination "generic/platform=iOS" \
+            archive \
+            CODE_SIGN_IDENTITY="iPhone Distribution" \
+            DEVELOPMENT_TEAM="${{ secrets.APPLE_TEAM_ID }}" \
+            PRODUCT_BUNDLE_IDENTIFIER="com.serenity.recovery" \
+            PROVISIONING_PROFILE_SPECIFIER="${{ secrets.PROVISIONING_PROFILE_NAME }}"
+
+      - name: 📦 Export IPA
+        run: |
+          cd ios/App
+          xcodebuild -exportArchive \
+            -archivePath build/App.xcarchive \
+            -exportPath build \
+            -exportOptionsPlist ExportOptions.plist
+
+      - name: 🚀 Upload to TestFlight
+        if: github.event.inputs.deploy_to_testflight != 'false'
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+        run: |
+          # Create API key file
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "$APP_STORE_CONNECT_API_KEY" > ~/.appstoreconnect/private_keys/AuthKey_$APP_STORE_CONNECT_API_KEY_ID.p8
+          
+          # Upload to TestFlight using altool
+          xcrun altool --upload-app \
+            --type ios \
+            --file "ios/App/build/App.ipa" \
+            --apiKey "$APP_STORE_CONNECT_API_KEY_ID" \
+            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
+
+      - name: 📊 Upload artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: ios-build-artifacts
+          path: |
+            ios/App/build/App.ipa
+            ios/App/build/App.xcarchive
+
+      - name: 🎉 Deployment Summary
+        if: success()
+        run: |
+          echo "✅ iOS app successfully built and deployed!"
+          echo "📱 Build number: ${{ github.run_number }}"
+          echo "🚀 Check TestFlight in App Store Connect"
+          echo "📋 Next steps:"
+          echo "  1. Go to https://appstoreconnect.apple.com"
+          echo "  2. Select your app"
+          echo "  3. Go to TestFlight tab"
+          echo "  4. Submit for App Store review"
+
+      - name: 🧹 Clean up keychain
+        if: always()
+        run: |
+          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db || true
+          rm -f ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.mobileprovision

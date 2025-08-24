@@ -68,7 +68,7 @@ interface Mentor {
  */
 export const handler = async (
   event: PeerConnectionRequest,
-  context: Context
+  _context: Context
 ): Promise<PeerConnectionResponse> => {
   const startTime = Date.now();
   

@@ -292,7 +292,7 @@ export class PeerSupportSwarmConfig {
     return { approved, votes };
   }
 
-  private async agentVote(agent: PeerSupportAgent, decision: string, context: any): Promise<boolean> {
+  private async agentVote(agent: PeerSupportAgent, decision: string, _context: any): Promise<boolean> {
     // Simulate agent decision-making based on capabilities
     // In production, this would call the actual Lambda function
     

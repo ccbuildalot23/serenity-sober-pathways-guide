@@ -92,7 +92,7 @@ const languageAdaptations = {
  */
 export const handler = async (
   event: CulturalRequest,
-  context: Context
+  _context: Context
 ): Promise<CulturalResponse> => {
   const startTime = Date.now();
   

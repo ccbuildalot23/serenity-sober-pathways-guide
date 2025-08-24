@@ -56,7 +56,7 @@ interface UserProfile {
  */
 export const handler = async (
   event: PersonalizationRequest,
-  context: Context
+  _context: Context
 ): Promise<PersonalizationResponse> => {
   const startTime = Date.now();
   

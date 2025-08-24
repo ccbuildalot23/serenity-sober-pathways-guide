@@ -46,7 +46,7 @@ interface SwarmResponse {
  */
 export const handler = async (
   event: APIGatewayProxyEvent,
-  context: Context
+  _context: Context
 ): Promise<APIGatewayProxyResult> => {
   console.log('PeerSupport Queen Lambda invoked', { 
     requestId: context.requestId,
@@ -116,7 +116,7 @@ async function handlePeerMessage(
   const emotionalAnalysis = await invokeWorkerAgent(
     analysisAgents[0],
     'analyze',
-    { mood: request.mood, context: request.context }
+    { mood: request.mood, _context: request.context }
   );
 
   // Step 2: Check for crisis indicators

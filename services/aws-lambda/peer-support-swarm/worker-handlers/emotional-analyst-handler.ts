@@ -40,7 +40,7 @@ interface EmotionalAnalysisResponse {
  */
 export const handler = async (
   event: EmotionalAnalysisRequest,
-  context: Context
+  _context: Context
 ): Promise<EmotionalAnalysisResponse> => {
   const startTime = Date.now();
   
@@ -229,7 +229,7 @@ function analyzeContext(context: string | undefined): any {
   };
 }
 
-function identifyEmotions(mood: string | undefined, context: string | undefined): any {
+function identifyEmotions(mood: string | undefined, _context: string | undefined): any {
   const emotionMap: Record<string, string[]> = {
     'happy': ['joy', 'contentment', 'excitement'],
     'sad': ['sorrow', 'grief', 'disappointment'],

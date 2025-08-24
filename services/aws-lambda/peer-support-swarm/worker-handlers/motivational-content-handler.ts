@@ -90,7 +90,7 @@ const motivationalLibrary = {
  */
 export const handler = async (
   event: MotivationalRequest,
-  context: Context
+  _context: Context
 ): Promise<MotivationalResponse> => {
   const startTime = Date.now();
   

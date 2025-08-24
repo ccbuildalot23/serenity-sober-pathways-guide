@@ -17,7 +17,7 @@ interface ComplianceResult {
   recommendations: string[];
 }
 
-export const handler = async (event: ComplianceRequest, context: Context): Promise<ComplianceResult> => {
+export const handler = async (event: ComplianceRequest, _context: Context): Promise<ComplianceResult> => {
   console.log('Compliance validator worker invoked');
 
   const result: ComplianceResult = {

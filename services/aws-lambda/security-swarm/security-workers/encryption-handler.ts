@@ -18,7 +18,7 @@ interface EncryptionResult {
   error?: string;
 }
 
-export const handler = async (event: EncryptionRequest, context: Context): Promise<EncryptionResult> => {
+export const handler = async (event: EncryptionRequest, _context: Context): Promise<EncryptionResult> => {
   console.log('Encryption handler worker invoked');
 
   try {

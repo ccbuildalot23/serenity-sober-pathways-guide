@@ -3,7 +3,6 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import compression from 'vite-plugin-compression';
-import { splitVendorChunkPlugin } from 'vite';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -38,9 +37,7 @@ export default defineConfig(({ mode }) => ({
       ext: '.br',
       threshold: 1024,
       deleteOriginFile: false
-    }),
-    // Split vendor chunks automatically
-    splitVendorChunkPlugin()
+    })
   ].filter(Boolean),
   resolve: {
     alias: {

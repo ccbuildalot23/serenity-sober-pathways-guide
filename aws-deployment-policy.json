@@ -1,0 +1,47 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "SSMSessionManager",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:StartSession",
+        "ssm:TerminateSession",
+        "ssm:ResumeSession",
+        "ssm:DescribeSessions",
+        "ssm:GetConnectionStatus"
+      ],
+      "Resource": [
+        "arn:aws:ec2:us-east-1:662658456049:instance/i-0a89c0c019e1fb6f5",
+        "arn:aws:ssm:us-east-1:662658456049:document/SSM-SessionManagerRunShell",
+        "arn:aws:ssm:us-east-1::document/SSM-SessionManagerRunShell",
+        "arn:aws:ssm:us-east-1:662658456049:session/*"
+      ]
+    },
+    {
+      "Sid": "EC2Operations",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeInstances",
+        "ec2:DescribeInstanceStatus",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeNetworkInterfaces"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ELBOperations",
+      "Effect": "Allow",
+      "Action": [
+        "elasticloadbalancing:DescribeTargetGroups",
+        "elasticloadbalancing:DescribeTargetHealth",
+        "elasticloadbalancing:DescribeLoadBalancers",
+        "elasticloadbalancing:DescribeListeners",
+        "elasticloadbalancing:ModifyListener",
+        "elasticloadbalancing:CreateRule",
+        "elasticloadbalancing:ModifyRule"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

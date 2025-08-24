@@ -17,6 +17,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
+import * as path from 'path';
 
 export interface EmergencySwarmStackProps extends cdk.StackProps {
   environment: 'dev' | 'staging' | 'prod';
@@ -206,7 +207,7 @@ export class EmergencySwarmStack extends cdk.Stack {
     this.coordinatorLambda = new NodejsFunction(this, 'EmergencyCoordinator', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'handler',
-      entry: 'emergency-coordinator.ts',
+      entry: path.join(__dirname, 'emergency-coordinator.ts'),
       functionName: `EmergencyCoordinator-${props.environment}`,
       description: 'Emergency swarm coordinator with multi-tier escalation',
       timeout: cdk.Duration.seconds(60),
@@ -235,7 +236,7 @@ export class EmergencySwarmStack extends cdk.Stack {
       const workerLambda = new NodejsFunction(this, `EmergencyWorker-${config.id}`, {
         runtime: lambda.Runtime.NODEJS_20_X,
         handler: 'handler',
-        entry: `emergency-workers/${config.id}.ts`,
+        entry: path.join(__dirname, `emergency-workers/${config.id}.ts`),
         functionName: `EmergencyWorker-${config.id}-${props.environment}`,
         description: `Emergency worker: ${config.id}`,
         timeout: cdk.Duration.seconds(config.timeout),
@@ -449,3 +450,14 @@ export class EmergencySwarmStack extends cdk.Stack {
     });
   }
 }
+// App instantiation
+const app = new cdk.App();
+new EmergencySwarmStack(app, 'EmergencySwarmStack', {
+  env: {
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+    region: process.env.CDK_DEFAULT_REGION || 'us-east-1'
+  },
+  environment: app.node.tryGetContext('environment') || 'staging',
+  enableXRay: app.node.tryGetContext('enableXRay') === 'true',
+  enableWAF: app.node.tryGetContext('enableWAF') === 'true'
+});

@@ -17,6 +17,7 @@ import * as sns from 'aws-cdk-lib/aws-sns';
 import * as snsSubscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
+import * as path from 'path';
 
 export interface SecuritySwarmStackProps extends cdk.StackProps {
   environment: 'dev' | 'staging' | 'prod';
@@ -260,7 +261,7 @@ export class SecuritySwarmStack extends cdk.Stack {
     this.coordinatorLambda = new NodejsFunction(this, 'RBACCoordinator', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'handler',
-      entry: 'rbac-coordinator.ts',
+      entry: path.join(__dirname, 'rbac-coordinator.ts'),
       functionName: `SecurityCoordinator-${props.environment}`,
       description: 'Zero-trust RBAC coordinator with adaptive security',
       timeout: cdk.Duration.seconds(30),
@@ -290,7 +291,7 @@ export class SecuritySwarmStack extends cdk.Stack {
       const workerLambda = new NodejsFunction(this, `SecurityWorker-${config.id}`, {
         runtime: lambda.Runtime.NODEJS_20_X,
         handler: 'handler',
-        entry: `security-workers/${config.id}.ts`,
+        entry: path.join(__dirname, `security-workers/${config.id}.ts`),
         functionName: `SecurityWorker-${config.id}-${props.environment}`,
         description: `Security worker: ${config.id}`,
         timeout: cdk.Duration.seconds(config.timeout),
@@ -545,3 +546,14 @@ export class SecuritySwarmStack extends cdk.Stack {
     });
   }
 }
+// App instantiation
+const app = new cdk.App();
+new SecuritySwarmStack(app, 'SecuritySwarmStack', {
+  env: {
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+    region: process.env.CDK_DEFAULT_REGION || 'us-east-1'
+  },
+  environment: app.node.tryGetContext('environment') || 'staging',
+  enableXRay: app.node.tryGetContext('enableXRay') === 'true',
+  enableWAF: app.node.tryGetContext('enableWAF') === 'true'
+});

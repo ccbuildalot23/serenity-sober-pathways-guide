@@ -16,6 +16,7 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
+import * as path from 'path';
 
 export interface ClinicalSwarmStackProps extends cdk.StackProps {
   environment: 'dev' | 'staging' | 'prod';
@@ -224,7 +225,7 @@ export class ClinicalSwarmStack extends cdk.Stack {
     this.coordinatorLambda = new NodejsFunction(this, 'ClinicalCoordinator', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'handler',
-      entry: 'clinical-coordinator.ts',
+      entry: path.join(__dirname, 'clinical-coordinator.ts'),
       functionName: `ClinicalCoordinator-${props.environment}`,
       description: 'Byzantine coordinator for clinical decision support',
       timeout: cdk.Duration.seconds(60),
@@ -236,7 +237,7 @@ export class ClinicalSwarmStack extends cdk.Stack {
       vpc: vpc,
       vpcSubnets: vpc ? { subnets: vpc.privateSubnets } : undefined,
       tracing: props.enableXRay ? lambda.Tracing.ACTIVE : lambda.Tracing.DISABLED,
-      logRetention: logs.RetentionDays.THIRTY_DAYS,
+      logRetention: logs.RetentionDays.ONE_MONTH,
       deadLetterQueueEnabled: isProd,
       retryAttempts: isProd ? 2 : 0
     });
@@ -270,7 +271,7 @@ export class ClinicalSwarmStack extends cdk.Stack {
       const workerLambda = new NodejsFunction(this, `ClinicalWorker-${config.id}`, {
         runtime: lambda.Runtime.NODEJS_20_X,
         handler: 'handler',
-        entry: `clinical-workers/${config.id}.ts`,
+        entry: path.join(__dirname, `clinical-workers/${config.id}.ts`),
         functionName: `ClinicalWorker-${config.id}-${props.environment}`,
         description: `Clinical worker: ${config.id}`,
         timeout: cdk.Duration.seconds(config.timeout),
@@ -466,3 +467,14 @@ export class ClinicalSwarmStack extends cdk.Stack {
     });
   }
 }
+// App instantiation
+const app = new cdk.App();
+new ClinicalSwarmStack(app, 'ClinicalSwarmStack', {
+  env: {
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+    region: process.env.CDK_DEFAULT_REGION || 'us-east-1'
+  },
+  environment: app.node.tryGetContext('environment') || 'staging',
+  enableXRay: app.node.tryGetContext('enableXRay') === 'true',
+  enableWAF: app.node.tryGetContext('enableWAF') === 'true'
+});

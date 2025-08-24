@@ -44,17 +44,24 @@ check_requirements() {
     
     # Check jq
     if ! command -v jq &> /dev/null; then
-        echo -e "${YELLOW}⚠️ jq not found, installing...${NC}"
-        if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-            sudo apt-get update && sudo apt-get install -y jq
-        elif [[ "$OSTYPE" == "darwin"* ]]; then
-            brew install jq
+        # Check if we have local jq.exe
+        if [ -f "./jq.exe" ]; then
+            echo -e "${GREEN}✅ Using local jq.exe${NC}"
+            alias jq='./jq.exe'
         else
-            echo -e "${RED}Please install jq manually${NC}"
-            exit 1
+            echo -e "${YELLOW}⚠️ jq not found, installing...${NC}"
+            if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+                sudo apt-get update && sudo apt-get install -y jq
+            elif [[ "$OSTYPE" == "darwin"* ]]; then
+                brew install jq
+            else
+                echo -e "${RED}Please install jq manually${NC}"
+                exit 1
+            fi
         fi
+    else
+        echo -e "${GREEN}✅ jq found${NC}"
     fi
-    echo -e "${GREEN}✅ jq found${NC}"
     
     echo ""
 }

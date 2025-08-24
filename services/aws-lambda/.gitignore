@@ -1,0 +1,41 @@
+# CDK build artifacts
+cdk.out/
+*/cdk.out/
+
+# AWS policy files (contain account info)
+trust-policy.json
+*-policy.json
+
+# Binary executables
+*.exe
+
+# Node modules
+node_modules/
+*/node_modules/
+
+# Lock files (can be regenerated)
+package-lock.json
+*/package-lock.json
+
+# Environment files
+.env*
+*.env
+
+# Temporary files
+*.tmp
+*.temp
+bundling-temp-*
+
+# Build outputs
+dist/
+build/
+*.js
+*.d.ts
+*.js.map
+
+# Keep TypeScript source files
+!*.ts
+
+# Keep layer package.json files
+!layers/*/nodejs/package.json
+!*/layers/*/nodejs/package.json

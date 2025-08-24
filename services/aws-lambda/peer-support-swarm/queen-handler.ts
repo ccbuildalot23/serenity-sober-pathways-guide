@@ -10,7 +10,6 @@ import { DynamoDB } from '@aws-sdk/client-dynamodb';
 import { Lambda } from '@aws-sdk/client-lambda';
 import { CloudWatch } from '@aws-sdk/client-cloudwatch';
 import { peerSupportSwarm, PeerSupportAgent } from './swarm-config';
-import { RecoveryCoachAgent } from '../../../src/agents/RecoveryCoachAgent';
 
 // Initialize AWS clients
 const secretsManager = new SecretsManager({ region: process.env.AWS_REGION });
@@ -171,10 +170,9 @@ async function handlePeerMessage(
   );
 
   // Step 6: Find peer connections if needed
-  let peerConnections = [];
   if (request.context?.includes('lonely') || request.context?.includes('isolated')) {
     const connectionAgents = peerSupportSwarm.findAgentsByCapability('peer_matching');
-    peerConnections = await invokeWorkerAgent(
+    await invokeWorkerAgent(
       connectionAgents[0],
       'findPeers',
       { userId: request.userId, interests: request.preferences }
@@ -208,7 +206,7 @@ async function handlePeerMessage(
  */
 async function handlePeerConnection(
   request: PeerMessageRequest,
-  credentials: any
+  _credentials: any
 ): Promise<APIGatewayProxyResult> {
   
   const connectionAgents = peerSupportSwarm.findAgentsByCapability('peer_matching');
@@ -235,7 +233,7 @@ async function handlePeerConnection(
  */
 async function handleCrisisSupport(
   request: PeerMessageRequest,
-  credentials: any
+  _credentials: any
 ): Promise<APIGatewayProxyResult> {
   
   console.log('🚨 Crisis support activated for user:', request.userId);
@@ -313,9 +311,14 @@ async function invokeWorkerAgent(
   } catch (error) {
     console.error(`Error invoking worker agent ${agent.id}:`, error);
     
-    // Fallback to local RecoveryCoachAgent
-    const localAgent = new RecoveryCoachAgent();
-    return localAgent.processRequest(action, payload);
+    // Return fallback response when worker invocation fails
+    return {
+      message: 'Temporary service interruption. Please try again.',
+      confidence: 0.5,
+      type: 'fallback',
+      resources: [],
+      nextSteps: ['Retry your request', 'Contact support if issue persists']
+    };
   }
 }
 

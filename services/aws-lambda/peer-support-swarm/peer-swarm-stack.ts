@@ -16,6 +16,7 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as waf from 'aws-cdk-lib/aws-wafv2';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
+import * as path from 'path';
 
 export interface PeerSupportSwarmStackProps extends cdk.StackProps {
   environment: 'dev' | 'staging' | 'prod';
@@ -194,7 +195,7 @@ export class PeerSupportSwarmStack extends cdk.Stack {
     this.queenLambda = new NodejsFunction(this, 'QueenLambda', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'handler',
-      entry: 'queen-handler.ts',
+      entry: path.join(__dirname, 'queen-handler.ts'),
       functionName: `PeerSupportQueen-${props.environment}`,
       description: 'Coordinator for PeerSupport Swarm',
       timeout: cdk.Duration.seconds(30),
@@ -206,7 +207,7 @@ export class PeerSupportSwarmStack extends cdk.Stack {
       vpc: vpc,
       vpcSubnets: vpc ? { subnets: vpc.privateSubnets } : undefined,
       tracing: props.enableXRay ? lambda.Tracing.ACTIVE : lambda.Tracing.DISABLED,
-      logRetention: logs.RetentionDays.THIRTY_DAYS,
+      logRetention: logs.RetentionDays.ONE_MONTH,
       deadLetterQueueEnabled: isProd,
       retryAttempts: isProd ? 2 : 0
     });
@@ -240,7 +241,7 @@ export class PeerSupportSwarmStack extends cdk.Stack {
       const workerLambda = new NodejsFunction(this, `Worker-${config.id}`, {
         runtime: lambda.Runtime.NODEJS_20_X,
         handler: 'handler',
-        entry: `worker-handlers/${config.id}-handler.ts`,
+        entry: path.join(__dirname, `worker-handlers/${config.id}-handler.ts`),
         functionName: `PeerSupportWorker-${config.id}-${props.environment}`,
         description: `Worker agent: ${config.id}`,
         timeout: cdk.Duration.seconds(15),
@@ -251,7 +252,7 @@ export class PeerSupportSwarmStack extends cdk.Stack {
         vpc: vpc,
         vpcSubnets: vpc ? { subnets: vpc.privateSubnets } : undefined,
         tracing: props.enableXRay ? lambda.Tracing.ACTIVE : lambda.Tracing.DISABLED,
-        logRetention: logs.RetentionDays.SEVEN_DAYS
+        logRetention: logs.RetentionDays.ONE_WEEK
       });
 
       this.workerLambdas.push(workerLambda);
@@ -471,3 +472,14 @@ export class PeerSupportSwarmStack extends cdk.Stack {
     });
   }
 }
+// App instantiation
+const app = new cdk.App();
+new PeerSupportSwarmStack(app, 'PeerSupportSwarmStack', {
+  env: {
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+    region: process.env.CDK_DEFAULT_REGION || 'us-east-1'
+  },
+  environment: app.node.tryGetContext('environment') || 'staging',
+  enableXRay: app.node.tryGetContext('enableXRay') === 'true',
+  enableWAF: app.node.tryGetContext('enableWAF') === 'true'
+});

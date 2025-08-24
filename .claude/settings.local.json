@@ -105,7 +105,9 @@
       "Bash(\"C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe\" iam put-role-policy --role-name serenity-ec2-prod-role --policy-name SerenitySSMKMSAccess --policy-document file://serenity-ssm-kms-policy.json)",
       "Bash(\"C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe\" elbv2 modify-target-group --target-group-arn arn:aws:elasticloadbalancing:us-east-1:662658456049:targetgroup/SerenityTG/0bdde177ad73bd36 --matcher HttpCode=200-399 --region us-east-1)",
       "Read(/C:\\keys/**)",
-      "WebFetch(domain:serenityalb-1709119748.us-east-1.elb.amazonaws.com)"
+      "WebFetch(domain:serenityalb-1709119748.us-east-1.elb.amazonaws.com)",
+      "Bash(chmod:*)",
+      "Bash(do cp:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

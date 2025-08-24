@@ -241,7 +241,6 @@ export class SecuritySwarmStack extends cdk.Stack {
     // =================
     const environment = {
       NODE_ENV: props.environment,
-      AWS_REGION: this.region,
       RBAC_TABLE: rbacTable.tableName,
       AUDIT_TABLE: auditTable.tableName,
       THREAT_TABLE: threatTable.tableName,
@@ -546,14 +545,3 @@ export class SecuritySwarmStack extends cdk.Stack {
     });
   }
 }
-// App instantiation
-const app = new cdk.App();
-new SecuritySwarmStack(app, 'SecuritySwarmStack', {
-  env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION || 'us-east-1'
-  },
-  environment: app.node.tryGetContext('environment') || 'staging',
-  enableXRay: app.node.tryGetContext('enableXRay') === 'true',
-  enableWAF: app.node.tryGetContext('enableWAF') === 'true'
-});

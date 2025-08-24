@@ -29,7 +29,7 @@ interface EmergencyRequest {
 
 export const handler = async (
   event: APIGatewayProxyEvent,
-  context: Context
+  _context: Context
 ): Promise<APIGatewayProxyResult> => {
   console.log('Emergency Coordinator invoked:', event);
 

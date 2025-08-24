@@ -22,7 +22,7 @@ interface NotificationResult {
   recipients: string[];
 }
 
-export const handler = async (event: NotificationRequest, context: Context): Promise<NotificationResult> => {
+export const handler = async (event: NotificationRequest, _context: Context): Promise<NotificationResult> => {
   console.log('Notification sender worker invoked');
 
   const result: NotificationResult = {

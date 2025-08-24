@@ -120,7 +120,7 @@ const icd10Descriptions = {
  */
 export const handler = async (
   event: DiagnosisRequest,
-  context: Context
+  _context: Context
 ): Promise<DiagnosisResponse> => {
   const startTime = Date.now();
   

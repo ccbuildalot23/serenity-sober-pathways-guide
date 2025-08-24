@@ -21,6 +21,10 @@ package-lock.json
 .env*
 *.env
 
+# Secret files
+*-secrets.json
+secrets/
+
 # Temporary files
 *.tmp
 *.temp

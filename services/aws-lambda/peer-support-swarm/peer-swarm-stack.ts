@@ -177,7 +177,6 @@ export class PeerSupportSwarmStack extends cdk.Stack {
     // =================
     const environment = {
       NODE_ENV: props.environment,
-      AWS_REGION: this.region,
       RATE_LIMIT_TABLE: rateLimitTable.tableName,
       ACTIVITY_TABLE: activityTable.tableName,
       SWARM_STATE_TABLE: swarmStateTable.tableName,
@@ -472,14 +471,3 @@ export class PeerSupportSwarmStack extends cdk.Stack {
     });
   }
 }
-// App instantiation
-const app = new cdk.App();
-new PeerSupportSwarmStack(app, 'PeerSupportSwarmStack', {
-  env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION || 'us-east-1'
-  },
-  environment: app.node.tryGetContext('environment') || 'staging',
-  enableXRay: app.node.tryGetContext('enableXRay') === 'true',
-  enableWAF: app.node.tryGetContext('enableWAF') === 'true'
-});

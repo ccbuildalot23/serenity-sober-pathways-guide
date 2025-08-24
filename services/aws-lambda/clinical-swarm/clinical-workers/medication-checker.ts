@@ -20,7 +20,7 @@ interface MedicationCheckResult {
   alternatives?: string[];
 }
 
-export const handler = async (event: MedicationCheckRequest, context: Context): Promise<MedicationCheckResult> => {
+export const handler = async (event: MedicationCheckRequest, __context: Context): Promise<MedicationCheckResult> => {
   console.log('Medication checker worker invoked:', event);
 
   const result: MedicationCheckResult = {

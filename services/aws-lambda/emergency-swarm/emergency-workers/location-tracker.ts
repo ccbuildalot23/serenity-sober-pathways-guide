@@ -16,7 +16,7 @@ interface LocationRequest {
   };
 }
 
-export const handler = async (event: LocationRequest, context: Context): Promise<any> => {
+export const handler = async (event: LocationRequest, _context: Context): Promise<any> => {
   console.log('Location tracker worker invoked');
 
   const locationData = {

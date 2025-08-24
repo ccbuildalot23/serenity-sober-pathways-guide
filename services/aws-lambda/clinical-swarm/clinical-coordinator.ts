@@ -70,7 +70,7 @@ interface WorkerVote {
  */
 export const handler = async (
   event: APIGatewayProxyEvent,
-  context: Context
+  _context: Context
 ): Promise<APIGatewayProxyResult> => {
   console.log('Clinical Coordinator invoked', {
     requestId: context.requestId,
@@ -132,7 +132,7 @@ export const handler = async (
 async function handleDiagnosisRequest(
   request: ClinicalRequest,
   credentials: any,
-  context: Context
+  _context: Context
 ): Promise<APIGatewayProxyResult> {
   
   const consensusId = uuidv4();
@@ -187,7 +187,7 @@ async function handleDiagnosisRequest(
 async function handleTreatmentRequest(
   request: ClinicalRequest,
   credentials: any,
-  context: Context
+  _context: Context
 ): Promise<APIGatewayProxyResult> {
   
   const consensusId = uuidv4();
@@ -239,7 +239,7 @@ async function handleTreatmentRequest(
 async function handleMedicationRequest(
   request: ClinicalRequest,
   credentials: any,
-  context: Context
+  _context: Context
 ): Promise<APIGatewayProxyResult> {
   
   const consensusId = uuidv4();
@@ -291,7 +291,7 @@ async function handleMedicationRequest(
 async function handleConsensusRequest(
   request: ClinicalRequest,
   credentials: any,
-  context: Context
+  _context: Context
 ): Promise<APIGatewayProxyResult> {
   
   const consensusId = uuidv4();

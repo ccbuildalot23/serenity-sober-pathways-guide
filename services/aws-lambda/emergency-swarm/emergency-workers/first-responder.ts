@@ -20,7 +20,7 @@ interface FirstResponderResponse {
   instructions?: string[];
 }
 
-export const handler = async (event: FirstResponderRequest, context: Context): Promise<FirstResponderResponse> => {
+export const handler = async (event: FirstResponderRequest, _context: Context): Promise<FirstResponderResponse> => {
   console.log('First responder worker invoked');
 
   const response: FirstResponderResponse = {

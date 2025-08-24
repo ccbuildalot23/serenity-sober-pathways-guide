@@ -22,7 +22,7 @@ interface TreatmentPlan {
   contraindications?: string[];
 }
 
-export const handler = async (event: TreatmentRequest, context: Context): Promise<TreatmentPlan> => {
+export const handler = async (event: TreatmentRequest, __context: Context): Promise<TreatmentPlan> => {
   console.log('Treatment planner worker invoked:', event);
 
   const plan: TreatmentPlan = {

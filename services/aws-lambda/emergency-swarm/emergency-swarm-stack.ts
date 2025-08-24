@@ -188,7 +188,6 @@ export class EmergencySwarmStack extends cdk.Stack {
     // =================
     const environment = {
       NODE_ENV: props.environment,
-      AWS_REGION: this.region,
       EMERGENCY_TABLE: emergencyTable.tableName,
       ESCALATION_TABLE: escalationTable.tableName,
       RESOURCE_TABLE: resourceTable.tableName,
@@ -450,14 +449,3 @@ export class EmergencySwarmStack extends cdk.Stack {
     });
   }
 }
-// App instantiation
-const app = new cdk.App();
-new EmergencySwarmStack(app, 'EmergencySwarmStack', {
-  env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION || 'us-east-1'
-  },
-  environment: app.node.tryGetContext('environment') || 'staging',
-  enableXRay: app.node.tryGetContext('enableXRay') === 'true',
-  enableWAF: app.node.tryGetContext('enableWAF') === 'true'
-});

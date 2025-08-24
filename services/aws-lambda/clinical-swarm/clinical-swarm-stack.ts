@@ -204,7 +204,6 @@ export class ClinicalSwarmStack extends cdk.Stack {
     // =================
     const environment = {
       NODE_ENV: props.environment,
-      AWS_REGION: this.region,
       DECISIONS_TABLE: decisionsTable.tableName,
       CONSENSUS_TABLE: consensusTable.tableName,
       TREATMENT_TABLE: treatmentTable.tableName,
@@ -467,14 +466,3 @@ export class ClinicalSwarmStack extends cdk.Stack {
     });
   }
 }
-// App instantiation
-const app = new cdk.App();
-new ClinicalSwarmStack(app, 'ClinicalSwarmStack', {
-  env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION || 'us-east-1'
-  },
-  environment: app.node.tryGetContext('environment') || 'staging',
-  enableXRay: app.node.tryGetContext('enableXRay') === 'true',
-  enableWAF: app.node.tryGetContext('enableWAF') === 'true'
-});

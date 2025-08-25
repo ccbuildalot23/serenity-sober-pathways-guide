@@ -19,7 +19,7 @@
 	<key>provisioningProfiles</key>
 	<dict>
 		<key>com.serenity.recovery</key>
-		<string>Serenity App Store Profile</string>
+		<string>eff34dac-ae58-424b-8790-ad790129e2f3</string>
 	</dict>
 	<key>destination</key>
 	<string>upload</string>

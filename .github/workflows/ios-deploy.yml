@@ -74,7 +74,22 @@ jobs:
             exit 1
           fi
           
-          echo "✅ iOS platform synced and verified"
+          echo "🎨 Validating CSS is properly linked..."
+          if grep -q '<link.*stylesheet.*href="/assets/.*\.css"' ios/App/App/public/index.html; then
+            echo "✅ CSS link found in iOS index.html"
+            CSS_FILE=$(grep -o 'href="/assets/[^"]*\.css"' ios/App/App/public/index.html | head -1 | sed 's/href="\/assets\///;s/"//')
+            if [ -f "ios/App/App/public/assets/$CSS_FILE" ]; then
+              echo "✅ CSS file verified: $CSS_FILE"
+            else
+              echo "❌ CSS file not found: $CSS_FILE"
+              exit 1
+            fi
+          else
+            echo "❌ CRITICAL: No CSS link found - will cause blank screen!"
+            exit 1
+          fi
+          
+          echo "✅ iOS platform synced and CSS verified"
 
       - name: 🍎 Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1

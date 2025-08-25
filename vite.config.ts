@@ -57,7 +57,9 @@ export default defineConfig(({ mode }) => ({
     minify: mode === 'production' ? 'terser' : 'esbuild',
     // Target modern browsers for better optimization
     target: 'esnext',
-    cssCodeSplit: true,
+    // CRITICAL FIX: Disable CSS code splitting to ensure CSS is always loaded
+    // This prevents the blank screen issue in TestFlight
+    cssCodeSplit: false,
     // Enable tree shaking
     treeshake: mode === 'production',
     // Terser options for aggressive optimization

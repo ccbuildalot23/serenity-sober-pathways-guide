@@ -74,29 +74,6 @@ jobs:
             exit 1
           fi
           
-          # Create Capacitor bridge file if missing
-          if [ ! -f "ios/App/App/public/capacitor.js" ]; then
-            echo "⚠️ Creating Capacitor bridge file..."
-            cat > ios/App/App/public/capacitor.js << 'EOF'
-// Capacitor Native Bridge
-(function() {
-  if (window.Capacitor) return;
-  window.Capacitor = {
-    isNativePlatform: function() { return true; },
-    getPlatform: function() { return 'ios'; },
-    Plugins: {}
-  };
-  console.log('Capacitor bridge initialized');
-})();
-EOF
-          fi
-          
-          # Add Capacitor script to index.html if missing
-          if ! grep -q "capacitor.js" ios/App/App/public/index.html; then
-            echo "⚠️ Adding Capacitor script to index.html..."
-            sed -i '' 's|<script type="module"|<script src="capacitor.js"></script><script type="module"|' ios/App/App/public/index.html || true
-          fi
-          
           echo "✅ iOS platform synced and verified"
 
       - name: 🍎 Setup Xcode

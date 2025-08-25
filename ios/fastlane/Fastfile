@@ -53,10 +53,11 @@ platform :ios do
   desc "Build the iOS app for App Store"
   lane :build_release do
     certificates
+    
+    # Use a simple incrementing build number based on GitHub run number
+    build_num = ENV["GITHUB_RUN_NUMBER"] || Time.now.to_i.to_s
     increment_build_number(
-      build_number: latest_testflight_build_number(
-        app_identifier: APP_IDENTIFIER
-      ) + 1,
+      build_number: build_num,
       xcodeproj: PROJECT
     )
     
@@ -75,6 +76,15 @@ platform :ios do
   desc "Upload to TestFlight"
   lane :beta do
     build_release
+    
+    # Configure App Store Connect API
+    app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      key_filepath: ENV["APP_STORE_CONNECT_API_KEY_PATH"],
+      in_house: false
+    )
+    
     upload_to_testflight(
       app_identifier: APP_IDENTIFIER,
       team_id: TEAM_ID,
@@ -200,11 +210,18 @@ platform :ios do
   lane :emergency_deploy do
     UI.important("🚨 EMERGENCY DEPLOYMENT INITIATED")
     
+    # Configure App Store Connect API
+    app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      key_filepath: ENV["APP_STORE_CONNECT_API_KEY_PATH"],
+      in_house: false
+    )
+    
     # Increment build number
+    build_num = ENV["GITHUB_RUN_NUMBER"] || Time.now.to_i.to_s
     increment_build_number(
-      build_number: latest_testflight_build_number(
-        app_identifier: APP_IDENTIFIER
-      ) + 1,
+      build_number: build_num,
       xcodeproj: PROJECT
     )
     

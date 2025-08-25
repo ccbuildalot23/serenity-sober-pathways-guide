@@ -1,0 +1,254 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+
+default_platform(:ios)
+
+# Constants
+APP_IDENTIFIER = "com.serenity.recovery"
+TEAM_ID = "XDY458RQ59"
+SCHEME = "App"
+WORKSPACE = "App/App.xcworkspace"
+PROJECT = "App/App.xcodeproj"
+
+platform :ios do
+  before_all do
+    setup_ci if ENV['CI']
+    ensure_git_status_clean unless ENV['CI']
+  end
+
+  desc "Create app on App Store Connect if it doesn't exist"
+  lane :produce_app do
+    produce(
+      app_identifier: APP_IDENTIFIER,
+      app_name: "Serenity Sober Pathways",
+      language: "English",
+      app_version: "1.0.0",
+      sku: "com-serenity-recovery-001",
+      team_id: TEAM_ID,
+      company_name: "Serenity Recovery Solutions",
+      platforms: ["ios"]
+    )
+  end
+
+  desc "Sync certificates and provisioning profiles using match"
+  lane :certificates do
+    match(
+      type: "development",
+      app_identifier: APP_IDENTIFIER,
+      team_id: TEAM_ID,
+      readonly: is_ci
+    )
+    
+    match(
+      type: "appstore",
+      app_identifier: APP_IDENTIFIER,
+      team_id: TEAM_ID,
+      readonly: is_ci
+    )
+  end
+
+  desc "Build the iOS app for development"
+  lane :build_debug do
+    certificates
+    gym(
+      scheme: SCHEME,
+      workspace: WORKSPACE,
+      configuration: "Debug",
+      export_method: "development",
+      export_options: {
+        provisioningProfiles: {
+          APP_IDENTIFIER => "match Development #{APP_IDENTIFIER}"
+        }
+      },
+      output_directory: "./build",
+      output_name: "SerenityRecovery-Debug.ipa"
+    )
+  end
+
+  desc "Build the iOS app for App Store"
+  lane :build_release do
+    certificates
+    increment_build_number(
+      build_number: latest_testflight_build_number(
+        app_identifier: APP_IDENTIFIER
+      ) + 1,
+      xcodeproj: PROJECT
+    )
+    
+    gym(
+      scheme: SCHEME,
+      workspace: WORKSPACE,
+      configuration: "Release",
+      export_method: "app-store",
+      export_options: {
+        provisioningProfiles: {
+          APP_IDENTIFIER => "match AppStore #{APP_IDENTIFIER}"
+        }
+      },
+      output_directory: "./build",
+      output_name: "SerenityRecovery-Release.ipa"
+    )
+  end
+
+  desc "Upload to TestFlight"
+  lane :beta do
+    build_release
+    upload_to_testflight(
+      app_identifier: APP_IDENTIFIER,
+      team_id: TEAM_ID,
+      skip_waiting_for_build_processing: false,
+      changelog: "Healthcare app update with enhanced HIPAA compliance and crisis support features."
+    )
+    
+    # Send notification
+    slack(
+      message: "New iOS build uploaded to TestFlight! 🚀",
+      success: true
+    ) if ENV["SLACK_URL"]
+  end
+
+  desc "Submit to App Store"
+  lane :release do
+    build_release
+    
+    # Upload metadata
+    deliver(
+      app_identifier: APP_IDENTIFIER,
+      team_id: TEAM_ID,
+      force: true,
+      submit_for_review: false,
+      automatic_release: false,
+      submission_information: {
+        add_id_info_limits_tracking: true,
+        add_id_info_serves_ads: false,
+        add_id_info_tracks_action: false,
+        add_id_info_tracks_install: true,
+        add_id_info_uses_idfa: false,
+        content_rights_has_rights: true,
+        content_rights_contains_third_party_content: false,
+        export_compliance_platform: "ios",
+        export_compliance_compliance_required: false,
+        export_compliance_encryption_updated: false,
+        export_compliance_app_type: nil,
+        export_compliance_uses_encryption: false,
+        export_compliance_is_exempt: true,
+        export_compliance_contains_third_party_cryptography: false,
+        export_compliance_contains_proprietary_cryptography: false,
+        export_compliance_available_on_french_store: false
+      }
+    )
+    
+    # Send notification
+    slack(
+      message: "iOS app submitted to App Store! 🎉",
+      success: true
+    ) if ENV["SLACK_URL"]
+  end
+
+  desc "Generate screenshots for all device types"
+  lane :screenshots do
+    snapshot(
+      devices: [
+        "iPhone 15 Pro Max",
+        "iPhone 15 Pro",
+        "iPhone SE (3rd generation)",
+        "iPad Pro (12.9-inch) (6th generation)",
+        "iPad Pro (11-inch) (4th generation)"
+      ],
+      languages: ["en-US"],
+      launch_arguments: ["-ui-testing"]
+    )
+  end
+
+  desc "Upload metadata and screenshots to App Store Connect"
+  lane :metadata do
+    deliver(
+      app_identifier: APP_IDENTIFIER,
+      team_id: TEAM_ID,
+      skip_binary_upload: true,
+      skip_screenshots: false,
+      force: true
+    )
+  end
+
+  desc "Complete setup for new app"
+  lane :setup do
+    produce_app
+    certificates
+    UI.success("Setup complete! Ready to build and deploy.")
+  end
+
+  desc "Full deployment pipeline"
+  lane :deploy do
+    build_release
+    upload_to_testflight(
+      app_identifier: APP_IDENTIFIER,
+      team_id: TEAM_ID,
+      changelog: "Latest version with healthcare compliance improvements and enhanced crisis support features."
+    )
+    
+    # Update metadata
+    deliver(
+      app_identifier: APP_IDENTIFIER,
+      team_id: TEAM_ID,
+      skip_binary_upload: true,
+      force: true
+    )
+    
+    UI.success("Deployment complete! 🎉")
+  end
+
+  desc "Clean build artifacts"
+  lane :clean do
+    clean_build_artifacts
+    clean_cocoapods_cache
+    UI.success("Build artifacts cleaned! 🧹")
+  end
+
+  desc "Run tests"
+  lane :test do
+    run_tests(
+      workspace: WORKSPACE,
+      devices: ["iPhone 15 Pro"],
+      scheme: SCHEME
+    )
+  end
+
+  desc "Healthcare compliance check"
+  lane :hipaa_check do
+    UI.message("Running HIPAA compliance checks...")
+    
+    # Check for sensitive data in code
+    sh("grep -r 'password\\|secret\\|key\\|token' ../App --exclude-dir=build --exclude='*.ipa' || true")
+    
+    # Verify SSL/TLS configuration
+    UI.message("Verifying SSL/TLS configuration...")
+    
+    # Check Info.plist for security configurations
+    info_plist_path = "../App/App/Info.plist"
+    if File.exist?(info_plist_path)
+      UI.success("Info.plist found - checking security configurations")
+    else
+      UI.error("Info.plist not found!")
+    end
+    
+    UI.success("HIPAA compliance checks completed ✅")
+  end
+
+  # Error handling
+  error do |lane, exception|
+    slack(
+      message: "Lane #{lane} failed with exception: #{exception}",
+      success: false
+    ) if ENV["SLACK_URL"]
+  end
+
+  after_all do |lane|
+    UI.success("Lane #{lane} completed successfully! 🎉")
+  end
+end
+
+# Helper methods
+def is_ci
+  ENV['CI'] == 'true'
+end

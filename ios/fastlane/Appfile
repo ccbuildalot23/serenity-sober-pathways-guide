@@ -1,0 +1,33 @@
+# The bundle identifier of your app
+app_identifier("com.serenity.recovery")
+
+# Your Apple ID username
+apple_id("{{APPLE_ID}}")
+
+# For more information about the Appfile, see:
+#     https://docs.fastlane.tools/advanced/#appfile
+
+# Team ID for development and distribution
+team_id("XDY458RQ59")
+
+# iTunes Connect Team ID (if different from development team)
+itc_team_id("XDY458RQ59")
+
+# Developer Portal Team ID
+team_name("Serenity Recovery Solutions")
+
+# The provisioning profile to use for development builds
+# Automatically managed by match
+for_platform :ios do
+  for_lane :certificates do
+    app_identifier("com.serenity.recovery")
+  end
+  
+  for_lane :build_debug do
+    app_identifier("com.serenity.recovery")
+  end
+  
+  for_lane :build_release do
+    app_identifier("com.serenity.recovery")
+  end
+end

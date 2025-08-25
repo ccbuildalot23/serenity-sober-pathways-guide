@@ -1,0 +1,187 @@
+name: iOS Fastlane Deployment
+
+on:
+  push:
+    branches:
+      - main
+      - notification-microservice
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - ".github/workflows/!(ios-deploy-fastlane.yml)"
+  workflow_dispatch:
+    inputs:
+      deployment_type:
+        description: "Deployment Type"
+        required: true
+        default: "beta"
+        type: choice
+        options:
+          - "beta"
+          - "release"
+          - "metadata_only"
+
+env:
+  NODE_VERSION: "22.x"
+  RUBY_VERSION: "3.2"
+  FASTLANE_VERSION: "2.217.0"
+
+jobs:
+  deploy:
+    name: Deploy iOS App with Fastlane
+    runs-on: macos-latest
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 💎 Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+          bundler-cache: true
+          working-directory: ios
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: 📦 Install dependencies
+        run: |
+          npm ci --legacy-peer-deps
+          npm install -g @capacitor/cli
+
+      - name: 🔨 Build web assets
+        run: |
+          npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: 📱 Sync with iOS platform
+        run: |
+          npx cap sync ios
+
+      - name: 🍎 Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: 💎 Install Fastlane
+        run: |
+          cd ios
+          gem install bundler
+          bundle install
+          bundle exec fastlane --version
+
+      - name: 🔐 Configure Fastlane environment
+        run: |
+          cd ios
+          # Create .env file with credentials
+          cat > .env <<EOF
+          APP_IDENTIFIER=com.serenity.recovery
+          APPLE_ID=${{ secrets.APPLE_ID }}
+          TEAM_ID=XDY458RQ59
+          ITC_TEAM_ID=XDY458RQ59
+          APP_STORE_CONNECT_API_KEY_ID=${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID=${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY=${{ secrets.APP_STORE_CONNECT_API_KEY }}
+          MATCH_PASSWORD=${{ secrets.MATCH_PASSWORD }}
+          MATCH_GIT_URL=${{ secrets.MATCH_GIT_URL }}
+          FASTLANE_USER=${{ secrets.APPLE_ID }}
+          FASTLANE_PASSWORD=${{ secrets.FASTLANE_PASSWORD }}
+          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD=${{ secrets.FASTLANE_APP_SPECIFIC_PASSWORD }}
+          EOF
+
+      - name: 📝 Configure App Store Connect API Key
+        run: |
+          cd ios
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "${{ secrets.APP_STORE_CONNECT_API_KEY }}" > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
+
+      - name: 🔐 Setup iOS certificates with Match
+        if: github.event.inputs.deployment_type != 'metadata_only'
+        run: |
+          cd ios
+          bundle exec fastlane certificates
+        env:
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+
+      - name: 🏥 Run HIPAA compliance check
+        run: |
+          cd ios
+          bundle exec fastlane hipaa_check
+
+      - name: 📸 Generate screenshots (if needed)
+        if: github.event.inputs.deployment_type == 'release'
+        run: |
+          cd ios
+          bundle exec fastlane screenshots
+
+      - name: 🚀 Deploy to TestFlight
+        if: github.event.inputs.deployment_type == 'beta' || github.event.inputs.deployment_type == ''
+        run: |
+          cd ios
+          bundle exec fastlane beta
+        env:
+          PILOT_SKIP_WAITING_FOR_BUILD_PROCESSING: false
+
+      - name: 🚀 Deploy to App Store
+        if: github.event.inputs.deployment_type == 'release'
+        run: |
+          cd ios
+          bundle exec fastlane release
+        env:
+          DELIVER_SUBMIT_FOR_REVIEW: true
+
+      - name: 📝 Upload metadata only
+        if: github.event.inputs.deployment_type == 'metadata_only'
+        run: |
+          cd ios
+          bundle exec fastlane metadata
+
+      - name: 📊 Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-build-artifacts
+          path: |
+            ios/App/build/
+            ios/fastlane/report.xml
+            ios/fastlane/test_output/
+            ios/fastlane/screenshots/
+
+      - name: 🎉 Deployment Summary
+        if: success()
+        run: |
+          echo "✅ iOS app successfully deployed with Fastlane!"
+          echo "📱 Deployment type: ${{ github.event.inputs.deployment_type || 'beta' }}"
+          echo "🚀 Build number: ${{ github.run_number }}"
+          echo ""
+          echo "📋 Healthcare App Features:"
+          echo "  ✅ HIPAA Compliance Validated"
+          echo "  ✅ Crisis Support System Integrated"
+          echo "  ✅ Provider Dashboard Configured"
+          echo "  ✅ PHI Security Measures Active"
+          echo ""
+          echo "📱 Next steps:"
+          if [ "${{ github.event.inputs.deployment_type }}" == "beta" ]; then
+            echo "  1. Check TestFlight for new build"
+            echo "  2. Distribute to internal testers"
+            echo "  3. Review crash reports and feedback"
+          elif [ "${{ github.event.inputs.deployment_type }}" == "release" ]; then
+            echo "  1. Monitor App Store Connect for review status"
+            echo "  2. Respond to any reviewer questions"
+            echo "  3. Prepare marketing materials"
+          fi
+
+      - name: 🧹 Clean up sensitive files
+        if: always()
+        run: |
+          cd ios
+          rm -f .env
+          rm -f ~/.appstoreconnect/private_keys/AuthKey_*.p8

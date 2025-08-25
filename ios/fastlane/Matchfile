@@ -1,0 +1,78 @@
+# The Matchfile allows you to define the configuration for match
+# For more information about the Matchfile, see:
+#     https://docs.fastlane.tools/actions/match/
+
+# Git repository URL for storing certificates and profiles
+git_url("https://github.com/serenity-recovery/ios-certificates")
+
+# Git branch for storing certificates (use separate branches for different environments)
+git_branch("main")
+
+# Shallow clone for faster operations
+shallow_clone(true)
+
+# Clone the entire git repository or only the branch specified with git_branch
+clone_branch_directly(true)
+
+# App identifier
+app_identifier(["com.serenity.recovery"])
+
+# Your Apple Developer Portal username
+username("{{APPLE_ID}}")
+
+# Team ID for the Apple Developer Portal
+team_id("XDY458RQ59")
+
+# Storage mode - can be "git" or "google_cloud" or "s3"
+storage_mode("git")
+
+# Certificate types to manage
+type("development") # can also be "appstore", "adhoc", "enterprise"
+
+# Keychain configuration
+keychain_name("match_keychain")
+keychain_password("{{MATCH_KEYCHAIN_PASSWORD}}")
+
+# Generate new certificates if needed
+generate_apple_certs(true)
+
+# Skip confirmation prompts in CI environments
+skip_confirmation(true)
+
+# Force creating new certificates
+force_for_new_devices(false)
+
+# Skip fetching profiles
+skip_provisioning_profiles(false)
+
+# Additional certificate configuration for healthcare apps
+certificate_id("{{CERTIFICATE_ID}}")
+
+# Platform - iOS only for this project
+platform("ios")
+
+# Template name for provisioning profiles
+template_name("{{TEMPLATE_NAME}}")
+
+# Provisioning profile name prefix
+output_path("./certificates")
+
+# Verbose logging for debugging
+verbose(true)
+
+# Clone branch directly for faster operations
+clone_branch_directly(true)
+
+# Skip checking if certificates are up to date
+force(false)
+
+# Additional security for healthcare apps
+readonly(false) # Set to true in CI/CD environments
+
+# Git configuration
+git_full_name("Serenity Recovery CI")
+git_user_email("ci@serenity-recovery.app")
+
+# Encryption configuration for certificate storage
+# Note: Ensure MATCH_PASSWORD environment variable is set
+# This encrypts the certificates and profiles in the git repository

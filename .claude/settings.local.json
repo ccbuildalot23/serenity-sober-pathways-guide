@@ -120,7 +120,8 @@
       "Bash(else echo \"✗ Incorrect\")",
       "Bash(fi)",
       "Bash(gh secret set:*)",
-      "Bash(bash:*)"
+      "Bash(bash:*)",
+      "Bash(set APP_STORE_CONNECT_KEY_PATH=C:ios-certsAuthKey_4YBU7UC32Y.p8)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

@@ -124,10 +124,11 @@ jobs:
 
       - name: 📦 Export IPA
         env:
-          KEYCHAIN_PATH: $RUNNER_TEMP/app-signing.keychain-db
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           cd ios/App
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          
           # Ensure keychain is unlocked
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           

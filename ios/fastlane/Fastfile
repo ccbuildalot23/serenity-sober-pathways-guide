@@ -32,8 +32,16 @@ platform :ios do
 
   desc "Setup certificates and provisioning profiles"
   lane :certificates do
-    UI.message("Certificates and provisioning profiles should be installed via CI workflow")
-    UI.message("This lane is kept for compatibility but certificates are managed externally")
+    UI.message("Certificates and provisioning profiles handled by CI workflow")
+    UI.message("Using automatic signing with App Store Connect API")
+    
+    # Verify that we have the necessary environment variables
+    if ENV["APP_STORE_CONNECT_API_KEY_ID"] && ENV["APP_STORE_CONNECT_ISSUER_ID"]
+      UI.success("App Store Connect API credentials found ✅")
+    else
+      UI.important("App Store Connect API credentials not found - will use Xcode automatic signing")
+    end
+    
     UI.success("Certificate setup completed ✅")
   end
 
@@ -61,6 +69,16 @@ platform :ios do
       xcodeproj: PROJECT
     )
     
+    # Configure App Store Connect API if available
+    if ENV["APP_STORE_CONNECT_API_KEY_ID"] && ENV["APP_STORE_CONNECT_ISSUER_ID"] && ENV["APP_STORE_CONNECT_API_KEY_PATH"]
+      app_store_connect_api_key(
+        key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
+        issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+        key_filepath: ENV["APP_STORE_CONNECT_API_KEY_PATH"],
+        in_house: false
+      )
+    end
+    
     gym(
       scheme: SCHEME,
       workspace: WORKSPACE,
@@ -68,7 +86,9 @@ platform :ios do
       export_method: "app-store",
       output_directory: "./build",
       output_name: "SerenityRecovery-Release.ipa",
-      xcargs: "DEVELOPMENT_TEAM=XDY458RQ59 CODE_SIGN_STYLE=Automatic -allowProvisioningUpdates"
+      xcargs: "DEVELOPMENT_TEAM=XDY458RQ59 CODE_SIGN_STYLE=Automatic -allowProvisioningUpdates",
+      export_xcargs: "-allowProvisioningUpdates",
+      skip_profile_detection: true
     )
   end
 

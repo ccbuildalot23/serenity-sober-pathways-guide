@@ -99,24 +99,42 @@ jobs:
           mkdir -p ~/.appstoreconnect/private_keys
           echo "${{ secrets.APP_STORE_CONNECT_API_KEY }}" > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
 
-      - name: 🔐 Setup iOS certificates and provisioning profiles
+      - name: 🔐 Setup iOS certificates directly (bypass Match)
         if: github.event.inputs.deployment_type != 'metadata_only'
         run: |
           cd ios
-          echo "Setting up iOS certificates and provisioning profiles..."
+          echo "Setting up iOS certificates directly without Match..."
           
-          # For now, we'll rely on Xcode's automatic signing and App Store Connect API
-          # This bypasses the certificate installation step that was failing
+          # Install certificates if provided
+          if [ -n "${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_BASE64 }}" ]; then
+            echo "Installing distribution certificate..."
+            echo "${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_BASE64 }}" | base64 --decode > cert.p12
+            security create-keychain -p "" build.keychain || true
+            security default-keychain -s build.keychain
+            security unlock-keychain -p "" build.keychain
+            security import cert.p12 -k build.keychain -P "${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}" -T /usr/bin/codesign -T /usr/bin/productsign || true
+            security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "" build.keychain || true
+            rm cert.p12
+            echo "✅ Certificate installed"
+          else
+            echo "⚠️ No certificate provided, using Xcode automatic signing"
+          fi
+          
+          # Install provisioning profile if provided  
+          if [ -n "${{ secrets.IOS_PROVISION_PROFILE_BASE64 }}" ]; then
+            echo "Installing provisioning profile..."
+            echo "${{ secrets.IOS_PROVISION_PROFILE_BASE64 }}" | base64 --decode > profile.mobileprovision
+            mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+            cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+            rm profile.mobileprovision
+            echo "✅ Provisioning profile installed"
+          else
+            echo "⚠️ No provisioning profile provided, will use automatic provisioning"
+          fi
+          
           echo "Using Xcode automatic signing with App Store Connect API"
           echo "Team ID: XDY458RQ59"
           echo "Bundle ID: com.serenity.recovery"
-          
-          # Verify App Store Connect API key is available
-          if [ -n "${{ secrets.APP_STORE_CONNECT_API_KEY }}" ]; then
-            echo "✅ App Store Connect API key is configured"
-          else
-            echo "❌ App Store Connect API key is missing"
-          fi
 
       - name: 🏥 Run HIPAA compliance check
         run: |

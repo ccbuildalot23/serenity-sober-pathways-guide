@@ -94,7 +94,7 @@ EOF
           # Add Capacitor script to index.html if missing
           if ! grep -q "capacitor.js" ios/App/App/public/index.html; then
             echo "⚠️ Adding Capacitor script to index.html..."
-            sed -i 's|<script type="module"|<script src="capacitor.js"></script>\n    <script type="module"|' ios/App/App/public/index.html
+            sed -i '' 's|<script type="module"|<script src="capacitor.js"></script><script type="module"|' ios/App/App/public/index.html || true
           fi
           
           echo "✅ iOS platform synced and verified"

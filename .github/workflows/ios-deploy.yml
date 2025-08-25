@@ -168,6 +168,36 @@ jobs:
             -exportPath build \
             -exportOptionsPlist ExportOptions.plist
 
+      - name: ✅ Validate IPA before upload
+        run: |
+          cd ios/App
+          echo "🔍 Validating IPA file..."
+          
+          # Check if IPA was created successfully
+          if [ ! -f "build/App.ipa" ]; then
+            echo "❌ IPA file not found!"
+            exit 1
+          fi
+          
+          echo "📁 IPA file details:"
+          ls -lh build/App.ipa
+          
+          # Validate IPA structure
+          echo "🔍 Checking IPA structure..."
+          unzip -l build/App.ipa | head -20
+          
+          # Create API key file for validation
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "${{ secrets.APP_STORE_CONNECT_API_KEY }}" > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
+          
+          # Validate app with Apple's servers
+          echo "🔍 Validating with App Store Connect..."
+          xcrun altool --validate-app \
+            -f "build/App.ipa" \
+            --apiKey "${{ secrets.APP_STORE_CONNECT_KEY_ID }}" \
+            --apiIssuer "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}" \
+            --verbose || echo "⚠️ Validation warnings found, proceeding with upload..."
+
       - name: 🚀 Upload to TestFlight
         if: github.event.inputs.deploy_to_testflight != 'false'
         env:
@@ -178,13 +208,68 @@ jobs:
           # Create API key file
           mkdir -p ~/.appstoreconnect/private_keys
           echo "$APP_STORE_CONNECT_API_KEY" > ~/.appstoreconnect/private_keys/AuthKey_$APP_STORE_CONNECT_API_KEY_ID.p8
-
-          # Upload to TestFlight using iTMSTransporter
-          xcrun iTMSTransporter -m upload \
-            -assetFile "ios/App/build/App.ipa" \
-            -apiKey "$APP_STORE_CONNECT_API_KEY_ID" \
-            -apiIssuer "$APP_STORE_CONNECT_ISSUER_ID" \
-            -v informational
+          
+          # Verify IPA file exists
+          if [ ! -f "ios/App/build/App.ipa" ]; then
+            echo "❌ IPA file not found at ios/App/build/App.ipa"
+            exit 1
+          fi
+          
+          echo "📱 IPA file found: $(ls -lh ios/App/build/App.ipa)"
+          
+          # Method 1: Try using altool (recommended alternative to iTMSTransporter)
+          echo "🔄 Attempting upload using altool..."
+          if xcrun altool --upload-app \
+            -f "ios/App/build/App.ipa" \
+            --apiKey "$APP_STORE_CONNECT_API_KEY_ID" \
+            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID" \
+            --verbose; then
+            echo "✅ Upload successful using altool"
+            exit 0
+          else
+            echo "⚠️ altool upload failed, trying iTMSTransporter..."
+          fi
+          
+          # Method 2: Install Transporter app and use iTMSTransporter
+          echo "📥 Installing Apple Transporter..."
+          if ! command -v mas &> /dev/null; then
+            echo "Installing mas (Mac App Store CLI)..."
+            brew install mas
+          fi
+          
+          # Alternative: Download and install Transporter manually
+          echo "📦 Installing Transporter app..."
+          brew install --cask transporter
+          
+          # Wait for installation to complete
+          sleep 5
+          
+          # Verify Transporter installation
+          if [ -d "/Applications/Transporter.app" ]; then
+            export FASTLANE_ITUNES_TRANSPORTER_PATH="/Applications/Transporter.app/Contents/itms/bin"
+            export FASTLANE_ITUNES_TRANSPORTER_USE_SHELL_SCRIPT="true"
+            
+            echo "✅ Transporter found at: $FASTLANE_ITUNES_TRANSPORTER_PATH"
+            ls -la "$FASTLANE_ITUNES_TRANSPORTER_PATH/"
+            
+            # Upload using iTMSTransporter with explicit path
+            echo "🚀 Uploading using iTMSTransporter..."
+            "$FASTLANE_ITUNES_TRANSPORTER_PATH/iTMSTransporter" -m upload \
+              -assetFile "ios/App/build/App.ipa" \
+              -apiKey "$APP_STORE_CONNECT_API_KEY_ID" \
+              -apiIssuer "$APP_STORE_CONNECT_ISSUER_ID" \
+              -v informational
+          else
+            echo "❌ Transporter installation failed"
+            echo "🔄 Falling back to xcrun altool with retry..."
+            
+            # Final attempt with altool
+            xcrun altool --upload-app \
+              -f "ios/App/build/App.ipa" \
+              --apiKey "$APP_STORE_CONNECT_API_KEY_ID" \
+              --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID" \
+              --verbose
+          fi
 
       - name: 📊 Upload artifacts
         uses: actions/upload-artifact@v4

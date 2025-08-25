@@ -111,13 +111,21 @@
       "Bash(iconv:*)",
       "Bash(where openssl)",
       "Read(/C:\\ios-certs/**)",
-      "Bash(gh secret list:*)"
+      "Bash(gh secret list:*)",
+      "Bash(gh run watch:*)",
+      "Bash(gh workflow run:*)",
+      "Bash(python:*)",
+      "Bash(openssl pkcs12:*)",
+      "Bash(break)",
+      "Bash(else echo \"✗ Incorrect\")",
+      "Bash(fi)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",
     "additionalDirectories": [
       "C:\\Users\\cmcal\\OneDrive\\Documents",
-      "C:\\ios-certs"
+      "C:\\ios-certs",
+      "C:\\c"
     ]
   },
   "enableAllProjectMcpServers": true,

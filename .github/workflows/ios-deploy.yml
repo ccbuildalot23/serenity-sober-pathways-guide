@@ -140,7 +140,7 @@ jobs:
           # Create API key file
           mkdir -p ~/.appstoreconnect/private_keys
           echo "$APP_STORE_CONNECT_API_KEY" > ~/.appstoreconnect/private_keys/AuthKey_$APP_STORE_CONNECT_API_KEY_ID.p8
-          
+
           # Upload to TestFlight using iTMSTransporter
           xcrun iTMSTransporter -m upload \
             -assetFile "ios/App/build/App.ipa" \

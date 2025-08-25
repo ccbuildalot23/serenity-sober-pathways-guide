@@ -107,12 +107,17 @@
       "Read(/C:\\keys/**)",
       "WebFetch(domain:serenityalb-1709119748.us-east-1.elb.amazonaws.com)",
       "Bash(chmod:*)",
-      "Bash(do cp:*)"
+      "Bash(do cp:*)",
+      "Bash(iconv:*)",
+      "Bash(where openssl)",
+      "Read(/C:\\ios-certs/**)",
+      "Bash(gh secret list:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",
     "additionalDirectories": [
-      "C:\\Users\\cmcal\\OneDrive\\Documents"
+      "C:\\Users\\cmcal\\OneDrive\\Documents",
+      "C:\\ios-certs"
     ]
   },
   "enableAllProjectMcpServers": true,

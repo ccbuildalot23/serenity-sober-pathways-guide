@@ -119,8 +119,7 @@ jobs:
             archive \
             CODE_SIGN_IDENTITY="Apple Distribution" \
             DEVELOPMENT_TEAM="${{ secrets.APPLE_TEAM_ID }}" \
-            PRODUCT_BUNDLE_IDENTIFIER="com.serenity.recovery" \
-            PROVISIONING_PROFILE_SPECIFIER="${{ secrets.PROVISIONING_PROFILE_NAME }}"
+            PRODUCT_BUNDLE_IDENTIFIER="com.serenity.recovery"
 
       - name: 📦 Export IPA
         run: |

@@ -81,7 +81,14 @@ jobs:
       - name: 📱 Sync with iOS platform
         run: |
           echo "Syncing with Capacitor..."
-          npx cap sync ios
+          # First copy web assets without running pod install
+          npx cap copy ios
+          
+          # Now run pod install directly without bundler
+          echo "Installing iOS dependencies..."
+          cd ios/App
+          pod install --repo-update
+          cd ../..
           
           # Verify iOS project exists
           if [ ! -d "ios/App" ]; then

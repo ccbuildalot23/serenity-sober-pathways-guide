@@ -117,8 +117,10 @@ jobs:
             -sdk iphoneos \
             -destination "generic/platform=iOS" \
             archive \
+            CODE_SIGN_STYLE="Manual" \
             CODE_SIGN_IDENTITY="Apple Distribution" \
             DEVELOPMENT_TEAM="${{ secrets.APPLE_TEAM_ID }}" \
+            PROVISIONING_PROFILE_SPECIFIER="Serenity App Store Profile" \
             PRODUCT_BUNDLE_IDENTIFIER="com.serenity.recovery"
 
       - name: 📦 Export IPA

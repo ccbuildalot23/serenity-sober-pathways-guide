@@ -259,7 +259,7 @@ jobs:
           
           echo "=== Building iOS app ==="
           echo "Build configuration: Release"
-          echo "Signing style: Automatic (for build)"
+          echo "Signing style: None (build phase)"
           echo "Team ID: ${{ secrets.APPLE_TEAM_ID || 'XDY458RQ59' }}"
           echo "Bundle ID: com.serenity.recovery"
           echo "Provisioning Profile UUID: $PROFILE_UUID (for export only)"
@@ -267,29 +267,29 @@ jobs:
           # Clean build folder
           rm -rf build
           
-          # Build archive with automatic signing - this avoids the CocoaPods provisioning profile issue
-          # We'll use manual signing only during the export phase
+          # Build archive WITHOUT signing - this completely skips code signing during build
+          # Signing will be handled during the export phase with our distribution certificate
           xcodebuild -workspace App.xcworkspace \
             -scheme App \
             -configuration Release \
             -destination "generic/platform=iOS" \
             -archivePath build/App.xcarchive \
-            -authenticationKeyPath ~/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8 \
-            -authenticationKeyID $APP_STORE_CONNECT_KEY_ID \
-            -authenticationKeyIssuerID $APP_STORE_CONNECT_ISSUER_ID \
-            -allowProvisioningUpdates \
+            CODE_SIGNING_ALLOWED=NO \
             DEVELOPMENT_TEAM=${{ secrets.APPLE_TEAM_ID || 'XDY458RQ59' }} \
             PRODUCT_BUNDLE_IDENTIFIER=com.serenity.recovery \
             archive
           
-          echo "✅ Archive built successfully"
+          echo "✅ Unsigned archive built successfully"
 
       - name: 📤 Export IPA
         run: |
           cd ios/App
           
-          echo "=== Exporting IPA ==="
+          echo "=== Exporting and Signing IPA ==="
+          echo "Using distribution certificate and provisioning profile for signing"
           
+          # Export archive with manual signing using our distribution certificate and profile
+          # This is where the actual code signing happens with our distribution credentials
           xcodebuild -exportArchive \
             -archivePath build/App.xcarchive \
             -exportPath build \
@@ -301,7 +301,7 @@ jobs:
             exit 1
           fi
           
-          echo "✅ IPA exported successfully"
+          echo "✅ IPA exported and signed successfully"
           ls -lah build/
 
       - name: 🚀 Upload to TestFlight

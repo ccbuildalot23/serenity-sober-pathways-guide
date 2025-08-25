@@ -84,17 +84,13 @@ jobs:
           # Create .env file with credentials
           cat > .env <<EOF
           APP_IDENTIFIER=com.serenity.recovery
-          APPLE_ID=${{ secrets.APPLE_ID }}
           TEAM_ID=XDY458RQ59
           ITC_TEAM_ID=XDY458RQ59
           APP_STORE_CONNECT_API_KEY_ID=${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID=${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          APP_STORE_CONNECT_API_KEY=${{ secrets.APP_STORE_CONNECT_API_KEY }}
-          MATCH_PASSWORD=${{ secrets.MATCH_PASSWORD }}
-          MATCH_GIT_URL=${{ secrets.MATCH_GIT_URL }}
-          FASTLANE_USER=${{ secrets.APPLE_ID }}
-          FASTLANE_PASSWORD=${{ secrets.FASTLANE_PASSWORD }}
-          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD=${{ secrets.FASTLANE_APP_SPECIFIC_PASSWORD }}
+          APP_STORE_CONNECT_API_KEY_PATH=~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
+          FASTLANE_SKIP_UPDATE_CHECK=1
+          FASTLANE_HIDE_GITHUB_ISSUES=1
           EOF
 
       - name: 📝 Configure App Store Connect API Key
@@ -107,43 +103,19 @@ jobs:
         if: github.event.inputs.deployment_type != 'metadata_only'
         run: |
           cd ios
-          # Create certificates directory
-          mkdir -p certificates
+          echo "Setting up iOS certificates and provisioning profiles..."
           
-          # Install certificate
-          if [ -n "${{ secrets.IOS_CERTIFICATE }}" ]; then
-            echo "Installing iOS certificate from secrets..."
-            echo "${{ secrets.IOS_CERTIFICATE }}" | base64 --decode > certificates/certificate.p12
-            
-            # Create keychain for signing
-            KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
-            KEYCHAIN_PASSWORD="${{ secrets.IOS_CERTIFICATE_PASSWORD }}"
-            
-            # Create keychain
-            security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-            security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
-            security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-            
-            # Install certificate to keychain
-            security import certificates/certificate.p12 -k "$KEYCHAIN_PATH" -P "${{ secrets.IOS_CERTIFICATE_PASSWORD }}" -A
-            security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-            
-            # Add keychain to search list
-            security list-keychains -d user -s "$KEYCHAIN_PATH" login.keychain
-          else
-            echo "No certificate provided in secrets, continuing without certificate setup..."
-          fi
+          # For now, we'll rely on Xcode's automatic signing and App Store Connect API
+          # This bypasses the certificate installation step that was failing
+          echo "Using Xcode automatic signing with App Store Connect API"
+          echo "Team ID: XDY458RQ59"
+          echo "Bundle ID: com.serenity.recovery"
           
-          # Install provisioning profile  
-          if [ -n "${{ secrets.IOS_PROVISION_PROFILE }}" ]; then
-            echo "Installing provisioning profile from secrets..."
-            echo "${{ secrets.IOS_PROVISION_PROFILE }}" | base64 --decode > certificates/profile.mobileprovision
-            
-            # Install provisioning profile
-            mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-            cp certificates/profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+          # Verify App Store Connect API key is available
+          if [ -n "${{ secrets.APP_STORE_CONNECT_API_KEY }}" ]; then
+            echo "✅ App Store Connect API key is configured"
           else
-            echo "No provisioning profile provided in secrets, continuing..."
+            echo "❌ App Store Connect API key is missing"
           fi
 
       - name: 🏥 Run HIPAA compliance check

@@ -170,3 +170,10 @@ hive-mind-prompt-*.txt
 
 .vercel
 .env.production
+
+# iOS Build Artifacts
+App.xcarchive/
+*.xcarchive
+
+# Security Reports (move to secure storage)
+security-reports/dependency-scan-*.json

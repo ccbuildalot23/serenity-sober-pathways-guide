@@ -5,6 +5,10 @@ on:
     branches:
       - main
       - notification-microservice
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/workflows/!(ios-deploy.yml)'
   workflow_dispatch:
     inputs:
       deploy_to_testflight:
@@ -36,6 +40,14 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+
+      - name: 📦 Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: 📦 Install dependencies
         run: |

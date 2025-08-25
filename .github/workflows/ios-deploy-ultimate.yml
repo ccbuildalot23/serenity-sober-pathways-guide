@@ -253,16 +253,19 @@ jobs:
           # Clean build folder
           rm -rf build
           
-          # Build archive with automatic signing
+          # Build archive with automatic signing - specify iOS device destination
           xcodebuild -workspace App.xcworkspace \
             -scheme App \
             -configuration Release \
+            -destination "generic/platform=iOS" \
             -archivePath build/App.xcarchive \
             -allowProvisioningUpdates \
             -authenticationKeyPath ~/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8 \
             -authenticationKeyID $APP_STORE_CONNECT_KEY_ID \
             -authenticationKeyIssuerID $APP_STORE_CONNECT_ISSUER_ID \
+            CODE_SIGN_STYLE=Automatic \
             DEVELOPMENT_TEAM=${{ secrets.APPLE_TEAM_ID || 'XDY458RQ59' }} \
+            PRODUCT_BUNDLE_IDENTIFIER=com.serenity.recovery \
             archive
           
           echo "✅ Archive built successfully"

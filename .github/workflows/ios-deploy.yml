@@ -194,6 +194,7 @@ jobs:
           echo "🔍 Validating with App Store Connect..."
           xcrun altool --validate-app \
             -f "build/App.ipa" \
+            -t ios \
             --apiKey "${{ secrets.APP_STORE_CONNECT_KEY_ID }}" \
             --apiIssuer "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}" \
             --verbose || echo "⚠️ Validation warnings found, proceeding with upload..."
@@ -221,6 +222,7 @@ jobs:
           echo "🔄 Attempting upload using altool..."
           if xcrun altool --upload-app \
             -f "ios/App/build/App.ipa" \
+            -t ios \
             --apiKey "$APP_STORE_CONNECT_API_KEY_ID" \
             --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID" \
             --verbose; then
@@ -266,6 +268,7 @@ jobs:
             # Final attempt with altool
             xcrun altool --upload-app \
               -f "ios/App/build/App.ipa" \
+              -t ios \
               --apiKey "$APP_STORE_CONNECT_API_KEY_ID" \
               --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID" \
               --verbose

@@ -118,7 +118,8 @@
       "Bash(openssl pkcs12:*)",
       "Bash(break)",
       "Bash(else echo \"✗ Incorrect\")",
-      "Bash(fi)"
+      "Bash(fi)",
+      "Bash(gh secret set:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

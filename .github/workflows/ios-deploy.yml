@@ -117,7 +117,7 @@ jobs:
             -sdk iphoneos \
             -destination "generic/platform=iOS" \
             archive \
-            CODE_SIGN_IDENTITY="iPhone Distribution" \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
             DEVELOPMENT_TEAM="${{ secrets.APPLE_TEAM_ID }}" \
             PRODUCT_BUNDLE_IDENTIFIER="com.serenity.recovery" \
             PROVISIONING_PROFILE_SPECIFIER="${{ secrets.PROVISIONING_PROFILE_NAME }}"
@@ -140,13 +140,13 @@ jobs:
           # Create API key file
           mkdir -p ~/.appstoreconnect/private_keys
           echo "$APP_STORE_CONNECT_API_KEY" > ~/.appstoreconnect/private_keys/AuthKey_$APP_STORE_CONNECT_API_KEY_ID.p8
-
-          # Upload to TestFlight using altool
-          xcrun altool --upload-app \
-            --type ios \
-            --file "ios/App/build/App.ipa" \
-            --apiKey "$APP_STORE_CONNECT_API_KEY_ID" \
-            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
+          
+          # Upload to TestFlight using iTMSTransporter
+          xcrun iTMSTransporter -m upload \
+            -assetFile "ios/App/build/App.ipa" \
+            -apiKey "$APP_STORE_CONNECT_API_KEY_ID" \
+            -apiIssuer "$APP_STORE_CONNECT_ISSUER_ID" \
+            -v informational
 
       - name: 📊 Upload artifacts
         uses: actions/upload-artifact@v4

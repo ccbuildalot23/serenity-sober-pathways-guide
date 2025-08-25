@@ -77,7 +77,15 @@
     "security:byzantine": "tsx infrastructure/security/byzantine-security-manager.ts",
     "crisis:test": "tsx infrastructure/swarms/crisis-response-swarm.ts",
     "hipaa:scan": "gh workflow run hipaa-compliance-automation.yml",
-    "production:validate": "npm run activate:advanced && npm run test:e2e && npm run validate:hipaa"
+    "production:validate": "npm run activate:advanced && npm run test:e2e && npm run validate:hipaa",
+    "validate:mobile": "bash scripts/agent-validate-mobile.sh",
+    "validate:mobile:agent": "npx claude-flow spawn mobile-validator --script scripts/agent-validate-mobile.sh",
+    "hipaa:validate": "tsx scripts/hipaa-validation-suite.ts",
+    "build:mobile": "npm run build && npm run validate:css && npx cap sync",
+    "deploy:testflight": "npm run build:mobile && cd ios/App && xcodebuild archive",
+    "deploy:playstore": "npm run build:mobile && cd android && ./gradlew bundleRelease",
+    "mobile:android": "gh workflow run android-deploy.yml",
+    "mobile:ios": "gh workflow run ios-deploy.yml"
   },
   "dependencies": {
     "@daily-co/daily-js": "^0.82.0",

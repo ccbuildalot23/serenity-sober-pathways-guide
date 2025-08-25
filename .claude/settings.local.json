@@ -126,7 +126,9 @@
       "Bash(git log:*)",
       "WebSearch",
       "Bash(gh run download:*)",
-      "Bash(start testflight-dashboard.html)"
+      "Bash(start testflight-dashboard.html)",
+      "WebFetch(domain:github.com)",
+      "Bash(gh show:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

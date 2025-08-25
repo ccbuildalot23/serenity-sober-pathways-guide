@@ -63,9 +63,9 @@ export default defineConfig(({ mode }) => ({
     // Terser options for aggressive optimization
     terserOptions: mode === 'production' ? {
       compress: {
-        drop_console: true, // Remove console.log
+        drop_console: false, // Keep console for debugging TestFlight
         drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn'],
+        pure_funcs: [], // Keep all console methods for now
         unused: true
       },
       mangle: {

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TestFlight Monitor - Serenity Build 27</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+               margin: 0; padding: 20px; background: #f5f5f7; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #1d1d1f; margin-bottom: 10px; }
+        .status-card { background: white; border-radius: 12px; padding: 24px; margin-bottom: 20px; 
+                       box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .metric { display: flex; align-items: center; margin-bottom: 16px; }
+        .metric-icon { font-size: 24px; margin-right: 12px; }
+        .metric-content h3 { margin: 0; color: #1d1d1f; font-size: 16px; }
+        .metric-content p { margin: 0; color: #86868b; font-size: 14px; }
+        .progress-bar { width: 100%; height: 8px; background: #e5e5e7; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #007AFF, #5856D6); 
+                         transition: width 0.5s ease; }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; 
+                        font-size: 12px; font-weight: 600; text-transform: uppercase; }
+        .status-normal { background: #d1f2eb; color: #00875a; }
+        .status-extended { background: #fff3cd; color: #856404; }
+        .status-attention { background: #f8d7da; color: #721c24; }
+        .timeline { margin-top: 20px; }
+        .timeline-item { display: flex; align-items: center; padding: 12px 0; border-left: 3px solid #e5e5e7; 
+                         padding-left: 16px; margin-left: 12px; }
+        .timeline-item.active { border-color: #007AFF; background: #f0f8ff; margin-left: 0; border-radius: 8px; }
+        .refresh-time { text-align: center; color: #86868b; font-size: 14px; margin-top: 20px; }
+    </style>
+    <meta http-equiv="refresh" content="300">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 TestFlight Processing Monitor</h1>
+            <h2>Serenity Sober Pathways - Build 27</h2>
+        </div>
+        
+        <div class="status-grid">
+            <div class="status-card">
+                <h2>📊 Current Status</h2>
+                <div class="metric">
+                    <span class="metric-icon">📋</span>
+                    <div class="metric-content">
+                        <h3>Metadata Validation</h3>
+                        <p>Processing Stage</p>
+                    </div>
+                </div>
+                <div class="metric">
+                    <span class="metric-icon">⏱️</span>
+                    <div class="metric-content">
+                        <h3>40m 27s</h3>
+                        <p>Elapsed Time</p>
+                    </div>
+                </div>
+                <span class="status-badge status-normal">
+                    Normal Processing
+                </span>
+            </div>
+            
+            <div class="status-card">
+                <h2>📱 Build Information</h2>
+                <div class="metric">
+                    <span class="metric-icon">📦</span>
+                    <div class="metric-content">
+                        <h3>com.serenity.recovery</h3>
+                        <p>Bundle ID</p>
+                    </div>
+                </div>
+                <div class="metric">
+                    <span class="metric-icon">🏗️</span>
+                    <div class="metric-content">
+                        <h3>Build 27</h3>
+                        <p>Version 1.0.0</p>
+                    </div>
+                </div>
+                <div class="metric">
+                    <span class="metric-icon">🆔</span>
+                    <div class="metric-content">
+                        <h3>2ead7ca5...</h3>
+                        <p>Delivery UUID</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status-card">
+            <h2>🔄 Processing Timeline</h2>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 66.66666666666666%"></div>
+            </div>
+            <div class="timeline">
+                <div class="timeline-item active">
+                    ✅ Upload Complete (11:17:45 AM)
+                </div>
+                <div class="timeline-item active">
+                    🔍 Binary Analysis (In Progress)
+                </div>
+                <div class="timeline-item active">
+                    🛡️ Security Review (In Progress)
+                </div>
+                <div class="timeline-item active">
+                    📋 Metadata Validation (In Progress)
+                </div>
+                <div class="timeline-item ">
+                    ⚡ Final Processing (Pending)
+                </div>
+                <div class="timeline-item">
+                    🎯 Ready for Testing (Pending)
+                </div>
+            </div>
+        </div>
+        
+        <div class="status-card">
+            <h2>📋 Next Actions</h2>
+            
+            <p>✅ <strong>Normal Processing</strong> - Build is processing within expected timeframe</p>
+            <ul>
+                <li>Continue monitoring - build should be ready soon</li>
+                <li>Check TestFlight tab in App Store Connect</li>
+                <li>Prepare internal testers list</li>
+            </ul>
+            
+        </div>
+        
+        <div class="refresh-time">
+            Last updated: 8/25/2025, 11:58:12 AM • Auto-refresh every 5 minutes
+        </div>
+    </div>
+</body>
+</html>

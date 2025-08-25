@@ -1,0 +1,57 @@
+{
+  "timestamp": "2025-08-25T15:53:27.869Z",
+  "repository": "ccbuildalot23/serenity-sober-pathways-guide",
+  "workflowName": "iOS App Store Deployment",
+  "healthy": true,
+  "summary": "All systems operational",
+  "details": {
+    "healthy": true,
+    "issues": [],
+    "recommendations": [],
+    "analysis": {
+      "found": true,
+      "runId": 17212923613,
+      "status": "completed",
+      "conclusion": "success",
+      "createdAt": "2025-08-25T15:13:18Z",
+      "updatedAt": "2025-08-25T15:18:06Z",
+      "htmlUrl": "https://github.com/ccbuildalot23/serenity-sober-pathways-guide/actions/runs/17212923613",
+      "headCommit": {
+        "id": "eeb33d73427924d1b64f0ba373c841c5bca54079",
+        "tree_id": "2e0b8d98d3dabc1eed5b3d96eeb97f9725c00dcb",
+        "message": "fix(ios): resolve ITMS-90683 and add required privacy permissions\n\n- Add NSPhotoLibraryUsageDescription for photo access\n- Add NSLocationAlwaysAndWhenInUseUsageDescription for crisis support\n- Fix build version to 27\n- Fix marketing version to 1.0.0\n- Resolve Apple App Store submission requirements\n\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>",
+        "timestamp": "2025-08-25T15:12:58Z",
+        "author": {
+          "name": "Serenity Auto-Dev",
+          "email": "dev@serenityrecovery.app"
+        },
+        "committer": {
+          "name": "Serenity Auto-Dev",
+          "email": "dev@serenityrecovery.app"
+        }
+      },
+      "jobs": [
+        {
+          "name": "Build iOS App and Deploy to TestFlight",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2025-08-25T15:13:22Z",
+          "completedAt": "2025-08-25T15:18:05Z",
+          "steps": 21,
+          "failedSteps": 0
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "ios-build-artifacts",
+          "size": 19712616,
+          "createdAt": "2025-08-25T15:17:49Z",
+          "downloadUrl": "https://api.github.com/repos/ccbuildalot23/serenity-sober-pathways-guide/actions/artifacts/3844811866/zip"
+        }
+      ],
+      "duration": "4m 48s",
+      "buildNumber": 27
+    }
+  },
+  "nextActions": []
+}

@@ -121,7 +121,12 @@
       "Bash(fi)",
       "Bash(gh secret set:*)",
       "Bash(bash:*)",
-      "Bash(set APP_STORE_CONNECT_KEY_PATH=C:ios-certsAuthKey_4YBU7UC32Y.p8)"
+      "Bash(set APP_STORE_CONNECT_KEY_PATH=C:ios-certsAuthKey_4YBU7UC32Y.p8)",
+      "mcp__Ref__ref_read_url",
+      "Bash(git log:*)",
+      "WebSearch",
+      "Bash(gh run download:*)",
+      "Bash(start testflight-dashboard.html)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

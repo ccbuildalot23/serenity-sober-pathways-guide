@@ -1,0 +1,373 @@
+{
+  "timestamp": "2025-08-25T15:53:27.456Z",
+  "buildNumber": 27,
+  "summary": {
+    "totalIssues": 9,
+    "criticalIssues": 6,
+    "highIssues": 3,
+    "mediumIssues": 0,
+    "lowIssues": 0
+  },
+  "overallStatus": "critical",
+  "issues": [
+    {
+      "severity": "critical",
+      "category": "Environment",
+      "message": "Missing required environment variable: APP_STORE_CONNECT_KEY_ID",
+      "resolution": "Set the APP_STORE_CONNECT_KEY_ID environment variable with the appropriate value",
+      "source": "diagnostics"
+    },
+    {
+      "severity": "critical",
+      "category": "Environment",
+      "message": "Missing required environment variable: APP_STORE_CONNECT_ISSUER_ID",
+      "resolution": "Set the APP_STORE_CONNECT_ISSUER_ID environment variable with the appropriate value",
+      "source": "diagnostics"
+    },
+    {
+      "severity": "critical",
+      "category": "Environment",
+      "message": "Missing required environment variable: APP_STORE_CONNECT_API_KEY",
+      "resolution": "Set the APP_STORE_CONNECT_API_KEY environment variable with the appropriate value",
+      "source": "diagnostics"
+    },
+    {
+      "severity": "critical",
+      "category": "Certificates",
+      "message": "Missing certificate file: ios-certificates/ios_distribution.p12",
+      "resolution": "Ensure certificate files are properly placed in ios-certificates directory",
+      "source": "diagnostics"
+    },
+    {
+      "severity": "critical",
+      "category": "Certificates",
+      "message": "Missing certificate file: ios-certificates/Serenity_App_Store_Profile.mobileprovision",
+      "resolution": "Ensure certificate files are properly placed in ios-certificates directory",
+      "source": "diagnostics"
+    },
+    {
+      "id": "missing_env_vars",
+      "name": "Missing Environment Variables",
+      "severity": "critical",
+      "message": "Required App Store Connect credentials not configured",
+      "resolution": "Set all required environment variables for App Store Connect API",
+      "detectedAt": "2025-08-25T15:53:27.455Z",
+      "source": "known_patterns"
+    },
+    {
+      "severity": "high",
+      "category": "Environment",
+      "message": "Missing required environment variable: VITE_SUPABASE_URL",
+      "resolution": "Set the VITE_SUPABASE_URL environment variable with the appropriate value",
+      "source": "diagnostics"
+    },
+    {
+      "severity": "high",
+      "category": "Environment",
+      "message": "Missing required environment variable: VITE_SUPABASE_ANON_KEY",
+      "resolution": "Set the VITE_SUPABASE_ANON_KEY environment variable with the appropriate value",
+      "source": "diagnostics"
+    },
+    {
+      "severity": "high",
+      "category": "GitHub Actions",
+      "message": "3 recent workflow failures detected",
+      "resolution": "Check GitHub Actions logs for failure details and resolve issues",
+      "source": "diagnostics"
+    }
+  ],
+  "diagnostics": {
+    "timestamp": "2025-08-25T15:53:26.062Z",
+    "buildNumber": 27,
+    "categories": {
+      "environment": {
+        "category": "Environment",
+        "status": "issues",
+        "checks": [
+          {
+            "name": "Node.js Version",
+            "status": "pass",
+            "value": "v22.18.0",
+            "expected": "v22.x",
+            "message": "Node.js version compatible"
+          },
+          {
+            "name": "Environment Variable: VITE_SUPABASE_URL",
+            "status": "fail",
+            "value": "[NOT SET]",
+            "message": "Required environment variable missing"
+          },
+          {
+            "name": "Environment Variable: VITE_SUPABASE_ANON_KEY",
+            "status": "fail",
+            "value": "[NOT SET]",
+            "message": "Required environment variable missing"
+          },
+          {
+            "name": "Environment Variable: APP_STORE_CONNECT_KEY_ID",
+            "status": "fail",
+            "value": "[NOT SET]",
+            "message": "Required environment variable missing"
+          },
+          {
+            "name": "Environment Variable: APP_STORE_CONNECT_ISSUER_ID",
+            "status": "fail",
+            "value": "[NOT SET]",
+            "message": "Required environment variable missing"
+          },
+          {
+            "name": "Environment Variable: APP_STORE_CONNECT_API_KEY",
+            "status": "fail",
+            "value": "[NOT SET]",
+            "message": "Required environment variable missing"
+          },
+          {
+            "name": "Git Working Directory",
+            "status": "warning",
+            "value": "Has changes",
+            "message": "Working directory has uncommitted changes"
+          },
+          {
+            "name": "Capacitor Dependencies",
+            "status": "fail",
+            "value": "Missing",
+            "message": "Capacitor dependencies missing"
+          }
+        ],
+        "issues": [
+          {
+            "severity": "high",
+            "category": "environment",
+            "message": "Missing required environment variable: VITE_SUPABASE_URL",
+            "resolution": "Set the VITE_SUPABASE_URL environment variable with the appropriate value"
+          },
+          {
+            "severity": "high",
+            "category": "environment",
+            "message": "Missing required environment variable: VITE_SUPABASE_ANON_KEY",
+            "resolution": "Set the VITE_SUPABASE_ANON_KEY environment variable with the appropriate value"
+          },
+          {
+            "severity": "critical",
+            "category": "environment",
+            "message": "Missing required environment variable: APP_STORE_CONNECT_KEY_ID",
+            "resolution": "Set the APP_STORE_CONNECT_KEY_ID environment variable with the appropriate value"
+          },
+          {
+            "severity": "critical",
+            "category": "environment",
+            "message": "Missing required environment variable: APP_STORE_CONNECT_ISSUER_ID",
+            "resolution": "Set the APP_STORE_CONNECT_ISSUER_ID environment variable with the appropriate value"
+          },
+          {
+            "severity": "critical",
+            "category": "environment",
+            "message": "Missing required environment variable: APP_STORE_CONNECT_API_KEY",
+            "resolution": "Set the APP_STORE_CONNECT_API_KEY environment variable with the appropriate value"
+          }
+        ],
+        "summary": "1/8 environment checks passed"
+      },
+      "github": {
+        "category": "GitHub Actions",
+        "status": "issues",
+        "checks": [
+          {
+            "name": "Workflow File Exists",
+            "status": "fail",
+            "value": "Missing",
+            "message": "iOS deployment workflow missing"
+          },
+          {
+            "name": "Recent Workflow Success Rate",
+            "status": "fail",
+            "value": "0/3",
+            "message": "0 of 3 recent runs successful"
+          }
+        ],
+        "issues": [
+          {
+            "severity": "high",
+            "category": "github",
+            "message": "3 recent workflow failures detected",
+            "resolution": "Check GitHub Actions logs for failure details and resolve issues"
+          }
+        ],
+        "summary": "GitHub workflow analysis: 1 issues detected"
+      },
+      "testflight": {
+        "category": "TestFlight",
+        "status": "healthy",
+        "checks": [
+          {
+            "name": "Processing Duration",
+            "status": "pass",
+            "value": "36 minutes",
+            "expected": "<45 minutes",
+            "message": "Processing time within normal range"
+          },
+          {
+            "name": "Bundle ID Mismatch",
+            "status": "pass",
+            "message": "Bundle ID matches provisioning profile"
+          },
+          {
+            "name": "Code Signing Issues",
+            "status": "pass",
+            "message": "App properly signed with distribution certificate"
+          },
+          {
+            "name": "Binary Validation",
+            "status": "pass",
+            "message": "Binary passes App Store validation"
+          },
+          {
+            "name": "App Store Connect Connectivity",
+            "status": "pass",
+            "message": "Can connect to App Store Connect API"
+          }
+        ],
+        "issues": [],
+        "summary": "TestFlight processing: Normal"
+      },
+      "certificates": {
+        "category": "Certificates",
+        "status": "critical",
+        "checks": [
+          {
+            "name": "Certificate File: ios_distribution.p12",
+            "status": "fail",
+            "value": "Missing",
+            "message": "Certificate file missing"
+          },
+          {
+            "name": "Certificate File: Serenity_App_Store_Profile.mobileprovision",
+            "status": "fail",
+            "value": "Missing",
+            "message": "Certificate file missing"
+          }
+        ],
+        "issues": [
+          {
+            "severity": "critical",
+            "category": "certificates",
+            "message": "Missing certificate file: ios-certificates/ios_distribution.p12",
+            "resolution": "Ensure certificate files are properly placed in ios-certificates directory"
+          },
+          {
+            "severity": "critical",
+            "category": "certificates",
+            "message": "Missing certificate file: ios-certificates/Serenity_App_Store_Profile.mobileprovision",
+            "resolution": "Ensure certificate files are properly placed in ios-certificates directory"
+          }
+        ],
+        "summary": "Certificate status: Critical issues"
+      },
+      "network": {
+        "category": "Network",
+        "status": "healthy",
+        "checks": [
+          {
+            "name": "Connectivity: App Store Connect",
+            "status": "pass",
+            "value": "272ms",
+            "message": "Good connectivity"
+          },
+          {
+            "name": "Connectivity: GitHub API",
+            "status": "pass",
+            "value": "48ms",
+            "message": "Good connectivity"
+          },
+          {
+            "name": "Connectivity: Apple Developer",
+            "status": "pass",
+            "value": "83ms",
+            "message": "Good connectivity"
+          }
+        ],
+        "issues": [],
+        "summary": "Network connectivity: 3/3 endpoints accessible"
+      },
+      "artifacts": {
+        "category": "Build Artifacts",
+        "status": "healthy",
+        "checks": [
+          {
+            "name": "Artifact: dist",
+            "status": "warning",
+            "value": "Missing",
+            "message": "Artifact not found (may be normal if not yet built)"
+          },
+          {
+            "name": "Artifact: ios/App/build",
+            "status": "warning",
+            "value": "Missing",
+            "message": "Artifact not found (may be normal if not yet built)"
+          },
+          {
+            "name": "Artifact: ios/App/build/App.ipa",
+            "status": "warning",
+            "value": "Missing",
+            "message": "Artifact not found (may be normal if not yet built)"
+          }
+        ],
+        "issues": [],
+        "summary": "Build artifacts: No issues detected"
+      },
+      "performance": {
+        "category": "Performance",
+        "status": "healthy",
+        "checks": [
+          {
+            "name": "Process Uptime",
+            "status": "pass",
+            "value": "2 seconds",
+            "message": "Process running normally"
+          }
+        ],
+        "issues": [],
+        "summary": "Performance: No issues detected"
+      }
+    },
+    "summary": {
+      "totalChecks": 24,
+      "passedChecks": 10,
+      "failedChecks": 10,
+      "warningChecks": 4,
+      "criticalIssues": 5
+    }
+  },
+  "recommendations": [
+    {
+      "priority": "immediate",
+      "message": "Address 6 critical issue(s) immediately to prevent deployment failure",
+      "actions": [
+        "Set the APP_STORE_CONNECT_KEY_ID environment variable with the appropriate value",
+        "Set the APP_STORE_CONNECT_ISSUER_ID environment variable with the appropriate value",
+        "Set the APP_STORE_CONNECT_API_KEY environment variable with the appropriate value",
+        "Ensure certificate files are properly placed in ios-certificates directory",
+        "Ensure certificate files are properly placed in ios-certificates directory",
+        "Set all required environment variables for App Store Connect API"
+      ]
+    },
+    {
+      "priority": "high",
+      "message": "Resolve 3 high-priority issue(s) to ensure smooth deployment",
+      "actions": [
+        "Set the VITE_SUPABASE_URL environment variable with the appropriate value",
+        "Set the VITE_SUPABASE_ANON_KEY environment variable with the appropriate value",
+        "Check GitHub Actions logs for failure details and resolve issues"
+      ]
+    }
+  ],
+  "nextSteps": [
+    "STOP: Resolve all critical issues before proceeding",
+    "- Set the APP_STORE_CONNECT_KEY_ID environment variable with the appropriate value",
+    "- Set the APP_STORE_CONNECT_ISSUER_ID environment variable with the appropriate value",
+    "- Set the APP_STORE_CONNECT_API_KEY environment variable with the appropriate value",
+    "- Ensure certificate files are properly placed in ios-certificates directory",
+    "- Ensure certificate files are properly placed in ios-certificates directory",
+    "- Set all required environment variables for App Store Connect API"
+  ]
+}

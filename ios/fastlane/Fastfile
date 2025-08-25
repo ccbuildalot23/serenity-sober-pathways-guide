@@ -68,8 +68,7 @@ platform :ios do
       export_method: "app-store",
       output_directory: "./build",
       output_name: "SerenityRecovery-Release.ipa",
-      export_xcargs: "-allowProvisioningUpdates",
-      xcargs: "DEVELOPMENT_TEAM=XDY458RQ59 CODE_SIGN_STYLE=Automatic"
+      xcargs: "DEVELOPMENT_TEAM=XDY458RQ59 CODE_SIGN_STYLE=Automatic -allowProvisioningUpdates"
     )
   end
 
@@ -234,8 +233,7 @@ platform :ios do
       output_directory: "./build",
       output_name: "SerenityRecovery-Emergency.ipa",
       skip_waiting_for_build_processing: true,
-      export_xcargs: "-allowProvisioningUpdates",
-      xcargs: "DEVELOPMENT_TEAM=XDY458RQ59 CODE_SIGN_STYLE=Automatic"
+      xcargs: "DEVELOPMENT_TEAM=XDY458RQ59 CODE_SIGN_STYLE=Automatic -allowProvisioningUpdates"
     )
     
     # Upload to TestFlight immediately

@@ -119,7 +119,8 @@
       "Bash(break)",
       "Bash(else echo \"✗ Incorrect\")",
       "Bash(fi)",
-      "Bash(gh secret set:*)"
+      "Bash(gh secret set:*)",
+      "Bash(bash:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

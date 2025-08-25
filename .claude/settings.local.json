@@ -128,7 +128,10 @@
       "Bash(gh run download:*)",
       "Bash(start testflight-dashboard.html)",
       "WebFetch(domain:github.com)",
-      "Bash(gh show:*)"
+      "Bash(gh show:*)",
+      "Bash(./claude-flow.bat memory --help)",
+      "Bash(sqlite3:*)",
+      "Bash(if not exist .security-archive mkdir .security-archive)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

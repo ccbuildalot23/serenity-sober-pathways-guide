@@ -133,7 +133,12 @@
       "Bash(sqlite3:*)",
       "Bash(if not exist .security-archive mkdir .security-archive)",
       "Bash(gh auth:*)",
-      "Bash(gh workflow view:*)"
+      "Bash(gh workflow view:*)",
+      "Bash(gh run rerun:*)",
+      "Bash(security cms:*)",
+      "Bash(openssl x509:*)",
+      "Bash(openssl smime:*)",
+      "Read(/C:\\Users\\cmcal/**)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

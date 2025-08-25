@@ -92,24 +92,50 @@ platform :ios do
     )
   end
 
-  desc "Upload to TestFlight"
+  desc "Upload to TestFlight with enhanced error handling"
   lane :beta do
+    # Configure App Store Connect API first (support both naming conventions)
+    key_id = ENV["APP_STORE_CONNECT_API_KEY_ID"] || ENV["APP_STORE_CONNECT_KEY_ID"]
+    issuer_id = ENV["APP_STORE_CONNECT_ISSUER_ID"]
+    key_path = ENV["APP_STORE_CONNECT_API_KEY_PATH"]
+    
+    if key_id && issuer_id && key_path
+      app_store_connect_api_key(
+        key_id: key_id,
+        issuer_id: issuer_id,
+        key_filepath: key_path,
+        in_house: false
+      )
+      UI.success("App Store Connect API configured ✅")
+    else
+      UI.error("App Store Connect API credentials missing!")
+    end
+    
+    # Build the app
     build_release
     
-    # Configure App Store Connect API
-    app_store_connect_api_key(
-      key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
-      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
-      key_filepath: ENV["APP_STORE_CONNECT_API_KEY_PATH"],
-      in_house: false
-    )
-    
-    upload_to_testflight(
-      app_identifier: APP_IDENTIFIER,
-      team_id: TEAM_ID,
-      skip_waiting_for_build_processing: false,
-      changelog: "Healthcare app update with enhanced HIPAA compliance and crisis support features."
-    )
+    # Upload to TestFlight with retry logic
+    begin
+      upload_to_testflight(
+        app_identifier: APP_IDENTIFIER,
+        team_id: ENV["APPLE_TEAM_ID"] || TEAM_ID,
+        skip_waiting_for_build_processing: false,
+        changelog: "Healthcare app update with enhanced HIPAA compliance and crisis support features.",
+        distribute_external: true,
+        groups: ["External Testers"]
+      )
+      UI.success("App uploaded to TestFlight! 🚀")
+    rescue => e
+      UI.error("TestFlight upload failed: #{e.message}")
+      UI.message("Retrying with skip_waiting enabled...")
+      
+      upload_to_testflight(
+        app_identifier: APP_IDENTIFIER,
+        team_id: ENV["APPLE_TEAM_ID"] || TEAM_ID,
+        skip_waiting_for_build_processing: true,
+        changelog: "Healthcare app update - Build #{Time.now.to_i}"
+      )
+    end
     
     # Send notification
     slack(

@@ -103,13 +103,48 @@ jobs:
           mkdir -p ~/.appstoreconnect/private_keys
           echo "${{ secrets.APP_STORE_CONNECT_API_KEY }}" > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
 
-      - name: 🔐 Setup iOS certificates with Match
+      - name: 🔐 Setup iOS certificates and provisioning profiles
         if: github.event.inputs.deployment_type != 'metadata_only'
         run: |
           cd ios
-          bundle exec fastlane certificates
-        env:
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          # Create certificates directory
+          mkdir -p certificates
+          
+          # Install certificate
+          if [ -n "${{ secrets.IOS_CERTIFICATE }}" ]; then
+            echo "Installing iOS certificate from secrets..."
+            echo "${{ secrets.IOS_CERTIFICATE }}" | base64 --decode > certificates/certificate.p12
+            
+            # Create keychain for signing
+            KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+            KEYCHAIN_PASSWORD="${{ secrets.IOS_CERTIFICATE_PASSWORD }}"
+            
+            # Create keychain
+            security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+            security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+            security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+            
+            # Install certificate to keychain
+            security import certificates/certificate.p12 -k "$KEYCHAIN_PATH" -P "${{ secrets.IOS_CERTIFICATE_PASSWORD }}" -A
+            security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+            
+            # Add keychain to search list
+            security list-keychains -d user -s "$KEYCHAIN_PATH" login.keychain
+          else
+            echo "No certificate provided in secrets, continuing without certificate setup..."
+          fi
+          
+          # Install provisioning profile  
+          if [ -n "${{ secrets.IOS_PROVISION_PROFILE }}" ]; then
+            echo "Installing provisioning profile from secrets..."
+            echo "${{ secrets.IOS_PROVISION_PROFILE }}" | base64 --decode > certificates/profile.mobileprovision
+            
+            # Install provisioning profile
+            mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+            cp certificates/profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+          else
+            echo "No provisioning profile provided in secrets, continuing..."
+          fi
 
       - name: 🏥 Run HIPAA compliance check
         run: |

@@ -131,7 +131,9 @@
       "Bash(gh show:*)",
       "Bash(./claude-flow.bat memory --help)",
       "Bash(sqlite3:*)",
-      "Bash(if not exist .security-archive mkdir .security-archive)"
+      "Bash(if not exist .security-archive mkdir .security-archive)",
+      "Bash(gh auth:*)",
+      "Bash(gh workflow view:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

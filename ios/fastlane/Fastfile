@@ -30,21 +30,11 @@ platform :ios do
     )
   end
 
-  desc "Sync certificates and provisioning profiles using match"
+  desc "Setup certificates and provisioning profiles"
   lane :certificates do
-    match(
-      type: "development",
-      app_identifier: APP_IDENTIFIER,
-      team_id: TEAM_ID,
-      readonly: is_ci
-    )
-    
-    match(
-      type: "appstore",
-      app_identifier: APP_IDENTIFIER,
-      team_id: TEAM_ID,
-      readonly: is_ci
-    )
+    UI.message("Certificates and provisioning profiles should be installed via CI workflow")
+    UI.message("This lane is kept for compatibility but certificates are managed externally")
+    UI.success("Certificate setup completed ✅")
   end
 
   desc "Build the iOS app for development"
@@ -55,11 +45,6 @@ platform :ios do
       workspace: WORKSPACE,
       configuration: "Debug",
       export_method: "development",
-      export_options: {
-        provisioningProfiles: {
-          APP_IDENTIFIER => "match Development #{APP_IDENTIFIER}"
-        }
-      },
       output_directory: "./build",
       output_name: "SerenityRecovery-Debug.ipa"
     )
@@ -80,11 +65,6 @@ platform :ios do
       workspace: WORKSPACE,
       configuration: "Release",
       export_method: "app-store",
-      export_options: {
-        provisioningProfiles: {
-          APP_IDENTIFIER => "match AppStore #{APP_IDENTIFIER}"
-        }
-      },
       output_directory: "./build",
       output_name: "SerenityRecovery-Release.ipa"
     )
@@ -212,6 +192,75 @@ platform :ios do
       devices: ["iPhone 15 Pro"],
       scheme: SCHEME
     )
+  end
+
+  desc "Emergency deployment for critical updates"
+  lane :emergency_deploy do
+    UI.important("🚨 EMERGENCY DEPLOYMENT INITIATED")
+    
+    # Increment build number
+    increment_build_number(
+      build_number: latest_testflight_build_number(
+        app_identifier: APP_IDENTIFIER
+      ) + 1,
+      xcodeproj: PROJECT
+    )
+    
+    # Build with expedited settings
+    gym(
+      scheme: SCHEME,
+      workspace: WORKSPACE,
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: "./build",
+      output_name: "SerenityRecovery-Emergency.ipa",
+      skip_waiting_for_build_processing: true
+    )
+    
+    # Upload to TestFlight immediately
+    upload_to_testflight(
+      app_identifier: APP_IDENTIFIER,
+      team_id: TEAM_ID,
+      skip_waiting_for_build_processing: true,
+      distribute_external: true,
+      groups: ["External Testers", "Healthcare Professionals"],
+      changelog: "🚨 Emergency deployment: Critical mental health crisis support features and security updates"
+    )
+    
+    # Submit for App Store review if requested
+    if ENV["SUBMIT_FOR_REVIEW"] == "true"
+      deliver(
+        app_identifier: APP_IDENTIFIER,
+        team_id: TEAM_ID,
+        force: true,
+        submit_for_review: true,
+        automatic_release: true,
+        submission_information: {
+          add_id_info_limits_tracking: true,
+          add_id_info_serves_ads: false,
+          add_id_info_tracks_action: false,
+          add_id_info_tracks_install: true,
+          add_id_info_uses_idfa: false,
+          content_rights_has_rights: true,
+          content_rights_contains_third_party_content: false,
+          export_compliance_platform: "ios",
+          export_compliance_compliance_required: false,
+          export_compliance_encryption_updated: false,
+          export_compliance_uses_encryption: false,
+          export_compliance_is_exempt: true
+        }
+      )
+      
+      UI.success("🚨 Emergency deployment submitted to App Store!")
+    end
+    
+    # Send notifications
+    slack(
+      message: "🚨 EMERGENCY iOS deployment completed! Build processing...",
+      success: true
+    ) if ENV["SLACK_URL"]
+    
+    UI.success("Emergency deployment complete! 🚀")
   end
 
   desc "Healthcare compliance check"

@@ -116,10 +116,8 @@ jobs:
             -archivePath build/App.xcarchive \
             -sdk iphoneos \
             -destination "generic/platform=iOS" \
-            -allowProvisioningUpdates \
             archive \
-            DEVELOPMENT_TEAM="${{ secrets.APPLE_TEAM_ID }}" \
-            PRODUCT_BUNDLE_IDENTIFIER="com.serenity.recovery"
+            CODE_SIGNING_ALLOWED="NO"
 
       - name: 📦 Export IPA
         run: |

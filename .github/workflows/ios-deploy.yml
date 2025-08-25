@@ -6,29 +6,29 @@ on:
       - main
       - notification-microservice
     paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.github/workflows/!(ios-deploy.yml)'
+      - "**.md"
+      - "docs/**"
+      - ".github/workflows/!(ios-deploy.yml)"
   workflow_dispatch:
     inputs:
       deploy_to_testflight:
-        description: 'Deploy to TestFlight'
+        description: "Deploy to TestFlight"
         required: true
-        default: 'true'
+        default: "true"
         type: choice
         options:
-          - 'true'
-          - 'false'
+          - "true"
+          - "false"
 
 env:
-  NODE_VERSION: '22.x'
-  XCODE_VERSION: '15.0'
+  NODE_VERSION: "22.x"
+  XCODE_VERSION: "15.0"
 
 jobs:
   build-and-deploy:
     name: Build iOS App and Deploy to TestFlight
     runs-on: macos-latest
-    
+
     steps:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
@@ -39,7 +39,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: 📦 Cache node modules
         uses: actions/cache@v4
@@ -65,8 +65,10 @@ jobs:
         run: |
           npx cap sync ios
 
-      - name: 🍎 Select Xcode version
-        run: sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app
+      - name: 🍎 Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
 
       - name: 🔐 Setup iOS certificates
         env:
@@ -138,7 +140,7 @@ jobs:
           # Create API key file
           mkdir -p ~/.appstoreconnect/private_keys
           echo "$APP_STORE_CONNECT_API_KEY" > ~/.appstoreconnect/private_keys/AuthKey_$APP_STORE_CONNECT_API_KEY_ID.p8
-          
+
           # Upload to TestFlight using altool
           xcrun altool --upload-app \
             --type ios \

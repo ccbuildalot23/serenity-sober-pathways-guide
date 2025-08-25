@@ -146,10 +146,22 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/
           
-          # Extract profile UUID
+          # Extract profile UUID and details
           PROFILE_UUID=$(/usr/libexec/PlistBuddy -c "Print :UUID" /dev/stdin <<< $(security cms -D -i $PP_PATH))
           echo "Profile UUID: $PROFILE_UUID"
           echo "PROFILE_UUID=$PROFILE_UUID" >> $GITHUB_ENV
+          
+          # Extract additional profile info for debugging
+          PROFILE_NAME=$(/usr/libexec/PlistBuddy -c "Print :Name" /dev/stdin <<< $(security cms -D -i $PP_PATH) 2>/dev/null || echo "Unknown")
+          PROFILE_BUNDLE_ID=$(/usr/libexec/PlistBuddy -c "Print :Entitlements:application-identifier" /dev/stdin <<< $(security cms -D -i $PP_PATH) 2>/dev/null || echo "Unknown")
+          echo "Profile Name: $PROFILE_NAME"
+          echo "Profile Bundle ID: $PROFILE_BUNDLE_ID"
+          
+          # Also copy with UUID filename (sometimes required)
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/${PROFILE_UUID}.mobileprovision
+          
+          # Verify profile is installed
+          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/
           
           # Create and configure keychain
           echo "Creating temporary keychain..."
@@ -222,7 +234,7 @@ jobs:
               <key>uploadSymbols</key>
               <true/>
               <key>signingStyle</key>
-              <string>automatic</string>
+              <string>manual</string>
               <key>provisioningProfiles</key>
               <dict>
                   <key>com.serenity.recovery</key>
@@ -247,23 +259,26 @@ jobs:
           
           echo "=== Building iOS app ==="
           echo "Build configuration: Release"
+          echo "Signing style: Manual"
           echo "Team ID: ${{ secrets.APPLE_TEAM_ID || 'XDY458RQ59' }}"
           echo "Bundle ID: com.serenity.recovery"
+          echo "Provisioning Profile UUID: $PROFILE_UUID"
           
           # Clean build folder
           rm -rf build
           
-          # Build archive with automatic signing - specify iOS device destination
+          # Build archive with manual signing - specify iOS device destination
           xcodebuild -workspace App.xcworkspace \
             -scheme App \
             -configuration Release \
             -destination "generic/platform=iOS" \
             -archivePath build/App.xcarchive \
-            -allowProvisioningUpdates \
             -authenticationKeyPath ~/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8 \
             -authenticationKeyID $APP_STORE_CONNECT_KEY_ID \
             -authenticationKeyIssuerID $APP_STORE_CONNECT_ISSUER_ID \
-            CODE_SIGN_STYLE=Automatic \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="iPhone Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER=$PROFILE_UUID \
             DEVELOPMENT_TEAM=${{ secrets.APPLE_TEAM_ID || 'XDY458RQ59' }} \
             PRODUCT_BUNDLE_IDENTIFIER=com.serenity.recovery \
             archive
@@ -279,8 +294,7 @@ jobs:
           xcodebuild -exportArchive \
             -archivePath build/App.xcarchive \
             -exportPath build \
-            -exportOptionsPlist ../ExportOptions.plist \
-            -allowProvisioningUpdates
+            -exportOptionsPlist ../ExportOptions.plist
           
           # Verify IPA exists
           if [ ! -f "build/App.ipa" ]; then

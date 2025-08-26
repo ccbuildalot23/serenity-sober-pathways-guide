@@ -38,46 +38,8 @@
     ]
   },
   "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"C:\\Users\\cmcal\\OneDrive\\Documents\\serenity-sober-pathways-guide\\.claude\\hooks\\windows-command-helper.js\" pre"
-          }
-        ]
-      },
-      {
-        "matcher": "Write|Edit|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo 'File edit operation starting...'"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"C:\\Users\\cmcal\\OneDrive\\Documents\\serenity-sober-pathways-guide\\.claude\\hooks\\windows-command-helper.js\" post"
-          }
-        ]
-      },
-      {
-        "matcher": "Write|Edit|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo 'File edit operation completed'"
-          }
-        ]
-      }
-    ],
+    "PreToolUse": [],
+    "PostToolUse": [],
     "PreCompact": [
       {
         "matcher": "manual",
@@ -110,5 +72,5 @@
     ]
   },
   "includeCoAuthoredBy": true,
-  "enabledMcpjsonServers": ["claude-flow", "ruv-swarm", "serena"]
+  "enabledMcpjsonServers": []
 }

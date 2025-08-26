@@ -65,15 +65,15 @@ function executeHook(command, hookType) {
     return;
   }
 
+  // OPTIMIZATION: Early exit if claude-flow not available
+  const claudeFlowAvailable = checkClaudeFlow();
+  
+  if (!claudeFlowAvailable) {
+    console.log(`[${hookType}-hook] Skipping - no claude-flow (optimization active)`);
+    process.exit(0);  // Exit immediately to save 5+ seconds
+  }
+
   try {
-    // Check if claude-flow is available
-    const claudeFlowAvailable = checkClaudeFlow();
-    
-    if (!claudeFlowAvailable) {
-      console.log(`[${hookType}-hook] Claude Flow not available, skipping hook execution`);
-      console.log(`[${hookType}-hook] Project root: ${PROJECT_ROOT}`);
-      return;
-    }
     
     const flags = hookType === 'pre' 
       ? '--validate-safety true --prepare-resources true'
@@ -100,12 +100,12 @@ function executeHook(command, hookType) {
   }
 }
 
-// Check if claude-flow is available
+// Check if claude-flow is available (optimized with shorter timeout)
 function checkClaudeFlow() {
   try {
     execSync('npx claude-flow@alpha --version', { 
       stdio: 'pipe',
-      timeout: 5000 
+      timeout: 500  // Reduced from 5000ms to 500ms
     });
     return true;
   } catch {

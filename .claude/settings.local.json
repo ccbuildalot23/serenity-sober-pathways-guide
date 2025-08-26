@@ -148,7 +148,9 @@
       "Bash(choco install:*)",
       "Bash(refreshenv)",
       "Bash(claude-flow.bat status)",
-      "Bash(echo $CLAUDE_PROJECT_DIR)"
+      "Bash(echo $CLAUDE_PROJECT_DIR)",
+      "Bash(where npm)",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",
@@ -158,12 +160,8 @@
       "C:\\c"
     ]
   },
-  "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": [
-    "claude-flow",
-    "ruv-swarm",
-    "serena"
-  ],
+  "enableAllProjectMcpServers": false,
+  "enabledMcpjsonServers": [],
   "hooks": {
     "UserPromptSubmit": [
       {

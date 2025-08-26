@@ -116,7 +116,7 @@ jobs:
           CERT_BASE64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_BASE64 || secrets.IOS_CERTIFICATE }}
           CERT_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD || secrets.IOS_CERTIFICATE_PASSWORD || '' }}
           PROFILE_BASE64: ${{ secrets.IOS_PROVISION_PROFILE_BASE64 || secrets.IOS_PROVISION_PROFILE }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD || 'temporary' }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD || 'temp_keychain_password_2024' }}
           TEAM_ID: ${{ secrets.APPLE_TEAM_ID || 'XDY458RQ59' }}
         run: |
           echo "=== Setting up code signing ==="
@@ -140,6 +140,15 @@ jobs:
             CERT_PASSWORD=""
           fi
           
+          # Extract certificate details
+          echo "Extracting certificate identity..."
+          if [ -z "$CERT_PASSWORD" ]; then
+            CERT_IDENTITY=$(openssl pkcs12 -in $CERTIFICATE_PATH -passin pass: -nokeys -nomacver 2>/dev/null | openssl x509 -subject -noout | sed 's/subject=//')
+          else
+            CERT_IDENTITY=$(openssl pkcs12 -in $CERTIFICATE_PATH -passin pass:"$CERT_PASSWORD" -nokeys -nomacver 2>/dev/null | openssl x509 -subject -noout | sed 's/subject=//')
+          fi
+          echo "Certificate Identity: $CERT_IDENTITY"
+          
           # Import provisioning profile
           echo "Installing provisioning profile..."
           echo "$PROFILE_BASE64" | base64 --decode > $PP_PATH
@@ -151,16 +160,19 @@ jobs:
           echo "Profile UUID: $PROFILE_UUID"
           echo "PROFILE_UUID=$PROFILE_UUID" >> $GITHUB_ENV
           
-          # Extract additional profile info for debugging
+          # Extract additional profile info
           PROFILE_NAME=$(/usr/libexec/PlistBuddy -c "Print :Name" /dev/stdin <<< $(security cms -D -i $PP_PATH) 2>/dev/null || echo "Unknown")
           PROFILE_BUNDLE_ID=$(/usr/libexec/PlistBuddy -c "Print :Entitlements:application-identifier" /dev/stdin <<< $(security cms -D -i $PP_PATH) 2>/dev/null || echo "Unknown")
           echo "Profile Name: $PROFILE_NAME"
           echo "Profile Bundle ID: $PROFILE_BUNDLE_ID"
+          echo "PROFILE_NAME=$PROFILE_NAME" >> $GITHUB_ENV
           
-          # Also copy with UUID filename (sometimes required)
+          # Install profile with multiple naming conventions
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/${PROFILE_UUID}.mobileprovision
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/distribution.mobileprovision
           
           # Verify profile is installed
+          echo "Installed provisioning profiles:"
           ls -la ~/Library/MobileDevice/Provisioning\ Profiles/
           
           # Create and configure keychain
@@ -169,11 +181,27 @@ jobs:
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           
-          # Import certificate
-          echo "Importing certificate..."
+          # Add to keychain search list
+          security list-keychain -d user -s $KEYCHAIN_PATH $(security list-keychain -d user | sed s/\"//g)
+          
+          # Import certificate to keychain
+          echo "Importing certificate to keychain..."
           security import $CERTIFICATE_PATH -P "$CERT_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          security list-keychain -d user -s $KEYCHAIN_PATH
+          
+          # Set partition list for codesigning
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          
+          # Find and export the certificate identity
+          CODESIGN_IDENTITY=$(security find-identity -v -p codesigning $KEYCHAIN_PATH | grep "iPhone Distribution" | head -1 | grep -o '"[^"]*"' | tr -d '"')
+          if [ -z "$CODESIGN_IDENTITY" ]; then
+            CODESIGN_IDENTITY=$(security find-identity -v -p codesigning $KEYCHAIN_PATH | grep "Developer ID Application" | head -1 | grep -o '"[^"]*"' | tr -d '"')
+          fi
+          echo "Code signing identity found: $CODESIGN_IDENTITY"
+          echo "CODESIGN_IDENTITY=$CODESIGN_IDENTITY" >> $GITHUB_ENV
+          
+          # Verify keychain setup
+          echo "Available signing identities:"
+          security find-identity -v -p codesigning $KEYCHAIN_PATH
           
           echo "✅ Code signing configured"
 
@@ -220,6 +248,7 @@ jobs:
         env:
           TEAM_ID: ${{ secrets.APPLE_TEAM_ID || 'XDY458RQ59' }}
         run: |
+          echo "Creating ExportOptions.plist with manual signing..."
           cat > ios/ExportOptions.plist <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -234,12 +263,25 @@ jobs:
               <key>uploadSymbols</key>
               <true/>
               <key>signingStyle</key>
-              <string>automatic</string>
+              <string>manual</string>
+              <key>provisioningProfiles</key>
+              <dict>
+                  <key>com.serenity.recovery</key>
+                  <string>$PROFILE_UUID</string>
+              </dict>
+              <key>signingCertificate</key>
+              <string>iPhone Distribution</string>
+              <key>compileBitcode</key>
+              <false/>
+              <key>thinning</key>
+              <string>&lt;none&gt;</string>
           </dict>
           </plist>
           EOF
           
-          echo "✅ ExportOptions.plist created"
+          echo "ExportOptions.plist contents:"
+          cat ios/ExportOptions.plist
+          echo "✅ ExportOptions.plist created with manual signing"
 
       - name: 🔄 Update build number
         run: |
@@ -277,27 +319,63 @@ jobs:
           echo "✅ Unsigned archive built successfully"
 
       - name: 📤 Export IPA
+        env:
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID || 'XDY458RQ59' }}
         run: |
           cd ios/App
           
           echo "=== Exporting and Signing IPA ==="
-          echo "Using automatic signing with App Store Connect authentication"
+          echo "Using manual signing with distribution certificate and provisioning profile"
+          echo "Team ID: $TEAM_ID"
+          echo "Bundle ID: com.serenity.recovery"
+          echo "Profile UUID: $PROFILE_UUID"
+          echo "Code Sign Identity: $CODESIGN_IDENTITY"
           
-          # Export archive with automatic signing using App Store Connect API
+          # Verify certificate and profile availability before export
+          echo "Verifying code signing setup..."
+          security find-identity -v -p codesigning
+          echo "Available provisioning profiles:"
+          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/
+          
+          # Export archive with manual signing
           xcodebuild -exportArchive \
             -archivePath build/App.xcarchive \
             -exportPath build \
             -exportOptionsPlist ../ExportOptions.plist \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath ~/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8 \
-            -authenticationKeyID $APP_STORE_CONNECT_KEY_ID \
-            -authenticationKeyIssuerID $APP_STORE_CONNECT_ISSUER_ID
+            -verbose
+          
+          # If manual signing fails, try with explicit code signing environment
+          if [ ! -f "build/App.ipa" ]; then
+            echo "⚠️ First export attempt failed, trying with explicit signing..."
+            
+            # Set explicit code signing environment variables
+            export CODE_SIGN_IDENTITY="$CODESIGN_IDENTITY"
+            export PROVISIONING_PROFILE="$PROFILE_UUID"
+            export DEVELOPMENT_TEAM="$TEAM_ID"
+            
+            xcodebuild -exportArchive \
+              -archivePath build/App.xcarchive \
+              -exportPath build \
+              -exportOptionsPlist ../ExportOptions.plist \
+              CODE_SIGN_IDENTITY="$CODESIGN_IDENTITY" \
+              PROVISIONING_PROFILE="$PROFILE_UUID" \
+              DEVELOPMENT_TEAM="$TEAM_ID" \
+              -verbose
+          fi
           
           # Verify IPA exists
           if [ ! -f "build/App.ipa" ]; then
-            echo "❌ IPA file not found"
+            echo "❌ IPA file not found after export"
+            echo "Build directory contents:"
+            ls -la build/
+            echo "Archive contents:"
+            ls -la build/App.xcarchive/
             exit 1
           fi
+          
+          # Verify IPA signature
+          echo "Verifying IPA signature..."
+          codesign -vv -d build/App.ipa
           
           echo "✅ IPA exported and signed successfully"
           ls -lah build/
@@ -365,8 +443,25 @@ jobs:
       - name: 🧹 Cleanup
         if: always()
         run: |
-          # Clean up sensitive files
+          echo "=== Cleaning up sensitive files ==="
+          
+          # Clean up API keys
           rm -f ~/private_keys/AuthKey_*.p8
+          
+          # Clean up certificate and profile files
           rm -f $RUNNER_TEMP/build_certificate.p12
           rm -f $RUNNER_TEMP/build_pp.mobileprovision
-          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db 2>/dev/null || true
+          
+          # Clean up provisioning profiles
+          rm -f ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision 2>/dev/null || true
+          
+          # Delete temporary keychain
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          if [ -f "$KEYCHAIN_PATH" ]; then
+            security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
+          fi
+          
+          # Reset keychain list to default
+          security list-keychain -d user -s login.keychain 2>/dev/null || true
+          
+          echo "✅ Cleanup completed"

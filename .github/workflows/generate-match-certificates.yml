@@ -1,0 +1,241 @@
+name: Generate Match Certificates
+
+on:
+  workflow_dispatch:
+    inputs:
+      certificate_type:
+        description: "Type of certificates to generate"
+        required: true
+        default: "appstore"
+        type: choice
+        options:
+          - "appstore"
+          - "development" 
+          - "adhoc"
+      force_renewal:
+        description: "Force renewal of existing certificates"
+        required: false
+        default: false
+        type: boolean
+      app_identifier:
+        description: "App Bundle ID (optional, uses default)"
+        required: false
+        default: "com.serenity.recovery"
+        type: string
+
+env:
+  RUBY_VERSION: "3.2"
+  MATCH_KEYCHAIN_NAME: "fastlane_tmp_keychain"
+
+jobs:
+  generate-certificates:
+    name: Generate iOS Certificates with Match
+    runs-on: macos-latest
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: 🔍 Debug Configuration
+        run: |
+          echo "=== Certificate Generation Configuration ==="
+          echo "Certificate Type: ${{ github.event.inputs.certificate_type }}"
+          echo "Force Renewal: ${{ github.event.inputs.force_renewal }}"
+          echo "App Identifier: ${{ github.event.inputs.app_identifier }}"
+          echo "Apple Team ID: ${{ secrets.APPLE_TEAM_ID || 'XDY458RQ59' }}"
+          echo "=============================================="
+
+      - name: 💎 Setup Ruby and Fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+          bundler-cache: true
+          working-directory: ios
+
+      - name: 🔐 Configure Match Environment
+        run: |
+          echo "=== Configuring Match Environment ==="
+          
+          # Required Match environment variables
+          echo "MATCH_PASSWORD=${{ secrets.MATCH_PASSWORD }}" >> $GITHUB_ENV
+          echo "MATCH_GIT_BASIC_AUTHORIZATION=${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}" >> $GITHUB_ENV
+          echo "MATCH_KEYCHAIN_NAME=${{ env.MATCH_KEYCHAIN_NAME }}" >> $GITHUB_ENV
+          echo "MATCH_KEYCHAIN_PASSWORD=${{ secrets.MATCH_KEYCHAIN_PASSWORD || 'tmp_keychain_password' }}" >> $GITHUB_ENV
+          
+          # Apple Developer credentials
+          echo "APPLE_ID=${{ secrets.APPLE_ID }}" >> $GITHUB_ENV
+          echo "FASTLANE_USER=${{ secrets.APPLE_ID }}" >> $GITHUB_ENV
+          echo "FASTLANE_PASSWORD=${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}" >> $GITHUB_ENV
+          echo "APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID || 'XDY458RQ59' }}" >> $GITHUB_ENV
+          
+          # App Store Connect API (if available)
+          if [ ! -z "${{ secrets.APP_STORE_CONNECT_API_KEY }}" ]; then
+            mkdir -p ~/private_keys
+            echo "${{ secrets.APP_STORE_CONNECT_API_KEY }}" > ~/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID || '4YBU7UC32Y' }}.p8
+            echo "APP_STORE_CONNECT_API_KEY_PATH=~/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID || '4YBU7UC32Y' }}.p8" >> $GITHUB_ENV
+            echo "APP_STORE_CONNECT_KEY_ID=${{ secrets.APP_STORE_CONNECT_KEY_ID || '4YBU7UC32Y' }}" >> $GITHUB_ENV
+            echo "APP_STORE_CONNECT_ISSUER_ID=${{ secrets.APP_STORE_CONNECT_ISSUER_ID || 'acb9e47c-6935-4933-ae2c-6170b5d90234' }}" >> $GITHUB_ENV
+          fi
+          
+          # Certificate generation settings
+          echo "MATCH_TYPE=${{ github.event.inputs.certificate_type }}" >> $GITHUB_ENV
+          echo "MATCH_APP_IDENTIFIER=${{ github.event.inputs.app_identifier }}" >> $GITHUB_ENV
+          echo "MATCH_FORCE=${{ github.event.inputs.force_renewal }}" >> $GITHUB_ENV
+          
+          # Set CI environment
+          echo "CI=true" >> $GITHUB_ENV
+          echo "LC_ALL=en_US.UTF-8" >> $GITHUB_ENV
+          echo "LANG=en_US.UTF-8" >> $GITHUB_ENV
+          
+          echo "✅ Match environment configured"
+
+      - name: 🔑 Validate Required Secrets
+        run: |
+          echo "=== Validating Required Secrets ==="
+          
+          # Check required secrets
+          if [ -z "${{ secrets.MATCH_PASSWORD }}" ]; then
+            echo "❌ MATCH_PASSWORD secret is missing"
+            exit 1
+          fi
+          
+          if [ -z "${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}" ]; then
+            echo "❌ MATCH_GIT_BASIC_AUTHORIZATION secret is missing"
+            exit 1
+          fi
+          
+          if [ -z "${{ secrets.APPLE_ID }}" ]; then
+            echo "❌ APPLE_ID secret is missing"
+            exit 1
+          fi
+          
+          if [ -z "${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}" ]; then
+            echo "❌ APPLE_APP_SPECIFIC_PASSWORD secret is missing"
+            exit 1
+          fi
+          
+          echo "✅ All required secrets are present"
+
+      - name: 📦 Install Fastlane Dependencies
+        working-directory: ios
+        run: |
+          echo "=== Installing Fastlane Dependencies ==="
+          bundle install --path vendor/bundle
+          echo "✅ Fastlane dependencies installed"
+
+      - name: 🔒 Generate Certificates with Match
+        working-directory: ios
+        run: |
+          echo "=== Generating Certificates with Fastlane Match ==="
+          echo "Certificate Type: ${{ github.event.inputs.certificate_type }}"
+          echo "App Identifier: ${{ github.event.inputs.app_identifier }}"
+          echo "Force Renewal: ${{ github.event.inputs.force_renewal }}"
+          echo "================================================"
+          
+          # Build Match command
+          MATCH_COMMAND="bundle exec fastlane match ${{ github.event.inputs.certificate_type }}"
+          
+          if [ "${{ github.event.inputs.force_renewal }}" == "true" ]; then
+            MATCH_COMMAND="$MATCH_COMMAND --force"
+          fi
+          
+          # Add app identifier if specified
+          if [ "${{ github.event.inputs.app_identifier }}" != "com.serenity.recovery" ]; then
+            MATCH_COMMAND="$MATCH_COMMAND --app_identifier ${{ github.event.inputs.app_identifier }}"
+          fi
+          
+          # Add verbose flag for debugging
+          MATCH_COMMAND="$MATCH_COMMAND --verbose"
+          
+          echo "Running: $MATCH_COMMAND"
+          eval $MATCH_COMMAND
+          
+          echo "✅ Certificate generation completed"
+
+      - name: 🔍 Verify Certificate Generation
+        working-directory: ios
+        run: |
+          echo "=== Verifying Certificate Generation ==="
+          
+          # Check if certificates were generated/updated
+          if [ -d "~/Library/MobileDevice/Provisioning Profiles" ]; then
+            echo "📱 Provisioning profiles found:"
+            ls -la ~/Library/MobileDevice/Provisioning\ Profiles/ || true
+          fi
+          
+          # Check keychain for certificates
+          if command -v security &> /dev/null; then
+            echo "🔐 Certificates in keychain:"
+            security find-identity -v -p codesigning "${{ env.MATCH_KEYCHAIN_NAME }}" || true
+          fi
+          
+          echo "✅ Certificate verification completed"
+
+      - name: 📊 Upload Match Logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: match-generation-logs-${{ github.event.inputs.certificate_type }}-${{ github.run_number }}
+          path: |
+            ios/fastlane/report.xml
+            ios/fastlane/README.md
+            ios/fastlane/*.log
+          retention-days: 30
+
+      - name: 🎉 Generation Success
+        if: success()
+        run: |
+          echo "========================================="
+          echo "✅ CERTIFICATE GENERATION SUCCESSFUL!"
+          echo "========================================="
+          echo ""
+          echo "🔐 Certificate Details:"
+          echo "  • Type: ${{ github.event.inputs.certificate_type }}"
+          echo "  • App ID: ${{ github.event.inputs.app_identifier }}"
+          echo "  • Team ID: ${{ secrets.APPLE_TEAM_ID || 'XDY458RQ59' }}"
+          echo "  • Force Renewal: ${{ github.event.inputs.force_renewal }}"
+          echo ""
+          echo "📦 Storage:"
+          echo "  • Repository: https://github.com/ccbuildalot23/serenity-ios-certificates"
+          echo "  • Branch: main"
+          echo "  • Encryption: AES-256 with MATCH_PASSWORD"
+          echo ""
+          echo "🚀 Next Steps:"
+          echo "  1. Certificates are now stored in the Match repository"
+          echo "  2. CI/CD workflows can use these certificates"
+          echo "  3. Run iOS deployment workflow to use certificates"
+          echo ""
+          echo "🔒 Security: All certificates encrypted and secured"
+
+      - name: ❌ Generation Failure
+        if: failure()
+        run: |
+          echo "========================================="
+          echo "❌ CERTIFICATE GENERATION FAILED!"
+          echo "========================================="
+          echo ""
+          echo "🔍 Troubleshooting Steps:"
+          echo "  1. Check GitHub Secrets configuration"
+          echo "  2. Verify Apple Developer account status"
+          echo "  3. Confirm certificates repository access"
+          echo "  4. Review Match logs in artifacts"
+          echo ""
+          echo "📋 Required Secrets:"
+          echo "  • MATCH_PASSWORD"
+          echo "  • MATCH_GIT_BASIC_AUTHORIZATION" 
+          echo "  • APPLE_ID"
+          echo "  • APPLE_APP_SPECIFIC_PASSWORD"
+          echo "  • APPLE_TEAM_ID (optional)"
+          echo ""
+          echo "Check workflow logs and artifacts for details"
+
+      - name: 🧹 Cleanup
+        if: always()
+        run: |
+          # Clean up sensitive files
+          rm -f ~/private_keys/AuthKey_*.p8 2>/dev/null || true
+          
+          # Fastlane will handle keychain cleanup automatically
+          echo "✅ Cleanup completed"

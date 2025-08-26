@@ -217,3 +217,142 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 - CSP headers configured for production
 - Regular security audits via GitHub Actions
 - Business Associate Agreements required for production
+
+## Automatic Agent & Swarm Configuration
+
+### Agent Selection Strategy (ALWAYS APPLY IN PLAN MODE)
+
+#### Framework Assessment Protocol
+When entering plan mode, AUTOMATICALLY:
+1. Initialize appropriate swarm topology based on task complexity
+2. Spawn specialized agents for identified subtasks
+3. Use MCP servers for extended capabilities
+4. Select optimal framework for the problem domain
+
+### Task-Based Agent Selection
+
+#### Research & Analysis Tasks
+- **Primary**: deep-researcher, researcher agents
+- **MCP**: mcp__exa (web_search, deep_researcher_start/check)
+- **Swarm**: mesh-coordinator for distributed research
+- **Framework**: SPARC for systematic analysis
+
+#### Code Development Tasks
+- **Primary**: coder, sparc-coder, tdd-london-swarm agents
+- **MCP**: mcp__ruv-swarm for orchestration
+- **Swarm**: hierarchical-coordinator for structured development
+- **Framework**: TDD for test-driven development
+
+#### Architecture & Design Tasks
+- **Primary**: system-architect, architecture, sparc-coord agents
+- **MCP**: mcp__ruv-swarm with adaptive topology
+- **Swarm**: adaptive-coordinator for dynamic planning
+- **Framework**: SPARC methodology
+
+#### Security & Compliance Tasks
+- **Primary**: security-manager, byzantine-coordinator agents
+- **MCP**: mcp__ruv-swarm with consensus protocols
+- **Swarm**: consensus-builder for distributed validation
+- **Framework**: Byzantine fault-tolerant consensus
+
+#### Testing & Validation Tasks
+- **Primary**: tester, reviewer, code-analyzer agents
+- **MCP**: mcp__ruv-swarm for parallel testing
+- **Swarm**: mesh-coordinator for comprehensive coverage
+- **Framework**: Multi-browser/device testing matrix
+
+#### Performance Optimization Tasks
+- **Primary**: perf-analyzer, performance-benchmarker agents
+- **MCP**: mcp__ruv-swarm with benchmarking
+- **Swarm**: adaptive-coordinator for optimization
+- **Framework**: Benchmark-driven optimization
+
+### Automatic Swarm Initialization
+
+#### Default Swarm Parameters
+```javascript
+{
+  "topology": "adaptive", // Changes based on task
+  "maxAgents": 10,
+  "strategy": "balanced",
+  "enableCoordination": true,
+  "enableLearning": true,
+  "persistenceMode": "memory"
+}
+```
+
+#### Task Complexity Assessment
+- **Simple** (1-3 steps): Single agent, no swarm
+- **Medium** (4-10 steps): 2-5 agents, mesh topology
+- **Complex** (10+ steps): 5-10 agents, hierarchical topology
+- **Research**: Adaptive topology with deep researcher
+
+### MCP Server Usage Rules
+
+#### Always Use MCP For:
+1. Web searches and documentation lookups
+2. Cross-repository operations
+3. Performance benchmarking
+4. Neural network coordination
+5. Distributed memory management
+
+#### MCP Priority Order:
+1. `mcp__exa` for research and web operations
+2. `mcp__ruv-swarm` for swarm orchestration
+3. `mcp__Ref` for documentation searches
+4. `mcp__ide` for IDE integration tasks
+
+### TodoWrite Integration
+
+ALWAYS use TodoWrite when:
+- Task has 3+ steps
+- Planning complex implementations
+- Coordinating multiple agents
+- Tracking swarm progress
+- Breaking down user requirements
+
+### Performance Optimization
+
+#### Parallel Execution Rules:
+- Spawn agents concurrently for independent tasks
+- Use batch tool calls for efficiency
+- Implement memory sharing between agents
+- Monitor with mcp__ruv-swarm__memory_usage
+
+#### Resource Management:
+- Limit active agents based on complexity
+- Use performance benchmarking for optimization
+- Implement automatic cleanup after completion
+- Share knowledge between sessions
+
+### Framework Selection Matrix
+
+| Task Type | Primary Framework | Secondary | Swarm Type |
+|-----------|------------------|-----------|------------|
+| New Feature | SPARC + TDD | Agile | Hierarchical |
+| Bug Fix | Root Cause Analysis | TDD | Mesh |
+| Research | Deep Research | SPARC | Adaptive |
+| Security | Byzantine Consensus | Audit | Consensus |
+| Performance | Benchmark-Driven | Profiling | Adaptive |
+| Architecture | SPARC | DDD | Hierarchical |
+| Testing | TDD | BDD | Mesh |
+| Documentation | Research | Structure | Ring |
+
+### Automatic Behavior Triggers
+
+When user enters plan mode:
+1. Assess task complexity immediately
+2. Initialize swarm with appropriate topology
+3. Spawn specialized agents proactively
+4. Use TodoWrite for task decomposition
+5. Select framework based on task type
+6. Begin parallel research/analysis
+7. Coordinate through MCP servers
+
+### Knowledge Persistence
+
+Configure DAA for:
+- Cross-session memory retention
+- Agent learning from outcomes
+- Pattern recognition improvement
+- Collective intelligence growth

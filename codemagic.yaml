@@ -1,0 +1,106 @@
+workflows:
+  ios-workflow:
+    name: iOS App Store Deployment
+    instance_type: mac_mini_m1
+    max_build_duration: 60
+    environment:
+      node: 22
+      xcode: latest
+      cocoapods: default
+      groups:
+        - app_store_credentials # Configure in Codemagic UI
+      vars:
+        BUNDLE_ID: "com.serenity.recovery"
+        APP_NAME: "Serenity"
+        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
+        XCODE_SCHEME: "App"
+      
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'main'
+        - pattern: 'notification-microservice'
+      
+    scripts:
+      - name: Install dependencies
+        script: |
+          npm ci --legacy-peer-deps
+          npm install -g @capacitor/cli
+          
+      - name: Set up environment variables
+        script: |
+          echo "VITE_SUPABASE_URL=$VITE_SUPABASE_URL" >> .env
+          echo "VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY" >> .env
+          
+      - name: Build web assets
+        script: |
+          npm run build
+          echo "📁 Verifying dist folder:"
+          ls -la dist/
+          
+      - name: Sync with iOS platform
+        script: |
+          # Add iOS platform if needed
+          [ ! -d "ios" ] && npx cap add ios
+          
+          # Clean and copy
+          rm -rf ios/App/App/public/*
+          npx cap copy ios --no-build
+          
+          # Verify files
+          if [ ! -f "ios/App/App/public/index.html" ]; then
+            echo "❌ Copying dist manually..."
+            cp -r dist/* ios/App/App/public/
+          fi
+          
+          # Sync without pod install
+          npx cap sync ios --no-build --deployment
+          
+      - name: Install CocoaPods dependencies
+        script: |
+          cd ios/App
+          pod install --repo-update
+          
+      - name: Set up code signing
+        script: |
+          keychain initialize
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --platform IOS \
+            --create
+          keychain add-certificates
+          xcode-project use-profiles
+          
+      - name: Increment build number
+        script: |
+          cd ios/App
+          BUILD_NUMBER=$(($(app-store-connect get-latest-testflight-build-number "$BUNDLE_ID" --platform IOS) + 1))
+          agvtool new-version -all $BUILD_NUMBER
+          
+      - name: Build iOS app
+        script: |
+          cd ios/App
+          xcode-project build-ipa \
+            --workspace "$XCODE_WORKSPACE" \
+            --scheme "$XCODE_SCHEME"
+            
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - build/ios/xcarchive/*.xcarchive
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+      
+    publishing:
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_ID
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        submit_to_testflight: true
+        submit_to_app_store: false
+        
+      email:
+        recipients:
+          - ccbuildalot23@gmail.com
+        notify:
+          success: true
+          failure: true

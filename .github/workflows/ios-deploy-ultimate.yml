@@ -234,12 +234,7 @@ jobs:
               <key>uploadSymbols</key>
               <true/>
               <key>signingStyle</key>
-              <string>manual</string>
-              <key>provisioningProfiles</key>
-              <dict>
-                  <key>com.serenity.recovery</key>
-                  <string>$PROFILE_UUID</string>
-              </dict>
+              <string>automatic</string>
           </dict>
           </plist>
           EOF
@@ -286,14 +281,17 @@ jobs:
           cd ios/App
           
           echo "=== Exporting and Signing IPA ==="
-          echo "Using distribution certificate and provisioning profile for signing"
+          echo "Using automatic signing with App Store Connect authentication"
           
-          # Export archive with manual signing using our distribution certificate and profile
-          # This is where the actual code signing happens with our distribution credentials
+          # Export archive with automatic signing using App Store Connect API
           xcodebuild -exportArchive \
             -archivePath build/App.xcarchive \
             -exportPath build \
-            -exportOptionsPlist ../ExportOptions.plist
+            -exportOptionsPlist ../ExportOptions.plist \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8 \
+            -authenticationKeyID $APP_STORE_CONNECT_KEY_ID \
+            -authenticationKeyIssuerID $APP_STORE_CONNECT_ISSUER_ID
           
           # Verify IPA exists
           if [ ! -f "build/App.ipa" ]; then

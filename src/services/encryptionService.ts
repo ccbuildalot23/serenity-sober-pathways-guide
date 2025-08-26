@@ -98,9 +98,9 @@ export class EncryptionService {
       logger.debug('🔐 ENCRYPTION PROOF:', { component: 'encryptionService' });
       logger.debug('  Original length:', plaintext.length, { component: 'encryptionService' });
       logger.debug('  Encrypted length:', result.length, { component: 'encryptionService' });
-      logger.debug('  Salt:', salt.toString('hex', { component: 'encryptionService' });.substring(0, 16) + '...');
-      logger.debug('  IV:', iv.toString('hex', { component: 'encryptionService' });.substring(0, 16) + '...');
-      logger.debug('  Tag:', authTag.toString('hex', { component: 'encryptionService' });.substring(0, 16) + '...');
+      logger.debug('  Salt:', salt.toString('hex').substring(0, 16) + '...', { component: 'encryptionService' });
+      logger.debug('  IV:', iv.toString('hex').substring(0, 16) + '...', { component: 'encryptionService' });
+      logger.debug('  Tag:', authTag.toString('hex').substring(0, 16) + '...', { component: 'encryptionService' });
       
       return result;
     } catch (error) {
@@ -188,7 +188,7 @@ export class EncryptionService {
       
       // Test encryption
       const encrypted = this.encrypt(testData, 'test-context');
-      logger.debug('🔐 Encrypted:', encrypted.substring(0, 50, { component: 'encryptionService' }); + '...');
+      logger.debug('🔐 Encrypted:', encrypted.substring(0, 50) + '...', { component: 'encryptionService' });
       
       // Verify it's actually encrypted (not the same as original)
       if (encrypted === testData) {
@@ -298,7 +298,7 @@ export class EncryptionService {
     logger.debug('📋 Provider Note Decryption:', { component: 'encryptionService' });
     logger.debug('  Encrypted size:', encryptedContent.length, 'chars', { component: 'encryptionService' });
     logger.debug('  Decrypted size:', decryptedContent.length, 'chars', { component: 'encryptionService' });
-    logger.debug('  Access time:', new Date(, { component: 'encryptionService' });.toISOString());
+    logger.debug('  Access time:', new Date().toISOString(), { component: 'encryptionService' });
     
     // In production, log this access to audit trail
     // await AuditService.logAccess('provider-note-decrypt', metadata);

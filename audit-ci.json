@@ -1,0 +1,16 @@
+{
+  "low": false,
+  "moderate": false,
+  "high": true,
+  "critical": true,
+  "report": true,
+  "summary": true,
+  "allowlist": [
+    "GHSA-3xgq-45jj-v275"
+  ],
+  "output-format": "json",
+  "report-type": "full",
+  "skip-dev": false,
+  "pass-enoaudit": true,
+  "retry-count": 3
+}

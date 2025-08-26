@@ -150,14 +150,21 @@
       "Bash(claude-flow.bat status)",
       "Bash(echo $CLAUDE_PROJECT_DIR)",
       "Bash(where npm)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(git clone:*)",
+      "Read(/C:\\dev\\serenity/**)",
+      "Read(/C:\\dev\\serenity/**)",
+      "Bash(tsx scripts/generate-hipaa-report.ts:*)",
+      "Bash(lhci:*)",
+      "Bash(gh issue list:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",
     "additionalDirectories": [
       "C:\\Users\\cmcal\\OneDrive\\Documents",
       "C:\\ios-certs",
-      "C:\\c"
+      "C:\\c",
+      "C:\\c\\dev"
     ]
   },
   "enableAllProjectMcpServers": false,

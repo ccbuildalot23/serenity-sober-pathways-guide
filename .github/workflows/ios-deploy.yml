@@ -84,7 +84,7 @@ jobs:
           
           # Copy web assets explicitly
           echo "📋 Copying web assets to iOS..."
-          npx cap copy ios --no-build
+          npx cap copy ios
           
           # Wait for file system sync
           sleep 2
@@ -95,7 +95,7 @@ jobs:
           
           # Sync without reinstalling pods
           echo "🔄 Running Capacitor sync..."
-          npx cap sync ios --no-build --deployment
+          npx cap sync ios --deployment
           
           # Verification with retry logic
           echo "🔍 Verifying files with retry logic..."
@@ -106,7 +106,7 @@ jobs:
             else
               echo "⏳ Waiting for sync to complete... (attempt $i)"
               sleep 3
-              npx cap copy ios --no-build
+              npx cap copy ios
             fi
           done
           

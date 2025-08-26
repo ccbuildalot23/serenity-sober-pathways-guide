@@ -71,6 +71,19 @@ jobs:
         with:
           xcode-version: latest-stable
 
+      - name: 🚚 Install iTMSTransporter
+        run: |
+          echo "Installing iTMSTransporter for App Store uploads..."
+          # Install Transporter app for upload capabilities
+          xcrun altool --version || true
+          # Ensure we have the latest version
+          xcode-select --install 2>/dev/null || true
+          # Verify installation
+          if command -v xcrun &> /dev/null; then
+            echo "✅ xcrun available"
+            xcrun altool --version 2>/dev/null || echo "⚠️ altool not available, will use Application Loader"
+          fi
+
       - name: 💎 Install Fastlane
         run: |
           cd ios

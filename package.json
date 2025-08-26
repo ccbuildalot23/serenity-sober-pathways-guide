@@ -80,6 +80,7 @@
     "production:validate": "npm run activate:advanced && npm run test:e2e && npm run validate:hipaa",
     "validate:mobile": "bash scripts/agent-validate-mobile.sh",
     "validate:mobile:agent": "npx claude-flow spawn mobile-validator --script scripts/agent-validate-mobile.sh",
+    "validate:ios": "node scripts/ios-deployment-validator.js",
     "hipaa:validate": "tsx scripts/hipaa-validation-suite.ts",
     "build:mobile": "npm run build && npm run validate:css && npx cap sync",
     "deploy:testflight": "npm run build:mobile && cd ios/App && xcodebuild archive",

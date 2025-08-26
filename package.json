@@ -89,7 +89,21 @@
     "deploy:testflight": "npm run build:mobile && cd ios/App && xcodebuild archive",
     "deploy:playstore": "npm run build:mobile && cd android && ./gradlew bundleRelease",
     "mobile:android": "gh workflow run android-deploy.yml",
-    "mobile:ios": "gh workflow run ios-deploy.yml"
+    "mobile:ios": "gh workflow run ios-deploy.yml",
+    "claude-flow:init": "node scripts/init-claude-flow.js",
+    "claude-flow:status": "node scripts/claude-flow-status.js",
+    "claude-flow:spawn": "node scripts/claude-flow-spawn.js",
+    "claude-flow:validate": "node scripts/validate-claude-flow.js",
+    "claude-flow:clean": "rm -rf memory/sessions/* && echo '{}' > memory/claude-flow-data.json",
+    "bmad:init": "npx bmad-method@latest install",
+    "bmad:agent": "node .bmad-core/bmad.js agent",
+    "bmad:status": "npm run claude-flow:status",
+    "bmad:analyze": "node .bmad-core/bmad.js analyze",
+    "bmad:deploy": "node .bmad-core/bmad.js deploy",
+    "bmad:test": "node .bmad-core/bmad.js test",
+    "bmad:security": "node .bmad-core/bmad.js agent security-specialist",
+    "bmad:devops": "node .bmad-core/bmad.js agent devops-engineer",
+    "bmad:mobile": "node .bmad-core/bmad.js agent mobile-developer"
   },
   "dependencies": {
     "@daily-co/daily-js": "^0.82.0",

@@ -1,52 +1,4 @@
 {
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node $CLAUDE_PROJECT_DIR/.claude/hooks/plan-mode-agent-selector.js",
-            "timeout": 3000
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo 'Agent and swarm configurations loaded from CLAUDE.md. Ready for automatic framework selection.'",
-            "timeout": 1000
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "ExitPlanMode",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo 'Plan mode detected. Auto-initializing swarms and agents based on task complexity as configured in CLAUDE.md'",
-            "timeout": 1000
-          }
-        ]
-      },
-      {
-        "matcher": "Task",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo 'Spawning agent. Consider using swarm coordination via mcp__ruv-swarm for complex tasks.'",
-            "timeout": 1000
-          }
-        ]
-      }
-    ]
-  },
   "permissions": {
     "allow": [
       "mcp__ruv-swarm",
@@ -194,7 +146,9 @@
       "Bash(ruby --version)",
       "Bash(winget install:*)",
       "Bash(choco install:*)",
-      "Bash(refreshenv)"
+      "Bash(refreshenv)",
+      "Bash(claude-flow.bat status)",
+      "Bash(echo $CLAUDE_PROJECT_DIR)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",
@@ -207,6 +161,55 @@
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "claude-flow",
-    "ruv-swarm"
-  ]
+    "ruv-swarm",
+    "serena"
+  ],
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\cmcal\\OneDrive\\Documents\\serenity-sober-pathways-guide\\.claude\\hooks\\plan-mode-agent-selector.js\"",
+            "timeout": 3000
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Agent and swarm configurations loaded from CLAUDE.md. Ready for automatic framework selection.'",
+            "timeout": 1000
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Plan mode detected. Auto-initializing swarms and agents based on task complexity as configured in CLAUDE.md'",
+            "timeout": 1000
+          }
+        ]
+      },
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Spawning agent. Consider using swarm coordination via mcp__ruv-swarm for complex tasks.'",
+            "timeout": 1000
+          }
+        ]
+      }
+    ]
+  }
 }

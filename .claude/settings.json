@@ -44,7 +44,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node $CLAUDE_PROJECT_DIR/.claude/hooks/windows-command-helper.js pre"
+            "command": "node \"C:\\Users\\cmcal\\OneDrive\\Documents\\serenity-sober-pathways-guide\\.claude\\hooks\\windows-command-helper.js\" pre"
           }
         ]
       },
@@ -64,7 +64,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node $CLAUDE_PROJECT_DIR/.claude/hooks/windows-command-helper.js post"
+            "command": "node \"C:\\Users\\cmcal\\OneDrive\\Documents\\serenity-sober-pathways-guide\\.claude\\hooks\\windows-command-helper.js\" post"
           }
         ]
       },
@@ -110,5 +110,5 @@
     ]
   },
   "includeCoAuthoredBy": true,
-  "enabledMcpjsonServers": ["claude-flow", "ruv-swarm"]
+  "enabledMcpjsonServers": ["claude-flow", "ruv-swarm", "serena"]
 }

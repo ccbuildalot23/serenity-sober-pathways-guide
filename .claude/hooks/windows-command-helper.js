@@ -3,11 +3,43 @@
 /**
  * Windows-Compatible Command Helper for Claude Flow Hooks
  * Replaces Unix pipeline commands with cross-platform JavaScript
+ * Enhanced with automatic project directory detection and fallbacks
  */
 
 import { execSync } from 'child_process';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
+import { dirname, resolve, join } from 'path';
+import { fileURLToPath } from 'url';
 import process from 'process';
+
+// Get the directory of this script
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Detect project root with multiple fallback strategies
+function getProjectRoot() {
+  // Strategy 1: Use environment variable if set
+  if (process.env.CLAUDE_PROJECT_DIR) {
+    return process.env.CLAUDE_PROJECT_DIR;
+  }
+  
+  // Strategy 2: Walk up from script location
+  const scriptDir = __dirname;
+  const projectRoot = resolve(scriptDir, '..', '..');
+  
+  // Verify it's a valid project root
+  if (existsSync(join(projectRoot, 'package.json')) || 
+      existsSync(join(projectRoot, '.claude'))) {
+    return projectRoot;
+  }
+  
+  // Strategy 3: Use current working directory as fallback
+  return process.cwd();
+}
+
+// Set project root for this session
+const PROJECT_ROOT = getProjectRoot();
+process.env.CLAUDE_PROJECT_DIR = PROJECT_ROOT;
 
 // Get the command from stdin or arguments
 function getCommand() {
@@ -26,30 +58,58 @@ function getCommand() {
   return process.argv.slice(2).join(' ');
 }
 
-// Execute Claude Flow hooks
+// Execute Claude Flow hooks with enhanced error handling
 function executeHook(command, hookType) {
   if (!command) {
-    console.log('No command to process');
+    console.log(`[${hookType}-hook] No command to process`);
     return;
   }
 
   try {
+    // Check if claude-flow is available
+    const claudeFlowAvailable = checkClaudeFlow();
+    
+    if (!claudeFlowAvailable) {
+      console.log(`[${hookType}-hook] Claude Flow not available, skipping hook execution`);
+      console.log(`[${hookType}-hook] Project root: ${PROJECT_ROOT}`);
+      return;
+    }
+    
     const flags = hookType === 'pre' 
       ? '--validate-safety true --prepare-resources true'
       : '--track-metrics true --store-results true';
     
     const fullCommand = `npx claude-flow@alpha hooks ${hookType}-command --command "${command.replace(/"/g, '\\"')}" ${flags}`;
     
-    console.log(`Executing ${hookType}-hook for command...`);
+    console.log(`[${hookType}-hook] Executing for command: ${command.substring(0, 50)}...`);
     execSync(fullCommand, { 
       stdio: 'inherit',
-      shell: true 
+      shell: true,
+      cwd: PROJECT_ROOT,
+      env: {
+        ...process.env,
+        CLAUDE_PROJECT_DIR: PROJECT_ROOT
+      }
     });
   } catch (error) {
-    // Non-blocking - just log the error
-    console.error(`Hook execution failed (non-blocking): ${error.message}`);
+    // Non-blocking - just log the error with more detail
+    console.log(`[${hookType}-hook] Execution failed (non-blocking): ${error.message}`);
+    console.log(`[${hookType}-hook] Working directory: ${PROJECT_ROOT}`);
     // Exit with 0 to prevent blocking
     process.exit(0);
+  }
+}
+
+// Check if claude-flow is available
+function checkClaudeFlow() {
+  try {
+    execSync('npx claude-flow@alpha --version', { 
+      stdio: 'pipe',
+      timeout: 5000 
+    });
+    return true;
+  } catch {
+    return false;
   }
 }
 

@@ -10,6 +10,12 @@ const path = require('path');
 const { execSync } = require('child_process');
 const https = require('https');
 
+// Load environment variables from .env file
+const dotenvPath = path.join(__dirname, '..', '.env');
+if (fs.existsSync(dotenvPath)) {
+  require('dotenv').config({ path: dotenvPath });
+}
+
 // Color codes for terminal output
 const colors = {
   reset: '\x1b[0m',

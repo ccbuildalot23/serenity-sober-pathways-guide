@@ -10,6 +10,9 @@
   },
   "scripts": {
     "dev": "vite --host 0.0.0.0",
+    "dev:with-serena": "concurrently \"npm run serena:start\" \"npm run dev\"",
+    "serena:start": "cd ../serena && uv run serena-mcp-server",
+    "serena:index": "cd ../serena && uv run index-project",
     "build": "npm run fix:tokens && vite build && npm run validate:css",
     "validate:css": "node scripts/validate-css-build.js",
     "type-check": "tsc --noEmit",

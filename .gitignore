@@ -177,3 +177,7 @@ App.xcarchive/
 
 # Security Reports (move to secure storage)
 security-reports/dependency-scan-*.json
+
+# Serena MCP Server (separate repository)
+serena/
+serena-mcp-server/

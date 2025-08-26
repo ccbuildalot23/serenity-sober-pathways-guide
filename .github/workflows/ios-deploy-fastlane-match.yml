@@ -41,7 +41,50 @@ jobs:
           echo "Deployment Type: ${{ github.event.inputs.deployment_type || 'testflight' }}"
           echo "Build Number: ${{ github.run_number }}"
           echo "Branch: ${{ github.ref_name }}"
+          echo "Node Version: $(node --version)"
+          echo "NPM Version: $(npm --version)"
+          echo "Working Directory: $(pwd)"
+          echo "Available Environment Variables:"
+          echo "  VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL != '' && '[SET]' || '[NOT SET]' }}"
+          echo "  VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY != '' && '[SET]' || '[NOT SET]' }}"
+          echo "  APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY != '' && '[SET]' || '[NOT SET]' }}"
+          echo "  APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID != '' && '[SET]' || '[NOT SET]' }}"
+          echo "  MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD != '' && '[SET]' || '[NOT SET]' }}"
           echo "================================"
+
+      - name: ✅ Validate Required Secrets
+        run: |
+          echo "=== Validating Required Secrets ==="
+          
+          MISSING_SECRETS=()
+          
+          # Check critical secrets
+          if [ -z "${{ secrets.VITE_SUPABASE_URL }}" ]; then
+            MISSING_SECRETS+=("VITE_SUPABASE_URL")
+          fi
+          
+          if [ -z "${{ secrets.VITE_SUPABASE_ANON_KEY }}" ]; then
+            MISSING_SECRETS+=("VITE_SUPABASE_ANON_KEY")
+          fi
+          
+          if [ -z "${{ secrets.APP_STORE_CONNECT_API_KEY }}" ]; then
+            MISSING_SECRETS+=("APP_STORE_CONNECT_API_KEY")
+          fi
+          
+          if [ -z "${{ secrets.MATCH_PASSWORD }}" ]; then
+            MISSING_SECRETS+=("MATCH_PASSWORD")
+          fi
+          
+          if [ ${#MISSING_SECRETS[@]} -gt 0 ]; then
+            echo "❌ Missing required secrets:"
+            printf '  - %s\n' "${MISSING_SECRETS[@]}"
+            echo ""
+            echo "Please add these secrets in your repository settings:"
+            echo "https://github.com/${{ github.repository }}/settings/secrets/actions"
+            exit 1
+          fi
+          
+          echo "✅ All required secrets are configured"
 
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
@@ -53,19 +96,36 @@ jobs:
         run: |
           npm ci --legacy-peer-deps
           npm install -g @capacitor/cli
+          
+          # Verify build scripts exist
+          if ! npm run build:mobile --dry-run 2>/dev/null; then
+            echo "⚠️ build:mobile script not found, will use regular build instead"
+          fi
 
       - name: 🔨 Build web assets
         run: |
           echo "Building web assets..."
-          npm run build
+          
+          # Try build:mobile first, fallback to regular build
+          if npm run build:mobile 2>/dev/null; then
+            echo "✅ Used build:mobile script"
+          elif npm run build; then
+            echo "✅ Used fallback build script"
+          else
+            echo "❌ Both build scripts failed"
+            exit 1
+          fi
           
           # Validate build output
           if [ ! -f "dist/index.html" ]; then
             echo "❌ Build failed: index.html not found"
+            ls -la dist/ || echo "dist directory not found"
             exit 1
           fi
           
           echo "✅ Web assets built successfully"
+          echo "Built files:"
+          ls -la dist/
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
@@ -73,14 +133,22 @@ jobs:
       - name: 📱 Sync with Capacitor
         run: |
           echo "Syncing with Capacitor..."
-          npx cap copy ios
+          
+          # Ensure Capacitor is initialized
+          npx cap sync ios
           
           # Install CocoaPods dependencies
           cd ios/App
-          pod install --repo-update
+          pod install --repo-update --clean-install
           cd ../..
           
-          echo "✅ iOS platform synced"
+          # Validate iOS project exists
+          if [ ! -d "ios/App/App.xcworkspace" ]; then
+            echo "❌ iOS workspace not found after sync"
+            exit 1
+          fi
+          
+          echo "✅ iOS platform synced successfully"
 
       - name: 🍎 Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
@@ -101,15 +169,28 @@ jobs:
           # Create API key directory
           mkdir -p ~/private_keys
           
-          # Write API key
-          echo "${{ secrets.APP_STORE_CONNECT_API_KEY }}" > ~/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID || '4YBU7UC32Y' }}.p8
+          # Write API key with proper expansion
+          API_KEY_ID="${{ secrets.APP_STORE_CONNECT_KEY_ID || '4YBU7UC32Y' }}"
+          API_KEY_PATH="$HOME/private_keys/AuthKey_${API_KEY_ID}.p8"
+          
+          # Write API key content to file
+          echo "${{ secrets.APP_STORE_CONNECT_API_KEY }}" > "$API_KEY_PATH"
+          
+          # Verify file was created
+          if [ ! -f "$API_KEY_PATH" ]; then
+            echo "❌ Failed to create API key file at $API_KEY_PATH"
+            exit 1
+          fi
+          
+          # Set correct permissions
+          chmod 600 "$API_KEY_PATH"
           
           # Export paths for Fastlane
-          echo "APP_STORE_CONNECT_API_KEY_PATH=~/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID || '4YBU7UC32Y' }}.p8" >> $GITHUB_ENV
-          echo "APP_STORE_CONNECT_KEY_ID=${{ secrets.APP_STORE_CONNECT_KEY_ID || '4YBU7UC32Y' }}" >> $GITHUB_ENV
+          echo "APP_STORE_CONNECT_API_KEY_PATH=$API_KEY_PATH" >> $GITHUB_ENV
+          echo "APP_STORE_CONNECT_KEY_ID=${API_KEY_ID}" >> $GITHUB_ENV
           echo "APP_STORE_CONNECT_ISSUER_ID=${{ secrets.APP_STORE_CONNECT_ISSUER_ID || 'acb9e47c-6935-4933-ae2c-6170b5d90234' }}" >> $GITHUB_ENV
           
-          echo "✅ API authentication configured"
+          echo "✅ API authentication configured at $API_KEY_PATH"
 
       - name: 🔐 Configure Match Authentication
         run: |
@@ -137,10 +218,27 @@ jobs:
           echo "Using Fastlane Match for code signing"
           echo "Deployment type: ${{ github.event.inputs.deployment_type || 'testflight' }}"
           
+          # Debug environment variables
+          echo "Environment variables for Fastlane:"
+          echo "  APP_STORE_CONNECT_API_KEY_PATH: ${APP_STORE_CONNECT_API_KEY_PATH}"
+          echo "  APP_STORE_CONNECT_KEY_ID: ${APP_STORE_CONNECT_KEY_ID}"
+          echo "  MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD != '' && '[SET]' || '[NOT SET]' }}"
+          echo "  APPLE_TEAM_ID: ${APPLE_TEAM_ID}"
+          
+          # Verify API key file exists
+          if [ ! -f "${APP_STORE_CONNECT_API_KEY_PATH}" ]; then
+            echo "❌ API key file not found: ${APP_STORE_CONNECT_API_KEY_PATH}"
+            exit 1
+          fi
+          
+          echo "✅ API key file verified"
+          
           # Run appropriate Fastlane lane
           if [ "${{ github.event.inputs.deployment_type }}" == "app-store" ]; then
+            echo "Running App Store release..."
             bundle exec fastlane release
           else
+            echo "Running TestFlight beta..."
             bundle exec fastlane beta
           fi
         env:
@@ -184,7 +282,9 @@ jobs:
         if: always()
         run: |
           # Clean up sensitive files
-          rm -f ~/private_keys/AuthKey_*.p8
+          rm -rf ~/private_keys/
           
-          # Fastlane will handle keychain cleanup
+          # Clean up any temporary keychains (Fastlane Match handles this automatically)
+          security list-keychains | grep -q "fastlane_tmp_keychain" && security delete-keychain "fastlane_tmp_keychain" || true
+          
           echo "✅ Cleanup completed"

@@ -3,7 +3,7 @@
 #     https://docs.fastlane.tools/actions/match/
 
 # Git repository URL for storing certificates and profiles
-git_url("https://github.com/serenity-recovery/ios-certificates")
+git_url("https://github.com/ccbuildalot23/serenity-ios-certificates")
 
 # Git branch for storing certificates (use separate branches for different environments)
 git_branch("main")
@@ -18,7 +18,7 @@ clone_branch_directly(true)
 app_identifier(["com.serenity.recovery"])
 
 # Your Apple Developer Portal username
-username("{{APPLE_ID}}")
+username(ENV["APPLE_ID"] || "cameron@serenity-recovery.com")
 
 # Team ID for the Apple Developer Portal
 team_id("XDY458RQ59")
@@ -31,7 +31,7 @@ type("development") # can also be "appstore", "adhoc", "enterprise"
 
 # Keychain configuration
 keychain_name("match_keychain")
-keychain_password("{{MATCH_KEYCHAIN_PASSWORD}}")
+keychain_password(ENV["MATCH_KEYCHAIN_PASSWORD"])
 
 # Generate new certificates if needed
 generate_apple_certs(true)
@@ -46,13 +46,13 @@ force_for_new_devices(false)
 skip_provisioning_profiles(false)
 
 # Additional certificate configuration for healthcare apps
-certificate_id("{{CERTIFICATE_ID}}")
+# certificate_id(ENV["CERTIFICATE_ID"]) # Optional
 
 # Platform - iOS only for this project
 platform("ios")
 
 # Template name for provisioning profiles
-template_name("{{TEMPLATE_NAME}}")
+# template_name(ENV["TEMPLATE_NAME"]) # Optional
 
 # Provisioning profile name prefix
 output_path("./certificates")

@@ -138,7 +138,9 @@
       "Bash(security cms:*)",
       "Bash(openssl x509:*)",
       "Bash(openssl smime:*)",
-      "Read(/C:\\Users\\cmcal/**)"
+      "Read(/C:\\Users\\cmcal/**)",
+      "Bash(gh repo list:*)",
+      "Bash(gh repo create:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

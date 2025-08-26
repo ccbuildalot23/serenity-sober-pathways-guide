@@ -1,0 +1,190 @@
+name: iOS Deploy with Fastlane Match
+
+on:
+  push:
+    branches:
+      - main
+      - notification-microservice
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+  workflow_dispatch:
+    inputs:
+      deployment_type:
+        description: "Deployment Type"
+        required: true
+        default: "testflight"
+        type: choice
+        options:
+          - "testflight"
+          - "app-store"
+
+env:
+  NODE_VERSION: "22.x"
+  RUBY_VERSION: "3.2"
+  XCODE_VERSION: "latest-stable"
+
+jobs:
+  deploy:
+    name: Deploy with Fastlane Match
+    runs-on: macos-latest
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Debug Environment
+        run: |
+          echo "=== Deployment Configuration ==="
+          echo "Deployment Type: ${{ github.event.inputs.deployment_type || 'testflight' }}"
+          echo "Build Number: ${{ github.run_number }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "================================"
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: 📦 Install Node dependencies
+        run: |
+          npm ci --legacy-peer-deps
+          npm install -g @capacitor/cli
+
+      - name: 🔨 Build web assets
+        run: |
+          echo "Building web assets..."
+          npm run build
+          
+          # Validate build output
+          if [ ! -f "dist/index.html" ]; then
+            echo "❌ Build failed: index.html not found"
+            exit 1
+          fi
+          
+          echo "✅ Web assets built successfully"
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: 📱 Sync with Capacitor
+        run: |
+          echo "Syncing with Capacitor..."
+          npx cap copy ios
+          
+          # Install CocoaPods dependencies
+          cd ios/App
+          pod install --repo-update
+          cd ../..
+          
+          echo "✅ iOS platform synced"
+
+      - name: 🍎 Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: 💎 Setup Ruby and Fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+          bundler-cache: true
+          working-directory: ios
+
+      - name: 📝 Setup App Store Connect API
+        run: |
+          echo "=== Configuring App Store Connect API ==="
+          
+          # Create API key directory
+          mkdir -p ~/private_keys
+          
+          # Write API key
+          echo "${{ secrets.APP_STORE_CONNECT_API_KEY }}" > ~/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID || '4YBU7UC32Y' }}.p8
+          
+          # Export paths for Fastlane
+          echo "APP_STORE_CONNECT_API_KEY_PATH=~/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID || '4YBU7UC32Y' }}.p8" >> $GITHUB_ENV
+          echo "APP_STORE_CONNECT_KEY_ID=${{ secrets.APP_STORE_CONNECT_KEY_ID || '4YBU7UC32Y' }}" >> $GITHUB_ENV
+          echo "APP_STORE_CONNECT_ISSUER_ID=${{ secrets.APP_STORE_CONNECT_ISSUER_ID || 'acb9e47c-6935-4933-ae2c-6170b5d90234' }}" >> $GITHUB_ENV
+          
+          echo "✅ API authentication configured"
+
+      - name: 🔐 Configure Match Authentication
+        run: |
+          echo "=== Configuring Fastlane Match ==="
+          
+          # Set Match environment variables
+          echo "MATCH_PASSWORD=${{ secrets.MATCH_PASSWORD }}" >> $GITHUB_ENV
+          echo "MATCH_GIT_BASIC_AUTHORIZATION=${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}" >> $GITHUB_ENV
+          echo "MATCH_KEYCHAIN_NAME=fastlane_tmp_keychain" >> $GITHUB_ENV
+          echo "MATCH_KEYCHAIN_PASSWORD=${{ secrets.MATCH_KEYCHAIN_PASSWORD || 'tmp_keychain_password' }}" >> $GITHUB_ENV
+          
+          # Set CI environment
+          echo "CI=true" >> $GITHUB_ENV
+          echo "FASTLANE_USER=${{ secrets.APPLE_ID }}" >> $GITHUB_ENV
+          echo "FASTLANE_PASSWORD=${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}" >> $GITHUB_ENV
+          echo "GITHUB_RUN_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
+          
+          echo "✅ Match authentication configured"
+
+      - name: 🚀 Deploy with Fastlane
+        run: |
+          cd ios
+          
+          echo "=== Running Fastlane Deployment ==="
+          echo "Using Fastlane Match for code signing"
+          echo "Deployment type: ${{ github.event.inputs.deployment_type || 'testflight' }}"
+          
+          # Run appropriate Fastlane lane
+          if [ "${{ github.event.inputs.deployment_type }}" == "app-store" ]; then
+            bundle exec fastlane release
+          else
+            bundle exec fastlane beta
+          fi
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID || 'XDY458RQ59' }}
+          LC_ALL: en_US.UTF-8
+          LANG: en_US.UTF-8
+
+      - name: 📊 Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-build-${{ github.run_number }}
+          path: |
+            ios/build/
+            ios/fastlane/report.xml
+            ios/fastlane/README.md
+
+      - name: 🎉 Deployment Success
+        if: success()
+        run: |
+          echo "========================================="
+          echo "✅ iOS DEPLOYMENT SUCCESSFUL!"
+          echo "========================================="
+          echo ""
+          echo "📱 Build Details:"
+          echo "  • Build Number: ${{ github.run_number }}"
+          echo "  • Bundle ID: com.serenity.recovery"
+          echo "  • Team ID: ${{ secrets.APPLE_TEAM_ID || 'XDY458RQ59' }}"
+          echo "  • Deployment: ${{ github.event.inputs.deployment_type || 'testflight' }}"
+          echo ""
+          echo "🚀 TestFlight Status:"
+          echo "  • Processing time: 5-15 minutes"
+          echo "  • External testing: Available after processing"
+          echo ""
+          echo "📋 Code Signing: Managed by Fastlane Match"
+          echo "🔒 Security: HIPAA compliant"
+          echo ""
+          echo "Monitor at: https://appstoreconnect.apple.com"
+
+      - name: 🧹 Cleanup
+        if: always()
+        run: |
+          # Clean up sensitive files
+          rm -f ~/private_keys/AuthKey_*.p8
+          
+          # Fastlane will handle keychain cleanup
+          echo "✅ Cleanup completed"

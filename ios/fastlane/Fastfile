@@ -30,19 +30,43 @@ platform :ios do
     )
   end
 
-  desc "Setup certificates and provisioning profiles"
+  desc "Setup certificates and provisioning profiles with Match"
   lane :certificates do
-    UI.message("Certificates and provisioning profiles handled by CI workflow")
-    UI.message("Using automatic signing with App Store Connect API")
+    UI.message("Setting up certificates with Fastlane Match")
     
-    # Verify that we have the necessary environment variables
-    if ENV["APP_STORE_CONNECT_API_KEY_ID"] && ENV["APP_STORE_CONNECT_ISSUER_ID"]
-      UI.success("App Store Connect API credentials found ✅")
-    else
-      UI.important("App Store Connect API credentials not found - will use Xcode automatic signing")
+    # Create temporary keychain for CI
+    if ENV['CI']
+      create_keychain(
+        name: "fastlane_tmp_keychain",
+        password: ENV["MATCH_KEYCHAIN_PASSWORD"] || "tmp_keychain_password",
+        default_keychain: true,
+        unlock: true,
+        timeout: 3600,
+        add_to_search_list: true
+      )
     end
     
-    UI.success("Certificate setup completed ✅")
+    # Sync certificates using Match
+    match(
+      type: "appstore",
+      app_identifier: APP_IDENTIFIER,
+      readonly: ENV['CI'] == "true",
+      keychain_name: ENV['CI'] ? "fastlane_tmp_keychain" : nil,
+      keychain_password: ENV["MATCH_KEYCHAIN_PASSWORD"] || ""
+    )
+    
+    UI.success("Certificate setup with Match completed ✅")
+  end
+  
+  desc "Sync all certificate types"
+  lane :sync_all_certs do
+    ["development", "appstore"].each do |type|
+      match(
+        type: type,
+        app_identifier: APP_IDENTIFIER,
+        readonly: false
+      )
+    end
   end
 
   desc "Build the iOS app for development"
@@ -60,6 +84,7 @@ platform :ios do
 
   desc "Build the iOS app for App Store"
   lane :build_release do
+    # Setup certificates with Match
     certificates
     
     # Use a simple incrementing build number based on GitHub run number
@@ -67,6 +92,16 @@ platform :ios do
     increment_build_number(
       build_number: build_num,
       xcodeproj: PROJECT
+    )
+    
+    # Update code signing settings to use Match profiles
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: PROJECT,
+      team_id: TEAM_ID,
+      bundle_identifier: APP_IDENTIFIER,
+      profile_name: ENV["sigh_#{APP_IDENTIFIER}_appstore_profile-name"],
+      code_sign_identity: "iPhone Distribution"
     )
     
     # Configure App Store Connect API if available
@@ -79,6 +114,7 @@ platform :ios do
       )
     end
     
+    # Build with Match certificates
     gym(
       scheme: SCHEME,
       workspace: WORKSPACE,
@@ -86,9 +122,16 @@ platform :ios do
       export_method: "app-store",
       output_directory: "./build",
       output_name: "SerenityRecovery-Release.ipa",
-      xcargs: "DEVELOPMENT_TEAM=XDY458RQ59 CODE_SIGN_STYLE=Automatic -allowProvisioningUpdates",
-      export_xcargs: "-allowProvisioningUpdates",
-      skip_profile_detection: true
+      export_team_id: TEAM_ID,
+      export_options: {
+        provisioningProfiles: {
+          APP_IDENTIFIER => ENV["sigh_#{APP_IDENTIFIER}_appstore_profile-name"]
+        }
+      },
+      xcargs: "DEVELOPMENT_TEAM=#{TEAM_ID}",
+      skip_profile_detection: false,
+      skip_codesigning: false,
+      clean: true
     )
   end
 

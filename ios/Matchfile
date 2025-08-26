@@ -1,0 +1,64 @@
+# Fastlane Match Configuration
+# This file configures code signing with Match
+# Documentation: https://docs.fastlane.tools/actions/match/
+
+# Git URL for the certificates repository
+git_url("https://github.com/ccbuildalot23/serenity-ios-certificates")
+
+# Storage mode (git, google_cloud, s3)
+storage_mode("git")
+
+# Type of certificates/profiles to use
+type("appstore") # or development, adhoc, enterprise
+
+# App Bundle ID
+app_identifier(["com.serenity.recovery"])
+
+# Your Apple Developer Team ID
+team_id("XDY458RQ59")
+
+# Username for Apple Developer Portal
+username(ENV["APPLE_ID"] || "your-apple-id@example.com")
+
+# Generate profiles for specific platforms
+platform("ios")
+
+# Branch to use in git repository
+git_branch("main")
+
+# Clone certificates repo to a local path
+clone_branch_directly(true)
+
+# Verbose output for debugging
+verbose(true)
+
+# Force renewal of certificates (use carefully)
+force(false)
+
+# Force renewal of provisioning profiles
+force_for_new_devices(true)
+
+# Skip confirmation prompts in CI
+skip_confirmation(true)
+
+# Create keychain if it doesn't exist
+keychain_name(ENV["MATCH_KEYCHAIN_NAME"] || "fastlane_tmp_keychain")
+keychain_password(ENV["MATCH_KEYCHAIN_PASSWORD"] || "")
+
+# Additional settings for CI/CD
+readonly(ENV["CI"] == "true") # Don't create new certs on CI
+
+# Profile name template
+template_name(nil)
+
+# Skip provisioning profiles
+skip_provisioning_profiles(false)
+
+# Skip fetching profiles
+skip_fetching_profiles(false)
+
+# Skip certificate verification
+skip_certificate_verification(false)
+
+# Generate Apple certificates
+generate_apple_certs(true)

@@ -18,7 +18,7 @@
     "optimize:bmad": "npm run bmad:analyze && npm run bmad:test:swarm",
     "health:check": "powershell -ExecutionPolicy Bypass -File monitor-health.ps1",
     "optimize": "optimize-with-swarm.bat",
-    "build": "npm run fix:tokens && vite build && npm run validate:css",
+    "build": "node scripts/fix-tokens.cjs && vite build && node scripts/validate-css-build.js",
     "validate:css": "node scripts/validate-css-build.js",
     "type-check": "tsc --noEmit",
     "vercel-build": "npm ci --legacy-peer-deps --no-audit --no-fund && npm run build",

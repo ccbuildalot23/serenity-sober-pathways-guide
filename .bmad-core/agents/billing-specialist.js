@@ -139,7 +139,7 @@ export class BillingSpecialistAgent extends BMADAgent {
   applyModifiers(procedures, encounter) {
     const modifiedProcedures = [...procedures];
 
-    for (let proc of modifiedProcedures) {
+    for (const proc of modifiedProcedures) {
       proc.modifiers = [];
 
       // Add telehealth modifier if applicable

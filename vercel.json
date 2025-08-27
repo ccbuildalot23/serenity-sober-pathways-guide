@@ -1,14 +1,16 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm install --force --legacy-peer-deps && npx vite@7.1.3 build && node scripts/validate-css-build.js",
+  "installCommand": "npm install --force --legacy-peer-deps",
   "framework": "vite",
-  "installCommand": "npm ci --legacy-peer-deps --no-audit --no-fund",
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "build": {
-    "env": {
-      "NODE_VERSION": "20.x",
-      "NODE_OPTIONS": "--max-old-space-size=8192",
-      "SKIP_ENV_VALIDATION": "1"
+  "nodeVersion": "20.x",
+  "env": {
+    "NPM_CONFIG_LEGACY_PEER_DEPS": "true",
+    "NPM_CONFIG_FORCE": "true",
+    "NODE_ENV": "production"
+  },
+  "functions": {
+    "api/health.ts": {
+      "maxDuration": 10
     }
   },
   "regions": ["iad1"],
@@ -90,5 +92,5 @@
         { "key": "Service-Worker-Allowed", "value": "/" }
       ]
     }
-  ]
+  }
 }

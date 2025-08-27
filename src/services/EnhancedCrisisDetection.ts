@@ -566,7 +566,7 @@ export class EnhancedCrisisDetection {
     const sentimentScore = (negativeCount - positiveCount) / Math.max(1, words.length);
     const suicidalPhrase = /(suicid|end(ing)? my life|kill myself|hurt myself)/i.test(message);
     const isCrisis = suicidalPhrase || (sentimentScore > 0.06 && negativeCount >= 1);
-    let confidence = Math.min(0.9, Math.abs(sentimentScore) * 2 + (negativeCount >= 2 ? 0.2 : 0.1));
+    const confidence = Math.min(0.9, Math.abs(sentimentScore) * 2 + (negativeCount >= 2 ? 0.2 : 0.1));
 
     let riskLevel: 'low' | 'medium' | 'high' | 'critical';
     if (suicidalPhrase || sentimentScore > 0.22) riskLevel = 'critical';

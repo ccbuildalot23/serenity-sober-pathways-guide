@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * Windows-Compatible Command Helper for Claude Flow Hooks
+ * Windows-Compatible Command Helper for BMAD Healthcare Hooks
  * Replaces Unix pipeline commands with cross-platform JavaScript
  * Enhanced with automatic project directory detection and fallbacks
+ * Healthcare-specific compliance and PHI protection features
  */
 
 import { execSync } from 'child_process';
@@ -65,11 +66,11 @@ function executeHook(command, hookType) {
     return;
   }
 
-  // OPTIMIZATION: Early exit if claude-flow not available
-  const claudeFlowAvailable = checkClaudeFlow();
+  // OPTIMIZATION: Early exit if BMAD not available
+  const bmadAvailable = checkBMAD();
   
-  if (!claudeFlowAvailable) {
-    console.log(`[${hookType}-hook] Skipping - no claude-flow (optimization active)`);
+  if (!bmadAvailable) {
+    console.log(`[${hookType}-hook] Skipping - no BMAD framework (optimization active)`);
     process.exit(0);  // Exit immediately to save 5+ seconds
   }
 
@@ -79,9 +80,9 @@ function executeHook(command, hookType) {
       ? '--validate-safety true --prepare-resources true'
       : '--track-metrics true --store-results true';
     
-    const fullCommand = `npx claude-flow@alpha hooks ${hookType}-command --command "${command.replace(/"/g, '\\"')}" ${flags}`;
+    const fullCommand = `node ${join(PROJECT_ROOT, '.bmad-core', 'bmad.js')} hooks ${hookType}-command --command "${command.replace(/"/g, '\\"')}" ${flags}`;
     
-    console.log(`[${hookType}-hook] Executing for command: ${command.substring(0, 50)}...`);
+    console.log(`[${hookType}-hook] Executing BMAD hook for command: ${command.substring(0, 50)}...`);
     execSync(fullCommand, { 
       stdio: 'inherit',
       shell: true,
@@ -100,14 +101,18 @@ function executeHook(command, hookType) {
   }
 }
 
-// Check if claude-flow is available (optimized with shorter timeout)
-function checkClaudeFlow() {
+// Check if BMAD is available (optimized with shorter timeout)
+function checkBMAD() {
   try {
-    execSync('npx claude-flow@alpha --version', { 
-      stdio: 'pipe',
-      timeout: 500  // Reduced from 5000ms to 500ms
-    });
-    return true;
+    const bmadPath = join(PROJECT_ROOT, '.bmad-core', 'bmad.js');
+    if (existsSync(bmadPath)) {
+      execSync(`node "${bmadPath}" --version`, { 
+        stdio: 'pipe',
+        timeout: 500  // Reduced from 5000ms to 500ms
+      });
+      return true;
+    }
+    return false;
   } catch {
     return false;
   }

@@ -47,9 +47,9 @@ export class UnifiedSessionManager {
 
   private constructor() {
     this.config = {
-      timeoutMinutes: 30,
-      warningMinutes: 5,
-      maxInactivityMinutes: 25,
+      timeoutMinutes: 15, // HIPAA compliance: 15-minute timeout for PHI access
+      warningMinutes: 3,  // Warning at 12 minutes
+      maxInactivityMinutes: 15, // Match HIPAA requirement
       enableFingerprinting: true,
       enableSecurityMonitoring: true
     };

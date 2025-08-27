@@ -181,3 +181,29 @@ security-reports/dependency-scan-*.json
 # Serena MCP Server (separate repository)
 serena/
 serena-mcp-server/
+
+# Optimization: Backup and temporary directories
+src-backup-*
+auto-fix-*
+verification/
+detected-issues.json
+eslint-report.json
+eslint-compact.txt
+
+# Large test artifacts
+playwright-report/
+test-results/
+auto-fix-evidence/
+auto-fix-results/
+
+# Installer files
+*.msi
+*.exe
+
+# Coordination and memory files
+coordination/
+.bmad-workflows/
+.claude-flow/
+nul
+
+.vercel

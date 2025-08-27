@@ -95,7 +95,7 @@ test.describe('Crisis Alert Escalation', () => {
   });
 
   test('should trigger immediate crisis escalation for high-risk keywords', async ({ page }) => {
-    await testHelpers.login(page, patientUser.email, 'TestPass123!');
+    await testHelpers.login(page, patientUser.email, 'TestSerenity2024!@#');
     
     // Navigate to crisis support page
     await page.goto('/crisis-support');
@@ -166,7 +166,7 @@ test.describe('Crisis Alert Escalation', () => {
   });
 
   test('should escalate to emergency services after no response timeout', async ({ page }) => {
-    await testHelpers.login(page, patientUser.email, 'TestPass123!');
+    await testHelpers.login(page, patientUser.email, 'TestSerenity2024!@#');
     
     // Trigger high-severity crisis
     await page.goto('/crisis-support');
@@ -237,7 +237,7 @@ test.describe('Crisis Alert Escalation', () => {
     eveningTime.setHours(20, 0, 0, 0);
     await testHelpers.mockCurrentTime(eveningTime);
 
-    await testHelpers.login(page, patientUser.email, 'TestPass123!');
+    await testHelpers.login(page, patientUser.email, 'TestSerenity2024!@#');
     
     await page.goto('/crisis-support');
     await page.fill('[data-testid="crisis-message"]', 
@@ -307,7 +307,7 @@ test.describe('Crisis Alert Escalation', () => {
       }
     ]);
 
-    await testHelpers.login(page, patientUser.email, 'TestPass123!');
+    await testHelpers.login(page, patientUser.email, 'TestSerenity2024!@#');
     
     await page.goto('/crisis-support');
     await page.fill('[data-testid="crisis-message"]', 
@@ -352,7 +352,7 @@ test.describe('Crisis Alert Escalation', () => {
   });
 
   test('should handle multiple concurrent crisis alerts from same user', async ({ page }) => {
-    await testHelpers.login(page, patientUser.email, 'TestPass123!');
+    await testHelpers.login(page, patientUser.email, 'TestSerenity2024!@#');
     
     // Trigger first crisis alert
     await page.goto('/crisis-support');
@@ -403,7 +403,7 @@ test.describe('Crisis Alert Escalation', () => {
   });
 
   test('should provide real-time crisis status updates to support network', async ({ page }) => {
-    await testHelpers.login(page, patientUser.email, 'TestPass123!');
+    await testHelpers.login(page, patientUser.email, 'TestSerenity2024!@#');
     
     // Trigger crisis alert
     await page.goto('/crisis-support');
@@ -482,7 +482,7 @@ test.describe('Crisis Alert Escalation', () => {
       pushService: 'operational'
     });
 
-    await testHelpers.login(page, patientUser.email, 'TestPass123!');
+    await testHelpers.login(page, patientUser.email, 'TestSerenity2024!@#');
     
     await page.goto('/crisis-support');
     await page.fill('[data-testid="crisis-message"]', 'Emergency - need immediate help');
@@ -539,7 +539,7 @@ test.describe('Crisis Alert Escalation', () => {
   });
 
   test('should integrate with external crisis hotlines and services', async ({ page }) => {
-    await testHelpers.login(page, patientUser.email, 'TestPass123!');
+    await testHelpers.login(page, patientUser.email, 'TestSerenity2024!@#');
     
     await page.goto('/crisis-support');
     await page.fill('[data-testid="crisis-message"]', 

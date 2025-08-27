@@ -21,7 +21,7 @@ import { test, expect, Page } from '@playwright/test';
 test.describe('Provider Complete Workflow', () => {
   let page: Page;
   const testProviderEmail = 'test-provider@serenity.com';
-  const testProviderPassword = 'TestPass123!';
+  const testProviderPassword = 'TestSerenity2024!@#';
   const testPatientName = 'John Doe';
   
   test.beforeEach(async ({ browser }) => {
@@ -461,7 +461,7 @@ test.describe('Provider Performance Metrics', () => {
     
     // Login
     await page.fill('input[type="email"]', 'test-provider@serenity.com');
-    await page.fill('input[type="password"]', 'TestPass123!');
+    await page.fill('input[type="password"]', 'TestSerenity2024!@#');
     
     // Measure dashboard load
     const dashboardStart = Date.now();

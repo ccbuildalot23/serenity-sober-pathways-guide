@@ -34,7 +34,7 @@ describe('Complete Platform Workflow', () => {
     // Create test users for tri-user architecture
     const { data: provider } = await supabase.auth.signUp({
       email: 'workflow-provider@test.com',
-      password: 'TestPass123!',
+      password: 'TestSerenity2024!@#',
       options: {
         data: { 
           role: 'provider', 
@@ -47,7 +47,7 @@ describe('Complete Platform Workflow', () => {
     
     const { data: patient } = await supabase.auth.signUp({
       email: 'workflow-patient@test.com',
-      password: 'TestPass123!',
+      password: 'TestSerenity2024!@#',
       options: {
         data: { 
           role: 'patient', 
@@ -60,7 +60,7 @@ describe('Complete Platform Workflow', () => {
     
     const { data: supporter } = await supabase.auth.signUp({
       email: 'workflow-supporter@test.com',
-      password: 'TestPass123!',
+      password: 'TestSerenity2024!@#',
       options: {
         data: { 
           role: 'supporter', 
@@ -440,7 +440,7 @@ describe('Complete Platform Workflow', () => {
       // Create minor patient (age 16)
       const { data: minorPatient } = await supabase.auth.signUp({
         email: 'minor-patient@test.com',
-        password: 'TestPass123!',
+        password: 'TestSerenity2024!@#',
         options: {
           data: { 
             role: 'patient', 

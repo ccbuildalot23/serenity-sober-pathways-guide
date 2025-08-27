@@ -690,7 +690,7 @@ export class EnhancedSecurityAuditService {
         }));
       }
       // Fallback to memory log; apply basic filters for tests
-      let filtered = this.memoryLog.filter(e =>
+      const filtered = this.memoryLog.filter(e =>
         (!options.entity_type || (e as any).metadata?.entity_type === options.entity_type) &&
         (!options.entity_id || (e as any).metadata?.entity_id === options.entity_id) &&
         (!options.user_id || e._user_id === options.user_id || (e as any).metadata?.user_id === options.user_id) &&

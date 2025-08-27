@@ -20,17 +20,17 @@ test.use({
 const TEST_USERS = {
   provider: {
     email: 'e2e-provider@serenity.test',
-    password: 'TestPass123!',
+    password: 'TestSerenity2024!@#',
     name: 'Dr. Test Provider'
   },
   patient: {
     email: 'e2e-patient@serenity.test',
-    password: 'TestPass123!',
+    password: 'TestSerenity2024!@#',
     name: 'Test Patient'
   },
   supporter: {
     email: 'e2e-supporter@serenity.test',
-    password: 'TestPass123!',
+    password: 'TestSerenity2024!@#',
     name: 'Test Supporter'
   }
 };
@@ -269,13 +269,13 @@ test.describe('Comprehensive Platform Validation', () => {
       // Provider 2 logs in (different tenant)
       await supabase.auth.signUp({
         email: 'provider2@test.com',
-        password: 'TestPass123!',
+        password: 'TestSerenity2024!@#',
         options: { data: { role: 'provider', tenant_id: 'tenant-2' } }
       });
       
       await provider2Page.goto('/login');
       await provider2Page.fill('[data-testid="email"]', 'provider2@test.com');
-      await provider2Page.fill('[data-testid="password"]', 'TestPass123!');
+      await provider2Page.fill('[data-testid="password"]', 'TestSerenity2024!@#');
       await provider2Page.click('[data-testid="login-button"]');
       await provider2Page.goto('/provider/patients');
       
@@ -295,7 +295,7 @@ test.describe('Comprehensive Platform Validation', () => {
       
       // Trigger key rotation
       await page.click('[data-testid="rotate-encryption-keys"]');
-      await page.fill('[data-testid="admin-password"]', 'TestPass123!');
+      await page.fill('[data-testid="admin-password"]', 'TestSerenity2024!@#');
       await page.click('[data-testid="confirm-rotation"]');
       
       // Wait for rotation to complete

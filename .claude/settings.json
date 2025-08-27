@@ -1,15 +1,17 @@
 {
   "env": {
-    "CLAUDE_FLOW_AUTO_COMMIT": "false",
-    "CLAUDE_FLOW_AUTO_PUSH": "false",
-    "CLAUDE_FLOW_HOOKS_ENABLED": "true",
-    "CLAUDE_FLOW_TELEMETRY_ENABLED": "true",
-    "CLAUDE_FLOW_REMOTE_EXECUTION": "true",
-    "CLAUDE_FLOW_CHECKPOINTS_ENABLED": "true"
+    "BMAD_AUTO_COMMIT": "false",
+    "BMAD_AUTO_PUSH": "false",
+    "BMAD_HOOKS_ENABLED": "true",
+    "BMAD_TELEMETRY_ENABLED": "true",
+    "BMAD_HEALTHCARE_MODE": "true",
+    "BMAD_HIPAA_COMPLIANCE": "true",
+    "BMAD_PHI_PROTECTION": "true"
   },
   "permissions": {
     "allow": [
-      "Bash(npx claude-flow *)",
+      "Bash(node .bmad-core/bmad.js *)",
+      "Bash(npm run bmad:*)",
       "Bash(npm run lint)",
       "Bash(npm run test:*)",
       "Bash(npm test *)",
@@ -65,7 +67,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha hooks session-end --generate-summary true --persist-state true --export-metrics true"
+            "command": "node .bmad-core/bmad.js session-end --generate-summary true --persist-state true --export-metrics true"
           }
         ]
       }

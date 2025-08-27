@@ -2,7 +2,6 @@
   "buildCommand": "npm install --force --legacy-peer-deps && npx vite@7.1.3 build && node scripts/validate-css-build.js",
   "installCommand": "npm install --force --legacy-peer-deps",
   "framework": "vite",
-  "nodeVersion": "20.x",
   "env": {
     "NPM_CONFIG_LEGACY_PEER_DEPS": "true",
     "NPM_CONFIG_FORCE": "true",

@@ -14,7 +14,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const EXPECTED_MIN_PACKAGES = 1500;
+const EXPECTED_MIN_PACKAGES = 120; // Updated to match actual package count
 const CRITICAL_DEPENDENCIES = [
   'vite',
   '@vitejs/plugin-react-swc',

@@ -1,3 +1,4 @@
+import logger from '../services/loggerService';
 /**
  * Enhanced Security Monitoring Service - Production Optimized
  * Provides real-time security event tracking with reduced verbosity
@@ -136,7 +137,7 @@ export class SecureMonitoring {
   }
 
   private static logSecurityThreat(threat: string, details: unknown = {}) {
-    console.warn(`SECURITY THREAT DETECTED: ${threat}`, details);
+    logger.warn(`SECURITY THREAT DETECTED: ${threat}`, details, { component: 'secureMonitoring' });
     this.logSecurityEvent(`THREAT_${threat}`, details);
     
     // In production, could integrate with external security monitoring service

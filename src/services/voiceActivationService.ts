@@ -1,3 +1,4 @@
+import logger from './loggerService';
 
 // Add type declarations for speech recognition
 declare global {
@@ -38,7 +39,7 @@ class VoiceActivationService {
         .map((result: unknown) => result.transcript)
         .join('');
 
-      console.log('Voice input detected:', transcript);
+      logger.debug('Voice input detected:', transcript, { component: 'voiceActivationService' });
 
       // Check for crisis activation phrases
       const crisisKeywords = [
@@ -55,7 +56,7 @@ class VoiceActivationService {
       );
 
       if (hasCrisisKeyword && this.options?.onCrisisDetected) {
-        console.log('Crisis activation detected via voice');
+        logger.debug('Crisis activation detected via voice', { component: 'voiceActivationService' });
         this.options.onCrisisDetected();
       }
     };
@@ -92,7 +93,7 @@ class VoiceActivationService {
 
     try {
       this.recognition.start();
-      console.log('Voice activation started');
+      logger.debug('Voice activation started', { component: 'voiceActivationService' });
       return true;
     } catch (_error) {
       console._error('Failed to start voice recognition:', _error);
@@ -107,7 +108,7 @@ class VoiceActivationService {
 
     this.isListening = false;
     this.recognition.stop();
-    console.log('Voice activation stopped');
+    logger.debug('Voice activation stopped', { component: 'voiceActivationService' });
   }
 
   isSupported(): boolean {

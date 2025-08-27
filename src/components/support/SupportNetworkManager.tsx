@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import logger from '../../services/loggerService';
 import { 
   Plus, 
   Users, 
@@ -124,7 +125,7 @@ export const SupportNetworkManager: React.FC = () => {
         }
 
       } catch (dbError) {
-        console.warn('Database connection failed, using emergency fallback:', dbError);
+        logger.warn('Database connection failed, using emergency fallback:', dbError, { component: 'SupportNetworkManager' });
         
         // Save to emergency fallback
         emergencyFallback.saveContact({

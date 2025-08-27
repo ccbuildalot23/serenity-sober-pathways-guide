@@ -7,6 +7,7 @@ import { Heart, Phone, MessageCircle, Users, MapPin, Shield, CheckCircle, AlertT
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import logger from '../../services/loggerService';
 
 interface CrisisLevel {
   level: 'low' | 'medium' | 'high' | 'emergency';
@@ -62,7 +63,7 @@ export const OneTapCrisisButton: React.FC = () => {
           setLocation(`${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`);
         },
         () => {
-          console.log('Location access denied');
+          logger.debug('Location access denied', { component: 'OneTapCrisisButton' });
         }
       );
     }
@@ -90,7 +91,7 @@ export const OneTapCrisisButton: React.FC = () => {
     // Track this moment of strength
     try {
       // Log crisis level selection
-      console.log('Crisis level selected:', level.level);
+      logger.debug('Crisis level selected:', level.level, { component: 'OneTapCrisisButton' });
       
       // Send to crisis service
       if (level.level === 'emergency') {

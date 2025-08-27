@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { offlineStorage } from '@/services/offlineStorageService';
+import logger from './loggerService';
 
 export class CrisisSyncService {
   static async syncWithServer(_userId: string): Promise<void> {
@@ -63,6 +64,6 @@ export class CrisisSyncService {
     }
     
     offlineStorage.clearSyncQueue();
-    console.log('Synced offline crisis data with server');
+    logger.debug('Synced offline crisis data with server', { component: 'crisisSyncService' });
   }
 }

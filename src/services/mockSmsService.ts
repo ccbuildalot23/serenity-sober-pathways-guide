@@ -1,3 +1,4 @@
+import logger from './loggerService';
 
 interface Contact {
   id: string;
@@ -16,7 +17,7 @@ interface SentAlert {
 
 export const sendMockSMS = async (contact: Contact, message: string): Promise<void> => {
   // In production, this would integrate with a real SMS service like Twilio
-  console.log(`Sending SMS to ${contact.name} (${contact.phone}): ${message}`);
+  logger.debug(`Sending SMS to ${contact.name} (${contact.phone}, { component: 'mockSmsService' });: ${message}`);
   
   // Simulate API call delay
   await new Promise(resolve => setTimeout(resolve, 1000));
@@ -26,11 +27,11 @@ export const sendMockSMS = async (contact: Contact, message: string): Promise<vo
 };
 
 export const sendEmergencyAlert = async (contacts: Contact[], message: string, _location?: { lat: number; lng: number }): Promise<void> => {
-  console.log('Sending emergency alert to contacts:', contacts.map(c => c.name));
-  console.log('Message:', message);
+  logger.debug('Sending emergency alert to contacts:', contacts.map(c => c.name, { component: 'mockSmsService' }););
+  logger.debug('Message:', message, { component: 'mockSmsService' });
   
   if (_location) {
-    console.log('Location:', _location);
+    logger.debug('Location:', _location, { component: 'mockSmsService' });
   }
   
   // In production, this would send to all contacts simultaneously

@@ -1,5 +1,39 @@
 import { Page, expect } from '@playwright/test';
 
+// Test Helpers class for WhatsApp and other integration tests
+export class TestHelpers {
+  private testUsers: any[] = [];
+  
+  async setupTestEnvironment() {
+    // Setup test environment
+    console.log('Setting up test environment...');
+  }
+  
+  async createTestUser(userData: any) {
+    // Create a test user (mock implementation)
+    const user = {
+      id: `test-${Date.now()}`,
+      ...userData
+    };
+    this.testUsers.push(user);
+    return user;
+  }
+  
+  async cleanup() {
+    // Cleanup test data
+    console.log(`Cleaning up ${this.testUsers.length} test users`);
+    this.testUsers = [];
+  }
+  
+  async login(page: Page, credentials: any) {
+    await page.goto('/login');
+    await page.fill('#email', credentials.email);
+    await page.fill('#password', credentials.password);
+    await page.click('button[type="submit"]');
+    await page.waitForURL('**/dashboard');
+  }
+}
+
 // Test user credentials
 export const TEST_CREDENTIALS = {
   PATIENT: {

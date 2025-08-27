@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import logger from './loggerService';
 
 export interface SecurityTest {
   id: string;
@@ -111,7 +112,7 @@ class SecurityAuditService {
   ];
 
   async runSecurityAudit(): Promise<SecurityAuditReport> {
-    console.log('Starting comprehensive security audit...');
+    logger.debug('Starting comprehensive security audit...', { component: 'securityAuditService' });
     
     const _testPromises = this.tests.map(test => this.runTest(test));
     const _results = await Promise.all(_testPromises);
@@ -329,7 +330,7 @@ class SecurityAuditService {
           error = result.error;
         } catch (e) {
           error = e;
-          console.warn('Audit log test suppressed (non-fatal):', e);
+          logger.warn('Audit log test suppressed (non-fatal):', e, { component: 'securityAuditService' });
         }
       }
 

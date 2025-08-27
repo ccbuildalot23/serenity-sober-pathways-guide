@@ -1,3 +1,4 @@
+import logger from './loggerService';
 interface CacheConfig {
   maxAge: number; // in milliseconds
   maxSize: number; // in bytes
@@ -145,7 +146,7 @@ class OfflineCacheService {
     
     // Check if item is too large
     if (size > config.maxSize) {
-      console.warn(`Item too large for cache: ${_key} (${size} bytes)`);
+      logger.warn(`Item too large for cache: ${_key} (${size} bytes, { component: 'offlineCacheService' });`);
       return;
     }
 
@@ -240,7 +241,7 @@ class OfflineCacheService {
     ];
 
     // This would be implemented to fetch and cache critical data
-    console.log('Preloading critical data for offline use:', _criticalKeys);
+    logger.debug('Preloading critical data for offline use:', _criticalKeys, { component: 'offlineCacheService' });
   }
 
   // Predictive caching based on user behavior
@@ -249,7 +250,7 @@ class OfflineCacheService {
     for (const _key of userBehavior.frequentlyAccessed) {
       if (!this.has(_key)) {
         // Fetch and cache the data
-        console.log('Predictively caching:', _key);
+        logger.debug('Predictively caching:', _key, { component: 'offlineCacheService' });
       }
     }
   }

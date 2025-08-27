@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { escalateCrisis } from '@/services/crisisEscalationService';
+import logger from '../services/loggerService';
 
 interface MobileCrisisOptions {
   shakeThreshold?: number;
@@ -97,7 +98,7 @@ export const useMobileCrisis = (options: MobileCrisisOptions = {}) => {
       if (event.code === 'AudioVolumeUp' || event.code === 'AudioVolumeDown') {
         event.preventDefault();
         // Implementation would require native app integration
-        console.log('Volume button crisis shortcut triggered');
+        logger.debug('Volume button crisis shortcut triggered', { component: 'useMobileCrisis' });
       }
     };
 
@@ -115,7 +116,7 @@ export const useMobileCrisis = (options: MobileCrisisOptions = {}) => {
     triggerHapticFeedback([500, 200, 500]);
     
     // Log the emergency trigger source
-    console.log(`Emergency triggered via ${source}`);
+    logger.debug(`Emergency triggered via ${source}`, { component: 'useMobileCrisis' });
     
     // In a real app, this would trigger the crisis response system
     escalateCrisis('severe');

@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Mic, Volume2, Heart, MessageCircle } from 'lucide-react';
 import VoiceInterface from '@/components/voice/VoiceInterface';
 import VoiceCrisisAssistant from '@/components/voice/VoiceCrisisAssistant';
+import logger from '../../services/loggerService';
 
 const VoiceAccessibilityCenter: React.FC = () => {
   const [activeTab, setActiveTab] = useState('interface');
@@ -60,7 +61,7 @@ const VoiceAccessibilityCenter: React.FC = () => {
             placeholder="Your voice input will appear here. Use this for creating posts, _replies, or any text input."
             showTextToSpeech={true}
             onTextGenerated={(text) => {
-              console.log('Generated text:', text);
+              logger.debug('Generated text:', text, { component: 'VoiceAccessibilityCenter' });
               // This can be used to populate forms or trigger actions
             }}
           />

@@ -2,6 +2,7 @@
 import { escalateCrisis } from './crisisEscalationService';
 import { voiceActivationService } from './voiceActivationService';
 import { toast } from 'sonner';
+import logger from './loggerService';
 
 interface CrisisDeescalationCommands {
   [phrase: string]: () => void | Promise<void>;
@@ -25,7 +26,7 @@ export class VoiceActivatedCrisisService {
     if (this.isInitialized) return true;
 
     if (!voiceActivationService.isSupported()) {
-      console.warn('Voice activation not supported on this device');
+      logger.warn('Voice activation not supported on this device', { component: 'voiceActivatedCrisisService' });
       return false;
     }
 
@@ -42,7 +43,7 @@ export class VoiceActivatedCrisisService {
   }
 
   private static handleVoiceCrisisActivation = () => {
-    console.log('Voice crisis activation detected');
+    logger.debug('Voice crisis activation detected', { component: 'voiceActivatedCrisisService' });
     toast.error('Emergency support activated by voice');
     
     // Add haptic feedback
@@ -59,7 +60,7 @@ export class VoiceActivatedCrisisService {
     
     for (const [phrase, action] of Object.entries(this.deescalationCommands)) {
       if (normalizedTranscript.includes(phrase)) {
-        console.log(`Voice crisis command detected: ${phrase}`);
+        logger.debug(`Voice crisis command detected: ${phrase}`, { component: 'voiceActivatedCrisisService' });
         
         try {
           action();

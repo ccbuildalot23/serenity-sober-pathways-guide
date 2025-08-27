@@ -1,0 +1,116 @@
+# Snapfile defines the screenshots for snapshot
+# For more information about the Snapfile, see:
+#     https://docs.fastlane.tools/actions/snapshot/
+
+# A list of devices you want to take the screenshots from
+devices([
+  "iPhone 15 Pro Max",
+  "iPhone 15 Pro", 
+  "iPhone SE (3rd generation)",
+  "iPad Pro (12.9-inch) (6th generation)",
+  "iPad Pro (11-inch) (4th generation)"
+])
+
+# A list of supported languages
+languages([
+  "en-US"
+])
+
+# The name of the scheme which contains the UI Tests
+scheme("App")
+
+# Where should the resulting screenshots be stored?
+output_directory("./screenshots")
+
+# Remove previous screenshots before generating new ones
+clear_previous_screenshots(true)
+
+# Override the default device names
+override_status_bar(true)
+
+# Launch arguments for the app
+launch_arguments([
+  "-ui-testing",
+  "-skip-animations",
+  "-reset-user-defaults"
+])
+
+# Localized launch arguments
+localize_simulator(true)
+
+# Dark mode screenshots
+dark_mode(false)
+
+# Configuration for healthcare app screenshots
+# Disable location services during screenshots
+disable_slide_to_type(true)
+
+# Test configuration
+test_without_building(false)
+
+# Build configuration
+configuration("Debug")
+buildlog_path("./build_logs")
+
+# Number of concurrent simulators
+concurrent_simulators(2)
+
+# Stop after first failure
+stop_after_first_error(false)
+
+# Derived data path
+derived_data_path("./derived_data")
+
+# Custom simulators
+# simulator_device("iPhone 15 Pro Max")
+
+# Erase simulator before running
+erase_simulator(true)
+
+# Headless mode for CI
+headless(false)
+
+# Output format
+output_simulator_logs(true)
+
+# Skip open summary after running
+skip_open_summary(false)
+
+# Test plan for UI tests
+testplan("SerenityUITests")
+
+# Test target for screenshots
+test_target_name("SerenityUITests")
+
+# Number of retries
+number_of_retries(2)
+
+# Clean build before testing
+clean(true)
+
+# Code coverage
+code_coverage(false)
+
+# Address sanitizer
+address_sanitizer(false)
+
+# Thread sanitizer  
+thread_sanitizer(false)
+
+# Enable GPU frame capture
+enable_gpu_frame_capture_mode("disabled")
+
+# Cloned source packages path
+cloned_source_packages_path("./SourcePackages")
+
+# Skip package dependencies resolution
+skip_package_dependencies_resolution(false)
+
+# Disable package automatic resolution
+disable_package_automatic_resolution(false)
+
+# Test repetition mode
+test_repetition_mode("none")
+
+# Maximum test repetitions
+maximum_test_repetitions(1)

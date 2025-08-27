@@ -73,7 +73,7 @@ const Index = () => {
   // Prepare user data for Play the Tape feature
   const userData = {
     sobrietyDays: stats.streak || 0,
-    relapseHistory: [] // In production, this would come from the user's profile or a dedicated table
+    challengeHistory: [] // In production, this would come from the user's profile or a dedicated table
   };
 
   // Show error state if there's a critical error

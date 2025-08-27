@@ -32,7 +32,7 @@ describe('Cross-Service Integration Tests', () => {
     // Create test users
     const { data: provider } = await supabase.auth.signUp({
       email: 'integration-provider@test.com',
-      password: 'TestPass123!',
+      password: 'TestSerenity2024!@#',
       options: {
         data: { role: 'provider', full_name: 'Test Provider' }
       }
@@ -41,7 +41,7 @@ describe('Cross-Service Integration Tests', () => {
 
     const { data: patient } = await supabase.auth.signUp({
       email: 'integration-patient@test.com',
-      password: 'TestPass123!',
+      password: 'TestSerenity2024!@#',
       options: {
         data: { role: 'patient', full_name: 'Test Patient' }
       }
@@ -50,7 +50,7 @@ describe('Cross-Service Integration Tests', () => {
 
     const { data: supporter } = await supabase.auth.signUp({
       email: 'integration-supporter@test.com',
-      password: 'TestPass123!',
+      password: 'TestSerenity2024!@#',
       options: {
         data: { role: 'supporter', full_name: 'Test Supporter' }
       }

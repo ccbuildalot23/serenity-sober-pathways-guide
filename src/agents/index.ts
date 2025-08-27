@@ -7,13 +7,14 @@ import { agentRegistry } from './base/AgentRegistry';
 import { CrisisSupportAgent } from './CrisisSupportAgent';
 import { ProgressTrackingAgent } from './ProgressTrackingAgent';
 import { ClinicalDocumentationAgent } from './ClinicalDocumentationAgent';
+import logger from '../services/loggerService';
 
 /**
  * Initialize and register all agents
  */
 export async function initializeAgents(): Promise<void> {
   try {
-    console.log('Initializing healthcare AI agents...');
+    logger.debug('Initializing healthcare AI agents...', { component: 'index' });
 
     // Register Crisis Support Agent
     const crisisAgent = new CrisisSupportAgent();
@@ -27,15 +28,15 @@ export async function initializeAgents(): Promise<void> {
     const clinicalAgent = new ClinicalDocumentationAgent();
     await agentRegistry.registerAgent(clinicalAgent);
 
-    console.log('All agents registered successfully');
+    logger.debug('All agents registered successfully', { component: 'index' });
     
     // Perform health check
     const healthStatus = await agentRegistry.healthCheck();
-    console.log('Agent health check results:', healthStatus);
+    logger.debug('Agent health check results:', healthStatus, { component: 'index' });
 
     // Log registry statistics
     const stats = agentRegistry.getStatistics();
-    console.log('Agent registry statistics:', stats);
+    logger.debug('Agent registry statistics:', stats, { component: 'index' });
   } catch (error) {
     console.error('Failed to initialize agents:', error);
     throw error;

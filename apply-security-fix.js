@@ -2,9 +2,15 @@ const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
 
-// Your Supabase credentials
-const supabaseUrl = 'https://tqyiqstpvwztvofrxpuf.supabase.co';
-const supabaseServiceKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeWlxc3Rwdnd6dHZvZnJ4cHVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0OTI4MjE3OSwiZXhwIjoyMDY0ODU4MTc5fQ.HDbZEUEykfX4E45g8KSOUGYnPoIhIEUEsvwDZ56Itsk';
+// Load Supabase credentials from environment variables
+const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  console.error('❌ Error: Missing required environment variables');
+  console.error('Please set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY');
+  process.exit(1);
+}
 
 // Create Supabase client with service role key for admin access
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
@@ -91,7 +97,7 @@ async function applySecurityFix() {
     console.log('   2. Direct SQL execution is not enabled');
     console.log('   3. You need to use the Supabase SQL Editor');
     console.log('\n📝 To apply manually:');
-    console.log('   1. Go to: https://supabase.com/dashboard/project/tqyiqstpvwztvofrxpuf/sql/new');
+    console.log(`   1. Go to: ${supabaseUrl.replace('https://', 'https://supabase.com/dashboard/project/').split('.')[0]}/sql/new`);
     console.log('   2. Copy the contents of APPLY_SECURITY_FIX.sql');
     console.log('   3. Paste and run in the SQL Editor');
   } else {
@@ -133,8 +139,8 @@ async function checkPolicies() {
 // Run the fix
 async function main() {
   console.log('🚀 Supabase Security Fix Tool\n');
-  console.log('Project: tqyiqstpvwztvofrxpuf (Serenity1)');
-  console.log('Region: us-east-2\n');
+  console.log(`Project: ${supabaseUrl.split('.')[0].split('//')[1]}`);
+  console.log('Environment: Production\n');
   
   // First check connection
   await checkPolicies();

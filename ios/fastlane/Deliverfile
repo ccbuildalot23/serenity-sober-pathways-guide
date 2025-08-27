@@ -1,0 +1,132 @@
+# The Deliverfile allows you to store various App Store Connect metadata
+# For more information about the Deliverfile, see:
+#     https://docs.fastlane.tools/actions/deliver/
+
+# App Store Connect Configuration
+app_identifier("com.serenity.recovery")
+username("{{APPLE_ID}}")
+team_id("XDY458RQ59")
+
+# App Metadata
+app_version("1.0.0")
+copyright("© 2025 Serenity Recovery Solutions. All rights reserved.")
+
+# Pricing and availability
+price_tier(0) # Free app
+
+# App categories - Healthcare/Medical primary, Health & Fitness secondary
+primary_category("MEDICAL")
+secondary_category("HEALTH_AND_FITNESS")
+
+# App rating and content
+content_rights_has_rights(true)
+content_rights_contains_third_party_content(false)
+
+# Age rating - 17+ for healthcare/medical content
+app_rating_config_path("./metadata/rating_config.json")
+
+# Submission information for healthcare apps
+submission_information({
+  add_id_info_limits_tracking: true,
+  add_id_info_serves_ads: false,
+  add_id_info_tracks_action: false,
+  add_id_info_tracks_install: true,
+  add_id_info_uses_idfa: false,
+  content_rights_has_rights: true,
+  content_rights_contains_third_party_content: false,
+  export_compliance_platform: "ios",
+  export_compliance_compliance_required: false,
+  export_compliance_encryption_updated: false,
+  export_compliance_uses_encryption: false,
+  export_compliance_is_exempt: true,
+  export_compliance_contains_third_party_cryptography: false,
+  export_compliance_contains_proprietary_cryptography: false,
+  export_compliance_available_on_french_store: false
+})
+
+# Automatic release configuration
+automatic_release(false)
+submit_for_review(false)
+
+# Phased release
+phased_release(true)
+
+# Skip upload options - useful for testing
+skip_binary_upload(false)
+skip_screenshots(false)
+skip_metadata(false)
+
+# Force overwrite existing metadata
+force(true)
+
+# Run precheck before submission
+run_precheck_before_submit(true)
+precheck_include_in_app_purchases(false)
+
+# Platform specification
+platform("ios")
+
+# Language support
+languages(["en-US"])
+
+# Review information for healthcare apps
+review_information({
+  first_name: "Support",
+  last_name: "Team",
+  phone_number: "+1-555-0123",
+  email_address: "support@serenity-recovery.app",
+  demo_user: "demo@serenity-recovery.app",
+  demo_password: "DemoPass2025!",
+  notes: <<-NOTES
+HEALTHCARE APP REVIEW NOTES:
+
+This app is designed for mental health and substance abuse recovery support. It contains:
+
+1. CRISIS SUPPORT FEATURES:
+   - Emergency crisis alerts
+   - 24/7 crisis intervention resources
+   - Multi-tier supporter notifications
+   - Voice-activated crisis assistance
+
+2. HIPAA COMPLIANCE:
+   - End-to-end encryption for all PHI
+   - Secure authentication with MFA
+   - Audit logging for compliance
+   - Data retention policies in place
+
+3. EVIDENCE-BASED THERAPEUTIC CONTENT:
+   - CBT-based coping skill modules
+   - Mindfulness and meditation exercises
+   - Progress tracking and goal setting
+   - Professional provider integration
+
+4. SECURITY MEASURES:
+   - SSL/TLS encryption for all data transmission
+   - Secure local storage with encryption
+   - Regular security audits
+   - OWASP-compliant security practices
+
+5. MEDICAL DISCLAIMER:
+   This app supplements but does not replace professional medical care. Users are advised to consult qualified healthcare providers for medical advice.
+
+6. DEMO ACCOUNT ACCESS:
+   - Email: demo@serenity-recovery.app
+   - Password: DemoPass2025!
+   - This account has limited functionality for review purposes
+
+7. HEALTHCARE PROFESSIONAL FEATURES:
+   - Provider dashboard for patient monitoring
+   - Crisis alert notifications
+   - Clinical documentation tools
+   - FHIR-compatible data export
+
+The app has been tested for accessibility compliance and includes features for users with disabilities.
+
+For technical questions or support during review, please contact our team at support@serenity-recovery.app.
+NOTES
+})
+
+# App Store Connect API Key (if using)
+# api_key_path("./AuthKey_XXXXXXXX.p8")
+# api_key("XXXXXXXX")
+# issuer_id("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")

@@ -1,0 +1,530 @@
+# Default values for notification-service
+# This is a YAML-formatted file.
+
+# Global configuration
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+
+# Application configuration
+app:
+  name: notification-service
+  version: "1.0.0"
+  
+image:
+  registry: ghcr.io
+  repository: serenity/notification-service
+  tag: "latest"
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+# Deployment configuration
+deployment:
+  replicaCount: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  
+  # Pod configuration
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+    prometheus.io/path: "/metrics"
+  
+  podLabels: {}
+  
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    fsGroup: 1001
+    seccompProfile:
+      type: RuntimeDefault
+  
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+      - ALL
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1001
+
+# Container configuration
+container:
+  ports:
+    http: 3000
+    metrics: 9090
+    websocket: 3001
+  
+  env:
+    NODE_ENV: "production"
+    LOG_LEVEL: "info"
+    PORT: "3000"
+    METRICS_PORT: "9090"
+  
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+      ephemeral-storage: "1Gi"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+      ephemeral-storage: "2Gi"
+  
+  # Health checks
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 3
+  
+  readinessProbe:
+    httpGet:
+      path: /health/ready
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 3
+  
+  startupProbe:
+    httpGet:
+      path: /health/startup
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+
+# Service configuration
+service:
+  type: ClusterIP
+  ports:
+    http: 80
+    https: 443
+    metrics: 9090
+    websocket: 3001
+  
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+    prometheus.io/path: "/metrics"
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "alb"
+  annotations:
+    kubernetes.io/ingress.class: "alb"
+    alb.ingress.kubernetes.io/scheme: internal
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/backend-protocol: HTTP
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    alb.ingress.kubernetes.io/healthcheck-path: "/health"
+  
+  hosts:
+    - host: notifications.serenity.com
+      paths:
+        - path: /
+          pathType: Prefix
+  
+  tls:
+    - secretName: notification-service-tls
+      hosts:
+        - notifications.serenity.com
+
+# Auto-scaling configuration
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+  
+  # Custom metrics
+  customMetrics:
+    - type: Pods
+      pods:
+        metric:
+          name: notification_queue_length
+        target:
+          type: AverageValue
+          averageValue: "100"
+  
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 60
+      - type: Pods
+        value: 2
+        periodSeconds: 60
+
+# Pod Disruption Budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
+
+# Node affinity and tolerations
+nodeSelector: {}
+
+tolerations:
+- key: "node.kubernetes.io/not-ready"
+  operator: "Exists"
+  effect: "NoExecute"
+  tolerationSeconds: 300
+- key: "node.kubernetes.io/unreachable"
+  operator: "Exists"
+  effect: "NoExecute"
+  tolerationSeconds: 300
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - notification-service
+        topologyKey: kubernetes.io/hostname
+
+# Volumes and persistence
+persistence:
+  # HIPAA Audit Logs
+  auditLogs:
+    enabled: true
+    storageClass: "aws-efs-csi"
+    size: 10Gi
+    accessModes:
+      - ReadWriteMany
+    annotations:
+      csi.volume.kubernetes.io/encryption-key: "alias/serenity-hipaa-logs"
+
+# Configuration
+config:
+  # Database configuration
+  database:
+    host: "postgres-service"
+    port: 5432
+    name: "serenity_notifications"
+    ssl: "require"
+    poolMin: 2
+    poolMax: 20
+    timeout: 30000
+  
+  # Redis configuration
+  redis:
+    host: "redis-service"
+    port: 6379
+    db: 0
+    keyPrefix: "serenity:notification:"
+  
+  # External services
+  email:
+    provider: "sendgrid"
+  
+  sms:
+    provider: "twilio"
+  
+  push:
+    provider: "firebase"
+  
+  # Rate limiting
+  rateLimit:
+    windowMs: 900000  # 15 minutes
+    max: 1000
+  
+  # WebSocket configuration
+  websocket:
+    heartbeatInterval: 30000
+    timeout: 60000
+  
+  # Security
+  security:
+    corsOrigin: "https://app.serenity.com"
+    helmetEnabled: true
+  
+  # HIPAA compliance
+  hipaa:
+    auditLogEnabled: true
+    encryptionEnabled: true
+    phiMaskingEnabled: true
+  
+  # Queue configuration
+  queue:
+    redisDb: 1
+    concurrency: 10
+    retryAttempts: 3
+    retryBackoff: "exponential"
+  
+  # Circuit breaker
+  circuitBreaker:
+    enabled: true
+    threshold: 5
+    timeout: 60000
+  
+  # Cache
+  cache:
+    ttl: 300  # 5 minutes
+    maxSize: 1000
+
+# Secrets (will be overridden by environment-specific values)
+secrets:
+  database:
+    url: ""
+    password: ""
+  
+  redis:
+    password: ""
+    url: ""
+  
+  jwt:
+    secret: ""
+    refreshSecret: ""
+  
+  encryption:
+    key: ""
+    iv: ""
+  
+  external:
+    sendgridApiKey: ""
+    twilioAccountSid: ""
+    twilioAuthToken: ""
+    twilioPhoneNumber: ""
+    firebaseProjectId: ""
+    firebaseClientEmail: ""
+    firebasePrivateKey: ""
+  
+  aws:
+    accessKeyId: ""
+    secretAccessKey: ""
+    region: ""
+    s3Bucket: ""
+  
+  monitoring:
+    datadogApiKey: ""
+    newrelicLicenseKey: ""
+    sentryDsn: ""
+  
+  audit:
+    encryptionKey: ""
+    complianceWebhookSecret: ""
+
+# Monitoring and observability
+monitoring:
+  enabled: true
+  
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      interval: 30s
+      scrapeTimeout: 10s
+      path: /metrics
+      honorLabels: true
+  
+  grafana:
+    enabled: true
+    dashboards:
+      enabled: true
+  
+  alertmanager:
+    enabled: true
+    rules:
+      enabled: true
+
+# Logging configuration
+logging:
+  enabled: true
+  
+  fluentBit:
+    enabled: true
+    image:
+      registry: "fluent"
+      repository: "fluent-bit"
+      tag: "2.0"
+    
+    config:
+      inputs: |
+        [INPUT]
+            Name tail
+            Path /app/logs/*.log
+            Tag logs.*
+            Multiline On
+            Parser_Firstline multiline_json
+        
+        [INPUT]
+            Name tail
+            Path /app/audit-logs/*.log
+            Tag audit.*
+            Parser json
+      
+      outputs: |
+        [OUTPUT]
+            Name s3
+            Match logs.*
+            bucket serenity-hipaa-logs
+            region us-east-1
+            s3_key_format /notification-service/logs/%Y/%m/%d/%H/%M/%S
+            
+        [OUTPUT]
+            Name s3
+            Match audit.*
+            bucket serenity-hipaa-audit-logs
+            region us-east-1
+            s3_key_format /notification-service/audit/%Y/%m/%d/%H/%M/%S
+
+# External dependencies
+dependencies:
+  redis:
+    enabled: true
+    auth:
+      enabled: true
+    master:
+      persistence:
+        enabled: true
+        size: 8Gi
+    replica:
+      replicaCount: 2
+      persistence:
+        enabled: true
+        size: 8Gi
+  
+  postgresql:
+    enabled: true
+    auth:
+      enablePostgresUser: true
+      database: "serenity_notifications"
+    primary:
+      persistence:
+        enabled: true
+        size: 20Gi
+    readReplicas:
+      replicaCount: 1
+      persistence:
+        enabled: true
+        size: 20Gi
+
+# Service Account
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+  
+# RBAC
+rbac:
+  create: true
+  rules:
+    - apiGroups: [""]
+      resources: ["secrets", "configmaps"]
+      verbs: ["get", "list"]
+    - apiGroups: [""]
+      resources: ["pods"]
+      verbs: ["get", "list"]
+
+# Network Policies
+networkPolicies:
+  enabled: true
+  ingress:
+    enabled: true
+    rules:
+      - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-system
+        ports:
+        - protocol: TCP
+          port: 3000
+      - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring-system
+        ports:
+        - protocol: TCP
+          port: 9090
+  
+  egress:
+    enabled: true
+    rules:
+      - to: []
+        ports:
+        - protocol: TCP
+          port: 5432  # PostgreSQL
+        - protocol: TCP
+          port: 6379  # Redis
+        - protocol: TCP
+          port: 443   # HTTPS
+        - protocol: TCP
+          port: 53    # DNS
+        - protocol: UDP
+          port: 53    # DNS
+
+# Environment-specific overrides
+environments:
+  development:
+    deployment:
+      replicaCount: 1
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+    autoscaling:
+      enabled: false
+    monitoring:
+      enabled: false
+  
+  staging:
+    deployment:
+      replicaCount: 2
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+    autoscaling:
+      minReplicas: 2
+      maxReplicas: 10
+  
+  production:
+    deployment:
+      replicaCount: 3
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+    autoscaling:
+      minReplicas: 3
+      maxReplicas: 20
+    monitoring:
+      enabled: true

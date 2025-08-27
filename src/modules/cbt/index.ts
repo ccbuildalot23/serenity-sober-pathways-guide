@@ -1,1 +1,1 @@
-export { default as RelapsePrevention } from '@/components/cbt/relapse/RelapsePrevention'
+export { default as RecoveryStrengthening } from '@/components/cbt/relapse/RecoveryStrengthening'

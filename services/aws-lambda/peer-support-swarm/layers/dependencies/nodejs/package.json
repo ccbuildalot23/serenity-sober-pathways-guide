@@ -1,0 +1,12 @@
+{
+  "name": "peer-support-dependencies",
+  "version": "1.0.0",
+  "description": "Shared dependencies for peer support swarm",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.0.0",
+    "@aws-sdk/client-lambda": "^3.0.0",
+    "@aws-sdk/client-cloudwatch": "^3.0.0",
+    "@aws-sdk/client-secrets-manager": "^3.0.0",
+    "uuid": "^9.0.0"
+  }
+}

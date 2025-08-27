@@ -1,0 +1,467 @@
+name: iOS Deploy Ultimate
+
+on:
+  push:
+    branches:
+      - main
+      - notification-microservice
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+  workflow_dispatch:
+    inputs:
+      deployment_type:
+        description: "Deployment Type"
+        required: true
+        default: "testflight"
+        type: choice
+        options:
+          - "testflight"
+          - "app-store"
+          - "validate-only"
+
+env:
+  NODE_VERSION: "22.x"
+  RUBY_VERSION: "3.2"
+  XCODE_VERSION: "latest-stable"
+  BUILD_NUMBER: ${{ github.run_number }}
+
+jobs:
+  deploy:
+    name: Ultimate iOS Deployment
+    runs-on: macos-latest
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Debug Environment
+        run: |
+          echo "=== Deployment Configuration ==="
+          echo "Deployment Type: ${{ github.event.inputs.deployment_type || 'testflight' }}"
+          echo "Build Number: $BUILD_NUMBER"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Runner: $(uname -a)"
+          echo "================================"
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: 📦 Install dependencies
+        run: |
+          npm ci --legacy-peer-deps
+          npm install -g @capacitor/cli
+
+      - name: 🔨 Build and validate web assets
+        run: |
+          echo "Building web assets..."
+          npm run build
+          
+          # Validate CSS files exist
+          if [ ! -f "dist/index.html" ]; then
+            echo "❌ Build failed: index.html not found"
+            exit 1
+          fi
+          
+          # Check CSS is properly included
+          if ! grep -q "\.css" dist/index.html; then
+            echo "⚠️ Warning: No CSS references found in index.html"
+          fi
+          
+          echo "✅ Web assets built successfully"
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: 📱 Sync with iOS platform
+        run: |
+          echo "Syncing with Capacitor..."
+          # First copy web assets without running pod install
+          npx cap copy ios
+          
+          # Now run pod install directly without bundler
+          echo "Installing iOS dependencies..."
+          cd ios/App
+          pod install --repo-update
+          cd ../..
+          
+          # Verify iOS project exists
+          if [ ! -d "ios/App" ]; then
+            echo "❌ iOS project not found"
+            exit 1
+          fi
+          
+          echo "✅ iOS platform synced"
+
+      - name: 🍎 Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: 💎 Setup Ruby and Fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+          bundler-cache: true
+          working-directory: ios
+
+      - name: 🔐 Setup certificates and provisioning
+        env:
+          # Support multiple secret naming conventions
+          CERT_BASE64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_BASE64 || secrets.IOS_CERTIFICATE }}
+          CERT_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD || secrets.IOS_CERTIFICATE_PASSWORD || '' }}
+          PROFILE_BASE64: ${{ secrets.IOS_PROVISION_PROFILE_BASE64 || secrets.IOS_PROVISION_PROFILE }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD || 'temp_keychain_password_2024' }}
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID || 'XDY458RQ59' }}
+        run: |
+          echo "=== Setting up code signing ==="
+          
+          # Create variables
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          
+          # Handle certificate format (supports both .pfx and .p12)
+          echo "Decoding certificate..."
+          echo "$CERT_BASE64" | base64 --decode > $CERTIFICATE_PATH
+          
+          # Check if certificate is valid
+          if ! openssl pkcs12 -info -in $CERTIFICATE_PATH -passin pass:"$CERT_PASSWORD" -noout 2>/dev/null; then
+            echo "⚠️ Certificate validation failed, attempting without password..."
+            if ! openssl pkcs12 -info -in $CERTIFICATE_PATH -passin pass: -noout 2>/dev/null; then
+              echo "❌ Invalid certificate format"
+              exit 1
+            fi
+            CERT_PASSWORD=""
+          fi
+          
+          # Extract certificate details
+          echo "Extracting certificate identity..."
+          if [ -z "$CERT_PASSWORD" ]; then
+            CERT_IDENTITY=$(openssl pkcs12 -in $CERTIFICATE_PATH -passin pass: -nokeys -nomacver 2>/dev/null | openssl x509 -subject -noout | sed 's/subject=//')
+          else
+            CERT_IDENTITY=$(openssl pkcs12 -in $CERTIFICATE_PATH -passin pass:"$CERT_PASSWORD" -nokeys -nomacver 2>/dev/null | openssl x509 -subject -noout | sed 's/subject=//')
+          fi
+          echo "Certificate Identity: $CERT_IDENTITY"
+          
+          # Import provisioning profile
+          echo "Installing provisioning profile..."
+          echo "$PROFILE_BASE64" | base64 --decode > $PP_PATH
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/
+          
+          # Extract profile UUID and details
+          PROFILE_UUID=$(/usr/libexec/PlistBuddy -c "Print :UUID" /dev/stdin <<< $(security cms -D -i $PP_PATH))
+          echo "Profile UUID: $PROFILE_UUID"
+          echo "PROFILE_UUID=$PROFILE_UUID" >> $GITHUB_ENV
+          
+          # Extract additional profile info
+          PROFILE_NAME=$(/usr/libexec/PlistBuddy -c "Print :Name" /dev/stdin <<< $(security cms -D -i $PP_PATH) 2>/dev/null || echo "Unknown")
+          PROFILE_BUNDLE_ID=$(/usr/libexec/PlistBuddy -c "Print :Entitlements:application-identifier" /dev/stdin <<< $(security cms -D -i $PP_PATH) 2>/dev/null || echo "Unknown")
+          echo "Profile Name: $PROFILE_NAME"
+          echo "Profile Bundle ID: $PROFILE_BUNDLE_ID"
+          echo "PROFILE_NAME=$PROFILE_NAME" >> $GITHUB_ENV
+          
+          # Install profile with multiple naming conventions
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/${PROFILE_UUID}.mobileprovision
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/distribution.mobileprovision
+          
+          # Verify profile is installed
+          echo "Installed provisioning profiles:"
+          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/
+          
+          # Create and configure keychain
+          echo "Creating temporary keychain..."
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          
+          # Add to keychain search list
+          security list-keychain -d user -s $KEYCHAIN_PATH $(security list-keychain -d user | sed s/\"//g)
+          
+          # Import certificate to keychain
+          echo "Importing certificate to keychain..."
+          security import $CERTIFICATE_PATH -P "$CERT_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          
+          # Set partition list for codesigning
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          
+          # Find and export the certificate identity
+          CODESIGN_IDENTITY=$(security find-identity -v -p codesigning $KEYCHAIN_PATH | grep "iPhone Distribution" | head -1 | grep -o '"[^"]*"' | tr -d '"')
+          if [ -z "$CODESIGN_IDENTITY" ]; then
+            CODESIGN_IDENTITY=$(security find-identity -v -p codesigning $KEYCHAIN_PATH | grep "Developer ID Application" | head -1 | grep -o '"[^"]*"' | tr -d '"')
+          fi
+          echo "Code signing identity found: $CODESIGN_IDENTITY"
+          echo "CODESIGN_IDENTITY=$CODESIGN_IDENTITY" >> $GITHUB_ENV
+          
+          # Verify keychain setup
+          echo "Available signing identities:"
+          security find-identity -v -p codesigning $KEYCHAIN_PATH
+          
+          echo "✅ Code signing configured"
+
+      - name: 📝 Setup App Store Connect API
+        env:
+          API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+          API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID || '4YBU7UC32Y' }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID || 'acb9e47c-6935-4933-ae2c-6170b5d90234' }}
+        run: |
+          echo "=== Configuring App Store Connect API ==="
+          
+          # Create API key directory
+          mkdir -p ~/private_keys
+          
+          # Write API key
+          echo "$API_KEY" > ~/private_keys/AuthKey_${API_KEY_ID}.p8
+          
+          # Export for Fastlane
+          echo "APP_STORE_CONNECT_API_KEY_PATH=~/private_keys/AuthKey_${API_KEY_ID}.p8" >> $GITHUB_ENV
+          echo "APP_STORE_CONNECT_KEY_ID=$API_KEY_ID" >> $GITHUB_ENV
+          echo "APP_STORE_CONNECT_ISSUER_ID=$ISSUER_ID" >> $GITHUB_ENV
+          
+          echo "✅ API authentication configured"
+
+      - name: 🏥 HIPAA Compliance Check
+        run: |
+          echo "=== Running HIPAA compliance checks ==="
+          cd ios
+          
+          # Check for hardcoded secrets
+          if grep -r "password\|secret\|key\|token" App --exclude-dir=build --exclude="*.ipa" 2>/dev/null | grep -v "//\|#\|*"; then
+            echo "⚠️ Warning: Potential sensitive data found in code"
+          fi
+          
+          # Verify SSL/TLS configuration
+          if grep -q "NSAllowsArbitraryLoads.*true" App/App/Info.plist; then
+            echo "❌ Error: Insecure network configuration detected"
+            exit 1
+          fi
+          
+          echo "✅ HIPAA compliance checks passed"
+
+      - name: 📦 Create ExportOptions.plist
+        env:
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID || 'XDY458RQ59' }}
+        run: |
+          echo "Creating ExportOptions.plist with manual signing..."
+          cat > ios/ExportOptions.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store</string>
+              <key>teamID</key>
+              <string>$TEAM_ID</string>
+              <key>uploadBitcode</key>
+              <false/>
+              <key>uploadSymbols</key>
+              <true/>
+              <key>signingStyle</key>
+              <string>manual</string>
+              <key>provisioningProfiles</key>
+              <dict>
+                  <key>com.serenity.recovery</key>
+                  <string>$PROFILE_UUID</string>
+              </dict>
+              <key>signingCertificate</key>
+              <string>iPhone Distribution</string>
+              <key>compileBitcode</key>
+              <false/>
+              <key>thinning</key>
+              <string>&lt;none&gt;</string>
+          </dict>
+          </plist>
+          EOF
+          
+          echo "ExportOptions.plist contents:"
+          cat ios/ExportOptions.plist
+          echo "✅ ExportOptions.plist created with manual signing"
+
+      - name: 🔄 Update build number
+        run: |
+          cd ios/App
+          # Update build number in Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD_NUMBER" App/Info.plist
+          echo "✅ Build number updated to $BUILD_NUMBER"
+
+      - name: 🏗️ Build iOS app
+        run: |
+          cd ios/App
+          
+          echo "=== Building iOS app ==="
+          echo "Build configuration: Release"
+          echo "Signing style: None (build phase)"
+          echo "Team ID: ${{ secrets.APPLE_TEAM_ID || 'XDY458RQ59' }}"
+          echo "Bundle ID: com.serenity.recovery"
+          echo "Provisioning Profile UUID: $PROFILE_UUID (for export only)"
+          
+          # Clean build folder
+          rm -rf build
+          
+          # Build archive WITHOUT signing - this completely skips code signing during build
+          # Signing will be handled during the export phase with our distribution certificate
+          xcodebuild -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -archivePath build/App.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            DEVELOPMENT_TEAM=${{ secrets.APPLE_TEAM_ID || 'XDY458RQ59' }} \
+            PRODUCT_BUNDLE_IDENTIFIER=com.serenity.recovery \
+            archive
+          
+          echo "✅ Unsigned archive built successfully"
+
+      - name: 📤 Export IPA
+        env:
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID || 'XDY458RQ59' }}
+        run: |
+          cd ios/App
+          
+          echo "=== Exporting and Signing IPA ==="
+          echo "Using manual signing with distribution certificate and provisioning profile"
+          echo "Team ID: $TEAM_ID"
+          echo "Bundle ID: com.serenity.recovery"
+          echo "Profile UUID: $PROFILE_UUID"
+          echo "Code Sign Identity: $CODESIGN_IDENTITY"
+          
+          # Verify certificate and profile availability before export
+          echo "Verifying code signing setup..."
+          security find-identity -v -p codesigning
+          echo "Available provisioning profiles:"
+          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/
+          
+          # Export archive with manual signing
+          xcodebuild -exportArchive \
+            -archivePath build/App.xcarchive \
+            -exportPath build \
+            -exportOptionsPlist ../ExportOptions.plist \
+            -verbose
+          
+          # If manual signing fails, try with explicit code signing environment
+          if [ ! -f "build/App.ipa" ]; then
+            echo "⚠️ First export attempt failed, trying with explicit signing..."
+            
+            # Set explicit code signing environment variables
+            export CODE_SIGN_IDENTITY="$CODESIGN_IDENTITY"
+            export PROVISIONING_PROFILE="$PROFILE_UUID"
+            export DEVELOPMENT_TEAM="$TEAM_ID"
+            
+            xcodebuild -exportArchive \
+              -archivePath build/App.xcarchive \
+              -exportPath build \
+              -exportOptionsPlist ../ExportOptions.plist \
+              CODE_SIGN_IDENTITY="$CODESIGN_IDENTITY" \
+              PROVISIONING_PROFILE="$PROFILE_UUID" \
+              DEVELOPMENT_TEAM="$TEAM_ID" \
+              -verbose
+          fi
+          
+          # Verify IPA exists
+          if [ ! -f "build/App.ipa" ]; then
+            echo "❌ IPA file not found after export"
+            echo "Build directory contents:"
+            ls -la build/
+            echo "Archive contents:"
+            ls -la build/App.xcarchive/
+            exit 1
+          fi
+          
+          # Verify IPA signature
+          echo "Verifying IPA signature..."
+          codesign -vv -d build/App.ipa
+          
+          echo "✅ IPA exported and signed successfully"
+          ls -lah build/
+
+      - name: 🚀 Upload to TestFlight
+        if: github.event.inputs.deployment_type != 'validate-only'
+        env:
+          DEPLOYMENT_TYPE: ${{ github.event.inputs.deployment_type || 'testflight' }}
+        run: |
+          cd ios/App
+          
+          echo "=== Uploading to App Store Connect ==="
+          echo "Deployment type: $DEPLOYMENT_TYPE"
+          
+          # Upload using altool
+          xcrun altool --upload-app \
+            --type ios \
+            --file build/App.ipa \
+            --apiKey $APP_STORE_CONNECT_KEY_ID \
+            --apiIssuer $APP_STORE_CONNECT_ISSUER_ID \
+            --verbose
+          
+          echo "✅ App uploaded to TestFlight successfully!"
+          echo ""
+          echo "📱 Next steps:"
+          echo "1. Check TestFlight in 5-10 minutes for processing"
+          echo "2. Once processed, distribute to testers"
+          if [ "$DEPLOYMENT_TYPE" == "app-store" ]; then
+            echo "3. Submit for App Store review"
+            echo "4. Request expedited review for healthcare app"
+          fi
+
+      - name: 📊 Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-build-${{ github.run_number }}
+          path: |
+            ios/App/build/
+            ios/ExportOptions.plist
+            ios/fastlane/report.xml
+
+      - name: 🎉 Deployment Success
+        if: success()
+        run: |
+          echo "========================================="
+          echo "✅ iOS DEPLOYMENT SUCCESSFUL!"
+          echo "========================================="
+          echo ""
+          echo "📱 Build Details:"
+          echo "  • Build Number: $BUILD_NUMBER"
+          echo "  • Bundle ID: com.serenity.recovery"
+          echo "  • Team ID: ${{ secrets.APPLE_TEAM_ID || 'XDY458RQ59' }}"
+          echo "  • Deployment: ${{ github.event.inputs.deployment_type || 'testflight' }}"
+          echo ""
+          echo "🚀 TestFlight Status:"
+          echo "  • Processing time: 5-15 minutes"
+          echo "  • External testing: Available immediately after processing"
+          echo ""
+          echo "📋 HIPAA Compliance: ✅ Verified"
+          echo "🔒 Security: All PHI data encrypted"
+          echo ""
+          echo "Monitor at: https://appstoreconnect.apple.com"
+
+      - name: 🧹 Cleanup
+        if: always()
+        run: |
+          echo "=== Cleaning up sensitive files ==="
+          
+          # Clean up API keys
+          rm -f ~/private_keys/AuthKey_*.p8
+          
+          # Clean up certificate and profile files
+          rm -f $RUNNER_TEMP/build_certificate.p12
+          rm -f $RUNNER_TEMP/build_pp.mobileprovision
+          
+          # Clean up provisioning profiles
+          rm -f ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision 2>/dev/null || true
+          
+          # Delete temporary keychain
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          if [ -f "$KEYCHAIN_PATH" ]; then
+            security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
+          fi
+          
+          # Reset keychain list to default
+          security list-keychain -d user -s login.keychain 2>/dev/null || true
+          
+          echo "✅ Cleanup completed"

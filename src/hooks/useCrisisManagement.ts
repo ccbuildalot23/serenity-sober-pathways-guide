@@ -15,6 +15,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import logger from '../services/loggerService';
 
 import { mcpIntegrationBridge } from '@/services/McpIntegrationBridge';
 import { realtimeNotificationService } from '@/services/RealtimeNotificationService';
@@ -287,7 +288,7 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['crisis'] });
       toast.success('Crisis alert sent to your support network');
-      console.log('[useCrisisManagement] Crisis alert created:', data.unified);
+      logger.debug('[useCrisisManagement] Crisis alert created:', data.unified, { component: 'useCrisisManagement' });
     },
     onError: (_error) => {
       setError(`Failed to create crisis alert: ${_error._message}`);
@@ -320,7 +321,7 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['crisis'] });
       toast.success(`Response recorded: ${variables.response.type.replace('_', ' ')}`);
-      console.log('[useCrisisManagement] Response recorded:', data.unified);
+      logger.debug('[useCrisisManagement] Response recorded:', data.unified, { component: 'useCrisisManagement' });
     },
     onError: (_error) => {
       setError(`Failed to record response: ${_error._message}`);
@@ -346,7 +347,7 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['crisis'] });
       toast.success(`Crisis escalated: ${variables.escalation.type.replace('_', ' ')}`);
-      console.log('[useCrisisManagement] Crisis escalated:', data.unified);
+      logger.debug('[useCrisisManagement] Crisis escalated:', data.unified, { component: 'useCrisisManagement' });
     },
     onError: (_error) => {
       setError(`Failed to escalate crisis: ${_error._message}`);
@@ -369,7 +370,7 @@ export const useCrisisManagement = (alertId?: string): UseCrisisManagementReturn
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['crisis'] });
       toast.success('Crisis resolved successfully');
-      console.log('[useCrisisManagement] Crisis resolved:', data.unified);
+      logger.debug('[useCrisisManagement] Crisis resolved:', data.unified, { component: 'useCrisisManagement' });
     },
     onError: (_error) => {
       setError(`Failed to resolve crisis: ${_error._message}`);

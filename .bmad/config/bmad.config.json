@@ -1,0 +1,37 @@
+{
+  "version": "4.41.0",
+  "ide": "claude-code",
+  "projectType": "healthcare-platform",
+  "features": {
+    "agileAgents": true,
+    "expansionPacks": [
+      "infrastructure-devops"
+    ],
+    "aiAssistance": true,
+    "continuousLearning": true
+  },
+  "agents": {
+    "core": [
+      "product-owner",
+      "scrum-master",
+      "architect",
+      "developer",
+      "qa-engineer",
+      "devops-engineer"
+    ],
+    "specialized": [
+      "security-specialist",
+      "compliance-officer",
+      "mobile-developer",
+      "database-admin"
+    ]
+  },
+  "integration": {
+    "claudeFlow": true,
+    "mcpServers": [
+      "ruv-swarm",
+      "serena"
+    ],
+    "githubActions": true
+  }
+}

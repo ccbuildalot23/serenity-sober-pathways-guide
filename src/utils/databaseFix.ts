@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import logger from '../services/loggerService';
 
 export interface FixedCheckInInput {
   mood?: 'positive' | 'neutral' | 'negative' | string;
@@ -51,7 +52,7 @@ export async function fixedCheckInSubmission(checkInData: FixedCheckInInput) {
       existing.push(fallbackData);
       localStorage.setItem('serenity_checkins', JSON.stringify(existing));
     } catch {}
-    console.warn('Database failed, saved to localStorage:', error);
+    logger.warn('Database failed, saved to localStorage:', error, { component: 'databaseFix' });
     return { success: true, data: fallbackData, source: 'localStorage' as const };
   }
 
@@ -64,9 +65,9 @@ export async function fixedCheckInSubmission(checkInData: FixedCheckInInput) {
       .eq('user_id', user.id)
       .gte('created_at', new Date(Date.now() - 60000).toISOString()); // Last minute
     
-    console.log(`✅ Recent checkin_events for user: ${recentEvents || 0}`);
+    logger.debug(`✅ Recent checkin_events for user: ${recentEvents || 0}`, { component: 'databaseFix' });
   } catch (eventCheckError) {
-    console.warn('Could not verify checkin_events creation:', eventCheckError);
+    logger.warn('Could not verify checkin_events creation:', eventCheckError, { component: 'databaseFix' });
   }
 
   return { success: true, data, source: 'database' as const };
@@ -109,7 +110,7 @@ export async function loadDashboardDataFixed() {
     const [eventsResp, dailyResp, lastResp, contactsResp] = user ? await Promise.all([
       supabase.from('checkin_events').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
       supabase.from('daily_checkins').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
-      supabase.from('daily_checkins').select('created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5),
+      supabase.from('daily_checkins').select('created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(30),
       supabase.from('support_contacts').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
     ]) : [null, null, { data: [] }, null];
 
@@ -118,11 +119,14 @@ export async function loadDashboardDataFixed() {
     const lastCheckIn = (lastResp as any)?.data?.[0]?.created_at || null;
     const recentCheckIns = (lastResp as any)?.data || [];
     const contactsCount = (contactsResp as any)?.count ?? 0;
+    
+    // Calculate actual consecutive streak
+    const streak = calculateStreakFixed(recentCheckIns);
 
     return {
       totalCheckIns: eventsCount > 0 ? eventsCount : dailyCount,
       supportNetworkCount: contactsCount,
-      currentStreak: dailyCount,
+      currentStreak: streak,
       lastCheckIn,
       recentCheckIns,
     };
@@ -186,7 +190,7 @@ export async function getCurrentCheckinCounts(): Promise<{
   }
 }
 
-function calculateStreakFixed(checkIns: Array<{ created_at?: string }>) {
+export function calculateStreakFixed(checkIns: Array<{ created_at?: string }>) {
   if (!checkIns || checkIns.length === 0) return 0;
   const today = new Date();
   let streak = 0;

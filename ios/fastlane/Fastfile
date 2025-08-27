@@ -1,0 +1,411 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+
+default_platform(:ios)
+
+# Constants
+APP_IDENTIFIER = "com.serenity.recovery"
+TEAM_ID = "XDY458RQ59"
+SCHEME = "App"
+WORKSPACE = "App/App.xcworkspace"
+PROJECT = "App/App.xcodeproj"
+
+platform :ios do
+  before_all do
+    setup_ci if ENV['CI']
+    ensure_git_status_clean unless ENV['CI']
+  end
+
+  desc "Create app on App Store Connect if it doesn't exist"
+  lane :produce_app do
+    produce(
+      app_identifier: APP_IDENTIFIER,
+      app_name: "Serenity Sober Pathways",
+      language: "English",
+      app_version: "1.0.0",
+      sku: "com-serenity-recovery-001",
+      team_id: TEAM_ID,
+      company_name: "Serenity Recovery Solutions",
+      platforms: ["ios"]
+    )
+  end
+
+  desc "Setup certificates and provisioning profiles with Match"
+  lane :certificates do
+    UI.message("Setting up certificates with Fastlane Match")
+    
+    # Create temporary keychain for CI
+    if ENV['CI']
+      create_keychain(
+        name: "fastlane_tmp_keychain",
+        password: ENV["MATCH_KEYCHAIN_PASSWORD"] || "tmp_keychain_password",
+        default_keychain: true,
+        unlock: true,
+        timeout: 3600,
+        add_to_search_list: true
+      )
+    end
+    
+    # Sync certificates using Match
+    match(
+      type: "appstore",
+      app_identifier: APP_IDENTIFIER,
+      readonly: ENV['CI'] == "true",
+      keychain_name: ENV['CI'] ? "fastlane_tmp_keychain" : nil,
+      keychain_password: ENV["MATCH_KEYCHAIN_PASSWORD"] || ""
+    )
+    
+    UI.success("Certificate setup with Match completed ✅")
+  end
+  
+  desc "Sync all certificate types"
+  lane :sync_all_certs do
+    ["development", "appstore"].each do |type|
+      match(
+        type: type,
+        app_identifier: APP_IDENTIFIER,
+        readonly: false
+      )
+    end
+  end
+
+  desc "Build the iOS app for development"
+  lane :build_debug do
+    certificates
+    gym(
+      scheme: SCHEME,
+      workspace: WORKSPACE,
+      configuration: "Debug",
+      export_method: "development",
+      output_directory: "./build",
+      output_name: "SerenityRecovery-Debug.ipa"
+    )
+  end
+
+  desc "Build the iOS app for App Store"
+  lane :build_release do
+    # Setup certificates with Match
+    certificates
+    
+    # Use a simple incrementing build number based on GitHub run number
+    build_num = ENV["GITHUB_RUN_NUMBER"] || Time.now.to_i.to_s
+    increment_build_number(
+      build_number: build_num,
+      xcodeproj: PROJECT
+    )
+    
+    # Update code signing settings to use Match profiles
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: PROJECT,
+      team_id: TEAM_ID,
+      bundle_identifier: APP_IDENTIFIER,
+      profile_name: ENV["sigh_#{APP_IDENTIFIER}_appstore_profile-name"],
+      code_sign_identity: "iPhone Distribution"
+    )
+    
+    # Configure App Store Connect API if available
+    if ENV["APP_STORE_CONNECT_API_KEY_ID"] && ENV["APP_STORE_CONNECT_ISSUER_ID"] && ENV["APP_STORE_CONNECT_API_KEY_PATH"]
+      app_store_connect_api_key(
+        key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
+        issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+        key_filepath: ENV["APP_STORE_CONNECT_API_KEY_PATH"],
+        in_house: false
+      )
+    end
+    
+    # Build with Match certificates
+    gym(
+      scheme: SCHEME,
+      workspace: WORKSPACE,
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: "./build",
+      output_name: "SerenityRecovery-Release.ipa",
+      export_team_id: TEAM_ID,
+      export_options: {
+        provisioningProfiles: {
+          APP_IDENTIFIER => ENV["sigh_#{APP_IDENTIFIER}_appstore_profile-name"]
+        }
+      },
+      xcargs: "DEVELOPMENT_TEAM=#{TEAM_ID}",
+      skip_profile_detection: false,
+      skip_codesigning: false,
+      clean: true
+    )
+  end
+
+  desc "Upload to TestFlight with enhanced error handling"
+  lane :beta do
+    # Configure App Store Connect API first (support both naming conventions)
+    key_id = ENV["APP_STORE_CONNECT_API_KEY_ID"] || ENV["APP_STORE_CONNECT_KEY_ID"]
+    issuer_id = ENV["APP_STORE_CONNECT_ISSUER_ID"]
+    key_path = ENV["APP_STORE_CONNECT_API_KEY_PATH"]
+    
+    if key_id && issuer_id && key_path
+      app_store_connect_api_key(
+        key_id: key_id,
+        issuer_id: issuer_id,
+        key_filepath: key_path,
+        in_house: false
+      )
+      UI.success("App Store Connect API configured ✅")
+    else
+      UI.error("App Store Connect API credentials missing!")
+    end
+    
+    # Build the app
+    build_release
+    
+    # Upload to TestFlight with retry logic
+    begin
+      upload_to_testflight(
+        app_identifier: APP_IDENTIFIER,
+        team_id: ENV["APPLE_TEAM_ID"] || TEAM_ID,
+        skip_waiting_for_build_processing: false,
+        changelog: "Healthcare app update with enhanced HIPAA compliance and crisis support features.",
+        distribute_external: true,
+        groups: ["External Testers"]
+      )
+      UI.success("App uploaded to TestFlight! 🚀")
+    rescue => e
+      UI.error("TestFlight upload failed: #{e.message}")
+      UI.message("Retrying with skip_waiting enabled...")
+      
+      upload_to_testflight(
+        app_identifier: APP_IDENTIFIER,
+        team_id: ENV["APPLE_TEAM_ID"] || TEAM_ID,
+        skip_waiting_for_build_processing: true,
+        changelog: "Healthcare app update - Build #{Time.now.to_i}"
+      )
+    end
+    
+    # Send notification
+    slack(
+      message: "New iOS build uploaded to TestFlight! 🚀",
+      success: true
+    ) if ENV["SLACK_URL"]
+  end
+
+  desc "Submit to App Store"
+  lane :release do
+    build_release
+    
+    # Upload metadata
+    deliver(
+      app_identifier: APP_IDENTIFIER,
+      team_id: TEAM_ID,
+      force: true,
+      submit_for_review: false,
+      automatic_release: false,
+      submission_information: {
+        add_id_info_limits_tracking: true,
+        add_id_info_serves_ads: false,
+        add_id_info_tracks_action: false,
+        add_id_info_tracks_install: true,
+        add_id_info_uses_idfa: false,
+        content_rights_has_rights: true,
+        content_rights_contains_third_party_content: false,
+        export_compliance_platform: "ios",
+        export_compliance_compliance_required: false,
+        export_compliance_encryption_updated: false,
+        export_compliance_app_type: nil,
+        export_compliance_uses_encryption: false,
+        export_compliance_is_exempt: true,
+        export_compliance_contains_third_party_cryptography: false,
+        export_compliance_contains_proprietary_cryptography: false,
+        export_compliance_available_on_french_store: false
+      }
+    )
+    
+    # Send notification
+    slack(
+      message: "iOS app submitted to App Store! 🎉",
+      success: true
+    ) if ENV["SLACK_URL"]
+  end
+
+  desc "Generate screenshots for all device types"
+  lane :screenshots do
+    snapshot(
+      devices: [
+        "iPhone 15 Pro Max",
+        "iPhone 15 Pro",
+        "iPhone SE (3rd generation)",
+        "iPad Pro (12.9-inch) (6th generation)",
+        "iPad Pro (11-inch) (4th generation)"
+      ],
+      languages: ["en-US"],
+      launch_arguments: ["-ui-testing"]
+    )
+  end
+
+  desc "Upload metadata and screenshots to App Store Connect"
+  lane :metadata do
+    deliver(
+      app_identifier: APP_IDENTIFIER,
+      team_id: TEAM_ID,
+      skip_binary_upload: true,
+      skip_screenshots: false,
+      force: true
+    )
+  end
+
+  desc "Complete setup for new app"
+  lane :setup do
+    produce_app
+    certificates
+    UI.success("Setup complete! Ready to build and deploy.")
+  end
+
+  desc "Full deployment pipeline"
+  lane :deploy do
+    build_release
+    upload_to_testflight(
+      app_identifier: APP_IDENTIFIER,
+      team_id: TEAM_ID,
+      changelog: "Latest version with healthcare compliance improvements and enhanced crisis support features."
+    )
+    
+    # Update metadata
+    deliver(
+      app_identifier: APP_IDENTIFIER,
+      team_id: TEAM_ID,
+      skip_binary_upload: true,
+      force: true
+    )
+    
+    UI.success("Deployment complete! 🎉")
+  end
+
+  desc "Clean build artifacts"
+  lane :clean do
+    clean_build_artifacts
+    clean_cocoapods_cache
+    UI.success("Build artifacts cleaned! 🧹")
+  end
+
+  desc "Run tests"
+  lane :test do
+    run_tests(
+      workspace: WORKSPACE,
+      devices: ["iPhone 15 Pro"],
+      scheme: SCHEME
+    )
+  end
+
+  desc "Emergency deployment for critical updates"
+  lane :emergency_deploy do
+    UI.important("🚨 EMERGENCY DEPLOYMENT INITIATED")
+    
+    # Configure App Store Connect API
+    app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      key_filepath: ENV["APP_STORE_CONNECT_API_KEY_PATH"],
+      in_house: false
+    )
+    
+    # Increment build number
+    build_num = ENV["GITHUB_RUN_NUMBER"] || Time.now.to_i.to_s
+    increment_build_number(
+      build_number: build_num,
+      xcodeproj: PROJECT
+    )
+    
+    # Build with expedited settings
+    gym(
+      scheme: SCHEME,
+      workspace: WORKSPACE,
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: "./build",
+      output_name: "SerenityRecovery-Emergency.ipa",
+      skip_waiting_for_build_processing: true,
+      xcargs: "DEVELOPMENT_TEAM=XDY458RQ59 CODE_SIGN_STYLE=Automatic -allowProvisioningUpdates"
+    )
+    
+    # Upload to TestFlight immediately
+    upload_to_testflight(
+      app_identifier: APP_IDENTIFIER,
+      team_id: TEAM_ID,
+      skip_waiting_for_build_processing: true,
+      distribute_external: true,
+      groups: ["External Testers", "Healthcare Professionals"],
+      changelog: "🚨 Emergency deployment: Critical mental health crisis support features and security updates"
+    )
+    
+    # Submit for App Store review if requested
+    if ENV["SUBMIT_FOR_REVIEW"] == "true"
+      deliver(
+        app_identifier: APP_IDENTIFIER,
+        team_id: TEAM_ID,
+        force: true,
+        submit_for_review: true,
+        automatic_release: true,
+        submission_information: {
+          add_id_info_limits_tracking: true,
+          add_id_info_serves_ads: false,
+          add_id_info_tracks_action: false,
+          add_id_info_tracks_install: true,
+          add_id_info_uses_idfa: false,
+          content_rights_has_rights: true,
+          content_rights_contains_third_party_content: false,
+          export_compliance_platform: "ios",
+          export_compliance_compliance_required: false,
+          export_compliance_encryption_updated: false,
+          export_compliance_uses_encryption: false,
+          export_compliance_is_exempt: true
+        }
+      )
+      
+      UI.success("🚨 Emergency deployment submitted to App Store!")
+    end
+    
+    # Send notifications
+    slack(
+      message: "🚨 EMERGENCY iOS deployment completed! Build processing...",
+      success: true
+    ) if ENV["SLACK_URL"]
+    
+    UI.success("Emergency deployment complete! 🚀")
+  end
+
+  desc "Healthcare compliance check"
+  lane :hipaa_check do
+    UI.message("Running HIPAA compliance checks...")
+    
+    # Check for sensitive data in code
+    sh("grep -r 'password\\|secret\\|key\\|token' ../App --exclude-dir=build --exclude='*.ipa' || true")
+    
+    # Verify SSL/TLS configuration
+    UI.message("Verifying SSL/TLS configuration...")
+    
+    # Check Info.plist for security configurations
+    info_plist_path = "../App/App/Info.plist"
+    if File.exist?(info_plist_path)
+      UI.success("Info.plist found - checking security configurations")
+    else
+      UI.error("Info.plist not found!")
+    end
+    
+    UI.success("HIPAA compliance checks completed ✅")
+  end
+
+  # Error handling
+  error do |lane, exception|
+    slack(
+      message: "Lane #{lane} failed with exception: #{exception}",
+      success: false
+    ) if ENV["SLACK_URL"]
+  end
+
+  after_all do |lane|
+    UI.success("Lane #{lane} completed successfully! 🎉")
+  end
+end
+
+# Helper methods
+def is_ci
+  ENV['CI'] == 'true'
+end

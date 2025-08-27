@@ -1,3 +1,4 @@
+import logger from '../services/loggerService';
 
 /**
  * Simplified security headers configuration
@@ -25,7 +26,7 @@ export class SecurityHeaders {
     this.setMetaTag('X-Content-Type-Options', 'nosniff');
     this.setMetaTag('Referrer-Policy', 'strict-origin-when-cross-origin');
     
-    console.log('Simplified security headers applied');
+    logger.debug('Simplified security headers applied', { component: 'securityHeaders' });
   }
 
   private static setMetaTag(name: string, content: string) {
@@ -76,7 +77,7 @@ export class SecurityHeaders {
   static logSecurityEvent(event: string, _details: unknown = {}) {
     // Simplified logging to prevent infinite loops
     if (import.meta.env.DEV) {
-      console.log(`Security Event: ${event}`, _details);
+      logger.debug(`Security Event: ${event}`, _details, { component: 'securityHeaders' });
     }
   }
 }

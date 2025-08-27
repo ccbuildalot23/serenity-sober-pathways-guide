@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import logger from './loggerService';
 
 interface SecurityEvent {
   event_type: string;
@@ -626,8 +627,8 @@ export class EnhancedSecurityAuditService {
       // Gracefully handle tests that stub query builders without insert()
       const builder: any = supabase.from('security_audit_logs');
       if (!builder || typeof builder.insert !== 'function') {
-        console.warn('security_audit_logs insert unavailable in current environment; skipping DB write');
-        console.log(`Successfully logged ${eventsToFlush.length} security events (no-op)`);
+        logger.warn('security_audit_logs insert unavailable in current environment; skipping DB write', { component: 'EnhancedSecurityAuditService' });
+        logger.debug(`Successfully logged ${eventsToFlush.length} security events (no-op, { component: 'EnhancedSecurityAuditService' });`);
         return;
       }
       // Insert security events. If the dedicated table is missing or blocked by RLS,
@@ -635,7 +636,7 @@ export class EnhancedSecurityAuditService {
       const { error: insertError } = await builder.insert(eventsToFlush as any);
 
       if (insertError) {
-        console.warn('security_audit_logs insert failed; falling back to audit_logs:', insertError);
+        logger.warn('security_audit_logs insert failed; falling back to audit_logs:', insertError, { component: 'EnhancedSecurityAuditService' });
         const fallbackPayload = (eventsToFlush as any[]).map(e => ({
           user_id: (e as any)._user_id ?? null,
           event_type: (e as any).event_type ?? 'SECURITY_EVENT',
@@ -651,7 +652,7 @@ export class EnhancedSecurityAuditService {
         if (fallbackError) throw fallbackError;
       }
 
-      console.log(`Successfully logged ${eventsToFlush.length} security events`);
+      logger.debug(`Successfully logged ${eventsToFlush.length} security events`, { component: 'EnhancedSecurityAuditService' });
     } catch (_error) {
       console.error('Failed to flush security events:', _error);
       // Re-queue events on failure
@@ -689,7 +690,7 @@ export class EnhancedSecurityAuditService {
         }));
       }
       // Fallback to memory log; apply basic filters for tests
-      let filtered = this.memoryLog.filter(e =>
+      const filtered = this.memoryLog.filter(e =>
         (!options.entity_type || (e as any).metadata?.entity_type === options.entity_type) &&
         (!options.entity_id || (e as any).metadata?.entity_id === options.entity_id) &&
         (!options.user_id || e._user_id === options.user_id || (e as any).metadata?.user_id === options.user_id) &&
@@ -733,7 +734,7 @@ export class EnhancedSecurityAuditService {
             return data.ip || null;
           }
         } catch (_error) {
-          console.warn('Failed to get IP from external service:', _error);
+          logger.warn('Failed to get IP from external service:', _error, { component: 'EnhancedSecurityAuditService' });
         }
       }
       
@@ -744,7 +745,7 @@ export class EnhancedSecurityAuditService {
           return ip;
         }
       } catch (_error) {
-        console.warn('WebRTC IP detection failed:', _error);
+        logger.warn('WebRTC IP detection failed:', _error, { component: 'EnhancedSecurityAuditService' });
       }
       
       // Method 3: Fallback to forwarded headers (if available via edge function)
@@ -758,7 +759,7 @@ export class EnhancedSecurityAuditService {
       const isDev = (typeof process !== 'undefined' ? process.env.NODE_ENV !== 'production' : true);
       return isDev ? '127.0.0.1' : null;
     } catch (_error) {
-      console.warn('IP detection _error:', _error);
+      logger.warn('IP detection _error:', _error, { component: 'EnhancedSecurityAuditService' });
       return null;
     }
   }

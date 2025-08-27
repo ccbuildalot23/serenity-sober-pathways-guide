@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertTriangle, Clock, CheckCircle, XCircle, User, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
+import logger from '../../services/loggerService';
 
 interface ModerationItem {
   id: string;
@@ -45,7 +46,7 @@ const ModerationDashboard: React.FC = () => {
             _table: 'moderation_queue'
           },
           (_payload) => {
-            console.log('Moderation queue update:', _payload);
+            logger.debug('Moderation queue update:', _payload, { component: 'ModerationDashboard' });
             loadModerationItems(); // Reload data when changes occur
           }
         )
@@ -119,7 +120,7 @@ const ModerationDashboard: React.FC = () => {
   const handleModerationAction = async (itemId: string, action: 'approve' | 'reject' | 'escalate') => {
     try {
       // Mock action handling - this will be replaced with real database updates
-      console.log(`${action} action performed on item ${itemId} by user ${user?.id}`);
+      logger.debug(`${action} action performed on item ${itemId} by user ${user?.id}`, { component: 'ModerationDashboard' });
       
       // Update local state to reflect the action
       setModerationItems(items => 

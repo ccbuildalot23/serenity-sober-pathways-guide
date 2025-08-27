@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { emergencyFallback } from '@/lib/emergencyFallback';
+import logger from './loggerService';
 
 export interface DashboardStats {
   streak: number;
@@ -51,7 +52,7 @@ export interface UserProfile {
 export const dashboardDataService = {
   async getUserStats(_userId: string): Promise<DashboardStats> {
     try {
-      console.log('Fetching comprehensive user stats for:', _userId);
+      logger.debug('Fetching comprehensive user stats for:', _userId, { component: 'dashboardDataService' });
 
       // Get recovery streak - with _error handling
       let streakData = null;
@@ -59,7 +60,7 @@ export const dashboardDataService = {
         const { data } = await supabase.rpc('get_recovery_streak', { user_uuid: _userId });
         streakData = data;
       } catch (_streakError) {
-        console.warn('Error fetching streak data:', _streakError);
+        logger.warn('Error fetching streak data:', _streakError, { component: 'dashboardDataService' });
       }
 
       // Get recent check-ins (last 7 days) – tolerate schema differences
@@ -79,7 +80,7 @@ export const dashboardDataService = {
       }
 
       if (_checkinsError) {
-        console.warn('Error fetching recent checkins:', _checkinsError);
+        logger.warn('Error fetching recent checkins:', _checkinsError, { component: 'dashboardDataService' });
       }
 
       // Get total check-ins count – use head:true to read count header; fall back to local cache
@@ -106,7 +107,7 @@ export const dashboardDataService = {
         .limit(10);
 
       if (_crisisError) {
-        console.warn('Error fetching crisis events:', _crisisError);
+        logger.warn('Error fetching crisis events:', _crisisError, { component: 'dashboardDataService' });
       }
 
       // Get support network data
@@ -117,7 +118,7 @@ export const dashboardDataService = {
         .order('priority_order', { ascending: true });
 
       if (_supportError) {
-        console.warn('Error fetching support network:', _supportError);
+        logger.warn('Error fetching support network:', _supportError, { component: 'dashboardDataService' });
       }
 
       // Get upcoming appointments (placeholder since appointments table doesn't exist yet)
@@ -138,7 +139,7 @@ export const dashboardDataService = {
           upcomingAppointments = appointmentsData || [];
         }
       } catch (_appointmentError) {
-        console.warn('Appointments table not found or _error:', _appointmentError);
+        logger.warn('Appointments table not found or _error:', _appointmentError, { component: 'dashboardDataService' });
       }
       */
 
@@ -151,7 +152,7 @@ export const dashboardDataService = {
         .limit(100);
 
       if (_goalsError) {
-        console.warn('Error fetching goals:', _goalsError);
+        logger.warn('Error fetching goals:', _goalsError, { component: 'dashboardDataService' });
       }
 
       // Process data
@@ -212,7 +213,7 @@ export const dashboardDataService = {
         }))
       };
 
-      console.log('Comprehensive user stats result:', result);
+      logger.debug('Comprehensive user stats result:', result, { component: 'dashboardDataService' });
       return result;
     } catch (_error) {
       console._error('Error fetching comprehensive user stats:', _error);
@@ -242,7 +243,7 @@ export const dashboardDataService = {
 
   async getUserProfile(_userId: string): Promise<UserProfile | null> {
     try {
-      console.log('Fetching user profile for:', _userId);
+      logger.debug('Fetching user profile for:', _userId, { component: 'dashboardDataService' });
       
       const { data, _error } = await supabase
         .from('profiles')
@@ -251,11 +252,11 @@ export const dashboardDataService = {
         .single();
 
       if (_error && _error.code !== 'PGRST116') {
-        console.warn('Error fetching profile:', _error);
+        logger.warn('Error fetching profile:', _error, { component: 'dashboardDataService' });
         return null;
       }
       
-      console.log('Profile data:', data);
+      logger.debug('Profile data:', data, { component: 'dashboardDataService' });
       return data;
     } catch (_error) {
       console._error('Error fetching user profile:', _error);

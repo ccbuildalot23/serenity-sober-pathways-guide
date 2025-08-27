@@ -31,7 +31,7 @@ const recoveryWisdom = {
     "My worst day clean is better than my best day using.",
     "Recovery didn't open the gates of heaven to let me in. It opened the gates of hell to let me out.",
     "I came for my drinking. I stayed for my thinking.",
-    "The opposite of addiction isn't sobriety. It's connection.",
+    "The opposite of substance use isn't sobriety. It's connection.",
     "Rock bottom became the solid foundation on which I rebuilt my life.",
     "I used to live to use and use to live. Today I'm just grateful to be alive.",
     "Recovery gave me everything drugs promised.",
@@ -41,7 +41,7 @@ const recoveryWisdom = {
   encouragement: [
     "You're not alone in this. We've all been where you are.",
     "Your recovery matters to people you haven't even met yet.",
-    "Relapse isn't a requirement. You never have to use again.",
+    "Recovery challenges aren't a requirement. You never have to use again.",
     "If you're reading this, you've already taken the first step.",
     "Your pain has a purpose. Your story will help someone else.",
     "Recovery is possible. I'm living proof.",

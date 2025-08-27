@@ -6,6 +6,7 @@ import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
 import { motion, AnimatePresence } from 'framer-motion';
+import logger from '../services/loggerService';
 import { 
   Loader2, 
   Shield, 
@@ -29,6 +30,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { GlassCard } from '@/components/ui/GlassCard';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -44,7 +46,7 @@ const Auth = () => {
   const [showLoginForm, setShowLoginForm] = useState(isLoginRoute);
 
   // Test log to verify page loads
-  console.log('🎯 Auth page loaded successfully with new three-user-type design');
+  logger.debug('🎯 Auth page loaded successfully with new three-user-type design', { component: 'Auth' });
 
   // Check URL params for debug mode
   useEffect(() => {
@@ -85,18 +87,18 @@ const Auth = () => {
 
   // Redirect if user is already authenticated
   useEffect(() => {
-    console.log('Auth page - checking user:', { user, authLoading, isRedirecting });
+    logger.debug('Auth page - checking user:', { user, authLoading, isRedirecting }, { component: 'Auth' });
     
     if (user && !authLoading && !isRedirecting) {
       setIsRedirecting(true);
-      console.log('User authenticated, preparing redirect...');
+      logger.debug('User authenticated, preparing redirect...', { component: 'Auth' });
       
       // Clear any error states
       localStorage.removeItem('auth_error');
       
       // Use user metadata directly for immediate, deterministic routing
       const userType = (user as any)?.user_metadata?.userType || 'recovery';
-      console.log('Determined userType for redirect:', userType);
+      logger.debug('Determined userType for redirect:', userType, { component: 'Auth' });
       
       const route = userType === 'provider'
         ? '/provider/dashboard'
@@ -135,20 +137,26 @@ const Auth = () => {
           </div>
           <h2 className="text-2xl font-bold text-sage-800 mb-2">Welcome to Serenity</h2>
           <p className="text-sage-600">Preparing your secure environment...</p>
+          <div 
+            className="mt-4 text-xs text-sage-500" 
+            data-testid="dashboard-status"
+            aria-label="Authentication status"
+          >
+            Verifying authentication...
+          </div>
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-therapeutic relative overflow-hidden">
-      {/* Floating Elements Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-32 h-32 bg-emerald-200/20 rounded-full animate-float"></div>
-        <div className="absolute top-40 right-20 w-24 h-24 bg-turquoise-200/20 rounded-full animate-float" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute bottom-32 left-1/4 w-20 h-20 bg-sky-200/20 rounded-full animate-float" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute bottom-20 right-1/3 w-28 h-28 bg-sage-200/20 rounded-full animate-float" style={{ animationDelay: '0.5s' }}></div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-lavender-50 to-sky-50 relative overflow-hidden">
+      {/* Floating orbs background - disabled for performance */}
+      {/* <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-lavender-200/20 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute top-40 right-20 w-80 h-80 bg-sky-200/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute bottom-20 left-1/3 w-72 h-72 bg-emerald-200/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }}></div>
+      </div> */}
 
       {/* Header */}
       <header className="relative z-10 px-6 py-6">

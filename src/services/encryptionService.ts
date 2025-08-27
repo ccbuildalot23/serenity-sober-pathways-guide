@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import logger from './loggerService';
 
 /**
  * HIPAA-Compliant Encryption Service
@@ -94,12 +95,12 @@ export class EncryptionService {
       const result = combined.toString('base64');
       
       // Log for verification (remove in production)
-      console.log('🔐 ENCRYPTION PROOF:');
-      console.log('  Original length:', plaintext.length);
-      console.log('  Encrypted length:', result.length);
-      console.log('  Salt:', salt.toString('hex').substring(0, 16) + '...');
-      console.log('  IV:', iv.toString('hex').substring(0, 16) + '...');
-      console.log('  Tag:', authTag.toString('hex').substring(0, 16) + '...');
+      logger.debug('🔐 ENCRYPTION PROOF:', { component: 'encryptionService' });
+      logger.debug('  Original length:', plaintext.length, { component: 'encryptionService' });
+      logger.debug('  Encrypted length:', result.length, { component: 'encryptionService' });
+      logger.debug('  Salt:', salt.toString('hex').substring(0, 16) + '...', { component: 'encryptionService' });
+      logger.debug('  IV:', iv.toString('hex').substring(0, 16) + '...', { component: 'encryptionService' });
+      logger.debug('  Tag:', authTag.toString('hex').substring(0, 16) + '...', { component: 'encryptionService' });
       
       return result;
     } catch (error) {
@@ -142,10 +143,10 @@ export class EncryptionService {
       const result = decrypted.toString('utf8');
       
       // Log for verification (remove in production)
-      console.log('🔓 DECRYPTION PROOF:');
-      console.log('  Encrypted length:', encryptedData.length);
-      console.log('  Decrypted length:', result.length);
-      console.log('  Integrity verified: ✅');
+      logger.debug('🔓 DECRYPTION PROOF:', { component: 'encryptionService' });
+      logger.debug('  Encrypted length:', encryptedData.length, { component: 'encryptionService' });
+      logger.debug('  Decrypted length:', result.length, { component: 'encryptionService' });
+      logger.debug('  Integrity verified: ✅', { component: 'encryptionService' });
       
       return result;
     } catch (error) {
@@ -180,14 +181,14 @@ export class EncryptionService {
    */
   static async verifyEncryption(): Promise<boolean> {
     try {
-      console.log('🔍 VERIFYING ENCRYPTION SERVICE...');
+      logger.debug('🔍 VERIFYING ENCRYPTION SERVICE...', { component: 'encryptionService' });
       
       const testData = 'This is PHI test data - Patient: John Doe, DOB: 01/01/1980, SSN: 123-45-6789';
-      console.log('📝 Original data:', testData);
+      logger.debug('📝 Original data:', testData, { component: 'encryptionService' });
       
       // Test encryption
       const encrypted = this.encrypt(testData, 'test-context');
-      console.log('🔐 Encrypted:', encrypted.substring(0, 50) + '...');
+      logger.debug('🔐 Encrypted:', encrypted.substring(0, 50) + '...', { component: 'encryptionService' });
       
       // Verify it's actually encrypted (not the same as original)
       if (encrypted === testData) {
@@ -197,7 +198,7 @@ export class EncryptionService {
       
       // Test decryption
       const decrypted = this.decrypt(encrypted, 'test-context');
-      console.log('🔓 Decrypted:', decrypted);
+      logger.debug('🔓 Decrypted:', decrypted, { component: 'encryptionService' });
       
       // Verify decryption produces original data
       if (decrypted !== testData) {
@@ -206,14 +207,14 @@ export class EncryptionService {
       }
       
       // Test integrity check (tamper detection)
-      console.log('🛡️ Testing tamper detection...');
+      logger.debug('🛡️ Testing tamper detection...', { component: 'encryptionService' });
       const tamperedData = encrypted.slice(0, -10) + 'TAMPERED!!';
       try {
         this.decrypt(tamperedData, 'test-context');
         console.error('❌ INTEGRITY CHECK FAILED: Tampered data not detected');
         return false;
       } catch (error) {
-        console.log('✅ Tamper detection working correctly');
+        logger.debug('✅ Tamper detection working correctly', { component: 'encryptionService' });
       }
       
       // Test different contexts produce different encryptions
@@ -223,9 +224,9 @@ export class EncryptionService {
         console.error('❌ CONTEXT ISOLATION FAILED: Same encryption for different contexts');
         return false;
       }
-      console.log('✅ Context isolation verified');
+      logger.debug('✅ Context isolation verified', { component: 'encryptionService' });
       
-      console.log('✅ ENCRYPTION SERVICE FULLY VERIFIED');
+      logger.debug('✅ ENCRYPTION SERVICE FULLY VERIFIED', { component: 'encryptionService' });
       return true;
     } catch (error) {
       console.error('❌ VERIFICATION FAILED:', error);
@@ -266,11 +267,11 @@ export class EncryptionService {
       contentHash: this.hash(noteContent) // Hash for integrity verification
     };
     
-    console.log('📋 Provider Note Encryption:');
-    console.log('  Note type:', metadata.noteType);
-    console.log('  Original size:', noteContent.length, 'chars');
-    console.log('  Encrypted size:', encryptedContent.length, 'chars');
-    console.log('  Encryption time:', encryptionMetadata.encryptedAt);
+    logger.debug('📋 Provider Note Encryption:', { component: 'encryptionService' });
+    logger.debug('  Note type:', metadata.noteType, { component: 'encryptionService' });
+    logger.debug('  Original size:', noteContent.length, 'chars', { component: 'encryptionService' });
+    logger.debug('  Encrypted size:', encryptedContent.length, 'chars', { component: 'encryptionService' });
+    logger.debug('  Encryption time:', encryptionMetadata.encryptedAt, { component: 'encryptionService' });
     
     return {
       encryptedContent,
@@ -294,10 +295,10 @@ export class EncryptionService {
     // Decrypt the content
     const decryptedContent = this.decrypt(encryptedContent, keyContext);
     
-    console.log('📋 Provider Note Decryption:');
-    console.log('  Encrypted size:', encryptedContent.length, 'chars');
-    console.log('  Decrypted size:', decryptedContent.length, 'chars');
-    console.log('  Access time:', new Date().toISOString());
+    logger.debug('📋 Provider Note Decryption:', { component: 'encryptionService' });
+    logger.debug('  Encrypted size:', encryptedContent.length, 'chars', { component: 'encryptionService' });
+    logger.debug('  Decrypted size:', decryptedContent.length, 'chars', { component: 'encryptionService' });
+    logger.debug('  Access time:', new Date().toISOString(), { component: 'encryptionService' });
     
     // In production, log this access to audit trail
     // await AuditService.logAccess('provider-note-decrypt', metadata);

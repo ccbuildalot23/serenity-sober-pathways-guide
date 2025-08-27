@@ -3,12 +3,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { SensoryProvider } from '@/contexts/SensoryContext';
 import { useEffect, Suspense, lazy } from 'react';
+import { lazyLoadingManager } from '@/utils/lazyLoadingManager';
+import { performanceMonitor } from '@/utils/performanceMonitor';
 import { EnhancedSecurityInitializer } from '@/lib/enhancedSecurityInitializer';
 import { EnhancedSecurityAuditService } from '@/services/EnhancedSecurityAuditService';
 import RealtimeNotifications from '@/components/RealtimeNotifications';
 import { Toaster } from '@/components/ui/sonner';
 import { HealthcareErrorBoundary } from '@/components/HealthcareErrorBoundary';
 import { SessionTimeoutManager } from '@/components/SessionTimeoutManager';
+import { SessionTimeoutDebug } from '@/components/debug/SessionTimeoutDebug';
 import LoadingState from '@/components/LoadingState';
 // CRITICAL ROUTES - Load immediately (crisis features and auth)
 import CrisisHelp from '@/pages/CrisisHelp';
@@ -64,7 +67,7 @@ const SupporterResources = lazy(() => import('@/pages/supporter/SupporterResourc
 const Motivation = lazy(() => import('@/pages/Motivation'));
 const AccountabilityPartners = lazy(() => import('@/pages/AccountabilityPartners'));
 const RecoveryPlanning = lazy(() => import('@/pages/RecoveryPlanning'));
-const RelapsePreventionPage = lazy(() => import('@/pages/RelapsePrevention'));
+const RecoveryStrengthPage = lazy(() => import('@/pages/RelapsePrevention'));
 // Eagerly load CrisisSupport to avoid lazy loading issues in E2E
 import CrisisSupport from '@/pages/CrisisSupport';
 
@@ -99,6 +102,7 @@ import '@/utils/databaseTest';
 import '@/utils/autonomousTest';
 import '@/utils/databaseFix';
 import '@/utils/demoMode';
+import '@/utils/sessionTimeoutTest';
 
 const queryClient = new QueryClient();
 
@@ -116,6 +120,18 @@ const ConditionalRealtimeNotifications = () => {
   }
   
   return <RealtimeNotifications />;
+};
+
+// Intelligent preloading based on route
+const RouteBasedPreloader = () => {
+  const location = useLocation();
+  
+  useEffect(() => {
+    // Preload components based on current route
+    lazyLoadingManager.preloadRouteComponents(location.pathname);
+  }, [location.pathname]);
+  
+  return null;
 };
 
 // Main app content wrapped in router
@@ -136,13 +152,27 @@ const AppContent = () => {
         import('@/pages/PatientDashboard'),
       ]).catch(() => {});
     }
+    
+    // Initialize intelligent preloading
+    lazyLoadingManager.preloadComponent(
+      () => import('@/pages/CrisisHelp'),
+      'CrisisHelp',
+      'high'
+    );
+    
+    // Initialize performance monitoring in development
+    if (import.meta.env.DEV) {
+      performanceMonitor.initialize();
+    }
   }, []);
 
   return (
     <>
       <ConditionalRealtimeNotifications />
+      <RouteBasedPreloader />
       <Toaster />
       <SessionTimeoutManager>
+        <SessionTimeoutDebug />
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<HomePage />} />
@@ -254,13 +284,15 @@ const AppContent = () => {
               </Suspense>
             </ProtectedRoute>
           } />
-          <Route path="/relapse-prevention" element={
+          <Route path="/recovery-strengthening" element={
             <ProtectedRoute>
               <Suspense fallback={<LoadingState />}>
-                <RelapsePreventionPage />
+                <RecoveryStrengthPage />
               </Suspense>
             </ProtectedRoute>
           } />
+          {/* Redirect old relapse-prevention URL */}
+          <Route path="/relapse-prevention" element={<Navigate to="/recovery-strengthening" replace />} />
 
           {/* Protected Provider Routes */}
           <Route path="/provider/dashboard" element={

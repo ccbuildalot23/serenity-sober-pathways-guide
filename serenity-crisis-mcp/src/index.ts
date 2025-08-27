@@ -19,10 +19,140 @@ const server = new Server(
   }
 );
 
-// Register the crisis_alert tool
-server.setRequestHandler('tools/call', async (request) => {
+// Register tools
+server.setRequestHandler('tools/list', async (request: any) => {
+  return {
+    tools: [
+      {
+        name: 'trigger_crisis_alert',
+        description: 'Trigger a crisis alert with SMS cascade to support network',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            user_id: { type: 'string', description: 'User ID in crisis' },
+            severity: { type: 'string', enum: ['low', 'medium', 'high', 'critical', 'emergency'] },
+            location: { type: 'object', properties: { lat: { type: 'number' }, lng: { type: 'number' } } },
+            message: { type: 'string', description: 'Crisis message' }
+          },
+          required: ['user_id', 'severity', 'message']
+        }
+      },
+      {
+        name: 'track_supporter_response',
+        description: 'Track a supporter response to a crisis alert',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            alert_id: { type: 'string' },
+            supporter_id: { type: 'string' },
+            response_type: { type: 'string', enum: ['immediate', 'on_my_way', 'cant_help', 'delegated'] },
+            eta_minutes: { type: 'number' }
+          },
+          required: ['alert_id', 'supporter_id', 'response_type']
+        }
+      },
+      {
+        name: 'escalate_to_emergency',
+        description: 'Escalate crisis to emergency services',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            alert_id: { type: 'string' },
+            location: { type: 'object' },
+            medical_info: { type: 'object' }
+          },
+          required: ['alert_id', 'location']
+        }
+      },
+      {
+        name: 'generate_crisis_message',
+        description: 'Generate contextual crisis message',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            severity: { type: 'string' },
+            location: { type: 'object' },
+            patient_name: { type: 'string' },
+            supporter_type: { type: 'string' },
+            urgency: { type: 'string' }
+          },
+          required: ['severity', 'patient_name', 'supporter_type', 'urgency']
+        }
+      },
+      {
+        name: 'crisis_alert',
+        description: 'Legacy crisis alert handler',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            message: { type: 'string' },
+            severity: { type: 'string' },
+            supporter_tiers: { type: 'array' }
+          },
+          required: ['message', 'severity', 'supporter_tiers']
+        }
+      }
+    ]
+  };
+});
+
+// Register tool handlers
+server.setRequestHandler('tools/call', async (request: any) => {
   const { name, arguments: args } = request.params;
 
+  // New enhanced tools
+  if (name === 'trigger_crisis_alert') {
+    const { user_id, severity, location, message } = args as any;
+    const result = await crisisHandler.triggerCrisisAlert(user_id, severity, location, message);
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(result, null, 2)
+        }
+      ]
+    };
+  }
+
+  if (name === 'track_supporter_response') {
+    const { alert_id, supporter_id, response_type, eta_minutes } = args as any;
+    const result = await crisisHandler.trackSupporterResponse(alert_id, supporter_id, response_type, eta_minutes);
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(result, null, 2)
+        }
+      ]
+    };
+  }
+
+  if (name === 'escalate_to_emergency') {
+    const { alert_id, location, medical_info } = args as any;
+    const result = await crisisHandler.escalateToEmergency(alert_id, location, medical_info);
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(result, null, 2)
+        }
+      ]
+    };
+  }
+
+  if (name === 'generate_crisis_message') {
+    const result = await crisisHandler.generateCrisisMessage(args as any);
+    return {
+      content: [
+        {
+          type: 'text',
+          text: result
+        }
+      ]
+    };
+  }
+
+  // Legacy crisis_alert tool
   if (name === 'crisis_alert') {
     try {
       // Validate and parse arguments

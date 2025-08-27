@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import logger from '../services/loggerService';
 
 export interface SupportMessage {
   id: string;
@@ -200,7 +201,7 @@ export const useSupporterMessaging = () => {
           _filter: `or(sender_id.eq.${user.id},recipient_id.eq.${user.id})`
         },
         (payload) => {
-          console.log('Message update:', payload);
+          logger.debug('Message update:', payload, { component: 'useSupporterMessaging' });
           fetchMessages();
         }
       )
@@ -218,7 +219,7 @@ export const useSupporterMessaging = () => {
           _filter: `shared_with_supporter_id.eq.${user.id}`
         },
         (payload) => {
-          console.log('Location share update:', payload);
+          logger.debug('Location share update:', payload, { component: 'useSupporterMessaging' });
           fetchLocationShares();
           
           // Show notification for new location shares

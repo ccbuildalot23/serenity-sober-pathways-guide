@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { UserData, GeneratedStory } from './types';
-import { generateRelapseStory } from './storyGenerator';
+import { generateRecoveryStory } from './storyGenerator';
 import { SafetyWarning } from './components/SafetyWarning';
 import { StoryPlayer } from './components/StoryPlayer';
 import { ReflectionPrompt } from './components/ReflectionPrompt';
@@ -24,7 +24,7 @@ export const PlayTheTapeModal: React.FC<PlayTheTapeModalProps> = ({
   const handleProceed = async () => {
     setLoading(true);
     try {
-      const _generatedStory = await generateRelapseStory(_userData);
+      const _generatedStory = await generateRecoveryStory(_userData);
       setStory(_generatedStory);
       setStage('story');
     } catch (error) {

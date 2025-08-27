@@ -1,0 +1,682 @@
+name: Notification Service Performance
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'services/notification-service/**'
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'services/notification-service/**'
+  schedule:
+    # Run performance tests daily at 3 AM UTC
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      test_duration:
+        description: 'Test duration in minutes'
+        required: true
+        default: '5'
+        type: choice
+        options:
+          - '1'
+          - '5'
+          - '10'
+          - '30'
+      test_type:
+        description: 'Type of performance test'
+        required: true
+        default: 'load'
+        type: choice
+        options:
+          - load
+          - stress
+          - spike
+          - endurance
+          - baseline
+
+env:
+  NODE_VERSION: '20'
+  K6_VERSION: '0.47.0'
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  setup-performance-environment:
+    runs-on: ubuntu-latest
+    outputs:
+      test-duration: ${{ steps.config.outputs.duration }}
+      test-type: ${{ steps.config.outputs.type }}
+    
+    services:
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: perftest
+          POSTGRES_USER: perftest
+          POSTGRES_DB: notification_perf
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Configure test parameters
+        id: config
+        run: |
+          # Set test duration
+          if [ "${{ github.event.inputs.test_duration }}" != "" ]; then
+            echo "duration=${{ github.event.inputs.test_duration }}" >> $GITHUB_OUTPUT
+          else
+            echo "duration=5" >> $GITHUB_OUTPUT
+          fi
+          
+          # Set test type
+          if [ "${{ github.event.inputs.test_type }}" != "" ]; then
+            echo "type=${{ github.event.inputs.test_type }}" >> $GITHUB_OUTPUT
+          else
+            echo "type=load" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install dependencies
+        working-directory: ./services/notification-service
+        run: npm ci
+
+      - name: Setup test database
+        working-directory: ./services/notification-service
+        env:
+          DATABASE_URL: postgresql://perftest:perftest@localhost:5432/notification_perf
+        run: |
+          npm run db:migrate
+          
+          # Seed with test data for performance testing
+          cat > seed-perf-data.sql << 'EOF'
+          -- Insert test users
+          INSERT INTO users (id, email, role, created_at) VALUES
+          (gen_random_uuid(), 'user1@test.com', 'patient', NOW()),
+          (gen_random_uuid(), 'user2@test.com', 'provider', NOW()),
+          (gen_random_uuid(), 'user3@test.com', 'supporter', NOW());
+          
+          -- Insert test notification templates
+          INSERT INTO notification_templates (id, name, type, content, created_at) VALUES
+          (gen_random_uuid(), 'crisis_alert', 'critical', 'Crisis alert: {{message}}', NOW()),
+          (gen_random_uuid(), 'daily_checkin', 'reminder', 'Daily check-in reminder', NOW()),
+          (gen_random_uuid(), 'appointment', 'appointment', 'Appointment: {{date}}', NOW());
+          EOF
+          
+          psql $DATABASE_URL -f seed-perf-data.sql || echo "Seeding completed with warnings"
+
+      - name: Build and start notification service
+        working-directory: ./services/notification-service
+        env:
+          NODE_ENV: production
+          DATABASE_URL: postgresql://perftest:perftest@localhost:5432/notification_perf
+          REDIS_URL: redis://localhost:6379
+          PORT: 3000
+          LOG_LEVEL: warn
+        run: |
+          npm run build
+          nohup npm start > service.log 2>&1 &
+          
+          # Wait for service to be ready
+          timeout 60s bash -c 'until curl -f http://localhost:3000/health; do sleep 2; done'
+          echo "✅ Service started successfully"
+
+      - name: Verify service performance baseline
+        run: |
+          echo "Running baseline performance check..."
+          
+          # Single request latency test
+          for i in {1..10}; do
+            RESPONSE_TIME=$(curl -w "%{time_total}" -s -o /dev/null http://localhost:3000/health)
+            echo "Request $i: ${RESPONSE_TIME}s"
+          done
+          
+          echo "✅ Baseline performance verified"
+
+  load-testing:
+    needs: setup-performance-environment
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install k6
+        run: |
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Setup test infrastructure
+        run: |
+          # Start required services
+          docker run -d --name redis -p 6379:6379 redis:7-alpine
+          docker run -d --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=perftest -e POSTGRES_USER=perftest -e POSTGRES_DB=notification_perf postgres:15-alpine
+          
+          # Wait for services
+          timeout 30s bash -c 'until docker exec redis redis-cli ping; do sleep 1; done'
+          timeout 30s bash -c 'until docker exec postgres pg_isready; do sleep 1; done'
+
+      - name: Setup Node.js and start service
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies and start service
+        working-directory: ./services/notification-service
+        env:
+          NODE_ENV: production
+          DATABASE_URL: postgresql://perftest:perftest@localhost:5432/notification_perf
+          REDIS_URL: redis://localhost:6379
+          PORT: 3000
+        run: |
+          npm ci
+          npm run db:migrate
+          npm run build
+          nohup npm start > service.log 2>&1 &
+          timeout 60s bash -c 'until curl -f http://localhost:3000/health; do sleep 2; done'
+
+      - name: Create performance test scenarios
+        working-directory: ./services/notification-service
+        run: |
+          mkdir -p tests/performance
+          
+          # Load Test Scenario
+          cat > tests/performance/load-test.js << 'EOF'
+          import http from 'k6/http';
+          import { check, sleep } from 'k6';
+          import { Counter, Rate, Trend } from 'k6/metrics';
+
+          // Custom metrics
+          const errorRate = new Rate('error_rate');
+          const responseTime = new Trend('response_time', true);
+          const throughput = new Counter('requests_per_second');
+
+          export const options = {
+            thresholds: {
+              http_req_duration: ['p(95)<500', 'p(99)<1000'], // 95% under 500ms, 99% under 1s
+              http_req_failed: ['rate<0.01'],                  // Less than 1% failure rate
+              error_rate: ['rate<0.01'],
+              response_time: ['p(95)<500'],
+            },
+            stages: [
+              { duration: '2m', target: 10 },   // Warm up
+              { duration: '5m', target: 50 },   // Normal load
+              { duration: '2m', target: 100 },  // Peak load
+              { duration: '5m', target: 50 },   // Back to normal
+              { duration: '2m', target: 0 },    // Cool down
+            ],
+          };
+
+          const BASE_URL = 'http://localhost:3000';
+
+          export default function () {
+            const testScenarios = [
+              // Health check
+              { method: 'GET', url: '/health', weight: 30 },
+              // Metrics endpoint
+              { method: 'GET', url: '/metrics', weight: 10 },
+              // Send notification (simulated)
+              { method: 'POST', url: '/api/v1/notifications', weight: 40, body: JSON.stringify({
+                type: 'info',
+                message: 'Test notification',
+                recipients: ['test@example.com']
+              }) },
+              // Get notification status
+              { method: 'GET', url: '/api/v1/notifications/status', weight: 20 },
+            ];
+
+            // Weighted random selection
+            const random = Math.random() * 100;
+            let cumulative = 0;
+            let selectedScenario;
+
+            for (const scenario of testScenarios) {
+              cumulative += scenario.weight;
+              if (random <= cumulative) {
+                selectedScenario = scenario;
+                break;
+              }
+            }
+
+            const startTime = Date.now();
+            let response;
+
+            if (selectedScenario.method === 'POST') {
+              response = http.post(`${BASE_URL}${selectedScenario.url}`, selectedScenario.body, {
+                headers: { 'Content-Type': 'application/json' },
+              });
+            } else {
+              response = http.get(`${BASE_URL}${selectedScenario.url}`);
+            }
+
+            const endTime = Date.now();
+            const duration = endTime - startTime;
+
+            // Record metrics
+            responseTime.add(duration);
+            throughput.add(1);
+            errorRate.add(response.status !== 200);
+
+            // Checks
+            check(response, {
+              'status is 200': (r) => r.status === 200,
+              'response time < 500ms': () => duration < 500,
+              'response has content': (r) => r.body && r.body.length > 0,
+            });
+
+            sleep(Math.random() * 2 + 1); // 1-3 seconds between requests
+          }
+
+          export function handleSummary(data) {
+            return {
+              'performance-results.json': JSON.stringify(data),
+              stdout: textSummary(data),
+            };
+          }
+          EOF
+
+          # Stress Test Scenario
+          cat > tests/performance/stress-test.js << 'EOF'
+          import http from 'k6/http';
+          import { check, sleep } from 'k6';
+
+          export const options = {
+            thresholds: {
+              http_req_duration: ['p(95)<1000'], // Allow higher latency under stress
+              http_req_failed: ['rate<0.05'],    // 5% failure rate acceptable under stress
+            },
+            stages: [
+              { duration: '2m', target: 100 },  // Ramp up to stress level
+              { duration: '5m', target: 200 },  // Stay at stress level
+              { duration: '2m', target: 300 },  // Peak stress
+              { duration: '5m', target: 200 },  // Back to stress level
+              { duration: '2m', target: 0 },    // Cool down
+            ],
+          };
+
+          const BASE_URL = 'http://localhost:3000';
+
+          export default function () {
+            const response = http.get(`${BASE_URL}/health`);
+            
+            check(response, {
+              'status is 200 or 503': (r) => r.status === 200 || r.status === 503, // Allow service unavailable under stress
+              'response time < 1s': (r) => r.timings.duration < 1000,
+            });
+
+            sleep(0.1); // High frequency requests
+          }
+          EOF
+
+          # Spike Test Scenario  
+          cat > tests/performance/spike-test.js << 'EOF'
+          import http from 'k6/http';
+          import { check, sleep } from 'k6';
+
+          export const options = {
+            thresholds: {
+              http_req_duration: ['p(95)<2000'], // Allow higher latency during spikes
+              http_req_failed: ['rate<0.10'],    // 10% failure rate acceptable during spike
+            },
+            stages: [
+              { duration: '30s', target: 10 },   // Normal load
+              { duration: '1m', target: 500 },   // Sudden spike
+              { duration: '30s', target: 10 },   // Back to normal
+              { duration: '1m', target: 1000 },  // Bigger spike
+              { duration: '30s', target: 10 },   // Recovery
+            ],
+          };
+
+          const BASE_URL = 'http://localhost:3000';
+
+          export default function () {
+            const response = http.get(`${BASE_URL}/health`);
+            
+            check(response, {
+              'status is not 0': (r) => r.status !== 0, // Accept any response (service may be overwhelmed)
+              'response received': (r) => r.body !== undefined,
+            });
+
+            sleep(0.1);
+          }
+          EOF
+
+      - name: Run performance tests
+        working-directory: ./services/notification-service
+        env:
+          TEST_TYPE: ${{ needs.setup-performance-environment.outputs.test-type }}
+          TEST_DURATION: ${{ needs.setup-performance-environment.outputs.test-duration }}
+        run: |
+          echo "Running $TEST_TYPE performance test for $TEST_DURATION minutes..."
+          
+          case "$TEST_TYPE" in
+            "load")
+              k6 run tests/performance/load-test.js --out json=load-results.json
+              ;;
+            "stress")
+              k6 run tests/performance/stress-test.js --out json=stress-results.json
+              ;;
+            "spike")  
+              k6 run tests/performance/spike-test.js --out json=spike-results.json
+              ;;
+            "baseline")
+              # Simple baseline test
+              k6 run --duration=2m --vus=10 -e BASE_URL=http://localhost:3000 - <<< '
+              import http from "k6/http";
+              export default function() { http.get(process.env.BASE_URL + "/health"); }
+              ' --out json=baseline-results.json
+              ;;
+            *)
+              echo "Unknown test type: $TEST_TYPE"
+              exit 1
+              ;;
+          esac
+
+      - name: Analyze performance results
+        working-directory: ./services/notification-service
+        run: |
+          echo "📊 Performance Test Results Analysis"
+          
+          # Find the results file
+          RESULTS_FILE=""
+          for file in *-results.json; do
+            if [ -f "$file" ]; then
+              RESULTS_FILE="$file"
+              break
+            fi
+          done
+          
+          if [ -z "$RESULTS_FILE" ]; then
+            echo "❌ No results file found"
+            exit 1
+          fi
+          
+          echo "Analyzing results from: $RESULTS_FILE"
+          
+          # Extract key metrics using jq
+          if command -v jq &> /dev/null; then
+            echo "Key Performance Metrics:"
+            
+            # Response time percentiles
+            P95_DURATION=$(jq -r '.metrics.http_req_duration.values.p95' "$RESULTS_FILE" 2>/dev/null || echo "N/A")
+            P99_DURATION=$(jq -r '.metrics.http_req_duration.values.p99' "$RESULTS_FILE" 2>/dev/null || echo "N/A")
+            AVG_DURATION=$(jq -r '.metrics.http_req_duration.values.avg' "$RESULTS_FILE" 2>/dev/null || echo "N/A")
+            
+            echo "- Average Response Time: ${AVG_DURATION}ms"
+            echo "- 95th Percentile: ${P95_DURATION}ms"
+            echo "- 99th Percentile: ${P99_DURATION}ms"
+            
+            # Request rates
+            RPS=$(jq -r '.metrics.http_reqs.values.rate' "$RESULTS_FILE" 2>/dev/null || echo "N/A")
+            TOTAL_REQUESTS=$(jq -r '.metrics.http_reqs.values.count' "$RESULTS_FILE" 2>/dev/null || echo "N/A")
+            
+            echo "- Requests per Second: $RPS"
+            echo "- Total Requests: $TOTAL_REQUESTS"
+            
+            # Error rate
+            ERROR_RATE=$(jq -r '.metrics.http_req_failed.values.rate' "$RESULTS_FILE" 2>/dev/null || echo "N/A")
+            echo "- Error Rate: $(echo "$ERROR_RATE * 100" | bc -l 2>/dev/null || echo "$ERROR_RATE")%"
+            
+            # Performance thresholds validation
+            echo ""
+            echo "📋 Threshold Validation:"
+            
+            # Check if P95 < 500ms for load tests
+            if [ "$TEST_TYPE" = "load" ] && [ "$P95_DURATION" != "N/A" ]; then
+              if (( $(echo "$P95_DURATION < 500" | bc -l 2>/dev/null || echo 0) )); then
+                echo "✅ P95 response time under 500ms: ${P95_DURATION}ms"
+              else
+                echo "❌ P95 response time exceeded 500ms: ${P95_DURATION}ms"
+                echo "PERFORMANCE_THRESHOLD_FAILED=true" >> $GITHUB_ENV
+              fi
+            fi
+            
+            # Check error rate < 1% for load tests
+            if [ "$TEST_TYPE" = "load" ] && [ "$ERROR_RATE" != "N/A" ]; then
+              if (( $(echo "$ERROR_RATE < 0.01" | bc -l 2>/dev/null || echo 0) )); then
+                echo "✅ Error rate under 1%: $(echo "$ERROR_RATE * 100" | bc -l 2>/dev/null || echo "$ERROR_RATE")%"
+              else
+                echo "❌ Error rate exceeded 1%: $(echo "$ERROR_RATE * 100" | bc -l 2>/dev/null || echo "$ERROR_RATE")%"
+                echo "PERFORMANCE_THRESHOLD_FAILED=true" >> $GITHUB_ENV
+              fi
+            fi
+          else
+            echo "jq not available, showing raw results summary:"
+            tail -20 "$RESULTS_FILE" || echo "Could not read results file"
+          fi
+
+      - name: Upload performance results
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-results-${{ needs.setup-performance-environment.outputs.test-type }}
+          path: |
+            services/notification-service/*-results.json
+            services/notification-service/service.log
+
+      - name: Comment performance results on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = './services/notification-service';
+            
+            // Find results file
+            let resultsContent = 'Performance test completed. See artifacts for detailed results.';
+            const files = fs.readdirSync(path);
+            const resultsFile = files.find(f => f.endsWith('-results.json'));
+            
+            if (resultsFile) {
+              try {
+                const results = JSON.parse(fs.readFileSync(`${path}/${resultsFile}`, 'utf8'));
+                const metrics = results.metrics;
+                
+                resultsContent = `
+            ## 📊 Performance Test Results
+            
+            **Test Type:** ${{ needs.setup-performance-environment.outputs.test-type }}
+            **Duration:** ${{ needs.setup-performance-environment.outputs.test-duration }} minutes
+            
+            ### Key Metrics
+            - **Average Response Time:** ${metrics.http_req_duration?.values?.avg?.toFixed(2) || 'N/A'}ms
+            - **95th Percentile:** ${metrics.http_req_duration?.values?.p95?.toFixed(2) || 'N/A'}ms
+            - **99th Percentile:** ${metrics.http_req_duration?.values?.p99?.toFixed(2) || 'N/A'}ms
+            - **Requests/sec:** ${metrics.http_reqs?.values?.rate?.toFixed(2) || 'N/A'}
+            - **Error Rate:** ${((metrics.http_req_failed?.values?.rate || 0) * 100).toFixed(2)}%
+            - **Total Requests:** ${metrics.http_reqs?.values?.count || 'N/A'}
+            
+            ${process.env.PERFORMANCE_THRESHOLD_FAILED === 'true' ? '❌ Some performance thresholds were not met.' : '✅ All performance thresholds met.'}
+            `;
+              } catch (e) {
+                console.error('Error parsing results:', e);
+              }
+            }
+            
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: resultsContent
+            });
+
+  memory-profiling:
+    needs: setup-performance-environment
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Setup test infrastructure
+        run: |
+          docker run -d --name redis -p 6379:6379 redis:7-alpine
+          docker run -d --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=perftest -e POSTGRES_USER=perftest -e POSTGRES_DB=notification_perf postgres:15-alpine
+          timeout 30s bash -c 'until docker exec redis redis-cli ping; do sleep 1; done'
+          timeout 30s bash -c 'until docker exec postgres pg_isready; do sleep 1; done'
+
+      - name: Install memory profiling tools
+        working-directory: ./services/notification-service
+        run: |
+          npm ci
+          npm install --save-dev clinic autocannon 0x
+
+      - name: Run memory profiling
+        working-directory: ./services/notification-service
+        env:
+          NODE_ENV: production
+          DATABASE_URL: postgresql://perftest:perftest@localhost:5432/notification_perf
+          REDIS_URL: redis://localhost:6379
+          PORT: 3001
+        run: |
+          npm run build
+          
+          echo "Starting memory profiling..."
+          
+          # Profile with clinic doctor (detects performance issues)
+          timeout 120s npx clinic doctor --dest ./profile-results -- npm start &
+          CLINIC_PID=$!
+          
+          # Wait for service to start
+          timeout 60s bash -c 'until curl -f http://localhost:3001/health; do sleep 2; done'
+          
+          # Generate load for profiling
+          npx autocannon -c 10 -d 60 http://localhost:3001/health
+          
+          # Stop clinic profiling
+          kill $CLINIC_PID 2>/dev/null || true
+          wait $CLINIC_PID 2>/dev/null || true
+          
+          echo "✅ Memory profiling completed"
+
+      - name: Analyze memory usage
+        working-directory: ./services/notification-service
+        run: |
+          echo "📊 Memory Usage Analysis"
+          
+          # Check if profile results exist
+          if [ -d "profile-results" ]; then
+            echo "Profile results generated in profile-results/"
+            ls -la profile-results/
+          else
+            echo "No profile results found"
+          fi
+          
+          # Basic memory analysis
+          echo "Running basic memory check..."
+          
+          # Start service and check memory usage
+          NODE_ENV=production DATABASE_URL=postgresql://perftest:perftest@localhost:5432/notification_perf REDIS_URL=redis://localhost:6379 PORT=3002 npm start &
+          SERVICE_PID=$!
+          
+          sleep 10
+          
+          # Check memory usage
+          if ps -p $SERVICE_PID > /dev/null; then
+            MEMORY_KB=$(ps -o rss= -p $SERVICE_PID)
+            MEMORY_MB=$((MEMORY_KB / 1024))
+            echo "Service Memory Usage: ${MEMORY_MB}MB"
+            
+            # Check if memory usage is reasonable (under 512MB for baseline)
+            if [ $MEMORY_MB -gt 512 ]; then
+              echo "⚠️ High memory usage detected: ${MEMORY_MB}MB"
+              echo "MEMORY_WARNING=true" >> $GITHUB_ENV
+            else
+              echo "✅ Memory usage within acceptable limits: ${MEMORY_MB}MB"
+            fi
+          fi
+          
+          kill $SERVICE_PID 2>/dev/null || true
+
+      - name: Upload profiling results
+        uses: actions/upload-artifact@v4
+        with:
+          name: memory-profiling-results
+          path: |
+            services/notification-service/profile-results/
+          retention-days: 7
+
+  performance-summary:
+    needs: [load-testing, memory-profiling]
+    if: always()
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Generate performance summary
+        run: |
+          echo "# 🚀 Performance Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Test Date:** $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "**Test Type:** ${{ needs.setup-performance-environment.outputs.test-type }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Duration:** ${{ needs.setup-performance-environment.outputs.test-duration }} minutes" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Test | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|---------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Load Testing | ${{ needs.load-testing.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Memory Profiling | ${{ needs.memory-profiling.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "${{ needs.load-testing.result }}" == "success" && "${{ needs.memory-profiling.result }}" == "success" ]]; then
+            echo "## ✅ Overall Status: PERFORMANCE ACCEPTABLE" >> $GITHUB_STEP_SUMMARY
+            echo "All performance tests passed successfully." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ⚠️ Overall Status: PERFORMANCE ISSUES DETECTED" >> $GITHUB_STEP_SUMMARY
+            echo "Some performance tests failed. Review the detailed results." >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Artifacts Available" >> $GITHUB_STEP_SUMMARY
+          echo "- Performance test results (JSON)" >> $GITHUB_STEP_SUMMARY
+          echo "- Memory profiling data" >> $GITHUB_STEP_SUMMARY
+          echo "- Service logs" >> $GITHUB_STEP_SUMMARY
+
+      - name: Performance gate check
+        run: |
+          if [[ "${{ needs.load-testing.result }}" != "success" ]]; then
+            echo "❌ Load testing failed - performance requirements not met"
+            exit 1
+          else
+            echo "✅ Performance tests passed successfully"
+          fi

@@ -1,0 +1,341 @@
+{
+  "version": "1.0.0",
+  "description": "Predefined agent configurations for automatic task handling",
+  "templates": {
+    "research_swarm": {
+      "name": "Research & Analysis Swarm",
+      "description": "Comprehensive research with deep analysis capabilities",
+      "topology": "mesh",
+      "agents": [
+        {
+          "type": "researcher",
+          "capabilities": ["web_search", "documentation_analysis", "pattern_recognition"],
+          "priority": 1
+        },
+        {
+          "type": "deep-researcher",
+          "capabilities": ["deep_analysis", "synthesis", "report_generation"],
+          "priority": 1
+        }
+      ],
+      "mcp_servers": ["mcp__exa", "mcp__Ref"],
+      "framework": "SPARC",
+      "auto_spawn_conditions": {
+        "keywords": ["research", "analyze", "investigate", "explore", "understand"],
+        "complexity_min": 5
+      }
+    },
+    "development_swarm": {
+      "name": "Development & Implementation Swarm",
+      "description": "Full-stack development with TDD practices",
+      "topology": "hierarchical",
+      "agents": [
+        {
+          "type": "sparc-coord",
+          "capabilities": ["planning", "coordination", "task_decomposition"],
+          "priority": 1
+        },
+        {
+          "type": "coder",
+          "capabilities": ["implementation", "refactoring", "optimization"],
+          "priority": 2
+        },
+        {
+          "type": "tdd-london-swarm",
+          "capabilities": ["test_driven_development", "mocking", "unit_testing"],
+          "priority": 2
+        }
+      ],
+      "mcp_servers": ["mcp__ruv-swarm", "mcp__ide"],
+      "framework": "TDD",
+      "auto_spawn_conditions": {
+        "keywords": ["implement", "create", "build", "develop", "code", "feature"],
+        "complexity_min": 4
+      }
+    },
+    "architecture_swarm": {
+      "name": "System Architecture & Design Swarm",
+      "description": "High-level system design and architecture planning",
+      "topology": "adaptive",
+      "agents": [
+        {
+          "type": "system-architect",
+          "capabilities": ["system_design", "pattern_selection", "scalability_planning"],
+          "priority": 1
+        },
+        {
+          "type": "architecture",
+          "capabilities": ["component_design", "api_design", "database_schema"],
+          "priority": 1
+        },
+        {
+          "type": "sparc-coord",
+          "capabilities": ["methodology_enforcement", "phase_coordination"],
+          "priority": 2
+        }
+      ],
+      "mcp_servers": ["mcp__ruv-swarm"],
+      "framework": "SPARC",
+      "auto_spawn_conditions": {
+        "keywords": ["design", "architect", "structure", "system", "schema", "api"],
+        "complexity_min": 6
+      }
+    },
+    "security_swarm": {
+      "name": "Security & Compliance Swarm",
+      "description": "Security auditing with Byzantine fault tolerance",
+      "topology": "consensus",
+      "agents": [
+        {
+          "type": "security-manager",
+          "capabilities": ["security_audit", "vulnerability_detection", "compliance_check"],
+          "priority": 1
+        },
+        {
+          "type": "byzantine-coordinator",
+          "capabilities": ["consensus_building", "fault_tolerance", "malicious_detection"],
+          "priority": 1
+        },
+        {
+          "type": "consensus-builder",
+          "capabilities": ["voting_mechanism", "distributed_validation"],
+          "priority": 2
+        }
+      ],
+      "mcp_servers": ["mcp__ruv-swarm"],
+      "framework": "Byzantine",
+      "auto_spawn_conditions": {
+        "keywords": ["security", "audit", "vulnerability", "compliance", "hipaa", "encryption"],
+        "complexity_min": 5
+      }
+    },
+    "testing_swarm": {
+      "name": "Testing & Quality Assurance Swarm",
+      "description": "Comprehensive testing with multi-browser support",
+      "topology": "mesh",
+      "agents": [
+        {
+          "type": "tester",
+          "capabilities": ["test_execution", "regression_testing", "integration_testing"],
+          "priority": 1
+        },
+        {
+          "type": "reviewer",
+          "capabilities": ["code_review", "quality_assessment", "best_practices"],
+          "priority": 2
+        },
+        {
+          "type": "code-analyzer",
+          "capabilities": ["static_analysis", "complexity_analysis", "coverage_reporting"],
+          "priority": 2
+        }
+      ],
+      "mcp_servers": ["mcp__ruv-swarm", "mcp__ide"],
+      "framework": "TDD",
+      "auto_spawn_conditions": {
+        "keywords": ["test", "validate", "verify", "check", "qa", "quality"],
+        "complexity_min": 3
+      }
+    },
+    "performance_swarm": {
+      "name": "Performance Optimization Swarm",
+      "description": "Performance analysis and optimization",
+      "topology": "adaptive",
+      "agents": [
+        {
+          "type": "perf-analyzer",
+          "capabilities": ["bottleneck_detection", "profiling", "metrics_collection"],
+          "priority": 1
+        },
+        {
+          "type": "performance-benchmarker",
+          "capabilities": ["benchmarking", "load_testing", "comparison_analysis"],
+          "priority": 1
+        }
+      ],
+      "mcp_servers": ["mcp__ruv-swarm"],
+      "framework": "Benchmark",
+      "auto_spawn_conditions": {
+        "keywords": ["optimize", "performance", "speed", "benchmark", "profile", "efficiency"],
+        "complexity_min": 4
+      }
+    },
+    "bugfix_swarm": {
+      "name": "Bug Fix & Debugging Swarm",
+      "description": "Root cause analysis and bug fixing",
+      "topology": "mesh",
+      "agents": [
+        {
+          "type": "coder",
+          "capabilities": ["debugging", "fix_implementation", "code_modification"],
+          "priority": 1
+        },
+        {
+          "type": "tester",
+          "capabilities": ["reproduction", "validation", "regression_testing"],
+          "priority": 2
+        },
+        {
+          "type": "reviewer",
+          "capabilities": ["root_cause_analysis", "impact_assessment"],
+          "priority": 2
+        }
+      ],
+      "mcp_servers": ["mcp__ruv-swarm"],
+      "framework": "RCA",
+      "auto_spawn_conditions": {
+        "keywords": ["fix", "bug", "issue", "error", "problem", "broken"],
+        "complexity_min": 2
+      }
+    },
+    "mobile_swarm": {
+      "name": "Mobile Development Swarm",
+      "description": "React Native and Capacitor mobile development",
+      "topology": "hierarchical",
+      "agents": [
+        {
+          "type": "mobile-dev",
+          "capabilities": ["react_native", "ios_development", "android_development"],
+          "priority": 1
+        },
+        {
+          "type": "coder",
+          "capabilities": ["component_development", "state_management"],
+          "priority": 2
+        },
+        {
+          "type": "tester",
+          "capabilities": ["mobile_testing", "device_simulation"],
+          "priority": 2
+        }
+      ],
+      "mcp_servers": ["mcp__ruv-swarm"],
+      "framework": "TDD",
+      "auto_spawn_conditions": {
+        "keywords": ["mobile", "ios", "android", "react native", "capacitor"],
+        "complexity_min": 5
+      }
+    },
+    "cicd_swarm": {
+      "name": "CI/CD Pipeline Swarm",
+      "description": "GitHub Actions and deployment automation",
+      "topology": "hierarchical",
+      "agents": [
+        {
+          "type": "cicd-engineer",
+          "capabilities": ["github_actions", "pipeline_creation", "deployment_automation"],
+          "priority": 1
+        },
+        {
+          "type": "pr-manager",
+          "capabilities": ["pr_lifecycle", "review_coordination", "merge_management"],
+          "priority": 2
+        }
+      ],
+      "mcp_servers": ["mcp__ruv-swarm"],
+      "framework": "DevOps",
+      "auto_spawn_conditions": {
+        "keywords": ["ci", "cd", "pipeline", "github actions", "deployment", "workflow"],
+        "complexity_min": 4
+      }
+    },
+    "migration_swarm": {
+      "name": "Migration & Refactoring Swarm",
+      "description": "Large-scale code migration and refactoring",
+      "topology": "hierarchical",
+      "agents": [
+        {
+          "type": "migration-planner",
+          "capabilities": ["migration_planning", "dependency_analysis", "risk_assessment"],
+          "priority": 1
+        },
+        {
+          "type": "coder",
+          "capabilities": ["refactoring", "code_transformation"],
+          "priority": 2
+        },
+        {
+          "type": "tester",
+          "capabilities": ["regression_testing", "compatibility_testing"],
+          "priority": 2
+        }
+      ],
+      "mcp_servers": ["mcp__ruv-swarm"],
+      "framework": "SPARC",
+      "auto_spawn_conditions": {
+        "keywords": ["migrate", "refactor", "upgrade", "convert", "transform"],
+        "complexity_min": 8
+      }
+    }
+  },
+  "default_swarm_config": {
+    "topology": "adaptive",
+    "maxAgents": 10,
+    "strategy": "balanced",
+    "enableCoordination": true,
+    "enableLearning": true,
+    "persistenceMode": "memory",
+    "daa_config": {
+      "enableMemory": true,
+      "learningRate": 0.8,
+      "cognitivePattern": "adaptive"
+    }
+  },
+  "complexity_thresholds": {
+    "simple": {
+      "max_steps": 3,
+      "max_agents": 1,
+      "use_swarm": false
+    },
+    "medium": {
+      "max_steps": 10,
+      "max_agents": 5,
+      "use_swarm": true,
+      "topology": "mesh"
+    },
+    "complex": {
+      "max_steps": 20,
+      "max_agents": 10,
+      "use_swarm": true,
+      "topology": "hierarchical"
+    },
+    "very_complex": {
+      "max_steps": 999,
+      "max_agents": 15,
+      "use_swarm": true,
+      "topology": "adaptive"
+    }
+  },
+  "mcp_server_priorities": {
+    "research": ["mcp__exa", "mcp__Ref"],
+    "development": ["mcp__ruv-swarm", "mcp__ide"],
+    "testing": ["mcp__ruv-swarm", "mcp__ide"],
+    "deployment": ["mcp__ruv-swarm"],
+    "default": ["mcp__ruv-swarm", "mcp__exa", "mcp__Ref", "mcp__ide"]
+  },
+  "framework_selection_rules": {
+    "conditions": [
+      {
+        "if": "task_type == 'development' || task_type == 'testing'",
+        "then": "TDD"
+      },
+      {
+        "if": "task_type == 'architecture' || task_type == 'research'",
+        "then": "SPARC"
+      },
+      {
+        "if": "task_type == 'security'",
+        "then": "Byzantine"
+      },
+      {
+        "if": "task_type == 'performance'",
+        "then": "Benchmark"
+      },
+      {
+        "if": "task_type == 'bugfix'",
+        "then": "RCA"
+      }
+    ],
+    "default": "SPARC"
+  }
+}

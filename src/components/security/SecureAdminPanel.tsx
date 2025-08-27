@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, CheckCircle, XCircle } from 'lucide-react';
 import { useSecureAdminAccess } from '@/hooks/useSecureAdminAccess';
+import logger from '../../services/loggerService';
 
 /**
  * SECURITY FIX: Replace hardcoded admin access with role-based verification
@@ -17,7 +18,7 @@ export const SecureAdminPanel: React.FC = () => {
 
   const handleSecurityAudit = async () => {
     await executeAdminAction('SECURITY_AUDIT', async () => {
-      console.log('Performing security audit...');
+      logger.debug('Performing security audit...', { component: 'SecureAdminPanel' });
       // Security audit logic would go here
     });
   };

@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { testDatabaseConnection } from './databaseTest';
+import logger from '../services/loggerService';
 
 // Lightweight wrappers so we can reuse app services without circular UI imports
 async function loadDashboardDataInternal() {
@@ -93,7 +94,7 @@ async function addSupportContactInternal() {
 }
 
 export async function testCompletePatientJourney() {
-  console.log('🎯 STARTING COMPLETE PATIENT JOURNEY TEST...');
+  logger.debug('🎯 STARTING COMPLETE PATIENT JOURNEY TEST...', { component: 'patientJourneyTest' });
   const results = {
     auth: false,
     dashboard: false,
@@ -105,26 +106,26 @@ export async function testCompletePatientJourney() {
   try {
     const db = await testDatabaseConnection();
     results.auth = !!db.user;
-    console.log('✅ Auth test:', results.auth ? 'PASS' : 'FAIL');
+    logger.debug('✅ Auth test:', results.auth ? 'PASS' : 'FAIL', { component: 'patientJourneyTest' });
 
     const dashboard = await loadDashboardDataInternal();
     results.dashboard = !!dashboard;
-    console.log('✅ Dashboard test:', results.dashboard ? 'PASS' : 'FAIL');
+    logger.debug('✅ Dashboard test:', results.dashboard ? 'PASS' : 'FAIL', { component: 'patientJourneyTest' });
 
     const checkInResult = await handleCheckInSubmissionInternal();
     results.checkIn = checkInResult.success;
-    console.log('✅ Check-in test:', results.checkIn ? 'PASS' : 'FAIL');
+    logger.debug('✅ Check-in test:', results.checkIn ? 'PASS' : 'FAIL', { component: 'patientJourneyTest' });
 
     const contactResult = await addSupportContactInternal();
     results.supportNetwork = contactResult.success;
-    console.log('✅ Support network test:', results.supportNetwork ? 'PASS' : 'FAIL');
+    logger.debug('✅ Support network test:', results.supportNetwork ? 'PASS' : 'FAIL', { component: 'patientJourneyTest' });
 
     await new Promise(r => setTimeout(r, 1500));
     const verification = await loadDashboardDataInternal();
     results.dataPersist = (verification?.totalCheckIns || 0) > 0;
-    console.log('✅ Data persistence test:', results.dataPersist ? 'PASS' : 'FAIL');
+    logger.debug('✅ Data persistence test:', results.dataPersist ? 'PASS' : 'FAIL', { component: 'patientJourneyTest' });
 
-    console.log('🎯 COMPLETE TEST RESULTS:', results);
+    logger.debug('🎯 COMPLETE TEST RESULTS:', results, { component: 'patientJourneyTest' });
     return results;
   } catch (error: any) {
     console.error('🚨 PATIENT JOURNEY TEST FAILED:', error);

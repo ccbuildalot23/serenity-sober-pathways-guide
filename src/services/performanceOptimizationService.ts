@@ -1,3 +1,4 @@
+import logger from './loggerService';
 // Performance optimization utilities
 class PerformanceOptimizationService {
   private cache = new Map<string, { data: unknown; _timestamp: number; _ttl: number }>();
@@ -132,7 +133,7 @@ class PerformanceOptimizationService {
     if ('serviceWorker' in navigator) {
       try {
         const registration = await navigator.serviceWorker.register('/sw.js');
-        console.log('Service Worker registered:', registration);
+        logger.debug('Service Worker registered:', registration, { component: 'performanceOptimizationService' });
         return registration;
       } catch (_error) {
         console._error('Service Worker registration failed:', _error);

@@ -4,6 +4,7 @@ import { LocalNotifications } from '@capacitor/local-notifications';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { supabase } from '@/integrations/supabase/client';
 import { Geolocation } from '@capacitor/geolocation';
+import logger from './loggerService';
 
 /**
  * Mobile Authentication & Security Service
@@ -258,7 +259,7 @@ class MobileAuthService {
 
       // Listen for registration success
       PushNotifications.addListener('registration', async (token) => {
-        console.log('Push registration success:', token.value);
+        logger.debug('Push registration success:', token.value, { component: 'mobileAuthService' });
         this.pushToken = token.value;
         
         // Save token to backend
@@ -275,13 +276,13 @@ class MobileAuthService {
 
       // Handle incoming notifications
       PushNotifications.addListener('pushNotificationReceived', (notification) => {
-        console.log('Push received:', notification);
+        logger.debug('Push received:', notification, { component: 'mobileAuthService' });
         this.handlePushNotification(notification);
       });
 
       // Handle notification actions
       PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
-        console.log('Push action performed:', notification);
+        logger.debug('Push action performed:', notification, { component: 'mobileAuthService' });
         this.handleNotificationAction(notification);
       });
 
@@ -533,7 +534,7 @@ class MobileAuthService {
    */
   private async notifyEmergencyContact(contact: any, userId: string, fence: any, event: string): Promise<void> {
     // Implementation would send SMS/email to contact
-    console.log('Notifying contact:', contact, 'about geofence event:', event);
+    logger.debug('Notifying contact:', contact, 'about geofence event:', event, { component: 'mobileAuthService' });
   }
 
   /**

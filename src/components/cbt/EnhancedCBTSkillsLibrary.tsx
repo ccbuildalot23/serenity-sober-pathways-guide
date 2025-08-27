@@ -23,7 +23,7 @@ import PersonalizedLearningPath from './progress/PersonalizedLearningPath';
 import CognitiveRestructuring from './cognitive/CognitiveRestructuring';
 import BehavioralActivation from './behavioral/BehavioralActivation';
 import MindfulnessTraining from './mindfulness/MindfulnessTraining';
-import RelapsePrevention from './relapse/RelapsePrevention';
+import RecoveryPrevention from './relapse/RelapsePrevention';
 import CommunicationSkills from './communication/CommunicationSkills';
 import LearningProgress from './progress/LearningProgress';
 
@@ -99,7 +99,7 @@ const EnhancedCBTSkillsLibrary: React.FC = () => {
       description: 'Identify triggers and build comprehensive prevention strategies',
       icon: <Award className="h-6 w-6" />,
       color: 'bg-red-500',
-      component: RelapsePrevention,
+      component: RecoveryPrevention,
       features: ['Risk Mapping', 'Emergency Planning', 'Support Network', 'Trigger Management'],
       estimatedTime: '30-60 min',
       difficulty: 'Advanced'

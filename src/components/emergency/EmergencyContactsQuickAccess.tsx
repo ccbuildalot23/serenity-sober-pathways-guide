@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
+import logger from '../../services/loggerService';
 import { 
   Phone, 
   MessageSquare, 
@@ -216,7 +217,7 @@ const EmergencyContactsQuickAccess: React.FC<EmergencyContactsQuickAccessProps> 
         const { latitude, longitude } = position.coords;
         message += ` My current location: https://maps.google.com/?q=${latitude},${longitude}`;
       } catch (_error) {
-        console.log('Location sharing failed, sending message without location');
+        logger.debug('Location sharing failed, sending message without location', { component: 'EmergencyContactsQuickAccess' });
       }
     }
 

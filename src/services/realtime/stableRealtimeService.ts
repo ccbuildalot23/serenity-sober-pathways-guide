@@ -1,5 +1,6 @@
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import logger from '../loggerService';
 
 /**
  * Stable realtime service with improved connection management
@@ -25,7 +26,7 @@ export class StableRealtimeService {
       
       // Set up connection monitoring
       channel.subscribe((status) => {
-        console.log(`Channel ${channelName} status:`, status);
+        logger.debug(`Channel ${channelName} status:`, status, { component: 'stableRealtimeService' });
         
         if (status === 'SUBSCRIBED') {
           this.isConnected = true;
@@ -48,7 +49,7 @@ export class StableRealtimeService {
 
   private async handleDisconnection(channelName: string) {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.warn(`Max reconnection attempts reached for ${channelName}`);
+      logger.warn(`Max reconnection attempts reached for ${channelName}`, { component: 'stableRealtimeService' });
       return;
     }
 
@@ -56,7 +57,7 @@ export class StableRealtimeService {
     
     setTimeout(async () => {
       try {
-        console.log(`Attempting to reconnect ${channelName} (attempt ${this.reconnectAttempts})`);
+        logger.debug(`Attempting to reconnect ${channelName} (attempt ${this.reconnectAttempts}, { component: 'stableRealtimeService' });`);
         
         // Try to recreate the channel
         const _existingChannel = this.channels.get(channelName);

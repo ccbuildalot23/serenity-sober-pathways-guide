@@ -1,0 +1,379 @@
+# AlertManager configuration for Notification Service
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-notification-service-config
+  namespace: monitoring
+  labels:
+    app: alertmanager
+    component: notification-service
+data:
+  alertmanager.yml: |
+    global:
+      # Global configuration
+      smtp_smarthost: 'smtp.sendgrid.net:587'
+      smtp_from: 'alerts@serenity.com'
+      smtp_auth_username: 'apikey'
+      smtp_auth_password: '{{ .SMTPPassword }}'
+      slack_api_url: '{{ .SlackWebhookURL }}'
+      
+      # HIPAA compliance: All alerts must be encrypted and logged
+      resolve_timeout: 5m
+      
+    # Inhibition rules to reduce alert noise
+    inhibit_rules:
+      # Inhibit warning if critical alert is firing
+      - source_match:
+          severity: 'critical'
+        target_match:
+          severity: 'warning'
+        equal: ['service', 'instance']
+        
+      # Inhibit individual pod alerts if service is down
+      - source_match:
+          alertname: 'NotificationServiceDown'
+        target_match_re:
+          alertname: '.*Pod.*'
+        equal: ['service']
+
+    # Route configuration for notification service alerts
+    route:
+      group_by: ['alertname', 'cluster', 'service']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 12h
+      receiver: 'notification-service-default'
+      
+      routes:
+        # Critical HIPAA alerts - immediate response required
+        - match:
+            hipaa_critical: "true"
+          receiver: 'hipaa-critical-alerts'
+          group_wait: 0s
+          group_interval: 1m
+          repeat_interval: 5m
+          
+        # Critical service alerts
+        - match:
+            severity: critical
+            service: notification-service
+          receiver: 'notification-service-critical'
+          group_wait: 0s
+          group_interval: 5m
+          repeat_interval: 10m
+          
+        # Warning alerts
+        - match:
+            severity: warning
+            service: notification-service
+          receiver: 'notification-service-warning'
+          group_wait: 10s
+          group_interval: 10m
+          repeat_interval: 1h
+          
+        # Security alerts
+        - match:
+            hipaa_security: "true"
+          receiver: 'security-alerts'
+          group_wait: 0s
+          group_interval: 1m
+          repeat_interval: 15m
+          
+        # Performance alerts
+        - match:
+            category: latency
+          receiver: 'performance-alerts'
+          group_wait: 1m
+          group_interval: 5m
+          repeat_interval: 30m
+          
+        # Queue management alerts
+        - match:
+            category: queue_management
+          receiver: 'queue-alerts'
+          group_wait: 30s
+          group_interval: 2m
+          repeat_interval: 20m
+
+    # Alert receivers configuration
+    receivers:
+      # Default receiver for non-critical alerts
+      - name: 'notification-service-default'
+        slack_configs:
+          - channel: '#serenity-alerts'
+            title: 'Notification Service Alert'
+            text: |
+              *Alert:* {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+              *Description:* {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+              *Severity:* {{ .CommonLabels.severity }}
+              *Service:* {{ .CommonLabels.service }}
+        
+        email_configs:
+          - to: 'platform-team@serenity.com'
+            subject: '[{{ .Status | toUpper }}] Notification Service Alert'
+            body: |
+              Alert: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+              
+              Description: {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+              
+              Severity: {{ .CommonLabels.severity }}
+              Service: {{ .CommonLabels.service }}
+              Instance: {{ .CommonLabels.instance }}
+              
+              Time: {{ range .Alerts }}{{ .StartsAt }}{{ end }}
+              
+              Runbook: {{ range .Alerts }}{{ .Annotations.runbook_url }}{{ end }}
+
+      # HIPAA critical alerts - highest priority
+      - name: 'hipaa-critical-alerts'
+        slack_configs:
+          - channel: '#hipaa-compliance-critical'
+            title: '🚨 CRITICAL HIPAA ALERT - Immediate Action Required'
+            text: |
+              *🏥 HIPAA COMPLIANCE VIOLATION DETECTED*
+              
+              *Alert:* {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+              *Description:* {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+              *Service:* {{ .CommonLabels.service }}
+              *Instance:* {{ .CommonLabels.instance }}
+              *Time:* {{ range .Alerts }}{{ .StartsAt }}{{ end }}
+              
+              *IMMEDIATE ACTIONS REQUIRED:*
+              1. Investigate the compliance violation immediately
+              2. Document all actions taken
+              3. Notify HIPAA compliance officer
+              4. Follow incident response procedures
+              
+              *Runbook:* {{ range .Alerts }}{{ .Annotations.runbook_url }}{{ end }}
+            color: 'danger'
+            
+        email_configs:
+          - to: 'hipaa-compliance@serenity.com,cto@serenity.com,security@serenity.com'
+            subject: '🚨 CRITICAL HIPAA ALERT - {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+            headers:
+              X-Priority: '1'
+              X-HIPAA-Alert: 'CRITICAL'
+            body: |
+              🚨 CRITICAL HIPAA COMPLIANCE ALERT
+              
+              This is a critical HIPAA compliance alert requiring immediate attention.
+              
+              Alert: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+              Description: {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+              
+              Service: {{ .CommonLabels.service }}
+              Instance: {{ .CommonLabels.instance }}
+              Severity: {{ .CommonLabels.severity }}
+              
+              Time Started: {{ range .Alerts }}{{ .StartsAt }}{{ end }}
+              
+              IMMEDIATE ACTIONS REQUIRED:
+              1. Investigate the compliance violation immediately
+              2. Document all actions taken in the incident response system
+              3. Notify the HIPAA compliance officer
+              4. Follow the incident response procedures
+              5. Consider temporary service isolation if PHI exposure is suspected
+              
+              Runbook URL: {{ range .Alerts }}{{ .Annotations.runbook_url }}{{ end }}
+              
+              This alert has been logged in the HIPAA audit system.
+              
+              Serenity Platform Monitoring System
+
+        # PagerDuty integration for critical alerts
+        pagerduty_configs:
+          - routing_key: '{{ .PagerDutyRoutingKey }}'
+            description: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+            client: 'Serenity Alertmanager'
+            client_url: 'https://monitoring.serenity.com'
+            details:
+              alert: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+              description: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+              service: '{{ .CommonLabels.service }}'
+              severity: '{{ .CommonLabels.severity }}'
+              runbook: '{{ range .Alerts }}{{ .Annotations.runbook_url }}{{ end }}'
+              hipaa_critical: 'true'
+
+      # Critical service alerts
+      - name: 'notification-service-critical'
+        slack_configs:
+          - channel: '#serenity-critical'
+            title: '🔴 CRITICAL: Notification Service Issue'
+            text: |
+              *Critical Issue Detected*
+              
+              *Alert:* {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+              *Description:* {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+              *Service:* {{ .CommonLabels.service }}
+              *Instance:* {{ .CommonLabels.instance }}
+              
+              *Impact:* This may affect patient notifications and care delivery
+              
+              *Runbook:* {{ range .Alerts }}{{ .Annotations.runbook_url }}{{ end }}
+            color: 'danger'
+            
+        email_configs:
+          - to: 'on-call@serenity.com,platform-team@serenity.com'
+            subject: '[CRITICAL] {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+            body: |
+              CRITICAL ALERT - Immediate attention required
+              
+              Alert: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+              Description: {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+              
+              Service: {{ .CommonLabels.service }}
+              Instance: {{ .CommonLabels.instance }}
+              Severity: CRITICAL
+              
+              This critical issue may impact patient care and notifications.
+              
+              Runbook: {{ range .Alerts }}{{ .Annotations.runbook_url }}{{ end }}
+
+      # Warning alerts
+      - name: 'notification-service-warning'
+        slack_configs:
+          - channel: '#serenity-warnings'
+            title: '⚠️ WARNING: Notification Service'
+            text: |
+              *Warning Alert*
+              
+              *Alert:* {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+              *Description:* {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+              *Service:* {{ .CommonLabels.service }}
+              
+              *Runbook:* {{ range .Alerts }}{{ .Annotations.runbook_url }}{{ end }}
+            color: 'warning'
+
+      # Security alerts
+      - name: 'security-alerts'
+        slack_configs:
+          - channel: '#security-alerts'
+            title: '🛡️ SECURITY ALERT: Notification Service'
+            text: |
+              *Security Alert Detected*
+              
+              *Alert:* {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+              *Description:* {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+              *Service:* {{ .CommonLabels.service }}
+              
+              This requires security team review.
+              
+              *Runbook:* {{ range .Alerts }}{{ .Annotations.runbook_url }}{{ end }}
+            color: 'danger'
+            
+        email_configs:
+          - to: 'security@serenity.com,platform-team@serenity.com'
+            subject: '[SECURITY] {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+            body: |
+              SECURITY ALERT - Security team attention required
+              
+              Alert: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+              Description: {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+              
+              This alert indicates a potential security issue that requires investigation.
+
+      # Performance alerts
+      - name: 'performance-alerts'
+        slack_configs:
+          - channel: '#performance'
+            title: '📊 PERFORMANCE: Notification Service'
+            text: |
+              *Performance Alert*
+              
+              *Alert:* {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+              *Description:* {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+              *Service:* {{ .CommonLabels.service }}
+              
+              *Runbook:* {{ range .Alerts }}{{ .Annotations.runbook_url }}{{ end }}
+
+      # Queue management alerts
+      - name: 'queue-alerts'
+        slack_configs:
+          - channel: '#notification-queues'
+            title: '📬 QUEUE ALERT: Notification Service'
+            text: |
+              *Queue Management Alert*
+              
+              *Alert:* {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+              *Description:* {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+              *Queue Type:* {{ .CommonLabels.queue_type }}
+              
+              *Runbook:* {{ range .Alerts }}{{ .Annotations.runbook_url }}{{ end }}
+
+    # Templates for custom alert formatting
+    templates:
+      - '/etc/alertmanager/templates/*.tmpl'
+
+---
+# AlertManager templates
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-templates
+  namespace: monitoring
+data:
+  hipaa.tmpl: |
+    {{ define "hipaa.title" }}
+    🏥 HIPAA COMPLIANCE ALERT - {{ .Status | toUpper }}
+    {{ end }}
+    
+    {{ define "hipaa.body" }}
+    HIPAA Compliance Alert Details:
+    
+    {{- range .Alerts }}
+    Alert: {{ .Annotations.summary }}
+    Description: {{ .Annotations.description }}
+    Service: {{ .Labels.service }}
+    Severity: {{ .Labels.severity }}
+    Started: {{ .StartsAt }}
+    
+    COMPLIANCE ACTIONS REQUIRED:
+    - Immediate investigation and remediation
+    - Document all actions in compliance system
+    - Notify HIPAA compliance officer
+    - Review and update security controls if needed
+    
+    Runbook: {{ .Annotations.runbook_url }}
+    {{- end }}
+    
+    This alert has been automatically logged for HIPAA audit purposes.
+    {{ end }}
+
+  notification.tmpl: |
+    {{ define "notification.title" }}
+    Serenity Notification Service - {{ .Status | toUpper }}
+    {{ end }}
+    
+    {{ define "notification.body" }}
+    Notification Service Alert Summary:
+    
+    {{- range .Alerts }}
+    • {{ .Annotations.summary }}
+      Description: {{ .Annotations.description }}
+      Instance: {{ .Labels.instance }}
+      Severity: {{ .Labels.severity }}
+      Duration: {{ .StartsAt }}
+      
+      {{ if .Annotations.runbook_url }}
+      Runbook: {{ .Annotations.runbook_url }}
+      {{ end }}
+    {{- end }}
+    {{ end }}
+
+---
+# Service to expose AlertManager
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager-notification-service
+  namespace: monitoring
+  labels:
+    app: alertmanager
+    component: notification-service
+spec:
+  selector:
+    app: alertmanager
+  ports:
+  - port: 9093
+    targetPort: 9093
+    name: web

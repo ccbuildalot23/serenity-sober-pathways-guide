@@ -4,6 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Heart, Users, Trophy, Star, Share2, MessageCircle } from 'lucide-react';
+import logger from '../services/loggerService';
 
 interface Milestone {
   id: string;
@@ -92,7 +93,7 @@ const Community = () => {
   const handleShareMilestone = () => {
     if (milestoneType && milestoneMessage) {
       // In a real app, this would save to the database
-      console.log('Sharing milestone:', { type: milestoneType, message: milestoneMessage });
+      logger.debug('Sharing milestone:', { type: milestoneType, message: milestoneMessage }, { component: 'Community' });
       setShowMilestoneModal(false);
       setMilestoneType('');
       setMilestoneMessage('');

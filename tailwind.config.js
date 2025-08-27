@@ -7,7 +7,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Therapeutic Color Palette
+        // Premium Therapeutic Color Palette
+        lavender: {
+          50: '#f8f7ff',
+          100: '#f0edff',
+          200: '#e8e3ff',
+          300: '#d4c5f9',
+          400: '#b8a2f3',
+          500: '#9c7fed',
+          600: '#7c5ce0',
+          700: '#6647c0',
+          800: '#5138a0',
+          900: '#3d2a80',
+        },
         sage: {
           50: '#f6f7f6',
           100: '#e3e7e3',
@@ -150,8 +162,20 @@ export default {
         'gradient-secondary': 'linear-gradient(135deg, #5a6f5a 0%, #10b981 100%)',
         'gradient-calm': 'linear-gradient(135deg, #f6f7f6 0%, #e3e7e3 100%)',
         'gradient-healing': 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
-        'gradient-seren': 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+        'gradient-serene': 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
         'gradient-therapeutic': 'linear-gradient(135deg, #f6f7f6 0%, #ecfdf5 50%, #f0f9ff 100%)',
+        'gradient-premium': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        'gradient-glass': 'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.08) 100%)',
+        'gradient-lavender': 'linear-gradient(135deg, #e8e3ff 0%, #d4c5f9 100%)',
+        'gradient-energy': 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+      },
+      backdropBlur: {
+        xs: '2px',
+        sm: '4px',
+        md: '8px',
+        lg: '12px',
+        xl: '20px',
+        '2xl': '40px',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',

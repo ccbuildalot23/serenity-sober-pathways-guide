@@ -166,37 +166,44 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="signup-_email">Email</Label>
+            <Label htmlFor="signup-email">Email</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
-                id="signup-_email"
-                type="_email"
+                id="signup-email"
+                type="email"
                 placeholder="you@example.com"
                 value={_email}
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={isLoading}
                 className="pl-10"
-                autoComplete="_email"
+                data-testid="email-input"
+                aria-label="Email address"
+                aria-describedby="email-error"
+                autoComplete="email"
               />
             </div>
+            <div id="email-error" data-testid="email-error" className="sr-only" aria-live="polite"></div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="signup-_password">Password</Label>
+            <Label htmlFor="signup-password">Password</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
-                id="signup-_password"
-                type={showPassword ? 'text' : '_password'}
+                id="signup-password"
+                type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 value={_password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={isLoading}
                 className="pl-10 pr-10"
-                autoComplete="new-_password"
+                data-testid="password-input"
+                aria-label="Password"
+                aria-describedby="password-error"
+                autoComplete="new-password"
               />
               <button
                 type="button"
@@ -207,25 +214,27 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500" data-testid="password-requirements">
               Must be at least 8 characters with uppercase, lowercase, number, and special character
             </p>
+            <div id="password-error" data-testid="password-error" className="sr-only" aria-live="polite"></div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="signup-confirm-_password">Confirm Password</Label>
+            <Label htmlFor="signup-confirm-password">Confirm Password</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
-                id="signup-confirm-_password"
-                type={showConfirmPassword ? 'text' : '_password'}
+                id="signup-confirm-password"
+                type={showConfirmPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={isLoading}
                 className="pl-10 pr-10"
-                autoComplete="new-_password"
+                aria-label="Confirm password"
+                autoComplete="new-password"
               />
               <button
                 type="button"
@@ -242,6 +251,8 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
             onClick={handleSubmit}
             className="w-full"
             disabled={isLoading}
+            data-testid="login-button submit-login"
+            aria-label="Create your account"
           >
             {isLoading ? (
               <>

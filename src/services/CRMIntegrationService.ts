@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { enhancedSecurityAuditService } from './EnhancedSecurityAuditService';
 import { PredictiveSalesEngine } from './PredictiveSalesEngine';
 import { ROIValidationService } from './ROIValidationService';
+import logger from './loggerService';
 
 interface CRMConfig {
   provider: 'salesforce' | 'hubspot' | 'custom';
@@ -187,7 +188,7 @@ export class CRMIntegrationService {
     try {
       // Initialize MCPS connection
       // This would connect to the actual MCPS service
-      console.log('Establishing MCPS connection...');
+      logger.debug('Establishing MCPS connection...', { component: 'CRMIntegrationService' });
       
       // Simulated MCPS connection
       this.mcpsConnection = {
@@ -672,7 +673,7 @@ export class CRMIntegrationService {
     }
 
     // Simulate MCPS communication
-    console.log(`MCPS Event: ${event}`, data);
+    logger.debug(`MCPS Event: ${event}`, data, { component: 'CRMIntegrationService' });
     
     // In production, this would use actual MCPS protocol
     await new Promise(resolve => setTimeout(resolve, 100));

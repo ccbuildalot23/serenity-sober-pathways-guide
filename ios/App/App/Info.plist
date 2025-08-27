@@ -17,9 +17,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>$(MARKETING_VERSION)</string>
+	<string>1.0.0</string>
 	<key>CFBundleVersion</key>
-	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<string>32</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -45,5 +45,63 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Serenity uses the camera for secure identity verification and crisis video calls with healthcare providers.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Serenity uses the microphone for crisis voice calls and secure communication with healthcare providers.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Serenity uses location services to connect you with nearby crisis support resources and emergency services when needed.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Serenity requires location access to provide 24/7 crisis support and connect you with nearby healthcare resources during emergencies.</string>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>Serenity sends notifications for medication reminders, check-in prompts, and crisis support alerts to help maintain your recovery.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Serenity can integrate with Health app to provide comprehensive wellness tracking for your recovery journey.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Serenity can save wellness data to Health app to track your recovery progress.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Serenity uses Face ID for secure access to your protected health information.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Serenity may access your photo library to allow you to share images with healthcare providers during crisis support sessions or to document your recovery journey.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.serenity.recovery</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>serenity</string>
+			</array>
+		</dict>
+	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+		<string>fetch</string>
+	</array>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>supabase.co</key>
+			<dict>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<false/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
+	<key>UIRequiresFullScreen</key>
+	<false/>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>tel</string>
+		<string>sms</string>
+	</array>
 </dict>
 </plist>

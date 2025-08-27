@@ -1,0 +1,25 @@
+{
+  "timestamp": "2025-08-25T16:22:56.249Z",
+  "config": {
+    "appId": "6751502942",
+    "bundleId": "com.serenity.recovery",
+    "buildNumber": "27",
+    "deliveryUUID": "2ead7ca5-a182-41b1-9c1c-11493f4d7ebd",
+    "uploadTime": "2025-08-25T15:17:45.000Z",
+    "workflowRun": "17212923613"
+  },
+  "report": {
+    "elapsed": 65,
+    "stage": "Extended Processing",
+    "estimate": "Should complete soon",
+    "status": "EXTENDED"
+  },
+  "githubStatus": {
+    "conclusion": "success",
+    "status": "completed",
+    "uploadCompleted": true,
+    "artifacts": true,
+    "duration": "4m48s"
+  },
+  "elapsedTime": "65m 11s"
+}

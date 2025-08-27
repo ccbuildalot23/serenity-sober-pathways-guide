@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +9,7 @@ import { useRealtimeUpdates } from '@/hooks/useRealtimeUpdates';
 import { useEnhancedDailyCheckIn } from '@/hooks/useEnhancedDailyCheckIn';
 import { useCheckInHandlers } from '@/hooks/useCheckInHandlers';
 import { useAuth } from '@/contexts/AuthContext';
+import { useRecoveryMilestones } from '@/hooks/useRecoveryMilestones';
 import { enhancedCheckinService, CheckinStats } from '@/services/enhancedCheckinService';
 import { MoodSection } from './daily-checkin/MoodSection';
 import { WellnessSection } from './daily-checkin/WellnessSection';
@@ -26,6 +27,7 @@ const DailyCheckIn = () => {
   const [_streakMessage, setStreakMessage] = useState<string | null>(null);
 
   const { user } = useAuth();
+  const { addCleanDay } = useRecoveryMilestones();
   const {
     responses,
     setResponses,
@@ -95,6 +97,9 @@ const DailyCheckIn = () => {
     
     // Show celebration and reload stats after successful completion
     if (!isSubmitting) {
+      // Update clean days counter after successful check-in
+      await addCleanDay();
+      
       await loadStats();
       setShowCelebration(true);
       
@@ -322,4 +327,4 @@ const DailyCheckIn = () => {
   );
 };
 
-export default DailyCheckIn;
+export default memo(DailyCheckIn);

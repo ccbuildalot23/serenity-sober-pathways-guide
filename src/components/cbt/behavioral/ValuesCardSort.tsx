@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Heart, Star, RotateCcw, Save } from 'lucide-react';
+import logger from '../../../services/loggerService';
 
 interface Value {
   id: string;
@@ -90,7 +91,7 @@ const ValuesCardSort: React.FC = () => {
 
   const handleSave = () => {
     // Save to local storage or database
-    console.log('Saving top values:', _topValues);
+    logger.debug('Saving top values:', _topValues, { component: 'ValuesCardSort' });
     setStep('complete');
   };
 

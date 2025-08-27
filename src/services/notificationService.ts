@@ -4,11 +4,12 @@ import { scheduleAllSecure, clearScheduled } from './notification/secureScheduli
 import { handleActionClick, logNotificationScheduled } from './notification/handlers';
 import { SecureNotificationPreferencesService } from './secureNotificationPreferencesService';
 import { EnhancedSecurityMonitoringService } from './enhancedSecurityMonitoringService';
+import logger from './loggerService';
 
 class NotificationServiceClass {
   async requestPermission(): Promise<NotificationPermission> {
     if (!('Notification' in window)) {
-      console.warn('This browser does not support notifications');
+      logger.warn('This browser does not support notifications', { component: 'notificationService' });
       return 'denied';
     }
 

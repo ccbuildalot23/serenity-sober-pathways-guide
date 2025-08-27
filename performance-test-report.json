@@ -1,0 +1,143 @@
+{
+  "summary": {
+    "totalTests": 15,
+    "passedTests": 15,
+    "failedTests": 0,
+    "successRate": "100.0%",
+    "duration": "4ms"
+  },
+  "categories": {
+    "Core Web Vitals": {
+      "total": 5,
+      "passed": 5,
+      "failed": 0
+    },
+    "Crisis Metrics": {
+      "total": 4,
+      "passed": 4,
+      "failed": 0
+    },
+    "BMAD Integration": {
+      "total": 3,
+      "passed": 3,
+      "failed": 0
+    },
+    "Error Tracking": {
+      "total": 3,
+      "passed": 3,
+      "failed": 0
+    }
+  },
+  "results": [
+    {
+      "category": "Core Web Vitals",
+      "test": "CLS Threshold Validation",
+      "status": "PASS",
+      "value": "0.05",
+      "threshold": "0.1",
+      "passed": true
+    },
+    {
+      "category": "Core Web Vitals",
+      "test": "FID Threshold Validation",
+      "status": "PASS",
+      "value": "75ms",
+      "threshold": "100ms",
+      "passed": true
+    },
+    {
+      "category": "Core Web Vitals",
+      "test": "FCP Threshold Validation",
+      "status": "PASS",
+      "value": "1200ms",
+      "threshold": "1800ms",
+      "passed": true
+    },
+    {
+      "category": "Core Web Vitals",
+      "test": "LCP Threshold Validation",
+      "status": "PASS",
+      "value": "2000ms",
+      "threshold": "2500ms",
+      "passed": true
+    },
+    {
+      "category": "Core Web Vitals",
+      "test": "TTFB Threshold Validation",
+      "status": "PASS",
+      "value": "400ms",
+      "threshold": "600ms",
+      "passed": true
+    },
+    {
+      "category": "Crisis Metrics",
+      "test": "Crisis Load Time Validation",
+      "status": "PASS",
+      "message": "Load time 450ms (threshold: 500ms)",
+      "passed": true
+    },
+    {
+      "category": "Crisis Metrics",
+      "test": "Crisis Load Time Threshold Breach",
+      "status": "FAIL",
+      "message": "Load time 600ms (threshold: 500ms)",
+      "passed": true
+    },
+    {
+      "category": "Crisis Metrics",
+      "test": "Crisis Availability Check",
+      "status": "PASS",
+      "message": "Crisis services available",
+      "passed": true
+    },
+    {
+      "category": "Crisis Metrics",
+      "test": "Crisis Error Rate Check",
+      "status": "PASS",
+      "message": "Error rate 0.5% (threshold: 1%)",
+      "passed": true
+    },
+    {
+      "category": "BMAD Integration",
+      "test": "BMAD Alert System",
+      "status": "PASS",
+      "message": "BMAD alerts functioning",
+      "passed": true
+    },
+    {
+      "category": "BMAD Integration",
+      "test": "Performance Event Logging",
+      "status": "PASS",
+      "message": "Performance logging active",
+      "passed": true
+    },
+    {
+      "category": "BMAD Integration",
+      "test": "Error Rate Monitoring",
+      "status": "PASS",
+      "message": "Error rate monitoring active",
+      "passed": true
+    },
+    {
+      "category": "Error Tracking",
+      "test": "JavaScript Error Detection",
+      "status": "PASS",
+      "message": "JS error detection active",
+      "passed": true
+    },
+    {
+      "category": "Error Tracking",
+      "test": "Critical Error Prioritization",
+      "status": "PASS",
+      "message": "Critical error prioritization active",
+      "passed": true
+    },
+    {
+      "category": "Error Tracking",
+      "test": "Error Rate Calculation",
+      "status": "PASS",
+      "message": "Error rate calculation correct",
+      "passed": true
+    }
+  ]
+}

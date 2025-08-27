@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
+import logger from '../services/loggerService';
 import { 
   FileText, 
   CheckCircle, 
@@ -69,12 +70,12 @@ const RegulatoryCompliance = () => {
 
   const generateDocumentation = () => {
     // Mock documentation generation
-    console.log('Generating automated documentation...');
+    logger.debug('Generating automated documentation...', { component: 'RegulatoryCompliance' });
   };
 
   const downloadComplianceReport = () => {
     // Mock report download
-    console.log('Downloading compliance report...');
+    logger.debug('Downloading compliance report...', { component: 'RegulatoryCompliance' });
   };
 
   return (

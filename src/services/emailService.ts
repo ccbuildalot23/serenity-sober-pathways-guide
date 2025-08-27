@@ -1,4 +1,5 @@
 import { supabase } from '../integrations/supabase/client';
+import logger from './loggerService';
 
 interface EmailResult {
   success: boolean;
@@ -80,8 +81,8 @@ class EmailService {
       // Use the correct production URL
       const baseUrl = import.meta.env.VITE_PUBLIC_SITE_URL || 'https://serenity-sober-pathways-guide.vercel.app';
       
-      console.log('Sending password reset email to:', sanitizedEmail);
-      console.log('Redirect URL:', `${baseUrl}/reset-password`);
+      logger.debug('Sending password reset email to:', sanitizedEmail, { component: 'emailService' });
+      logger.debug('Redirect URL:', `${baseUrl}/reset-password`, { component: 'emailService' });
       
       const { error } = await supabase.auth.resetPasswordForEmail(sanitizedEmail, {
         redirectTo: `${baseUrl}/reset-password`,

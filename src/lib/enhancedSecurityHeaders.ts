@@ -1,3 +1,4 @@
+import logger from '../services/loggerService';
 
 /**
  * Enhanced Security Headers with stricter CSP and additional protections
@@ -38,7 +39,7 @@ export class EnhancedSecurityHeaders {
     this.initializeSessionTimeout();
     
     if (import.meta.env.DEV) {
-      console.log('Enhanced security headers applied with functional CSP');
+      logger.debug('Enhanced security headers applied with functional CSP', { component: 'enhancedSecurityHeaders' });
     }
   }
 
@@ -59,10 +60,10 @@ export class EnhancedSecurityHeaders {
       localStorage.setItem('device_fp', this.deviceFingerprint);
       
       if (import.meta.env.DEV) {
-        console.log('Device fingerprint generated for session validation');
+        logger.debug('Device fingerprint generated for session validation', { component: 'enhancedSecurityHeaders' });
       }
     } catch (_error) {
-      console.warn('Could not generate device fingerprint:', _error);
+      logger.warn('Could not generate device fingerprint:', _error, { component: 'enhancedSecurityHeaders' });
     }
   }
 
@@ -100,7 +101,7 @@ export class EnhancedSecurityHeaders {
 
   private static handleSessionTimeout(): void {
     if (import.meta.env.DEV) {
-      console.warn('Session timeout - cleaning up authentication state');
+      logger.warn('Session timeout - cleaning up authentication state', { component: 'enhancedSecurityHeaders' });
     }
     
     // Clear session data

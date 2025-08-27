@@ -10,6 +10,7 @@ import { Trash2, Plus, Send, User, Phone } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import logger from '../services/loggerService';
 
 interface Contact {
   id: string;
@@ -204,7 +205,7 @@ const SupportCircleSettings = () => {
     // Simulate API call
     setTimeout(() => {
       setTestingContact(null);
-      console.log(`Test alert sent to ${contact._name} (${contact._phone}) via ${contact._contact_method}`);
+      logger.debug(`Test alert sent to ${contact._name} (${contact._phone}, { component: 'SupportCircleSettings' }); via ${contact._contact_method}`);
       toast({
         title: "Test Alert Sent",
         _description: `Alert sent to ${contact._name} via ${contact._contact_method}`,

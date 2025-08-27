@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import logger from '../../services/loggerService';
 import { 
   Loader2, Lock, Eye, EyeOff, CheckCircle, AlertCircle, 
   Shield, Heart, ShieldCheck, Key, Info
@@ -181,7 +182,7 @@ export const EnhancedResetPasswordForm: React.FC = () => {
       // The token should already be processed by Supabase when the user clicks the link
       // So we can just try to update the password directly
       
-      console.log('Attempting to update password...');
+      logger.debug('Attempting to update password...', { component: 'EnhancedResetPasswordForm' });
 
       // Add timeout protection to prevent hanging
       const timeoutPromise = new Promise((_, reject) => {

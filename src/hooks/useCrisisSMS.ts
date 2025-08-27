@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import logger from '../services/loggerService';
 
 interface SendCrisisSMSOptions {
   contactIds?: string[];
@@ -26,7 +27,7 @@ export const useCrisisSMS = () => {
           });
         },
         (error) => {
-          console.warn('Location access denied or failed:', error);
+          logger.warn('Location access denied or failed:', error, { component: 'useCrisisSMS' });
           reject(error);
         },
         {
@@ -48,7 +49,7 @@ export const useCrisisSMS = () => {
         try {
           _userLocation = await getCurrentLocation();
         } catch (error) {
-          console.warn('Could not get location, proceeding without it');
+          logger.warn('Could not get location, proceeding without it', { component: 'useCrisisSMS' });
         }
       }
 

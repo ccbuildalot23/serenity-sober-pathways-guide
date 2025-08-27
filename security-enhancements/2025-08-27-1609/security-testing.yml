@@ -1,0 +1,50 @@
+﻿name: Security Testing
+
+on:
+  schedule:
+    - cron: '0 2 * * 1' # Weekly on Monday at 2 AM
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'package-lock.json'
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run Security Audit
+        run: |
+          npm audit --audit-level=moderate
+          npm run security:scan
+      
+      - name: OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'serenity-sober-pathways'
+          path: '.'
+          format: 'ALL'
+      
+      - name: Run Trivy Security Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          severity: 'CRITICAL,HIGH'
+      
+      - name: HIPAA Compliance Check
+        run: |
+          npm run hipaa:validate
+          npm run validate:cloudtrail
+      
+      - name: Upload Security Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            security-reports/
+            dependency-check-report.html

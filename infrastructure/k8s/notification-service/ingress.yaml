@@ -1,0 +1,224 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: notification-service-ingress
+  namespace: notification-service
+  labels:
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/component: ingress
+    app.kubernetes.io/part-of: serenity-platform
+  annotations:
+    # AWS Load Balancer Controller
+    kubernetes.io/ingress.class: "alb"
+    alb.ingress.kubernetes.io/scheme: internal
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/backend-protocol: HTTP
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    
+    # SSL Certificate
+    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:ACCOUNT:certificate/CERT-ID"
+    alb.ingress.kubernetes.io/ssl-policy: "ELBSecurityPolicy-TLS-1-2-2017-01"
+    
+    # Health checks
+    alb.ingress.kubernetes.io/healthcheck-path: "/health"
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: "10"
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: "5"
+    alb.ingress.kubernetes.io/healthy-threshold-count: "2"
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: "2"
+    
+    # Security & HIPAA Compliance
+    alb.ingress.kubernetes.io/security-groups: "sg-notification-service-alb"
+    alb.ingress.kubernetes.io/inbound-cidrs: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+    
+    # Rate limiting and DDoS protection
+    alb.ingress.kubernetes.io/wafv2-acl-arn: "arn:aws:wafv2:us-east-1:ACCOUNT:regional/webacl/serenity-hipaa-waf/WEB-ACL-ID"
+    
+    # Access logging for audit trails
+    alb.ingress.kubernetes.io/load-balancer-attributes: "access_logs.s3.enabled=true,access_logs.s3.bucket=serenity-hipaa-access-logs,access_logs.s3.prefix=notification-ingress"
+    
+    # Sticky sessions for WebSocket connections
+    alb.ingress.kubernetes.io/target-group-attributes: "stickiness.enabled=true,stickiness.lb_cookie.duration_seconds=3600"
+    
+    # Additional security headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-Frame-Options: DENY";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+      more_set_headers "Strict-Transport-Security: max-age=31536000; includeSubDomains";
+      more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+      more_set_headers "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'";
+spec:
+  ingressClassName: alb
+  tls:
+  - hosts:
+    - notifications.serenity.com
+    - notifications-api.serenity.com
+    secretName: notification-service-tls
+  rules:
+  - host: notifications.serenity.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: notification-service
+            port:
+              number: 80
+      - path: /health
+        pathType: Exact
+        backend:
+          service:
+            name: notification-service
+            port:
+              number: 80
+      - path: /metrics
+        pathType: Exact
+        backend:
+          service:
+            name: notification-service
+            port:
+              number: 9090
+  - host: notifications-api.serenity.com
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: notification-service
+            port:
+              number: 80
+      - path: /webhook
+        pathType: Prefix
+        backend:
+          service:
+            name: notification-service
+            port:
+              number: 80
+
+---
+# Internal Ingress for monitoring and admin access
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: notification-service-internal-ingress
+  namespace: notification-service
+  labels:
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/component: internal-ingress
+    app.kubernetes.io/part-of: serenity-platform
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    
+    # Authentication for internal access
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: notification-service-basic-auth
+    nginx.ingress.kubernetes.io/auth-realm: "Serenity Notification Service - Admin Access"
+    
+    # Rate limiting for admin endpoints
+    nginx.ingress.kubernetes.io/rate-limit-rps: "10"
+    nginx.ingress.kubernetes.io/rate-limit-burst-multiplier: "5"
+    
+    # IP whitelist for admin access
+    nginx.ingress.kubernetes.io/whitelist-source-range: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+    
+    # Additional security headers for admin interface
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Admin-Access: true";
+      more_set_headers "Cache-Control: no-cache, no-store, must-revalidate";
+      more_set_headers "Pragma: no-cache";
+      more_set_headers "Expires: 0";
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - notifications-internal.serenity.local
+    secretName: notification-service-internal-tls
+  rules:
+  - host: notifications-internal.serenity.local
+    http:
+      paths:
+      - path: /admin
+        pathType: Prefix
+        backend:
+          service:
+            name: notification-service
+            port:
+              number: 80
+      - path: /metrics
+        pathType: Exact
+        backend:
+          service:
+            name: notification-service
+            port:
+              number: 9090
+      - path: /debug
+        pathType: Prefix
+        backend:
+          service:
+            name: notification-service
+            port:
+              number: 80
+
+---
+# WebSocket specific ingress for real-time notifications
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: notification-service-websocket-ingress
+  namespace: notification-service
+  labels:
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/component: websocket-ingress
+    app.kubernetes.io/part-of: serenity-platform
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    
+    # WebSocket specific configuration
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/websocket-services: "notification-service"
+    
+    # Enable WebSocket upgrade
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+      proxy_set_header Host $http_host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_cache_bypass $http_upgrade;
+    
+    # Sticky sessions for WebSocket connections
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "notification-ws-route"
+    nginx.ingress.kubernetes.io/session-cookie-expires: "3600"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "3600"
+    nginx.ingress.kubernetes.io/session-cookie-path: "/ws"
+    
+    # Rate limiting for WebSocket connections
+    nginx.ingress.kubernetes.io/rate-limit-connections: "50"
+    nginx.ingress.kubernetes.io/rate-limit-rps: "100"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - ws.notifications.serenity.com
+    secretName: notification-service-ws-tls
+  rules:
+  - host: ws.notifications.serenity.com
+    http:
+      paths:
+      - path: /ws
+        pathType: Prefix
+        backend:
+          service:
+            name: notification-service
+            port:
+              number: 3001

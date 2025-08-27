@@ -1,3 +1,4 @@
+import logger from './loggerService';
 
 interface DebugLogEntry {
   timestamp: string;
@@ -70,11 +71,13 @@ class DebugService {
       performance: 'color: #6B7280'
     };
     
-    console.log(
-      `%c[${category.toUpperCase()}] ${message}`, 
-      colors[category] || 'color: inherit',
-      data
-    );
+    // Use logger service instead of direct console.log
+    logger.debug(`[${category.toUpperCase()}] ${message}`, {
+      component: 'DebugService',
+      category,
+      userId: this.userId,
+      debugData: data
+    });
     
     // Send critical logs to server
     if (category === '_error' || category === 'critical') {
@@ -85,7 +88,7 @@ class DebugService {
   private async sendLogToServer(_logEntry: DebugLogEntry): Promise<void> {
     try {
       // In a real app, this would send to your logging service
-      console.warn('Critical log would be sent to server:', _logEntry);
+      logger.warn('Critical log would be sent to server:', _logEntry, { component: 'debugService' });
     } catch (_error) {
       console._error('Failed to send log to server:', _error);
     }

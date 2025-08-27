@@ -2,6 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { NotificationType } from './types';
 import { getRandomMessage } from './messagePool';
+import logger from '../loggerService';
 
 export function showNotification(type: NotificationType): void {
   const message = getRandomMessage(type);
@@ -75,7 +76,7 @@ export async function logFeedback(data: unknown): Promise<void> {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
-      console.warn('Cannot log notification feedback: User not authenticated');
+      logger.warn('Cannot log notification feedback: User not authenticated', { component: 'handlers' });
       return;
     }
 
@@ -99,7 +100,7 @@ export async function logNotificationScheduled(settings: unknown): Promise<void>
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
-      console.warn('Cannot log notification scheduling: User not authenticated');
+      logger.warn('Cannot log notification scheduling: User not authenticated', { component: 'handlers' });
       return;
     }
 

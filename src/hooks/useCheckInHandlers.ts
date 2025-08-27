@@ -1,5 +1,6 @@
 
 import { toast } from 'sonner';
+import logger from '../services/loggerService';
 
 export const useCheckInHandlers = () => {
   const navigate = (path: string) => {
@@ -8,7 +9,7 @@ export const useCheckInHandlers = () => {
 
   // Handler for crisis detection
   const handleCrisisDetected = () => {
-    console.log('Crisis detected! Activating crisis mode...');
+    logger.debug('Crisis detected! Activating crisis mode...', { component: 'useCheckInHandlers' });
     toast.error("Crisis mode activated", {
       description: "Your support network has been notified",
       _duration: 10000,
@@ -21,7 +22,7 @@ export const useCheckInHandlers = () => {
 
   // Handler for showing interventions
   const handleShowInterventions = (_stats: Record<string, any>) => {
-    console.log('Showing effective interventions:', _stats);
+    logger.debug('Showing effective interventions:', _stats, { component: 'useCheckInHandlers' });
     
     // Find most effective interventions
     const sortedInterventions = Object.entries(_stats)

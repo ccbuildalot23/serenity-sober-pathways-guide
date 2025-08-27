@@ -22,7 +22,7 @@ export const SafetyWarning: React.FC<SafetyWarningProps> = ({
     </div>
     
     <p className="text-gray-600 mb-8 leading-relaxed">
-      This exercise will guide you through a reflection on potential consequences of relapse. 
+      This exercise will guide you through a reflection on potential consequences of recovery challenges. 
       The content may bring up strong emotions as it's personalized to your recovery journey.
     </p>
     

@@ -10,6 +10,7 @@ import { checkinSubmissionService } from '@/services/checkinSubmissionService';
 import { fixedCheckInSubmission } from '@/utils/databaseFix';
 import { supabase } from '@/integrations/supabase/client';
 import { emergencyFallback } from '@/lib/emergencyFallback';
+import logger from '../services/loggerService';
 
 interface CheckInData {
   mood: 'positive' | 'neutral' | 'negative';
@@ -103,7 +104,7 @@ const CheckIn = () => {
             sleep_quality: checkInData.sleepRating,
             notes: checkInData.moodDescription,
           });
-          console.log('Check-in saved (fixed path):', result);
+          logger.debug('Check-in saved (fixed path)', result, { component: 'CheckIn' });
 
           // Notify dashboard and any listeners to refresh immediately
           try {

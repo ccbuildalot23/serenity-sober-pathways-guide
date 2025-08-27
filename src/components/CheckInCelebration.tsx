@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import logger from '../services/loggerService';
 
 interface CheckInCelebrationProps {
   onStartMindfulness?: () => void;
@@ -58,7 +59,7 @@ const CheckInCelebration: React.FC<CheckInCelebrationProps> = ({
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + 0.3);
     } catch (_error) {
-      console.log('Audio not supported');
+      logger.debug('Audio not supported', { component: 'CheckInCelebration' });
     }
   };
 

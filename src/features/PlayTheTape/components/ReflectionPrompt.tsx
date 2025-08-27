@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Heart } from 'lucide-react';
+import logger from '../../../services/loggerService';
 
 interface ReflectionPromptProps {
   _onComplete: () => void;
@@ -16,7 +17,7 @@ export const ReflectionPrompt: React.FC<ReflectionPromptProps> = ({
   
   const handleSave = () => {
     // Save to localStorage for now - in production use secure backend
-    console.log('Saving reflection:', reflection);
+    logger.debug('Saving reflection:', reflection, { component: 'ReflectionPrompt' });
     localStorage.setItem('lastReflection', JSON.stringify({
       text: reflection,
       _timestamp: new Date().toISOString()

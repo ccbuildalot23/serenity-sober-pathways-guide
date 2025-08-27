@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
+import logger from '../../services/loggerService';
 import { 
   Shield, 
   Database, 
@@ -414,7 +415,7 @@ export const InfrastructureMonitoringDashboard: React.FC = () => {
                 <CardContent>
                   <div className="flex space-x-4">
                     <Button 
-                      onClick={() => console.log('TODO: Implement API call for security scan')}
+                      onClick={() => logger.debug('TODO: Implement API call for security scan', { component: 'InfrastructureMonitoringDashboard' })}
                       variant="outline"
                     >
                       <Shield className="w-4 h-4 mr-2" />
@@ -504,7 +505,7 @@ export const InfrastructureMonitoringDashboard: React.FC = () => {
                 <CardContent>
                   <div className="flex space-x-4">
                     <Button 
-                      onClick={() => console.log('TODO: Implement API call for backup')}
+                      onClick={() => logger.debug('TODO: Implement API call for backup', { component: 'InfrastructureMonitoringDashboard' })}
                       variant="outline"
                     >
                       <Upload className="w-4 h-4 mr-2" />

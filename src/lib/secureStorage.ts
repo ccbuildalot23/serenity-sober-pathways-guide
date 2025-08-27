@@ -1,3 +1,4 @@
+import logger from '../services/loggerService';
 /**
  * Secure client-side storage utility
  * Provides encrypted storage for sensitive data with automatic cleanup
@@ -28,7 +29,7 @@ export class SecureStorage {
       // Use a simple base64 encoding for now - in production, use proper encryption
       return btoa(encodeURIComponent(data));
     } catch (_error) {
-      console.warn('Encryption failed, storing in plain text:', _error);
+      logger.warn('Encryption failed, storing in plain text:', _error, { component: 'secureStorage' });
       return data;
     }
   }
@@ -40,7 +41,7 @@ export class SecureStorage {
     try {
       return decodeURIComponent(atob(encryptedData));
     } catch (_error) {
-      console.warn('Decryption failed, returning as is:', _error);
+      logger.warn('Decryption failed, returning as is:', _error, { component: 'secureStorage' });
       return encryptedData;
     }
   }

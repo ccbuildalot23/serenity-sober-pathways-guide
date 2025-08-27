@@ -1,0 +1,16 @@
+{
+  "timestamp": "2025-08-27T18:34:41.226Z",
+  "environment": {
+    "nodeVersion": "v22.18.0",
+    "npmVersion": "10.9.3",
+    "platform": "win32",
+    "nodeEnv": "not set"
+  },
+  "checks": {
+    "packageCount": false,
+    "criticalDeps": true,
+    "nodeModules": true
+  },
+  "success": false,
+  "recommendation": "Run: npm ci --production=false --legacy-peer-deps"
+}

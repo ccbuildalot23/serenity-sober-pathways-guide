@@ -8,6 +8,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { authClient } from '@/integrations/supabase/auth-client';
+import { HelpModal } from './HelpModal';
+import logger from '../../services/loggerService';
 import { 
   Loader2, 
   WifiOff, 
@@ -17,7 +19,8 @@ import {
   Eye, 
   EyeOff,
   Heart,
-  Sparkles
+  Sparkles,
+  HelpCircle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
@@ -32,6 +35,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [showHelpModal, setShowHelpModal] = useState(false);
   const { toast } = useToast();
   const { signIn } = useAuth();
   const navigate = useNavigate();
@@ -61,7 +65,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
 
     try {
       setLoading(true);
-      console.log('Attempting sign in with enhanced auth client...');
+      logger.debug('Attempting sign in with enhanced auth client...', { component: 'SignInForm' });
 
       // Detect E2E/headless test mode to bypass remote auth entirely
       const isE2E = (() => {
@@ -88,7 +92,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
         try {
           localStorage.setItem('dev_bypass_auth', 'true');
           localStorage.setItem('pw_role', inferredRole);
-          console.log(`E2E mode: Set role hint to ${inferredRole} for ${sanitizedEmail}`);
+          logger.debug(`E2E mode: Set role hint to ${inferredRole} for ${sanitizedEmail}`, { component: 'SignInForm' });
         } catch (e) {
           console.error('Failed to set localStorage in E2E mode:', e);
         }
@@ -99,7 +103,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
             : inferredRole === 'support_member'
               ? '/supporter/dashboard'
               : '/patient/dashboard';
-        console.log(`E2E mode: Navigating to ${target}`);
+        logger.debug(`E2E mode: Navigating to ${target}`, { component: 'SignInForm' });
         navigate(target, { replace: true });
         await new Promise(r => setTimeout(r, 500)); // Increased timeout for WebKit
         return;
@@ -169,7 +173,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
-            <Alert variant="destructive" className="border-red-200 bg-red-50">
+            <Alert variant="destructive" className="border-red-200 bg-red-50" data-testid="login-error">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription className="text-red-700">
                 {error}
@@ -200,10 +204,13 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
             className="pl-10 border-sage-200 focus:border-emerald-300 focus:ring-emerald-200 bg-white/80 backdrop-blur-sm"
-            data-testid="email"
+            data-testid="email-input"
+            aria-label="Email address"
+            aria-describedby="email-error"
             required
           />
         </div>
+        <div id="email-error" data-testid="email-error" className="sr-only" aria-live="polite"></div>
       </motion.div>
 
       {/* Password Field */}
@@ -227,7 +234,9 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your password"
             className="pl-10 pr-10 border-sage-200 focus:border-emerald-300 focus:ring-emerald-200 bg-white/80 backdrop-blur-sm"
-            data-testid="password"
+            data-testid="password-input"
+            aria-label="Password"
+            aria-describedby="password-error"
             required
           />
           <button
@@ -242,6 +251,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
             )}
           </button>
         </div>
+        <div id="password-error" data-testid="password-error" className="sr-only" aria-live="polite"></div>
       </motion.div>
 
       {/* Sign In Button */}
@@ -255,6 +265,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
           disabled={loading}
           className="w-full bg-gradient-primary hover:bg-gradient-primary/90 text-white font-semibold py-3 rounded-xl shadow-gentle hover:shadow-calm transition-all duration-300 transform hover:scale-[1.02] disabled:transform-none disabled:opacity-70"
           data-testid="login-button submit-login"
+          aria-label="Sign in to your account"
         >
           {loading ? (
             <div className="flex items-center space-x-2">
@@ -270,17 +281,29 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
         </Button>
       </motion.div>
 
-      {/* Help Text */}
+      {/* Help Section */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
-        className="text-center"
+        className="text-center space-y-3"
       >
-        <p className="text-xs text-sage-500">
-          Need help? Contact our support team for assistance
-        </p>
+        <Button
+          type="button"
+          variant="link"
+          onClick={() => setShowHelpModal(true)}
+          className="text-xs text-sage-500 hover:text-emerald-600 transition-colors p-0 h-auto font-normal"
+        >
+          <HelpCircle className="w-3 h-3 mr-1" />
+          Need help signing in?
+        </Button>
       </motion.div>
+
+      {/* Help Modal */}
+      <HelpModal
+        open={showHelpModal}
+        onOpenChange={setShowHelpModal}
+      />
     </motion.form>
   );
 };

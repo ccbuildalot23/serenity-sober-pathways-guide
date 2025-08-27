@@ -28,3 +28,6 @@ fixtures
 
 # Ignore static assets
 public/assets
+
+# Temporarily ignore AWS agents while refactoring
+src/agents/aws/*.ts

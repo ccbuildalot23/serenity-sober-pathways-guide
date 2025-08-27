@@ -1,3 +1,4 @@
+import logger from './loggerService';
 export interface NotificationData {
   id: string;
   contactName: string;
@@ -15,7 +16,7 @@ export interface MockPushResult {
 // Request notification permission on app load
 export const requestNotificationPermission = async (): Promise<boolean> => {
   if (!('Notification' in window)) {
-    console.warn('This browser does not support notifications');
+    logger.warn('This browser does not support notifications', { component: 'mockPushService' });
     return false;
   }
 
@@ -24,7 +25,7 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
   }
 
   if (Notification.permission === 'denied') {
-    console.warn('Notification permission denied');
+    logger.warn('Notification permission denied', { component: 'mockPushService' });
     return false;
   }
 
@@ -125,7 +126,7 @@ export const sendMockPush = async (
     // Add to notification history
     addToHistory(_notificationData);
 
-    console.log('Push notification sent:', _notificationData);
+    logger.debug('Push notification sent:', _notificationData, { component: 'mockPushService' });
     return { success: true };
 
   } catch (_error) {

@@ -7,6 +7,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { encryptionService } from './encryptionService';
 import { enhancedSecurityAuditService } from './EnhancedSecurityAuditService';
+import logger from './loggerService';
 
 interface TenantNetworkConfig {
   tenantId: string;
@@ -562,7 +563,7 @@ export class EnhancedTenantSecurity {
     //   created_at: new Date(),
     //   updated_at: new Date()
     // });
-    console.log('Storing tenant network config for:', config.tenantId);
+    logger.debug('Storing tenant network config for:', config.tenantId, { component: 'EnhancedTenantSecurity' });
   }
 
   private async storeEncryptionKeys(keys: TenantEncryptionKeys): Promise<void> {
@@ -578,7 +579,7 @@ export class EnhancedTenantSecurity {
     //   created_at: new Date(),
     //   updated_at: new Date()
     // });
-    console.log('Storing encryption keys for tenant:', keys.tenantId);
+    logger.debug('Storing encryption keys for tenant:', keys.tenantId, { component: 'EnhancedTenantSecurity' });
   }
 
   private async validateNetworkSegmentation(tenantId: string): Promise<{ isolated: boolean }> {

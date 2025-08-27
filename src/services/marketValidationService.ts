@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import logger from './loggerService';
 
 /**
  * Market Validation Service for B2B SaaS Commercialization
@@ -458,7 +459,7 @@ class MarketValidationService {
     await supabase.from('validation_interviews').insert(interviews);
 
     // In production, this would send calendar invites and email confirmations
-    console.log(`Scheduled ${interviews.length} validation interviews`);
+    logger.debug(`Scheduled ${interviews.length} validation interviews`, { component: 'marketValidationService' });
   }
 }
 

@@ -1,8 +1,9 @@
+import logger from '../loggerService';
 
 // Debug utilities for realtime services
 export const debugLog = (category: string, message: string, data?: unknown) => {
   if (import.meta.env.DEV) {
-    console.log(`[${category}] ${message}`, data || '');
+    logger.debug(`[${category}] ${message}`, data || '', { component: 'debugUtils' });
   }
 };
 
@@ -14,7 +15,7 @@ export const debugError = (category: string, error: Error, context?: unknown) =>
 
 export const debugWarn = (category: string, message: string, data?: unknown) => {
   if (import.meta.env.DEV) {
-    console.warn(`[${category}] Warning: ${message}`, data || '');
+    logger.warn(`[${category}] Warning: ${message}`, data || '', { component: 'debugUtils' });
   }
 };
 

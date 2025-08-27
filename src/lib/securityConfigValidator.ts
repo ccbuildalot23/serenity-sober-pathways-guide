@@ -1,3 +1,4 @@
+import logger from '../services/loggerService';
 /**
  * Security configuration validator
  * Validates environment and runtime security settings
@@ -210,14 +211,14 @@ export class SecurityConfigValidator {
     }
     
     if (_result.warnings.length > 0) {
-      console.warn('Security Configuration Warnings:', _result.warnings);
+      logger.warn('Security Configuration Warnings:', _result.warnings, { component: 'securityConfigValidator' });
     }
     
     if (import.meta.env.DEV && _result.recommendations.length > 0) {
-      console.info('Security Recommendations:', _result.recommendations);
+      logger.info('Security Recommendations:', _result.recommendations, { component: 'securityConfigValidator' });
     }
     
-    console.info(`Security Score: ${_result.score}/100 - ${_result.isSecure ? 'SECURE' : 'NEEDS ATTENTION'}`);
+    logger.info(`Security Score: ${_result.score}/100 - ${_result.isSecure ? 'SECURE' : 'NEEDS ATTENTION'}`, { component: 'securityConfigValidator' });
   }
 }
 

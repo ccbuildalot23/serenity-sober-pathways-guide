@@ -7,9 +7,15 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Your Supabase credentials
-const supabaseUrl = 'https://tqyiqstpvwztvofrxpuf.supabase.co';
-const supabaseServiceKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeWlxc3Rwdnd6dHZvZnJ4cHVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0OTI4MjE3OSwiZXhwIjoyMDY0ODU4MTc5fQ.HDbZEUEykfX4E45g8KSOUGYnPoIhIEUEsvwDZ56Itsk';
+// Load Supabase credentials from environment variables
+const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  console.error('❌ Error: Missing required environment variables');
+  console.error('Please set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY');
+  process.exit(1);
+}
 
 // Create Supabase client with service role key for admin access
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
@@ -57,8 +63,8 @@ async function applySecurityFix() {
   console.log('📝 Attempting to apply fix through Supabase Management API...\n');
   
   // Try using the Supabase Management API
-  const projectRef = 'tqyiqstpvwztvofrxpuf';
-  const accessToken = 'sbp_58d6ab24b5530517ecc8f6bfe0ac6fcb8582e21e';
+  const projectRef = supabaseUrl.split('.')[0].split('//')[1];
+  const accessToken = process.env.SUPABASE_MANAGEMENT_TOKEN;
   
   for (let i = 0; i < sqlStatements.length; i++) {
     const sql = sqlStatements[i];
@@ -92,7 +98,7 @@ async function applySecurityFix() {
   console.log('The Supabase CLI cannot directly execute SQL on the remote database.');
   console.log('You need to apply the fix manually:\n');
   console.log('1. Open Supabase SQL Editor:');
-  console.log('   https://supabase.com/dashboard/project/tqyiqstpvwztvofrxpuf/sql/new\n');
+  console.log(`   ${supabaseUrl.replace('https://', 'https://supabase.com/dashboard/project/').split('.')[0]}/sql/new\n`);
   console.log('2. Copy and paste the contents of APPLY_SECURITY_FIX.sql\n');
   console.log('3. Click "Run" to execute the SQL\n');
   console.log('4. Verify the fix by checking the policies on user_roles table');
@@ -136,9 +142,9 @@ async function main() {
   console.log('╔═══════════════════════════════════════╗');
   console.log('║   Supabase Security Fix Application   ║');
   console.log('╚═══════════════════════════════════════╝\n');
-  console.log('Project: tqyiqstpvwztvofrxpuf (Serenity1)');
-  console.log('URL: https://tqyiqstpvwztvofrxpuf.supabase.co');
-  console.log('Region: us-east-2\n');
+  console.log(`Project: ${supabaseUrl.split('.')[0].split('//')[1]}`);
+  console.log(`URL: ${supabaseUrl}`);
+  console.log('Environment: Production\n');
   console.log('─────────────────────────────────────────\n');
   
   // Test connection first

@@ -1,3 +1,4 @@
+import logger from './loggerService';
 
 const _isLocalhost = Boolean(
   window.location.hostname === 'localhost' ||
@@ -27,7 +28,10 @@ export function register(_config?: {
       if (_isLocalhost) {
         checkValidServiceWorker(_swUrl, _config);
         navigator.serviceWorker.ready.then(() => {
-          console.log('This web app is being served cache-first by a service worker.');
+          logger.info('This web app is being served cache-first by a service worker.', {
+            component: 'serviceWorkerRegistration',
+            action: 'cache_first_mode'
+          });
         });
       } else {
         registerValidSW(_swUrl, _config);
@@ -48,12 +52,18 @@ function registerValidSW(_swUrl: string, _config?: unknown) {
         installingWorker.onstatechange = () => {
           if (installingWorker.state === 'installed') {
             if (navigator.serviceWorker.controller) {
-              console.log('New content is available and will be used when all tabs for this page are closed.');
+              logger.info('New content is available and will be used when all tabs for this page are closed.', {
+                component: 'serviceWorkerRegistration',
+                action: 'update_available'
+              });
               if (_config && _config.onUpdate) {
                 _config.onUpdate(registration);
               }
             } else {
-              console.log('Content is cached for offline use.');
+              logger.info('Content is cached for offline use.', {
+                component: 'serviceWorkerRegistration',
+                action: 'content_cached'
+              });
               if (_config && _config.onSuccess) {
                 _config.onSuccess(registration);
               }
@@ -87,7 +97,10 @@ function checkValidServiceWorker(_swUrl: string, _config?: unknown) {
       }
     })
     .catch(() => {
-      console.log('No internet connection found. App is running in offline mode.');
+      logger.info('No internet connection found. App is running in offline mode.', {
+        component: 'serviceWorkerRegistration',
+        action: 'offline_mode'
+      });
     });
 }
 

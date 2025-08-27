@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Phone, MessageSquare, Heart, Users, MapPin, ChevronRight, Shield, Clock } from 'lucide-react';
+import { Phone, MessageSquare, Heart, Users, MapPin, ChevronRight, Shield, Clock, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useSearchParams } from 'react-router-dom';
+import logger from '../services/loggerService';
 
 const CrisisHelp: React.FC = () => {
   const [location, setLocation] = useState<{ lat: number; _lng: number } | null>(null);
@@ -23,7 +25,7 @@ const CrisisHelp: React.FC = () => {
           });
         },
         (_error) => {
-          console.log('Location access denied:', _error);
+          logger.debug('Location access denied:', _error, { component: 'CrisisHelp' });
         }
       );
     }
@@ -70,7 +72,41 @@ const CrisisHelp: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-red-50 to-white p-4">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-rose-50">
+      {/* Premium Header */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative bg-white/60 backdrop-blur-xl border-b border-white/20 shadow-xl"
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-red-100/50 via-transparent to-rose-100/50" />
+        <div className="relative max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent flex items-center gap-3">
+              <motion.div 
+                className="p-3 bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl shadow-lg"
+                whileHover={{ scale: 1.1, rotate: 5 }}
+              >
+                <Heart className="w-8 h-8 text-white" />
+              </motion.div>
+              Crisis Help
+            </h1>
+            <p className="mt-3 text-gray-700 text-lg font-medium flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              Emergency resources and professional support
+            </p>
+            <p className="mt-1 text-gray-600">
+              Help is available 24/7 when you need it most
+            </p>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
       {/* Emergency Banner */}
       {isShaking && (
         <div className="fixed top-0 left-0 right-0 bg-red-600 text-white p-4 z-50 animate-pulse">
@@ -95,9 +131,9 @@ const CrisisHelp: React.FC = () => {
           <div className="space-y-3 mb-6">
             {[
               { id: 'suicidal', label: 'Having thoughts of suicide or self-harm', icon: '🆘', color: 'red' },
-              { id: 'relapse', label: 'Struggling with urges to use/drink', icon: '⚠️', color: 'orange' },
+              { id: 'recovery', label: 'Struggling with recovery challenges', icon: '⚠️', color: 'orange' },
               { id: 'shame', label: 'Feeling overwhelmed by shame/guilt', icon: '💙', color: 'blue' },
-              { id: 'panic', label: 'Having a panic attack or severe anxiety', icon: '🌊', color: 'purple' },
+              { id: 'overwhelming', label: 'Having overwhelming feelings or intense anxiety', icon: '🌊', color: 'purple' },
               { id: 'alone', label: 'Feeling completely alone and hopeless', icon: '🤗', color: 'green' },
               { id: 'emergency', label: 'Need immediate help right now', icon: '🚨', color: 'red' }
             ].map((crisis) => (
@@ -141,7 +177,7 @@ const CrisisHelp: React.FC = () => {
                 <p className="text-gray-600">Suicidal thoughts are a sign you're in pain, not weak. Help is here.</p>
               </>
             )}
-            {selectedCrisisType === 'relapse' && (
+            {selectedCrisisType === 'recovery' && (
               <>
                 <h1 className="text-3xl font-bold mb-2">Urges Are Temporary</h1>
                 <p className="text-gray-600">You've overcome them before. Let's get you through this moment.</p>
@@ -153,10 +189,10 @@ const CrisisHelp: React.FC = () => {
                 <p className="text-gray-600">You are not your mistakes. You are worthy of love and recovery.</p>
               </>
             )}
-            {selectedCrisisType === 'panic' && (
+            {selectedCrisisType === 'overwhelming' && (
               <>
                 <h1 className="text-3xl font-bold mb-2">This Will Pass</h1>
-                <p className="text-gray-600">Panic feels scary but it can't hurt you. You're safe.</p>
+                <p className="text-gray-600">Overwhelming feelings are scary but temporary. You're safe.</p>
               </>
             )}
             {selectedCrisisType === 'alone' && (
@@ -187,9 +223,9 @@ const CrisisHelp: React.FC = () => {
               <span className="text-2xl font-bold">Call 988</span>
               <span className="text-sm opacity-90">
                 {selectedCrisisType === 'suicidal' ? 'Talk to someone who understands' :
-                 selectedCrisisType === 'relapse' ? 'Get addiction crisis support' :
+                 selectedCrisisType === 'recovery' ? 'Get recovery support' :
                  selectedCrisisType === 'shame' ? 'Speak with a counselor' :
-                 selectedCrisisType === 'panic' ? 'Calm your anxiety with help' :
+                 selectedCrisisType === 'overwhelming' ? 'Calm your intense feelings with help' :
                  selectedCrisisType === 'alone' ? 'Connect with someone who cares' :
                  'Immediate crisis support'}
               </span>
@@ -207,7 +243,7 @@ const CrisisHelp: React.FC = () => {
                 <span className="text-xl font-bold block">Text 741741</span>
                 <span className="text-sm opacity-90">
                   {selectedCrisisType === 'shame' ? 'Text when speaking feels too hard' :
-                   selectedCrisisType === 'panic' ? 'Text for breathing exercises' :
+                   selectedCrisisType === 'overwhelming' ? 'Text for calming support' :
                    selectedCrisisType === 'alone' ? 'Connect through text support' :
                    'Private crisis text support'}
                 </span>
@@ -216,7 +252,7 @@ const CrisisHelp: React.FC = () => {
           </Button>
 
           {/* Crisis-Specific Immediate Help */}
-          {selectedCrisisType === 'panic' && (
+          {selectedCrisisType === 'overwhelming' && (
             <Card className="p-4 mb-4 bg-purple-50 border-purple-200">
               <div className="text-center">
                 <h3 className="font-semibold mb-2">🫁 Breathe With Me (30 seconds)</h3>
@@ -267,15 +303,15 @@ const CrisisHelp: React.FC = () => {
                 <Heart className="w-6 h-6 text-green-600" />
                 <div>
                   <h3 className="font-semibold">
-                    {selectedCrisisType === 'panic' ? "The panic is passing" :
+                    {selectedCrisisType === 'overwhelming' ? "These intense feelings are passing" :
                      selectedCrisisType === 'shame' ? "I'm choosing self-compassion" :
-                     selectedCrisisType === 'relapse' ? "I'm staying strong" :
+                     selectedCrisisType === 'recovery' ? "I'm staying strong" :
                      "I'm safe for now"}
                   </h3>
                   <p className="text-sm text-gray-600">
-                    {selectedCrisisType === 'panic' ? 'Continue with calming resources' :
+                    {selectedCrisisType === 'overwhelming' ? 'Continue with calming resources' :
                      selectedCrisisType === 'shame' ? 'Explore self-forgiveness tools' :
-                     selectedCrisisType === 'relapse' ? 'Build your recovery toolkit' :
+                     selectedCrisisType === 'recovery' ? 'Build your recovery toolkit' :
                      'Find ongoing support resources'}
                   </p>
                 </div>
@@ -293,8 +329,8 @@ const CrisisHelp: React.FC = () => {
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-gray-800">
               {selectedCrisisType === 'shame' ? 'Shame-Specific Support' :
-               selectedCrisisType === 'relapse' ? 'Addiction Crisis Resources' :
-               selectedCrisisType === 'panic' ? 'Anxiety Support' :
+               selectedCrisisType === 'recovery' ? 'Recovery Support Resources' :
+               selectedCrisisType === 'overwhelming' ? 'Emotional Support' :
                'More Ways to Get Help'}
             </h2>
           
@@ -339,8 +375,8 @@ const CrisisHelp: React.FC = () => {
               </div>
             </Card>
           )}
-        </div>
-
+          </div>
+          
           {/* Crisis-Specific Safety Planning */}
           <div className="mt-8 p-4 bg-blue-50 rounded-lg">
             <div className="flex items-start gap-3">
@@ -348,14 +384,14 @@ const CrisisHelp: React.FC = () => {
               <div>
                 <h3 className="font-semibold text-blue-900 mb-2">
                   {selectedCrisisType === 'shame' ? 'Build Your Shame Resilience Plan' :
-                   selectedCrisisType === 'relapse' ? 'Strengthen Your Recovery Plan' :
-                   selectedCrisisType === 'panic' ? 'Create Your Anxiety Toolkit' :
+                   selectedCrisisType === 'recovery' ? 'Strengthen Your Recovery Plan' :
+                   selectedCrisisType === 'overwhelming' ? 'Create Your Calming Toolkit' :
                    'Create Your Safety Plan'}
                 </h3>
                 <p className="text-sm text-blue-800">
                   {selectedCrisisType === 'shame' ? 'Identify your shame triggers and practice self-compassion responses.' :
-                   selectedCrisisType === 'relapse' ? 'Plan specific actions for when cravings hit and build your support network.' :
-                   selectedCrisisType === 'panic' ? 'Prepare breathing exercises, grounding techniques, and comfort items.' :
+                   selectedCrisisType === 'recovery' ? 'Plan specific actions for challenging moments and build your support network.' :
+                   selectedCrisisType === 'overwhelming' ? 'Prepare breathing exercises, grounding techniques, and comfort items.' :
                    'When you are feeling better, create a personalized safety plan with warning signs and coping strategies.'}
                 </p>
               </div>
@@ -384,6 +420,7 @@ const CrisisHelp: React.FC = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };

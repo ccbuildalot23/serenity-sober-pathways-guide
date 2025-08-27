@@ -7,6 +7,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { enhancedSecurityAuditService } from './EnhancedSecurityAuditService';
 import { ROIValidationService } from './ROIValidationService';
+import logger from './loggerService';
 
 interface PricingTier {
   id: string;
@@ -534,7 +535,7 @@ export class ProviderOnboardingService {
     // Calculate and show ROI projection
     if (session.profile) {
       const roiProjection = await this.calculateROIProjection(session.profile, tier);
-      console.log('ROI Projection:', roiProjection);
+      logger.debug('ROI Projection:', roiProjection, { component: 'ProviderOnboardingService' });
     }
 
     await this.saveSession(session);
@@ -859,7 +860,7 @@ export class ProviderOnboardingService {
     billing: BillingInformation
   ): Promise<void> {
     // Would integrate with Stripe/payment processor
-    console.log(`Creating ${tier.name} subscription for provider ${providerId}`);
+    logger.debug(`Creating ${tier.name} subscription for provider ${providerId}`, { component: 'ProviderOnboardingService' });
     
     await supabase.from('provider_subscriptions').insert({
       provider_id: providerId,
@@ -877,7 +878,7 @@ export class ProviderOnboardingService {
    */
   private async testEHRConnection(ehr: EHRIntegration): Promise<boolean> {
     // Would test actual EHR API connection
-    console.log(`Testing ${ehr.system} EHR connection`);
+    logger.debug(`Testing ${ehr.system} EHR connection`, { component: 'ProviderOnboardingService' });
     return true;
   }
 
@@ -905,7 +906,7 @@ export class ProviderOnboardingService {
    */
   private async sendWelcomeEmail(session: OnboardingSession): Promise<void> {
     // Would integrate with email service
-    console.log(`Sending welcome email to provider ${session.providerId}`);
+    logger.debug(`Sending welcome email to provider ${session.providerId}`, { component: 'ProviderOnboardingService' });
   }
 
   /**

@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { motion } from 'framer-motion';
+import { GlassCard } from '@/components/ui/GlassCard';
+import { MetricWidget } from '@/components/ui/MetricWidget';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, Shield, Heart, Brain, Phone, Users, FileText, TrendingUp } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import TriggerManagementToolkit from '@/components/triggers/TriggerManagementToolkit';
-import RelapsePrevention from '@/components/cbt/relapse/RelapsePrevention';
+import RecoveryStrengthening from '@/components/cbt/relapse/RecoveryStrengthening';
 import { PredictiveCrisisAlert } from '@/components/crisis/PredictiveCrisisAlert';
 import { PlayTheTapeButton } from '@/features/PlayTheTape';
 import { useNavigate } from 'react-router-dom';
 import { CrisisPatternAnalysisService } from '@/services/crisisPatternAnalysisService';
 import { useState as useReactState } from 'react';
 
-const RelapsePreventionPage: React.FC = () => {
+const RecoveryStrengthPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [_activeSection, setActiveSection] = useState('overview');
@@ -58,7 +60,7 @@ const RelapsePreventionPage: React.FC = () => {
 
   const userData = {
     sobrietyDays: 30, // Mock data - in production this would come from user profile
-    relapseHistory: []
+    recoveryHistory: []
   };
 
   const getRiskLevel = (score: number) => {
@@ -79,136 +81,165 @@ const RelapsePreventionPage: React.FC = () => {
   ];
 
   const renderOverview = () => (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Predictive Crisis Alert */}
-      <PredictiveCrisisAlert 
-        patterns={patterns}
-        onCrisisDetected={() => navigate('/crisis-support')}
-        onShowInterventions={() => setActiveSection('coping')}
-      />
+      <GlassCard className="overflow-hidden">
+        <PredictiveCrisisAlert 
+          patterns={patterns}
+          onCrisisDetected={() => navigate('/crisis-support')}
+          onShowInterventions={() => setActiveSection('coping')}
+        />
+      </GlassCard>
       
       {/* Risk Score Display */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5" />
-            Current Risk Assessment
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between mb-4">
+      <GlassCard className="p-8" gradient="premium">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl">
+            <TrendingUp className="w-6 h-6 text-white" />
+          </div>
+          <h2 className="text-xl font-bold text-slate-800">Current Risk Assessment</h2>
+        </div>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <p className="text-sm text-muted-foreground">Current Risk Level</p>
-              <div className="flex items-center gap-2 mt-1">
-                <Badge className={`${riskLevel.color} text-white`}>
+              <p className="text-sm text-slate-600 mb-2">Current Risk Level</p>
+              <div className="flex items-center gap-3">
+                <Badge className={`${riskLevel.color} text-white px-3 py-1`}>
                   {riskLevel.level}
                 </Badge>
-                <span className="text-2xl font-bold">{Math.round(_riskScore * 100)}%</span>
+                <span className="text-3xl font-bold text-slate-800">{Math.round(_riskScore * 100)}%</span>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-sm text-muted-foreground">Based on recent patterns</p>
-              <p className="text-xs text-muted-foreground">Updates daily</p>
+              <p className="text-sm text-slate-600">Based on recent patterns</p>
+              <p className="text-xs text-slate-500">Updates daily</p>
             </div>
           </div>
           
-          <div className="bg-gray-100 rounded-lg p-4 space-y-2">
-            <h4 className="font-medium">Risk Factors Detected:</h4>
-            <ul className="text-sm space-y-1">
-              <li className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full" />
-                Active engagement with prevention tools
+          <div className="bg-white/40 backdrop-blur-sm rounded-xl p-6 space-y-3">
+            <h4 className="font-semibold text-slate-800">Risk Factors Detected:</h4>
+            <ul className="space-y-2">
+              <li className="flex items-center gap-3">
+                <div className="w-3 h-3 bg-emerald-500 rounded-full" />
+                <span className="text-slate-700">Active engagement with prevention tools</span>
               </li>
-              <li className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full" />
-                Regular check-in completion
+              <li className="flex items-center gap-3">
+                <div className="w-3 h-3 bg-emerald-500 rounded-full" />
+                <span className="text-slate-700">Regular check-in completion</span>
               </li>
-              <li className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                Support network actively engaged
+              <li className="flex items-center gap-3">
+                <div className="w-3 h-3 bg-blue-500 rounded-full" />
+                <span className="text-slate-700">Support network actively engaged</span>
               </li>
             </ul>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </GlassCard>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveSection('triggers')}>
-          <CardContent className="p-4 text-center">
-            <AlertTriangle className="w-8 h-8 mx-auto mb-2 text-orange-500" />
-            <h3 className="font-medium">Identify Triggers</h3>
-            <p className="text-sm text-muted-foreground">Map your personal risk factors</p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => setActiveSection('triggers')}
+        >
+          <GlassCard hover className="cursor-pointer p-6 text-center bg-gradient-to-br from-amber-100/40 to-orange-100/40 border-amber-200/50">
+            <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl w-fit mx-auto mb-4">
+              <AlertTriangle className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="font-bold text-slate-800 mb-2">Identify Triggers</h3>
+            <p className="text-sm text-slate-600">Map your personal risk factors</p>
+          </GlassCard>
+        </motion.div>
         
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveSection('coping')}>
-          <CardContent className="p-4 text-center">
-            <Shield className="w-8 h-8 mx-auto mb-2 text-blue-500" />
-            <h3 className="font-medium">Coping Tools</h3>
-            <p className="text-sm text-muted-foreground">Build your strategy library</p>
-          </CardContent>
-        </Card>
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => setActiveSection('coping')}
+        >
+          <GlassCard hover className="cursor-pointer p-6 text-center bg-gradient-to-br from-blue-100/40 to-indigo-100/40 border-blue-200/50">
+            <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl w-fit mx-auto mb-4">
+              <Shield className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="font-bold text-slate-800 mb-2">Coping Tools</h3>
+            <p className="text-sm text-slate-600">Build your strategy library</p>
+          </GlassCard>
+        </motion.div>
         
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/crisis-support')}>
-          <CardContent className="p-4 text-center">
-            <Phone className="w-8 h-8 mx-auto mb-2 text-red-500" />
-            <h3 className="font-medium">Crisis Support</h3>
-            <p className="text-sm text-muted-foreground">Immediate help resources</p>
-          </CardContent>
-        </Card>
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => navigate('/crisis-support')}
+        >
+          <GlassCard hover className="cursor-pointer p-6 text-center bg-gradient-to-br from-red-100/40 to-rose-100/40 border-red-200/50">
+            <div className="p-3 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl w-fit mx-auto mb-4">
+              <Phone className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="font-bold text-slate-800 mb-2">Crisis Support</h3>
+            <p className="text-sm text-slate-600">Immediate help resources</p>
+          </GlassCard>
+        </motion.div>
       </div>
 
       {/* Play the Tape Tool */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="w-5 h-5" />
-            Mental Rehearsal Tools
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="font-medium">Play the Tape All the Way Through</h4>
-              <p className="text-sm text-muted-foreground">Mental exercise to visualize consequences and strengthen resolve</p>
-            </div>
-            <PlayTheTapeButton userData={userData} />
+      <GlassCard className="p-8" gradient="sage">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl">
+            <Brain className="w-6 h-6 text-white" />
           </div>
-        </CardContent>
-      </Card>
+          <h2 className="text-xl font-bold text-slate-800">Mental Rehearsal Tools</h2>
+        </div>
+        <div className="flex items-center justify-between">
+          <div>
+            <h4 className="font-semibold text-slate-800 mb-2">Play the Tape All the Way Through</h4>
+            <p className="text-slate-600">Mental exercise to visualize consequences and strengthen resolve</p>
+          </div>
+          <PlayTheTapeButton userData={userData} />
+        </div>
+      </GlassCard>
     </div>
   );
 
   const renderTriggers = () => (
-    <div className="space-y-6">
-      <TriggerManagementToolkit />
+    <div className="space-y-8">
+      <GlassCard className="overflow-hidden">
+        <TriggerManagementToolkit />
+      </GlassCard>
     </div>
   );
 
   const renderCoping = () => (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Personalized Coping Strategies</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {personalizedStrategies.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {personalizedStrategies.map((strategy, index) => (
-                <div key={index} className="p-4 border rounded-lg">
-                  <h4 className="font-medium mb-2">{strategy}</h4>
-                  <p className="text-sm text-muted-foreground">Based on your usage patterns</p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-muted-foreground">Complete more check-ins to get personalized recommendations</p>
-          )}
-        </CardContent>
-      </Card>
+    <div className="space-y-8">
+      <GlassCard className="p-8" gradient="lavender">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-3 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl">
+            <Shield className="w-6 h-6 text-white" />
+          </div>
+          <h2 className="text-xl font-bold text-slate-800">Personalized Coping Strategies</h2>
+        </div>
+        {personalizedStrategies.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {personalizedStrategies.map((strategy, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.1 }}
+                className="p-6 bg-white/40 backdrop-blur-sm rounded-xl border border-white/30"
+              >
+                <h4 className="font-semibold text-slate-800 mb-2">{strategy}</h4>
+                <p className="text-sm text-slate-600">Based on your usage patterns</p>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-slate-600 text-center py-8">Complete more check-ins to get personalized recommendations</p>
+        )}
+      </GlassCard>
       
-      <RelapsePrevention />
+      <GlassCard className="overflow-hidden">
+        <RecoveryStrengthening />
+      </GlassCard>
     </div>
   );
 
@@ -287,7 +318,7 @@ const RelapsePreventionPage: React.FC = () => {
 
   const renderTools = () => (
     <div className="space-y-6">
-      <RelapsePrevention />
+      <RecoveryStrengthening />
     </div>
   );
 
@@ -305,35 +336,69 @@ const RelapsePreventionPage: React.FC = () => {
 
   return (
     <Layout activeTab="support" onTabChange={() => {}}>
-      <div className="p-4 max-w-6xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Relapse Prevention Toolkit</h1>
-          <p className="text-gray-600">Comprehensive tools to strengthen your recovery and prevent relapse</p>
-        </div>
-
-        {/* Section Navigation */}
-        <div className="flex flex-wrap gap-2 mb-6 border-b">
-          {sections.map((section) => (
-            <button
-              key={section.id}
-              onClick={() => setActiveSection(section.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-t-lg transition-colors ${
-                _activeSection === section.id
-                  ? 'bg-primary text-primary-foreground border-b-2 border-primary'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-              }`}
+      <div className="min-h-screen bg-gradient-to-br from-purple-50/50 via-blue-50/30 to-indigo-100/50">
+        {/* Glass morphism header */}
+        <div className="sticky top-0 z-10 bg-white/60 backdrop-blur-xl border-b border-white/20">
+          <div className="max-w-7xl mx-auto px-4 py-6">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center space-y-2"
             >
-              <section.icon className="w-4 h-4" />
-              {section.title}
-            </button>
-          ))}
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                Recovery Strength Toolkit
+              </h1>
+              <p className="text-slate-600">
+                Comprehensive tools to strengthen your recovery journey
+              </p>
+            </motion.div>
+          </div>
         </div>
 
-        {/* Active Section Content */}
-        {renderActiveSection()}
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {/* Section Navigation */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="mb-8"
+          >
+            <GlassCard className="p-4">
+              <div className="flex flex-wrap gap-2 justify-center">
+                {sections.map((section, index) => (
+                  <motion.button
+                    key={section.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: index * 0.05 }}
+                    onClick={() => setActiveSection(section.id)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                      _activeSection === section.id
+                        ? 'bg-white/80 text-purple-700 shadow-md scale-105'
+                        : 'text-slate-600 hover:text-slate-800 hover:bg-white/40'
+                    }`}
+                  >
+                    <section.icon className="w-4 h-4" />
+                    {section.title}
+                  </motion.button>
+                ))}
+              </div>
+            </GlassCard>
+          </motion.div>
+
+          {/* Active Section Content */}
+          <motion.div
+            key={_activeSection}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            {renderActiveSection()}
+          </motion.div>
+        </div>
       </div>
     </Layout>
   );
 };
 
-export default RelapsePreventionPage;
+export default RecoveryStrengthPage;

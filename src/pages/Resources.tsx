@@ -9,7 +9,7 @@ import { BookOpen, Video, Headphones, FileText, ExternalLink, Star } from 'lucid
 const Resources = () => {
   const resources = [
     {
-      title: "Understanding Addiction",
+      title: "Understanding Substance Use Challenges",
       type: "Article",
       duration: "5 min read",
       category: "Education",
@@ -25,7 +25,7 @@ const Resources = () => {
       featured: false
     },
     {
-      title: "Relapse Prevention Strategies",
+      title: "Recovery Strengthening Strategies",
       type: "Video",
       duration: "20 min",
       category: "Skills",

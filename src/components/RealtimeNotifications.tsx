@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { useRealtimeUpdates } from '@/hooks/useRealtimeUpdates';
 import { useAuth } from '@/contexts/AuthContext';
 import { AlertTriangle, Heart, TrendingUp, ShieldAlert, CheckCircle } from 'lucide-react';
+import logger from '../services/loggerService';
 
 const RealtimeNotifications: React.FC = () => {
   const { user } = useAuth();
@@ -23,7 +24,7 @@ const RealtimeNotifications: React.FC = () => {
         duration: 15000,
         action: {
           label: 'View Details',
-          onClick: () => console.log('Navigate to crisis details')
+          onClick: () => logger.debug('Navigate to crisis details', { component: 'RealtimeNotifications' })
         }
       });
     } else {

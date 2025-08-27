@@ -91,7 +91,7 @@ class VictoryTrackerService {
         _description: action
       });
       
-      toast.success('Connection is the opposite of addiction. Well done! 🤝');
+      toast.success('Connection is the opposite of substance use. Well done! 🤝');
     } catch (_error) {
       console._error('Error tracking connection:', _error);
     }

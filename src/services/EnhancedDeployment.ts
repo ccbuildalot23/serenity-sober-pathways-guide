@@ -2,6 +2,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { enhancedSecurityAuditService } from './EnhancedSecurityAuditService';
 import { PredictiveMonitoring } from './PredictiveMonitoring';
 import { deploymentValidationService } from './DeploymentValidationService';
+import logger from './loggerService';
 // Global status map to avoid instance/state issues
 const deploymentStatusMap: Map<string, { status: string; rollbackReason?: string }> = new Map();
 
@@ -275,7 +276,7 @@ export class EnhancedDeployment {
         const stage = defaultStages[i];
         this.canaryConfig.currentStage = i;
         
-        console.log(`Canary stage ${i + 1}: Rolling out to ${stage.percentage}% of users`);
+        logger.debug(`Canary stage ${i + 1}: Rolling out to ${stage.percentage}% of users`, { component: 'EnhancedDeployment' });
         
         // Update traffic routing
         await this.updateCanaryTraffic(version, stage.percentage);
@@ -285,7 +286,7 @@ export class EnhancedDeployment {
           const stageResult = await this.monitorCanaryStage(stage, stage.duration * 60000);
           
           if (!stageResult.success) {
-            console.log(`Canary stage ${i + 1} failed: ${stageResult.reason}`);
+            logger.debug(`Canary stage ${i + 1} failed: ${stageResult.reason}`, { component: 'EnhancedDeployment' });
             await this.rollbackCanary(deploymentId, stageResult.reason);
             
             return {
@@ -300,7 +301,7 @@ export class EnhancedDeployment {
           }
         }
         
-        console.log(`Canary stage ${i + 1} successful`);
+        logger.debug(`Canary stage ${i + 1} successful`, { component: 'EnhancedDeployment' });
       }
 
       // Complete deployment
@@ -404,12 +405,12 @@ export class EnhancedDeployment {
    */
   private async rollback(deploymentId: string, reason: string): Promise<void> {
     if (this.rollbackInProgress) {
-      console.log('Rollback already in progress');
+      logger.debug('Rollback already in progress', { component: 'EnhancedDeployment' });
       return;
     }
 
     this.rollbackInProgress = true;
-    console.log(`Rolling back deployment ${deploymentId}: ${reason}`);
+    logger.debug(`Rolling back deployment ${deploymentId}: ${reason}`, { component: 'EnhancedDeployment' });
 
     try {
       await this.logDeployment('ROLLBACK_START', deploymentId, { reason });
@@ -780,7 +781,7 @@ export class EnhancedDeployment {
    * Deploy to specific environment
    */
   private async deployToEnvironment(environment: string, version: string): Promise<void> {
-    console.log(`Deploying ${version} to ${environment} environment`);
+    logger.debug(`Deploying ${version} to ${environment} environment`, { component: 'EnhancedDeployment' });
     // Implementation would use actual deployment tools (Kubernetes, AWS, etc.)
     await this.sleep(5000); // Simulate deployment time
   }
@@ -789,7 +790,7 @@ export class EnhancedDeployment {
    * Warm up environment
    */
   private async warmUpEnvironment(environment: string): Promise<void> {
-    console.log(`Warming up ${environment} environment`);
+    logger.debug(`Warming up ${environment} environment`, { component: 'EnhancedDeployment' });
     // Send test requests to warm up caches, establish connections, etc.
     await this.sleep(3000); // Simulate warm-up
   }
@@ -798,7 +799,7 @@ export class EnhancedDeployment {
    * Switch traffic between environments
    */
   private async switchTraffic(from: string, to: string): Promise<void> {
-    console.log(`Switching traffic from ${from} to ${to}`);
+    logger.debug(`Switching traffic from ${from} to ${to}`, { component: 'EnhancedDeployment' });
     // Implementation would update load balancer or service mesh
     await this.sleep(2000); // Simulate traffic switch
   }
@@ -807,7 +808,7 @@ export class EnhancedDeployment {
    * Decommission environment
    */
   private async decommissionEnvironment(environment: string): Promise<void> {
-    console.log(`Decommissioning ${environment} environment`);
+    logger.debug(`Decommissioning ${environment} environment`, { component: 'EnhancedDeployment' });
     // Implementation would tear down resources
     await this.sleep(3000); // Simulate decommissioning
   }
@@ -816,7 +817,7 @@ export class EnhancedDeployment {
    * Update canary traffic percentage
    */
   private async updateCanaryTraffic(version: string, percentage: number): Promise<void> {
-    console.log(`Routing ${percentage}% of traffic to ${version}`);
+    logger.debug(`Routing ${percentage}% of traffic to ${version}`, { component: 'EnhancedDeployment' });
     // Implementation would update traffic routing rules
     await this.sleep(1000); // Simulate update
   }
@@ -825,7 +826,7 @@ export class EnhancedDeployment {
    * Rollback canary deployment
    */
   private async rollbackCanary(deploymentId: string, reason: string): Promise<void> {
-    console.log(`Rolling back canary deployment ${deploymentId}: ${reason}`);
+    logger.debug(`Rolling back canary deployment ${deploymentId}: ${reason}`, { component: 'EnhancedDeployment' });
     await this.updateCanaryTraffic('stable', 100);
     this.canaryConfig = null;
     

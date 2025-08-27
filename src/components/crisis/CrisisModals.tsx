@@ -3,6 +3,7 @@ import React from 'react';
 import EmergencyContactsQuickAccess from '../emergency/EmergencyContactsQuickAccess';
 import ProfessionalCrisisResources from '../emergency/ProfessionalCrisisResources';
 import FollowUpScheduler from './FollowUpScheduler';
+import logger from '../../services/loggerService';
 
 interface CrisisEvent {
   id: string;
@@ -95,7 +96,7 @@ export const CrisisModals: React.FC<CrisisModalsProps> = ({
               <FollowUpScheduler
                 crisisEventId={currentCrisisEvent.id}
                 onFollowUpComplete={(_followUp) => {
-                  console.log('Follow-up completed:', _followUp);
+                  logger.debug('Follow-up completed:', _followUp, { component: 'CrisisModals' });
                 }}
               />
               <div className="mt-4 pt-4 border-t">

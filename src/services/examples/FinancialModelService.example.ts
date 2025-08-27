@@ -7,6 +7,7 @@
 
 import { financialModelService } from '@/services/FinancialModelService';
 import type { 
+import logger from '../loggerService';
   ProviderSegment, 
   InvestorReport, 
   FinancialScenario,
@@ -19,12 +20,12 @@ import type {
  * Example 1: Calculate LTV for different customer segments
  */
 export async function calculateCustomerLifetimeValue() {
-  console.log('=== Customer Lifetime Value Analysis ===');
+  logger.debug('=== Customer Lifetime Value Analysis ===', { component: 'FinancialModelService.example' });
 
   try {
     // Calculate LTV for all customers
     const allCustomersLTV = await financialModelService.calculateLTV();
-    console.log(`Total customers analyzed: ${allCustomersLTV.length}`);
+    logger.debug(`Total customers analyzed: ${allCustomersLTV.length}`, { component: 'FinancialModelService.example' });
 
     // Calculate average LTV by segment
     const segments: ProviderSegment[] = ['startup', 'growth', 'enterprise'];
@@ -33,12 +34,12 @@ export async function calculateCustomerLifetimeValue() {
       const segmentLTV = await financialModelService.calculateLTV(undefined, segment);
       const averageLTV = segmentLTV.reduce((sum, ltv) => sum + ltv.lifetimeValue, 0) / segmentLTV.length;
       
-      console.log(`${segment.toUpperCase()} Segment:`);
-      console.log(`  Average LTV: $${averageLTV.toFixed(2)}`);
-      console.log(`  Customer Count: ${segmentLTV.length}`);
-      console.log(`  Average Churn Rate: ${(segmentLTV[0]?.monthlyChurnRate * 100 || 0).toFixed(2)}%`);
-      console.log(`  Gross Margin: ${(segmentLTV[0]?.grossMarginPercentage * 100 || 0).toFixed(2)}%`);
-      console.log('');
+      logger.debug(`${segment.toUpperCase(, { component: 'FinancialModelService.example' });} Segment:`);
+      logger.debug(`  Average LTV: $${averageLTV.toFixed(2, { component: 'FinancialModelService.example' });}`);
+      logger.debug(`  Customer Count: ${segmentLTV.length}`, { component: 'FinancialModelService.example' });
+      logger.debug(`  Average Churn Rate: ${(segmentLTV[0]?.monthlyChurnRate * 100 || 0, { component: 'FinancialModelService.example' });.toFixed(2)}%`);
+      logger.debug(`  Gross Margin: ${(segmentLTV[0]?.grossMarginPercentage * 100 || 0, { component: 'FinancialModelService.example' });.toFixed(2)}%`);
+      logger.debug('', { component: 'FinancialModelService.example' });
     }
 
     return allCustomersLTV;
@@ -52,20 +53,20 @@ export async function calculateCustomerLifetimeValue() {
  * Example 2: Analyze Customer Acquisition Costs by channel
  */
 export async function analyzeCustomerAcquisitionCosts() {
-  console.log('=== Customer Acquisition Cost Analysis ===');
+  logger.debug('=== Customer Acquisition Cost Analysis ===', { component: 'FinancialModelService.example' });
 
   try {
     // Calculate CAC for all channels
     const allChannelsCAC = await financialModelService.calculateCAC();
     
-    console.log('CAC by Acquisition Channel:');
+    logger.debug('CAC by Acquisition Channel:', { component: 'FinancialModelService.example' });
     allChannelsCAC.forEach(cac => {
-      console.log(`${cac.acquisitionChannel}:`);
-      console.log(`  CAC: $${cac.costPerAcquisition.toFixed(2)}`);
-      console.log(`  Customers Acquired: ${cac.customersAcquired}`);
-      console.log(`  Payback Period: ${cac.paybackPeriodMonths.toFixed(1)} months`);
-      console.log(`  Total Acquisition Cost: $${cac.totalAcquisitionCost.toLocaleString()}`);
-      console.log('');
+      logger.debug(`${cac.acquisitionChannel}:`, { component: 'FinancialModelService.example' });
+      logger.debug(`  CAC: $${cac.costPerAcquisition.toFixed(2, { component: 'FinancialModelService.example' });}`);
+      logger.debug(`  Customers Acquired: ${cac.customersAcquired}`, { component: 'FinancialModelService.example' });
+      logger.debug(`  Payback Period: ${cac.paybackPeriodMonths.toFixed(1, { component: 'FinancialModelService.example' });} months`);
+      logger.debug(`  Total Acquisition Cost: $${cac.totalAcquisitionCost.toLocaleString(, { component: 'FinancialModelService.example' });}`);
+      logger.debug('', { component: 'FinancialModelService.example' });
     });
 
     // Calculate CAC efficiency
@@ -73,10 +74,10 @@ export async function analyzeCustomerAcquisitionCosts() {
     const totalCustomers = allChannelsCAC.reduce((sum, cac) => sum + cac.customersAcquired, 0);
     const averageCAC = totalCustomers > 0 ? totalCAC / totalCustomers : 0;
 
-    console.log(`Overall CAC Metrics:`);
-    console.log(`  Average CAC: $${averageCAC.toFixed(2)}`);
-    console.log(`  Total Acquisition Spend: $${totalCAC.toLocaleString()}`);
-    console.log(`  Total Customers Acquired: ${totalCustomers}`);
+    logger.debug(`Overall CAC Metrics:`, { component: 'FinancialModelService.example' });
+    logger.debug(`  Average CAC: $${averageCAC.toFixed(2, { component: 'FinancialModelService.example' });}`);
+    logger.debug(`  Total Acquisition Spend: $${totalCAC.toLocaleString(, { component: 'FinancialModelService.example' });}`);
+    logger.debug(`  Total Customers Acquired: ${totalCustomers}`, { component: 'FinancialModelService.example' });
 
     return allChannelsCAC;
   } catch (error) {
@@ -89,41 +90,41 @@ export async function analyzeCustomerAcquisitionCosts() {
  * Example 3: Comprehensive SaaS Metrics Dashboard
  */
 export async function generateSaaSMetricsDashboard() {
-  console.log('=== SaaS Metrics Dashboard ===');
+  logger.debug('=== SaaS Metrics Dashboard ===', { component: 'FinancialModelService.example' });
 
   try {
     const saasMetrics = await financialModelService.calculateSaaSMetrics();
 
-    console.log('Key SaaS Metrics:');
-    console.log(`  Monthly Recurring Revenue (MRR): $${saasMetrics.mrr.toLocaleString()}`);
-    console.log(`  Annual Recurring Revenue (ARR): $${saasMetrics.arr.toLocaleString()}`);
-    console.log(`  Monthly Growth Rate: ${(saasMetrics.monthlyGrowthRate * 100).toFixed(2)}%`);
-    console.log(`  Gross Churn Rate: ${(saasMetrics.grossChurnRate * 100).toFixed(2)}%`);
-    console.log(`  Net Churn Rate: ${(saasMetrics.netChurnRate * 100).toFixed(2)}%`);
-    console.log(`  Net Revenue Retention: ${(saasMetrics.netRevenueRetention * 100).toFixed(2)}%`);
-    console.log(`  Average Revenue Per User: $${saasMetrics.averageRevenuePerUser.toFixed(2)}`);
-    console.log(`  Quick Ratio: ${saasMetrics.quickRatio.toFixed(2)}`);
-    console.log('');
+    logger.debug('Key SaaS Metrics:', { component: 'FinancialModelService.example' });
+    logger.debug(`  Monthly Recurring Revenue (MRR, { component: 'FinancialModelService.example' });: $${saasMetrics.mrr.toLocaleString()}`);
+    logger.debug(`  Annual Recurring Revenue (ARR, { component: 'FinancialModelService.example' });: $${saasMetrics.arr.toLocaleString()}`);
+    logger.debug(`  Monthly Growth Rate: ${(saasMetrics.monthlyGrowthRate * 100, { component: 'FinancialModelService.example' });.toFixed(2)}%`);
+    logger.debug(`  Gross Churn Rate: ${(saasMetrics.grossChurnRate * 100, { component: 'FinancialModelService.example' });.toFixed(2)}%`);
+    logger.debug(`  Net Churn Rate: ${(saasMetrics.netChurnRate * 100, { component: 'FinancialModelService.example' });.toFixed(2)}%`);
+    logger.debug(`  Net Revenue Retention: ${(saasMetrics.netRevenueRetention * 100, { component: 'FinancialModelService.example' });.toFixed(2)}%`);
+    logger.debug(`  Average Revenue Per User: $${saasMetrics.averageRevenuePerUser.toFixed(2, { component: 'FinancialModelService.example' });}`);
+    logger.debug(`  Quick Ratio: ${saasMetrics.quickRatio.toFixed(2, { component: 'FinancialModelService.example' });}`);
+    logger.debug('', { component: 'FinancialModelService.example' });
 
     // Segment breakdown
-    console.log('Segment Breakdown:');
+    logger.debug('Segment Breakdown:', { component: 'FinancialModelService.example' });
     Object.entries(saasMetrics.segmentBreakdown).forEach(([segment, metrics]) => {
-      console.log(`  ${segment.toUpperCase()}:`);
-      console.log(`    Customers: ${metrics.customers}`);
-      console.log(`    MRR: $${metrics.mrr.toLocaleString()}`);
-      console.log(`    LTV: $${metrics.ltv.toFixed(2)}`);
-      console.log(`    CAC: $${metrics.cac.toFixed(2)}`);
-      console.log(`    LTV:CAC Ratio: ${metrics.ltvCacRatio.toFixed(2)}`);
-      console.log(`    Payback Period: ${metrics.paybackPeriod.toFixed(1)} months`);
-      console.log('');
+      logger.debug(`  ${segment.toUpperCase(, { component: 'FinancialModelService.example' });}:`);
+      logger.debug(`    Customers: ${metrics.customers}`, { component: 'FinancialModelService.example' });
+      logger.debug(`    MRR: $${metrics.mrr.toLocaleString(, { component: 'FinancialModelService.example' });}`);
+      logger.debug(`    LTV: $${metrics.ltv.toFixed(2, { component: 'FinancialModelService.example' });}`);
+      logger.debug(`    CAC: $${metrics.cac.toFixed(2, { component: 'FinancialModelService.example' });}`);
+      logger.debug(`    LTV:CAC Ratio: ${metrics.ltvCacRatio.toFixed(2, { component: 'FinancialModelService.example' });}`);
+      logger.debug(`    Payback Period: ${metrics.paybackPeriod.toFixed(1, { component: 'FinancialModelService.example' });} months`);
+      logger.debug('', { component: 'FinancialModelService.example' });
     });
 
     // Health check
     const healthStatus = assessSaaSHealth(saasMetrics);
-    console.log('SaaS Health Assessment:');
-    console.log(`  Overall Status: ${healthStatus.status}`);
-    console.log(`  Key Strengths: ${healthStatus.strengths.join(', ')}`);
-    console.log(`  Areas for Improvement: ${healthStatus.improvements.join(', ')}`);
+    logger.debug('SaaS Health Assessment:', { component: 'FinancialModelService.example' });
+    logger.debug(`  Overall Status: ${healthStatus.status}`, { component: 'FinancialModelService.example' });
+    logger.debug(`  Key Strengths: ${healthStatus.strengths.join(', ', { component: 'FinancialModelService.example' });}`);
+    logger.debug(`  Areas for Improvement: ${healthStatus.improvements.join(', ', { component: 'FinancialModelService.example' });}`);
 
     return saasMetrics;
   } catch (error) {
@@ -136,36 +137,36 @@ export async function generateSaaSMetricsDashboard() {
  * Example 4: Validate pricing strategy
  */
 export async function validatePricingStrategy() {
-  console.log('=== Pricing Strategy Validation ===');
+  logger.debug('=== Pricing Strategy Validation ===', { component: 'FinancialModelService.example' });
 
   try {
     const validationResults = await financialModelService.validatePricingTiers();
 
-    console.log('Pricing Tier Validation Results:');
+    logger.debug('Pricing Tier Validation Results:', { component: 'FinancialModelService.example' });
     Object.entries(validationResults).forEach(([segment, result]) => {
-      console.log(`${segment.toUpperCase()} Tier ($${result.tier.monthlyPrice}/month):`);
-      console.log(`  Validation Score: ${(result.validation.validationScore * 100).toFixed(1)}%`);
-      console.log(`  Market Fit: ${result.marketFit}`);
-      console.log(`  Competitive Position: ${result.competitivePosition}`);
-      console.log(`  Is Viable: ${result.isViable ? 'Yes' : 'No'}`);
-      console.log(`  Projected 5-Year NPV: $${result.tier.roiProjection.fiveYearNPV.toLocaleString()}`);
-      console.log(`  Payback Period: ${result.tier.roiProjection.paybackPeriodMonths.toFixed(1)} months`);
+      logger.debug(`${segment.toUpperCase(, { component: 'FinancialModelService.example' });} Tier ($${result.tier.monthlyPrice}/month):`);
+      logger.debug(`  Validation Score: ${(result.validation.validationScore * 100, { component: 'FinancialModelService.example' });.toFixed(1)}%`);
+      logger.debug(`  Market Fit: ${result.marketFit}`, { component: 'FinancialModelService.example' });
+      logger.debug(`  Competitive Position: ${result.competitivePosition}`, { component: 'FinancialModelService.example' });
+      logger.debug(`  Is Viable: ${result.isViable ? 'Yes' : 'No'}`, { component: 'FinancialModelService.example' });
+      logger.debug(`  Projected 5-Year NPV: $${result.tier.roiProjection.fiveYearNPV.toLocaleString(, { component: 'FinancialModelService.example' });}`);
+      logger.debug(`  Payback Period: ${result.tier.roiProjection.paybackPeriodMonths.toFixed(1, { component: 'FinancialModelService.example' });} months`);
       
       if (result.validation.riskFactors.length > 0) {
-        console.log(`  Risk Factors: ${result.validation.riskFactors.join(', ')}`);
+        logger.debug(`  Risk Factors: ${result.validation.riskFactors.join(', ', { component: 'FinancialModelService.example' });}`);
       }
       
       if (result.validation.recommendations.length > 0) {
-        console.log(`  Recommendations: ${result.validation.recommendations.join(', ')}`);
+        logger.debug(`  Recommendations: ${result.validation.recommendations.join(', ', { component: 'FinancialModelService.example' });}`);
       }
-      console.log('');
+      logger.debug('', { component: 'FinancialModelService.example' });
     });
 
     // Pricing optimization recommendations
     const recommendations = generatePricingRecommendations(validationResults);
-    console.log('Pricing Optimization Recommendations:');
+    logger.debug('Pricing Optimization Recommendations:', { component: 'FinancialModelService.example' });
     recommendations.forEach((rec, index) => {
-      console.log(`${index + 1}. ${rec}`);
+      logger.debug(`${index + 1}. ${rec}`, { component: 'FinancialModelService.example' });
     });
 
     return validationResults;
@@ -179,59 +180,59 @@ export async function validatePricingStrategy() {
  * Example 5: Generate comprehensive investor report
  */
 export async function generateInvestorPresentation() {
-  console.log('=== Investor Report Generation ===');
+  logger.debug('=== Investor Report Generation ===', { component: 'FinancialModelService.example' });
 
   try {
     const investorReport = await financialModelService.generateInvestorReport();
 
-    console.log('EXECUTIVE SUMMARY');
-    console.log('================');
-    console.log(`Total Annual Revenue: $${investorReport.executiveSummary.totalRevenue.toLocaleString()}`);
-    console.log(`Total Customers: ${investorReport.executiveSummary.totalCustomers.toLocaleString()}`);
-    console.log(`Average LTV: $${investorReport.executiveSummary.averageLTV.toFixed(2)}`);
-    console.log(`Average CAC: $${investorReport.executiveSummary.averageCAC.toFixed(2)}`);
-    console.log(`LTV:CAC Ratio: ${investorReport.executiveSummary.ltvCacRatio.toFixed(2)}`);
-    console.log(`Gross Margin: ${(investorReport.executiveSummary.grossMargin * 100).toFixed(1)}%`);
-    console.log(`Monthly Burn Rate: $${investorReport.executiveSummary.monthlyBurnRate.toLocaleString()}`);
-    console.log(`Months to Break-Even: ${investorReport.executiveSummary.monthsToBreakEven.toFixed(1)}`);
-    console.log('');
+    logger.debug('EXECUTIVE SUMMARY', { component: 'FinancialModelService.example' });
+    logger.debug('================', { component: 'FinancialModelService.example' });
+    logger.debug(`Total Annual Revenue: $${investorReport.executiveSummary.totalRevenue.toLocaleString(, { component: 'FinancialModelService.example' });}`);
+    logger.debug(`Total Customers: ${investorReport.executiveSummary.totalCustomers.toLocaleString(, { component: 'FinancialModelService.example' });}`);
+    logger.debug(`Average LTV: $${investorReport.executiveSummary.averageLTV.toFixed(2, { component: 'FinancialModelService.example' });}`);
+    logger.debug(`Average CAC: $${investorReport.executiveSummary.averageCAC.toFixed(2, { component: 'FinancialModelService.example' });}`);
+    logger.debug(`LTV:CAC Ratio: ${investorReport.executiveSummary.ltvCacRatio.toFixed(2, { component: 'FinancialModelService.example' });}`);
+    logger.debug(`Gross Margin: ${(investorReport.executiveSummary.grossMargin * 100, { component: 'FinancialModelService.example' });.toFixed(1)}%`);
+    logger.debug(`Monthly Burn Rate: $${investorReport.executiveSummary.monthlyBurnRate.toLocaleString(, { component: 'FinancialModelService.example' });}`);
+    logger.debug(`Months to Break-Even: ${investorReport.executiveSummary.monthsToBreakEven.toFixed(1, { component: 'FinancialModelService.example' });}`);
+    logger.debug('', { component: 'FinancialModelService.example' });
 
-    console.log('KEY INSIGHTS');
-    console.log('============');
+    logger.debug('KEY INSIGHTS', { component: 'FinancialModelService.example' });
+    logger.debug('============', { component: 'FinancialModelService.example' });
     investorReport.executiveSummary.keyInsights.forEach((insight, index) => {
-      console.log(`${index + 1}. ${insight}`);
+      logger.debug(`${index + 1}. ${insight}`, { component: 'FinancialModelService.example' });
     });
-    console.log('');
+    logger.debug('', { component: 'FinancialModelService.example' });
 
-    console.log('FINANCIAL TRAJECTORY (Next 12 Months)');
-    console.log('====================================');
+    logger.debug('FINANCIAL TRAJECTORY (Next 12 Months, { component: 'FinancialModelService.example' });');
+    logger.debug('====================================', { component: 'FinancialModelService.example' });
     const projections12Months = investorReport.financialProjections.slice(0, 12);
     projections12Months.forEach((projection, index) => {
       if (index % 3 === 0) { // Show every 3rd month
-        console.log(`Month ${projection.month}:`);
-        console.log(`  Customers: ${projection.totalCustomers}`);
-        console.log(`  MRR: $${projection.mrr.toLocaleString()}`);
-        console.log(`  Net Profit: $${projection.netProfit.toLocaleString()}`);
-        console.log('');
+        logger.debug(`Month ${projection.month}:`, { component: 'FinancialModelService.example' });
+        logger.debug(`  Customers: ${projection.totalCustomers}`, { component: 'FinancialModelService.example' });
+        logger.debug(`  MRR: $${projection.mrr.toLocaleString(, { component: 'FinancialModelService.example' });}`);
+        logger.debug(`  Net Profit: $${projection.netProfit.toLocaleString(, { component: 'FinancialModelService.example' });}`);
+        logger.debug('', { component: 'FinancialModelService.example' });
       }
     });
 
-    console.log('COMPETITIVE LANDSCAPE');
-    console.log('====================');
-    console.log(`Market Size: $${(investorReport.competitiveAnalysis.marketSize / 1000000).toFixed(0)}M`);
-    console.log(`Market Growth Rate: ${(investorReport.competitiveAnalysis.marketGrowthRate * 100).toFixed(1)}%`);
-    console.log('Key Competitors:');
+    logger.debug('COMPETITIVE LANDSCAPE', { component: 'FinancialModelService.example' });
+    logger.debug('====================', { component: 'FinancialModelService.example' });
+    logger.debug(`Market Size: $${(investorReport.competitiveAnalysis.marketSize / 1000000, { component: 'FinancialModelService.example' });.toFixed(0)}M`);
+    logger.debug(`Market Growth Rate: ${(investorReport.competitiveAnalysis.marketGrowthRate * 100, { component: 'FinancialModelService.example' });.toFixed(1)}%`);
+    logger.debug('Key Competitors:', { component: 'FinancialModelService.example' });
     investorReport.competitiveAnalysis.competitors.forEach(competitor => {
-      console.log(`  ${competitor.name}: $${(competitor.estimatedRevenue / 1000000).toFixed(0)}M revenue, ${(competitor.marketShare * 100).toFixed(1)}% market share`);
+      logger.debug(`  ${competitor.name}: $${(competitor.estimatedRevenue / 1000000, { component: 'FinancialModelService.example' });.toFixed(0)}M revenue, ${(competitor.marketShare * 100).toFixed(1)}% market share`);
     });
-    console.log('');
+    logger.debug('', { component: 'FinancialModelService.example' });
 
-    console.log('POSITIONING ADVANTAGES');
-    console.log('=====================');
+    logger.debug('POSITIONING ADVANTAGES', { component: 'FinancialModelService.example' });
+    logger.debug('=====================', { component: 'FinancialModelService.example' });
     investorReport.competitiveAnalysis.positioningAdvantage.forEach((advantage, index) => {
-      console.log(`${index + 1}. ${advantage}`);
+      logger.debug(`${index + 1}. ${advantage}`, { component: 'FinancialModelService.example' });
     });
-    console.log('');
+    logger.debug('', { component: 'FinancialModelService.example' });
 
     // Export key metrics for presentation
     const presentationMetrics = {
@@ -256,42 +257,42 @@ export async function generateInvestorPresentation() {
  * Example 6: Financial scenario planning
  */
 export async function performScenarioPlanning() {
-  console.log('=== Financial Scenario Planning ===');
+  logger.debug('=== Financial Scenario Planning ===', { component: 'FinancialModelService.example' });
 
   try {
     const scenarios = await financialModelService.modelFinancialScenarios();
 
-    console.log('Scenario Analysis Results:');
-    console.log('========================');
+    logger.debug('Scenario Analysis Results:', { component: 'FinancialModelService.example' });
+    logger.debug('========================', { component: 'FinancialModelService.example' });
 
     scenarios.forEach(scenario => {
-      console.log(`${scenario.name.toUpperCase()}`);
-      console.log(`Growth Rate: ${(scenario.assumptions.customerGrowthRate * 100).toFixed(1)}%`);
-      console.log(`Churn Rate: ${(scenario.assumptions.churnRate * 100).toFixed(1)}%`);
-      console.log(`Price Change: ${(scenario.assumptions.priceIncrease * 100).toFixed(1)}%`);
+      logger.debug(`${scenario.name.toUpperCase(, { component: 'FinancialModelService.example' });}`);
+      logger.debug(`Growth Rate: ${(scenario.assumptions.customerGrowthRate * 100, { component: 'FinancialModelService.example' });.toFixed(1)}%`);
+      logger.debug(`Churn Rate: ${(scenario.assumptions.churnRate * 100, { component: 'FinancialModelService.example' });.toFixed(1)}%`);
+      logger.debug(`Price Change: ${(scenario.assumptions.priceIncrease * 100, { component: 'FinancialModelService.example' });.toFixed(1)}%`);
       
       // 12-month projection
       const month12 = scenario.projections[11];
       if (month12) {
-        console.log(`Projected Month 12:`);
-        console.log(`  Customers: ${month12.totalCustomers}`);
-        console.log(`  Revenue: $${month12.totalRevenue.toLocaleString()}`);
-        console.log(`  Profit: $${month12.netProfit.toLocaleString()}`);
-        console.log(`  Break-even: ${scenario.breakEvenAnalysis.monthsToBreakEven.toFixed(1)} months`);
+        logger.debug(`Projected Month 12:`, { component: 'FinancialModelService.example' });
+        logger.debug(`  Customers: ${month12.totalCustomers}`, { component: 'FinancialModelService.example' });
+        logger.debug(`  Revenue: $${month12.totalRevenue.toLocaleString(, { component: 'FinancialModelService.example' });}`);
+        logger.debug(`  Profit: $${month12.netProfit.toLocaleString(, { component: 'FinancialModelService.example' });}`);
+        logger.debug(`  Break-even: ${scenario.breakEvenAnalysis.monthsToBreakEven.toFixed(1, { component: 'FinancialModelService.example' });} months`);
       }
 
       // Sensitivity analysis
-      console.log('Sensitivity Analysis:');
+      logger.debug('Sensitivity Analysis:', { component: 'FinancialModelService.example' });
       scenario.sensitivityAnalysis.scenarios.forEach(sensitivity => {
         const direction = sensitivity.changePercent > 0 ? 'increase' : 'decrease';
-        console.log(`  ${Math.abs(sensitivity.changePercent * 100).toFixed(0)}% ${direction}: ${(sensitivity.impactOnRevenue * 100).toFixed(1)}% revenue impact`);
+        logger.debug(`  ${Math.abs(sensitivity.changePercent * 100, { component: 'FinancialModelService.example' });.toFixed(0)}% ${direction}: ${(sensitivity.impactOnRevenue * 100).toFixed(1)}% revenue impact`);
       });
-      console.log('');
+      logger.debug('', { component: 'FinancialModelService.example' });
     });
 
     // Scenario comparison
-    console.log('SCENARIO COMPARISON (12-Month Outlook)');
-    console.log('====================================');
+    logger.debug('SCENARIO COMPARISON (12-Month Outlook, { component: 'FinancialModelService.example' });');
+    logger.debug('====================================', { component: 'FinancialModelService.example' });
     
     const comparison = scenarios.map(scenario => ({
       name: scenario.name,
@@ -303,10 +304,10 @@ export async function performScenarioPlanning() {
     comparison.sort((a, b) => b.revenue - a.revenue);
     
     comparison.forEach((scenario, index) => {
-      console.log(`${index + 1}. ${scenario.name}:`);
-      console.log(`   Revenue: $${scenario.revenue.toLocaleString()}`);
-      console.log(`   Customers: ${scenario.customers}`);
-      console.log(`   Profit: $${scenario.profit.toLocaleString()}`);
+      logger.debug(`${index + 1}. ${scenario.name}:`, { component: 'FinancialModelService.example' });
+      logger.debug(`   Revenue: $${scenario.revenue.toLocaleString(, { component: 'FinancialModelService.example' });}`);
+      logger.debug(`   Customers: ${scenario.customers}`, { component: 'FinancialModelService.example' });
+      logger.debug(`   Profit: $${scenario.profit.toLocaleString(, { component: 'FinancialModelService.example' });}`);
     });
 
     return scenarios;
@@ -320,44 +321,44 @@ export async function performScenarioPlanning() {
  * Example 7: Cost optimization analysis
  */
 export async function analyzeCostOptimization() {
-  console.log('=== Cost Optimization Analysis ===');
+  logger.debug('=== Cost Optimization Analysis ===', { component: 'FinancialModelService.example' });
 
   try {
     const cogsBreakdown = await financialModelService.calculateCOGS();
 
-    console.log('Current Cost Structure:');
-    console.log('======================');
-    console.log(`Total COGS: $${cogsBreakdown.totalCOGS.toLocaleString()}`);
-    console.log(`COGS per Customer: $${cogsBreakdown.cogsPerCustomer.toFixed(2)}`);
-    console.log(`Gross Margin: ${(cogsBreakdown.marginPercentage * 100).toFixed(1)}%`);
-    console.log('');
+    logger.debug('Current Cost Structure:', { component: 'FinancialModelService.example' });
+    logger.debug('======================', { component: 'FinancialModelService.example' });
+    logger.debug(`Total COGS: $${cogsBreakdown.totalCOGS.toLocaleString(, { component: 'FinancialModelService.example' });}`);
+    logger.debug(`COGS per Customer: $${cogsBreakdown.cogsPerCustomer.toFixed(2, { component: 'FinancialModelService.example' });}`);
+    logger.debug(`Gross Margin: ${(cogsBreakdown.marginPercentage * 100, { component: 'FinancialModelService.example' });.toFixed(1)}%`);
+    logger.debug('', { component: 'FinancialModelService.example' });
 
-    console.log('Cost Breakdown:');
-    console.log('Infrastructure Costs:');
+    logger.debug('Cost Breakdown:', { component: 'FinancialModelService.example' });
+    logger.debug('Infrastructure Costs:', { component: 'FinancialModelService.example' });
     Object.entries(cogsBreakdown.infrastructureCosts).forEach(([category, cost]) => {
-      console.log(`  ${category}: $${cost.toLocaleString()}`);
+      logger.debug(`  ${category}: $${cost.toLocaleString(, { component: 'FinancialModelService.example' });}`);
     });
 
-    console.log('Support Costs:');
+    logger.debug('Support Costs:', { component: 'FinancialModelService.example' });
     Object.entries(cogsBreakdown.supportCosts).forEach(([category, cost]) => {
-      console.log(`  ${category}: $${cost.toLocaleString()}`);
+      logger.debug(`  ${category}: $${cost.toLocaleString(, { component: 'FinancialModelService.example' });}`);
     });
 
-    console.log('Compliance Costs:');
+    logger.debug('Compliance Costs:', { component: 'FinancialModelService.example' });
     Object.entries(cogsBreakdown.complianceCosts).forEach(([category, cost]) => {
-      console.log(`  ${category}: $${cost.toLocaleString()}`);
+      logger.debug(`  ${category}: $${cost.toLocaleString(, { component: 'FinancialModelService.example' });}`);
     });
 
-    console.log(`Product Development: $${cogsBreakdown.productDevelopment.toLocaleString()}`);
-    console.log(`Third Party Services: $${cogsBreakdown.thirdPartyServices.toLocaleString()}`);
-    console.log(`Data Processing: $${cogsBreakdown.dataProcessing.toLocaleString()}`);
-    console.log('');
+    logger.debug(`Product Development: $${cogsBreakdown.productDevelopment.toLocaleString(, { component: 'FinancialModelService.example' });}`);
+    logger.debug(`Third Party Services: $${cogsBreakdown.thirdPartyServices.toLocaleString(, { component: 'FinancialModelService.example' });}`);
+    logger.debug(`Data Processing: $${cogsBreakdown.dataProcessing.toLocaleString(, { component: 'FinancialModelService.example' });}`);
+    logger.debug('', { component: 'FinancialModelService.example' });
 
     // Cost optimization recommendations
     const optimizationRecommendations = generateCostOptimizationRecommendations(cogsBreakdown);
-    console.log('Cost Optimization Opportunities:');
+    logger.debug('Cost Optimization Opportunities:', { component: 'FinancialModelService.example' });
     optimizationRecommendations.forEach((rec, index) => {
-      console.log(`${index + 1}. ${rec}`);
+      logger.debug(`${index + 1}. ${rec}`, { component: 'FinancialModelService.example' });
     });
 
     return cogsBreakdown;
@@ -490,8 +491,8 @@ function generateCostOptimizationRecommendations(cogsBreakdown: any): string[] {
  * Complete financial analysis workflow
  */
 export async function performCompleteFinancialAnalysis() {
-  console.log('=== COMPLETE FINANCIAL ANALYSIS ===');
-  console.log('');
+  logger.debug('=== COMPLETE FINANCIAL ANALYSIS ===', { component: 'FinancialModelService.example' });
+  logger.debug('', { component: 'FinancialModelService.example' });
 
   try {
     // 1. Calculate core metrics
@@ -513,13 +514,13 @@ export async function performCompleteFinancialAnalysis() {
     // 5. Scenario planning
     await performScenarioPlanning();
 
-    console.log('=== ANALYSIS COMPLETE ===');
-    console.log('Key takeaways:');
-    console.log(`• ${saasMetrics.segmentBreakdown.startup.customers + saasMetrics.segmentBreakdown.growth.customers + saasMetrics.segmentBreakdown.enterprise.customers} total customers across 3 segments`);
-    console.log(`• $${saasMetrics.arr.toLocaleString()} Annual Recurring Revenue`);
-    console.log(`• ${(saasMetrics.netRevenueRetention * 100).toFixed(0)}% Net Revenue Retention`);
-    console.log(`• ${presentationMetrics.monthsToBreakEven.toFixed(1)} months to break-even`);
-    console.log(`• ${presentationMetrics.competitiveAdvantages} key competitive advantages`);
+    logger.debug('=== ANALYSIS COMPLETE ===', { component: 'FinancialModelService.example' });
+    logger.debug('Key takeaways:', { component: 'FinancialModelService.example' });
+    logger.debug(`• ${saasMetrics.segmentBreakdown.startup.customers + saasMetrics.segmentBreakdown.growth.customers + saasMetrics.segmentBreakdown.enterprise.customers} total customers across 3 segments`, { component: 'FinancialModelService.example' });
+    logger.debug(`• $${saasMetrics.arr.toLocaleString(, { component: 'FinancialModelService.example' });} Annual Recurring Revenue`);
+    logger.debug(`• ${(saasMetrics.netRevenueRetention * 100, { component: 'FinancialModelService.example' });.toFixed(0)}% Net Revenue Retention`);
+    logger.debug(`• ${presentationMetrics.monthsToBreakEven.toFixed(1, { component: 'FinancialModelService.example' });} months to break-even`);
+    logger.debug(`• ${presentationMetrics.competitiveAdvantages} key competitive advantages`, { component: 'FinancialModelService.example' });
 
     return {
       ltv: ltvMetrics,

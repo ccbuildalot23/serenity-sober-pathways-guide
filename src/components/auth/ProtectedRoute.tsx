@@ -7,6 +7,7 @@ import { UserRole } from '@/types/userRoles';
 import { useUserRole } from '@/hooks/useUserRole';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import logger from '../../services/loggerService';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -56,7 +57,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
       // localStorage hint
       const v = localStorage.getItem('pw_role');
       if (v === 'provider' || v === 'support_member' || v === 'patient' || v === 'admin') {
-        console.log(`ProtectedRoute: Found role hint: ${v}`);
+        logger.debug(`ProtectedRoute: Found role hint: ${v}`, { component: 'ProtectedRoute' });
         return v as UserRole;
       }
       // infer from pathname under bypass for stability
@@ -155,7 +156,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
     
     // Always enforce role-based access control, even in bypass mode
     if (effectiveRole !== requiredRole) {
-      console.log(`Access denied: required ${requiredRole}, got ${effectiveRole}`);
+      logger.debug(`Access denied: required ${requiredRole}, got ${effectiveRole}`, { component: 'ProtectedRoute' });
       return <Navigate to="/access-denied" state={{ from: location, reason: 'forbidden' }} replace />;
     }
   }

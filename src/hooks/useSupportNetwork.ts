@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supportNetworkService, SupportMember, PresenceStatus, NotificationPreferences } from '@/services/supportNetworkService';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import logger from '../services/loggerService';
 
 export const useSupportNetwork = () => {
   const { user } = useAuth();
@@ -84,7 +85,7 @@ export const useSupportNetwork = () => {
   useEffect(() => {
     if (!user?.id) return;
 
-    console.log('Setting up support network real-time subscriptions');
+    logger.debug('Setting up support network real-time subscriptions', { component: 'useSupportNetwork' });
 
     // Subscribe to support network changes
     const _networkChannel = supabase
@@ -98,7 +99,7 @@ export const useSupportNetwork = () => {
           filter: `patient_id=eq.${user.id}`
         },
         (_payload) => {
-          console.log('Support network change received:', _payload);
+          logger.debug('Support network change received:', _payload, { component: 'useSupportNetwork' });
           fetchSupportNetwork();
         }
       )
@@ -115,7 +116,7 @@ export const useSupportNetwork = () => {
           _table: 'support_member_presence'
         },
         (_payload) => {
-          console.log('Presence change received:', _payload);
+          logger.debug('Presence change received:', _payload, { component: 'useSupportNetwork' });
           fetchSupportNetwork();
         }
       )

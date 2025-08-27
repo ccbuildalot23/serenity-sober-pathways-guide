@@ -1,6 +1,7 @@
 
 import { NotificationSettings, NotificationType } from './types';
 import { showNotification } from './handlers';
+import logger from '../loggerService';
 
 export function calculateScheduleDays(_freq: number): number[] {
   const days: number[] = [];
@@ -39,7 +40,7 @@ export async function scheduleAll(settings: NotificationSettings): Promise<void>
   clearScheduled();
 
   if (Notification.permission !== 'granted') {
-    console.warn('Notifications not permitted');
+    logger.warn('Notifications not permitted', { component: 'scheduling' });
     return;
   }
 

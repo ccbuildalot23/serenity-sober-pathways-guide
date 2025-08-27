@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import logger from './loggerService';
 
 interface PollingOptions {
   interval: number;
@@ -52,7 +53,7 @@ class PollingService {
     const _intervalId = setInterval(poll, options.interval);
     this.intervals.set(key, _intervalId);
 
-    console.log(`Started crisis event polling for user ${userId} every ${options.interval}ms`);
+    logger.debug(`Started crisis event polling for user ${userId} every ${options.interval}ms`, { component: 'pollingService' });
   }
 
   /**
@@ -97,7 +98,7 @@ class PollingService {
     const _intervalId = setInterval(poll, options.interval);
     this.intervals.set(key, _intervalId);
 
-    console.log(`Started contact polling for user ${userId} every ${options.interval}ms`);
+    logger.debug(`Started contact polling for user ${userId} every ${options.interval}ms`, { component: 'pollingService' });
   }
 
   /**
@@ -109,7 +110,7 @@ class PollingService {
       clearInterval(_intervalId);
       this.intervals.delete(key);
       this.lastChecks.delete(key);
-      console.log(`Stopped polling for ${key}`);
+      logger.debug(`Stopped polling for ${key}`, { component: 'pollingService' });
     }
   }
 
@@ -119,7 +120,7 @@ class PollingService {
   stopAllPolling() {
     this.intervals.forEach((_intervalId, key) => {
       clearInterval(_intervalId);
-      console.log(`Stopped polling for ${key}`);
+      logger.debug(`Stopped polling for ${key}`, { component: 'pollingService' });
     });
     this.intervals.clear();
     this.lastChecks.clear();

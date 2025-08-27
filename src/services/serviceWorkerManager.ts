@@ -1,16 +1,24 @@
+import logger from './loggerService';
+
 class ServiceWorkerManager {
   private sw: ServiceWorker | null = null;
   private registration: ServiceWorkerRegistration | null = null;
 
   async register(): Promise<boolean> {
     if (!('serviceWorker' in navigator)) {
-      console.log('Service workers not supported');
+      logger.warn('Service workers not supported', {
+        component: 'ServiceWorkerManager',
+        action: 'register_unsupported'
+      });
       return false;
     }
 
     try {
       this.registration = await navigator.serviceWorker.register('/sw.js');
-      console.log('Service Worker registered successfully');
+      logger.info('Service Worker registered successfully', {
+        component: 'ServiceWorkerManager',
+        action: 'register_success'
+      });
       
       // Handle updates
       this.registration.addEventListener('updatefound', () => {
@@ -34,7 +42,10 @@ class ServiceWorkerManager {
 
   private notifyUpdate() {
     // In a real app, show a toast or banner to inform about updates
-    console.log('New version available! Please refresh.');
+    logger.info('New version available! Please refresh.', {
+      component: 'ServiceWorkerManager',
+      action: 'update_available'
+    });
     
     // Auto-refresh for crisis app to ensure latest security updates
     if (confirm('A new version is available. Refresh now for the latest updates?')) {
@@ -87,7 +98,10 @@ class ServiceWorkerManager {
         ]
       });
       
-      console.log('Critical resources cached successfully');
+      logger.info('Critical resources cached successfully', {
+        component: 'ServiceWorkerManager',
+        action: 'cache_success'
+      });
     } catch (_error) {
       console._error('Failed to cache critical resources:', _error);
     }

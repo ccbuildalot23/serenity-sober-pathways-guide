@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Textarea } from '@/components/ui/textarea';
 import { 
+import logger from '../../services/loggerService';
   Heart, Calendar, Compass, Mic, MicOff, WifiOff, 
   Share2, Save, CheckCircle, Info, Star, Clock 
 } from 'lucide-react';
@@ -129,7 +130,7 @@ export const UnifiedRecoveryContent = () => {
       
       if (_isOnline) {
         // In a real app, save to database
-        console.log('Saving completion to database:', completion);
+        logger.debug('Saving completion to database:', completion, { component: 'UnifiedRecoveryContent' });
       } else {
         offlineStorage.queueForSync({
           type: 'daily_completion',
@@ -200,7 +201,7 @@ export const UnifiedRecoveryContent = () => {
         });
       } catch (error) {
         // User cancelled or error
-        console.log('Share cancelled');
+        logger.debug('Share cancelled', { component: 'UnifiedRecoveryContent' });
       }
     } else {
       // Fallback - copy to clipboard

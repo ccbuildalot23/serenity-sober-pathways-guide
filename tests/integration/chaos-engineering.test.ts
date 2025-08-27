@@ -38,7 +38,7 @@ describe('Chaos Engineering Tests', () => {
     // Create test users
     const { data: provider } = await supabase.auth.signUp({
       email: 'chaos-provider@test.com',
-      password: 'TestPass123!',
+      password: 'TestSerenity2024!@#',
       options: {
         data: { role: 'provider', full_name: 'Dr. Chaos Test' }
       }
@@ -47,7 +47,7 @@ describe('Chaos Engineering Tests', () => {
     
     const { data: patient } = await supabase.auth.signUp({
       email: 'chaos-patient@test.com',
-      password: 'TestPass123!',
+      password: 'TestSerenity2024!@#',
       options: {
         data: { role: 'patient', full_name: 'Chaos Patient' }
       }

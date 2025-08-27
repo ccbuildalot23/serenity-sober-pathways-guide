@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { GlassCard } from '@/components/ui/GlassCard';
 import { 
   Users, 
   MessageCircle, 
@@ -22,6 +24,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { OneTapCrisisButton } from '@/components/crisis/OneTapCrisisButton';
 
 interface SupportRequest {
   id: string;
@@ -166,9 +169,9 @@ const SupporterDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-lavender-50 to-sky-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading supporter dashboard...</p>
         </div>
       </div>
@@ -176,47 +179,74 @@ const SupporterDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <Button
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-lavender-50 to-sky-50">
+      {/* Premium Header */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative bg-white/60 backdrop-blur-xl border-b border-white/20 shadow-xl"
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-lavender-100/50 via-transparent to-sky-100/50" />
+        <div className="relative max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-3">
+                <motion.div 
+                  className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-lg"
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                >
+                  <Heart className="w-8 h-8 text-white" />
+                </motion.div>
+                Supporter Dashboard
+              </h1>
+              <p className="mt-3 text-gray-700 text-lg font-medium">
+                Caring for those who trust you with their journey
+              </p>
+              <p className="mt-1 text-gray-600">
+                Your support makes all the difference
+              </p>
+            </motion.div>
+            
+            <div className="flex items-center gap-3 relative">
+              <Badge variant="outline" className="flex items-center gap-1">
+                <Users className="w-3 h-3" />
+                {supportedPersons.length} Supported
+              </Badge>
+              <Badge variant="secondary">
+                {supportRequests.filter(r => r.status === 'pending').length} Pending
+              </Badge>
+              <Button 
                 onClick={() => navigate('/dashboard')}
-                variant="ghost"
+                variant="outline" 
                 size="sm"
-                className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Dashboard
+                Back
               </Button>
-              <div className="flex items-center space-x-2">
-                <Heart className="w-6 h-6 text-red-500" />
-                <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  Supporter Dashboard
-                </h1>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Badge variant="outline" className="text-sm">
-                {supportedPersons.length} Supported Persons
-              </Badge>
-              <Badge variant="outline" className="text-sm">
-                {supportRequests.filter(r => r.status === 'pending').length} Pending Requests
-              </Badge>
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+        >
           {/* Support Requests */}
-          <div>
-            <Card>
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <GlassCard className="p-6 bg-white/80">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Bell className="w-5 h-5 text-red-500" />
@@ -291,8 +321,8 @@ const SupporterDashboard: React.FC = () => {
                   </div>
                 )}
               </CardContent>
-            </Card>
-          </div>
+            </GlassCard>
+          </motion.div>
 
           {/* Supported Persons */}
           <div>
@@ -351,7 +381,7 @@ const SupporterDashboard: React.FC = () => {
               </CardContent>
             </Card>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Response Modal */}
@@ -396,6 +426,8 @@ const SupporterDashboard: React.FC = () => {
           </Card>
         </div>
       )}
+      {/* Crisis support button for supporters */}
+      <OneTapCrisisButton />
     </div>
   );
 };

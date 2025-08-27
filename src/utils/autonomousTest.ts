@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { fixedCheckInSubmission, loadDashboardDataFixed } from './databaseFix';
+import logger from '../services/loggerService';
 
 export async function executeAutonomousTests() {
   const results: any = {
@@ -7,7 +8,7 @@ export async function executeAutonomousTests() {
     tests: {},
   };
 
-  console.log('🤖 EXECUTING AUTONOMOUS TESTS...');
+  logger.debug('🤖 EXECUTING AUTONOMOUS TESTS...', { component: 'autonomousTest' });
 
   // Test 1: Authentication
   try {
@@ -66,7 +67,7 @@ export async function executeAutonomousTests() {
     results.tests.dataPersistence = { passed: false, error: error?.message || String(error) };
   }
 
-  console.log('🤖 AUTONOMOUS TEST RESULTS:', results);
+  logger.debug('🤖 AUTONOMOUS TEST RESULTS:', results, { component: 'autonomousTest' });
   return results;
 }
 

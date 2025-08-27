@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Loader2, Lock, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import logger from '../../services/loggerService';
 
 export const ResetPasswordForm: React.FC = () => {
   const navigate = useNavigate();
@@ -71,7 +72,7 @@ export const ResetPasswordForm: React.FC = () => {
         return;
       }
 
-      console.log('Attempting to update password...');
+      logger.debug('Attempting to update password...', { component: 'ResetPasswordForm' });
 
       // Add timeout protection to prevent hanging
       const timeoutPromise = new Promise((_, reject) => {

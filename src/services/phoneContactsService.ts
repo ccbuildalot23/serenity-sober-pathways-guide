@@ -1,3 +1,4 @@
+import logger from './loggerService';
 
 interface PhoneEmergencyContact {
   id: string;
@@ -29,7 +30,7 @@ export const getPhoneEmergencyContacts = async (): Promise<PhoneEmergencyContact
   // Simulate API call delay
   return new Promise((resolve) => {
     setTimeout(() => {
-      console.log('Mock: Fetching phone emergency contacts');
+      logger.debug('Mock: Fetching phone emergency contacts', { component: 'phoneContactsService' });
       resolve(_mockPhoneContacts);
     }, 1000);
   });

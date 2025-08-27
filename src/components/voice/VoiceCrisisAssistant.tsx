@@ -8,6 +8,7 @@ import { useVoiceRecording } from '@/hooks/useVoiceRecording';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import logger from '../../services/loggerService';
 
 interface EmergencyResource {
   name: string;
@@ -73,7 +74,7 @@ const VoiceCrisisAssistant: React.FC = () => {
           lng: position.coords.longitude
         };
       } catch (_locationError) {
-        console.log('Location not available:', _locationError);
+        logger.debug('Location not available:', _locationError, { component: 'VoiceCrisisAssistant' });
       }
 
       // Send to voice crisis assistant

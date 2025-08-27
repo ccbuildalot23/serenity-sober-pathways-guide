@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserRole } from '@/types/userRoles';
+import logger from '../services/loggerService';
 
 export const useUserRole = () => {
   const { user } = useAuth();
@@ -42,7 +43,7 @@ export const useUserRole = () => {
           _assignedRole = 'patient';
       }
       
-      console.log(`User role determined: ${_assignedRole} (from userType: ${userType})`);
+      logger.debug(`User role determined: ${_assignedRole} (from userType: ${userType}, { component: 'useUserRole' });`);
       setRole(_assignedRole);
       setLoading(false);
     };
@@ -72,7 +73,7 @@ export const useUserRole = () => {
   // Simple switchRole for testing (disabled in production)
   const switchRole = (_newRole: UserRole) => {
     if (process.env.NODE_ENV === 'development') {
-      console.log(`Switching role from ${role} to ${_newRole} (dev only)`);
+      logger.debug(`Switching role from ${role} to ${_newRole} (dev only, { component: 'useUserRole' });`);
       setRole(_newRole);
     }
   };

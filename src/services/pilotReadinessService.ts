@@ -2,6 +2,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { integrationTestingService } from './integrationTestingService';
 import { securityAuditService } from './securityAuditService';
 import { complianceDashboardService } from './complianceDashboardService';
+import logger from './loggerService';
 
 export interface MVPFeature {
   id: string;
@@ -228,36 +229,36 @@ class PilotReadinessService {
   ];
 
   async runComprehensivePilotAssessment(): Promise<PilotReadinessReport> {
-    console.log('🚀 Starting Comprehensive Pilot Readiness Assessment...');
+    logger.debug('🚀 Starting Comprehensive Pilot Readiness Assessment...', { component: 'pilotReadinessService' });
     
     const assessmentStart = Date.now();
 
     // 1. Test all MVP features
-    console.log('📋 Testing MVP Features...');
+    logger.debug('📋 Testing MVP Features...', { component: 'pilotReadinessService' });
     const _featureResults = await this.testAllMVPFeatures();
 
     // 2. Performance testing with simulated load
-    console.log('⚡ Running Performance Tests...');
+    logger.debug('⚡ Running Performance Tests...', { component: 'pilotReadinessService' });
     const _performanceResults = await this.runPerformanceTests();
 
     // 3. Security audit
-    console.log('🔐 Conducting Security Audit...');
+    logger.debug('🔐 Conducting Security Audit...', { component: 'pilotReadinessService' });
     const _securityResults = await this.runSecurityAudit();
 
     // 4. Role-based permissions testing
-    console.log('👥 Testing Role-Based Permissions...');
+    logger.debug('👥 Testing Role-Based Permissions...', { component: 'pilotReadinessService' });
     const permissionsResults = await this.testRolePermissions();
 
     // 5. Compliance audit
-    console.log('📊 Generating Compliance Report...');
+    logger.debug('📊 Generating Compliance Report...', { component: 'pilotReadinessService' });
     const complianceResults = await this.runComplianceAudit();
 
     // 6. Crisis response time verification
-    console.log('🚨 Verifying Crisis Response Times...');
+    logger.debug('🚨 Verifying Crisis Response Times...', { component: 'pilotReadinessService' });
     const crisisResponseResults = await this.testCrisisResponseTime();
 
     // 7. Integration tests
-    console.log('🔗 Running Integration Tests...');
+    logger.debug('🔗 Running Integration Tests...', { component: 'pilotReadinessService' });
     const integrationResults = await integrationTestingService.runAllTests();
 
     // Calculate overall readiness score
@@ -279,7 +280,7 @@ class PilotReadinessService {
     });
 
     const assessmentDuration = Date.now() - assessmentStart;
-    console.log(`✅ Assessment completed in ${assessmentDuration}ms`);
+    logger.debug(`✅ Assessment completed in ${assessmentDuration}ms`, { component: 'pilotReadinessService' });
 
     const _report: PilotReadinessReport = {
       overall_readiness_score: readinessScore,
@@ -305,7 +306,7 @@ class PilotReadinessService {
 
     for (let i = 0; i < results.length; i++) {
       const feature = results[i];
-      console.log(`Testing ${feature.name}...`);
+      logger.debug(`Testing ${feature.name}...`, { component: 'pilotReadinessService' });
       
       try {
         feature.status = 'testing';

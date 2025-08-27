@@ -21,3 +21,20 @@ new CloudTrailHipaaStack(app, 'CloudTrailHipaaStack', {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

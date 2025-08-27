@@ -1,0 +1,22 @@
+{
+  "id": "alert_1756137207871_vdgi12oce",
+  "timestamp": "2025-08-25T15:53:27.871Z",
+  "type": "critical",
+  "title": "6 Critical Issues Detected",
+  "message": "Build 27 has critical issues that require immediate attention",
+  "priority": "critical",
+  "buildNumber": 27,
+  "source": "Dashboard",
+  "data": {
+    "issueCount": 6,
+    "issues": [
+      "Missing required environment variable: APP_STORE_CONNECT_KEY_ID",
+      "Missing required environment variable: APP_STORE_CONNECT_ISSUER_ID",
+      "Missing required environment variable: APP_STORE_CONNECT_API_KEY",
+      "Missing certificate file: ios-certificates/ios_distribution.p12",
+      "Missing certificate file: ios-certificates/Serenity_App_Store_Profile.mobileprovision",
+      "Required App Store Connect credentials not configured"
+    ]
+  },
+  "humanTime": "8/25/2025, 11:53:27 AM"
+}

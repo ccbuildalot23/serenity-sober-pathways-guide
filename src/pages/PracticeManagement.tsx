@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { motion } from 'framer-motion';
+import { GlassCard } from '@/components/ui/GlassCard';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -170,13 +171,31 @@ const PracticeManagement: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Practice Management Integration</h1>
-        <p className="text-muted-foreground">
-          Connect your practice management systems and optimize revenue through digital health programs
-        </p>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50/50 via-blue-50/30 to-indigo-100/50">
+      {/* Glass morphism header */}
+      <div className="sticky top-0 z-10 bg-white/60 backdrop-blur-xl border-b border-white/20">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center space-y-2"
+          >
+            <div className="flex items-center justify-center space-x-3">
+              <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg">
+                <Building2 className="w-6 h-6 text-white" />
+              </div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                Practice Management Integration
+              </h1>
+            </div>
+            <p className="text-slate-600">
+              Connect your practice management systems and optimize revenue through digital health programs
+            </p>
+          </motion.div>
+        </div>
       </div>
+      
+      <div className="max-w-7xl mx-auto px-4 py-8">
 
       <Tabs defaultValue="integrations" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
@@ -550,6 +569,7 @@ const PracticeManagement: React.FC = () => {
           </div>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
-const DEV_PORT = Number(process.env.VITE_PORT ?? '5174');
+const DEV_PORT = Number(process.env.VITE_PORT ?? '8080');
 const fullMatrix = [
   { name: 'chromium',      use: { ...devices['Desktop Chrome'] } },
   { name: 'firefox',       use: { ...devices['Desktop Firefox'] } },
@@ -17,9 +17,9 @@ const fullMatrix = [
  * - Supporter Journey: Crisis alerts, messaging, location sharing
  * 
  * Test Credentials (to be created in Supabase):
- * - Patient: test-patient@serenity.com / TestPass123!
- * - Provider: test-provider@serenity.com / TestPass123!
- * - Supporter: test-supporter@serenity.com / TestPass123!
+ * - Patient: test-patient@serenity.com / TestSerenity2024!@#
+ * - Provider: test-provider@serenity.com / TestSerenity2024!@#
+ * - Supporter: test-supporter@serenity.com / TestSerenity2024!@#
  */
 export default defineConfig({
   testDir: './tests/e2e',
@@ -69,7 +69,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: `pnpm -C serenity-provider-portal dev -- --port ${DEV_PORT} --strictPort --host`,
+    command: `npm run dev`,
     url: `http://localhost:${DEV_PORT}`,
     timeout: 240000,
     reuseExistingServer: !process.env.CI,

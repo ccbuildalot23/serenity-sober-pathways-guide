@@ -3,6 +3,7 @@ import { NotificationSettings, NotificationType } from './_types';
 import { showNotification } from './handlers';
 import { SecureNotificationPreferencesService } from '@/services/secureNotificationPreferencesService';
 import { EnhancedSecurityMonitoringService } from '@/services/enhancedSecurityMonitoringService';
+import logger from '../loggerService';
 
 // Rate limiting for notifications
 const notificationCounts = new Map<string, { count: number; _resetTime: number }>();
@@ -57,7 +58,7 @@ export function scheduleSecureNotification(
 ): void {
   // Validate inputs
   if (userId && !validateNotificationRate(userId)) {
-    console.warn('Notification rate limit exceeded for user:', userId);
+    logger.warn('Notification rate limit exceeded for user:', userId, { component: 'secureScheduling' });
     return;
   }
 
@@ -99,7 +100,7 @@ export async function scheduleAllSecure(settings: NotificationSettings, userId: 
   clearScheduled();
 
   if (Notification.permission !== 'granted') {
-    console.warn('Notifications not permitted');
+    logger.warn('Notifications not permitted', { component: 'secureScheduling' });
     return;
   }
 

@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout parent repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Checkout portal repo (no submodule)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ccbuildalot23/serenity-provider-portal
           ref: feat/provider-roi-billing-panel

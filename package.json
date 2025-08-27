@@ -9,6 +9,7 @@
     "npm": ">=10.0.0"
   },
   "scripts": {
+    "prepare": "node -e \"if (process.env.NODE_ENV !== 'production' && !process.env.CI) { require('husky').install() }\" || true",
     "dev": "vite --host 0.0.0.0",
     "dev:with-serena": "concurrently \"npm run serena:start\" \"npm run dev\"",
     "serena:start": "cd ../serena && uv run serena-mcp-server",
@@ -71,7 +72,6 @@
     "lighthouse:validate": "node scripts/lighthouse-validate.js",
     "lighthouse:test": "node scripts/lighthouse-validate.js --test",
     "lighthouse:local": "node scripts/lighthouse-validate.js --test --url http://localhost:5173",
-    "prepare": "husky",
     "verify-production": "node scripts/productionVerification.js",
     "validate:hipaa": "node scripts/security-dependency-scan.js && npx playwright test tests/e2e/hipaa-compliance.spec.ts",
     "validate:auto": "node scripts/autonomous-validator.mjs",

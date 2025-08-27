@@ -135,7 +135,7 @@ function Initialize-SwarmTopology {
     $Global:SwarmState.TopologyConfig = $topologyConfig
     $Global:SwarmState.Status = 'TOPOLOGY_CONFIGURED'
     
-    Write-SwarmLog "✓ $($topologyConfig.Name) topology configured" -Level 'SUCCESS'
+    Write-SwarmLog "SUCCESS: $($topologyConfig.Name) topology configured" -Level 'SUCCESS'
     Write-SwarmLog $topologyConfig.Description -Level 'INFO'
     
     return $topologyConfig
@@ -198,7 +198,7 @@ function Spawn-Agent {
         $agent.Status = 'ACTIVE'
         $Global:SwarmState.ActiveAgents += $agent
         
-        Write-SwarmLog "✓ Agent $AgentId spawned successfully" -Level 'SUCCESS' -Agent $AgentId
+        Write-SwarmLog "SUCCESS: Agent $AgentId spawned successfully" -Level 'SUCCESS' -Agent $AgentId
         
         # Start agent health monitoring
         Start-AgentHealthMonitoring -Agent $agent
@@ -206,7 +206,7 @@ function Spawn-Agent {
         return $agent
     }
     catch {
-        Write-SwarmLog "✗ Failed to spawn agent $AgentId: $($_.Exception.Message)" -Level 'ERROR' -Agent 'SPAWNER'
+        Write-SwarmLog "Failed to spawn agent $AgentId`: $($_.Exception.Message)" -Level 'ERROR' -Agent 'SPAWNER'
         return $null
     }
 }
@@ -306,7 +306,7 @@ function Distribute-Task {
     
     $bestAgent.Performance.Load += 10 # Increase agent load
     
-    Write-SwarmLog "✓ Task $($Task.Name) assigned to agent $($bestAgent.Id)" -Level 'SUCCESS' -Agent 'DISPATCHER'
+    Write-SwarmLog "SUCCESS: Task $($Task.Name) assigned to agent $($bestAgent.Id)" -Level 'SUCCESS' -Agent 'DISPATCHER'
     
     # Execute task (simulated)
     Execute-TaskOnAgent -Task $Task -Agent $bestAgent
@@ -368,10 +368,10 @@ function Execute-TaskOnAgent {
             $Agent.Performance.AverageTaskTime = (
                 ($Agent.Performance.AverageTaskTime * ($Agent.TasksCompleted - 1) + $result.ExecutionTimeSeconds) / $Agent.TasksCompleted
             )
-            Write-SwarmLog "✓ Task $($Task.Name) completed successfully" -Level 'SUCCESS' -Agent $Agent.Id
+            Write-SwarmLog "SUCCESS: Task $($Task.Name) completed successfully" -Level 'SUCCESS' -Agent $Agent.Id
         } else {
             $Agent.TasksFailed++
-            Write-SwarmLog "✗ Task $($Task.Name) failed: $($result.Error)" -Level 'ERROR' -Agent $Agent.Id
+            Write-SwarmLog "ERROR: Task $($Task.Name) failed: $($result.Error)" -Level 'ERROR' -Agent $Agent.Id
         }
         
         # Update success rate
@@ -383,7 +383,7 @@ function Execute-TaskOnAgent {
         # Decrease agent load
         $Agent.Performance.Load = [Math]::Max(0, $Agent.Performance.Load - 10)
     } else {
-        Write-SwarmLog "✗ Task $($Task.Name) timed out" -Level 'ERROR' -Agent $Agent.Id
+        Write-SwarmLog "ERROR: Task $($Task.Name) timed out" -Level 'ERROR' -Agent $Agent.Id
         Stop-Job -Job $executionJob
         $Agent.TasksFailed++
     }
@@ -467,10 +467,10 @@ function Restart-Agent {
         
         $Agent.Status = 'ACTIVE'
         
-        Write-SwarmLog "✓ Agent $($Agent.Id) restarted successfully" -Level 'SUCCESS' -Agent 'RESTARTER'
+        Write-SwarmLog "SUCCESS: Agent $($Agent.Id) restarted successfully" -Level 'SUCCESS' -Agent 'RESTARTER'
     }
     catch {
-        Write-SwarmLog "✗ Failed to restart agent $($Agent.Id): $($_.Exception.Message)" -Level 'ERROR' -Agent 'RESTARTER'
+        Write-SwarmLog "ERROR: Failed to restart agent $($Agent.Id): $($_.Exception.Message)" -Level 'ERROR' -Agent 'RESTARTER'
         
         # Remove failed agent
         $Global:SwarmState.ActiveAgents = $Global:SwarmState.ActiveAgents | Where-Object { $_.Id -ne $Agent.Id }
@@ -524,7 +524,7 @@ function Shutdown-Swarm {
     $reportPath = "swarm-logs/$((Get-Date).ToString('yyyy-MM-dd'))/swarm-final-report-$($Global:SwarmState.Id).json"
     $finalStatus | ConvertTo-Json -Depth 5 | Out-File -FilePath $reportPath -Encoding UTF8
     
-    Write-SwarmLog "✓ Swarm shutdown completed. Final report: $reportPath" -Level 'SUCCESS' -Agent 'COORDINATOR'
+    Write-SwarmLog "SUCCESS: Swarm shutdown completed. Final report: $reportPath" -Level 'SUCCESS' -Agent 'COORDINATOR'
     
     return $finalStatus
 }
@@ -554,7 +554,7 @@ function Main {
         }
         
         $Global:SwarmState.Status = 'ACTIVE'
-        Write-SwarmLog "✓ Swarm is now ACTIVE with $($Global:SwarmState.ActiveAgents.Count) agents" -Level 'SUCCESS'
+        Write-SwarmLog "SUCCESS: Swarm is now ACTIVE with $($Global:SwarmState.ActiveAgents.Count) agents" -Level 'SUCCESS'
         
         # Start health monitoring if continuous monitoring is enabled
         if ($ContinuousMonitoring) {

@@ -234,37 +234,37 @@ When entering plan mode, AUTOMATICALLY:
 #### Research & Analysis Tasks
 - **Primary**: deep-researcher, researcher agents
 - **MCP**: mcp__exa (web_search, deep_researcher_start/check)
-- **Swarm**: mesh-coordinator for distributed research
+- **Swarm**: swarm-coordinator with mesh topology for distributed research
 - **Framework**: SPARC for systematic analysis
 
 #### Code Development Tasks
 - **Primary**: coder, sparc-coder, tdd-london-swarm agents
 - **MCP**: mcp__ruv-swarm for orchestration
-- **Swarm**: hierarchical-coordinator for structured development
+- **Swarm**: swarm-coordinator with hierarchical topology for structured development
 - **Framework**: TDD for test-driven development
 
 #### Architecture & Design Tasks
 - **Primary**: system-architect, architecture, sparc-coord agents
 - **MCP**: mcp__ruv-swarm with adaptive topology
-- **Swarm**: adaptive-coordinator for dynamic planning
+- **Swarm**: swarm-coordinator with adaptive topology for dynamic planning
 - **Framework**: SPARC methodology
 
 #### Security & Compliance Tasks
 - **Primary**: security-manager, byzantine-coordinator agents
 - **MCP**: mcp__ruv-swarm with consensus protocols
-- **Swarm**: consensus-builder for distributed validation
+- **Swarm**: swarm-coordinator with byzantine topology for distributed validation
 - **Framework**: Byzantine fault-tolerant consensus
 
 #### Testing & Validation Tasks
 - **Primary**: tester, reviewer, code-analyzer agents
 - **MCP**: mcp__ruv-swarm for parallel testing
-- **Swarm**: mesh-coordinator for comprehensive coverage
+- **Swarm**: swarm-coordinator with mesh topology for comprehensive coverage
 - **Framework**: Multi-browser/device testing matrix
 
 #### Performance Optimization Tasks
 - **Primary**: perf-analyzer, performance-benchmarker agents
 - **MCP**: mcp__ruv-swarm with benchmarking
-- **Swarm**: adaptive-coordinator for optimization
+- **Swarm**: swarm-coordinator with adaptive topology for optimization
 - **Framework**: Benchmark-driven optimization
 
 ### Automatic Swarm Initialization

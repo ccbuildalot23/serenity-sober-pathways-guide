@@ -35,7 +35,7 @@ test.describe('WhatsApp Opt-in Flow', () => {
   });
 
   test('should complete WhatsApp opt-in flow successfully', async ({ page }) => {
-    await testHelpers.login(page, patientUser.email, 'TestPass123!');
+    await testHelpers.login(page, patientUser.email, 'TestSerenity2024!@#');
     
     await page.goto('/settings/notifications');
     await page.waitForSelector('[data-testid="notification-preferences"]');
@@ -92,7 +92,7 @@ test.describe('WhatsApp Opt-in Flow', () => {
   });
 
   test('should handle user replying START to opt-in', async ({ page }) => {
-    await testHelpers.login(page, patientUser.email, 'TestPass123!');
+    await testHelpers.login(page, patientUser.email, 'TestSerenity2024!@#');
     
     // Start opt-in process
     await page.goto('/settings/notifications');
@@ -158,7 +158,7 @@ test.describe('WhatsApp Opt-in Flow', () => {
       whatsappOptInDate: new Date()
     });
 
-    await testHelpers.login(page, patientUser.email, 'TestPass123!');
+    await testHelpers.login(page, patientUser.email, 'TestSerenity2024!@#');
     await page.goto('/settings/notifications');
 
     // Verify WhatsApp is initially active
@@ -217,7 +217,7 @@ test.describe('WhatsApp Opt-in Flow', () => {
       notificationPreferences: { whatsapp: false }
     });
 
-    await testHelpers.login(page, invalidPhoneUser.email, 'TestPass123!');
+    await testHelpers.login(page, invalidPhoneUser.email, 'TestSerenity2024!@#');
     await page.goto('/settings/notifications');
 
     // Try to enable WhatsApp
@@ -263,7 +263,7 @@ test.describe('WhatsApp Opt-in Flow', () => {
       whatsappLastActivity: oldOptInDate
     });
 
-    await testHelpers.login(page, patientUser.email, 'TestPass123!');
+    await testHelpers.login(page, patientUser.email, 'TestSerenity2024!@#');
     await page.goto('/settings/notifications');
 
     // Should show re-opt-in required status
@@ -306,7 +306,7 @@ test.describe('WhatsApp Opt-in Flow', () => {
   });
 
   test('should handle Twilio webhook failures gracefully', async ({ page }) => {
-    await testHelpers.login(page, patientUser.email, 'TestPass123!');
+    await testHelpers.login(page, patientUser.email, 'TestSerenity2024!@#');
     await page.goto('/settings/notifications');
 
     // Start opt-in process
@@ -368,7 +368,7 @@ test.describe('WhatsApp Opt-in Flow', () => {
       notificationPreferences: { whatsapp: false }
     });
 
-    await testHelpers.login(page, internationalUser.email, 'TestPass123!');
+    await testHelpers.login(page, internationalUser.email, 'TestSerenity2024!@#');
     await page.goto('/settings/notifications');
 
     // Enable WhatsApp
@@ -430,7 +430,7 @@ test.describe('WhatsApp Opt-in Flow', () => {
       role: 'admin'
     });
 
-    await testHelpers.login(page, adminUser.email, 'TestPass123!');
+    await testHelpers.login(page, adminUser.email, 'TestSerenity2024!@#');
     await page.goto('/admin/notifications');
 
     // Select users for bulk WhatsApp opt-in invitation

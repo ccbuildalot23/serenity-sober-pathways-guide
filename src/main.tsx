@@ -5,6 +5,10 @@ import { Capacitor } from '@capacitor/core';
 import App from './App';
 import './index.css';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
+import { initSentry } from '@/services/sentryService';
+
+// Initialize Sentry error monitoring (production only)
+initSentry();
 
 // Initialize Capacitor for native platforms
 if (Capacitor.isNativePlatform()) {

@@ -6,7 +6,7 @@
   "outputDirectory": "dist",
   "build": {
     "env": {
-      "NODE_VERSION": "22.x",
+      "NODE_VERSION": "20.x",
       "NODE_OPTIONS": "--max-old-space-size=8192",
       "SKIP_ENV_VALIDATION": "1"
     }

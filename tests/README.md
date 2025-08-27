@@ -57,9 +57,9 @@ tests/
    ```
 
 2. **Test User Accounts** (create in Supabase):
-   - Patient: test-patient@serenity.com / TestPass123!
-   - Provider: test-provider@serenity.com / TestPass123!
-   - Supporter: test-supporter@serenity.com / TestPass123!
+   - Patient: test-patient@serenity.com / TestSerenity2024!@#
+   - Provider: test-provider@serenity.com / TestSerenity2024!@#
+   - Supporter: test-supporter@serenity.com / TestSerenity2024!@#
 
 3. **Development Server:**
    Ensure app is running on http://localhost:5173

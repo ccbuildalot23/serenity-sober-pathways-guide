@@ -1,0 +1,171 @@
+{
+  "timestamp": "2025-08-26T21:30:35.772Z",
+  "reportId": "c8497cb683ca1ce9",
+  "platform": "mobile",
+  "overallStatus": "NON_COMPLIANT",
+  "results": [
+    {
+      "agent": "PHI_SCANNER",
+      "status": "FAIL",
+      "message": "PHI exposure detected in src/agents/aws/PatientJourneyAgent.ts",
+      "severity": "CRITICAL",
+      "details": {
+        "type": "console_logging",
+        "file": "src/agents/aws/PatientJourneyAgent.ts",
+        "matches": 2
+      }
+    },
+    {
+      "agent": "PHI_SCANNER",
+      "status": "FAIL",
+      "message": "PHI exposure detected in src/components/clinical/TreatmentPlanTemplates.tsx",
+      "severity": "CRITICAL",
+      "details": {
+        "type": "console_logging",
+        "file": "src/components/clinical/TreatmentPlanTemplates.tsx",
+        "matches": 1
+      }
+    },
+    {
+      "agent": "PHI_SCANNER",
+      "status": "FAIL",
+      "message": "PHI exposure detected in src/services/loggerService.test.ts",
+      "severity": "CRITICAL",
+      "details": {
+        "type": "ssn",
+        "file": "src/services/loggerService.test.ts",
+        "matches": 1
+      }
+    },
+    {
+      "agent": "PHI_SCANNER",
+      "status": "FAIL",
+      "message": "PHI exposure detected in src/services/supportNetworkService.ts",
+      "severity": "CRITICAL",
+      "details": {
+        "type": "patient_data",
+        "file": "src/services/supportNetworkService.ts",
+        "matches": 1
+      }
+    },
+    {
+      "agent": "PHI_SCANNER",
+      "status": "FAIL",
+      "message": "PHI exposure detected in src/services/telehealthService.ts",
+      "severity": "CRITICAL",
+      "details": {
+        "type": "patient_data",
+        "file": "src/services/telehealthService.ts",
+        "matches": 2
+      }
+    },
+    {
+      "agent": "PHI_SCANNER",
+      "status": "FAIL",
+      "message": "PHI exposure detected in src/utils/patientJourneyTest.ts",
+      "severity": "CRITICAL",
+      "details": {
+        "type": "console_logging",
+        "file": "src/utils/patientJourneyTest.ts",
+        "matches": 1
+      }
+    },
+    {
+      "agent": "PHI_SCANNER",
+      "status": "PASS",
+      "message": "File access restrictions properly configured",
+      "severity": "LOW"
+    },
+    {
+      "agent": "ACCESS_CONTROL",
+      "status": "WARNING",
+      "message": "Session timeout may not be properly configured",
+      "severity": "HIGH"
+    },
+    {
+      "agent": "ACCESS_CONTROL",
+      "status": "WARNING",
+      "message": "Role-based access control may be incomplete",
+      "severity": "HIGH"
+    },
+    {
+      "agent": "ACCESS_CONTROL",
+      "status": "PASS",
+      "message": "Biometric authentication available",
+      "severity": "LOW"
+    },
+    {
+      "agent": "AUDIT_TRAIL",
+      "status": "WARNING",
+      "message": "Audit logging may not be fully implemented",
+      "severity": "HIGH"
+    },
+    {
+      "agent": "AUDIT_TRAIL",
+      "status": "PASS",
+      "message": "Audit trail integrity verified",
+      "severity": "LOW",
+      "details": {
+        "integrity_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "agent": "TRANSMISSION_SECURITY",
+      "status": "PASS",
+      "message": "HTTPS enforced on all platforms",
+      "severity": "LOW"
+    },
+    {
+      "agent": "TRANSMISSION_SECURITY",
+      "status": "WARNING",
+      "message": "Certificate pinning should be implemented for production",
+      "severity": "MEDIUM",
+      "details": {
+        "recommendation": "Implement certificate pinning in native iOS/Android code"
+      }
+    },
+    {
+      "agent": "TRANSMISSION_SECURITY",
+      "status": "PASS",
+      "message": "Security headers properly configured",
+      "severity": "LOW"
+    },
+    {
+      "agent": "MOBILE_SECURITY",
+      "status": "WARNING",
+      "message": "App Transport Security exceptions detected",
+      "severity": "MEDIUM",
+      "details": {
+        "platform": "ios",
+        "recommendation": "Remove ATS exceptions for production"
+      }
+    },
+    {
+      "agent": "MOBILE_SECURITY",
+      "status": "PASS",
+      "message": "Android cleartext traffic disabled",
+      "severity": "LOW"
+    },
+    {
+      "agent": "MOBILE_SECURITY",
+      "status": "PASS",
+      "message": "Android debug mode disabled",
+      "severity": "LOW"
+    }
+  ],
+  "recommendations": [
+    "Review and address all warnings before production deployment",
+    "Conduct regular security audits",
+    "Keep all dependencies up to date",
+    "Implement automated compliance monitoring",
+    "Document all security measures for audit purposes"
+  ],
+  "auditTrail": [
+    {
+      "timestamp": "2025-08-26T21:30:35.260Z",
+      "action": "HIPAA_VALIDATION",
+      "agent": "AUDIT_TRAIL",
+      "result": "Compliance validation executed"
+    }
+  ]
+}

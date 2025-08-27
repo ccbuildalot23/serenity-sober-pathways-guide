@@ -92,5 +92,5 @@
         { "key": "Service-Worker-Allowed", "value": "/" }
       ]
     }
-  }
+  ]
 }

@@ -1,0 +1,146 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'serenity-production'
+    replica: 'prometheus-1'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  - "alert_rules.yml"
+  - "recording_rules.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Node Exporter for system metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+
+  # Nginx metrics
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx:8080']
+    scrape_interval: 30s
+    metrics_path: /nginx-status
+
+  # PostgreSQL metrics
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 30s
+
+  # Redis metrics
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 30s
+
+  # MongoDB metrics
+  - job_name: 'mongodb'
+    static_configs:
+      - targets: ['mongodb-exporter:9216']
+    scrape_interval: 30s
+
+  # RabbitMQ metrics
+  - job_name: 'rabbitmq'
+    static_configs:
+      - targets: ['rabbitmq:15692']
+    scrape_interval: 30s
+
+  # API Gateway metrics
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['api-gateway:3003']
+    scrape_interval: 15s
+    metrics_path: /metrics
+    scheme: http
+
+  # Auth Service metrics
+  - job_name: 'auth-service'
+    static_configs:
+      - targets: ['auth-service:3000']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # Notification Service metrics
+  - job_name: 'notification-service'
+    static_configs:
+      - targets: ['notification-service:8000']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # Crisis Service metrics
+  - job_name: 'crisis-service'
+    static_configs:
+      - targets: ['crisis-service:3002']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # Container metrics via cAdvisor
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    scrape_interval: 30s
+
+  # Docker daemon metrics
+  - job_name: 'docker'
+    static_configs:
+      - targets: ['docker-exporter:9323']
+    scrape_interval: 30s
+
+  # Blackbox exporter for endpoint monitoring
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        - https://app.serenity.com
+        - https://app.serenity.com/health
+        - https://app.serenity.com/api/health
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # HIPAA compliance monitoring
+  - job_name: 'hipaa-compliance'
+    static_configs:
+      - targets: ['compliance-monitor:9200']
+    scrape_interval: 60s
+    metrics_path: /metrics
+
+  # Application-specific health checks
+  - job_name: 'health-checks'
+    metrics_path: /health
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+        - 'api-gateway:3003'
+        - 'auth-service:3000'
+        - 'notification-service:8000'
+        - 'crisis-service:3002'
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'up'
+        target_label: __name__
+        replacement: 'service_up'

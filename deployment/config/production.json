@@ -1,0 +1,227 @@
+{
+  "environment": "production",
+  "version": "1.0.0",
+  "domains": [
+    "app.serenity-pathways.com",
+    "api.serenity-pathways.com",
+    "admin.serenity-pathways.com"
+  ],
+  "apiUrl": "https://api.serenity-pathways.com",
+  "frontendUrl": "https://app.serenity-pathways.com",
+  "services": {
+    "database": {
+      "type": "supabase",
+      "healthCheck": "https://api.serenity-pathways.com/health/db",
+      "migrationPath": "database/migrations",
+      "backupRetention": "30d"
+    },
+    "auth-service": {
+      "path": "auth-service",
+      "buildCommand": "npm run build",
+      "deployCommand": "docker-compose up -d auth-service",
+      "healthCheck": "https://api.serenity-pathways.com/auth/health",
+      "rollbackCommand": "docker-compose up -d auth-service:previous",
+      "dependencies": ["database"]
+    },
+    "api-gateway": {
+      "path": "api-gateway",
+      "buildCommand": "npm run build",
+      "deployCommand": "docker-compose up -d api-gateway",
+      "healthCheck": "https://api.serenity-pathways.com/health",
+      "rollbackCommand": "docker-compose up -d api-gateway:previous",
+      "dependencies": ["auth-service"]
+    },
+    "notification-service": {
+      "path": "notification-service",
+      "buildCommand": "npm run build",
+      "deployCommand": "docker-compose up -d notification-service",
+      "healthCheck": "https://api.serenity-pathways.com/notifications/health",
+      "rollbackCommand": "docker-compose up -d notification-service:previous",
+      "dependencies": ["database", "auth-service"]
+    },
+    "crisis-service": {
+      "path": "crisis-service",
+      "buildCommand": "go build -o crisis-service main.go",
+      "deployCommand": "docker-compose up -d crisis-service",
+      "healthCheck": "https://api.serenity-pathways.com/crisis/health",
+      "rollbackCommand": "docker-compose up -d crisis-service:previous",
+      "dependencies": ["database", "notification-service"],
+      "criticalService": true,
+      "maxResponseTime": "500ms"
+    },
+    "patient-portal": {
+      "path": "patient-portal",
+      "buildCommand": "npm run build",
+      "deployCommand": "docker-compose up -d patient-portal",
+      "healthCheck": "https://portal.serenity-pathways.com/health",
+      "rollbackCommand": "docker-compose up -d patient-portal:previous",
+      "dependencies": ["api-gateway"]
+    },
+    "frontend-app": {
+      "path": "frontend-app",
+      "buildCommand": "npm run build",
+      "deployCommand": "npm run vercel-deploy",
+      "healthCheck": "https://app.serenity-pathways.com/health",
+      "rollbackCommand": "vercel rollback",
+      "dependencies": ["api-gateway", "patient-portal"]
+    }
+  },
+  "loadBalancer": {
+    "type": "nginx",
+    "domain": "serenity-pathways.com",
+    "backends": [
+      "127.0.0.1:3000",
+      "127.0.0.1:3001"
+    ],
+    "apiServers": [
+      "127.0.0.1:4000",
+      "127.0.0.1:4001"
+    ],
+    "ssl": {
+      "certificate": "/etc/ssl/certs/serenity-pathways.crt",
+      "private_key": "/etc/ssl/private/serenity-pathways.key"
+    },
+    "healthCheckInterval": "30s",
+    "maxFails": 3,
+    "failTimeout": "30s"
+  },
+  "monitoring": {
+    "prometheus": {
+      "enabled": true,
+      "port": 9090,
+      "scrapeInterval": "15s",
+      "retention": "30d"
+    },
+    "grafana": {
+      "enabled": true,
+      "port": 3030,
+      "admin": {
+        "username": "${GRAFANA_ADMIN_USER}",
+        "password": "${GRAFANA_ADMIN_PASSWORD}"
+      }
+    },
+    "alertmanager": {
+      "enabled": true,
+      "port": 9093,
+      "webhookUrl": "${ALERT_WEBHOOK_URL}",
+      "emailConfig": {
+        "smtpHost": "${SMTP_HOST}",
+        "smtpPort": "${SMTP_PORT}",
+        "fromEmail": "${ALERT_FROM_EMAIL}"
+      }
+    }
+  },
+  "alerts": {
+    "crisisResponseTime": {
+      "threshold": "500ms",
+      "severity": "critical",
+      "action": "page"
+    },
+    "serviceDowntime": {
+      "threshold": "5m",
+      "severity": "critical",
+      "action": "page"
+    },
+    "databaseConnections": {
+      "threshold": "80%",
+      "severity": "warning",
+      "action": "email"
+    },
+    "diskUsage": {
+      "threshold": "85%",
+      "severity": "warning",
+      "action": "email"
+    },
+    "memoryUsage": {
+      "threshold": "90%",
+      "severity": "critical",
+      "action": "page"
+    },
+    "errorRate": {
+      "threshold": "5%",
+      "severity": "warning",
+      "action": "email"
+    }
+  },
+  "security": {
+    "hipaaCompliance": true,
+    "encryptionAtRest": true,
+    "encryptionInTransit": true,
+    "accessLogs": true,
+    "auditLogs": true,
+    "dataRetentionPolicy": "7years",
+    "backupEncryption": true,
+    "vulnerabilityScanning": true,
+    "penetrationTesting": "quarterly"
+  },
+  "backup": {
+    "database": {
+      "frequency": "daily",
+      "retention": "30d",
+      "encryption": true,
+      "location": "s3://serenity-backups/database"
+    },
+    "files": {
+      "frequency": "daily",
+      "retention": "30d",
+      "encryption": true,
+      "location": "s3://serenity-backups/files"
+    },
+    "configuration": {
+      "frequency": "daily",
+      "retention": "90d",
+      "encryption": true,
+      "location": "s3://serenity-backups/config"
+    }
+  },
+  "notifications": {
+    "enabled": true,
+    "channels": {
+      "slack": {
+        "webhook": "${SLACK_WEBHOOK_URL}",
+        "channel": "#production-alerts"
+      },
+      "email": {
+        "smtp": "${SMTP_HOST}",
+        "recipients": [
+          "devops@serenity-pathways.com",
+          "security@serenity-pathways.com"
+        ]
+      },
+      "sms": {
+        "provider": "twilio",
+        "numbers": ["${EMERGENCY_PHONE}"]
+      }
+    },
+    "escalation": {
+      "level1": ["email"],
+      "level2": ["email", "slack"],
+      "level3": ["email", "slack", "sms"]
+    }
+  },
+  "compliance": {
+    "hipaa": {
+      "enabled": true,
+      "auditLogRetention": "6years",
+      "encryptionRequired": true,
+      "accessControlRequired": true,
+      "businessAssociate": true
+    },
+    "gdpr": {
+      "enabled": true,
+      "dataRetention": "necessary",
+      "rightToErasure": true,
+      "dataPortability": true
+    },
+    "sox": {
+      "enabled": false
+    }
+  },
+  "performanceTargets": {
+    "crisisResponse": "< 500ms",
+    "apiResponse": "< 2s",
+    "pageLoad": "< 3s",
+    "availability": "99.9%",
+    "errorRate": "< 0.1%"
+  }
+}

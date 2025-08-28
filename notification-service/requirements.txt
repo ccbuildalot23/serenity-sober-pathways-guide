@@ -1,0 +1,69 @@
+# Core FastAPI dependencies
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Database
+beanie==1.23.6
+motor==3.3.2
+pymongo==4.6.0
+redis==5.0.1
+
+# Background tasks
+celery==5.3.4
+flower==2.0.1
+
+# Notification providers
+twilio==8.10.3
+sendgrid==6.10.0
+firebase-admin==6.4.0
+
+# WebSocket support
+websockets==12.0
+
+# Security and encryption
+cryptography==41.0.8
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0
+
+# Template engine
+jinja2==3.1.2
+
+# HTTP client
+httpx==0.25.2
+
+# Utilities
+python-multipart==0.0.6
+python-dateutil==2.8.2
+typing-extensions==4.8.0
+
+# Development
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+black==23.11.0
+isort==5.12.0
+mypy==1.7.1
+flake8==6.1.0
+
+# Monitoring
+prometheus-client==0.19.0
+statsd==4.0.1
+
+# Logging
+structlog==23.2.0
+
+# Rate limiting
+slowapi==0.1.9
+
+# Environment
+python-dotenv==1.0.0
+
+# Testing
+factory-boy==3.3.0
+fakeredis==2.20.1
+mongomock==4.1.2
+
+# Health checks
+psutil==5.9.6

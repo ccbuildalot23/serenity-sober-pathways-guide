@@ -156,7 +156,10 @@
       "Read(/C:\\dev\\serenity/**)",
       "Bash(tsx scripts/generate-hipaa-report.ts:*)",
       "Bash(lhci:*)",
-      "Bash(gh issue list:*)"
+      "Bash(gh issue list:*)",
+      "Bash(docker exec:*)",
+      "Bash(docker-compose:*)",
+      "Bash(docker-compose up:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

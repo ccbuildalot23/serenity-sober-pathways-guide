@@ -1,0 +1,157 @@
+modules:
+  http_2xx:
+    prober: http
+    timeout: 10s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      valid_status_codes: [200, 201, 202]
+      method: GET
+      headers:
+        Accept: "application/json"
+        User-Agent: "Serenity-Blackbox-Exporter/1.0"
+      no_follow_redirects: false
+      fail_if_ssl: false
+      fail_if_not_ssl: false
+      tls_config:
+        insecure_skip_verify: false
+      preferred_ip_protocol: "ip4"
+      ip_protocol_fallback: true
+
+  http_post_2xx:
+    prober: http
+    timeout: 10s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      valid_status_codes: [200, 201, 202]
+      method: POST
+      headers:
+        Content-Type: "application/json"
+        Accept: "application/json"
+      body: '{"health_check": true, "timestamp": "{{ .Now.Unix }}"}'
+      no_follow_redirects: false
+      fail_if_ssl: false
+      fail_if_not_ssl: false
+
+  http_crisis:
+    prober: http
+    timeout: 2s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      valid_status_codes: [200, 201]
+      method: POST
+      headers:
+        Content-Type: "application/json"
+        Accept: "application/json"
+        Authorization: "Bearer {{ .Env.CRISIS_TEST_TOKEN }}"
+      body: '{"test": true, "priority": "high", "timestamp": "{{ .Now.Unix }}"}'
+      no_follow_redirects: false
+      fail_if_ssl: false
+      fail_if_not_ssl: false
+      tls_config:
+        insecure_skip_verify: false
+
+  tcp_connect:
+    prober: tcp
+    timeout: 10s
+    tcp:
+      preferred_ip_protocol: "ip4"
+      ip_protocol_fallback: true
+
+  pop3s_banner:
+    prober: tcp
+    timeout: 10s
+    tcp:
+      preferred_ip_protocol: "ip4"
+      query_response:
+        - expect: "^+OK"
+      tls: true
+      tls_config:
+        insecure_skip_verify: false
+
+  grpc:
+    prober: grpc
+    timeout: 10s
+    grpc:
+      service: "health"
+      tls: true
+      tls_config:
+        insecure_skip_verify: false
+
+  grpc_plain:
+    prober: grpc
+    timeout: 10s
+    grpc:
+      service: "health"
+      tls: false
+
+  ssh_banner:
+    prober: tcp
+    timeout: 10s
+    tcp:
+      preferred_ip_protocol: "ip4"
+      query_response:
+        - expect: "^SSH-2.0-"
+        - send: "SSH-2.0-blackbox-ssh-check"
+
+  irc_banner:
+    prober: tcp
+    timeout: 10s
+    tcp:
+      preferred_ip_protocol: "ip4"
+      query_response:
+        - send: "NICK prober"
+        - send: "USER prober prober prober :prober"
+        - expect: "PING :([^ ]+)"
+          send: "PONG ${1}"
+        - expect: "^:[^ ]+ 001"
+
+  icmp:
+    prober: icmp
+    timeout: 10s
+    icmp:
+      preferred_ip_protocol: "ip4"
+      source_ip_address: "127.0.0.1"
+
+  icmp_ttl5:
+    prober: icmp
+    timeout: 10s
+    icmp:
+      preferred_ip_protocol: "ip4"
+      ttl: 5
+
+  dns_udp:
+    prober: dns
+    timeout: 10s
+    dns:
+      query_name: "serenity-pathways.com"
+      query_type: "A"
+      valid_rcodes:
+        - NOERROR
+      validate_answer_rrs:
+        fail_if_matches_regexp:
+          - ".*127.0.0.1"
+        fail_if_all_match_regexp:
+          - ".*127.0.0.1"
+        fail_if_not_matches_regexp:
+          - "serenity-pathways.com.\t300\tIN\tA\t.*"
+        fail_if_none_matches_regexp:
+          - ".*"
+
+  dns_soa:
+    prober: dns
+    timeout: 10s
+    dns:
+      query_name: "serenity-pathways.com"
+      query_type: "SOA"
+      validate_authority_rrs:
+        fail_if_matches_regexp:
+          - ".*127.0.0.1"
+
+  dns_tcp:
+    prober: dns
+    timeout: 10s
+    dns:
+      transport_protocol: "tcp"
+      preferred_ip_protocol: "ip4"
+      query_name: "serenity-pathways.com"
+      query_type: "A"

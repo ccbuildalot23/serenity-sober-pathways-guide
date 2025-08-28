@@ -152,6 +152,7 @@
     "@types/dompurify": "^3.2.0",
     "@types/stripe": "^8.0.416",
     "@vercel/analytics": "^1.1.1",
+    "@vitejs/plugin-react-swc": "^4.0.0",
     "canvas-confetti": "^1.6.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
@@ -205,6 +206,8 @@
     "@commitlint/config-conventional": "^19.8.1",
     "@jest/globals": "^29.7.0",
     "@playwright/test": "^1.54.2",
+    "@swc/core": "^1.13.5",
+    "@swc/core-win32-x64-msvc": "^1.13.3",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.16",
     "@testing-library/jest-dom": "^6.6.3",
@@ -215,7 +218,6 @@
     "@types/react-dom": "^19.1.7",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
-    "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.16",
     "capacitor-biometric-auth": "^0.1.1",
     "chalk": "^5.5.0",
@@ -251,6 +253,12 @@
       "ts-jest": "29.x",
       "@types/jest": "29.x",
       "@playwright/test": "1.54.x"
+    }
+  },
+  "overrides": {
+    "@sentry/react": {
+      "react": "$react",
+      "react-dom": "$react-dom"
     }
   }
 }

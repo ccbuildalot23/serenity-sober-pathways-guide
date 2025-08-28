@@ -1,0 +1,260 @@
+groups:
+  - name: serenity-critical-alerts
+    interval: 15s
+    rules:
+      # Crisis Response Time - CRITICAL
+      - alert: CrisisResponseTimeTooHigh
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="serenity-crisis-service", endpoint="/crisis"}[1m])) > 0.5
+        for: 30s
+        labels:
+          severity: critical
+          service: crisis
+          hipaa: true
+        annotations:
+          summary: "Crisis response time is too high"
+          description: "Crisis service 95th percentile response time is {{ $value }}s, which exceeds the 500ms HIPAA requirement"
+          action: "Immediate intervention required - patient safety at risk"
+          runbook_url: "https://runbooks.serenity-pathways.com/crisis-response-time"
+
+      # Service Down - CRITICAL
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          hipaa: true
+        annotations:
+          summary: "Service {{ $labels.instance }} is down"
+          description: "Service {{ $labels.job }} on instance {{ $labels.instance }} has been down for more than 1 minute"
+          action: "Immediate investigation required"
+
+      # Database Connection Failures - CRITICAL
+      - alert: DatabaseConnectionFailure
+        expr: rate(postgres_up[5m]) < 0.95
+        for: 2m
+        labels:
+          severity: critical
+          service: database
+          hipaa: true
+        annotations:
+          summary: "Database connection failure rate is high"
+          description: "Database connection success rate is {{ $value | humanizePercentage }}"
+          action: "Check database connectivity and connection pool"
+
+      # High Error Rate - CRITICAL
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          hipaa: true
+        annotations:
+          summary: "High error rate on {{ $labels.job }}"
+          description: "Error rate is {{ $value | humanizePercentage }} for service {{ $labels.job }}"
+          action: "Check service logs and health"
+
+      # SSL Certificate Expiry - CRITICAL
+      - alert: SSLCertificateExpiringSoon
+        expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 7
+        for: 1h
+        labels:
+          severity: critical
+          security: true
+        annotations:
+          summary: "SSL certificate expiring soon"
+          description: "SSL certificate for {{ $labels.instance }} expires in {{ $value | humanizeDuration }}"
+          action: "Renew SSL certificate immediately"
+
+  - name: serenity-warning-alerts
+    interval: 30s
+    rules:
+      # High Memory Usage - WARNING
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is {{ $value | humanizePercentage }}"
+          action: "Monitor for memory leaks and consider scaling"
+
+      # High Disk Usage - WARNING
+      - alert: HighDiskUsage
+        expr: (node_filesystem_size_bytes{fstype!="tmpfs"} - node_filesystem_free_bytes{fstype!="tmpfs"}) / node_filesystem_size_bytes{fstype!="tmpfs"} > 0.80
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High disk usage on {{ $labels.instance }}"
+          description: "Disk usage is {{ $value | humanizePercentage }} on filesystem {{ $labels.mountpoint }}"
+          action: "Clean up disk space or provision more storage"
+
+      # High CPU Usage - WARNING
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is {{ $value | humanizePercentage }}"
+          action: "Check for CPU-intensive processes"
+
+      # High Response Time - WARNING
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time on {{ $labels.job }}"
+          description: "95th percentile response time is {{ $value }}s"
+          action: "Investigate performance issues"
+
+      # Container Restart Frequency - WARNING
+      - alert: ContainerHighRestartRate
+        expr: rate(container_start_time_seconds[15m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} is restarting frequently"
+          description: "Container restart rate is {{ $value }} per second"
+          action: "Check container logs for crash causes"
+
+  - name: serenity-hipaa-compliance
+    interval: 60s
+    rules:
+      # Unauthorized Access Attempts - HIPAA CRITICAL
+      - alert: UnauthorizedAccessAttempts
+        expr: rate(http_requests_total{status="401"}[5m]) > 10
+        for: 2m
+        labels:
+          severity: critical
+          hipaa: true
+          security: true
+        annotations:
+          summary: "High rate of unauthorized access attempts"
+          description: "{{ $value }} unauthorized access attempts per second on {{ $labels.job }}"
+          action: "Potential security breach - investigate immediately"
+          compliance: "HIPAA Security Rule 164.308(a)(1)(i)"
+
+      # Data Access Without Audit Log - HIPAA CRITICAL
+      - alert: MissingAuditLogs
+        expr: rate(audit_log_entries_total[5m]) == 0 and rate(http_requests_total{endpoint=~"/patients/.*|/medical-records/.*"}[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          hipaa: true
+          compliance: true
+        annotations:
+          summary: "PHI access without audit logging"
+          description: "PHI access detected without corresponding audit logs"
+          action: "Critical HIPAA violation - immediate investigation required"
+          compliance: "HIPAA Security Rule 164.308(a)(1)(i)"
+
+      # Encryption Failure - HIPAA CRITICAL
+      - alert: EncryptionFailure
+        expr: encryption_status{status="failed"} > 0
+        for: 0s
+        labels:
+          severity: critical
+          hipaa: true
+          security: true
+        annotations:
+          summary: "Encryption failure detected"
+          description: "Encryption failure on {{ $labels.service }} - {{ $labels.type }}"
+          action: "Critical HIPAA violation - stop data processing"
+          compliance: "HIPAA Security Rule 164.312(a)(2)(iv)"
+
+      # Backup Failure - HIPAA WARNING
+      - alert: BackupFailure
+        expr: time() - last_successful_backup_timestamp > 86400
+        for: 1h
+        labels:
+          severity: warning
+          hipaa: true
+        annotations:
+          summary: "Backup failure detected"
+          description: "Last successful backup was {{ $value | humanizeDuration }} ago"
+          action: "Check backup system and ensure data protection"
+          compliance: "HIPAA Security Rule 164.308(a)(7)(ii)(A)"
+
+  - name: serenity-business-metrics
+    interval: 60s
+    rules:
+      # Crisis Intervention Success Rate
+      - alert: LowCrisisInterventionSuccessRate
+        expr: rate(crisis_interventions_successful_total[1h]) / rate(crisis_interventions_total[1h]) < 0.95
+        for: 30m
+        labels:
+          severity: warning
+          business: true
+        annotations:
+          summary: "Crisis intervention success rate is low"
+          description: "Success rate is {{ $value | humanizePercentage }}"
+          action: "Review crisis response procedures"
+
+      # Patient Engagement Drop
+      - alert: PatientEngagementDrop
+        expr: rate(daily_checkins_total[24h]) < rate(daily_checkins_total[168h]) * 0.8
+        for: 2h
+        labels:
+          severity: warning
+          business: true
+        annotations:
+          summary: "Patient engagement has dropped significantly"
+          description: "Daily check-in rate is {{ $value | humanizePercentage }} of weekly average"
+          action: "Review patient outreach programs"
+
+      # Provider Response Time
+      - alert: SlowProviderResponse
+        expr: histogram_quantile(0.90, rate(provider_response_time_seconds_bucket[1h])) > 3600
+        for: 1h
+        labels:
+          severity: warning
+          business: true
+        annotations:
+          summary: "Provider response time is slow"
+          description: "90th percentile provider response time is {{ $value | humanizeDuration }}"
+          action: "Check provider workload and availability"
+
+  - name: serenity-infrastructure
+    interval: 30s
+    rules:
+      # Load Balancer Health
+      - alert: LoadBalancerUnhealthy
+        expr: nginx_up == 0
+        for: 2m
+        labels:
+          severity: critical
+          infrastructure: true
+        annotations:
+          summary: "Load balancer is down"
+          description: "Nginx load balancer is not responding"
+          action: "Immediate intervention required"
+
+      # Container Resource Limits
+      - alert: ContainerNearResourceLimit
+        expr: container_memory_usage_bytes / container_spec_memory_limit_bytes > 0.90
+        for: 5m
+        labels:
+          severity: warning
+          infrastructure: true
+        annotations:
+          summary: "Container {{ $labels.name }} near memory limit"
+          description: "Memory usage is {{ $value | humanizePercentage }} of limit"
+          action: "Consider increasing resource limits or scaling"
+
+      # Network Connectivity
+      - alert: HighNetworkLatency
+        expr: probe_duration_seconds{job="blackbox-http"} > 5
+        for: 5m
+        labels:
+          severity: warning
+          infrastructure: true
+        annotations:
+          summary: "High network latency to {{ $labels.instance }}"
+          description: "Network latency is {{ $value }}s"
+          action: "Check network connectivity and routing"

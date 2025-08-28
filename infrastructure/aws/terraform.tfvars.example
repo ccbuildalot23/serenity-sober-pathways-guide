@@ -1,0 +1,118 @@
+# Serenity Healthcare Platform - Terraform Variables Configuration
+# Copy this file to terraform.tfvars and customize the values
+
+# General Configuration
+project_name = "serenity"
+environment  = "production"
+aws_region   = "us-east-1"
+dr_region    = "us-west-2"
+
+owner       = "serenity-platform-team"
+cost_center = "healthcare-platform"
+
+# Network Configuration
+vpc_cidr = "10.0.0.0/16"
+
+# EKS Configuration
+eks_cluster_version = "1.28"
+eks_instance_types  = ["t3.medium", "t3.large", "m5.large"]
+eks_min_size       = 3
+eks_max_size       = 20
+eks_desired_size   = 6
+
+# RDS Configuration
+rds_engine_version            = "15.4"
+rds_instance_class           = "db.r6g.xlarge"
+rds_allocated_storage        = 100
+rds_max_allocated_storage    = 1000
+rds_multi_az                 = true
+rds_backup_retention_period  = 30
+
+# ElastiCache Configuration
+elasticache_node_type = "cache.r7g.large"
+elasticache_num_nodes = 3
+
+# DocumentDB Configuration
+documentdb_cluster_size   = 3
+documentdb_instance_class = "db.r6g.large"
+
+# SSL Certificates (Replace with your actual ARNs)
+ssl_certificate_arn       = "arn:aws:acm:us-east-1:ACCOUNT-ID:certificate/CERTIFICATE-ID"
+cloudfront_certificate_arn = "arn:aws:acm:us-east-1:ACCOUNT-ID:certificate/CERTIFICATE-ID"
+domain_name              = "serenity-platform.com"
+
+# Monitoring Configuration
+notification_email         = "alerts@serenity-platform.com"
+enable_detailed_monitoring = true
+
+# CI/CD Configuration
+ecr_repository_urls = [
+  "ACCOUNT-ID.dkr.ecr.us-east-1.amazonaws.com/serenity-frontend",
+  "ACCOUNT-ID.dkr.ecr.us-east-1.amazonaws.com/serenity-api",
+  "ACCOUNT-ID.dkr.ecr.us-east-1.amazonaws.com/serenity-auth-service",
+  "ACCOUNT-ID.dkr.ecr.us-east-1.amazonaws.com/serenity-notification-service",
+  "ACCOUNT-ID.dkr.ecr.us-east-1.amazonaws.com/serenity-crisis-service"
+]
+github_token_secret_arn = "arn:aws:secretsmanager:us-east-1:ACCOUNT-ID:secret:github-token"
+
+# Security Configuration
+enable_waf             = true
+enable_shield_advanced = false  # Set to true for production with high traffic
+enable_guardduty       = true
+enable_macie          = true
+enable_security_hub   = true
+
+# Backup Configuration
+backup_retention_days = 365
+
+# Auto Scaling Configuration
+enable_cluster_autoscaler = true
+enable_hpa               = true
+hpa_target_cpu_utilization    = 70
+hpa_target_memory_utilization = 80
+
+# Performance Configuration
+enable_container_insights = true
+enable_xray_tracing      = true
+
+# Cost Optimization
+enable_spot_instances      = false  # Set to true for non-production
+spot_instance_percentage   = 50
+enable_scheduled_scaling   = true
+
+# Compliance Configuration
+enable_config               = true
+enable_cloudtrail          = true
+cloudtrail_s3_key_prefix   = "cloudtrail-logs"
+enable_vpc_flow_logs       = true
+
+# Database Performance
+enable_performance_insights              = true
+performance_insights_retention_period    = 7
+enable_enhanced_monitoring              = true
+monitoring_interval                     = 60
+
+# Environment-specific Configuration Overrides
+environment_config = {
+  development = {
+    eks_min_size       = 1
+    eks_max_size       = 5
+    eks_desired_size   = 2
+    rds_instance_class = "db.t3.micro"
+    enable_multi_az    = false
+  }
+  staging = {
+    eks_min_size       = 2
+    eks_max_size       = 10
+    eks_desired_size   = 3
+    rds_instance_class = "db.r6g.large"
+    enable_multi_az    = true
+  }
+  production = {
+    eks_min_size       = 3
+    eks_max_size       = 20
+    eks_desired_size   = 6
+    rds_instance_class = "db.r6g.xlarge"
+    enable_multi_az    = true
+  }
+}

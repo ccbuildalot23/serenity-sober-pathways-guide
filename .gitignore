@@ -14,13 +14,18 @@ dist-ssr
 
 # CRITICAL: Environment variables (HIPAA Compliance)
 .env
+.env.*
 .env.local
 .env.production
+.env.production.*
 .env.development
 .env.staging
+.env.backup.*
 *.key
 *.pem
 *.p12
+*.cer
+*.crt
 
 # Secrets and credentials
 secrets/

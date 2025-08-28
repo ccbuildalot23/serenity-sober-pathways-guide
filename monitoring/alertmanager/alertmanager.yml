@@ -1,0 +1,262 @@
+global:
+  smtp_smarthost: '${SMTP_HOST}:${SMTP_PORT}'
+  smtp_from: '${ALERT_FROM_EMAIL}'
+  smtp_auth_username: '${SMTP_USER}'
+  smtp_auth_password: '${SMTP_PASSWORD}'
+  smtp_require_tls: true
+
+  # Slack configuration
+  slack_api_url: '${SLACK_WEBHOOK_URL}'
+
+  # High-available configuration
+  cluster:
+    listen_address: '0.0.0.0:9094'
+    peer:
+      - 'alertmanager-1:9094'
+      - 'alertmanager-2:9094'
+
+route:
+  group_by: ['alertname', 'severity', 'service']
+  group_wait: 10s
+  group_interval: 5m
+  repeat_interval: 12h
+  receiver: 'default-receiver'
+  
+  routes:
+    # HIPAA Critical Alerts - Immediate response required
+    - match:
+        hipaa: 'true'
+        severity: 'critical'
+      receiver: 'hipaa-critical'
+      group_wait: 0s
+      group_interval: 1m
+      repeat_interval: 5m
+      continue: true
+    
+    # Crisis Service Alerts - Immediate response
+    - match:
+        service: 'crisis'
+        severity: 'critical'
+      receiver: 'crisis-critical'
+      group_wait: 0s
+      group_interval: 30s
+      repeat_interval: 2m
+      continue: true
+    
+    # Security Alerts - High priority
+    - match:
+        security: 'true'
+      receiver: 'security-team'
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 30m
+      continue: true
+    
+    # Critical Infrastructure Alerts
+    - match:
+        severity: 'critical'
+      receiver: 'critical-alerts'
+      group_wait: 1m
+      group_interval: 5m
+      repeat_interval: 15m
+    
+    # Warning Level Alerts
+    - match:
+        severity: 'warning'
+      receiver: 'warning-alerts'
+      group_wait: 5m
+      group_interval: 30m
+      repeat_interval: 4h
+    
+    # Business Metrics Alerts
+    - match:
+        business: 'true'
+      receiver: 'business-team'
+      group_wait: 10m
+      group_interval: 1h
+      repeat_interval: 24h
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'service', 'instance']
+  
+  - source_match:
+      alertname: 'ServiceDown'
+    target_match_re:
+      alertname: '.*'
+    equal: ['service', 'instance']
+
+receivers:
+  - name: 'default-receiver'
+    slack_configs:
+      - channel: '#alerts'
+        title: 'Serenity Platform Alert'
+        text: 'Alert: {{ .CommonAnnotations.summary }}'
+        send_resolved: true
+
+  - name: 'hipaa-critical'
+    # Page security team immediately
+    webhook_configs:
+      - url: '${PAGERDUTY_WEBHOOK_URL}'
+        send_resolved: true
+        http_config:
+          bearer_token: '${PAGERDUTY_TOKEN}'
+    
+    # Send to compliance team
+    email_configs:
+      - to: 'compliance@serenity-pathways.com'
+        subject: 'URGENT: HIPAA Critical Alert - {{ .CommonAnnotations.summary }}'
+        body: |
+          HIPAA CRITICAL ALERT
+          
+          Alert: {{ .CommonAnnotations.summary }}
+          Description: {{ .CommonAnnotations.description }}
+          Compliance Rule: {{ .CommonAnnotations.compliance }}
+          Action Required: {{ .CommonAnnotations.action }}
+          
+          Time: {{ .FireTime }}
+          Severity: {{ .CommonLabels.severity }}
+          Service: {{ .CommonLabels.service }}
+          
+          This alert indicates a potential HIPAA violation that requires immediate attention.
+        headers:
+          Priority: 'urgent'
+        send_resolved: true
+    
+    # SMS to emergency contacts
+    webhook_configs:
+      - url: '${TWILIO_WEBHOOK_URL}'
+        send_resolved: false
+        http_config:
+          basic_auth:
+            username: '${TWILIO_SID}'
+            password: '${TWILIO_TOKEN}'
+
+  - name: 'crisis-critical'
+    # Page on-call engineer immediately
+    webhook_configs:
+      - url: '${PAGERDUTY_CRISIS_WEBHOOK_URL}'
+        send_resolved: true
+    
+    # Slack with high priority
+    slack_configs:
+      - channel: '#crisis-alerts'
+        title: 'CRISIS SERVICE CRITICAL ALERT'
+        text: |
+          🚨 CRISIS SERVICE ALERT 🚨
+          
+          {{ .CommonAnnotations.summary }}
+          {{ .CommonAnnotations.description }}
+          Action: {{ .CommonAnnotations.action }}
+          
+          Time: {{ .FireTime }}
+          Service: {{ .CommonLabels.service }}
+        color: 'danger'
+        send_resolved: true
+    
+    # SMS to crisis response team
+    webhook_configs:
+      - url: '${SMS_WEBHOOK_URL}'
+        http_config:
+          basic_auth:
+            username: '${SMS_USER}'
+            password: '${SMS_PASSWORD}'
+
+  - name: 'security-team'
+    email_configs:
+      - to: 'security@serenity-pathways.com'
+        subject: 'Security Alert - {{ .CommonAnnotations.summary }}'
+        body: |
+          SECURITY ALERT
+          
+          Alert: {{ .CommonAnnotations.summary }}
+          Description: {{ .CommonAnnotations.description }}
+          Action Required: {{ .CommonAnnotations.action }}
+          
+          Time: {{ .FireTime }}
+          Severity: {{ .CommonLabels.severity }}
+          Service: {{ .CommonLabels.service }}
+          Instance: {{ .CommonLabels.instance }}
+          
+          Please investigate immediately.
+        send_resolved: true
+    
+    slack_configs:
+      - channel: '#security-alerts'
+        title: 'Security Alert'
+        text: |
+          🔒 {{ .CommonAnnotations.summary }}
+          {{ .CommonAnnotations.description }}
+          Action: {{ .CommonAnnotations.action }}
+        color: 'warning'
+        send_resolved: true
+
+  - name: 'critical-alerts'
+    email_configs:
+      - to: 'devops@serenity-pathways.com'
+        subject: 'Critical Alert - {{ .CommonAnnotations.summary }}'
+        body: |
+          CRITICAL ALERT
+          
+          Alert: {{ .CommonAnnotations.summary }}
+          Description: {{ .CommonAnnotations.description }}
+          Action Required: {{ .CommonAnnotations.action }}
+          
+          Time: {{ .FireTime }}
+          Severity: {{ .CommonLabels.severity }}
+          Service: {{ .CommonLabels.service }}
+          Instance: {{ .CommonLabels.instance }}
+          
+          Runbook: {{ .CommonAnnotations.runbook_url }}
+        send_resolved: true
+    
+    slack_configs:
+      - channel: '#critical-alerts'
+        title: 'Critical System Alert'
+        text: |
+          ⚠️ {{ .CommonAnnotations.summary }}
+          {{ .CommonAnnotations.description }}
+          
+          Runbook: {{ .CommonAnnotations.runbook_url }}
+        color: 'danger'
+        send_resolved: true
+
+  - name: 'warning-alerts'
+    slack_configs:
+      - channel: '#alerts'
+        title: 'Warning Alert'
+        text: |
+          ⚠️ {{ .CommonAnnotations.summary }}
+          {{ .CommonAnnotations.description }}
+        color: 'warning'
+        send_resolved: true
+
+  - name: 'business-team'
+    email_configs:
+      - to: 'operations@serenity-pathways.com'
+        subject: 'Business Metrics Alert - {{ .CommonAnnotations.summary }}'
+        body: |
+          BUSINESS METRICS ALERT
+          
+          Alert: {{ .CommonAnnotations.summary }}
+          Description: {{ .CommonAnnotations.description }}
+          Action Required: {{ .CommonAnnotations.action }}
+          
+          Time: {{ .FireTime }}
+          Service: {{ .CommonLabels.service }}
+        send_resolved: true
+    
+    slack_configs:
+      - channel: '#business-metrics'
+        title: 'Business Metrics Alert'
+        text: |
+          📊 {{ .CommonAnnotations.summary }}
+          {{ .CommonAnnotations.description }}
+        color: 'good'
+        send_resolved: true
+
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'

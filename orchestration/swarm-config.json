@@ -1,0 +1,251 @@
+{
+  "swarm_id": "serenity-production-swarm-001",
+  "version": "1.0.0",
+  "timestamp": "2025-08-28T00:00:00Z",
+  "environment": "production",
+  "topology": "adaptive_byzantine",
+  "consensus": {
+    "algorithm": "byzantine_fault_tolerant",
+    "threshold": 0.7,
+    "timeout": 30000,
+    "max_rounds": 5
+  },
+  "agents": {
+    "total": 50,
+    "distribution": {
+      "infrastructure": 10,
+      "api_integration": 8,
+      "security_compliance": 12,
+      "monitoring": 8,
+      "deployment": 12
+    }
+  },
+  "mcp_servers": {
+    "ruv_swarm": {
+      "endpoint": "mcp__ruv-swarm",
+      "role": "infrastructure_orchestration",
+      "priority": 1
+    },
+    "claude_flow": {
+      "endpoint": "mcp__claude-flow",
+      "role": "agent_coordination",
+      "priority": 1
+    },
+    "exa": {
+      "endpoint": "mcp__exa",
+      "role": "research_documentation",
+      "priority": 2
+    },
+    "ref": {
+      "endpoint": "mcp__Ref",
+      "role": "technical_documentation",
+      "priority": 3
+    }
+  },
+  "deployment_stages": [
+    {
+      "stage": 1,
+      "name": "Infrastructure Provisioning",
+      "parallel": true,
+      "timeout": 900000,
+      "agents": ["aws-terraform-specialist", "network-architect", "security-hardener"],
+      "resources": {
+        "vpc": true,
+        "rds": true,
+        "eks": true,
+        "elasticache": true,
+        "documentdb": true
+      }
+    },
+    {
+      "stage": 2,
+      "name": "Security Configuration",
+      "parallel": false,
+      "timeout": 600000,
+      "requireConsensus": true,
+      "agents": ["hipaa-validator", "encryption-specialist", "audit-logger"],
+      "validations": [
+        "ssl_certificates",
+        "encryption_at_rest",
+        "encryption_in_transit",
+        "access_control",
+        "audit_logging"
+      ]
+    },
+    {
+      "stage": 3,
+      "name": "Container Deployment",
+      "parallel": true,
+      "timeout": 600000,
+      "agents": ["docker-builder", "kubernetes-deployer"],
+      "services": [
+        "auth-service",
+        "notification-service",
+        "crisis-service",
+        "patient-portal",
+        "api-gateway"
+      ]
+    },
+    {
+      "stage": 4,
+      "name": "API Integration",
+      "parallel": true,
+      "timeout": 300000,
+      "agents": ["twilio-integrator", "sendgrid-specialist", "firebase-configurator"],
+      "integrations": {
+        "twilio": {
+          "sms": true,
+          "voice": false,
+          "whatsapp": false
+        },
+        "sendgrid": {
+          "transactional": true,
+          "marketing": false
+        },
+        "firebase": {
+          "push_notifications": true,
+          "analytics": true
+        }
+      }
+    },
+    {
+      "stage": 5,
+      "name": "Monitoring Setup",
+      "parallel": true,
+      "timeout": 600000,
+      "agents": ["prometheus-configurator", "grafana-dashboard-builder", "alert-manager"],
+      "components": {
+        "prometheus": {
+          "scrape_interval": "15s",
+          "retention": "365d"
+        },
+        "grafana": {
+          "dashboards": [
+            "system-overview",
+            "crisis-response",
+            "hipaa-compliance",
+            "user-analytics"
+          ]
+        },
+        "alertmanager": {
+          "routes": [
+            {
+              "severity": "critical",
+              "receiver": "pagerduty"
+            },
+            {
+              "severity": "warning",
+              "receiver": "slack"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "stage": 6,
+      "name": "Health Validation",
+      "parallel": true,
+      "timeout": 300000,
+      "requireConsensus": true,
+      "agents": ["health-checker", "byzantine-validator"],
+      "checks": [
+        "service_health",
+        "database_connectivity",
+        "cache_availability",
+        "queue_throughput",
+        "crisis_response_time"
+      ]
+    }
+  ],
+  "rollback": {
+    "enabled": true,
+    "auto_trigger": true,
+    "triggers": [
+      {
+        "metric": "crisis_response_time",
+        "threshold": 500,
+        "comparison": "greater_than",
+        "action": "immediate"
+      },
+      {
+        "metric": "service_availability",
+        "threshold": 95,
+        "comparison": "less_than",
+        "action": "gradual"
+      },
+      {
+        "metric": "consensus_failure",
+        "threshold": 0.3,
+        "comparison": "greater_than",
+        "action": "immediate"
+      },
+      {
+        "metric": "security_breach",
+        "threshold": 1,
+        "comparison": "equals",
+        "action": "immediate"
+      }
+    ],
+    "procedures": [
+      "stop_traffic_routing",
+      "rollback_kubernetes_deployment",
+      "restore_database_snapshot",
+      "clear_cache",
+      "notify_oncall"
+    ]
+  },
+  "monitoring": {
+    "real_time": true,
+    "dashboard_url": "http://localhost:3001",
+    "metrics": {
+      "system": [
+        "cpu_usage",
+        "memory_usage",
+        "disk_io",
+        "network_throughput"
+      ],
+      "application": [
+        "request_rate",
+        "error_rate",
+        "response_time",
+        "active_users"
+      ],
+      "business": [
+        "crisis_alerts",
+        "check_ins",
+        "notifications_sent",
+        "user_registrations"
+      ],
+      "compliance": [
+        "phi_access_logs",
+        "encryption_status",
+        "audit_completeness",
+        "session_timeouts"
+      ]
+    }
+  },
+  "notifications": {
+    "channels": {
+      "slack": {
+        "webhook": "${SLACK_WEBHOOK_URL}",
+        "channel": "#serenity-deployments"
+      },
+      "email": {
+        "recipients": ["devops@serenity-platform.com"],
+        "smtp": "${SMTP_HOST}"
+      },
+      "pagerduty": {
+        "service_key": "${PAGERDUTY_SERVICE_KEY}",
+        "severity_threshold": "critical"
+      }
+    },
+    "events": [
+      "deployment_started",
+      "stage_completed",
+      "consensus_achieved",
+      "rollback_initiated",
+      "deployment_completed",
+      "deployment_failed"
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "name": "crisis-service",
+  "version": "2.0.0",
+  "description": "Advanced HIPAA-compliant crisis management service with real-time detection and emergency response",
+  "main": "server.js",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "migrate": "node scripts/migrate.js"
+  },
+  "dependencies": {
+    "@tensorflow/tfjs-node": "^4.15.0",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.0.1",
+    "geolib": "^3.3.4",
+    "helmet": "^7.1.0",
+    "ioredis": "^5.3.2",
+    "joi": "^17.11.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.0.3",
+    "node-cron": "^3.0.3",
+    "pg": "^8.11.3",
+    "redis": "^4.6.12",
+    "sentiment": "^5.0.2",
+    "socket.io": "^4.7.4",
+    "twilio": "^4.19.3",
+    "uuid": "^9.0.1",
+    "winston": "^3.11.0",
+    "ws": "^8.15.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.2",
+    "supertest": "^6.3.4"
+  },
+  "keywords": [
+    "crisis-management",
+    "mental-health",
+    "emergency-response",
+    "real-time",
+    "hipaa-compliant"
+  ],
+  "author": "Serenity Team",
+  "license": "ISC"
+}

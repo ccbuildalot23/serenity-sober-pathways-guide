@@ -1,0 +1,582 @@
+version: '3.8'
+
+# Production Environment Docker Compose
+# Features:
+# - Multi-stage production builds
+# - Resource limits and reservations
+# - Security hardening
+# - High availability configurations
+# - Monitoring and logging
+
+networks:
+  serenity-prod:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
+  monitoring:
+    driver: bridge
+
+volumes:
+  postgres-prod-data:
+  redis-prod-data:
+  mongodb-prod-data:
+  rabbitmq-prod-data:
+  elasticsearch-prod-data:
+  prometheus-prod-data:
+  grafana-prod-data:
+
+services:
+  # ===================
+  # DATABASES
+  # ===================
+  
+  postgres:
+    image: postgres:15-alpine
+    container_name: serenity-postgres-prod
+    environment:
+      POSTGRES_DB: serenity_prod
+      POSTGRES_USER: serenity_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-prod-data:/var/lib/postgresql/data
+      - ./infrastructure/database/init-scripts:/docker-entrypoint-initdb.d:ro
+    networks:
+      - serenity-prod
+    secrets:
+      - postgres_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U serenity_user -d serenity_prod"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  postgres-replica:
+    image: postgres:15-alpine
+    container_name: serenity-postgres-replica-prod
+    environment:
+      POSTGRES_DB: serenity_prod
+      POSTGRES_USER: serenity_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      PGUSER: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
+    command: |
+      bash -c '
+      echo "Setting up replica..."
+      pg_basebackup -h postgres -D /var/lib/postgresql/data -U serenity_user -v -P -W
+      echo "standby_mode = '"'"'on'"'"'" >> /var/lib/postgresql/data/recovery.conf
+      echo "primary_conninfo = '"'"'host=postgres port=5432 user=serenity_user'"'"'" >> /var/lib/postgresql/data/recovery.conf
+      postgres
+      '
+    volumes:
+      - ./infrastructure/database/replica:/var/lib/postgresql/data
+    networks:
+      - serenity-prod
+    secrets:
+      - postgres_password
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  redis:
+    image: redis:7-alpine
+    container_name: serenity-redis-prod
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - redis-prod-data:/data
+      - ./infrastructure/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    networks:
+      - serenity-prod
+    secrets:
+      - redis_password
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  mongodb:
+    image: mongo:7
+    container_name: serenity-mongodb-prod
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/mongodb_password
+      MONGO_INITDB_DATABASE: serenity_notifications
+    volumes:
+      - mongodb-prod-data:/data/db
+      - ./infrastructure/database/mongo-init:/docker-entrypoint-initdb.d:ro
+      - ./infrastructure/mongodb/mongod.conf:/etc/mongod.conf:ro
+    command: mongod --config /etc/mongod.conf
+    networks:
+      - serenity-prod
+    secrets:
+      - mongodb_password
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  # ===================
+  # MESSAGE QUEUE
+  # ===================
+  
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: serenity-rabbitmq-prod
+    environment:
+      RABBITMQ_DEFAULT_USER: serenity
+      RABBITMQ_DEFAULT_PASS_FILE: /run/secrets/rabbitmq_password
+      RABBITMQ_ERLANG_COOKIE_FILE: /run/secrets/rabbitmq_erlang_cookie
+    volumes:
+      - rabbitmq-prod-data:/var/lib/rabbitmq
+      - ./infrastructure/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./infrastructure/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+    networks:
+      - serenity-prod
+    secrets:
+      - rabbitmq_password
+      - rabbitmq_erlang_cookie
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  # ===================
+  # MICROSERVICES
+  # ===================
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      target: production
+    container_name: serenity-api-gateway-prod
+    environment:
+      - NODE_ENV=production
+      - PORT=3003
+      - AUTH_SERVICE_URL=http://auth-service:3000
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8000
+      - CRISIS_SERVICE_URL=http://crisis-service:3002
+      - PATIENT_PORTAL_URL=http://patient-portal:8081
+      - REDIS_URL=redis://:$(cat /run/secrets/redis_password)@redis:6379
+    networks:
+      - serenity-prod
+    secrets:
+      - redis_password
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+
+  auth-service:
+    build:
+      context: ./auth-service
+      target: production
+    container_name: serenity-auth-service-prod
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY_FILE=/run/secrets/supabase_service_key
+      - JWT_SECRET_FILE=/run/secrets/jwt_secret
+      - REDIS_URL=redis://:$(cat /run/secrets/redis_password)@redis:6379
+      - DATABASE_URL=postgresql://serenity_user:$(cat /run/secrets/postgres_password)@postgres:5432/serenity_prod
+      - DATABASE_REPLICA_URL=postgresql://serenity_user:$(cat /run/secrets/postgres_password)@postgres-replica:5432/serenity_prod
+    networks:
+      - serenity-prod
+    secrets:
+      - supabase_service_key
+      - jwt_secret
+      - postgres_password
+      - redis_password
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          memory: 768M
+          cpus: '0.75'
+        reservations:
+          memory: 384M
+          cpus: '0.375'
+
+  notification-service:
+    build:
+      context: ./notification-service
+      target: production
+    container_name: serenity-notification-service-prod
+    environment:
+      - ENVIRONMENT=production
+      - PORT=8000
+      - MONGODB_URL=mongodb://admin:$(cat /run/secrets/mongodb_password)@mongodb:27017/serenity_notifications?authSource=admin
+      - REDIS_URL=redis://:$(cat /run/secrets/redis_password)@redis:6379
+      - RABBITMQ_URL=amqp://serenity:$(cat /run/secrets/rabbitmq_password)@rabbitmq:5672
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN_FILE=/run/secrets/twilio_auth_token
+      - SENDGRID_API_KEY_FILE=/run/secrets/sendgrid_api_key
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+    networks:
+      - serenity-prod
+    secrets:
+      - mongodb_password
+      - redis_password
+      - rabbitmq_password
+      - twilio_auth_token
+      - sendgrid_api_key
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+
+  crisis-service:
+    build:
+      context: ./crisis-service
+      target: production
+    container_name: serenity-crisis-service-prod
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY_FILE=/run/secrets/supabase_service_key
+      - REDIS_URL=redis://:$(cat /run/secrets/redis_password)@redis:6379
+      - DATABASE_URL=postgresql://serenity_user:$(cat /run/secrets/postgres_password)@postgres:5432/serenity_prod
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8000
+      - MONGODB_URL=mongodb://admin:$(cat /run/secrets/mongodb_password)@mongodb:27017/serenity_crisis?authSource=admin
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN_FILE=/run/secrets/twilio_auth_token
+    networks:
+      - serenity-prod
+    secrets:
+      - supabase_service_key
+      - postgres_password
+      - mongodb_password
+      - redis_password
+      - twilio_auth_token
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      notification-service:
+        condition: service_started
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+
+  patient-portal:
+    build:
+      context: ./patient-portal
+      target: production
+    container_name: serenity-patient-portal-prod
+    networks:
+      - serenity-prod
+    depends_on:
+      - api-gateway
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+        reservations:
+          memory: 128M
+          cpus: '0.125'
+
+  frontend-app:
+    build:
+      context: ./frontend-app
+      target: production
+    container_name: serenity-frontend-app-prod
+    networks:
+      - serenity-prod
+    depends_on:
+      - api-gateway
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+        reservations:
+          memory: 128M
+          cpus: '0.125'
+
+  # ===================
+  # LOAD BALANCER
+  # ===================
+
+  nginx:
+    image: nginx:alpine
+    container_name: serenity-nginx-prod
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infrastructure/nginx/prod/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infrastructure/nginx/ssl:/etc/nginx/ssl:ro
+      - ./infrastructure/nginx/conf.d:/etc/nginx/conf.d:ro
+    networks:
+      - serenity-prod
+    depends_on:
+      - frontend-app
+      - patient-portal
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+        reservations:
+          memory: 128M
+          cpus: '0.125'
+
+  # ===================
+  # MONITORING & LOGGING
+  # ===================
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: serenity-prometheus-prod
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./infrastructure/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-prod-data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - serenity-prod
+      - monitoring
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: serenity-grafana-prod
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD_FILE=/run/secrets/grafana_admin_password
+      - GF_DATABASE_TYPE=postgres
+      - GF_DATABASE_HOST=postgres:5432
+      - GF_DATABASE_NAME=serenity_grafana
+      - GF_DATABASE_USER=grafana_user
+      - GF_DATABASE_PASSWORD_FILE=/run/secrets/grafana_db_password
+    volumes:
+      - grafana-prod-data:/var/lib/grafana
+      - ./infrastructure/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "3001:3000"
+    networks:
+      - serenity-prod
+      - monitoring
+    secrets:
+      - grafana_admin_password
+      - grafana_db_password
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.25'
+        reservations:
+          memory: 256M
+          cpus: '0.125'
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: serenity-elasticsearch-prod
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx1024m"
+    volumes:
+      - elasticsearch-prod-data:/usr/share/elasticsearch/data
+    networks:
+      - serenity-prod
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1.5G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    container_name: serenity-logstash-prod
+    volumes:
+      - ./infrastructure/logging/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+    networks:
+      - serenity-prod
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: serenity-kibana-prod
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    networks:
+      - serenity-prod
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.25'
+        reservations:
+          memory: 256M
+          cpus: '0.125'
+
+secrets:
+  postgres_password:
+    external: true
+  redis_password:
+    external: true
+  mongodb_password:
+    external: true
+  rabbitmq_password:
+    external: true
+  rabbitmq_erlang_cookie:
+    external: true
+  supabase_service_key:
+    external: true
+  jwt_secret:
+    external: true
+  twilio_auth_token:
+    external: true
+  sendgrid_api_key:
+    external: true
+  grafana_admin_password:
+    external: true
+  grafana_db_password:
+    external: true

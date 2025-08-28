@@ -1,0 +1,114 @@
+{
+  "services": [
+    {
+      "name": "auth-service",
+      "url": "http://host.docker.internal:3000",
+      "healthEndpoint": "/health",
+      "timeout": 5000,
+      "critical": true,
+      "description": "Authentication and authorization service",
+      "tags": ["auth", "security", "critical"],
+      "expectedResponseFields": ["status", "database", "timestamp"]
+    },
+    {
+      "name": "notification-service",
+      "url": "http://host.docker.internal:8000", 
+      "healthEndpoint": "/health",
+      "timeout": 5000,
+      "critical": false,
+      "description": "Push notifications and messaging service",
+      "tags": ["notification", "messaging"],
+      "expectedResponseFields": ["status", "queue", "timestamp"]
+    },
+    {
+      "name": "crisis-service",
+      "url": "http://host.docker.internal:8080",
+      "healthEndpoint": "/health",
+      "timeout": 3000,
+      "critical": true,
+      "description": "Crisis management and emergency response",
+      "tags": ["crisis", "emergency", "critical", "high-priority"],
+      "expectedResponseFields": ["status", "alert_system", "timestamp"]
+    },
+    {
+      "name": "frontend-app",
+      "url": "http://host.docker.internal:8080",
+      "healthEndpoint": "/",
+      "timeout": 5000,
+      "critical": false,
+      "description": "React frontend application",
+      "tags": ["frontend", "ui", "web"],
+      "expectedStatus": 200,
+      "contentCheck": "Serenity"
+    },
+    {
+      "name": "websocket-service",
+      "url": "http://host.docker.internal:8001",
+      "healthEndpoint": "/health",
+      "timeout": 3000,
+      "critical": false,
+      "description": "WebSocket service for real-time features",
+      "tags": ["websocket", "realtime"],
+      "expectedResponseFields": ["status", "connections", "timestamp"]
+    },
+    {
+      "name": "kong-gateway",
+      "url": "http://kong:8001",
+      "healthEndpoint": "/status",
+      "timeout": 5000,
+      "critical": true,
+      "description": "Kong API Gateway",
+      "tags": ["gateway", "proxy", "critical"],
+      "expectedResponseFields": ["database", "server"]
+    },
+    {
+      "name": "kong-redis",
+      "url": "redis://kong-redis:6379",
+      "healthEndpoint": "/ping",
+      "timeout": 2000,
+      "critical": true,
+      "description": "Redis cache for Kong",
+      "tags": ["cache", "redis", "critical"],
+      "customHealthCheck": true
+    },
+    {
+      "name": "kong-database",
+      "url": "postgres://kong:kong_password@kong-database:5432/kong",
+      "healthEndpoint": "/health",
+      "timeout": 5000,
+      "critical": true,
+      "description": "PostgreSQL database for Kong",
+      "tags": ["database", "postgres", "critical"],
+      "customHealthCheck": true
+    }
+  ],
+  "healthCheckSettings": {
+    "intervalSeconds": 30,
+    "retryAttempts": 3,
+    "retryDelayMs": 1000,
+    "circuitBreakerThreshold": 5,
+    "circuitBreakerTimeoutMs": 60000
+  },
+  "alerting": {
+    "enabled": true,
+    "channels": ["webhook", "log"],
+    "webhookUrl": "http://kong:8000/api/v1/notifications/health-alerts",
+    "criticalServiceDownAlert": true,
+    "multipleServicesDownAlert": true,
+    "responseTimeThresholdMs": 10000
+  },
+  "caching": {
+    "enabled": true,
+    "ttlSeconds": 30,
+    "redisKey": "health:cache"
+  },
+  "prometheus": {
+    "enabled": true,
+    "metricsPath": "/metrics",
+    "labels": {
+      "environment": "production",
+      "application": "serenity",
+      "component": "health-checker"
+    }
+  }
+}

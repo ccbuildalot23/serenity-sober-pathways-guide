@@ -1,0 +1,286 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for Kong
+  kong-database:
+    image: postgres:15-alpine
+    container_name: serenity-kong-db
+    environment:
+      POSTGRES_USER: kong
+      POSTGRES_PASSWORD: kong_password
+      POSTGRES_DB: kong
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - kong-db-data:/var/lib/postgresql/data
+    networks:
+      - kong-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kong"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Kong Database Migration
+  kong-migration:
+    image: kong:3.4-alpine
+    container_name: serenity-kong-migration
+    depends_on:
+      kong-database:
+        condition: service_healthy
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kong_password
+      KONG_PG_DATABASE: kong
+    command: kong migrations bootstrap
+    networks:
+      - kong-net
+    restart: "no"
+
+  # Redis for Rate Limiting and Caching
+  kong-redis:
+    image: redis:7-alpine
+    container_name: serenity-kong-redis
+    command: redis-server --requirepass redis_password
+    volumes:
+      - kong-redis-data:/data
+    networks:
+      - kong-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # Kong Gateway
+  kong:
+    image: kong:3.4-alpine
+    container_name: serenity-kong-gateway
+    depends_on:
+      kong-database:
+        condition: service_healthy
+      kong-redis:
+        condition: service_healthy
+      kong-migration:
+        condition: service_completed_successfully
+    environment:
+      # Database Configuration
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kong_password
+      KONG_PG_DATABASE: kong
+      
+      # Declarative Configuration
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
+      
+      # Network Configuration
+      KONG_PROXY_LISTEN: 0.0.0.0:8000
+      KONG_PROXY_LISTEN_SSL: 0.0.0.0:8443
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_ADMIN_GUI_LISTEN: 0.0.0.0:8002
+      
+      # Security Configuration
+      KONG_ADMIN_GUI_URL: http://localhost:8002
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      
+      # Plugin Configuration
+      KONG_PLUGINS: bundled,jwt,cors,rate-limiting,request-transformer,response-transformer,prometheus,http-log,key-auth,basic-auth
+      
+      # Redis Configuration for Rate Limiting
+      KONG_REDIS_HOST: kong-redis
+      KONG_REDIS_PORT: 6379
+      KONG_REDIS_PASSWORD: redis_password
+      
+      # Performance Settings
+      KONG_WORKER_PROCESSES: auto
+      KONG_WORKER_CONNECTIONS: 4096
+      KONG_LOG_LEVEL: info
+      
+      # HIPAA Compliance
+      KONG_HEADERS: off
+      KONG_TRUSTED_IPS: 0.0.0.0/0,::/0
+      
+    ports:
+      - "8000:8000"   # HTTP Proxy
+      - "8443:8443"   # HTTPS Proxy
+      - "8001:8001"   # Admin API
+      - "8002:8002"   # Admin GUI
+    volumes:
+      - ./config:/kong/declarative
+      - ./logs:/kong/logs
+      - ./plugins:/kong/plugins
+    networks:
+      - kong-net
+      - serenity-net
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # Konga - Kong Admin UI (Alternative to Kong Manager)
+  konga:
+    image: pantsel/konga:latest
+    container_name: serenity-konga
+    depends_on:
+      - kong
+    environment:
+      TOKEN_SECRET: konga_secret_token
+      DB_ADAPTER: postgres
+      DB_HOST: kong-database
+      DB_USER: kong
+      DB_PASSWORD: kong_password
+      DB_DATABASE: konga
+      NODE_ENV: production
+    ports:
+      - "1337:1337"
+    networks:
+      - kong-net
+    volumes:
+      - konga-data:/app/kongadata
+    restart: unless-stopped
+
+  # Prometheus for Metrics Collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: serenity-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - kong-net
+    restart: unless-stopped
+
+  # Grafana for Monitoring Dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: serenity-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin_password
+      GF_USERS_ALLOW_SIGN_UP: false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - kong-net
+    restart: unless-stopped
+
+  # ELK Stack for Logging
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.9.0
+    container_name: serenity-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - kong-net
+    restart: unless-stopped
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.9.0
+    container_name: serenity-kibana
+    depends_on:
+      - elasticsearch
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    networks:
+      - kong-net
+    restart: unless-stopped
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.9.0
+    container_name: serenity-logstash
+    depends_on:
+      - elasticsearch
+    volumes:
+      - ./logging/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./logging/logstash.yml:/usr/share/logstash/config/logstash.yml
+    ports:
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
+      - "9600:9600"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - kong-net
+    restart: unless-stopped
+
+  # Circuit Breaker Service
+  circuit-breaker:
+    image: nginx:alpine
+    container_name: serenity-circuit-breaker
+    volumes:
+      - ./circuit-breaker/nginx.conf:/etc/nginx/nginx.conf
+      - ./circuit-breaker/html:/usr/share/nginx/html
+    ports:
+      - "8080:80"
+    networks:
+      - kong-net
+      - serenity-net
+    restart: unless-stopped
+
+  # Health Check Aggregator
+  health-checker:
+    build:
+      context: ./health-checker
+      dockerfile: Dockerfile
+    container_name: serenity-health-checker
+    environment:
+      - KONG_ADMIN_URL=http://kong:8001
+      - MICROSERVICES_CONFIG=/app/config/microservices.json
+    volumes:
+      - ./health-checker/config:/app/config
+    ports:
+      - "8090:8090"
+    networks:
+      - kong-net
+      - serenity-net
+    depends_on:
+      - kong
+    restart: unless-stopped
+
+volumes:
+  kong-db-data:
+  kong-redis-data:
+  konga-data:
+  prometheus-data:
+  grafana-data:
+  elasticsearch-data:
+
+networks:
+  kong-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+  serenity-net:
+    external: true

@@ -1,0 +1,220 @@
+version: '3.8'
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: serenity-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/rules:/etc/prometheus/rules
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    restart: unless-stopped
+    networks:
+      - serenity-monitoring
+    labels:
+      - "com.serenity.service=prometheus"
+      - "com.serenity.monitoring=true"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: serenity-grafana
+    ports:
+      - "3030:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_DOMAIN=${GRAFANA_DOMAIN:-localhost}
+      - GF_SMTP_ENABLED=true
+      - GF_SMTP_HOST=${SMTP_HOST}:${SMTP_PORT}
+      - GF_SMTP_USER=${SMTP_USER}
+      - GF_SMTP_PASSWORD=${SMTP_PASSWORD}
+      - GF_SMTP_FROM_ADDRESS=${SMTP_FROM_ADDRESS}
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-worldmap-panel
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    restart: unless-stopped
+    networks:
+      - serenity-monitoring
+    depends_on:
+      - prometheus
+    labels:
+      - "com.serenity.service=grafana"
+      - "com.serenity.monitoring=true"
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: serenity-alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - alertmanager-data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+      - '--log.level=debug'
+    restart: unless-stopped
+    networks:
+      - serenity-monitoring
+    labels:
+      - "com.serenity.service=alertmanager"
+      - "com.serenity.monitoring=true"
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: serenity-node-exporter
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    restart: unless-stopped
+    networks:
+      - serenity-monitoring
+    labels:
+      - "com.serenity.service=node-exporter"
+      - "com.serenity.monitoring=true"
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: serenity-cadvisor
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    restart: unless-stopped
+    networks:
+      - serenity-monitoring
+    labels:
+      - "com.serenity.service=cadvisor"
+      - "com.serenity.monitoring=true"
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:latest
+    container_name: serenity-blackbox-exporter
+    ports:
+      - "9115:9115"
+    volumes:
+      - ./blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml
+    restart: unless-stopped
+    networks:
+      - serenity-monitoring
+    labels:
+      - "com.serenity.service=blackbox-exporter"
+      - "com.serenity.monitoring=true"
+
+  loki:
+    image: grafana/loki:latest
+    container_name: serenity-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/local-config.yaml
+      - loki-data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    restart: unless-stopped
+    networks:
+      - serenity-monitoring
+    labels:
+      - "com.serenity.service=loki"
+      - "com.serenity.monitoring=true"
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: serenity-promtail
+    volumes:
+      - ./promtail/promtail-config.yml:/etc/promtail/config.yml
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command: -config.file=/etc/promtail/config.yml
+    restart: unless-stopped
+    networks:
+      - serenity-monitoring
+    depends_on:
+      - loki
+    labels:
+      - "com.serenity.service=promtail"
+      - "com.serenity.monitoring=true"
+
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: serenity-redis-exporter
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=${REDIS_URL:-redis://redis:6379}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    restart: unless-stopped
+    networks:
+      - serenity-monitoring
+    labels:
+      - "com.serenity.service=redis-exporter"
+      - "com.serenity.monitoring=true"
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: serenity-postgres-exporter
+    ports:
+      - "9187:9187"
+    environment:
+      - DATA_SOURCE_NAME=${POSTGRES_EXPORTER_URL}
+    restart: unless-stopped
+    networks:
+      - serenity-monitoring
+    labels:
+      - "com.serenity.service=postgres-exporter"
+      - "com.serenity.monitoring=true"
+
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: serenity-nginx-exporter
+    ports:
+      - "9113:9113"
+    command:
+      - -nginx.scrape-uri=http://nginx:8080/nginx_status
+    restart: unless-stopped
+    networks:
+      - serenity-monitoring
+    labels:
+      - "com.serenity.service=nginx-exporter"
+      - "com.serenity.monitoring=true"
+
+volumes:
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  alertmanager-data:
+    driver: local
+  loki-data:
+    driver: local
+
+networks:
+  serenity-monitoring:
+    driver: bridge
+    name: serenity-monitoring

@@ -21,10 +21,7 @@ export default defineConfig(({ mode }) => ({
     }
   },
   plugins: [
-    react({
-      // Enable fast refresh in development
-      fastRefresh: mode === 'development'
-    }),
+    react(),
     mode === 'development' && componentTagger(),
     // Enable gzip and brotli compression for all assets
     mode === 'production' && compression({

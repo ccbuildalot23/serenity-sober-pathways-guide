@@ -1,0 +1,183 @@
+version: '3.8'
+
+services:
+  # Redis master node
+  redis-master:
+    image: redis:7-alpine
+    container_name: serenity-redis-master
+    command: >
+      redis-server
+      --port 6379
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+      --appendfilename "redis-master.aof"
+      --requirepass ${REDIS_PASSWORD:-serenity2024}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-master-data:/data
+    networks:
+      - serenity-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--pass", "${REDIS_PASSWORD:-serenity2024}", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # Redis replica 1
+  redis-replica-1:
+    image: redis:7-alpine
+    container_name: serenity-redis-replica-1
+    command: >
+      redis-server
+      --port 6380
+      --replicaof redis-master 6379
+      --masterauth ${REDIS_PASSWORD:-serenity2024}
+      --requirepass ${REDIS_PASSWORD:-serenity2024}
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+      --appendfilename "redis-replica-1.aof"
+    ports:
+      - "6380:6380"
+    volumes:
+      - redis-replica-1-data:/data
+    networks:
+      - serenity-network
+    depends_on:
+      - redis-master
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6380", "--pass", "${REDIS_PASSWORD:-serenity2024}", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # Redis replica 2
+  redis-replica-2:
+    image: redis:7-alpine
+    container_name: serenity-redis-replica-2
+    command: >
+      redis-server
+      --port 6381
+      --replicaof redis-master 6379
+      --masterauth ${REDIS_PASSWORD:-serenity2024}
+      --requirepass ${REDIS_PASSWORD:-serenity2024}
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+      --appendfilename "redis-replica-2.aof"
+    ports:
+      - "6381:6381"
+    volumes:
+      - redis-replica-2-data:/data
+    networks:
+      - serenity-network
+    depends_on:
+      - redis-master
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6381", "--pass", "${REDIS_PASSWORD:-serenity2024}", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # Redis Sentinel 1 for automatic failover
+  redis-sentinel-1:
+    image: redis:7-alpine
+    container_name: serenity-redis-sentinel-1
+    command: >
+      sh -c "echo 'port 26379
+      sentinel monitor mymaster redis-master 6379 2
+      sentinel auth-pass mymaster ${REDIS_PASSWORD:-serenity2024}
+      sentinel down-after-milliseconds mymaster 5000
+      sentinel parallel-syncs mymaster 1
+      sentinel failover-timeout mymaster 10000' > /etc/redis-sentinel.conf &&
+      redis-sentinel /etc/redis-sentinel.conf"
+    ports:
+      - "26379:26379"
+    networks:
+      - serenity-network
+    depends_on:
+      - redis-master
+      - redis-replica-1
+      - redis-replica-2
+    restart: unless-stopped
+
+  # Redis Sentinel 2
+  redis-sentinel-2:
+    image: redis:7-alpine
+    container_name: serenity-redis-sentinel-2
+    command: >
+      sh -c "echo 'port 26380
+      sentinel monitor mymaster redis-master 6379 2
+      sentinel auth-pass mymaster ${REDIS_PASSWORD:-serenity2024}
+      sentinel down-after-milliseconds mymaster 5000
+      sentinel parallel-syncs mymaster 1
+      sentinel failover-timeout mymaster 10000' > /etc/redis-sentinel.conf &&
+      redis-sentinel /etc/redis-sentinel.conf"
+    ports:
+      - "26380:26380"
+    networks:
+      - serenity-network
+    depends_on:
+      - redis-master
+      - redis-replica-1
+      - redis-replica-2
+    restart: unless-stopped
+
+  # Redis Sentinel 3
+  redis-sentinel-3:
+    image: redis:7-alpine
+    container_name: serenity-redis-sentinel-3
+    command: >
+      sh -c "echo 'port 26381
+      sentinel monitor mymaster redis-master 6379 2
+      sentinel auth-pass mymaster ${REDIS_PASSWORD:-serenity2024}
+      sentinel down-after-milliseconds mymaster 5000
+      sentinel parallel-syncs mymaster 1
+      sentinel failover-timeout mymaster 10000' > /etc/redis-sentinel.conf &&
+      redis-sentinel /etc/redis-sentinel.conf"
+    ports:
+      - "26381:26381"
+    networks:
+      - serenity-network
+    depends_on:
+      - redis-master
+      - redis-replica-1
+      - redis-replica-2
+    restart: unless-stopped
+
+  # RedisInsight for monitoring
+  redis-insight:
+    image: redis/redisinsight:latest
+    container_name: serenity-redis-insight
+    ports:
+      - "8001:5540"
+    volumes:
+      - redis-insight-data:/data
+    networks:
+      - serenity-network
+    environment:
+      - RITRUSTEDORIGINS=http://localhost:8080,http://localhost:3000
+    restart: unless-stopped
+
+volumes:
+  redis-master-data:
+    driver: local
+  redis-replica-1-data:
+    driver: local
+  redis-replica-2-data:
+    driver: local
+  redis-insight-data:
+    driver: local
+
+networks:
+  serenity-network:
+    external: true
+    name: serenity-network

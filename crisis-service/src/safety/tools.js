@@ -730,7 +730,7 @@ class SafetyToolsService extends EventEmitter {
                 ORDER BY avg_effectiveness DESC NULLS LAST, usage_count DESC
             `, [userId]);
 
-            let recommendations = effectivenessResult.rows.map(row => ({
+            const recommendations = effectivenessResult.rows.map(row => ({
                 id: row.id,
                 category: row.category,
                 title: row.title,

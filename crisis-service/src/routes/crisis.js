@@ -455,7 +455,7 @@ router.patch('/events/:userId/:crisisId/status', [
         // Update crisis status
         const updateFields = ['status = $3', 'updated_at = NOW()'];
         const params = [crisisId, userId, status];
-        let paramIndex = 4;
+        const paramIndex = 4;
 
         if (status === 'resolved') {
             updateFields.push(`resolved_at = NOW()`);

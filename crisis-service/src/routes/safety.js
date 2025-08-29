@@ -624,7 +624,7 @@ async function calculateCheckinStreak(userId, db) {
 
         const dates = result.rows.map(row => new Date(row.checkin_date));
         let streak = 0;
-        let currentDate = new Date();
+        const currentDate = new Date();
         currentDate.setHours(0, 0, 0, 0);
 
         for (const checkinDate of dates) {

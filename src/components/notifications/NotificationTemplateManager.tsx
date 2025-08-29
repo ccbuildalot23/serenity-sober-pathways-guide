@@ -372,7 +372,7 @@ export function NotificationTemplateManager() {
                     <Label>Template Name</Label>
                     <Input
                       value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value }))
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder="e.g., Daily Check-in Reminder"
                     />
                   </div>

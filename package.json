@@ -208,7 +208,6 @@
     "@jest/globals": "^29.7.0",
     "@playwright/test": "^1.54.2",
     "@swc/core": "^1.13.5",
-    "@swc/core-win32-x64-msvc": "^1.13.3",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.16",
     "@testing-library/jest-dom": "^6.8.0",

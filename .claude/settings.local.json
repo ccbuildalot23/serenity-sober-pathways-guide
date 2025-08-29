@@ -217,7 +217,10 @@
       "Bash(\"C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe\" ec2 describe-instances --region us-east-1 --query \"Reservations[].Instances[?State.Name==''running''].{ID:InstanceId,Name:Tags[?Key==''Name''].Value|[0],Type:InstanceType,State:State.Name}\" --output table)",
       "Bash(\"C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe\" elbv2 describe-target-health --target-group-arn arn:aws:elasticloadbalancing:us-east-1:662658456049:targetgroup/SerenityTG/0bdde177ad73bd36 --region us-east-1 --output json)",
       "Bash(docker network:*)",
-      "WebFetch(domain:serenity-3u1662hao-serenity1.vercel.app)"
+      "WebFetch(domain:serenity-3u1662hao-serenity1.vercel.app)",
+      "Read(c:\\Users\\cmcal\\OneDrive\\Desktop/**)",
+      "Read(c:\\Users\\cmcal\\OneDrive\\Desktop/**)",
+      "Read(c:\\Users\\cmcal\\OneDrive\\Desktop/**)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

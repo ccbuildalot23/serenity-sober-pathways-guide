@@ -18,7 +18,10 @@
     "schedule": "*/5 * * * *"
   }],
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/((?!api|_next|assets|.*\\.js|.*\\.css|.*\\.json|.*\\.xml|.*\\.txt|.*\\.ico|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.svg|.*\\.woff|.*\\.woff2|.*\\.ttf|.*\\.eot).*)",
+      "destination": "/index.html"
+    }
   ],
   "github": { "silent": false },
   "headers": [

@@ -4,6 +4,7 @@
   "description": "HIPAA-compliant mental health and substance abuse recovery platform",
   "private": true,
   "type": "module",
+  "homepage": ".",
   "engines": {
     "node": "20.x",
     "npm": ">=10.0.0"

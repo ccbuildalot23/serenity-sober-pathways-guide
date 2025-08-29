@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import logger from '../services/loggerService';
+// import { withTimeout } from './performanceUtils';
 
 export interface FixedCheckInInput {
   mood?: 'positive' | 'neutral' | 'negative' | string;

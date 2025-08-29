@@ -215,7 +215,7 @@ export abstract class HealthcareAgent {
       // Check role-based permissions
       return this.checkRolePermissions(user.role, context.userRole);
     } catch (_error) {
-      console._error('Permission verification failed:', _error);
+      console.error('Permission verification failed:', _error);
       return false;
     }
   }

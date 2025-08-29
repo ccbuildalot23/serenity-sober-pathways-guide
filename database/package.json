@@ -1,0 +1,38 @@
+{
+  "name": "serenity-database",
+  "version": "1.0.0",
+  "description": "HIPAA-compliant database schema for Serenity healthcare platform",
+  "main": "index.js",
+  "scripts": {
+    "db:migrate": "knex migrate:latest",
+    "db:migrate:make": "knex migrate:make",
+    "db:migrate:rollback": "knex migrate:rollback",
+    "db:seed": "knex seed:run",
+    "db:seed:make": "knex seed:make",
+    "db:reset": "npm run db:migrate:rollback --all && npm run db:migrate && npm run db:seed",
+    "db:setup": "npm run db:migrate && npm run db:seed",
+    "db:validate": "node scripts/validate-schema.js",
+    "db:backup": "node scripts/backup-database.js",
+    "db:audit": "node scripts/audit-compliance.js"
+  },
+  "dependencies": {
+    "knex": "^3.1.0",
+    "pg": "^8.11.3",
+    "bcrypt": "^5.1.1",
+    "uuid": "^9.0.1",
+    "crypto": "^1.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "healthcare",
+    "hipaa",
+    "postgresql",
+    "database",
+    "mental-health"
+  ],
+  "author": "Serenity Team",
+  "license": "PROPRIETARY"
+}

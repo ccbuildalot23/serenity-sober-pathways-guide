@@ -58,9 +58,9 @@ const showCompassionateError = (_error: unknown, context?: string) => {
   const errorType = getErrorType(_error);
   const errorInfo = ERROR_MESSAGES[errorType];
   
-  console._error(`Compassionate _error (${context}):`, _error);
+  console.error(`Compassionate error (${context}):`, _error);
   
-  toast._error(errorInfo.title, {
+  toast.error(errorInfo.title, {
     description: (
       <div className="space-y-1">
         <p>{errorInfo.message}</p>

@@ -19,7 +19,7 @@ export const ResetPasswordForm: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [_success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const validatePassword = (password: string): string | null => {
     if (password.length < 8) {
@@ -45,9 +45,9 @@ export const ResetPasswordForm: React.FC = () => {
     setError(null);
 
     // Validate password
-    const _passwordError = validatePassword(password);
-    if (_passwordError) {
-      setError(_passwordError);
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
 
@@ -101,7 +101,7 @@ export const ResetPasswordForm: React.FC = () => {
         setSuccess(true);
         toast({
           title: "Password Updated",
-          _description: "Your password has been successfully reset.",
+          description: "Your password has been successfully reset.",
         });
         
         // Redirect to sign in after 2 seconds
@@ -121,7 +121,7 @@ export const ResetPasswordForm: React.FC = () => {
     }
   };
 
-  if (_success) {
+  if (success) {
     return (
       <Card className="w-full max-w-md mx-auto">
         <CardContent className="pt-6">

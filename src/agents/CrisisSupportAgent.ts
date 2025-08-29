@@ -617,7 +617,7 @@ export class CrisisSupportAgent extends HealthcareAgent {
       // Update active interventions
       this.activeInterventions.set(_userId, new Date());
     } catch (_error) {
-      console._error('Failed to log crisis intervention:', _error);
+      console.error('Failed to log crisis intervention:', _error);
     }
   }
 }

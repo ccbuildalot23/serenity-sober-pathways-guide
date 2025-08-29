@@ -62,30 +62,30 @@ const availableVariables = [
 ];
 
 interface TemplateFormData {
-  _name: string;
-  _type: string;
-  _channel: string;
-  _subject_template: string;
-  _body_template: string;
+  name: string;
+  type: string;
+  channel: string;
+  subject_template: string;
+  body_template: string;
   variables: string[];
-  _is_active: boolean;
-  _language_code: string;
+  is_active: boolean;
+  language_code: string;
 }
 
 export function NotificationTemplateManager() {
   const [templates, setTemplates] = useState<NotificationTemplate[]>([]);
-  const [_loading, setLoading] = useState(true);
-  const [_editingTemplate, setEditingTemplate] = useState<NotificationTemplate | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [editingTemplate, setEditingTemplate] = useState<NotificationTemplate | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [_formData, setFormData] = useState<TemplateFormData>({
-    _name: '',
-    _type: 'check_in',
-    _channel: 'in_app',
-    _subject_template: '',
-    _body_template: '',
+  const [formData, setFormData] = useState<TemplateFormData>({
+    name: '',
+    type: 'check_in',
+    channel: 'in_app',
+    subject_template: '',
+    body_template: '',
     variables: [],
-    _is_active: true,
-    _language_code: 'en'
+    is_active: true,
+    language_code: 'en'
   });
   const [previewMode, setPreviewMode] = useState(false);
   const { toast } = useToast();
@@ -97,14 +97,14 @@ export function NotificationTemplateManager() {
   const loadTemplates = async () => {
     try {
       setLoading(true);
-      const _data = await comprehensiveNotificationService.getTemplates();
-      setTemplates(_data);
-    } catch (_error) {
-      console._error('Failed to load templates:', _error);
+      const data = await comprehensiveNotificationService.getTemplates();
+      setTemplates(data);
+    } catch (error) {
+      console.error('Failed to load templates:', error);
       toast({
         title: 'Error',
-        _description: 'Failed to load notification templates',
-        _variant: 'destructive'
+        description: 'Failed to load notification templates',
+        variant: 'destructive'
       });
     } finally {
       setLoading(false);
@@ -132,14 +132,14 @@ export function NotificationTemplateManager() {
 
   const openEditDialog = (template: NotificationTemplate) => {
     setFormData({
-      _name: template._name,
-      _type: template._type,
-      _channel: template._channel,
-      _subject_template: template._subject_template || '',
-      _body_template: template._body_template,
+      name: template.name,
+      type: template.type,
+      channel: template.channel,
+      subject_template: template.subject_template || '',
+      body_template: template.body_template,
       variables: Array.isArray(template.variables) ? template.variables as string[] : [],
-      _is_active: template._is_active,
-      _language_code: template._language_code
+      is_active: template.is_active,
+      language_code: template.language_code
     });
     setEditingTemplate(template);
     setIsDialogOpen(true);
@@ -153,59 +153,59 @@ export function NotificationTemplateManager() {
 
   const saveTemplate = async () => {
     try {
-      if (_editingTemplate) {
+      if (editingTemplate) {
         // Update existing template would require additional API endpoint
         toast({
           title: 'Info',
-          _description: 'Template updates are not implemented yet',
-          _variant: 'default'
+          description: 'Template updates are not implemented yet',
+          variant: 'default'
         });
       } else {
         // Create new template
-        await comprehensiveNotificationService.createTemplate(_formData);
+        await comprehensiveNotificationService.createTemplate(formData);
         toast({
           title: 'Success',
-          _description: 'Template created successfully',
-          _variant: 'default'
+          description: 'Template created successfully',
+          variant: 'default'
         });
         await loadTemplates();
         closeDialog();
       }
-    } catch (_error) {
-      console._error('Failed to save template:', _error);
+    } catch (error) {
+      console.error('Failed to save template:', error);
       toast({
         title: 'Error',
-        _description: 'Failed to save template',
-        _variant: 'destructive'
+        description: 'Failed to save template',
+        variant: 'destructive'
       });
     }
   };
 
   const duplicateTemplate = (template: NotificationTemplate) => {
     setFormData({
-      _name: `${template._name} (Copy)`,
-      _type: template._type,
-      _channel: template._channel,
-      _subject_template: template._subject_template || '',
-      _body_template: template._body_template,
+      name: `${template.name} (Copy)`,
+      type: template.type,
+      channel: template.channel,
+      subject_template: template.subject_template || '',
+      body_template: template.body_template,
       variables: Array.isArray(template.variables) ? template.variables as string[] : [],
-      _is_active: template._is_active,
-      _language_code: template._language_code
+      is_active: template.is_active,
+      language_code: template.language_code
     });
     setEditingTemplate(null);
     setIsDialogOpen(true);
   };
 
   const toggleVariable = (variable: string) => {
-    const newVariables = _formData.variables.includes(variable)
-      ? _formData.variables.filter(v => v !== variable)
-      : [..._formData.variables, variable];
+    const newVariables = formData.variables.includes(variable)
+      ? formData.variables.filter(v => v !== variable)
+      : [...formData.variables, variable];
     
-    setFormData({ ..._formData, variables: newVariables });
+    setFormData({ ...formData, variables: newVariables });
   };
 
   const renderPreview = () => {
-    const _sampleData = {
+    const sampleData = {
       user_name: 'John Doe',
       user_email: 'john.doe@example.com',
       appointment_date: '2024-02-15',
@@ -219,11 +219,11 @@ export function NotificationTemplateManager() {
       support_contact: 'Crisis Helpline'
     };
 
-    let previewSubject = _formData._subject_template;
-    let previewBody = _formData._body_template;
+    let previewSubject = formData.subject_template;
+    let previewBody = formData.body_template;
 
-    // Replace variables with sample _data
-    Object.entries(_sampleData).forEach(([key, value]) => {
+    // Replace variables with sample data
+    Object.entries(sampleData).forEach(([key, value]) => {
       const placeholder = `{{${key}}}`;
       previewSubject = previewSubject.replace(new RegExp(placeholder, 'g'), value);
       previewBody = previewBody.replace(new RegExp(placeholder, 'g'), value);
@@ -231,7 +231,7 @@ export function NotificationTemplateManager() {
 
     return (
       <div className="space-y-4">
-        {_formData._channel === 'email' && _formData._subject_template && (
+        {formData.channel === 'email' && formData.subject_template && (
           <div>
             <Label className="text-sm font-medium">Subject Preview</Label>
             <div className="p-3 bg-muted rounded-md mt-1">
@@ -249,22 +249,22 @@ export function NotificationTemplateManager() {
     );
   };
 
-  const getChannelIcon = (_channel: string) => {
-    const channelData = channels.find(c => c.value === _channel);
+  const getChannelIcon = (channel: string) => {
+    const channelData = channels.find(c => c.value === channel);
     return channelData?.icon || <Bell className="w-4 h-4" />;
   };
 
-  const getChannelLabel = (_channel: string) => {
-    const channelData = channels.find(c => c.value === _channel);
-    return channelData?.label || _channel;
+  const getChannelLabel = (channel: string) => {
+    const channelData = channels.find(c => c.value === channel);
+    return channelData?.label || channel;
   };
 
-  const getTypeLabel = (_type: string) => {
-    const typeData = notificationTypes.find(t => t.value === _type);
-    return typeData?.label || _type;
+  const getTypeLabel = (type: string) => {
+    const typeData = notificationTypes.find(t => t.value === type);
+    return typeData?.label || type;
   };
 
-  if (_loading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -305,24 +305,24 @@ export function NotificationTemplateManager() {
             <TableBody>
               {templates.map((template) => (
                 <TableRow key={template.id}>
-                  <TableCell className="font-medium">{template._name}</TableCell>
-                  <TableCell>{getTypeLabel(template._type)}</TableCell>
+                  <TableCell className="font-medium">{template.name}</TableCell>
+                  <TableCell>{getTypeLabel(template.type)}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      {getChannelIcon(template._channel)}
-                      {getChannelLabel(template._channel)}
+                      {getChannelIcon(template.channel)}
+                      {getChannelLabel(template.channel)}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge _variant={template._is_active ? "default" : "secondary"}>
-                      {template._is_active ? 'Active' : 'Inactive'}
+                    <Badge variant={template.is_active ? "default" : "secondary"}>
+                      {template.is_active ? 'Active' : 'Inactive'}
                     </Badge>
                   </TableCell>
-                  <TableCell>{template._language_code.toUpperCase()}</TableCell>
+                  <TableCell>{template.language_code.toUpperCase()}</TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {Array.isArray(template.variables) && (template.variables as string[]).map((variable) => (
-                        <Badge key={variable} _variant="outline" className="text-xs">
+                        <Badge key={variable} variant="outline" className="text-xs">
                           {variable}
                         </Badge>
                       ))}
@@ -331,14 +331,14 @@ export function NotificationTemplateManager() {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Button
-                        _variant="ghost"
+                        variant="ghost"
                         size="sm"
                         onClick={() => openEditDialog(template)}
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
                       <Button
-                        _variant="ghost"
+                        variant="ghost"
                         size="sm"
                         onClick={() => duplicateTemplate(template)}
                       >
@@ -357,7 +357,7 @@ export function NotificationTemplateManager() {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {_editingTemplate ? 'Edit Template' : 'Create New Template'}
+              {editingTemplate ? 'Edit Template' : 'Create New Template'}
             </DialogTitle>
             <DialogDescription>
               Create reusable notification templates with dynamic variables
@@ -371,24 +371,24 @@ export function NotificationTemplateManager() {
                   <div className="space-y-2">
                     <Label>Template Name</Label>
                     <Input
-                      value={_formData._name}
-                      onChange={(e) => setFormData({ ..._formData, _name: e.target.value })}
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder="e.g., Daily Check-in Reminder"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Type</Label>
                     <Select
-                      value={_formData._type}
-                      onValueChange={(value) => setFormData({ ..._formData, _type: value })}
+                      value={formData.type}
+                      onValueChange={(value) => setFormData({ ...formData, type: value })}
                     >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {notificationTypes.map((_type) => (
-                          <SelectItem key={_type.value} value={_type.value}>
-                            {_type.label}
+                        {notificationTypes.map((type) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            {type.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -400,18 +400,18 @@ export function NotificationTemplateManager() {
                   <div className="space-y-2">
                     <Label>Channel</Label>
                     <Select
-                      value={_formData._channel}
-                      onValueChange={(value) => setFormData({ ..._formData, _channel: value })}
+                      value={formData.channel}
+                      onValueChange={(value) => setFormData({ ...formData, channel: value })}
                     >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {channels.map((_channel) => (
-                          <SelectItem key={_channel.value} value={_channel.value}>
+                        {channels.map((channel) => (
+                          <SelectItem key={channel.value} value={channel.value}>
                             <div className="flex items-center gap-2">
-                              {_channel.icon}
-                              {_channel.label}
+                              {channel.icon}
+                              {channel.label}
                             </div>
                           </SelectItem>
                         ))}
@@ -421,8 +421,8 @@ export function NotificationTemplateManager() {
                   <div className="space-y-2">
                     <Label>Language</Label>
                     <Select
-                      value={_formData._language_code}
-                      onValueChange={(value) => setFormData({ ..._formData, _language_code: value })}
+                      value={formData.language_code}
+                      onValueChange={(value) => setFormData({ ...formData, language_code: value })}
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -438,18 +438,18 @@ export function NotificationTemplateManager() {
                   <div className="flex items-center justify-between">
                     <Label>Active</Label>
                     <Switch
-                      checked={_formData._is_active}
-                      onCheckedChange={(checked) => setFormData({ ..._formData, _is_active: checked })}
+                      checked={formData.is_active}
+                      onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
                     />
                   </div>
                 </div>
 
-                {(_formData._channel === 'email') && (
+                {(formData.channel === 'email') && (
                   <div className="space-y-2">
                     <Label>Subject Template</Label>
                     <Input
-                      value={_formData._subject_template}
-                      onChange={(e) => setFormData({ ..._formData, _subject_template: e.target.value })}
+                      value={formData.subject_template}
+                      onChange={(e) => setFormData({ ...formData, subject_template: e.target.value })}
                       placeholder="e.g., Daily Check-in Reminder - {{user_name}}"
                     />
                   </div>
@@ -458,8 +458,8 @@ export function NotificationTemplateManager() {
                 <div className="space-y-2">
                   <Label>Body Template</Label>
                   <Textarea
-                    value={_formData._body_template}
-                    onChange={(e) => setFormData({ ..._formData, _body_template: e.target.value })}
+                    value={formData.body_template}
+                    onChange={(e) => setFormData({ ...formData, body_template: e.target.value })}
                     placeholder="Hi {{user_name}}, this is your daily check-in reminder..."
                     rows={6}
                   />
@@ -474,7 +474,7 @@ export function NotificationTemplateManager() {
                       {availableVariables.map((variable) => (
                         <Badge
                           key={variable}
-                          _variant={_formData.variables.includes(variable) ? "default" : "outline"}
+                          variant={formData.variables.includes(variable) ? "default" : "outline"}
                           className="cursor-pointer"
                           onClick={() => toggleVariable(variable)}
                         >
@@ -492,20 +492,20 @@ export function NotificationTemplateManager() {
           <DialogFooter>
             <div className="flex items-center justify-between w-full">
               <Button
-                _variant="outline"
+                variant="outline"
                 onClick={() => setPreviewMode(!previewMode)}
               >
                 <Eye className="w-4 h-4 mr-2" />
                 {previewMode ? 'Edit' : 'Preview'}
               </Button>
               <div className="flex gap-2">
-                <Button _variant="outline" onClick={closeDialog}>
+                <Button variant="outline" onClick={closeDialog}>
                   <X className="w-4 h-4 mr-2" />
                   Cancel
                 </Button>
                 <Button onClick={saveTemplate}>
                   <Save className="w-4 h-4 mr-2" />
-                  {_editingTemplate ? 'Update' : 'Create'} Template
+                  {editingTemplate ? 'Update' : 'Create'} Template
                 </Button>
               </div>
             </div>

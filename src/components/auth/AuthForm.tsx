@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { SignInForm } from './SignInForm';
 import { SignUpForm } from './SignUpForm';
 import { ForgotPasswordForm } from './ForgotPasswordForm';
+import { RoleSelector } from './RoleSelector';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Heart, Shield, Users, ArrowRight, Sparkles } from 'lucide-react';
@@ -13,8 +14,10 @@ interface AuthFormProps {
   userType?: string;
 }
 
-export const AuthForm: React.FC<AuthFormProps> = ({ initialMode = 'signin', userType }) => {
+export const AuthForm: React.FC<AuthFormProps> = ({ initialMode = 'signin', userType: initialUserType }) => {
   const [mode, setMode] = useState<'signin' | 'signup' | 'forgot'>(initialMode);
+  const [selectedRole, setSelectedRole] = useState<string | undefined>(initialUserType);
+  const [showRoleSelector, setShowRoleSelector] = useState(initialMode === 'signup' && !initialUserType);
 
   const getUserTypeIcon = (type: string) => {
     switch (type) {
@@ -42,23 +45,59 @@ export const AuthForm: React.FC<AuthFormProps> = ({ initialMode = 'signin', user
     }
   };
 
+  const handleRoleSelect = (role: 'patient' | 'provider' | 'supporter') => {
+    const roleMap = {
+      patient: 'recovery',
+      provider: 'provider',
+      supporter: 'supporter'
+    };
+    setSelectedRole(roleMap[role]);
+    setShowRoleSelector(false);
+  };
+
+  const handleModeChange = (newMode: 'signin' | 'signup' | 'forgot') => {
+    setMode(newMode);
+    if (newMode === 'signup' && !selectedRole) {
+      setShowRoleSelector(true);
+    } else {
+      setShowRoleSelector(false);
+    }
+  };
+
+  if (showRoleSelector && mode === 'signup') {
+    return (
+      <div className="space-y-6">
+        <RoleSelector onSelectRole={handleRoleSelect} />
+        <div className="text-center">
+          <Button
+            variant="ghost"
+            onClick={() => handleModeChange('signin')}
+            className="text-sm"
+          >
+            Already have an account? Sign in
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <AnimatePresence mode="wait">
-        {userType && (
+        {selectedRole && mode === 'signup' && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className={`text-center p-4 rounded-xl border ${getUserTypeColor(userType)}`}
+            className={`text-center p-4 rounded-xl border ${getUserTypeColor(selectedRole)}`}
           >
             <div className="flex items-center justify-center space-x-2">
-              {getUserTypeIcon(userType)}
+              {getUserTypeIcon(selectedRole)}
               <p className="text-sm font-medium">
                 You've selected: <strong>
-                  {userType === 'recovery' && 'Person in Recovery'}
-                  {userType === 'provider' && 'Healthcare Provider'}
-                  {userType === 'supporter' && 'Personal Supporter'}
+                  {selectedRole === 'recovery' && 'Person in Recovery'}
+                  {selectedRole === 'provider' && 'Healthcare Provider'}
+                  {selectedRole === 'supporter' && 'Personal Supporter'}
                 </strong>
               </p>
             </div>
@@ -75,7 +114,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ initialMode = 'signin', user
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
           >
-            <SignInForm userType={userType} />
+            <SignInForm userType={selectedRole} />
           </motion.div>
         )}
         {mode === 'signup' && (
@@ -86,7 +125,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ initialMode = 'signin', user
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
           >
-            <SignUpForm onSuccess={() => setMode('signin')} userType={userType} />
+            <SignUpForm onSuccess={() => handleModeChange('signin')} userType={selectedRole} />
           </motion.div>
         )}
         {mode === 'forgot' && (
@@ -111,7 +150,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ initialMode = 'signin', user
         {mode !== 'forgot' && (
           <Button
             variant="link"
-            onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
+            onClick={() => handleModeChange(mode === 'signin' ? 'signup' : 'signin')}
             className="text-sm text-sage-600 hover:text-emerald-600 transition-colors duration-200 group"
           >
             <span className="flex items-center space-x-1">
@@ -130,7 +169,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ initialMode = 'signin', user
           <div>
             <Button
               variant="link"
-              onClick={() => setMode('forgot')}
+              onClick={() => handleModeChange('forgot')}
               className="text-sm text-sage-500 hover:text-sage-700 transition-colors duration-200"
             >
               Forgot your password?

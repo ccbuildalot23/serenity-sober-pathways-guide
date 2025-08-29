@@ -18,17 +18,17 @@ export const PersonalMotivationLibrary: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
-  const [_showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   
   // Form state
-  const [_newMotivation, setNewMotivation] = useState({
-    _content_type: 'affirmation' as const,
-    _title: '',
-    _content: '',
-    _source: '',
-    _tags: [] as string[],
-    _is_favorite: false
+  const [newMotivation, setNewMotivation] = useState({
+    content_type: 'affirmation' as const,
+    title: '',
+    content: '',
+    source: '',
+    tags: [] as string[],
+    is_favorite: false
   });
 
   useEffect(() => {
@@ -39,72 +39,72 @@ export const PersonalMotivationLibrary: React.FC = () => {
 
   useEffect(() => {
     filterMotivations();
-  }, [motivations, searchTerm, filterType, _showFavoritesOnly]);
+  }, [motivations, searchTerm, filterType, showFavoritesOnly]);
 
   const loadMotivations = async () => {
     if (!user) return;
 
     try {
-      const _data = await motivationService.getPersonalMotivations(user._id);
-      setMotivations(_data);
-    } catch (_error) {
-      console._error('Error loading motivations:', _error);
+      const data = await motivationService.getPersonalMotivations(user.id);
+      setMotivations(data);
+    } catch (error) {
+      console.error('Error loading motivations:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const filterMotivations = () => {
-    let _filtered = motivations;
+    let filtered = motivations;
 
     if (searchTerm) {
-      _filtered = _filtered.filter(item => 
-        item._content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item._title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item._source?.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(item => 
+        item.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.source?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     if (filterType !== 'all') {
-      _filtered = _filtered.filter(item => item._content_type === filterType);
+      filtered = filtered.filter(item => item.content_type === filterType);
     }
 
-    if (_showFavoritesOnly) {
-      _filtered = _filtered.filter(item => item._is_favorite);
+    if (showFavoritesOnly) {
+      filtered = filtered.filter(item => item.is_favorite);
     }
 
-    setFilteredMotivations(_filtered);
+    setFilteredMotivations(filtered);
   };
 
   const handleAddMotivation = async () => {
-    if (!user || !_newMotivation._content.trim()) return;
+    if (!user || !newMotivation.content.trim()) return;
 
-    const _success = await motivationService.addPersonalMotivation(user._id, _newMotivation);
+    const success = await motivationService.addPersonalMotivation(user.id, newMotivation);
     
-    if (_success) {
+    if (success) {
       setIsAddDialogOpen(false);
       setNewMotivation({
-        _content_type: 'affirmation',
-        _title: '',
-        _content: '',
-        _source: '',
-        _tags: [],
-        _is_favorite: false
+        content_type: 'affirmation',
+        title: '',
+        content: '',
+        source: '',
+        tags: [],
+        is_favorite: false
       });
       loadMotivations();
     }
   };
 
-  const handleToggleFavorite = async (_id: string, currentFavorite: boolean) => {
-    const _success = await motivationService.toggleFavorite(_id, !currentFavorite);
-    if (_success) {
+  const handleToggleFavorite = async (id: string, currentFavorite: boolean) => {
+    const success = await motivationService.toggleFavorite(id, !currentFavorite);
+    if (success) {
       loadMotivations();
     }
   };
 
-  const handleDelete = async (_id: string) => {
-    const _success = await motivationService.deletePersonalMotivation(_id);
-    if (_success) {
+  const handleDelete = async (id: string) => {
+    const success = await motivationService.deletePersonalMotivation(id);
+    if (success) {
       loadMotivations();
     }
   };
@@ -151,8 +151,8 @@ export const PersonalMotivationLibrary: React.FC = () => {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="type">Type</Label>
-                  <Select value={_newMotivation._content_type} onValueChange={(value) => 
-                    setNewMotivation(prev => ({ ...prev, _content_type: value as any }))
+                  <Select value={newMotivation.content_type} onValueChange={(value) => 
+                    setNewMotivation(prev => ({ ...prev, content_type: value as any }))
                   }>
                     <SelectTrigger>
                       <SelectValue />
@@ -167,33 +167,33 @@ export const PersonalMotivationLibrary: React.FC = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="_title">Title (_optional)</Label>
+                  <Label htmlFor="title">Title (optional)</Label>
                   <Input
-                    _id="_title"
-                    value={_newMotivation._title}
-                    onChange={(e) => setNewMotivation(prev => ({ ...prev, _title: e.target.value }))}
-                    placeholder="Give it a _title..."
+                    id="title"
+                    value={newMotivation.title}
+                    onChange={(e) => setNewMotivation(prev => ({ ...prev, title: e.target.value }))}
+                    placeholder="Give it a title..."
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="_content">Content *</Label>
+                  <Label htmlFor="content">Content *</Label>
                   <Textarea
-                    _id="_content"
-                    value={_newMotivation._content}
-                    onChange={(e) => setNewMotivation(prev => ({ ...prev, _content: e.target.value }))}
+                    id="content"
+                    value={newMotivation.content}
+                    onChange={(e) => setNewMotivation(prev => ({ ...prev, content: e.target.value }))}
                     placeholder="Enter your motivation, quote, or affirmation..."
                     rows={3}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="_source">Source (_optional)</Label>
+                  <Label htmlFor="source">Source (optional)</Label>
                   <Input
-                    _id="_source"
-                    value={_newMotivation._source}
-                    onChange={(e) => setNewMotivation(prev => ({ ...prev, _source: e.target.value }))}
-                    placeholder="Author, book, or _source..."
+                    id="source"
+                    value={newMotivation.source}
+                    onChange={(e) => setNewMotivation(prev => ({ ...prev, source: e.target.value }))}
+                    placeholder="Author, book, or source..."
                   />
                 </div>
 

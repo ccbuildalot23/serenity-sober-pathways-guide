@@ -48,5 +48,28 @@ export const supabase: any = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY
     autoRefreshToken: true,
     // Enhanced security configuration
     flowType: 'pkce'
+  },
+  // Performance optimizations
+  db: {
+    schema: 'public'
+  },
+  global: {
+    // Set fetch timeout to 15 seconds
+    fetch: (url: RequestInfo | URL, init?: RequestInit) => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      
+      return fetch(url, {
+        ...init,
+        signal: controller.signal
+      }).finally(() => clearTimeout(timeoutId));
+    }
+  },
+  // Connection pooling
+  realtime: {
+    params: {
+      eventsPerSecond: 2, // Rate limit realtime events
+      timeout: 10000 // 10 second timeout for realtime connections
+    }
   }
 });

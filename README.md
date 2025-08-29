@@ -1,161 +1,167 @@
-# Serenity Crisis MCP Server
-
-[![CI/CD Pipeline](https://github.com/ccbuildalot23/serenity-sober-pathways-guide/actions/workflows/ci.yml/badge.svg)](https://github.com/ccbuildalot23/serenity-sober-pathways-guide/actions/workflows/ci.yml)
-[![Security Scan](https://github.com/ccbuildalot23/serenity-sober-pathways-guide/actions/workflows/ci.yml/badge.svg?job=security-scan)](https://github.com/ccbuildalot23/serenity-sober-pathways-guide/actions)
-[![Deployment Status](https://img.shields.io/badge/Vercel-Deployed-success?logo=vercel)](https://serenity-sober-pathways-guide.vercel.app)
-[![codecov](https://codecov.io/gh/ccbuildalot23/serenity-sober-pathways-guide/branch/main/graph/badge.svg)](https://codecov.io/gh/ccbuildalot23/serenity-sober-pathways-guide)
-
-A Model Context Protocol (MCP) server for crisis communication in the Serenity Sober Pathways application.
+# Serenity Microservices Platform
 
 ## Overview
 
-This MCP server provides a `crisis_alert` tool that can be used to send emergency notifications to supporters when a user is in crisis. The server handles:
+Serenity has been migrated from a monolithic React application to a comprehensive microservices architecture designed for HIPAA-compliant mental health and substance abuse recovery support.
 
-- Multi-tier escalation (emergency, primary, secondary supporters)
-- Multiple notification channels (SMS, email, push notifications)
-- Configurable escalation delays
-- Severity-based response levels
+## Architecture
 
-## Installation
+### Services
 
-```bash
-npm install
-```
+1. **Frontend App** (Port 8080)
+   - React application with Vite
+   - Communicates with all backend services
+   - HIPAA-compliant UI components
 
-## Building
+2. **Auth Service** (Port 3000)
+   - JWT-based authentication
+   - Multi-factor authentication (MFA)
+   - Password reset and user management
+   - Role-based access control
 
-```bash
-npm run build
-```
+3. **Notification Service** (Port 3001)
+   - SMS notifications via Twilio
+   - Email notifications
+   - Push notifications
+   - Template management
 
-This compiles TypeScript to JavaScript in the `dist/` directory.
+4. **Crisis Service** (Port 3002)
+   - Real-time crisis alerts
+   - Emergency contact management
+   - Socket.IO for real-time communication
+   - Crisis escalation protocols
 
-## Usage
+### Infrastructure
 
-### Starting the Server
+- **PostgreSQL**: Primary database
+- **Redis**: Caching and session storage
+- **Nginx**: Reverse proxy and load balancer
+- **Docker Compose**: Local development orchestration
 
-```bash
-node dist/index.js
-```
+## Quick Start
 
-### Tool: crisis_alert
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd serenity
+   ```
 
-The server exposes one tool: `crisis_alert`
+2. **Set up environment variables:**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
 
-**Parameters:**
-- `message` (string): The crisis message to send
-- `severity` (string): Severity level - one of: 'low', 'medium', 'high', 'critical'
-- `supporter_tiers` (array): Array of supporter tiers with contacts
+3. **Start the services:**
+   ```bash
+   docker-compose up -d
+   ```
 
-**Example Request:**
-```json
-{
-  "name": "crisis_alert",
-  "arguments": {
-    "message": "User is experiencing strong urges to relapse",
-    "severity": "high",
-    "supporter_tiers": [
-      {
-        "tier": "emergency",
-        "contacts": [
-          {
-            "name": "Emergency Contact",
-            "phone": "+1234567890",
-            "email": "emergency@example.com",
-            "relationship": "Emergency Contact",
-            "priority": 1
-          }
-        ]
-      },
-      {
-        "tier": "primary",
-        "contacts": [
-          {
-            "name": "Primary Supporter",
-            "phone": "+1234567891",
-            "email": "primary@example.com",
-            "relationship": "Sponsor",
-            "priority": 2
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Crisis alert processed successfully. 3 notifications sent.",
-  "alerts_sent": 3,
-  "timestamp": "2025-08-07T19:57:00.000Z",
-  "escalation_level": "urgent"
-}
-```
-
-## Configuration
-
-The crisis handler can be configured with the following options:
-
-- `enable_sms`: Enable SMS notifications (default: true)
-- `enable_email`: Enable email notifications (default: true)
-- `enable_push`: Enable push notifications (default: true)
-- `escalation_delay_minutes`: Delay between tier escalations (default: 5)
-- `max_retries`: Maximum retry attempts (default: 3)
+4. **Access the application:**
+   - Frontend: http://localhost:8080
+   - Auth API: http://localhost:3000
+   - Notification API: http://localhost:3001
+   - Crisis API: http://localhost:3002
 
 ## Development
 
-### Project Structure
+### Individual Service Development
 
-```
-src/
-├── index.ts          # MCP server entry point
-├── crisis-handler.ts # Core crisis communication logic
-└── types.ts          # TypeScript interfaces
-```
-
-### Testing
+Each service can be developed independently:
 
 ```bash
-node test-mcp.js
+# Auth Service
+cd auth-service
+npm install
+npm run dev
+
+# Notification Service  
+cd notification-service
+npm install
+npm run dev
+
+# Crisis Service
+cd crisis-service
+npm install
+npm run dev
 ```
 
-## Integration
+### Service Communication
 
-This MCP server is designed to be integrated with Cursor's MCP settings. The compiled `dist/index.js` file should be configured as the server executable in Cursor's MCP configuration.
+Services communicate via REST APIs and shared Redis for real-time features:
 
-## Security Notes
+- **Auth Service**: Provides JWT tokens for service authentication
+- **Notification Service**: Handles all outbound communications
+- **Crisis Service**: Manages emergency situations with real-time alerts
 
-- Current implementation uses mock notification methods
-- Production deployment should integrate with actual SMS/email services
-- Consider HIPAA compliance for healthcare-related communications
-- Implement proper authentication and authorization
+## Deployment
 
-## License
+### Production Deployment
 
-MIT
- 
+1. **Build all services:**
+   ```bash
+   docker-compose -f docker-compose.prod.yml build
+   ```
+
+2. **Deploy with orchestration:**
+   ```bash
+   docker-compose -f docker-compose.prod.yml up -d
+   ```
+
+### Environment Configuration
+
+Required environment variables:
+- `SUPABASE_URL`: Supabase project URL
+- `SUPABASE_SERVICE_ROLE_KEY`: Service role key for backend operations
+- `JWT_SECRET`: JWT signing secret
+- `TWILIO_*`: Twilio configuration for SMS
+- `SMTP_*`: Email service configuration
+
+## Security
+
+- HIPAA compliance maintained across all services
+- JWT-based authentication with short-lived tokens
+- Rate limiting on all endpoints
+- Input validation and sanitization
+- Encrypted data at rest and in transit
+
+## API Documentation
+
+### Auth Service (`/api/auth`)
+- `POST /register` - User registration
+- `POST /login` - User login
+- `POST /logout` - User logout
+- `POST /refresh` - Token refresh
+- `POST /mfa/setup` - MFA setup
+- `POST /reset-password` - Password reset
+
+### Notification Service (`/api/notifications`)
+- `POST /send` - Send notification
+- `GET /user/:userId` - Get user notifications
+- `POST /sms/send` - Send SMS
+- `POST /email/send` - Send email
+
+### Crisis Service (`/api/crisis`)
+- `POST /alert` - Trigger crisis alert
+- `GET /status/:alertId` - Get crisis status
+- `PATCH /status/:alertId` - Update crisis status
+- `GET /resources` - Get crisis resources
+
+## Monitoring
+
+- Health checks on all services
+- Prometheus metrics collection
+- Grafana dashboards
+- Centralized logging with Winston
+
 ## Contributing
 
-- Commits follow Conventional Commits (enforced by commitlint via Husky)
-- Open PRs with a clear summary and link to related ADRs
-- CI runs Playwright and uploads artifacts to each run
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-## Deploy Troubleshooting (Vercel)
+## Support
 
-If a white screen occurs on Preview/Prod with console errors like `auth-core-*.js Cannot read properties of undefined (reading 'createContext')` or `vendor-*.js Cannot access 'e' before initialization`:
-
-1. Use default Vite chunking
-   - Remove any custom `rollupOptions.output.manualChunks` and avoid `splitVendorChunkPlugin`.
-2. Rebuild fresh (no prebuilt artifacts)
-   - `npx vercel --yes` (or `vercel build` + deploy) so new chunks are generated server-side.
-3. Gate service worker to development
-   - Avoid SW registration in production until verified.
-4. Prevent stale HTML
-   - Add `no-store` header for `/index.html` in `vercel.json`.
-5. Guard against legacy token replacements
-   - Run `node scripts/fix-tokens.cjs` before build. Package.json: `"build": "npm run fix:tokens && tsc && vite build"`.
-
-After deploy, hard refresh and verify console is clean and routes render.
+For support or questions about the Serenity platform, please contact the development team.

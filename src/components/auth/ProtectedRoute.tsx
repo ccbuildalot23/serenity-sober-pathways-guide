@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, AlertCircle } from 'lucide-react';
@@ -19,6 +19,24 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
   const { role, loading: roleLoading, canAccess } = useUserRole();
   const location = useLocation();
   const [bypassAuth, setBypassAuth] = React.useState(false);
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
+
+  // Set a timeout for loading state (10 seconds)
+  useEffect(() => {
+    if (authLoading || roleLoading) {
+      const timeoutId = setTimeout(() => {
+        setLoadingTimeout(true);
+        logger.error('Auth loading timeout exceeded', { 
+          authLoading, 
+          roleLoading,
+          location: location.pathname 
+        });
+      }, 10000);
+
+      return () => clearTimeout(timeoutId);
+    }
+    setLoadingTimeout(false);
+  }, [authLoading, roleLoading, location.pathname]);
 
   // Check if we're in development mode and should bypass auth
   const isDev = import.meta.env.DEV;
@@ -86,13 +104,45 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
     }
   }
 
-  // Show loading state while checking auth
-  if (!shouldBypass && (authLoading || roleLoading)) {
+  // Show loading state while checking auth with timeout handling
+  if (!shouldBypass && (authLoading || roleLoading) && !loadingTimeout) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-4">
           <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
           <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If loading times out, show error and allow bypass
+  if (loadingTimeout) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <div className="max-w-md w-full space-y-4">
+          <Alert className="border-red-200 bg-red-50">
+            <AlertCircle className="h-4 w-4 text-red-600" />
+            <AlertDescription className="text-red-700">
+              <strong>Loading Timeout</strong>
+              <p className="mt-2">Authentication is taking too long. Please try:</p>
+              <ul className="mt-2 list-disc list-inside text-sm">
+                <li>Refreshing the page</li>
+                <li>Checking your internet connection</li>
+                <li>Clearing your browser cache</li>
+              </ul>
+            </AlertDescription>
+          </Alert>
+          <div className="space-y-2">
+            <Button onClick={() => window.location.reload()} className="w-full">
+              Refresh Page
+            </Button>
+            {isDev && (
+              <Button onClick={() => setBypassAuth(true)} variant="outline" className="w-full">
+                Continue without Auth (Dev Mode)
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     );

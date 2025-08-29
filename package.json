@@ -153,6 +153,7 @@
     "@types/dompurify": "^3.2.0",
     "@types/stripe": "^8.0.416",
     "@vercel/analytics": "^1.5.0",
+    "@vitejs/plugin-react-swc": "^4.0.0",
     "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -206,6 +207,8 @@
     "@commitlint/config-conventional": "^19.8.1",
     "@jest/globals": "^29.7.0",
     "@playwright/test": "^1.54.2",
+    "@swc/core": "^1.13.5",
+    "@swc/core-win32-x64-msvc": "^1.13.3",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.16",
     "@testing-library/jest-dom": "^6.8.0",
@@ -252,6 +255,14 @@
       "ts-jest": "29.x",
       "@types/jest": "29.x",
       "@playwright/test": "1.54.x"
+    }
+  },
+  "overrides": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "@sentry/react": {
+      "react": "$react",
+      "react-dom": "$react-dom"
     }
   }
 }

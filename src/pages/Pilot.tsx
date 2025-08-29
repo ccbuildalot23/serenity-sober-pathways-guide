@@ -10,19 +10,19 @@ import { useState } from "react";
 import logger from '../services/loggerService';
 
 const Pilot = () => {
-  const [_formData, setFormData] = useState({
-    _name: "",
-    _credentials: "",
-    _practice: "",
-    _email: "",
-    _phone: "",
-    _emr: "",
-    _referrals: ""
+  const [formData, setFormData] = useState({
+    name: "",
+    credentials: "",
+    practice: "",
+    email: "",
+    phone: "",
+    emr: "",
+    referrals: ""
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    logger.debug("Pilot application submitted:", _formData, { component: 'Pilot' });
+    logger.debug("Pilot application submitted:", formData, { component: 'Pilot' });
     // Handle form submission
   };
 
@@ -166,7 +166,7 @@ const Pilot = () => {
                 <CheckCircle className="w-12 h-12 text-accent mx-auto mb-4" />
                 <h3 className="font-semibold text-foreground mb-2">Licensed Provider</h3>
                 <p className="text-sm text-muted-foreground">
-                  Licensed mental health professional (LCSW, _LPC, _LMFT, etc.)
+                  Licensed mental health professional (LCSW, LPC, LMFT, etc.)
                 </p>
               </div>
               
@@ -174,7 +174,7 @@ const Pilot = () => {
                 <Users className="w-12 h-12 text-primary mx-auto mb-4" />
                 <h3 className="font-semibold text-foreground mb-2">Active Referrals</h3>
                 <p className="text-sm text-muted-foreground">
-                  Minimum 10 substance abuse _referrals annually
+                  Minimum 10 substance abuse referrals annually
                 </p>
               </div>
               
@@ -190,7 +190,7 @@ const Pilot = () => {
             <div className="bg-accent/10 border border-accent/20 rounded-lg p-6">
               <h4 className="font-semibold text-accent mb-2">Additional Preferences:</h4>
               <ul className="space-y-1 text-sm text-muted-foreground">
-                <li>• Experience with technology integration in clinical _practice</li>
+                <li>• Experience with technology integration in clinical practice</li>
                 <li>• Interest in value-based care models</li>
                 <li>• Willingness to provide detailed feedback and participate in interviews</li>
                 <li>• Geographic diversity (rural and urban settings preferred)</li>
@@ -296,79 +296,79 @@ const Pilot = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="_name">Full Name *</Label>
+                  <Label htmlFor="name">Full Name *</Label>
                   <Input
-                    id="_name"
-                    value={_formData._name}
-                    onChange={(e) => setFormData({..._formData, _name: e.target.value})}
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
                     required
                   />
                 </div>
                 
                 <div>
-                  <Label htmlFor="_credentials">Credentials *</Label>
+                  <Label htmlFor="credentials">Credentials *</Label>
                   <Input
-                    id="_credentials"
-                    placeholder="e.g., LCSW, _LPC, _LMFT"
-                    value={_formData._credentials}
-                    onChange={(e) => setFormData({..._formData, _credentials: e.target.value})}
+                    id="credentials"
+                    placeholder="e.g., LCSW, LPC, LMFT"
+                    value={formData.credentials}
+                    onChange={(e) => setFormData({...formData, credentials: e.target.value})}
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="_practice">Practice Name *</Label>
+                <Label htmlFor="practice">Practice Name *</Label>
                 <Input
-                  id="_practice"
-                  value={_formData._practice}
-                  onChange={(e) => setFormData({..._formData, _practice: e.target.value})}
+                  id="practice"
+                  value={formData.practice}
+                  onChange={(e) => setFormData({...formData, practice: e.target.value})}
                   required
                 />
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="_email">Email Address *</Label>
+                  <Label htmlFor="email">Email Address *</Label>
                   <Input
-                    id="_email"
-                    type="_email"
-                    value={_formData._email}
-                    onChange={(e) => setFormData({..._formData, _email: e.target.value})}
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
                     required
                   />
                 </div>
                 
                 <div>
-                  <Label htmlFor="_phone">Phone Number *</Label>
+                  <Label htmlFor="phone">Phone Number *</Label>
                   <Input
-                    id="_phone"
+                    id="phone"
                     type="tel"
-                    value={_formData._phone}
-                    onChange={(e) => setFormData({..._formData, _phone: e.target.value})}
+                    value={formData.phone}
+                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="_emr">Current EMR System</Label>
+                <Label htmlFor="emr">Current EMR System</Label>
                 <Input
-                  id="_emr"
+                  id="emr"
                   placeholder="e.g., SimplePractice, TherapyNotes, Epic"
-                  value={_formData._emr}
-                  onChange={(e) => setFormData({..._formData, _emr: e.target.value})}
+                  value={formData.emr}
+                  onChange={(e) => setFormData({...formData, emr: e.target.value})}
                 />
               </div>
 
               <div>
-                <Label htmlFor="_referrals">Average Monthly Substance Abuse Referrals *</Label>
+                <Label htmlFor="referrals">Average Monthly Substance Abuse Referrals *</Label>
                 <Input
-                  id="_referrals"
+                  id="referrals"
                   type="number"
                   placeholder="e.g., 5"
-                  value={_formData._referrals}
-                  onChange={(e) => setFormData({..._formData, _referrals: e.target.value})}
+                  value={formData.referrals}
+                  onChange={(e) => setFormData({...formData, referrals: e.target.value})}
                   required
                 />
               </div>

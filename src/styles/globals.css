@@ -94,21 +94,51 @@
   }
 
   /* CRITICAL FIX: Ensure input and textarea text is always visible */
-  input, textarea {
+  input, textarea, select {
     color: #1f2937 !important;
     background-color: #ffffff !important;
     border: 1px solid #d1d5db !important;
+    -webkit-text-fill-color: #1f2937 !important;
+    opacity: 1 !important;
   }
 
   input::placeholder, textarea::placeholder {
     color: #9ca3af !important;
+    -webkit-text-fill-color: #9ca3af !important;
+    opacity: 1 !important;
   }
 
-  input:focus, textarea:focus {
+  input:focus, textarea:focus, select:focus {
     color: #1f2937 !important;
     background-color: #ffffff !important;
     border-color: #3b82f6 !important;
     outline: none !important;
+    -webkit-text-fill-color: #1f2937 !important;
+  }
+
+  /* Fix for autofill */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+    -webkit-text-fill-color: #1f2937 !important;
+    box-shadow: 0 0 0 30px white inset !important;
+  }
+
+  /* Dark mode overrides - ensure text is always visible */
+  .dark input, .dark textarea, .dark select {
+    color: #1f2937 !important;
+    background-color: #ffffff !important;
+    -webkit-text-fill-color: #1f2937 !important;
+  }
+
+  /* Fix for specific UI components */
+  [class*="bg-background"] input,
+  [class*="bg-slate"] input,
+  [class*="bg-gray"] input {
+    color: #1f2937 !important;
+    -webkit-text-fill-color: #1f2937 !important;
   }
 
   /* Error message visibility */

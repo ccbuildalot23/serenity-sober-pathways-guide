@@ -1,0 +1,427 @@
+version: '3.8'
+
+# Test Environment Docker Compose
+# Features:
+# - Isolated test databases
+# - Test-specific configurations
+# - Mock services for external dependencies
+# - Test data seeding
+# - CI/CD optimizations
+
+networks:
+  serenity-test:
+    driver: bridge
+
+volumes:
+  postgres-test-data:
+  redis-test-data:
+  mongodb-test-data:
+
+services:
+  # ===================
+  # TEST DATABASES
+  # ===================
+  
+  postgres-test:
+    image: postgres:15-alpine
+    container_name: serenity-postgres-test
+    environment:
+      POSTGRES_DB: serenity_test
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-test-data:/var/lib/postgresql/data
+      - ./infrastructure/database/test-init:/docker-entrypoint-initdb.d
+    tmpfs:
+      - /var/lib/postgresql/data:noexec,nosuid,size=1024m
+    networks:
+      - serenity-test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_user -d serenity_test"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    restart: "no"
+
+  redis-test:
+    image: redis:7-alpine
+    container_name: serenity-redis-test
+    command: redis-server --appendonly no --save ""
+    tmpfs:
+      - /data:noexec,nosuid,size=512m
+    networks:
+      - serenity-test
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: "no"
+
+  mongodb-test:
+    image: mongo:7
+    container_name: serenity-mongodb-test
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: test_admin
+      MONGO_INITDB_ROOT_PASSWORD: test_mongo
+      MONGO_INITDB_DATABASE: serenity_test
+    command: mongod --nojournal --smallfiles --noprealloc --logpath=/dev/null
+    tmpfs:
+      - /data/db:noexec,nosuid,size=512m
+    networks:
+      - serenity-test
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: "no"
+
+  # ===================
+  # MOCK SERVICES
+  # ===================
+
+  mock-twilio:
+    image: wiremock/wiremock:latest
+    container_name: serenity-mock-twilio-test
+    command: --global-response-templating --verbose
+    volumes:
+      - ./infrastructure/test/mocks/twilio:/home/wiremock
+    ports:
+      - "8089:8080"
+    networks:
+      - serenity-test
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/__admin/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: "no"
+
+  mock-sendgrid:
+    image: wiremock/wiremock:latest
+    container_name: serenity-mock-sendgrid-test
+    command: --global-response-templating --verbose
+    volumes:
+      - ./infrastructure/test/mocks/sendgrid:/home/wiremock
+    ports:
+      - "8088:8080"
+    networks:
+      - serenity-test
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/__admin/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: "no"
+
+  mock-firebase:
+    image: wiremock/wiremock:latest
+    container_name: serenity-mock-firebase-test
+    command: --global-response-templating --verbose
+    volumes:
+      - ./infrastructure/test/mocks/firebase:/home/wiremock
+    ports:
+      - "8087:8080"
+    networks:
+      - serenity-test
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/__admin/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: "no"
+
+  # ===================
+  # MICROSERVICES (TEST)
+  # ===================
+
+  api-gateway-test:
+    build:
+      context: ./api-gateway
+      target: dev
+    container_name: serenity-api-gateway-test
+    environment:
+      - NODE_ENV=test
+      - PORT=3003
+      - AUTH_SERVICE_URL=http://auth-service-test:3000
+      - NOTIFICATION_SERVICE_URL=http://notification-service-test:8000
+      - CRISIS_SERVICE_URL=http://crisis-service-test:3002
+      - PATIENT_PORTAL_URL=http://patient-portal-test:8081
+      - REDIS_URL=redis://redis-test:6379
+      - LOG_LEVEL=error
+    networks:
+      - serenity-test
+    depends_on:
+      redis-test:
+        condition: service_healthy
+    restart: "no"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  auth-service-test:
+    build:
+      context: ./auth-service
+      target: dev
+    container_name: serenity-auth-service-test
+    environment:
+      - NODE_ENV=test
+      - PORT=3000
+      - SUPABASE_URL=http://mock-supabase:8080
+      - SUPABASE_SERVICE_ROLE_KEY=test-key
+      - JWT_SECRET=test-jwt-secret-key-for-testing-only
+      - REDIS_URL=redis://redis-test:6379
+      - DATABASE_URL=postgresql://test_user:test_password@postgres-test:5432/serenity_test
+      - LOG_LEVEL=error
+    networks:
+      - serenity-test
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    restart: "no"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  notification-service-test:
+    build:
+      context: ./notification-service
+      target: dev
+    container_name: serenity-notification-service-test
+    environment:
+      - ENVIRONMENT=test
+      - PORT=8000
+      - MONGODB_URL=mongodb://test_admin:test_mongo@mongodb-test:27017/serenity_test?authSource=admin
+      - REDIS_URL=redis://redis-test:6379
+      - TWILIO_ACCOUNT_SID=test_account_sid
+      - TWILIO_AUTH_TOKEN=test_auth_token
+      - TWILIO_BASE_URL=http://mock-twilio:8080
+      - SENDGRID_API_KEY=test_sendgrid_key
+      - SENDGRID_BASE_URL=http://mock-sendgrid:8080
+      - FIREBASE_PROJECT_ID=test-project
+      - FIREBASE_BASE_URL=http://mock-firebase:8080
+      - LOG_LEVEL=error
+    networks:
+      - serenity-test
+    depends_on:
+      mongodb-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+      mock-twilio:
+        condition: service_healthy
+      mock-sendgrid:
+        condition: service_healthy
+      mock-firebase:
+        condition: service_healthy
+    restart: "no"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  crisis-service-test:
+    build:
+      context: ./crisis-service
+      target: dev
+    container_name: serenity-crisis-service-test
+    environment:
+      - NODE_ENV=test
+      - PORT=3002
+      - SUPABASE_URL=http://mock-supabase:8080
+      - SUPABASE_SERVICE_ROLE_KEY=test-key
+      - REDIS_URL=redis://redis-test:6379
+      - DATABASE_URL=postgresql://test_user:test_password@postgres-test:5432/serenity_test
+      - NOTIFICATION_SERVICE_URL=http://notification-service-test:8000
+      - MONGODB_URL=mongodb://test_admin:test_mongo@mongodb-test:27017/serenity_test?authSource=admin
+      - TWILIO_ACCOUNT_SID=test_account_sid
+      - TWILIO_AUTH_TOKEN=test_auth_token
+      - LOG_LEVEL=error
+    networks:
+      - serenity-test
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      mongodb-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+      notification-service-test:
+        condition: service_started
+    restart: "no"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # ===================
+  # TEST RUNNERS
+  # ===================
+
+  unit-tests:
+    build:
+      context: ./
+      dockerfile: ./infrastructure/test/Dockerfile.test
+    container_name: serenity-unit-tests
+    environment:
+      - NODE_ENV=test
+      - CI=true
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    working_dir: /app
+    command: npm run test:unit
+    networks:
+      - serenity-test
+    profiles:
+      - test
+    restart: "no"
+
+  integration-tests:
+    build:
+      context: ./
+      dockerfile: ./infrastructure/test/Dockerfile.test
+    container_name: serenity-integration-tests
+    environment:
+      - NODE_ENV=test
+      - CI=true
+      - DATABASE_URL=postgresql://test_user:test_password@postgres-test:5432/serenity_test
+      - REDIS_URL=redis://redis-test:6379
+      - API_GATEWAY_URL=http://api-gateway-test:3003
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    working_dir: /app
+    command: npm run test:integration
+    networks:
+      - serenity-test
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+      api-gateway-test:
+        condition: service_started
+    profiles:
+      - test
+    restart: "no"
+
+  e2e-tests:
+    build:
+      context: ./
+      dockerfile: ./infrastructure/test/Dockerfile.e2e
+    container_name: serenity-e2e-tests
+    environment:
+      - NODE_ENV=test
+      - CI=true
+      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+      - BASE_URL=http://frontend-app-test:8080
+    volumes:
+      - ./:/app
+      - /app/node_modules
+      - playwright-browsers:/ms-playwright
+    working_dir: /app
+    command: npx playwright test --config=playwright.config.test.ts
+    networks:
+      - serenity-test
+    depends_on:
+      - frontend-app-test
+      - api-gateway-test
+    profiles:
+      - test
+    restart: "no"
+    shm_size: 2gb
+
+  frontend-app-test:
+    build:
+      context: ./frontend-app
+      target: dev
+    container_name: serenity-frontend-app-test
+    environment:
+      - NODE_ENV=test
+      - VITE_SUPABASE_URL=http://mock-supabase:8080
+      - VITE_SUPABASE_ANON_KEY=test-anon-key
+      - VITE_API_GATEWAY_URL=http://api-gateway-test:3003
+    networks:
+      - serenity-test
+    depends_on:
+      - api-gateway-test
+    restart: "no"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # ===================
+  # TEST DATA SEEDING
+  # ===================
+
+  test-data-seeder:
+    build:
+      context: ./infrastructure/test
+      dockerfile: Dockerfile.seeder
+    container_name: serenity-test-data-seeder
+    environment:
+      - DATABASE_URL=postgresql://test_user:test_password@postgres-test:5432/serenity_test
+      - MONGODB_URL=mongodb://test_admin:test_mongo@mongodb-test:27017/serenity_test?authSource=admin
+      - REDIS_URL=redis://redis-test:6379
+    volumes:
+      - ./infrastructure/test/data:/app/data
+    networks:
+      - serenity-test
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      mongodb-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    profiles:
+      - seed
+    restart: "no"
+
+  # ===================
+  # PERFORMANCE TESTING
+  # ===================
+
+  k6-performance:
+    image: grafana/k6:latest
+    container_name: serenity-k6-performance
+    environment:
+      - K6_OUT=influxdb=http://influxdb-test:8086/k6
+    volumes:
+      - ./infrastructure/test/performance:/scripts
+    command: run /scripts/load-test.js
+    networks:
+      - serenity-test
+    depends_on:
+      - api-gateway-test
+      - influxdb-test
+    profiles:
+      - performance
+    restart: "no"
+
+  influxdb-test:
+    image: influxdb:2.7-alpine
+    container_name: serenity-influxdb-test
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=admin123456
+      - DOCKER_INFLUXDB_INIT_ORG=serenity
+      - DOCKER_INFLUXDB_INIT_BUCKET=k6
+    networks:
+      - serenity-test
+    profiles:
+      - performance
+    restart: "no"
+
+volumes:
+  playwright-browsers:

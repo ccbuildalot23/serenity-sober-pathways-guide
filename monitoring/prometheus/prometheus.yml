@@ -1,0 +1,177 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'serenity-healthcare-monitor'
+    environment: 'production'
+
+rule_files:
+  - "rules/*.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Node Exporter for system metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # cAdvisor for container metrics
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # Application services
+  - job_name: 'serenity-api-gateway'
+    static_configs:
+      - targets: ['api-gateway:4000']
+    scrape_interval: 10s
+    metrics_path: /metrics
+    scrape_timeout: 5s
+
+  - job_name: 'serenity-auth-service'
+    static_configs:
+      - targets: ['auth-service:3001']
+    scrape_interval: 10s
+    metrics_path: /metrics
+
+  - job_name: 'serenity-crisis-service'
+    static_configs:
+      - targets: ['crisis-service:8001']
+    scrape_interval: 5s  # More frequent for crisis service
+    metrics_path: /metrics
+    scrape_timeout: 3s
+
+  - job_name: 'serenity-notification-service'
+    static_configs:
+      - targets: ['notification-service:5001']
+    scrape_interval: 10s
+    metrics_path: /metrics
+
+  - job_name: 'serenity-patient-portal'
+    static_configs:
+      - targets: ['patient-portal:3002']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  - job_name: 'serenity-frontend'
+    static_configs:
+      - targets: ['frontend-app:3000']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # Database monitoring
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  - job_name: 'redis-exporter'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Load balancer monitoring
+  - job_name: 'nginx-exporter'
+    static_configs:
+      - targets: ['nginx-exporter:9113']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # Blackbox exporter for external monitoring
+  - job_name: 'blackbox-http'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        - https://app.serenity-pathways.com
+        - https://api.serenity-pathways.com/health
+        - https://portal.serenity-pathways.com/health
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # Crisis endpoint specific monitoring (critical)
+  - job_name: 'blackbox-crisis-endpoint'
+    metrics_path: /probe
+    params:
+      module: [http_crisis]
+    static_configs:
+      - targets:
+        - https://api.serenity-pathways.com/crisis/health
+        - https://api.serenity-pathways.com/crisis/test
+    scrape_interval: 5s  # Very frequent for crisis endpoints
+    scrape_timeout: 2s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # SSL certificate monitoring
+  - job_name: 'blackbox-ssl'
+    metrics_path: /probe
+    params:
+      module: [tcp_connect]
+    static_configs:
+      - targets:
+        - app.serenity-pathways.com:443
+        - api.serenity-pathways.com:443
+        - portal.serenity-pathways.com:443
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # HIPAA compliance monitoring
+  - job_name: 'hipaa-compliance'
+    static_configs:
+      - targets: ['compliance-monitor:9200']
+    scrape_interval: 60s
+    metrics_path: /metrics
+    honor_labels: true
+
+  # Security monitoring
+  - job_name: 'security-scanner'
+    static_configs:
+      - targets: ['security-scanner:9300']
+    scrape_interval: 300s  # 5 minutes
+    metrics_path: /metrics
+
+  # Application-specific metrics
+  - job_name: 'serenity-business-metrics'
+    static_configs:
+      - targets: 
+        - 'api-gateway:4000'
+        - 'crisis-service:8001'
+        - 'notification-service:5001'
+    scrape_interval: 30s
+    metrics_path: /business-metrics
+    honor_labels: true

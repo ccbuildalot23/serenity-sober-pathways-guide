@@ -1,0 +1,35 @@
+http.host: "0.0.0.0"
+xpack.monitoring.elasticsearch.hosts: ["http://elasticsearch:9200"]
+xpack.monitoring.enabled: true
+
+# Pipeline settings
+pipeline.workers: 4
+pipeline.batch.size: 1000
+pipeline.batch.delay: 50
+
+# Queue settings
+queue.type: persisted
+queue.max_bytes: 1gb
+queue.checkpoint.writes: 1024
+
+# JVM settings
+config.reload.automatic: true
+config.reload.interval: 3s
+
+# Logging
+log.level: info
+path.logs: /usr/share/logstash/logs
+
+# Dead letter queue
+dead_letter_queue.enable: true
+dead_letter_queue.max_bytes: 1gb
+
+# Security settings
+api.enabled: true
+api.http.host: 0.0.0.0
+api.http.port: 9600
+api.ssl.enabled: false
+
+# HIPAA compliance settings
+pipeline.unsafe_shutdown: false
+config.support_escapes: true

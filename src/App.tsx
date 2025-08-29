@@ -1,8 +1,8 @@
-import { Routes, Route, BrowserRouter, useLocation } from 'react-router-dom';
+import { Routes, Route, BrowserRouter, useLocation, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { SensoryProvider } from '@/contexts/SensoryContext';
-import { useEffect, Suspense, lazy } from 'react';
+import { useEffect, Suspense, lazy, useMemo } from 'react';
 import { lazyLoadingManager } from '@/utils/lazyLoadingManager';
 import { performanceMonitor } from '@/utils/performanceMonitor';
 import { EnhancedSecurityInitializer } from '@/lib/enhancedSecurityInitializer';
@@ -104,7 +104,7 @@ import '@/utils/databaseFix';
 import '@/utils/demoMode';
 import '@/utils/sessionTimeoutTest';
 
-const queryClient = new QueryClient();
+// QueryClient instance should be stable across renders
 
 // Component to conditionally render RealtimeNotifications
 const ConditionalRealtimeNotifications = () => {
@@ -510,6 +510,17 @@ const AppContent = () => {
 };
 
 function App() {
+  // Create stable QueryClient instance to prevent re-instantiation
+  const queryClient = useMemo(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: 1,
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        refetchOnWindowFocus: false,
+      },
+    },
+  }), []);
+
   return (
     <HealthcareErrorBoundary>
       <QueryClientProvider client={queryClient}>

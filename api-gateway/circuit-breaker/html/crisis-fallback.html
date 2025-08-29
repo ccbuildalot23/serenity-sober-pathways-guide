@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serenity Crisis Support - Emergency Resources</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 1rem;
+            line-height: 1.6;
+        }
+        
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #dc3545;
+        }
+        
+        .emergency-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            background: #dc3545;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 36px;
+        }
+        
+        h1 {
+            color: #dc3545;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .emergency-contacts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .contact-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .contact-card h3 {
+            color: #dc3545;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .contact-card .icon {
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
+        }
+        
+        .contact-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin: 0.5rem 0;
+        }
+        
+        .contact-description {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .call-btn {
+            background: #dc3545;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        .call-btn:hover {
+            background: #c82333;
+        }
+        
+        .immediate-help {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .immediate-help h3 {
+            color: #856404;
+            margin-bottom: 1rem;
+        }
+        
+        .help-techniques {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .technique {
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 3px solid #ffc107;
+        }
+        
+        .technique h4 {
+            color: #856404;
+            margin-bottom: 0.5rem;
+        }
+        
+        .resources {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .resources h3 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .resource-list {
+            list-style: none;
+        }
+        
+        .resource-list li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .resource-list li:before {
+            content: "🔗";
+            position: absolute;
+            left: 0;
+        }
+        
+        .resource-list a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .resource-list a:hover {
+            text-decoration: underline;
+        }
+        
+        .status-notice {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 2rem;
+            color: #0c5460;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 0.5rem;
+            }
+            
+            .container {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .emergency-contacts {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="emergency-icon">🚨</div>
+            <h1>Crisis Support Available</h1>
+            <p class="subtitle">Immediate help and resources when you need them most</p>
+        </div>
+        
+        <div class="emergency-contacts">
+            <div class="contact-card">
+                <h3><span class="icon">📞</span> National Emergency</h3>
+                <div class="contact-number">911</div>
+                <p class="contact-description">For immediate medical or psychiatric emergencies</p>
+                <a href="tel:911" class="call-btn">Call Now</a>
+            </div>
+            
+            <div class="contact-card">
+                <h3><span class="icon">💬</span> Crisis Lifeline</h3>
+                <div class="contact-number">988</div>
+                <p class="contact-description">24/7 mental health crisis support</p>
+                <a href="tel:988" class="call-btn">Call Now</a>
+            </div>
+            
+            <div class="contact-card">
+                <h3><span class="icon">💭</span> Crisis Text Line</h3>
+                <div class="contact-number">Text HOME to 741741</div>
+                <p class="contact-description">24/7 text-based crisis support</p>
+                <a href="sms:741741?body=HOME" class="call-btn">Text Now</a>
+            </div>
+            
+            <div class="contact-card">
+                <h3><span class="icon">🌐</span> Online Chat</h3>
+                <div class="contact-number">suicidepreventionlifeline.org</div>
+                <p class="contact-description">Live chat support available</p>
+                <a href="https://suicidepreventionlifeline.org/chat/" target="_blank" class="call-btn">Chat Now</a>
+            </div>
+        </div>
+        
+        <div class="immediate-help">
+            <h3>🧘‍♀️ Immediate Coping Techniques</h3>
+            <p>While waiting for help, try these grounding techniques:</p>
+            
+            <div class="help-techniques">
+                <div class="technique">
+                    <h4>5-4-3-2-1 Grounding</h4>
+                    <p>Name 5 things you see, 4 you can touch, 3 you hear, 2 you smell, 1 you taste</p>
+                </div>
+                
+                <div class="technique">
+                    <h4>Box Breathing</h4>
+                    <p>Breathe in for 4, hold for 4, exhale for 4, hold for 4. Repeat.</p>
+                </div>
+                
+                <div class="technique">
+                    <h4>Safe Person</h4>
+                    <p>Call a trusted friend, family member, or support person</p>
+                </div>
+                
+                <div class="technique">
+                    <h4>Safe Space</h4>
+                    <p>Go to a safe, comfortable location where you feel secure</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="resources">
+            <h3>📚 Additional Resources</h3>
+            <ul class="resource-list">
+                <li><a href="https://www.nami.org/help" target="_blank">NAMI (National Alliance on Mental Illness)</a></li>
+                <li><a href="https://www.samhsa.gov/find-help/national-helpline" target="_blank">SAMHSA National Helpline</a></li>
+                <li><a href="https://www.mentalhealthamerica.net/find-help" target="_blank">Mental Health America</a></li>
+                <li><a href="https://www.veteranscrisisline.net/" target="_blank">Veterans Crisis Line</a></li>
+                <li><a href="https://www.thetrevorproject.org/get-help/" target="_blank">Trevor Project (LGBTQ+ Youth)</a></li>
+                <li><a href="https://www.rainn.org/get-help" target="_blank">RAINN National Sexual Assault Hotline</a></li>
+            </ul>
+        </div>
+        
+        <div class="status-notice">
+            <strong>Service Status:</strong> Our main application is temporarily unavailable due to high traffic, but help is always available. This page provides immediate crisis resources that work independently of our main service.
+            <br><br>
+            <strong>Your safety matters.</strong> Please don't hesitate to reach out for help.
+        </div>
+    </div>
+
+    <script>
+        // Check if main service is back online
+        const checkService = async () => {
+            try {
+                const response = await fetch('/health', { method: 'HEAD' });
+                if (response.ok) {
+                    const banner = document.createElement('div');
+                    banner.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: #28a745;
+                        color: white;
+                        padding: 1rem;
+                        border-radius: 8px;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                        z-index: 1000;
+                    `;
+                    banner.innerHTML = `
+                        <strong>✅ Service Restored</strong><br>
+                        <a href="/" style="color: white; text-decoration: underline;">Return to Serenity</a>
+                    `;
+                    document.body.appendChild(banner);
+                }
+            } catch (error) {
+                // Service still unavailable
+            }
+        };
+        
+        // Check service status every 30 seconds
+        setInterval(checkService, 30000);
+        checkService(); // Check immediately
+        
+        // Track interaction for analytics (when service is restored)
+        document.querySelectorAll('.call-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                console.log('Crisis resource accessed:', btn.textContent);
+            });
+        });
+    </script>
+</body>
+</html>

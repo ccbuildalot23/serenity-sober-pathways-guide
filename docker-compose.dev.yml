@@ -1,0 +1,393 @@
+version: '3.8'
+
+# Development Environment Docker Compose
+# Features:
+# - Hot reload for all services
+# - Development tools (Adminer, Redis Commander, etc.)
+# - Volume mounting for development
+# - Debug ports exposed
+
+networks:
+  serenity-dev:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  postgres-dev-data:
+  redis-dev-data:
+  mongodb-dev-data:
+  rabbitmq-dev-data:
+  elasticsearch-dev-data:
+
+services:
+  # ===================
+  # DATABASES
+  # ===================
+  
+  postgres:
+    image: postgres:15-alpine
+    container_name: serenity-postgres-dev
+    environment:
+      POSTGRES_DB: serenity_dev
+      POSTGRES_USER: serenity_user
+      POSTGRES_PASSWORD: dev_password_123
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-dev-data:/var/lib/postgresql/data
+      - ./infrastructure/database/init-scripts:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - serenity-dev
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U serenity_user -d serenity_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: serenity-redis-dev
+    command: redis-server --appendonly yes --requirepass dev_redis_123
+    volumes:
+      - redis-dev-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - serenity-dev
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:7
+    container_name: serenity-mongodb-dev
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: dev_mongo_123
+      MONGO_INITDB_DATABASE: serenity_notifications
+    volumes:
+      - mongodb-dev-data:/data/db
+      - ./infrastructure/database/mongo-init:/docker-entrypoint-initdb.d
+    ports:
+      - "27017:27017"
+    networks:
+      - serenity-dev
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ===================
+  # MESSAGE QUEUE
+  # ===================
+  
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: serenity-rabbitmq-dev
+    environment:
+      RABBITMQ_DEFAULT_USER: serenity
+      RABBITMQ_DEFAULT_PASS: dev_rabbit_123
+    volumes:
+      - rabbitmq-dev-data:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"  # Management UI
+    networks:
+      - serenity-dev
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ===================
+  # MICROSERVICES
+  # ===================
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      target: dev
+    container_name: serenity-api-gateway-dev
+    environment:
+      - NODE_ENV=development
+      - PORT=3003
+      - AUTH_SERVICE_URL=http://auth-service:3000
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8000
+      - CRISIS_SERVICE_URL=http://crisis-service:3002
+      - PATIENT_PORTAL_URL=http://patient-portal:8081
+      - REDIS_URL=redis://:dev_redis_123@redis:6379
+    ports:
+      - "3003:3003"
+      - "9230:9229"  # Debug port
+    volumes:
+      - ./api-gateway:/app
+      - /app/node_modules
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - serenity-dev
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  auth-service:
+    build:
+      context: ./auth-service
+      target: dev
+    container_name: serenity-auth-service-dev
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - REDIS_URL=redis://:dev_redis_123@redis:6379
+      - DATABASE_URL=postgresql://serenity_user:dev_password_123@postgres:5432/serenity_dev
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+    ports:
+      - "3000:3000"
+      - "9231:9229"  # Debug port
+    volumes:
+      - ./auth-service:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - serenity-dev
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+        reservations:
+          memory: 384M
+
+  notification-service:
+    build:
+      context: ./notification-service
+      target: dev
+    container_name: serenity-notification-service-dev
+    environment:
+      - ENVIRONMENT=development
+      - PORT=8000
+      - MONGODB_URL=mongodb://admin:dev_mongo_123@mongodb:27017/serenity_notifications?authSource=admin
+      - REDIS_URL=redis://:dev_redis_123@redis:6379
+      - RABBITMQ_URL=amqp://serenity:dev_rabbit_123@rabbitmq:5672
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+    ports:
+      - "8000:8000"
+      - "5678:5678"  # Debug port for Python
+    volumes:
+      - ./notification-service:/app
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - serenity-dev
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  crisis-service:
+    build:
+      context: ./crisis-service
+      target: dev
+    container_name: serenity-crisis-service-dev
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - REDIS_URL=redis://:dev_redis_123@redis:6379
+      - DATABASE_URL=postgresql://serenity_user:dev_password_123@postgres:5432/serenity_dev
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8000
+      - MONGODB_URL=mongodb://admin:dev_mongo_123@mongodb:27017/serenity_crisis?authSource=admin
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+    ports:
+      - "3002:3002"
+      - "9232:9229"  # Debug port
+    volumes:
+      - ./crisis-service:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      notification-service:
+        condition: service_started
+    networks:
+      - serenity-dev
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  patient-portal:
+    build:
+      context: ./patient-portal
+      target: dev
+    container_name: serenity-patient-portal-dev
+    environment:
+      - NODE_ENV=development
+      - PORT=8081
+      - API_GATEWAY_URL=http://api-gateway:3003
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./patient-portal:/app
+      - /app/node_modules
+    depends_on:
+      - api-gateway
+    networks:
+      - serenity-dev
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  frontend-app:
+    build:
+      context: ./frontend-app
+      target: dev
+    container_name: serenity-frontend-app-dev
+    environment:
+      - NODE_ENV=development
+      - VITE_SUPABASE_URL=${SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - VITE_API_GATEWAY_URL=http://localhost:3003
+      - VITE_AUTH_SERVICE_URL=http://localhost:3000
+      - VITE_NOTIFICATION_SERVICE_URL=http://localhost:8000
+      - VITE_CRISIS_SERVICE_URL=http://localhost:3002
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./frontend-app:/app
+      - /app/node_modules
+      - /app/dist
+    depends_on:
+      - api-gateway
+    networks:
+      - serenity-dev
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  # ===================
+  # DEVELOPMENT TOOLS
+  # ===================
+
+  adminer:
+    image: adminer:latest
+    container_name: serenity-adminer-dev
+    ports:
+      - "8090:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    networks:
+      - serenity-dev
+    restart: unless-stopped
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: serenity-redis-commander-dev
+    environment:
+      REDIS_HOSTS: local:redis:6379:0:dev_redis_123
+    ports:
+      - "8091:8081"
+    networks:
+      - serenity-dev
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: serenity-mongo-express-dev
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: dev_mongo_123
+      ME_CONFIG_MONGODB_URL: mongodb://admin:dev_mongo_123@mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: dev_express_123
+    ports:
+      - "8092:8081"
+    networks:
+      - serenity-dev
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+
+  # ===================
+  # REVERSE PROXY
+  # ===================
+
+  nginx:
+    image: nginx:alpine
+    container_name: serenity-nginx-dev
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infrastructure/nginx/dev/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infrastructure/nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - frontend-app
+      - api-gateway
+      - patient-portal
+    networks:
+      - serenity-dev
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped

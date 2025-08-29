@@ -1,0 +1,140 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'serenity-monitor'
+    environment: 'production'
+
+rule_files:
+  - "alert_rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - localhost:9093
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  # Kong Gateway Metrics
+  - job_name: 'kong-gateway'
+    static_configs:
+      - targets: ['kong:8001']
+    metrics_path: /metrics
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    params:
+      format: ['prometheus']
+    honor_labels: true
+    basic_auth:
+      username: 'prometheus'
+      password: 'prometheus_password'
+
+  # Kong Prometheus Plugin Metrics
+  - job_name: 'kong-prometheus'
+    static_configs:
+      - targets: ['kong:8000']
+    metrics_path: /metrics
+    scrape_interval: 10s
+    honor_labels: true
+
+  # Health Checker Service
+  - job_name: 'health-checker'
+    static_configs:
+      - targets: ['health-checker:8090']
+    metrics_path: /metrics
+    scrape_interval: 30s
+    scrape_timeout: 10s
+
+  # Microservices Health Endpoints
+  - job_name: 'auth-service'
+    static_configs:
+      - targets: ['host.docker.internal:3000']
+    metrics_path: /metrics
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    scheme: http
+
+  - job_name: 'notification-service'
+    static_configs:
+      - targets: ['host.docker.internal:8000']
+    metrics_path: /metrics
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    scheme: http
+
+  - job_name: 'crisis-service'
+    static_configs:
+      - targets: ['host.docker.internal:8080']
+    metrics_path: /metrics
+    scrape_interval: 15s  # More frequent for critical service
+    scrape_timeout: 5s
+    scheme: http
+
+  # Redis Exporter
+  - job_name: 'redis-exporter'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 15s
+
+  # PostgreSQL Exporter
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 30s
+
+  # Node Exporter (if available)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+    honor_labels: true
+
+  # Grafana Metrics
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+    metrics_path: /metrics
+    scrape_interval: 30s
+
+  # Circuit Breaker Status
+  - job_name: 'circuit-breaker'
+    static_configs:
+      - targets: ['circuit-breaker:80']
+    metrics_path: /circuit-status
+    scrape_interval: 15s
+    scrape_timeout: 5s
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'circuit_breaker_.*'
+        target_label: service
+        replacement: 'circuit-breaker'
+
+  # ELK Stack Monitoring
+  - job_name: 'elasticsearch'
+    static_configs:
+      - targets: ['elasticsearch:9200']
+    metrics_path: /_prometheus/metrics
+    scrape_interval: 30s
+    scrape_timeout: 10s
+
+  - job_name: 'logstash'
+    static_configs:
+      - targets: ['logstash:9600']
+    metrics_path: /_node/stats
+    scrape_interval: 30s
+
+  # Custom HIPAA Compliance Metrics
+  - job_name: 'hipaa-compliance'
+    static_configs:
+      - targets: ['health-checker:8090']
+    metrics_path: /hipaa-metrics
+    scrape_interval: 60s
+    params:
+      format: ['prometheus']

@@ -1,0 +1,231 @@
+groups:
+  - name: serenity_critical_services
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 30s
+        labels:
+          severity: critical
+          team: serenity-ops
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} has been down for more than 30 seconds"
+          runbook_url: "https://docs.serenity.app/runbooks/service-down"
+
+      - alert: CrisisServiceDown
+        expr: up{job="crisis-service"} == 0
+        for: 15s
+        labels:
+          severity: critical
+          team: serenity-ops
+          emergency: true
+        annotations:
+          summary: "CRITICAL: Crisis service is down"
+          description: "Crisis service is unavailable - this affects emergency response capabilities"
+          runbook_url: "https://docs.serenity.app/runbooks/crisis-service-down"
+
+      - alert: AuthServiceDown
+        expr: up{job="auth-service"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          team: serenity-ops
+        annotations:
+          summary: "Authentication service is down"
+          description: "Users cannot log in or access protected resources"
+          runbook_url: "https://docs.serenity.app/runbooks/auth-service-down"
+
+      - alert: KongGatewayDown
+        expr: up{job="kong-gateway"} == 0
+        for: 15s
+        labels:
+          severity: critical
+          team: serenity-ops
+        annotations:
+          summary: "Kong API Gateway is down"
+          description: "All API traffic is affected - immediate action required"
+          runbook_url: "https://docs.serenity.app/runbooks/kong-down"
+
+  - name: serenity_performance
+    rules:
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 2m
+        labels:
+          severity: warning
+          team: serenity-ops
+        annotations:
+          summary: "High response time on {{ $labels.service }}"
+          description: "95th percentile response time is {{ $value }}s for {{ $labels.service }}"
+
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 1m
+        labels:
+          severity: warning
+          team: serenity-ops
+        annotations:
+          summary: "High error rate on {{ $labels.service }}"
+          description: "Error rate is {{ $value | humanizePercentage }} for {{ $labels.service }}"
+
+      - alert: CrisisServiceHighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{service="crisis-service"}[2m])) > 1
+        for: 1m
+        labels:
+          severity: critical
+          team: serenity-ops
+          emergency: true
+        annotations:
+          summary: "Crisis service experiencing high latency"
+          description: "Crisis service 95th percentile latency is {{ $value }}s - emergency response may be delayed"
+
+  - name: serenity_resources
+    rules:
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.90
+        for: 2m
+        labels:
+          severity: warning
+          team: serenity-ops
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is above 90% for {{ $labels.instance }}"
+
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          team: serenity-ops
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is above 80% for {{ $labels.instance }}"
+
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 10
+        for: 2m
+        labels:
+          severity: critical
+          team: serenity-ops
+        annotations:
+          summary: "Disk space is low"
+          description: "Disk space is below 10% on {{ $labels.instance }} {{ $labels.mountpoint }}"
+
+  - name: serenity_database
+    rules:
+      - alert: DatabaseConnectionsHigh
+        expr: pg_stat_activity_count > 80
+        for: 2m
+        labels:
+          severity: warning
+          team: serenity-ops
+        annotations:
+          summary: "High database connections"
+          description: "Database has {{ $value }} active connections"
+
+      - alert: DatabaseDown
+        expr: pg_up == 0
+        for: 30s
+        labels:
+          severity: critical
+          team: serenity-ops
+        annotations:
+          summary: "PostgreSQL database is down"
+          description: "Cannot connect to PostgreSQL database"
+
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 30s
+        labels:
+          severity: critical
+          team: serenity-ops
+        annotations:
+          summary: "Redis is down"
+          description: "Cannot connect to Redis cache"
+
+  - name: serenity_security
+    rules:
+      - alert: RateLimitingHigh
+        expr: increase(kong_http_status{code="429"}[5m]) > 100
+        for: 1m
+        labels:
+          severity: warning
+          team: serenity-security
+        annotations:
+          summary: "High rate limiting activity"
+          description: "{{ $value }} requests have been rate limited in the last 5 minutes"
+
+      - alert: UnauthorizedRequests
+        expr: increase(kong_http_status{code="401"}[5m]) > 50
+        for: 1m
+        labels:
+          severity: warning
+          team: serenity-security
+        annotations:
+          summary: "High number of unauthorized requests"
+          description: "{{ $value }} unauthorized requests in the last 5 minutes"
+
+      - alert: SecurityHeadersMissing
+        expr: increase(kong_http_status{code="400"}[5m]) > 20
+        for: 2m
+        labels:
+          severity: warning
+          team: serenity-security
+        annotations:
+          summary: "Potential security header issues"
+          description: "{{ $value }} bad requests in the last 5 minutes - check security headers"
+
+  - name: serenity_hipaa_compliance
+    rules:
+      - alert: AuditLogFailure
+        expr: increase(audit_log_errors_total[5m]) > 0
+        for: 0s
+        labels:
+          severity: critical
+          team: serenity-compliance
+        annotations:
+          summary: "HIPAA audit logging failure"
+          description: "Audit logging has failed - HIPAA compliance at risk"
+          runbook_url: "https://docs.serenity.app/runbooks/audit-log-failure"
+
+      - alert: UnencryptedDataTransmission
+        expr: increase(http_requests_total{scheme="http"}[5m]) > 0
+        for: 0s
+        labels:
+          severity: critical
+          team: serenity-security
+        annotations:
+          summary: "Unencrypted data transmission detected"
+          description: "HTTP requests detected - all PHI must be transmitted over HTTPS"
+
+      - alert: SessionTimeoutViolation
+        expr: increase(session_timeout_violations_total[1m]) > 0
+        for: 0s
+        labels:
+          severity: warning
+          team: serenity-compliance
+        annotations:
+          summary: "Session timeout violations detected"
+          description: "Users may be accessing PHI beyond allowed session duration"
+
+  - name: serenity_circuit_breaker
+    rules:
+      - alert: CircuitBreakerOpen
+        expr: circuit_breaker_state{state="open"} == 1
+        for: 0s
+        labels:
+          severity: critical
+          team: serenity-ops
+        annotations:
+          summary: "Circuit breaker opened for {{ $labels.service }}"
+          description: "Circuit breaker is open for {{ $labels.service }} - service may be degraded"
+
+      - alert: CircuitBreakerHalfOpen
+        expr: circuit_breaker_state{state="half-open"} == 1
+        for: 1m
+        labels:
+          severity: warning
+          team: serenity-ops
+        annotations:
+          summary: "Circuit breaker half-open for {{ $labels.service }}"
+          description: "Circuit breaker is testing recovery for {{ $labels.service }}"

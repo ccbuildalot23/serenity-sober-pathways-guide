@@ -1,0 +1,462 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  # Authentication Service
+  - name: auth-service
+    url: http://host.docker.internal:3000
+    protocol: http
+    host: host.docker.internal
+    port: 3000
+    path: /
+    retries: 5
+    connect_timeout: 60000
+    write_timeout: 60000
+    read_timeout: 60000
+    tags:
+      - auth
+      - microservice
+      - hipaa-compliant
+    routes:
+      - name: auth-routes
+        paths:
+          - /api/auth
+          - /api/v1/auth
+        methods:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+          - OPTIONS
+        strip_path: true
+        preserve_host: false
+        https_redirect_status_code: 426
+        tags:
+          - auth
+          - public
+
+  # Notification Service  
+  - name: notification-service
+    url: http://host.docker.internal:8000
+    protocol: http
+    host: host.docker.internal
+    port: 8000
+    path: /
+    retries: 5
+    connect_timeout: 60000
+    write_timeout: 60000
+    read_timeout: 60000
+    tags:
+      - notification
+      - microservice
+      - hipaa-compliant
+    routes:
+      - name: notification-routes
+        paths:
+          - /api/notifications
+          - /api/v1/notifications
+        methods:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+          - OPTIONS
+        strip_path: true
+        preserve_host: false
+        https_redirect_status_code: 426
+        tags:
+          - notification
+          - protected
+
+  # Crisis Service
+  - name: crisis-service
+    url: http://host.docker.internal:3002
+    protocol: http
+    host: host.docker.internal
+    port: 3002
+    path: /
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 30000
+    read_timeout: 30000
+    tags:
+      - crisis
+      - microservice
+      - hipaa-compliant
+      - high-priority
+    routes:
+      - name: crisis-routes
+        paths:
+          - /api/crisis
+          - /api/v1/crisis
+          - /api/emergency
+        methods:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+          - OPTIONS
+        strip_path: true
+        preserve_host: false
+        https_redirect_status_code: 426
+        tags:
+          - crisis
+          - emergency
+          - protected
+
+  # Frontend Application
+  - name: frontend-app
+    url: http://host.docker.internal:8080
+    protocol: http
+    host: host.docker.internal
+    port: 8080
+    path: /
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 30000
+    read_timeout: 30000
+    tags:
+      - frontend
+      - spa
+      - web-app
+    routes:
+      - name: frontend-routes
+        paths:
+          - /
+          - /app
+          - /dashboard
+          - /crisis
+          - /checkin
+          - /profile
+          - /settings
+        methods:
+          - GET
+          - POST
+          - OPTIONS
+        strip_path: false
+        preserve_host: true
+        https_redirect_status_code: 426
+        tags:
+          - frontend
+          - spa
+
+  # WebSocket Service for Real-time Features
+  - name: websocket-service
+    url: ws://host.docker.internal:8001
+    protocol: ws
+    host: host.docker.internal
+    port: 8001
+    path: /ws
+    retries: 2
+    connect_timeout: 10000
+    write_timeout: 10000
+    read_timeout: 10000
+    tags:
+      - websocket
+      - realtime
+      - crisis-alerts
+    routes:
+      - name: websocket-routes
+        paths:
+          - /ws
+          - /api/ws
+        methods:
+          - GET
+        strip_path: false
+        preserve_host: true
+        tags:
+          - websocket
+          - realtime
+
+  # Health Check Aggregator
+  - name: health-service
+    url: http://health-checker:8090
+    protocol: http
+    host: health-checker
+    port: 8090
+    path: /health
+    retries: 2
+    connect_timeout: 5000
+    write_timeout: 5000
+    read_timeout: 5000
+    tags:
+      - health
+      - monitoring
+    routes:
+      - name: health-routes
+        paths:
+          - /health
+          - /api/health
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: true
+        preserve_host: false
+        tags:
+          - health
+          - public
+
+consumers:
+  # API Key Consumer for Service-to-Service Communication
+  - username: serenity-internal
+    custom_id: serenity-internal-service
+    tags:
+      - internal
+      - service-to-service
+
+  # JWT Consumer for User Authentication
+  - username: serenity-users
+    custom_id: serenity-authenticated-users
+    tags:
+      - users
+      - jwt-auth
+
+plugins:
+  # Global CORS Plugin
+  - name: cors
+    config:
+      origins:
+        - "http://localhost:3000"
+        - "http://localhost:8080" 
+        - "https://serenity.vercel.app"
+        - "https://*.serenity.app"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      headers:
+        - Accept
+        - Accept-Version
+        - Content-Length
+        - Content-MD5
+        - Content-Type
+        - Date
+        - Authorization
+        - X-Auth-Token
+        - X-API-Key
+      exposed_headers:
+        - X-Auth-Token
+        - X-RateLimit-Remaining
+        - X-RateLimit-Limit
+      credentials: true
+      max_age: 3600
+      preflight_continue: false
+    tags:
+      - cors
+      - security
+
+  # Global Rate Limiting
+  - name: rate-limiting
+    config:
+      minute: 100
+      hour: 1000
+      day: 10000
+      policy: redis
+      redis_host: kong-redis
+      redis_port: 6379
+      redis_password: redis_password
+      redis_database: 0
+      hide_client_headers: false
+      fault_tolerant: true
+    tags:
+      - rate-limiting
+      - security
+
+  # Global Request ID
+  - name: request-id
+    config:
+      header_name: X-Request-ID
+      generator: uuid
+      echo_downstream: true
+    tags:
+      - tracing
+      - logging
+
+  # Global Prometheus Metrics
+  - name: prometheus
+    config:
+      per_consumer: true
+      status_code_metrics: true
+      latency_metrics: true
+      bandwidth_metrics: true
+      upstream_health_metrics: true
+    tags:
+      - monitoring
+      - metrics
+
+  # Security Headers
+  - name: response-transformer
+    config:
+      add:
+        headers:
+          - "X-Frame-Options: DENY"
+          - "X-Content-Type-Options: nosniff"
+          - "X-XSS-Protection: 1; mode=block"
+          - "Referrer-Policy: strict-origin-when-cross-origin"
+          - "Strict-Transport-Security: max-age=31536000; includeSubDomains"
+          - "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' wss: https:; font-src 'self' data:; object-src 'none'; media-src 'self'; child-src 'none';"
+    tags:
+      - security
+      - headers
+
+  # HTTP Logging to ELK Stack
+  - name: http-log
+    config:
+      http_endpoint: http://logstash:5000/kong-logs
+      method: POST
+      timeout: 10000
+      keepalive: 60000
+      flush_timeout: 2
+      retry_count: 10
+      queue_size: 1000
+      headers:
+        Content-Type: application/json
+    tags:
+      - logging
+      - elk
+
+# Service-Specific Plugins
+  # JWT Authentication for Protected Routes
+  - name: jwt
+    service: notification-service
+    config:
+      uri_param_names:
+        - jwt
+      header_names:
+        - Authorization
+      claims_to_verify:
+        - exp
+        - iat
+      key_claim_name: iss
+      secret_is_base64: false
+      run_on_preflight: false
+    tags:
+      - jwt
+      - auth
+      - notification
+
+  - name: jwt
+    service: crisis-service
+    config:
+      uri_param_names:
+        - jwt
+      header_names:
+        - Authorization
+      claims_to_verify:
+        - exp
+        - iat
+      key_claim_name: iss
+      secret_is_base64: false
+      run_on_preflight: false
+    tags:
+      - jwt
+      - auth
+      - crisis
+
+  # Enhanced Rate Limiting for Crisis Service (Higher Priority)
+  - name: rate-limiting
+    service: crisis-service
+    config:
+      minute: 200
+      hour: 2000
+      day: 20000
+      policy: redis
+      redis_host: kong-redis
+      redis_port: 6379
+      redis_password: redis_password
+      redis_database: 1
+      hide_client_headers: false
+      fault_tolerant: true
+    tags:
+      - rate-limiting
+      - crisis
+      - high-priority
+
+  # Request Transformer for API Versioning
+  - name: request-transformer
+    service: auth-service
+    config:
+      add:
+        headers:
+          - "X-Service-Version: v1.0"
+          - "X-API-Gateway: Kong"
+      append:
+        headers:
+          - "X-Forwarded-Proto: https"
+    tags:
+      - versioning
+      - auth
+
+  - name: request-transformer
+    service: notification-service
+    config:
+      add:
+        headers:
+          - "X-Service-Version: v1.0"
+          - "X-API-Gateway: Kong"
+      append:
+        headers:
+          - "X-Forwarded-Proto: https"
+    tags:
+      - versioning
+      - notification
+
+  - name: request-transformer
+    service: crisis-service
+    config:
+      add:
+        headers:
+          - "X-Service-Version: v1.0"
+          - "X-API-Gateway: Kong"
+          - "X-Priority: high"
+      append:
+        headers:
+          - "X-Forwarded-Proto: https"
+    tags:
+      - versioning
+      - crisis
+
+  # Circuit Breaker for External Services
+  - name: proxy-cache
+    service: frontend-app
+    config:
+      cache_ttl: 300
+      cache_control: false
+      storage_ttl: 300
+      strategy: memory
+      content_type:
+        - "text/plain"
+        - "application/json"
+        - "text/html"
+        - "text/css"
+        - "application/javascript"
+      vary_headers:
+        - Authorization
+      vary_query_params:
+        - version
+    tags:
+      - caching
+      - performance
+      - frontend
+
+jwt_secrets:
+  - consumer: serenity-users
+    key: serenity-jwt-issuer
+    secret: "your-jwt-secret-key-here"
+    algorithm: HS256
+    tags:
+      - jwt
+      - auth
+
+key_auths:
+  - consumer: serenity-internal
+    key: "serenity-internal-api-key"
+    tags:
+      - api-key
+      - internal

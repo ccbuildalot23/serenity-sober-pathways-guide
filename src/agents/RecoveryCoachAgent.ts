@@ -104,7 +104,7 @@ export class RecoveryCoachAgent extends HealthcareAgent {
         lastCheckIn: checkIns?.[0]?.created_at ? new Date(checkIns[0].created_at) : undefined
       };
     } catch (_error) {
-      console._error('Failed to load recovery context:', _error);
+      console.error('Failed to load recovery context:', _error);
       // Continue with default context
     }
   }
@@ -146,7 +146,7 @@ export class RecoveryCoachAgent extends HealthcareAgent {
         }
       };
     } catch (_error) {
-      console._error('Recovery coach processing _error:', _error);
+      console.error('Recovery coach processing error:', _error);
       return {
         message: "I'm here to support your recovery journey. Every step forward counts, no matter how small. What would you like to talk about today?",
         _confidence: 0.5,
@@ -318,7 +318,7 @@ export class RecoveryCoachAgent extends HealthcareAgent {
         };
       }
     } catch (_error) {
-      console._error('Failed to get quote:', _error);
+      console.error('Failed to get quote:', _error);
     }
 
     // Fallback quotes

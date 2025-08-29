@@ -38,7 +38,7 @@ export class AuthClient {
     }
   }
 
-  async signUp(email: string, password: string, _userType: string): Promise<{ 
+  async signUp(email: string, password: string, userType: string): Promise<{ 
     success: boolean; 
     message: string; 
     data?: unknown;
@@ -77,7 +77,7 @@ export class AuthClient {
           password,
           options: {
             data: {
-              _userType: _userType || 'recovery'
+              userType: userType || 'recovery'
             },
             emailRedirectTo: `${window.location.origin}/auth`
           }
@@ -255,8 +255,8 @@ export class AuthClient {
     }
   }
 
-  private delay(_ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, _ms));
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   async resetPassword(email: string): Promise<{
@@ -287,7 +287,7 @@ export class AuthClient {
             lastError = error;
             
             if (attempt < this.maxRetries) {
-              logger.debug(`Network error, retrying in ${this.retryDelay}_ms...`, { component: 'auth-client' });
+              logger.debug(`Network error, retrying in ${this.retryDelay}ms...`, { component: 'auth-client' });
               await this.delay(this.retryDelay);
               continue;
             }

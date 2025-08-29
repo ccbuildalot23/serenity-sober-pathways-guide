@@ -14,12 +14,12 @@ interface AddContactFormProps {
 
 const AddContactForm: React.FC<AddContactFormProps> = ({ onSubmit, onCancel, loading }) => {
   const [formData, setFormData] = useState({
-    _name: '',
-    _relationship: '',
-    _phone: '',
-    _email: '',
-    _contact_method: 'both',
-    _share_location: false
+    name: '',
+    relationship: '',
+    phone: '',
+    email: '',
+    contact_method: 'both',
+    share_location: false
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,51 +40,51 @@ const AddContactForm: React.FC<AddContactFormProps> = ({ onSubmit, onCancel, loa
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="_name">Name *</Label>
+            <Label htmlFor="name">Name *</Label>
             <Input
-              id="_name"
-              value={formData._name}
-              onChange={(e) => setFormData({ ...formData, _name: e.target.value })}
+              id="name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
             />
           </div>
           
           <div>
-            <Label htmlFor="_relationship">Relationship *</Label>
+            <Label htmlFor="relationship">Relationship *</Label>
             <Input
-              id="_relationship"
-              value={formData._relationship}
-              onChange={(e) => setFormData({ ...formData, _relationship: e.target.value })}
+              id="relationship"
+              value={formData.relationship}
+              onChange={(e) => setFormData({ ...formData, relationship: e.target.value })}
               placeholder="e.g., Friend, Family, Sponsor"
               required
             />
           </div>
           
           <div>
-            <Label htmlFor="_phone">Phone Number</Label>
+            <Label htmlFor="phone">Phone Number</Label>
             <Input
-              id="_phone"
+              id="phone"
               type="tel"
-              value={formData._phone}
-              onChange={(e) => setFormData({ ...formData, _phone: e.target.value })}
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             />
           </div>
           
           <div>
-            <Label htmlFor="_email">Email</Label>
+            <Label htmlFor="email">Email</Label>
             <Input
-              id="_email"
-              type="_email"
-              value={formData._email}
-              onChange={(e) => setFormData({ ...formData, _email: e.target.value })}
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             />
           </div>
           
           <div>
-            <Label htmlFor="_contact_method">Preferred Contact Method</Label>
+            <Label htmlFor="contact_method">Preferred Contact Method</Label>
             <Select
-              value={formData._contact_method}
-              onValueChange={(value) => setFormData({ ...formData, _contact_method: value })}
+              value={formData.contact_method}
+              onValueChange={(value) => setFormData({ ...formData, contact_method: value })}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -100,11 +100,11 @@ const AddContactForm: React.FC<AddContactFormProps> = ({ onSubmit, onCancel, loa
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
-              id="_share_location"
-              checked={formData._share_location}
-              onChange={(e) => setFormData({ ...formData, _share_location: e.target.checked })}
+              id="share_location"
+              checked={formData.share_location}
+              onChange={(e) => setFormData({ ...formData, share_location: e.target.checked })}
             />
-            <Label htmlFor="_share_location">Share location in emergencies</Label>
+            <Label htmlFor="share_location">Share location in emergencies</Label>
           </div>
           
           <div className="flex gap-2">

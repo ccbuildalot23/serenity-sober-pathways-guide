@@ -4,12 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { checkinSubmissionService } from '@/services/checkinSubmissionService';
-import { fixedCheckInSubmission } from '@/utils/databaseFix';
-import { supabase } from '@/integrations/supabase/client';
-import { emergencyFallback } from '@/lib/emergencyFallback';
+import { submitCheckIn } from '@/services/optimizedCheckIn';
+import { useToast } from '@/hooks/use-toast';
 import logger from '../services/loggerService';
 
 interface CheckInData {

@@ -38,6 +38,7 @@ import { testDatabaseConnection } from '@/utils/databaseTest';
 import { loadDashboardDataFixed } from '@/utils/databaseFix';
 import '@/utils/autonomousTest';
 import '@/utils/patientJourneyTest';
+import { withTimeout, requestCache, dashboardCircuitBreaker } from '@/utils/performanceUtils';
 
 const PatientDashboard = () => {
   const navigate = useNavigate();
@@ -124,9 +125,25 @@ const PatientDashboard = () => {
 
   const loadDashboardData = async () => {
     if (!user?.id) return;
+    
     try {
       setError(null);
-      const data = await loadDashboardDataFixed();
+      
+      // Use request cache to prevent duplicate requests
+      const data = await requestCache.get(
+        `dashboard-${user.id}-${Date.now()}`,
+        async () => {
+          // Use circuit breaker pattern with timeout
+          return await dashboardCircuitBreaker.execute(async () => {
+            return await withTimeout(
+              loadDashboardDataFixed(),
+              10000, // 10 second timeout
+              'Dashboard data loading timed out'
+            );
+          });
+        }
+      );
+      
       if (data) {
         setDashboardData({
           recoveryStreak: data.currentStreak || 0,
@@ -135,9 +152,17 @@ const PatientDashboard = () => {
           supportNetworkCount: data.supportNetworkCount || 0,
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading dashboard data:', error);
-      setError('Failed to load dashboard data. Please try refreshing.');
+      
+      // Better error messages based on error type
+      if (error.message?.includes('timed out')) {
+        setError('Dashboard is taking too long to load. Please refresh the page.');
+      } else if (error.message?.includes('Circuit breaker')) {
+        setError('Dashboard temporarily unavailable. Will retry shortly.');
+      } else {
+        setError('Failed to load dashboard data. Please try refreshing.');
+      }
     } finally {
       setLoading(false);
     }
@@ -157,35 +182,43 @@ const PatientDashboard = () => {
     })();
   }, []);
 
-  // Phase 3.2: Real-Time Data Verification (logs only)
+  // Listen for check-in completion and streak updates
   useEffect(() => {
-    if (!user?.id) return;
-    const interval = setInterval(async () => {
-      try {
-        logger.debug('🔄 REAL-TIME DATA CHECK...', { component: 'PatientDashboard' });
-        const { count: checkinsCount, error: checkinsError } = await supabase
-          .from('daily_checkins')
-          .select('id', { count: 'exact', head: true })
-          .eq('user_id', user.id);
+    const handleCheckInComplete = () => {
+      logger.debug('Check-in completed, refreshing data', { component: 'PatientDashboard' });
+      loadDashboardData();
+    };
 
-        const { count: contactsCount, error: contactsError } = await supabase
-          .from('support_contacts')
-          .select('id', { count: 'exact', head: true })
-          .eq('user_id', user.id);
+    const handleStreakUpdate = (event: CustomEvent) => {
+      logger.debug('Streak update received', event.detail, { component: 'PatientDashboard' });
+      setDashboardData(prev => ({
+        ...prev,
+        recoveryStreak: prev.recoveryStreak + 1,
+        totalCheckins: prev.totalCheckins + 1
+      }));
+    };
 
-        logger.debug('Live data check', {
-          component: 'PatientDashboard',
-          action: 'live_data_check',
-          dailyCheckins: checkinsCount || 0,
-          supportContacts: contactsCount || 0,
-          hasErrors: !!(checkinsError || contactsError)
-        });
-      } catch (e) {
-        console.error('Real-time data check failed:', e);
-      }
-    }, 10000);
-    return () => clearInterval(interval);
-  }, [user?.id]);
+    const handleDataRefresh = () => {
+      loadDashboardData();
+    };
+
+    window.addEventListener('checkin:completed', handleCheckInComplete);
+    window.addEventListener('streak:update', handleStreakUpdate as EventListener);
+    window.addEventListener('data:refresh', handleDataRefresh);
+
+    return () => {
+      window.removeEventListener('checkin:completed', handleCheckInComplete);
+      window.removeEventListener('streak:update', handleStreakUpdate as EventListener);
+      window.removeEventListener('data:refresh', handleDataRefresh);
+    };
+  }, []);
+
+  // Removed aggressive 10-second polling - now using event-driven updates only
+  // Data refreshes on:
+  // 1. Component mount
+  // 2. User check-in completion (via event listener)
+  // 3. Manual refresh by user
+  // 4. Navigation focus changes
   
   const checkTodaysCheckinStatus = async () => {
     // Placeholder function for E2E compatibility

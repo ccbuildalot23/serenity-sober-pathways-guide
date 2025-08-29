@@ -33,14 +33,14 @@ export function NotificationPreferences({ onClose }: NotificationPreferencesProp
       await updatePreferences(localPreferences);
       toast({
         title: 'Preferences Updated',
-        _description: 'Your notification preferences have been saved.',
+        description: 'Your notification preferences have been saved.',
       });
       onClose?.();
-    } catch (_error) {
+    } catch (error) {
       toast({
         title: 'Error',
-        _description: 'Failed to update notification preferences.',
-        _variant: 'destructive',
+        description: 'Failed to update notification preferences.',
+        variant: 'destructive',
       });
     } finally {
       setSaving(false);
@@ -115,7 +115,7 @@ export function NotificationPreferences({ onClose }: NotificationPreferencesProp
                   {[1, 3, 7, 14].map(day => (
                     <Button
                       key={day}
-                      _variant={localPreferences.goal_reminder_days_before.includes(day) ? "default" : "outline"}
+                      variant={localPreferences.goal_reminder_days_before.includes(day) ? "default" : "outline"}
                       size="sm"
                       onClick={() => toggleReminderDay(day)}
                     >
@@ -180,7 +180,7 @@ export function NotificationPreferences({ onClose }: NotificationPreferencesProp
                 {[3, 7, 14, 30, 60, 90, 180, 365].map(days => (
                   <Button
                     key={days}
-                    _variant={localPreferences.streak_milestones.includes(days) ? "default" : "outline"}
+                    variant={localPreferences.streak_milestones.includes(days) ? "default" : "outline"}
                     size="sm"
                     onClick={() => toggleStreakMilestone(days)}
                   >
@@ -273,12 +273,12 @@ export function NotificationPreferences({ onClose }: NotificationPreferencesProp
             </div>
             <Switch
               id="in-app"
-              checked={localPreferences.delivery_methods._in_app}
+              checked={localPreferences.delivery_methods.in_app}
               onCheckedChange={(checked) => 
                 updateLocal({ 
                   delivery_methods: { 
                     ...localPreferences.delivery_methods, 
-                    _in_app: checked 
+                    in_app: checked 
                   }
                 })
               }
@@ -288,16 +288,16 @@ export function NotificationPreferences({ onClose }: NotificationPreferencesProp
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4" />
-              <Label htmlFor="_email">Email notifications</Label>
+              <Label htmlFor="email">Email notifications</Label>
             </div>
             <Switch
-              id="_email"
-              checked={localPreferences.delivery_methods._email}
+              id="email"
+              checked={localPreferences.delivery_methods.email}
               onCheckedChange={(checked) => 
                 updateLocal({ 
                   delivery_methods: { 
                     ...localPreferences.delivery_methods, 
-                    _email: checked 
+                    email: checked 
                   }
                 })
               }
@@ -307,16 +307,16 @@ export function NotificationPreferences({ onClose }: NotificationPreferencesProp
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Smartphone className="w-4 h-4" />
-              <Label htmlFor="_sms">SMS notifications</Label>
+              <Label htmlFor="sms">SMS notifications</Label>
             </div>
             <Switch
-              id="_sms"
-              checked={localPreferences.delivery_methods._sms}
+              id="sms"
+              checked={localPreferences.delivery_methods.sms}
               onCheckedChange={(checked) => 
                 updateLocal({ 
                   delivery_methods: { 
                     ...localPreferences.delivery_methods, 
-                    _sms: checked 
+                    sms: checked 
                   }
                 })
               }
@@ -372,12 +372,12 @@ export function NotificationPreferences({ onClose }: NotificationPreferencesProp
                 <Input
                   id="quiet-start"
                   type="time"
-                  value={localPreferences.quiet_hours._start_time}
+                  value={localPreferences.quiet_hours.start_time}
                   onChange={(e) => 
                     updateLocal({ 
                       quiet_hours: { 
                         ...localPreferences.quiet_hours, 
-                        _start_time: e.target.value 
+                        start_time: e.target.value 
                       }
                     })
                   }
@@ -388,12 +388,12 @@ export function NotificationPreferences({ onClose }: NotificationPreferencesProp
                 <Input
                   id="quiet-end"
                   type="time"
-                  value={localPreferences.quiet_hours._end_time}
+                  value={localPreferences.quiet_hours.end_time}
                   onChange={(e) => 
                     updateLocal({ 
                       quiet_hours: { 
                         ...localPreferences.quiet_hours, 
-                        _end_time: e.target.value 
+                        end_time: e.target.value 
                       }
                     })
                   }
@@ -405,7 +405,7 @@ export function NotificationPreferences({ onClose }: NotificationPreferencesProp
       </Card>
 
       <div className="flex justify-end gap-2">
-        <Button _variant="outline" onClick={onClose}>
+        <Button variant="outline" onClick={onClose}>
           Cancel
         </Button>
         <Button onClick={handleSave} disabled={saving}>

@@ -42,13 +42,13 @@ export const ProviderRegistrationForm: React.FC<ProviderRegistrationFormProps> =
         .from('provider_registration_requests')
         .insert({
           user_id: user.id,
-          _email: user._email || '',
-          _full_name: formData.fullName,
-          _license_number: formData.licenseNumber,
-          _license_state: formData.licenseState,
-          _practice_name: formData.practiceName,
-          _practice_address: formData.practiceAddress,
-          _phone_number: formData.phoneNumber
+          email: user.email || '',
+          full_name: formData.fullName,
+          license_number: formData.licenseNumber,
+          license_state: formData.licenseState,
+          practice_name: formData.practiceName,
+          practice_address: formData.practiceAddress,
+          phone_number: formData.phoneNumber
         });
 
       if (submitError) throw submitError;

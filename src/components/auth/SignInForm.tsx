@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { authClient } from '@/integrations/supabase/auth-client';
 import { HelpModal } from './HelpModal';
 import logger from '../../services/loggerService';
 import { 
@@ -109,14 +108,14 @@ export const SignInForm: React.FC<SignInFormProps> = ({ userType }) => {
         return;
       }
 
-      // Use enhanced auth client with retry logic in normal (non-test) mode
-      const result = await authClient.signIn(sanitizedEmail, sanitizedPassword);
+      // Use auth context signIn method
+      const { error: signInError } = await signIn(sanitizedEmail, sanitizedPassword);
 
-      if (!result.success) {
-        setError(result.message);
+      if (signInError) {
+        setError(signInError.message || 'Failed to sign in');
         
         // Show toast for network errors
-        if (result.message.includes('Network')) {
+        if (signInError.message?.includes('Network')) {
           toast({
             title: "Connection Issue",
             description: "Please check your internet connection and try again.",

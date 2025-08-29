@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { authClient } from '@/integrations/supabase/auth-client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,36 +15,36 @@ interface SignUpFormProps {
 
 export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) => {
   const { signUp } = useAuth();
-  const [_email, setEmail] = useState('');
-  const [_password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [_success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState(false);
 
-  const validatePassword = (_password: string): string | null => {
-    if (_password.length < 8) {
+  const validatePassword = (password: string): string | null => {
+    if (password.length < 8) {
       return 'Password must be at least 8 characters long';
     }
-    if (!/[A-Z]/.test(_password)) {
+    if (!/[A-Z]/.test(password)) {
       return 'Password must contain at least one uppercase letter';
     }
-    if (!/[a-z]/.test(_password)) {
+    if (!/[a-z]/.test(password)) {
       return 'Password must contain at least one lowercase letter';
     }
-    if (!/\d/.test(_password)) {
+    if (!/\d/.test(password)) {
       return 'Password must contain at least one number';
     }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(_password)) {
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
       return 'Password must contain at least one special character';
     }
     
     // Check for common passwords
-    const commonPasswords = ['_password', '12345678', 'password123', 'admin', 'qwerty'];
-    if (commonPasswords.includes(_password.toLowerCase())) {
-      return 'Password is too common. Please choose a stronger _password';
+    const commonPasswords = ['password', '12345678', 'password123', 'admin', 'qwerty'];
+    if (commonPasswords.includes(password.toLowerCase())) {
+      return 'Password is too common. Please choose a stronger password';
     }
     
     return null;
@@ -56,27 +55,27 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
     setSuccess(false);
 
     // Basic validation
-    if (!_email || !_password || !confirmPassword) {
+    if (!email || !password || !confirmPassword) {
       setError('Please fill in all fields');
       return;
     }
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(_email)) {
-      setError('Please enter a valid _email address');
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address');
       return;
     }
 
     // Password validation
-    const _passwordError = validatePassword(_password);
-    if (_passwordError) {
-      setError(_passwordError);
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
 
-    // Confirm _password match
-    if (_password !== confirmPassword) {
+    // Confirm password match
+    if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
@@ -84,14 +83,18 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
     setIsLoading(true);
 
     try {
-      // Use enhanced auth client with retry logic
-      const result = await authClient.signUp(_email, _password, userType || 'recovery');
+      // Use auth context signUp method
+      const { error: signUpError } = await signUp(email, password, {
+        data: {
+          userType: userType || 'recovery'
+        }
+      });
       
-      if (!result._success) {
-        setError(result.message);
+      if (signUpError) {
+        setError(signUpError.message || 'Failed to create account');
         
         // Add visual hint for network errors
-        if (result.message.includes('Network')) {
+        if (signUpError.message?.includes('Network')) {
           console.error('Network error detected during signup');
         }
       } else {
@@ -120,7 +123,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
     }
   };
 
-  if (_success) {
+  if (success) {
     return (
       <Card className="w-full">
         <CardContent className="pt-6">
@@ -130,7 +133,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
             </div>
             <h3 className="text-lg font-semibold text-green-800">Account Created!</h3>
             <p className="text-sm text-gray-600">
-              Please check your _email to verify your account before signing in.
+              Please check your email to verify your account before signing in.
             </p>
           </div>
         </CardContent>
@@ -173,7 +176,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
                 id="signup-email"
                 type="email"
                 placeholder="you@example.com"
-                value={_email}
+                value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={isLoading}
@@ -195,7 +198,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, userType }) =
                 id="signup-password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
-                value={_password}
+                value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={isLoading}

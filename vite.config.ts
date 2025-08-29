@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import compression from 'vite-plugin-compression';
+import circularDependency from 'vite-plugin-circular-dependency';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -23,6 +24,13 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
+    // Detect circular dependencies
+    circularDependency({
+      exclude: /node_modules/,
+      failOnError: false,
+      allowAsyncCycles: false,
+      outputFilePath: './circular-deps.txt'
+    }),
     mode === 'development' && componentTagger(),
     // Enable gzip and brotli compression for all assets
     mode === 'production' && compression({
@@ -79,81 +87,21 @@ export default defineConfig(({ mode }) => ({
     } : undefined,
     rollupOptions: {
       output: {
-        // Manual chunking for optimal performance - split large dependencies
-        manualChunks: (id) => {
-          // Split node_modules by size and usage patterns
-          if (id.includes('node_modules')) {
-            // Isolate the massive chart library (481KB -> separate chunk)
-            if (id.includes('recharts')) {
-              return 'charts';
-            }
-            // Isolate framer-motion (large animation library)
-            if (id.includes('framer-motion')) {
-              return 'animations';
-            }
-            // React core - keep together
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
-              return 'react';
-            }
-            // Radix UI components - split into smaller chunks
-            if (id.includes('@radix-ui')) {
-              if (id.includes('dialog') || id.includes('popover') || id.includes('dropdown')) {
-                return 'radix-overlays';
-              }
-              return 'radix-ui';
-            }
-            // Supabase and data libs
-            if (id.includes('@supabase') || id.includes('@tanstack/react-query')) {
-              return 'data';
-            }
-            // Date libraries
-            if (id.includes('date-fns')) {
-              return 'date-utils';
-            }
-            // Other vendor code
-            return 'vendor';
-          }
-          
-          // Split app code by feature
-          if (id.includes('src/pages/')) {
-            if (id.includes('Crisis') || id.includes('crisis')) {
-              return 'crisis';
-            }
-            if (id.includes('Provider') || id.includes('provider')) {
-              return 'provider';
-            }
-            if (id.includes('Admin') || id.includes('admin')) {
-              return 'admin';
-            }
-            if (id.includes('Analytics') || id.includes('Chart') || id.includes('Progress')) {
-              return 'analytics';
-            }
-          }
-          
-          // Components with charts/animations - defer loading
-          if (id.includes('components/') && (
-            id.includes('Chart') || 
-            id.includes('Analytics') || 
-            id.includes('Progress') ||
-            id.includes('Visualization')
-          )) {
-            return 'analytics-components';
-          }
+        // Simplified chunking strategy to avoid circular dependencies
+        manualChunks: {
+          // Core vendor libraries in one chunk
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          // UI libraries
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-popover', '@radix-ui/react-dropdown-menu'],
+          // Data and state management
+          data: ['@supabase/supabase-js', '@tanstack/react-query'],
+          // Large libraries in separate chunks
+          charts: ['recharts'],
+          animations: ['framer-motion']
         },
-        // Optimize chunk names for caching and loading priority
-        chunkFileNames: (chunkInfo) => {
-          // Priority chunks load first
-          if (chunkInfo.name === 'crisis') {
-            return 'crisis-[hash].js';
-          }
-          // Defer heavy chunks to end
-          if (chunkInfo.name === 'charts' || chunkInfo.name === 'animations') {
-            return 'heavy/[name]-[hash].js';
-          }
-          return '[name]-[hash].js';
-        },
-        // Minimize duplicate code across chunks
-        entryFileNames: 'entry-[hash].js',
+        // Use default chunk naming for consistency
+        chunkFileNames: '[name]-[hash].js',
+        entryFileNames: '[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]'
       },
       // External dependencies to exclude from bundle

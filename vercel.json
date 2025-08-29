@@ -1,11 +1,7 @@
 {
-  "buildCommand": "NODE_ENV=production npm run build",
-  "installCommand": "npm ci --production=false --legacy-peer-deps --no-audit --no-fund",
+  "buildCommand": "npm run build",
+  "installCommand": "npm ci --legacy-peer-deps",
   "framework": "vite",
-  "env": {
-    "NPM_CONFIG_LEGACY_PEER_DEPS": "true",
-    "NPM_CONFIG_FORCE": "true"
-  },
   "functions": {
     "api/health.js": {
       "memory": 1024,
@@ -19,8 +15,22 @@
   }],
   "rewrites": [
     {
-      "source": "/((?!api|_next|assets|.*\\.js|.*\\.css|.*\\.json|.*\\.xml|.*\\.txt|.*\\.ico|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.svg|.*\\.woff|.*\\.woff2|.*\\.ttf|.*\\.eot).*)",
+      "source": "/(.*)",
       "destination": "/index.html"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|svg|ico|json|woff|woff2|ttf|eot))",
+      "dest": "/$1"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
     }
   ],
   "github": { "silent": false },

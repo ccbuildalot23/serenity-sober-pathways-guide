@@ -1,6 +1,4 @@
 {
-  "buildCommand": "npm run build",
-  "installCommand": "npm ci --legacy-peer-deps",
   "framework": "vite",
   "functions": {
     "api/health.js": {

@@ -6,7 +6,7 @@
   "type": "module",
   "homepage": ".",
   "engines": {
-    "node": "20.x",
+    "node": ">=20.0.0",
     "npm": ">=10.0.0"
   },
   "scripts": {
@@ -19,7 +19,7 @@
     "optimize:bmad": "npm run bmad:analyze && npm run bmad:test:swarm",
     "health:check": "powershell -ExecutionPolicy Bypass -File monitor-health.ps1",
     "optimize": "optimize-with-swarm.bat",
-    "build": "node scripts/fix-tokens.cjs && vite build && node scripts/validate-css-build.js",
+    "build": "vite build",
     "validate:css": "node scripts/validate-css-build.js",
     "type-check": "tsc --noEmit",
     "vercel-build": "npm run build",

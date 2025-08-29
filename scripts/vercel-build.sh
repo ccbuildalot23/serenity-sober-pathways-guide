@@ -6,15 +6,17 @@ echo "🔧 Starting Vercel build script..."
 echo "📦 Cleaning up old dependencies..."
 rm -rf node_modules package-lock.json
 
-# Install all dependencies fresh
-echo "📦 Installing dependencies with npm install..."
-npm install --legacy-peer-deps
+# Install critical build dependencies explicitly
+echo "📦 Installing build dependencies explicitly..."
+npm install --save-dev vite@5.4.11 @vitejs/plugin-react-swc@4.0.1 tailwindcss@3.4.17 postcss@8.5.6 autoprefixer@10.4.24 --legacy-peer-deps
 
-# Check if vite is installed
-if ! command -v npx vite &> /dev/null; then
-    echo "⚠️ Vite not found, installing explicitly..."
-    npm install vite@5.4.11 --save-dev --legacy-peer-deps
-fi
+# Install production dependencies
+echo "📦 Installing production dependencies..."
+npm install react@19.0.0 react-dom@19.0.0 react-router-dom@7.1.1 @supabase/supabase-js@2.49.2 --legacy-peer-deps
+
+# Install remaining dependencies
+echo "📦 Installing remaining dependencies..."
+npm install --legacy-peer-deps
 
 # Run the build
 echo "🚀 Building with Vite..."

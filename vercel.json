@@ -6,15 +6,9 @@
     "NPM_CONFIG_LEGACY_PEER_DEPS": "true",
     "NPM_CONFIG_FORCE": "true"
   },
-  "skewProtection": {
-    "maxAge": 604800
-  },
   "functions": {
     "api/health.js": {
       "memory": 1024,
-      "maxDuration": 10
-    },
-    "api/health.ts": {
       "maxDuration": 10
     }
   },

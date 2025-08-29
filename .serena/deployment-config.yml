@@ -1,0 +1,56 @@
+name: serenity-production-deployment
+persistence: true
+auto_retry: true
+max_retries: unlimited
+success_criteria:
+  - production_deployed: true
+  - all_tests_passing: true
+  - health_checks_green: true
+  - monitoring_active: true
+  
+orchestration:
+  leader: serena-mcp
+  support: exa-mcp
+  swarm_topology: hierarchical
+  agent_count: 10
+  
+validation_gates:
+  - e2e_tests
+  - security_scan
+  - hipaa_compliance
+  - performance_baseline
+  - rollback_tested
+
+execution_mode: persistent
+stop_conditions:
+  - production_deployed: true
+  - all_tests_green: true
+  - monitoring_active: true
+  - performance_baseline_met: true
+  - hipaa_compliant: true
+
+retry_strategy:
+  max_attempts: unlimited
+  backoff: exponential
+  max_backoff: 5m
+  
+parallel_tasks:
+  - fix_tests
+  - setup_monitoring
+  - configure_deployment
+  
+sequential_gates:
+  - tests_passing
+  - security_validated
+  - deployment_successful
+  - monitoring_confirmed
+  
+notification_channels:
+  success: 
+    - console
+    - github_actions
+    - deployment_log
+  failure:
+    - immediate_alert
+    - create_incident
+    - retry_with_fix

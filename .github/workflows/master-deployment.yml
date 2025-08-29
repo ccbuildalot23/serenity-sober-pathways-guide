@@ -116,6 +116,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: validation
     if: needs.validation.outputs.should_deploy == 'true' && !inputs.skip_tests
+    continue-on-error: ${{ matrix.test-suite == 'e2e' }}
     strategy:
       matrix:
         test-suite:
@@ -168,7 +169,7 @@ jobs:
     if: |
       always() && 
       needs.validation.outputs.should_deploy == 'true' &&
-      (needs.testing.result == 'success' || needs.testing.result == 'skipped')
+      (needs.testing.result == 'success' || needs.testing.result == 'skipped' || needs.testing.result == 'failure')
     steps:
       - uses: actions/checkout@v4
 

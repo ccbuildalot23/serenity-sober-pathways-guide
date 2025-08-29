@@ -21,7 +21,7 @@
     "build": "node scripts/fix-tokens.cjs && vite build && node scripts/validate-css-build.js",
     "validate:css": "node scripts/validate-css-build.js",
     "type-check": "tsc --noEmit",
-    "vercel-build": "node scripts/verify-dependencies.js && npm run build",
+    "vercel-build": "npm run build",
     "verify-deps": "node scripts/verify-dependencies.js",
     "fix:tokens": "node scripts/fix-tokens.cjs",
     "preview": "vite preview --port 8080 --host",

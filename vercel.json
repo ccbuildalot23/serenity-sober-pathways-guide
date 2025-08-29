@@ -1,6 +1,5 @@
 {
   "framework": "vite",
-  "installCommand": "npm install --legacy-peer-deps",
   "functions": {
     "api/health.js": {
       "memory": 1024,

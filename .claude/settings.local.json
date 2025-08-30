@@ -220,7 +220,10 @@
       "WebFetch(domain:serenity-3u1662hao-serenity1.vercel.app)",
       "Read(c:\\Users\\cmcal\\OneDrive\\Desktop/**)",
       "Read(c:\\Users\\cmcal\\OneDrive\\Desktop/**)",
-      "Read(c:\\Users\\cmcal\\OneDrive\\Desktop/**)"
+      "Read(c:\\Users\\cmcal\\OneDrive\\Desktop/**)",
+      "WebFetch(domain:serenity-nld06bulz-serenity1.vercel.app)",
+      "WebFetch(domain:serenity-i6et79q5h-serenity1.vercel.app)",
+      "WebFetch(domain:serenity-serenity1.vercel.app)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

@@ -19,7 +19,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.0.0</string>
 	<key>CFBundleVersion</key>
-	<string>32</string>
+	<string>33</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -102,6 +102,36 @@
 	<array>
 		<string>tel</string>
 		<string>sms</string>
+		<string>mailto</string>
+	</array>
+	<key>NSMotionUsageDescription</key>
+	<string>Serenity uses motion detection for emergency shake activation during crisis situations.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Serenity needs permission to save recovery milestone photos to your library.</string>
+	<key>NSSiriUsageDescription</key>
+	<string>Serenity can use Siri for hands-free crisis support activation.</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.health-fitness</string>
+	<key>MinimumOSVersion</key>
+	<string>15.0</string>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>CA92.1</string>
+			</array>
+		</dict>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>C617.1</string>
+			</array>
+		</dict>
 	</array>
 </dict>
 </plist>

@@ -1,0 +1,207 @@
+/* Mobile-specific styles for Serenity */
+
+/* Safe area insets for iOS devices with notch */
+.safe-area-inset {
+  padding-top: env(safe-area-inset-top);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+}
+
+/* Disable double-tap zoom on interactive elements */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* Larger touch targets for crisis situations */
+.crisis-touch-target {
+  min-height: 60px;
+  min-width: 60px;
+}
+
+/* Extra large touch targets for emergency buttons */
+.emergency-touch-target {
+  min-height: 80px;
+  min-width: 80px;
+}
+
+/* Prevent text selection on mobile */
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Smooth scrolling with momentum */
+.momentum-scroll {
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+}
+
+/* Hide scrollbar on mobile */
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Prevent rubber band scrolling on iOS */
+.no-bounce {
+  overscroll-behavior: contain;
+}
+
+/* Full viewport height accounting for mobile browser chrome */
+.mobile-full-height {
+  height: 100vh;
+  height: -webkit-fill-available;
+  height: fill-available;
+}
+
+/* Bottom navigation safe area */
+.bottom-nav-safe {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
+}
+
+/* Landscape mode adjustments */
+@media (orientation: landscape) and (max-height: 500px) {
+  .landscape-compact {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  
+  .landscape-hide {
+    display: none;
+  }
+}
+
+/* High contrast mode for accessibility */
+@media (prefers-contrast: high) {
+  .crisis-button {
+    border: 3px solid currentColor;
+  }
+}
+
+/* Reduced motion for users with vestibular disorders */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .dark-mode-auto {
+    background-color: #1a1a1a;
+    color: #ffffff;
+  }
+}
+
+/* Mobile keyboard adjustments */
+.keyboard-visible {
+  padding-bottom: 0;
+}
+
+/* Thumb-friendly zones (bottom 30% of screen) */
+.thumb-zone {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: env(safe-area-inset-bottom);
+}
+
+/* One-handed mode (right-handed default) */
+.one-handed-right {
+  margin-left: auto;
+  margin-right: 1rem;
+  max-width: 85%;
+}
+
+.one-handed-left {
+  margin-right: auto;
+  margin-left: 1rem;
+  max-width: 85%;
+}
+
+/* iOS-specific adjustments */
+@supports (-webkit-touch-callout: none) {
+  .ios-specific {
+    /* Prevent callout on long press */
+    -webkit-touch-callout: none;
+    /* Prevent text size adjustment */
+    -webkit-text-size-adjust: 100%;
+  }
+}
+
+/* Android-specific adjustments */
+@media (hover: none) and (pointer: coarse) {
+  .android-specific {
+    /* Larger tap targets for Android */
+    min-height: 48px;
+  }
+}
+
+/* PWA standalone mode */
+@media (display-mode: standalone) {
+  .pwa-standalone {
+    /* Custom styles for PWA mode */
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* Loading states with skeleton screens */
+.skeleton-loading {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 50%,
+    #f0f0f0 75%
+  );
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Offline mode indicator */
+.offline-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #fbbf24;
+  color: #000;
+  padding: 0.5rem;
+  text-align: center;
+  z-index: 9999;
+  font-weight: 600;
+}
+
+/* Battery saver mode */
+@media (prefers-reduced-data: reduce) {
+  .battery-saver {
+    animation: none;
+    transition: none;
+  }
+  
+  .battery-saver img {
+    loading: lazy;
+  }
+}

@@ -14,6 +14,7 @@ import { SessionTimeoutManager } from '@/components/SessionTimeoutManager';
 import { SessionTimeoutDebug } from '@/components/debug/SessionTimeoutDebug';
 import LoadingState from '@/components/LoadingState';
 import { MobileNavigation } from '@/components/mobile/MobileNavigation';
+import { AuthGuard, PublicRoute } from '@/components/auth/AuthGuard';
 // CRITICAL ROUTES - Load immediately (crisis features and auth)
 import CrisisHelp from '@/pages/CrisisHelp';
 import EnhancedCrisisSystem from '@/components/crisis/EnhancedCrisisSystem';

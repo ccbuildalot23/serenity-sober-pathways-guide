@@ -7,9 +7,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { localAuth } from './localAuthService';
 import { apiService } from './apiService';
 
-// Determine which auth to use
-const USE_LOCAL_AUTH = import.meta.env.DEV || import.meta.env.VITE_USE_LOCAL_AUTH === 'true';
-const USE_BACKEND_API = true; // Always use backend API when available
+// Determine which auth to use - ALWAYS use backend API now
+const USE_LOCAL_AUTH = false; // Deprecated - using backend API
+const USE_BACKEND_API = true; // Always use backend API
 
 class AuthService {
   private provider: any;

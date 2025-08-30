@@ -223,7 +223,8 @@
       "Read(c:\\Users\\cmcal\\OneDrive\\Desktop/**)",
       "WebFetch(domain:serenity-nld06bulz-serenity1.vercel.app)",
       "WebFetch(domain:serenity-i6et79q5h-serenity1.vercel.app)",
-      "WebFetch(domain:serenity-serenity1.vercel.app)"
+      "WebFetch(domain:serenity-serenity1.vercel.app)",
+      "Bash(docker stop:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

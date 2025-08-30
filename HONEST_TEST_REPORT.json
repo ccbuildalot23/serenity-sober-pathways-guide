@@ -1,0 +1,76 @@
+{
+  "timestamp": "2025-08-30T12:51:53.675Z",
+  "features": {
+    "crisisButton": true,
+    "voiceActivation": true,
+    "mobileComponents": true,
+    "auditLogging": true,
+    "sessionTimeout": true
+  },
+  "endpoints": {
+    "Home": {
+      "status": 200,
+      "ok": true
+    },
+    "Crisis": {
+      "status": 200,
+      "ok": true
+    },
+    "Auth": {
+      "status": 200,
+      "ok": true
+    },
+    "Check-in": {
+      "status": 200,
+      "ok": true
+    }
+  },
+  "performance": {
+    "loadTime": 4,
+    "responseSize": 2604,
+    "hasCSS": false,
+    "hasJS": true,
+    "status": 200
+  },
+  "testResults": {
+    "crisis": {
+      "total": 0,
+      "passed": 0,
+      "failed": 0,
+      "errors": [
+        "Error: http://localhost:8080 is already used, make sure that nothing is running on the port/url or set reuseExistingServer:true in config.webServer."
+      ]
+    },
+    "mobile": {
+      "total": 0,
+      "passed": 0,
+      "failed": 0,
+      "errors": []
+    },
+    "security": {
+      "total": 0,
+      "passed": 0,
+      "failed": 0,
+      "errors": []
+    },
+    "performance": {
+      "total": 0,
+      "passed": 0,
+      "failed": 0,
+      "errors": []
+    },
+    "authentication": {
+      "total": 0,
+      "passed": 0,
+      "failed": 0,
+      "errors": []
+    }
+  },
+  "metrics": {
+    "featureImplementation": 100,
+    "endpointAvailability": 100,
+    "testPassRate": 0,
+    "performanceScore": 100,
+    "overall": 67
+  }
+}

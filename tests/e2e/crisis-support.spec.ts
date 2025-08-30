@@ -8,10 +8,9 @@ test.describe('Crisis Support System', () => {
 
   test('should trigger crisis alert from patient dashboard', async ({ page }) => {
     // Login as patient
-    await page.click('[data-testid="login-button"]');
     await page.fill('[data-testid="email-input"]', TEST_CREDENTIALS.PATIENT.email);
     await page.fill('[data-testid="password-input"]', TEST_CREDENTIALS.PATIENT.password);
-    await page.click('[data-testid="submit-login"]');
+    await page.click('[data-testid="login-button submit-login"]');
 
     await page.waitForURL('**/patient/dashboard', { timeout: 15000 });
     await page.waitForLoadState('networkidle');
@@ -40,10 +39,9 @@ test.describe('Crisis Support System', () => {
 
   test('should handle crisis alert with location sharing', async ({ page }) => {
     // Login as patient
-    await page.click('[data-testid="login-button"]');
     await page.fill('[data-testid="email-input"]', TEST_CREDENTIALS.PATIENT.email);
     await page.fill('[data-testid="password-input"]', TEST_CREDENTIALS.PATIENT.password);
-    await page.click('[data-testid="submit-login"]');
+    await page.click('[data-testid="login-button submit-login"]');
 
     await page.waitForURL('**/patient/dashboard', { timeout: 15000 });
 
@@ -73,10 +71,9 @@ test.describe('Crisis Support System', () => {
 
   test('should receive crisis alert as supporter', async ({ page }) => {
     // Login as supporter
-    await page.click('[data-testid="login-button"]');
     await page.fill('[data-testid="email-input"]', TEST_CREDENTIALS.SUPPORTER.email);
     await page.fill('[data-testid="password-input"]', TEST_CREDENTIALS.SUPPORTER.password);
-    await page.click('[data-testid="submit-login"]');
+    await page.click('[data-testid="login-button submit-login"]');
 
     await page.waitForURL('**/supporter/dashboard', { timeout: 15000 });
     await page.waitForLoadState('networkidle');
@@ -116,10 +113,9 @@ test.describe('Crisis Support System', () => {
 
   test('should handle crisis escalation workflow', async ({ page }) => {
     // Login as supporter
-    await page.click('[data-testid="login-button"]');
     await page.fill('[data-testid="email-input"]', TEST_CREDENTIALS.SUPPORTER.email);
     await page.fill('[data-testid="password-input"]', TEST_CREDENTIALS.SUPPORTER.password);
-    await page.click('[data-testid="submit-login"]');
+    await page.click('[data-testid="login-button submit-login"]');
 
     await page.waitForURL('**/supporter/dashboard', { timeout: 15000 });
     await page.waitForLoadState('networkidle');
@@ -138,10 +134,9 @@ test.describe('Crisis Support System', () => {
 
   test('should handle crisis de-escalation', async ({ page }) => {
     // Login as supporter
-    await page.click('[data-testid="login-button"]');
     await page.fill('[data-testid="email-input"]', TEST_CREDENTIALS.SUPPORTER.email);
     await page.fill('[data-testid="password-input"]', TEST_CREDENTIALS.SUPPORTER.password);
-    await page.click('[data-testid="submit-login"]');
+    await page.click('[data-testid="login-button submit-login"]');
 
     await page.waitForURL('**/supporter/dashboard', { timeout: 15000 });
     await page.waitForLoadState('networkidle');
@@ -163,10 +158,9 @@ test.describe('Crisis Support System', () => {
 
   test('should handle crisis alert timeout and auto-escalation', async ({ page }) => {
     // Login as supporter
-    await page.click('[data-testid="login-button"]');
     await page.fill('[data-testid="email-input"]', TEST_CREDENTIALS.SUPPORTER.email);
     await page.fill('[data-testid="password-input"]', TEST_CREDENTIALS.SUPPORTER.password);
-    await page.click('[data-testid="submit-login"]');
+    await page.click('[data-testid="login-button submit-login"]');
 
     await page.waitForURL('**/supporter/dashboard', { timeout: 15000 });
     await page.waitForLoadState('networkidle');
@@ -184,10 +178,9 @@ test.describe('Crisis Support System', () => {
 
   test('should handle crisis alert in offline mode', async ({ page }) => {
     // Login as patient
-    await page.click('[data-testid="login-button"]');
     await page.fill('[data-testid="email-input"]', TEST_CREDENTIALS.PATIENT.email);
     await page.fill('[data-testid="password-input"]', TEST_CREDENTIALS.PATIENT.password);
-    await page.click('[data-testid="submit-login"]');
+    await page.click('[data-testid="login-button submit-login"]');
 
     await page.waitForURL('**/patient/dashboard', { timeout: 15000 });
 

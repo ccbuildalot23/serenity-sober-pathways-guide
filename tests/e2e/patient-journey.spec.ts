@@ -15,9 +15,9 @@ test.describe('Patient User Journey', () => {
 
   test('should complete full patient login and dashboard access', async ({ page }) => {
     // Login form is now shown directly - no need to click login button
-    await page.fill('input[type="email"]', PATIENT_CREDENTIALS.email);
-    await page.fill('input[type="password"]', PATIENT_CREDENTIALS.password);
-    await page.click('button[type="submit"]');
+    await page.fill('[data-testid="email-input"]', PATIENT_CREDENTIALS.email);
+    await page.fill('[data-testid="password-input"]', PATIENT_CREDENTIALS.password);
+    await page.click('[data-testid="login-button submit-login"]');
 
     // Wait for redirect and page load
     await page.waitForURL('**/patient/dashboard', { timeout: 15000 });
@@ -41,9 +41,9 @@ test.describe('Patient User Journey', () => {
 
   test('should complete daily check-in flow with positive mood', async ({ page }) => {
     // Login form is now shown directly
-    await page.fill('input[type="email"]', PATIENT_CREDENTIALS.email);
-    await page.fill('input[type="password"]', PATIENT_CREDENTIALS.password);
-    await page.click('button[type="submit"]');
+    await page.fill('[data-testid="email-input"]', PATIENT_CREDENTIALS.email);
+    await page.fill('[data-testid="password-input"]', PATIENT_CREDENTIALS.password);
+    await page.click('[data-testid="login-button submit-login"]');
 
     await page.waitForURL('**/patient/dashboard', { timeout: 15000 });
     await page.waitForLoadState('networkidle');
@@ -87,9 +87,9 @@ test.describe('Patient User Journey', () => {
 
   test('should complete daily check-in flow with neutral mood', async ({ page }) => {
     // Login form is now shown directly
-    await page.fill('input[type="email"]', PATIENT_CREDENTIALS.email);
-    await page.fill('input[type="password"]', PATIENT_CREDENTIALS.password);
-    await page.click('button[type="submit"]');
+    await page.fill('[data-testid="email-input"]', PATIENT_CREDENTIALS.email);
+    await page.fill('[data-testid="password-input"]', PATIENT_CREDENTIALS.password);
+    await page.click('[data-testid="login-button submit-login"]');
 
     await page.waitForURL('**/patient/dashboard', { timeout: 15000 });
     await page.waitForLoadState('networkidle');
@@ -127,9 +127,9 @@ test.describe('Patient User Journey', () => {
 
   test('should complete daily check-in flow with negative mood and trigger support resources', async ({ page }) => {
     // Login form is now shown directly
-    await page.fill('input[type="email"]', PATIENT_CREDENTIALS.email);
-    await page.fill('input[type="password"]', PATIENT_CREDENTIALS.password);
-    await page.click('button[type="submit"]');
+    await page.fill('[data-testid="email-input"]', PATIENT_CREDENTIALS.email);
+    await page.fill('[data-testid="password-input"]', PATIENT_CREDENTIALS.password);
+    await page.click('[data-testid="login-button submit-login"]');
 
     await page.waitForURL('**/patient/dashboard', { timeout: 15000 });
     await page.waitForLoadState('networkidle');
@@ -170,9 +170,9 @@ test.describe('Patient User Journey', () => {
 
   test('should access crisis support features', async ({ page }) => {
     // Login form is now shown directly
-    await page.fill('input[type="email"]', PATIENT_CREDENTIALS.email);
-    await page.fill('input[type="password"]', PATIENT_CREDENTIALS.password);
-    await page.click('button[type="submit"]');
+    await page.fill('[data-testid="email-input"]', PATIENT_CREDENTIALS.email);
+    await page.fill('[data-testid="password-input"]', PATIENT_CREDENTIALS.password);
+    await page.click('[data-testid="login-button submit-login"]');
 
     await page.waitForURL('**/patient/dashboard', { timeout: 15000 });
     await page.waitForLoadState('networkidle');
@@ -190,9 +190,9 @@ test.describe('Patient User Journey', () => {
 
   test('should access peer support', async ({ page }) => {
     // Login form is now shown directly
-    await page.fill('input[type="email"]', PATIENT_CREDENTIALS.email);
-    await page.fill('input[type="password"]', PATIENT_CREDENTIALS.password);
-    await page.click('button[type="submit"]');
+    await page.fill('[data-testid="email-input"]', PATIENT_CREDENTIALS.email);
+    await page.fill('[data-testid="password-input"]', PATIENT_CREDENTIALS.password);
+    await page.click('[data-testid="login-button submit-login"]');
 
     await page.waitForURL('**/patient/dashboard', { timeout: 15000 });
     await page.waitForLoadState('networkidle');
@@ -209,9 +209,9 @@ test.describe('Patient User Journey', () => {
 
   test('should access community features', async ({ page }) => {
     // Login form is now shown directly
-    await page.fill('input[type="email"]', PATIENT_CREDENTIALS.email);
-    await page.fill('input[type="password"]', PATIENT_CREDENTIALS.password);
-    await page.click('button[type="submit"]');
+    await page.fill('[data-testid="email-input"]', PATIENT_CREDENTIALS.email);
+    await page.fill('[data-testid="password-input"]', PATIENT_CREDENTIALS.password);
+    await page.click('[data-testid="login-button submit-login"]');
 
     await page.waitForURL('**/patient/dashboard', { timeout: 15000 });
     await page.waitForLoadState('networkidle');
@@ -228,9 +228,9 @@ test.describe('Patient User Journey', () => {
 
   test('should handle navigation and logout properly', async ({ page }) => {
     // Login form is now shown directly
-    await page.fill('input[type="email"]', PATIENT_CREDENTIALS.email);
-    await page.fill('input[type="password"]', PATIENT_CREDENTIALS.password);
-    await page.click('button[type="submit"]');
+    await page.fill('[data-testid="email-input"]', PATIENT_CREDENTIALS.email);
+    await page.fill('[data-testid="password-input"]', PATIENT_CREDENTIALS.password);
+    await page.click('[data-testid="login-button submit-login"]');
 
     await page.waitForURL('**/patient/dashboard', { timeout: 15000 });
     await page.waitForLoadState('networkidle');
@@ -247,14 +247,14 @@ test.describe('Patient User Journey', () => {
     // Logout
     await page.click('[data-testid="logout-button"]');
     await page.waitForURL('**/auth', { timeout: 15000 });
-    await expect(page.locator('input[type="email"]')).toBeVisible();
+    await expect(page.locator('[data-testid="email-input"]')).toBeVisible();
   });
 
   test('should verify role-based access control - patient cannot access provider/supporter areas', async ({ page }) => {
     // Login form is now shown directly
-    await page.fill('input[type="email"]', PATIENT_CREDENTIALS.email);
-    await page.fill('input[type="password"]', PATIENT_CREDENTIALS.password);
-    await page.click('button[type="submit"]');
+    await page.fill('[data-testid="email-input"]', PATIENT_CREDENTIALS.email);
+    await page.fill('[data-testid="password-input"]', PATIENT_CREDENTIALS.password);
+    await page.click('[data-testid="login-button submit-login"]');
 
     await page.waitForURL('**/patient/dashboard', { timeout: 15000 });
     await page.waitForLoadState('networkidle');

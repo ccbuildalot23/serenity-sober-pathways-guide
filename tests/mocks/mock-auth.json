@@ -1,0 +1,39 @@
+{
+  "users": [
+    {
+      "id": "b27477c3-9187-423c-ae4f-139788244adb",
+      "email": "test-patient@serenity.com",
+      "password": "TestSerenity2024!@#",
+      "role": "patient",
+      "profile": {
+        "full_name": "Test Patient",
+        "phone_number": "+15551234567",
+        "bio": "Test patient account for E2E testing"
+      }
+    },
+    {
+      "id": "29b344bf-59f8-4d1e-8b77-545340e3741d",
+      "email": "test-provider@serenity.com",
+      "password": "TestSerenity2024!@#",
+      "role": "provider",
+      "profile": {
+        "full_name": "Test Provider",
+        "phone_number": "+15551234568",
+        "bio": "Test provider account for E2E testing"
+      }
+    },
+    {
+      "id": "197f2aa6-2b88-4033-8fa9-5360ce079ccb",
+      "email": "test-supporter@serenity.com",
+      "password": "TestSerenity2024!@#",
+      "role": "supporter",
+      "profile": {
+        "full_name": "Test Supporter",
+        "phone_number": "+15551234569",
+        "bio": "Test supporter account for E2E testing"
+      }
+    }
+  ],
+  "service": "MockAuthService",
+  "active": true
+}

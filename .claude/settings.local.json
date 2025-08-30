@@ -224,7 +224,8 @@
       "WebFetch(domain:serenity-nld06bulz-serenity1.vercel.app)",
       "WebFetch(domain:serenity-i6et79q5h-serenity1.vercel.app)",
       "WebFetch(domain:serenity-serenity1.vercel.app)",
-      "Bash(docker stop:*)"
+      "Bash(docker stop:*)",
+      "Bash(docker:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

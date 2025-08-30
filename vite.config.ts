@@ -8,6 +8,10 @@ import circularDependency from 'vite-plugin-circular-dependency';
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   base: '/',
+  define: {
+    global: 'globalThis',
+    'process.env': {},
+  },
   server: {
     host: "::",
     port: 8080,

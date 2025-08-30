@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { authService } from '@/services/authService';
 import type { User, Session } from '@supabase/supabase-js';
 import logger from '@/services/loggerService';
 
@@ -52,7 +53,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       logger.debug('User attempting sign in', { component: 'AuthContext', action: 'signIn' });
       
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await authService.signInWithPassword({
         email: sanitizedEmail,
         password,
       });
@@ -92,7 +93,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       logger.debug('User attempting sign up', { component: 'AuthContext', action: 'signUp' });
 
-      const { data, error } = await supabase.auth.signUp({
+      const { data, error } = await authService.signUp({
         email: sanitizedEmail,
         password,
         options: {
@@ -124,7 +125,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const signOut = async () => {
     try {
       logger.debug('User signing out', { component: 'AuthContext', action: 'signOut' });
-      const { error } = await supabase.auth.signOut();
+      const { error } = await authService.signOut();
       
       if (error) {
         logger.error('Sign out failed', error, { component: 'AuthContext', action: 'signOut' });
@@ -144,9 +145,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const sanitizedEmail = email.trim().toLowerCase();
       logger.debug('Password reset requested', { component: 'AuthContext', action: 'resetPassword' });
       
-      const { error } = await supabase.auth.resetPasswordForEmail(sanitizedEmail, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
+      const { error } = await authService.resetPasswordForEmail(sanitizedEmail);
       
       if (error) {
         logger.error('Password reset failed', error, { component: 'AuthContext', action: 'resetPassword' });
@@ -165,7 +164,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       logger.debug('User updating password', { component: 'AuthContext', action: 'updatePassword' });
       
-      const { error } = await supabase.auth.updateUser({
+      const { error } = await authService.updateUser({
         password: newPassword
       });
       
@@ -221,7 +220,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Get initial session first
     const getInitialSession = async () => {
       try {
-        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        const { data: { session: initialSession } } = await authService.getSession();
         logger.debug('Initial session loaded', { component: 'AuthContext', action: 'setup', hasSession: !!initialSession });
         setSession(initialSession);
         setUser(initialSession?.user ?? null);
@@ -235,7 +234,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     getInitialSession();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+    const { data: { subscription } } = authService.onAuthStateChange((event, newSession) => {
       logger.debug('Auth state change', { component: 'AuthContext', action: 'stateChange', event, hasSession: !!newSession });
       setSession(newSession);
       setUser(newSession?.user ?? null);

@@ -13,6 +13,7 @@ import { HealthcareErrorBoundary } from '@/components/HealthcareErrorBoundary';
 import { SessionTimeoutManager } from '@/components/SessionTimeoutManager';
 import { SessionTimeoutDebug } from '@/components/debug/SessionTimeoutDebug';
 import LoadingState from '@/components/LoadingState';
+import { MobileNavigation } from '@/components/mobile/MobileNavigation';
 // CRITICAL ROUTES - Load immediately (crisis features and auth)
 import CrisisHelp from '@/pages/CrisisHelp';
 import EnhancedCrisisSystem from '@/components/crisis/EnhancedCrisisSystem';
@@ -165,6 +166,9 @@ const AppContent = () => {
       performanceMonitor.initialize();
     }
   }, []);
+
+  // Check if we should show mobile navigation
+  const showMobileNav = window.innerWidth <= 768;
 
   return (
     <>
@@ -504,6 +508,7 @@ const AppContent = () => {
           {/* Catch-all route */}
           <Route path="*" element={<HomePage />} />
         </Routes>
+        {showMobileNav && <MobileNavigation />}
       </SessionTimeoutManager>
     </>
   );

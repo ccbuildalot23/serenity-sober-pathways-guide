@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useSearchParams } from 'react-router-dom';
+import { MobileCrisisButton } from '@/components/mobile/MobileCrisisButton';
+import { apiService } from '@/services/apiService';
 import logger from '../services/loggerService';
 
 const CrisisHelp: React.FC = () => {
@@ -69,6 +71,27 @@ const CrisisHelp: React.FC = () => {
 
   const handleTextSupport = () => {
     window.location.href = 'sms:741741&body=HELLO';
+  };
+
+  const handleCrisisButtonActivation = async () => {
+    try {
+      // Send crisis alert to backend
+      await apiService.createCrisisAlert({
+        severity: 'high',
+        message: 'Emergency help activated via crisis button',
+        location_lat: location?.lat,
+        location_lng: location?._lng
+      });
+      
+      logger.info('Crisis alert sent successfully', { component: 'CrisisHelp' });
+      
+      // Also trigger emergency call
+      handleEmergencyCall();
+    } catch (error) {
+      logger.error('Failed to send crisis alert', error, { component: 'CrisisHelp' });
+      // Still make the call even if API fails
+      handleEmergencyCall();
+    }
   };
 
   return (
@@ -209,19 +232,33 @@ const CrisisHelp: React.FC = () => {
             )}
           </div>
 
+          {/* Mobile Crisis Button with Haptic Feedback */}
+          <div className="mb-4">
+            <MobileCrisisButton
+              onActivate={handleCrisisButtonActivation}
+              variant="emergency"
+              size="extra-large"
+              hapticEnabled={true}
+              shakeEnabled={true}
+            />
+            <p className="text-xs text-gray-500 text-center mt-2">
+              Shake your phone or say "help" to activate
+            </p>
+          </div>
+
           {/* Primary Emergency Button - Crisis-Specific */}
           <Button
             onClick={handleEmergencyCall}
-            className={`w-full h-32 mb-4 rounded-2xl shadow-lg text-white ${
+            className={`w-full h-24 mb-4 rounded-2xl shadow-lg text-white ${
               selectedCrisisType === 'emergency' || selectedCrisisType === 'suicidal' 
-                ? 'bg-red-600 hover:bg-red-700 animate-pulse' 
+                ? 'bg-red-600 hover:bg-red-700' 
                 : 'bg-red-500 hover:bg-red-600'
             }`}
           >
             <div className="flex flex-col items-center">
-              <Phone className="w-12 h-12 mb-2" />
-              <span className="text-2xl font-bold">Call 988</span>
-              <span className="text-sm opacity-90">
+              <Phone className="w-10 h-10 mb-1" />
+              <span className="text-xl font-bold">Call 988 Directly</span>
+              <span className="text-xs opacity-90">
                 {selectedCrisisType === 'suicidal' ? 'Talk to someone who understands' :
                  selectedCrisisType === 'recovery' ? 'Get recovery support' :
                  selectedCrisisType === 'shame' ? 'Speak with a counselor' :

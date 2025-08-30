@@ -2,6 +2,22 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Serenity smoke: patient login and check-in counter', () => {
   test('patient can login, submit check-in, and see counter update', async ({ page }) => {
+    // Capture console errors and messages
+    const errors: string[] = [];
+    const logs: string[] = [];
+    
+    page.on('console', msg => {
+      if (msg.type() === 'error') {
+        errors.push(`CONSOLE ERROR: ${msg.text()}`);
+      } else {
+        logs.push(`CONSOLE ${msg.type().toUpperCase()}: ${msg.text()}`);
+      }
+    });
+    
+    page.on('pageerror', error => {
+      errors.push(`PAGE ERROR: ${error.toString()}`);
+    });
+    
     // Prepare error capture to aid debugging
     await page.addInitScript(() => {
       (window as any).testErrors = [];
@@ -13,11 +29,28 @@ test.describe('Serenity smoke: patient login and check-in counter', () => {
       });
     });
 
-    // Login
-    await page.goto('/login');
-    await page.fill('#email, [data-testid="email"]', 'test-patient@serenity.com');
-    await page.fill('#password, [data-testid="password"]', 'TestSerenity2024!@#');
-    await page.locator('#password, [data-testid="password"]').press('Enter');
+    // Login - Go directly to auth page and wait for React to load
+    await page.goto('/auth');
+    await page.waitForLoadState('domcontentloaded');
+    
+    // Wait up to 30 seconds for React app to initialize and auth form to appear
+    try {
+      await page.waitForSelector('input[type="email"], [data-testid="email-input"], #email', { timeout: 30000 });
+    } catch (error) {
+      console.log('CAPTURED ERRORS:', errors);
+      console.log('CAPTURED LOGS:', logs.slice(-20)); // Last 20 logs
+      
+      // Try to get test errors from the page
+      const testErrors = await page.evaluate(() => (window as any).testErrors || []);
+      console.log('PAGE TEST ERRORS:', testErrors);
+      
+      throw error;
+    }
+    
+    // Fill in credentials using multiple selector strategies
+    await page.fill('input[type="email"], [data-testid="email-input"], #email', 'test-patient@serenity.com');
+    await page.fill('input[type="password"], [data-testid="password-input"], #password', 'TestSerenity2024!@#');
+    await page.click('button[type="submit"], [data-testid="login-button submit-login"]');
 
     await page.waitForURL(/\/patient\/dashboard/, { timeout: 20000 });
     await expect(page.locator('[data-testid="checkin-counter"]')).toBeVisible();

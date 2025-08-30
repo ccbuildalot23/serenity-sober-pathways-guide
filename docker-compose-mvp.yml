@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: serenity-db
+    environment:
+      POSTGRES_DB: serenity
+      POSTGRES_USER: serenity_user
+      POSTGRES_PASSWORD: serenity_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./scripts/init-mvp-db.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./scripts/seed-test-users.sql:/docker-entrypoint-initdb.d/02-seed.sql
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U serenity_user -d serenity"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: serenity-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Backend API Server
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: serenity-backend
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgresql://serenity_user:serenity_password@postgres:5432/serenity
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: serenity-jwt-secret-dev-2024
+      CORS_ORIGIN: http://localhost:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    command: node server.js
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:

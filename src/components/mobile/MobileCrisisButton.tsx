@@ -21,7 +21,7 @@ export const MobileCrisisButton: React.FC<MobileCrisisButtonProps> = ({
   shakeEnabled = true
 }) => {
   const [isPressed, setIsPressed] = useState(false);
-  const [confirmationCount, setConfirmationCount] = useState(0);
+  const [voiceActivated, setVoiceActivated] = useState(false);
   const { triggerHaptic } = useHapticFeedback();
   const { isShaking } = useShakeDetection({ threshold: 15, duration: 1000 });
 
@@ -32,6 +32,47 @@ export const MobileCrisisButton: React.FC<MobileCrisisButtonProps> = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShaking, shakeEnabled]);
+
+  // Voice activation for emergency
+  useEffect(() => {
+    if (!variant || variant !== 'emergency') return;
+    
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase();
+      if (transcript.includes('help') || transcript.includes('emergency') || transcript.includes('crisis')) {
+        setVoiceActivated(true);
+        handleEmergencyActivation();
+        setTimeout(() => setVoiceActivated(false), 3000);
+      }
+    };
+
+    recognition.onerror = () => {
+      // Silent fail - voice activation is optional
+    };
+
+    try {
+      recognition.start();
+    } catch (e) {
+      // Silent fail if already started
+    }
+
+    return () => {
+      try {
+        recognition.stop();
+      } catch (e) {
+        // Silent cleanup
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [variant]);
 
   const handleEmergencyActivation = () => {
     if (hapticEnabled) {
@@ -53,15 +94,8 @@ export const MobileCrisisButton: React.FC<MobileCrisisButtonProps> = ({
   const handleTouchEnd = () => {
     setIsPressed(false);
     if (variant === 'emergency') {
-      // Require double-tap for emergency to prevent accidental activation
-      setConfirmationCount(prev => prev + 1);
-      if (confirmationCount >= 1) {
-        handleEmergencyActivation();
-        setConfirmationCount(0);
-      } else {
-        // Reset confirmation after 2 seconds
-        setTimeout(() => setConfirmationCount(0), 2000);
-      }
+      // Single tap activation with haptic confirmation
+      handleEmergencyActivation();
     } else {
       if (hapticEnabled) {
         triggerHaptic('medium');
@@ -111,8 +145,7 @@ export const MobileCrisisButton: React.FC<MobileCrisisButtonProps> = ({
           'touch-manipulation', // Disable double-tap zoom
           getSizeClasses(),
           getVariantClasses(),
-          isPressed && 'scale-95 shadow-inner',
-          confirmationCount === 1 && 'ring-4 ring-yellow-400 animate-bounce'
+          isPressed && 'scale-95 shadow-inner'
         )}
         aria-label="Emergency Crisis Button"
         data-testid="primary-crisis-button"
@@ -126,9 +159,9 @@ export const MobileCrisisButton: React.FC<MobileCrisisButtonProps> = ({
         )}
       </Button>
       
-      {confirmationCount === 1 && (
-        <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-sm font-semibold text-yellow-600">
-          Tap again to confirm
+      {voiceActivated && (
+        <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-sm font-semibold text-green-600 animate-pulse">
+          Voice activation triggered!
         </div>
       )}
       

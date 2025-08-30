@@ -29,11 +29,15 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
+// HIPAA compliance: 15-minute session timeout
+const SESSION_TIMEOUT = 15 * 60 * 1000; // 15 minutes in milliseconds
+
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [bypassActive, setBypassActive] = useState(false);
+  const [lastActivity, setLastActivity] = useState(Date.now());
 
   const signIn = async (email: string, password: string) => {
     try {

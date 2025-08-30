@@ -59,7 +59,7 @@ export default defineConfig(({ mode }) => ({
     // Improve chunking and caching: keep vendor and app code in separate long-lived chunks
     // Use Vite defaults to avoid chunk execution order issues observed in vendor bundle
     // Reduce chunk size warnings for crisis scenarios
-    chunkSizeWarningLimit: 500,
+    chunkSizeWarningLimit: 200,
     // Enable source maps for debugging in production (HIPAA audit requirement)
     sourcemap: mode === 'production' ? 'hidden' : true,
     // Clean dist folder before build
@@ -68,9 +68,8 @@ export default defineConfig(({ mode }) => ({
     minify: mode === 'production' ? 'terser' : 'esbuild',
     // Target modern browsers for better optimization
     target: 'esnext',
-    // CRITICAL FIX: Disable CSS code splitting to ensure CSS is always loaded
-    // This prevents the blank screen issue in TestFlight
-    cssCodeSplit: false,
+    // Enable CSS code splitting for performance
+    cssCodeSplit: true,
     // Enable tree shaking
     treeshake: mode === 'production',
     // Terser options for aggressive optimization
@@ -88,16 +87,29 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         // Simplified chunking strategy to avoid circular dependencies
-        manualChunks: {
-          // Core vendor libraries in one chunk
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          // UI libraries
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-popover', '@radix-ui/react-dropdown-menu'],
-          // Data and state management
-          data: ['@supabase/supabase-js', '@tanstack/react-query'],
-          // Large libraries in separate chunks
-          charts: ['recharts'],
-          animations: ['framer-motion']
+        manualChunks: (id) => {
+          // Aggressive chunking for <1s load time
+          if (id.includes('node_modules')) {
+            // Split React ecosystem
+            if (id.includes('react-dom')) return 'react-dom';
+            if (id.includes('react-router')) return 'react-router';
+            if (id.includes('react')) return 'react';
+            
+            // Split UI libraries
+            if (id.includes('@radix-ui')) return 'radix-ui';
+            if (id.includes('lucide-react')) return 'icons';
+            
+            // Split data libraries
+            if (id.includes('@supabase')) return 'supabase';
+            if (id.includes('@tanstack')) return 'tanstack';
+            
+            // Split large libraries
+            if (id.includes('recharts')) return 'charts';
+            if (id.includes('framer-motion')) return 'animations';
+            
+            // Everything else in vendor
+            return 'vendor';
+          }
         },
         // Use default chunk naming for consistency
         chunkFileNames: '[name]-[hash].js',

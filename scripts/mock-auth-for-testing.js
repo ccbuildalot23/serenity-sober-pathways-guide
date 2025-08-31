@@ -14,7 +14,7 @@ const mockUsers = [
   {
     id: crypto.randomUUID(),
     email: 'test-patient@serenity.com',
-    password: 'TestSerenity2024!@#',
+    password: 'TestPass123',
     role: 'patient',
     profile: {
       full_name: 'Test Patient',
@@ -25,7 +25,7 @@ const mockUsers = [
   {
     id: crypto.randomUUID(),
     email: 'test-provider@serenity.com',
-    password: 'TestSerenity2024!@#',
+    password: 'TestPass123',
     role: 'provider',
     profile: {
       full_name: 'Test Provider', 
@@ -36,7 +36,7 @@ const mockUsers = [
   {
     id: crypto.randomUUID(),
     email: 'test-supporter@serenity.com',
-    password: 'TestSerenity2024!@#',
+    password: 'TestPass123',
     role: 'supporter',
     profile: {
       full_name: 'Test Supporter',

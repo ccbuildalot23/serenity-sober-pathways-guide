@@ -37,7 +37,7 @@ describe('Final Feature Integration Tests', () => {
     // Create test users
     const { data: provider } = await supabase.auth.signUp({
       email: 'final-provider@test.com',
-      password: 'TestSerenity2024!@#',
+      password: 'TestPass123',
       options: {
         data: { role: 'provider', full_name: 'Dr. Final Test' }
       }
@@ -46,7 +46,7 @@ describe('Final Feature Integration Tests', () => {
 
     const { data: patient } = await supabase.auth.signUp({
       email: 'final-patient@test.com',
-      password: 'TestSerenity2024!@#',
+      password: 'TestPass123',
       options: {
         data: { role: 'patient', full_name: 'Final Patient', date_of_birth: '1990-01-01' }
       }
@@ -55,7 +55,7 @@ describe('Final Feature Integration Tests', () => {
 
     const { data: supporter } = await supabase.auth.signUp({
       email: 'final-supporter@test.com',
-      password: 'TestSerenity2024!@#',
+      password: 'TestPass123',
       options: {
         data: { role: 'supporter', full_name: 'Final Supporter' }
       }
@@ -65,7 +65,7 @@ describe('Final Feature Integration Tests', () => {
     // Create minor patient
     const { data: minor } = await supabase.auth.signUp({
       email: 'final-minor@test.com',
-      password: 'TestSerenity2024!@#',
+      password: 'TestPass123',
       options: {
         data: { 
           role: 'patient', 
@@ -78,7 +78,7 @@ describe('Final Feature Integration Tests', () => {
 
     const { data: guardian } = await supabase.auth.signUp({
       email: 'final-guardian@test.com',
-      password: 'TestSerenity2024!@#',
+      password: 'TestPass123',
       options: {
         data: { role: 'supporter', full_name: 'Parent Guardian' }
       }

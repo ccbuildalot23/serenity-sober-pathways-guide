@@ -36,7 +36,7 @@ async function verifyProduction() {
     await page.waitForTimeout(1000);
     try {
       await page.fill('#email', 'test-patient@serenity.com');
-      await page.fill('#password', 'TestSerenity2024!@#');
+      await page.fill('#password', 'TestPass123');
       await page.click('button[type="submit"]');
       await page.waitForURL('**/patient/dashboard', { timeout: 15000 });
       await page.waitForLoadState('networkidle');

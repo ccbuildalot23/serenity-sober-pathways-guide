@@ -22,7 +22,7 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
 const testUsers = [
   {
     email: 'test-patient@serenity.com',
-    password: 'TestSerenity2024!@#',
+    password: 'TestPass123',
     role: 'patient',
     profile: {
       full_name: 'Test Patient',
@@ -32,7 +32,7 @@ const testUsers = [
   },
   {
     email: 'test-provider@serenity.com',
-    password: 'TestSerenity2024!@#',
+    password: 'TestPass123',
     role: 'provider',
     profile: {
       full_name: 'Test Provider',
@@ -42,7 +42,7 @@ const testUsers = [
   },
   {
     email: 'test-supporter@serenity.com',
-    password: 'TestSerenity2024!@#',
+    password: 'TestPass123',
     role: 'supporter',
     profile: {
       full_name: 'Test Supporter',

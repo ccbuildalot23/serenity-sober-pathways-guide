@@ -45,7 +45,7 @@ class IntegrationValidator {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: 'test-patient@serenity.com',
-          password: 'TestSerenity2024!@#'
+          password: 'TestPass123'
         })
       });
       

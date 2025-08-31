@@ -81,7 +81,7 @@ test.describe('Local Authentication Test', () => {
     
     // Find password input
     const passwordInput = page.locator('input[type="password"]').first();
-    await passwordInput.fill('TestSerenity2024!@#');
+    await passwordInput.fill('TestPass123');
     
     // Find submit button
     const submitSelectors = [

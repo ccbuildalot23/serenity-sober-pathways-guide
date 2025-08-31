@@ -53,7 +53,7 @@ test.describe('Multi-Channel Notification Delivery', () => {
 
   test('should deliver daily check-in reminder via multiple channels', async ({ page }) => {
     // Set up notification preferences for multi-channel delivery
-    await testHelpers.login(page, patientUser.email, 'TestSerenity2024!@#');
+    await testHelpers.login(page, patientUser.email, 'TestPass123');
     
     await page.goto('/settings/notifications');
     await page.waitForSelector('[data-testid="notification-preferences"]');
@@ -123,7 +123,7 @@ test.describe('Multi-Channel Notification Delivery', () => {
   });
 
   test('should respect channel preferences and quiet hours', async ({ page }) => {
-    await testHelpers.login(page, patientUser.email, 'TestSerenity2024!@#');
+    await testHelpers.login(page, patientUser.email, 'TestPass123');
     
     await page.goto('/settings/notifications');
     
@@ -173,7 +173,7 @@ test.describe('Multi-Channel Notification Delivery', () => {
   });
 
   test('should handle channel failures gracefully with fallback', async ({ page }) => {
-    await testHelpers.login(page, patientUser.email, 'TestSerenity2024!@#');
+    await testHelpers.login(page, patientUser.email, 'TestPass123');
     
     // Configure email as primary, SMS as fallback
     await page.goto('/settings/notifications');
@@ -273,7 +273,7 @@ test.describe('Multi-Channel Notification Delivery', () => {
   });
 
   test('should handle template personalization correctly', async ({ page }) => {
-    await testHelpers.login(page, patientUser.email, 'TestSerenity2024!@#');
+    await testHelpers.login(page, patientUser.email, 'TestPass123');
 
     // Set user preferences for personalization
     await testHelpers.updateUserProfile(patientUser.id, {
@@ -332,7 +332,7 @@ test.describe('Multi-Channel Notification Delivery', () => {
   });
 
   test('should maintain delivery order for sequential notifications', async ({ page }) => {
-    await testHelpers.login(page, patientUser.email, 'TestSerenity2024!@#');
+    await testHelpers.login(page, patientUser.email, 'TestPass123');
 
     // Send sequence of time-sensitive notifications
     const notifications = [
@@ -385,7 +385,7 @@ test.describe('Multi-Channel Notification Delivery', () => {
   });
 
   test('should handle notification deduplication correctly', async ({ page }) => {
-    await testHelpers.login(page, patientUser.email, 'TestSerenity2024!@#');
+    await testHelpers.login(page, patientUser.email, 'TestPass123');
 
     const duplicateNotification = {
       type: 'daily_checkin_reminder',

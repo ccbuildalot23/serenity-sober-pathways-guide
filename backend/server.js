@@ -23,12 +23,31 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-// Database connection
+// Database connection with explicit configuration
 const pool = new Pool({
-  connectionString: DATABASE_URL,
+  host: process.env.DB_HOST || 'localhost',
+  port: process.env.DB_PORT || 5432,
+  database: process.env.DB_NAME || 'serenity',
+  user: process.env.DB_USER || 'serenity_user',
+  password: process.env.DB_PASSWORD || 'serenity_password',
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
+});
+
+// Handle pool errors
+pool.on('error', (err, client) => {
+  console.error('Unexpected error on idle client', err);
+});
+
+// Test database connection
+pool.connect((err, client, release) => {
+  if (err) {
+    console.error('❌ Database connection error:', err.stack);
+  } else {
+    console.log('✅ Database connected successfully');
+    release();
+  }
 });
 
 // Redis connection
@@ -44,8 +63,10 @@ redisClient.connect().then(() => console.log('✅ Redis connected'));
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:8080', 'http://localhost:3000'],
-  credentials: true
+  origin: ['http://localhost:8080', 'http://localhost:3000', 'http://localhost:5173'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -57,12 +78,22 @@ app.use((req, res, next) => {
 });
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', async (req, res) => {
+  let dbStatus = 'disconnected';
+  try {
+    const client = await pool.connect();
+    await client.query('SELECT 1');
+    client.release();
+    dbStatus = 'connected';
+  } catch (err) {
+    console.error('Health check DB error:', err.message);
+  }
+  
   res.json({ 
     status: 'healthy', 
     timestamp: new Date().toISOString(),
     services: {
-      database: pool.totalCount > 0 ? 'connected' : 'disconnected',
+      database: dbStatus,
       redis: redisClient.isReady ? 'connected' : 'disconnected',
       websocket: wss.clients.size >= 0 ? 'active' : 'inactive'
     }
@@ -111,11 +142,11 @@ app.post('/api/auth/login', async (req, res) => {
 
     const user = userResult.rows[0];
     
-    // For test users, check hardcoded password
+    // For test users, check hardcoded password (simplified for JSON compatibility)
     const testPasswords = {
-      'test-patient@serenity.com': 'TestSerenity2024!@#',
-      'test-provider@serenity.com': 'TestSerenity2024!@#',
-      'test-supporter@serenity.com': 'TestSerenity2024!@#'
+      'test-patient@serenity.com': 'TestPass123',
+      'test-provider@serenity.com': 'TestPass123',
+      'test-supporter@serenity.com': 'TestPass123'
     };
     
     if (testPasswords[email] && password !== testPasswords[email]) {
@@ -155,6 +186,68 @@ app.post('/api/auth/login', async (req, res) => {
     });
   } catch (error) {
     console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Register endpoint
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { email, password, full_name, role = 'patient' } = req.body;
+    
+    // Check if user already exists
+    const existingUser = await pool.query(
+      'SELECT id FROM users WHERE email = $1',
+      [email]
+    );
+
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ error: 'User already exists' });
+    }
+
+    // Create user
+    const userResult = await pool.query(
+      'INSERT INTO users (email) VALUES ($1) RETURNING id, email',
+      [email]
+    );
+
+    const userId = userResult.rows[0].id;
+
+    // Create profile
+    await pool.query(
+      'INSERT INTO profiles (id, full_name) VALUES ($1, $2)',
+      [userId, full_name]
+    );
+
+    // Assign role
+    await pool.query(
+      'INSERT INTO user_roles (user_id, role) VALUES ($1, $2)',
+      [userId, role]
+    );
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        id: userId, 
+        email: email, 
+        role: role,
+        name: full_name 
+      },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    res.status(201).json({
+      token,
+      user: {
+        id: userId,
+        email: email,
+        name: full_name,
+        role: role
+      }
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -401,7 +494,7 @@ wss.on('connection', (ws) => {
 // ERROR HANDLING
 // ===================
 
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
   console.error('Global error handler:', err);
   res.status(500).json({ 
     error: 'Internal server error',

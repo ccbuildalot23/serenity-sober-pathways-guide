@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { authService } from '@/services/authService';
+import { authBridge } from '@/services/authBridge';
 import type { User, Session } from '@supabase/supabase-js';
 import logger from '@/services/loggerService';
 
@@ -37,7 +38,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [bypassActive, setBypassActive] = useState(false);
   const [lastActivity, setLastActivity] = useState(Date.now());
 
   const signIn = async (email: string, password: string) => {
@@ -48,30 +48,56 @@ export function AuthProvider({ children }: AuthProviderProps) {
         throw new Error('Invalid email format');
       }
 
-      // Don't clear existing auth state - this can cause issues
-      // Let Supabase handle the auth state management
-
       logger.debug('User attempting sign in', { component: 'AuthContext', action: 'signIn' });
       
-      const { data, error } = await authService.signInWithPassword({
-        email: sanitizedEmail,
-        password,
-      });
-
-      if (error) {
-        logger.error('Sign in failed', error, { component: 'AuthContext', action: 'signIn' });
-        return { error };
-      }
-
-      if (data?.user) {
-        logger.security('User sign in successful', { 
-          component: 'AuthContext', 
-          action: 'signIn',
-          userId: data.user.id 
+      // Use authBridge for hybrid authentication
+      try {
+        const authData = await authBridge.login(sanitizedEmail, password);
+        
+        if (authData && authData.user) {
+          // Set user state from authBridge response
+          setUser({
+            id: authData.user.id,
+            email: authData.user.email,
+            user_metadata: { full_name: authData.user.name, role: authData.user.role }
+          } as User);
+          
+          if (authData.session) {
+            setSession(authData.session as Session);
+          }
+          
+          logger.security('User sign in successful', { 
+            component: 'AuthContext', 
+            action: 'signIn',
+            userId: authData.user.id 
+          });
+          
+          return { error: null };
+        }
+      } catch (bridgeError) {
+        logger.warn('AuthBridge failed, falling back to Supabase', { error: bridgeError });
+        
+        // Fallback to original Supabase auth
+        const { data, error } = await authService.signInWithPassword({
+          email: sanitizedEmail,
+          password,
         });
-      }
 
-      return { error: null };
+        if (error) {
+          logger.error('Sign in failed', error, { component: 'AuthContext', action: 'signIn' });
+          return { error };
+        }
+
+        if (data?.user) {
+          logger.security('User sign in successful via Supabase', { 
+            component: 'AuthContext', 
+            action: 'signIn',
+            userId: data.user.id 
+          });
+        }
+
+        return { error: null };
+      }
     } catch (err: any) {
       logger.error('Sign in exception', err, { component: 'AuthContext', action: 'signIn' });
       return { error: err };
@@ -181,40 +207,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  // Production-safe automated verification bypass: only active in automation (Playwright/webdriver) or explicit query param
-  useEffect(() => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const queryBypass = params.get('test_auth') === 'bypass';
-      // Detect automation (Playwright/WebDriver)
-      const isAutomation = ((): boolean => {
-        try {
-          // @ts-ignore
-          if (typeof window !== 'undefined' && (window as any).__PW_TEST__) return true;
-          return typeof navigator !== 'undefined' && !!navigator.webdriver;
-        } catch { return false; }
-      })();
-
-      if (queryBypass || isAutomation) {
-        const mock: any = {
-          id: '00000000-0000-0000-0000-000000000001',
-          email: 'test-patient@serenity.com',
-          user_metadata: { userType: 'patient' },
-        };
-        setUser(mock as User);
-        setSession(null);
-        setBypassActive(true);
-        setLoading(false);
-        try {
-          localStorage.setItem('pw_role', 'patient');
-          localStorage.setItem('dev_bypass_auth', 'true');
-        } catch {}
-      }
-    } catch {}
-  }, []);
+  // Removed auth bypass logic - require actual authentication
 
   useEffect(() => {
-    if (bypassActive) return; // Skip Supabase auth wiring under bypass
 
     logger.debug('Setting up auth state listener', { component: 'AuthContext', action: 'setup' });
     // Get initial session first
@@ -245,7 +240,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       logger.debug('Cleaning up auth subscription', { component: 'AuthContext', action: 'cleanup' });
       subscription.unsubscribe();
     };
-  }, [bypassActive]);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ 

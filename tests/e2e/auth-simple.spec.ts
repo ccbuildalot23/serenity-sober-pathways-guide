@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 const TEST_CREDENTIALS = {
   PATIENT: {
     email: 'test-patient@serenity.com',
-    password: 'TestSerenity2024!@#'
+    password: 'TestPass123'
   }
 };
 

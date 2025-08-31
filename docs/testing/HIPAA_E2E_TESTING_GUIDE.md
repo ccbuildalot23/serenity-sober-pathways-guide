@@ -46,22 +46,22 @@ The tests require the following test users to be created in the database:
 TEST_CREDENTIALS = {
   PATIENT: {
     email: 'test-patient@serenity.com',
-    password: 'TestSerenity2024!@#',
+    password: 'TestPass123',
     role: 'patient'
   },
   PROVIDER: {
     email: 'test-provider@serenity.com',
-    password: 'TestSerenity2024!@#',
+    password: 'TestPass123',
     role: 'provider'
   },
   SUPPORTER: {
     email: 'test-supporter@serenity.com',
-    password: 'TestSerenity2024!@#',
+    password: 'TestPass123',
     role: 'support_member'
   },
   ADMIN: {
     email: 'test-admin@serenity.com',
-    password: 'TestSerenity2024!@#',
+    password: 'TestPass123',
     role: 'admin'
   }
 }

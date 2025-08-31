@@ -407,7 +407,7 @@ test.describe('Rate Limiting and Quiet Hours', () => {
   });
 
   test('should handle burst notification scenarios', async ({ page }) => {
-    await testHelpers.login(page, patientUser.email, 'TestSerenity2024!@#');
+    await testHelpers.login(page, patientUser.email, 'TestPass123');
 
     // Simulate rapid-fire notifications (e.g., multiple crisis alerts)
     const burstNotifications = Array.from({ length: 20 }, (_, i) => ({
@@ -490,7 +490,7 @@ test.describe('Rate Limiting and Quiet Hours', () => {
     await testHelpers.setNotificationCount(patientUser.id, 'sms', 'daily', 7);
     await testHelpers.setNotificationCount(patientUser.id, 'email', 'daily', 15);
 
-    await testHelpers.login(page, patientUser.email, 'TestSerenity2024!@#');
+    await testHelpers.login(page, patientUser.email, 'TestPass123');
     await page.goto('/settings/notifications');
 
     // Should display current usage and limits

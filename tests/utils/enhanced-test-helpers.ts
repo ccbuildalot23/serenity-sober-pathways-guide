@@ -231,7 +231,7 @@ export async function testConcurrentUsers(browser: Browser, userCount: number, s
       await page.goto('/auth');
       await page.click('[data-testid="login-button"]');
       await page.fill('[data-testid="email-input"]', 'test-patient@serenity.com');
-      await page.fill('[data-testid="password-input"]', 'TestSerenity2024!@#');
+      await page.fill('[data-testid="password-input"]', 'TestPass123');
       await page.click('[data-testid="submit-login"]');
       await page.waitForURL('**/patient/dashboard', { timeout: 15000 });
     }

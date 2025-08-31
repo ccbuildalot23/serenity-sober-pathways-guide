@@ -94,9 +94,9 @@ bash scripts/deploy-testflight.sh
 4. Some form inputs on /signin route need mobile optimization
 
 ### Test Accounts for Reviewers
-- Patient: test-patient@serenity.com / TestSerenity2024!@#
-- Provider: test-provider@serenity.com / TestSerenity2024!@#
-- Supporter: test-supporter@serenity.com / TestSerenity2024!@#
+- Patient: test-patient@serenity.com / TestPass123
+- Provider: test-provider@serenity.com / TestPass123
+- Supporter: test-supporter@serenity.com / TestPass123
 
 ## Post-Deployment Verification
 

@@ -144,9 +144,9 @@ The Serenity Mental Health Platform has achieved **75% MVP readiness** with stro
 ### Test Credentials for Beta
 
 ```
-Patient: test-patient@serenity.com / TestSerenity2024!@#
-Provider: test-provider@serenity.com / TestSerenity2024!@#
-Supporter: test-supporter@serenity.com / TestSerenity2024!@#
+Patient: test-patient@serenity.com / TestPass123
+Provider: test-provider@serenity.com / TestPass123
+Supporter: test-supporter@serenity.com / TestPass123
 ```
 
 ## Risk Assessment

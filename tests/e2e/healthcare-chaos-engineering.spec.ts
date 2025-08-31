@@ -16,7 +16,7 @@ test.describe('Healthcare Chaos Engineering E2E', () => {
     
     // Login as admin to access chaos engineering tools
     await page.fill('[data-testid="email-input"]', 'admin@serenity.com');
-    await page.fill('[data-testid="password-input"]', 'TestSerenity2024!@#');
+    await page.fill('[data-testid="password-input"]', 'TestPass123');
     await page.click('[data-testid="login-button"]');
     
     // Wait for login to complete
@@ -240,7 +240,7 @@ test.describe('Healthcare Chaos Engineering E2E', () => {
       // Login as tenant A user
       await page.goto('/');
       await page.fill('[data-testid="email-input"]', 'tenant-a@serenity.com');
-      await page.fill('[data-testid="password-input"]', 'TestSerenity2024!@#');
+      await page.fill('[data-testid="password-input"]', 'TestPass123');
       await page.click('[data-testid="login-button"]');
       
       // Create data for tenant A
@@ -253,7 +253,7 @@ test.describe('Healthcare Chaos Engineering E2E', () => {
       // Logout and login as tenant B
       await page.click('[data-testid="logout-button"]');
       await page.fill('[data-testid="email-input"]', 'tenant-b@serenity.com');
-      await page.fill('[data-testid="password-input"]', 'TestSerenity2024!@#');
+      await page.fill('[data-testid="password-input"]', 'TestPass123');
       await page.click('[data-testid="login-button"]');
       
       // Verify tenant B cannot see tenant A's data

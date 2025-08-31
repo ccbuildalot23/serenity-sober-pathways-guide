@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 // Test credentials
 const PATIENT_CREDENTIALS = {
   email: 'test-patient@serenity.com',
-  password: 'TestSerenity2024!@#'
+  password: 'TestPass123'
 };
 
 test.describe('Patient User Journey', () => {

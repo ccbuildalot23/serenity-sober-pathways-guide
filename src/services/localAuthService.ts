@@ -14,19 +14,19 @@ const JWT_SECRET = process.env.JWT_SECRET || 'development-secret-key-12345';
 const TEST_USERS = {
   'test-patient@serenity.com': {
     id: '11111111-1111-1111-1111-111111111111',
-    password: 'TestSerenity2024!@#',
+    password: 'TestPass123',
     role: 'patient',
     name: 'Test Patient'
   },
   'test-provider@serenity.com': {
     id: '22222222-2222-2222-2222-222222222222',
-    password: 'TestSerenity2024!@#',
+    password: 'TestPass123',
     role: 'provider',
     name: 'Test Provider'
   },
   'test-supporter@serenity.com': {
     id: '33333333-3333-3333-3333-333333333333',
-    password: 'TestSerenity2024!@#',
+    password: 'TestPass123',
     role: 'supporter',
     name: 'Test Supporter'
   }

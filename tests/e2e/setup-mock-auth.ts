@@ -5,19 +5,19 @@ import * as path from 'path';
 const mockUsers = [
   {
     email: 'test-patient@serenity.com',
-    password: 'TestSerenity2024!@#',
+    password: 'TestPass123',
     role: 'patient',
     token: 'mock-patient-token'
   },
   {
     email: 'test-provider@serenity.com',
-    password: 'TestSerenity2024!@#',
+    password: 'TestPass123',
     role: 'provider',
     token: 'mock-provider-token'
   },
   {
     email: 'test-supporter@serenity.com',
-    password: 'TestSerenity2024!@#',
+    password: 'TestPass123',
     role: 'supporter',
     token: 'mock-supporter-token'
   }

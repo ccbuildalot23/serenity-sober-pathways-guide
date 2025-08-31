@@ -3,9 +3,9 @@ import { chromium, FullConfig } from '@playwright/test';
 async function globalSetup(config: FullConfig) {
   console.log('🚀 Starting Playwright E2E Test Suite for Serenity App');
   console.log('📋 Test Credentials:');
-  console.log('  Patient: test-patient@serenity.com / TestSerenity2024!@#');
-  console.log('  Provider: test-provider@serenity.com / TestSerenity2024!@#');
-  console.log('  Supporter: test-supporter@serenity.com / TestSerenity2024!@#');
+  console.log('  Patient: test-patient@serenity.com / TestPass123');
+  console.log('  Provider: test-provider@serenity.com / TestPass123');
+  console.log('  Supporter: test-supporter@serenity.com / TestPass123');
   
   // Launch browser for setup tasks
   const browser = await chromium.launch();

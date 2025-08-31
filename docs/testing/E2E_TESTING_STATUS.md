@@ -107,9 +107,9 @@ The e2e testing suite has been successfully set up and is running with Playwrigh
 - **Timeout**: 10-30 seconds per test (increased for WebKit)
 
 ### Test Data
-- Patient: test-patient@serenity.com / TestSerenity2024!@#
-- Provider: test-provider@serenity.com / TestSerenity2024!@#
-- Supporter: test-supporter@serenity.com / TestSerenity2024!@#
+- Patient: test-patient@serenity.com / TestPass123
+- Provider: test-provider@serenity.com / TestPass123
+- Supporter: test-supporter@serenity.com / TestPass123
 
 ## Commands
 

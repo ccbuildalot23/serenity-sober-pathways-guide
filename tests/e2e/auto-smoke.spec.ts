@@ -49,7 +49,7 @@ test.describe('Serenity smoke: patient login and check-in counter', () => {
     
     // Fill in credentials using multiple selector strategies
     await page.fill('input[type="email"], [data-testid="email-input"], #email', 'test-patient@serenity.com');
-    await page.fill('input[type="password"], [data-testid="password-input"], #password', 'TestSerenity2024!@#');
+    await page.fill('input[type="password"], [data-testid="password-input"], #password', 'TestPass123');
     await page.click('button[type="submit"], [data-testid="login-button submit-login"]');
 
     await page.waitForURL(/\/patient\/dashboard/, { timeout: 20000 });

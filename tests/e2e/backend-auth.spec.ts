@@ -24,7 +24,7 @@ test.describe('Backend Authentication Integration', () => {
     
     // Fill in credentials
     await emailInput.fill('test-patient@serenity.com');
-    await passwordInput.fill('TestSerenity2024!@#');
+    await passwordInput.fill('TestPass123');
     
     // Find and click submit button
     const submitButton = page.locator('button[type="submit"], button:has-text("Sign In"), button:has-text("Log In")');
@@ -64,7 +64,7 @@ test.describe('Backend Authentication Integration', () => {
     const passwordInput = page.locator('input[type="password"], input[name="password"]');
     
     await emailInput.fill('test-patient@serenity.com');
-    await passwordInput.fill('TestSerenity2024!@#');
+    await passwordInput.fill('TestPass123');
     
     const submitButton = page.locator('button[type="submit"]');
     await submitButton.click();

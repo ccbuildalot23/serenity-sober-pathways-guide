@@ -25,9 +25,9 @@ This document summarizes the comprehensive testing infrastructure implementation
 - **Script**: `scripts/setup-test-accounts-simple.mjs`
 - **Test Accounts Created**:
   ```
-  Patient: test-patient@serenity.com / TestSerenity2024!@#
-  Provider: test-provider@serenity.com / TestSerenity2024!@#
-  Supporter: test-supporter@serenity.com / TestSerenity2024!@#
+  Patient: test-patient@serenity.com / TestPass123
+  Provider: test-provider@serenity.com / TestPass123
+  Supporter: test-supporter@serenity.com / TestPass123
   ```
 - **Features**: Each account has proper user metadata for role-based access control
 

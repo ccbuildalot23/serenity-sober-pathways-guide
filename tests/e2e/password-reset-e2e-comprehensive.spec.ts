@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 // Test configuration
 const TEST_EMAIL = 'cmcald1018@gmail.com';
-const TEST_PASSWORD = 'TestSerenity2024!@#';
+const TEST_PASSWORD = 'TestPass123';
 const NEW_PASSWORD = 'NewSerenity2024!@#';
 const INVALID_EMAIL = 'nonexistent@example.com';
 

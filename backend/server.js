@@ -50,16 +50,30 @@ pool.connect((err, client, release) => {
   }
 });
 
-// Redis connection
-const redisClient = redis.createClient({
-  url: REDIS_URL,
-  socket: {
-    reconnectStrategy: (retries) => Math.min(retries * 50, 1000)
-  }
-});
-
-redisClient.on('error', (err) => console.error('Redis Client Error', err));
-redisClient.connect().then(() => console.log('✅ Redis connected'));
+// Redis connection (optional for MVP)
+let redisClient = null;
+try {
+  redisClient = redis.createClient({
+    url: REDIS_URL,
+    socket: {
+      reconnectStrategy: (retries) => retries > 3 ? false : Math.min(retries * 50, 1000)
+    }
+  });
+  
+  redisClient.on('error', (err) => {
+    console.log('📝 Redis not available (optional for MVP, continuing without cache)');
+  });
+  
+  redisClient.connect().then(() => {
+    console.log('✅ Redis connected');
+  }).catch(() => {
+    console.log('📝 Running without Redis cache (OK for MVP)');
+    redisClient = null;
+  });
+} catch (err) {
+  console.log('📝 Redis setup skipped for MVP');
+  redisClient = null;
+}
 
 // Middleware
 app.use(cors({

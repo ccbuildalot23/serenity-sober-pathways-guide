@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Serenity - Mental Health Check-in (TRUE MVP)</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .page { display: none; }
+    .page.active { display: block; }
+    input, button, textarea {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover { background: #5a67d8; }
+    .crisis-btn {
+      background: #e53e3e;
+      font-size: 24px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .crisis-btn:hover { background: #c53030; }
+    .mood-slider {
+      width: 100%;
+      margin: 20px 0;
+    }
+    .mood-display {
+      text-align: center;
+      font-size: 48px;
+      margin: 10px 0;
+    }
+    .checkin-list {
+      margin-top: 20px;
+    }
+    .checkin-item {
+      padding: 10px;
+      margin: 10px 0;
+      background: #f7fafc;
+      border-radius: 8px;
+      border-left: 4px solid #667eea;
+    }
+    .nav {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #e2e8f0;
+    }
+    .nav button {
+      width: auto;
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+    .error {
+      color: #e53e3e;
+      text-align: center;
+      margin: 10px 0;
+    }
+    .success {
+      color: #48bb78;
+      text-align: center;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Login Page -->
+    <div id="login" class="page active">
+      <h1>🌟 Serenity</h1>
+      <p style="text-align: center; color: #718096; margin-bottom: 20px;">
+        Mental Health Check-in (TRUE MVP)
+      </p>
+      <input type="email" id="email" placeholder="Email" value="user@example.com">
+      <input type="password" id="password" placeholder="Password" value="TestPass123!">
+      <button onclick="login()">Login</button>
+      <div id="login-error" class="error"></div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div id="dashboard" class="page">
+      <h1>Welcome Back! 👋</h1>
+      <button class="crisis-btn" onclick="crisis()">🚨 I NEED HELP NOW</button>
+      <button onclick="showPage('checkin')">Daily Check-in</button>
+      <button onclick="showPage('history')">View History</button>
+      <div class="nav">
+        <button onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <!-- Check-in Page -->
+    <div id="checkin" class="page">
+      <h1>Daily Check-in</h1>
+      <p style="color: #718096; margin-bottom: 20px;">How are you feeling today?</p>
+      <div class="mood-display" id="mood-display">😊</div>
+      <input type="range" class="mood-slider" id="mood" min="1" max="10" value="5" 
+             oninput="updateMood(this.value)">
+      <p style="text-align: center; color: #718096;">Mood: <span id="mood-value">5</span>/10</p>
+      <textarea id="notes" placeholder="Any notes? (optional)" rows="4"></textarea>
+      <button onclick="submitCheckin()">Submit Check-in</button>
+      <div id="checkin-message"></div>
+      <div class="nav">
+        <button onclick="showPage('dashboard')">Back</button>
+      </div>
+    </div>
+
+    <!-- History Page -->
+    <div id="history" class="page">
+      <h1>Your Check-ins</h1>
+      <div id="checkin-list" class="checkin-list">
+        <p style="color: #718096; text-align: center;">Loading...</p>
+      </div>
+      <div class="nav">
+        <button onclick="showPage('dashboard')">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3003';
+    let token = localStorage.getItem('token');
+    
+    // Check if logged in
+    if (token) {
+      showPage('dashboard');
+    }
+    
+    function showPage(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+      
+      if (pageId === 'history') {
+        loadHistory();
+      }
+    }
+    
+    async function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      try {
+        const response = await fetch(`${API_URL}/api/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        
+        if (!response.ok) throw new Error('Invalid credentials');
+        
+        const data = await response.json();
+        token = data.token;
+        localStorage.setItem('token', token);
+        localStorage.setItem('userName', data.user.name);
+        showPage('dashboard');
+      } catch (error) {
+        document.getElementById('login-error').textContent = 'Login failed. Try: user@example.com / TestPass123!';
+      }
+    }
+    
+    function logout() {
+      token = null;
+      localStorage.removeItem('token');
+      localStorage.removeItem('userName');
+      showPage('login');
+    }
+    
+    function updateMood(value) {
+      document.getElementById('mood-value').textContent = value;
+      const moods = ['😔', '😟', '😕', '😐', '🙂', '😊', '😄', '😃', '😁', '🤗'];
+      document.getElementById('mood-display').textContent = moods[value - 1];
+    }
+    
+    async function submitCheckin() {
+      const mood = document.getElementById('mood').value;
+      const notes = document.getElementById('notes').value;
+      
+      try {
+        const response = await fetch(`${API_URL}/api/checkin`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ mood, notes })
+        });
+        
+        if (!response.ok) throw new Error('Failed to submit');
+        
+        document.getElementById('checkin-message').className = 'success';
+        document.getElementById('checkin-message').textContent = '✅ Check-in saved!';
+        document.getElementById('notes').value = '';
+        
+        setTimeout(() => showPage('dashboard'), 1500);
+      } catch (error) {
+        document.getElementById('checkin-message').className = 'error';
+        document.getElementById('checkin-message').textContent = '❌ Failed to save check-in';
+      }
+    }
+    
+    async function loadHistory() {
+      try {
+        const response = await fetch(`${API_URL}/api/checkins`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!response.ok) throw new Error('Failed to load');
+        
+        const checkins = await response.json();
+        const list = document.getElementById('checkin-list');
+        
+        if (checkins.length === 0) {
+          list.innerHTML = '<p style="color: #718096; text-align: center;">No check-ins yet</p>';
+        } else {
+          list.innerHTML = checkins.map(c => {
+            const date = new Date(c.date).toLocaleDateString();
+            const moods = ['😔', '😟', '😕', '😐', '🙂', '😊', '😄', '😃', '😁', '🤗'];
+            return `
+              <div class="checkin-item">
+                <div style="font-size: 24px;">${moods[c.mood - 1]} Mood: ${c.mood}/10</div>
+                <div style="color: #718096; font-size: 14px;">${date}</div>
+                ${c.notes ? `<div style="margin-top: 5px;">${c.notes}</div>` : ''}
+              </div>
+            `;
+          }).join('');
+        }
+      } catch (error) {
+        document.getElementById('checkin-list').innerHTML = 
+          '<p style="color: #e53e3e; text-align: center;">Failed to load history</p>';
+      }
+    }
+    
+    async function crisis() {
+      if (confirm('This will send an emergency alert. Continue?')) {
+        try {
+          const response = await fetch(`${API_URL}/api/crisis`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              message: 'Emergency help needed',
+              time: new Date().toISOString()
+            })
+          });
+          
+          const data = await response.json();
+          alert(data.message);
+        } catch (error) {
+          alert('Call 988 for immediate support (Suicide & Crisis Lifeline)');
+        }
+      }
+    }
+  </script>
+</body>
+</html>

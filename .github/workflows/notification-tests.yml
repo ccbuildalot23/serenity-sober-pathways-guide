@@ -232,7 +232,7 @@ jobs:
           fi
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           files: ./services/notification-service/coverage/lcov.info
           flags: notification-service,unit-tests,${{ matrix.test-group }}

@@ -1,4 +1,5 @@
 {
+  "outputDirectory": ".",
   "rewrites": [
     { "source": "/api/login", "destination": "/api/mvp-server" },
     { "source": "/api/checkin", "destination": "/api/mvp-server" },

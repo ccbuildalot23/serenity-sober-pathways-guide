@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Serenity Provider Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f7fafc;
+      min-height: 100vh;
+    }
+    .header {
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .header h1 {
+      color: #2d3748;
+      font-size: 24px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .metric-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .metric-card h3 {
+      color: #718096;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .metric-value {
+      font-size: 32px;
+      font-weight: bold;
+      color: #2d3748;
+      margin-bottom: 4px;
+    }
+    .metric-value.success { color: #48bb78; }
+    .metric-value.warning { color: #ed8936; }
+    .metric-value.danger { color: #f56565; }
+    .metric-change {
+      font-size: 14px;
+      color: #48bb78;
+    }
+    .metric-change.negative { color: #f56565; }
+    .roi-highlight {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    .roi-highlight h3 { color: rgba(255,255,255,0.9); }
+    .roi-highlight .metric-value { color: white; }
+    .section {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 20px;
+    }
+    .patient-list {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 2px solid #e2e8f0;
+      color: #718096;
+      font-weight: 500;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #2d3748;
+    }
+    tr:hover {
+      background: #f7fafc;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-active { background: #c6f6d5; color: #22543d; }
+    .status-at-risk { background: #fed7d7; color: #742a2a; }
+    .status-moderate { background: #feebc8; color: #744210; }
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #5a67d8;
+    }
+    .billing-codes {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+    .code-card {
+      background: #edf2f7;
+      padding: 12px;
+      border-radius: 8px;
+      border: 2px solid #cbd5e0;
+    }
+    .code-card.qualified {
+      background: #c6f6d5;
+      border-color: #48bb78;
+    }
+    .code-number {
+      font-weight: bold;
+      color: #2d3748;
+      margin-bottom: 4px;
+    }
+    .code-desc {
+      font-size: 12px;
+      color: #718096;
+    }
+    .code-amount {
+      color: #48bb78;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    .login-container {
+      max-width: 400px;
+      margin: 100px auto;
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    .page { display: none; }
+    .page.active { display: block; }
+    .nav-tabs {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .nav-tab {
+      padding: 12px 0;
+      color: #718096;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      font-weight: 500;
+    }
+    .nav-tab.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Page -->
+  <div id="login-page" class="page active">
+    <div class="login-container">
+      <h1 style="text-align: center; margin-bottom: 30px;">🏥 Provider Portal</h1>
+      <input type="email" id="provider-email" placeholder="Email" value="provider@example.com">
+      <input type="password" id="provider-password" placeholder="Password" value="ProviderPass123!">
+      <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="loginProvider()">
+        Login as Provider
+      </button>
+      <div id="login-error" style="color: #f56565; text-align: center; margin-top: 10px;"></div>
+    </div>
+  </div>
+
+  <!-- Dashboard Page -->
+  <div id="dashboard-page" class="page">
+    <div class="header">
+      <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+        <h1>Provider Dashboard</h1>
+        <button class="btn btn-primary" onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- Key Metrics -->
+      <div class="metrics-grid">
+        <div class="metric-card roi-highlight">
+          <h3>Monthly ROI</h3>
+          <div class="metric-value" id="monthly-roi">$0</div>
+          <div class="metric-change">Referral loss prevented</div>
+        </div>
+        
+        <div class="metric-card">
+          <h3>Active Patients</h3>
+          <div class="metric-value" id="active-patients">0</div>
+          <div class="metric-change">Retention Rate: <span id="retention-rate">0%</span></div>
+        </div>
+        
+        <div class="metric-card">
+          <h3>Billable This Month</h3>
+          <div class="metric-value success" id="billable-amount">$0</div>
+          <div class="metric-change">Via care navigation codes</div>
+        </div>
+        
+        <div class="metric-card">
+          <h3>At-Risk Patients</h3>
+          <div class="metric-value warning" id="at-risk">0</div>
+          <div class="metric-change">Need intervention</div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="nav-tabs">
+        <div class="nav-tab active" onclick="showTab('patients')">Patients</div>
+        <div class="nav-tab" onclick="showTab('billing')">Billing Automation</div>
+        <div class="nav-tab" onclick="showTab('analytics')">ROI Analytics</div>
+      </div>
+
+      <!-- Patients Tab -->
+      <div id="patients-tab" class="section tab-content active">
+        <h2 class="section-title">Patient Overview</h2>
+        <div class="patient-list">
+          <table>
+            <thead>
+              <tr>
+                <th>Patient Name</th>
+                <th>Last Check-in</th>
+                <th>Check-ins</th>
+                <th>Avg Mood</th>
+                <th>Risk Level</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="patient-tbody">
+              <!-- Populated by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Billing Tab -->
+      <div id="billing-tab" class="section tab-content" style="display: none;">
+        <h2 class="section-title">Billing Automation</h2>
+        <p style="color: #718096; margin-bottom: 20px;">
+          Automatically track care navigation time to maximize reimbursement
+        </p>
+        
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <h3>CCM Minutes</h3>
+            <div class="metric-value" id="ccm-minutes">0</div>
+            <div class="metric-change">Chronic Care Management</div>
+          </div>
+          
+          <div class="metric-card">
+            <h3>BHI Minutes</h3>
+            <div class="metric-value" id="bhi-minutes">0</div>
+            <div class="metric-change">Behavioral Health Integration</div>
+          </div>
+          
+          <div class="metric-card">
+            <h3>Est. Reimbursement</h3>
+            <div class="metric-value success" id="est-reimbursement">$0</div>
+            <div class="metric-change">This month</div>
+          </div>
+        </div>
+        
+        <h3 style="margin-top: 30px; margin-bottom: 10px;">Suggested Billing Codes</h3>
+        <div class="billing-codes" id="billing-codes">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Analytics Tab -->
+      <div id="analytics-tab" class="section tab-content" style="display: none;">
+        <h2 class="section-title">ROI Analytics</h2>
+        
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <h3>Annual Value Retained</h3>
+            <div class="metric-value success" id="annual-value">$0</div>
+            <div class="metric-change">Based on retention improvement</div>
+          </div>
+          
+          <div class="metric-card">
+            <h3>Retained Patients</h3>
+            <div class="metric-value" id="retained-patients">0</div>
+            <div class="metric-change">Would have been lost</div>
+          </div>
+          
+          <div class="metric-card">
+            <h3>Referral Loss Prevented</h3>
+            <div class="metric-value success" id="referral-prevented">$0</div>
+            <div class="metric-change">High-value SUD patients</div>
+          </div>
+        </div>
+        
+        <div style="background: #edf2f7; padding: 20px; border-radius: 8px; margin-top: 20px;">
+          <h3 style="margin-bottom: 10px;">ROI Calculation Methodology</h3>
+          <p style="color: #4a5568; line-height: 1.6;">
+            Based on industry data, each retained substance abuse patient represents $45,000-$135,000 
+            in annual value through continued treatment, medication management, and prevention of 
+            referral to competitors. Our platform demonstrates a 20% improvement in retention rates 
+            through engagement tracking and early intervention.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3003';
+    let providerToken = localStorage.getItem('providerToken');
+    
+    // Check if logged in
+    if (providerToken) {
+      showDashboard();
+    }
+    
+    async function loginProvider() {
+      const email = document.getElementById('provider-email').value;
+      const password = document.getElementById('provider-password').value;
+      
+      try {
+        const response = await fetch(`${API_URL}/api/provider/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        
+        if (!response.ok) throw new Error('Invalid credentials');
+        
+        const data = await response.json();
+        providerToken = data.token;
+        localStorage.setItem('providerToken', providerToken);
+        localStorage.setItem('providerName', data.provider.name);
+        
+        showDashboard();
+      } catch (error) {
+        document.getElementById('login-error').textContent = 'Login failed. Try: provider@example.com / ProviderPass123!';
+      }
+    }
+    
+    function logout() {
+      providerToken = null;
+      localStorage.removeItem('providerToken');
+      localStorage.removeItem('providerName');
+      document.getElementById('login-page').classList.add('active');
+      document.getElementById('dashboard-page').classList.remove('active');
+    }
+    
+    async function showDashboard() {
+      document.getElementById('login-page').classList.remove('active');
+      document.getElementById('dashboard-page').classList.add('active');
+      
+      // Load all data
+      await Promise.all([
+        loadPatients(),
+        loadROI(),
+        loadBilling()
+      ]);
+    }
+    
+    async function loadPatients() {
+      try {
+        const response = await fetch(`${API_URL}/api/provider/patients`, {
+          headers: { 'Authorization': `Bearer ${providerToken}` }
+        });
+        
+        const patients = await response.json();
+        
+        // Update patient count
+        document.getElementById('active-patients').textContent = patients.length;
+        
+        // Populate patient table
+        const tbody = document.getElementById('patient-tbody');
+        tbody.innerHTML = patients.map(p => `
+          <tr>
+            <td><strong>${p.name}</strong></td>
+            <td>${new Date(p.lastCheckin).toLocaleDateString()}</td>
+            <td>${p.checkinCount}</td>
+            <td>${p.avgMood}/10</td>
+            <td>
+              <span class="status-badge status-${p.retentionRisk === 'low' ? 'active' : 'at-risk'}">
+                ${p.retentionRisk} risk
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-primary" onclick="viewPatient(${p.id})">View</button>
+            </td>
+          </tr>
+        `).join('');
+        
+        // Update at-risk count
+        const atRisk = patients.filter(p => p.retentionRisk !== 'low').length;
+        document.getElementById('at-risk').textContent = atRisk;
+      } catch (error) {
+        console.error('Failed to load patients:', error);
+      }
+    }
+    
+    async function loadROI() {
+      try {
+        const response = await fetch(`${API_URL}/api/provider/roi`, {
+          headers: { 'Authorization': `Bearer ${providerToken}` }
+        });
+        
+        const roi = await response.json();
+        
+        // Update ROI metrics
+        document.getElementById('monthly-roi').textContent = 
+          '$' + roi.financialImpact.monthlyValueRetained.toLocaleString();
+        
+        document.getElementById('retention-rate').textContent = 
+          roi.metrics.retentionRate;
+        
+        document.getElementById('annual-value').textContent = 
+          '$' + roi.financialImpact.annualValueRetained.toLocaleString();
+        
+        document.getElementById('retained-patients').textContent = 
+          roi.financialImpact.retainedPatients;
+        
+        document.getElementById('referral-prevented').textContent = 
+          '$' + roi.financialImpact.referralLossPrevented.toLocaleString();
+        
+        document.getElementById('billable-amount').textContent = 
+          '$' + roi.billing.currentMonth.toFixed(2);
+      } catch (error) {
+        console.error('Failed to load ROI:', error);
+      }
+    }
+    
+    async function loadBilling() {
+      try {
+        const response = await fetch(`${API_URL}/api/provider/billing`, {
+          headers: { 'Authorization': `Bearer ${providerToken}` }
+        });
+        
+        const billing = await response.json();
+        
+        // Update billing metrics
+        document.getElementById('ccm-minutes').textContent = billing.trackedMinutes.CCM;
+        document.getElementById('bhi-minutes').textContent = billing.trackedMinutes.BHI;
+        document.getElementById('est-reimbursement').textContent = 
+          '$' + billing.estimatedReimbursement.toFixed(2);
+        
+        // Show billing codes
+        const codesDiv = document.getElementById('billing-codes');
+        if (billing.suggestedCodes.length > 0) {
+          codesDiv.innerHTML = billing.suggestedCodes.map(code => `
+            <div class="code-card ${code.qualified ? 'qualified' : ''}">
+              <div class="code-number">CPT ${code.code}</div>
+              <div class="code-desc">${code.description}</div>
+              <div class="code-amount">$${code.reimbursement.toFixed(2)}</div>
+            </div>
+          `).join('');
+        } else {
+          codesDiv.innerHTML = '<p style="color: #718096;">Track more patient interactions to qualify for billing codes</p>';
+        }
+      } catch (error) {
+        console.error('Failed to load billing:', error);
+      }
+    }
+    
+    function showTab(tab) {
+      // Update tab buttons
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      // Show/hide content
+      document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+      document.getElementById(`${tab}-tab`).style.display = 'block';
+    }
+    
+    function viewPatient(patientId) {
+      alert(`Patient details view coming soon. Patient ID: ${patientId}`);
+    }
+    
+    // Auto-refresh data every 30 seconds
+    setInterval(() => {
+      if (providerToken) {
+        loadPatients();
+        loadROI();
+        loadBilling();
+      }
+    }, 30000);
+  </script>
+</body>
+</html>

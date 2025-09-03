@@ -1,6 +1,7 @@
 /**
- * ULTRA SIMPLE MVP - No Dependencies
- * Mental Health Check-in in 100 lines
+ * Serenity - Mental Health Tracker MVP
+ * Simple daily mood tracking and crisis support
+ * Zero dependencies, maximum impact
  */
 
 import { createServer } from 'http';
@@ -16,6 +17,14 @@ const data = {
   user: { email: 'user@example.com', password: 'TestPass123!' },
   checkins: []
 };
+
+// Import provider functionality
+let providerModule;
+try {
+  providerModule = await import('./provider-mvp.js');
+} catch (err) {
+  console.log('Provider module not found, running patient-only mode');
+}
 
 // Serve the HTML file or handle API
 const server = createServer((req, res) => {
@@ -41,12 +50,30 @@ const server = createServer((req, res) => {
     }
   }
   
+  // Serve Provider Dashboard
+  if (req.url === '/provider' && req.method === 'GET') {
+    try {
+      const html = readFileSync(join(__dirname, 'provider-dashboard.html'), 'utf8');
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      return res.end(html);
+    } catch (err) {
+      res.writeHead(404);
+      return res.end('Provider dashboard not found');
+    }
+  }
+  
   // API Routes
   let body = '';
   req.on('data', chunk => body += chunk);
   req.on('end', () => {
     const url = req.url;
     const method = req.method;
+    
+    // Check if provider module handles this route
+    if (providerModule && providerModule.handleProviderRoutes) {
+      const handled = providerModule.handleProviderRoutes(url, method, body, res);
+      if (handled) return;
+    }
     
     // Login
     if (url === '/api/login' && method === 'POST') {
@@ -110,21 +137,21 @@ const server = createServer((req, res) => {
 server.listen(PORT, () => {
   console.log(`
 ╔═══════════════════════════════════════════╗
-║     🌟 TRUE MVP - MENTAL HEALTH APP 🌟    ║
+║     🌟 SERENITY - MENTAL HEALTH MVP 🌟     ║
 ╠═══════════════════════════════════════════╣
 ║                                           ║
-║  ✅ Backend:  http://localhost:${PORT}/api  ║
-║  ✅ Frontend: http://localhost:${PORT}/      ║
+║  ✅ Simple daily mood tracking            ║
+║  ✅ Crisis support resources              ║  
+║  ✅ Provider dashboard with ROI           ║
+║  ✅ Billing automation (CCM/BHI)          ║
 ║                                           ║
-║  Login: user@example.com / TestPass123!  ║
+║  Patient Portal:  http://localhost:${PORT}/ ║
+║  Provider Portal: http://localhost:${PORT}/provider ║
 ║                                           ║
-║  Features (ONLY 4):                      ║
-║   1. Login                               ║
-║   2. Daily Check-in (mood + notes)      ║
-║   3. Crisis Button                       ║
-║   4. View History (last 7 days)         ║
+║  Patient: user@example.com / TestPass123!  ║
+║  Provider: provider@example.com / ProviderPass123! ║
 ║                                           ║
-║  Zero dependencies. Ships in 1 hour.     ║
+║  Dual value: Patients + Providers = Success ║
 ╚═══════════════════════════════════════════╝
   `);
 });

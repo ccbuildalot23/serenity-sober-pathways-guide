@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "api/mvp-server.js": {
-      "maxDuration": 10
-    }
-  },
   "rewrites": [
     { "source": "/api/login", "destination": "/api/mvp-server" },
     { "source": "/api/checkin", "destination": "/api/mvp-server" },

@@ -1,0 +1,12 @@
+{
+  "name": "serenity-mvp",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node true-mvp-simple.js",
+    "dev": "node true-mvp-simple.js"
+  },
+  "description": "Mental health check-in MVP - 2 files, 4 features, ships in 1 hour",
+  "author": "Serenity",
+  "license": "MIT"
+}

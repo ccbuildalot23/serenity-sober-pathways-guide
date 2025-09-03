@@ -1,11 +1,11 @@
 {
-  "name": "serenity-mvp",
+  "name": "serenity-mvp-simple",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
     "start": "node true-mvp-simple.js",
-    "build": "echo 'No build needed for MVP'",
-    "vercel-build": "echo 'MVP ready - no build required'"
+    "build": "echo 'No build needed'",
+    "vercel-build": "echo 'MVP ready'"
   },
   "engines": {
     "node": ">=18.x"

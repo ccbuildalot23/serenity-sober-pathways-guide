@@ -1,0 +1,55 @@
+# Ignore old overengineered directories
+src/
+frontend-app/
+tests/
+scripts/
+docs/
+capacitor/
+android/
+ios/
+monitoring/
+.bmad-core/
+.github/
+.husky/
+
+# Ignore build and dependency files
+node_modules/
+dist/
+dist-ssr/
+coverage/
+*.local
+
+# Ignore config files not needed for MVP
+*.config.js
+*.config.ts
+tsconfig*.json
+vite.config.ts
+playwright.config.*
+jest.config.*
+.eslintrc.*
+
+# Ignore documentation and non-essential files
+*.md
+!README-MVP.md
+LICENSE
+CODEOWNERS
+
+# Ignore development files
+.env*
+.vscode/
+.idea/
+*.log
+*.sw?
+.DS_Store
+
+# Ignore old package files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Keep only essential files for MVP
+!index.html
+!api/mvp-server.js
+!api/mvp.js
+!vercel.json
+!package.json

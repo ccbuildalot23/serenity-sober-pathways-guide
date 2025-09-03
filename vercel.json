@@ -5,6 +5,10 @@
     }
   },
   "rewrites": [
+    { "source": "/api/login", "destination": "/api/mvp-server" },
+    { "source": "/api/checkin", "destination": "/api/mvp-server" },
+    { "source": "/api/checkins", "destination": "/api/mvp-server" },
+    { "source": "/api/crisis", "destination": "/api/mvp-server" },
     { "source": "/api/(.*)", "destination": "/api/mvp-server" }
   ]
 }

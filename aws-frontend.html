@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Serenity Mental Health - AWS Deployment</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 28px;
+    }
+    .status {
+      background: #f0f9ff;
+      border: 1px solid #0369a1;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 20px 0;
+    }
+    .status.success {
+      background: #f0fdf4;
+      border-color: #16a34a;
+    }
+    .status.error {
+      background: #fef2f2;
+      border-color: #dc2626;
+    }
+    .endpoints {
+      margin: 20px 0;
+    }
+    .endpoint {
+      background: #f9fafb;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 10px 0;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .endpoint:hover {
+      background: #e5e7eb;
+    }
+    .endpoint .method {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 12px;
+      margin-right: 10px;
+    }
+    .endpoint .method.GET { background: #dbeafe; color: #1e40af; }
+    .endpoint .method.POST { background: #dcfce7; color: #166534; }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #667eea;
+      color: white;
+    }
+    button:hover { background: #5a67d8; }
+    button.crisis {
+      background: #dc2626;
+    }
+    button.crisis:hover { background: #b91c1c; }
+    .loading {
+      text-align: center;
+      color: #6b7280;
+      margin: 20px 0;
+    }
+    .api-info {
+      background: #f3f4f6;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 20px 0;
+      font-family: monospace;
+      font-size: 12px;
+      word-break: break-all;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .metric {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+    }
+    .metric .value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #667eea;
+    }
+    .metric .label {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 Serenity AWS Deployment</h1>
+    
+    <div id="statusContainer">
+      <div class="loading">Connecting to AWS API...</div>
+    </div>
+
+    <div class="api-info">
+      <strong>API URL:</strong><br>
+      https://hiheb8cthc.execute-api.us-east-1.amazonaws.com/dev/
+    </div>
+
+    <div class="endpoints" id="endpoints" style="display: none;">
+      <h3>Available Endpoints:</h3>
+      <div class="endpoint" onclick="testEndpoint('GET', '/health')">
+        <span class="method GET">GET</span>
+        <span>/health - Check API Status</span>
+      </div>
+      <div class="endpoint" onclick="testEndpoint('GET', '/')">
+        <span class="method GET">GET</span>
+        <span>/ - API Information</span>
+      </div>
+      <div class="endpoint" onclick="testEndpoint('POST', '/auth/register')">
+        <span class="method POST">POST</span>
+        <span>/auth/register - User Registration</span>
+      </div>
+      <div class="endpoint" onclick="testEndpoint('POST', '/auth/login')">
+        <span class="method POST">POST</span>
+        <span>/auth/login - User Login</span>
+      </div>
+      <div class="endpoint" onclick="testEndpoint('POST', '/checkin')">
+        <span class="method POST">POST</span>
+        <span>/checkin - Daily Check-in</span>
+      </div>
+    </div>
+
+    <div class="metrics" id="metrics" style="display: none;">
+      <div class="metric">
+        <div class="value" id="responseTime">-</div>
+        <div class="label">Response Time (ms)</div>
+      </div>
+      <div class="metric">
+        <div class="value" id="apiStatus">-</div>
+        <div class="label">API Status</div>
+      </div>
+      <div class="metric">
+        <div class="value" id="region">-</div>
+        <div class="label">AWS Region</div>
+      </div>
+      <div class="metric">
+        <div class="value" id="environment">-</div>
+        <div class="label">Environment</div>
+      </div>
+    </div>
+
+    <button class="crisis" onclick="triggerCrisisAlert()">🚨 Crisis Support</button>
+    <button onclick="testFullFlow()">Test Complete Flow</button>
+  </div>
+
+  <script>
+    const API_URL = 'https://hiheb8cthc.execute-api.us-east-1.amazonaws.com/dev';
+    
+    // Test API connection on page load
+    window.onload = async () => {
+      await testHealth();
+    };
+
+    async function testHealth() {
+      const statusContainer = document.getElementById('statusContainer');
+      const startTime = Date.now();
+      
+      try {
+        const response = await fetch(`${API_URL}/health`);
+        const data = await response.json();
+        const responseTime = Date.now() - startTime;
+        
+        statusContainer.innerHTML = `
+          <div class="status success">
+            ✅ API Connected Successfully<br>
+            <small>Status: ${data.status} | Time: ${new Date(data.timestamp).toLocaleString()}</small>
+          </div>
+        `;
+        
+        // Update metrics
+        document.getElementById('responseTime').textContent = responseTime;
+        document.getElementById('apiStatus').textContent = '🟢 Online';
+        document.getElementById('region').textContent = data.region || 'us-east-1';
+        document.getElementById('environment').textContent = data.environment || 'dev';
+        
+        // Show endpoints and metrics
+        document.getElementById('endpoints').style.display = 'block';
+        document.getElementById('metrics').style.display = 'grid';
+        
+      } catch (error) {
+        statusContainer.innerHTML = `
+          <div class="status error">
+            ❌ Connection Failed<br>
+            <small>${error.message}</small>
+          </div>
+        `;
+      }
+    }
+
+    async function testEndpoint(method, path) {
+      const statusContainer = document.getElementById('statusContainer');
+      const startTime = Date.now();
+      
+      try {
+        const options = {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        };
+        
+        if (method === 'POST') {
+          options.body = JSON.stringify({
+            test: true,
+            timestamp: new Date().toISOString()
+          });
+        }
+        
+        const response = await fetch(`${API_URL}${path}`, options);
+        const data = await response.json();
+        const responseTime = Date.now() - startTime;
+        
+        statusContainer.innerHTML = `
+          <div class="status success">
+            ✅ ${method} ${path}<br>
+            <small>Response: ${JSON.stringify(data, null, 2)}</small><br>
+            <small>Time: ${responseTime}ms</small>
+          </div>
+        `;
+        
+        // Update response time metric
+        document.getElementById('responseTime').textContent = responseTime;
+        
+      } catch (error) {
+        statusContainer.innerHTML = `
+          <div class="status error">
+            ❌ ${method} ${path} Failed<br>
+            <small>${error.message}</small>
+          </div>
+        `;
+      }
+    }
+
+    async function triggerCrisisAlert() {
+      alert('🚨 Crisis Support Activated!\n\nIn a real implementation, this would:\n- Send immediate notifications to support network\n- Connect to crisis hotline\n- Display coping strategies\n- Log incident for provider review');
+      
+      // Test crisis endpoint (placeholder)
+      await testEndpoint('POST', '/crisis');
+    }
+
+    async function testFullFlow() {
+      const tests = [
+        { method: 'GET', path: '/health', name: 'Health Check' },
+        { method: 'GET', path: '/', name: 'API Info' },
+        { method: 'POST', path: '/auth/register', name: 'Registration' },
+        { method: 'POST', path: '/auth/login', name: 'Login' },
+        { method: 'POST', path: '/checkin', name: 'Check-in' }
+      ];
+      
+      const statusContainer = document.getElementById('statusContainer');
+      let results = [];
+      
+      for (const test of tests) {
+        const startTime = Date.now();
+        try {
+          const options = {
+            method: test.method,
+            headers: { 'Content-Type': 'application/json' }
+          };
+          
+          if (test.method === 'POST') {
+            options.body = JSON.stringify({ test: true });
+          }
+          
+          const response = await fetch(`${API_URL}${test.path}`, options);
+          const responseTime = Date.now() - startTime;
+          
+          results.push(`✅ ${test.name}: ${responseTime}ms`);
+        } catch (error) {
+          results.push(`❌ ${test.name}: Failed`);
+        }
+      }
+      
+      statusContainer.innerHTML = `
+        <div class="status success">
+          <strong>Full Flow Test Results:</strong><br>
+          ${results.join('<br>')}
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

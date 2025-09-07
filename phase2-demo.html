@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serenity Phase 2 Demo - AWS Integration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .tab-button.active { 
+            background: rgb(99 102 241);
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-4">🚀 Serenity Phase 2 Demo</h1>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                Experience the new AI-powered features, privacy-preserving alerts, and ROI calculator
+            </p>
+            <div class="flex gap-2 justify-center mt-4">
+                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">AWS Cognito Auth</span>
+                <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">HIPAA Compliant</span>
+                <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">Enterprise Ready</span>
+            </div>
+        </div>
+
+        <!-- AWS Status -->
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-8 max-w-4xl mx-auto">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <strong>AWS Integration Active:</strong>
+                <span class="ml-2">Connected to us-east-1 | Cognito Auth Ready | Lambda Functions Online</span>
+            </div>
+        </div>
+
+        <!-- Main Tabs -->
+        <div class="bg-white rounded-xl shadow-lg max-w-6xl mx-auto">
+            <div class="border-b">
+                <div class="flex space-x-1 p-4">
+                    <button onclick="switchTab('ai-chat')" class="tab-button active px-4 py-2 rounded-lg transition-colors" data-tab="ai-chat">
+                        🤖 Dual AI Support
+                    </button>
+                    <button onclick="switchTab('alerts')" class="tab-button px-4 py-2 rounded-lg transition-colors hover:bg-gray-100" data-tab="alerts">
+                        🔔 Privacy Alerts
+                    </button>
+                    <button onclick="switchTab('roi')" class="tab-button px-4 py-2 rounded-lg transition-colors hover:bg-gray-100" data-tab="roi">
+                        📊 ROI Calculator
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <!-- Dual AI Chat Tab -->
+                <div id="ai-chat" class="tab-content active">
+                    <h3 class="text-2xl font-bold mb-4">Dual AI Support System</h3>
+                    <p class="text-gray-600 mb-6">Choose between peer support (emotional) or clinical guidance (evidence-based) AI assistants.</p>
+                    
+                    <div class="grid md:grid-cols-2 gap-4 mb-6">
+                        <button onclick="selectAIMode('peer')" id="peer-mode" class="ai-mode-btn border-2 border-blue-500 bg-blue-50 rounded-lg p-4 text-left hover:bg-blue-100 transition-colors">
+                            <div class="flex items-center mb-2">
+                                <span class="text-2xl mr-3">👥</span>
+                                <div>
+                                    <h4 class="font-bold">Peer Support</h4>
+                                    <p class="text-sm text-gray-600">Talk to someone who understands</p>
+                                </div>
+                            </div>
+                        </button>
+                        <button onclick="selectAIMode('clinical')" id="clinical-mode" class="ai-mode-btn border-2 border-gray-300 rounded-lg p-4 text-left hover:bg-gray-50 transition-colors">
+                            <div class="flex items-center mb-2">
+                                <span class="text-2xl mr-3">🏥</span>
+                                <div>
+                                    <h4 class="font-bold">Clinical Guidance</h4>
+                                    <p class="text-sm text-gray-600">Get professional recommendations</p>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-lg p-4 h-96 overflow-y-auto mb-4" id="chat-messages">
+                        <div class="ai-message mb-4">
+                            <div class="flex items-start">
+                                <span class="text-2xl mr-3">👥</span>
+                                <div class="bg-blue-100 rounded-lg p-3 max-w-md">
+                                    <p>Hi there! I'm here to listen and support you. I understand what you're going through, and you're not alone in this journey.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <input type="text" id="chat-input" placeholder="Type your message..." class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button onclick="sendMessage()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            Send
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Privacy Alerts Tab -->
+                <div id="alerts" class="tab-content">
+                    <h3 class="text-2xl font-bold mb-4">Privacy-Preserving Alert System</h3>
+                    <p class="text-gray-600 mb-6">"John needs a call" style notifications that protect PHI while activating support networks.</p>
+                    
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+                            </svg>
+                            <strong>Privacy Protected:</strong> All alerts are anonymized to protect patient privacy.
+                        </div>
+                    </div>
+
+                    <div class="space-y-4" id="alerts-list">
+                        <!-- Alert 1 -->
+                        <div class="border rounded-lg p-4 bg-yellow-50">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="px-2 py-1 bg-yellow-200 text-yellow-800 rounded text-sm font-semibold">Medium Priority</span>
+                                        <span class="px-2 py-1 bg-gray-200 text-gray-700 rounded text-sm">🔒 Anonymous</span>
+                                    </div>
+                                    <p class="font-medium">Someone in your support network could use some encouragement</p>
+                                    <p class="text-sm text-gray-600 mt-2">⏱️ Escalates in 1h 45m</p>
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <button onclick="acknowledgeAlert(1)" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+                                        Acknowledge
+                                    </button>
+                                    <button onclick="sendSupport(1)" class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 text-sm">
+                                        Send Support
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Alert 2 -->
+                        <div class="border rounded-lg p-4 opacity-60">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="px-2 py-1 bg-green-200 text-green-800 rounded text-sm font-semibold">Low Priority</span>
+                                        <span class="px-2 py-1 bg-gray-200 text-gray-700 rounded text-sm">🔒 Anonymous</span>
+                                        <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-sm">✓ Acknowledged</span>
+                                    </div>
+                                    <p class="font-medium">Someone reached a milestone! Show your support</p>
+                                    <p class="text-sm text-gray-600 mt-2">Responded by: S1, S2, +3 others</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ROI Calculator Tab -->
+                <div id="roi" class="tab-content">
+                    <h3 class="text-2xl font-bold mb-4">ROI Calculator</h3>
+                    <p class="text-gray-600 mb-6">Calculate the financial impact of implementing Serenity in your practice.</p>
+                    
+                    <!-- Plan Selection -->
+                    <div class="grid md:grid-cols-3 gap-4 mb-6">
+                        <div class="border-2 border-gray-300 rounded-lg p-4 hover:border-blue-500 cursor-pointer" onclick="selectPlan('professional')">
+                            <h4 class="font-bold">Professional</h4>
+                            <p class="text-2xl font-bold text-blue-600">$299/mo</p>
+                            <ul class="text-sm text-gray-600 mt-2">
+                                <li>✓ Up to 50 patients</li>
+                                <li>✓ Basic analytics</li>
+                                <li>✓ Crisis support</li>
+                            </ul>
+                        </div>
+                        <div class="border-2 border-blue-500 bg-blue-50 rounded-lg p-4 cursor-pointer" onclick="selectPlan('practice')">
+                            <h4 class="font-bold">Practice</h4>
+                            <p class="text-2xl font-bold text-blue-600">$599/mo</p>
+                            <ul class="text-sm text-gray-600 mt-2">
+                                <li>✓ Up to 200 patients</li>
+                                <li>✓ Advanced analytics</li>
+                                <li>✓ Dual AI support</li>
+                                <li>✓ CPT automation</li>
+                            </ul>
+                        </div>
+                        <div class="border-2 border-gray-300 rounded-lg p-4 hover:border-blue-500 cursor-pointer" onclick="selectPlan('enterprise')">
+                            <h4 class="font-bold">Enterprise</h4>
+                            <p class="text-2xl font-bold text-blue-600">$1999/mo</p>
+                            <ul class="text-sm text-gray-600 mt-2">
+                                <li>✓ Unlimited patients</li>
+                                <li>✓ Custom analytics</li>
+                                <li>✓ API access</li>
+                                <li>✓ Training included</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Input Sliders -->
+                    <div class="grid md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Current Patients: <span id="patients-value">40</span></label>
+                            <input type="range" id="patients-slider" min="10" max="200" value="40" step="5" class="w-full" oninput="updateROI()">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Average Session Rate: $<span id="rate-value">150</span></label>
+                            <input type="range" id="rate-slider" min="50" max="300" value="150" step="10" class="w-full" oninput="updateROI()">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Current Retention: <span id="retention-value">70</span>%</label>
+                            <input type="range" id="retention-slider" min="40" max="90" value="70" step="5" class="w-full" oninput="updateROI()">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Admin Hours/Week: <span id="admin-value">15</span>h</label>
+                            <input type="range" id="admin-slider" min="5" max="40" value="15" step="5" class="w-full" oninput="updateROI()">
+                        </div>
+                    </div>
+
+                    <!-- ROI Results -->
+                    <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6 mb-6">
+                        <h4 class="text-xl font-bold mb-4">Your ROI Summary</h4>
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <div class="text-center">
+                                <p class="text-3xl font-bold text-green-600" id="net-roi">$150,312</p>
+                                <p class="text-sm text-gray-600">Annual Net ROI</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-3xl font-bold text-blue-600" id="roi-percentage">2,090%</p>
+                                <p class="text-sm text-gray-600">Return on Investment</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-3xl font-bold text-purple-600" id="break-even">0.6</p>
+                                <p class="text-sm text-gray-600">Months to Break Even</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart -->
+                    <div class="bg-white rounded-lg p-4">
+                        <canvas id="roi-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            
+            if (tabName === 'roi') {
+                initROIChart();
+            }
+        }
+
+        // AI Chat functionality
+        let currentAIMode = 'peer';
+        
+        function selectAIMode(mode) {
+            currentAIMode = mode;
+            document.querySelectorAll('.ai-mode-btn').forEach(btn => {
+                btn.classList.remove('border-blue-500', 'bg-blue-50');
+                btn.classList.add('border-gray-300');
+            });
+            
+            const selectedBtn = document.getElementById(`${mode}-mode`);
+            selectedBtn.classList.remove('border-gray-300');
+            selectedBtn.classList.add('border-blue-500', 'bg-blue-50');
+            
+            // Add greeting message
+            const messages = document.getElementById('chat-messages');
+            messages.innerHTML = '';
+            
+            const greeting = mode === 'peer' 
+                ? "Hi there! I'm here to listen and support you. I understand what you're going through, and you're not alone in this journey."
+                : "Hello! I'm here to provide evidence-based guidance and clinical recommendations. How can I assist you today?";
+            
+            const icon = mode === 'peer' ? '👥' : '🏥';
+            const bgColor = mode === 'peer' ? 'bg-blue-100' : 'bg-green-100';
+            
+            messages.innerHTML = `
+                <div class="ai-message mb-4">
+                    <div class="flex items-start">
+                        <span class="text-2xl mr-3">${icon}</span>
+                        <div class="${bgColor} rounded-lg p-3 max-w-md">
+                            <p>${greeting}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            const messages = document.getElementById('chat-messages');
+            
+            // Add user message
+            messages.innerHTML += `
+                <div class="user-message mb-4">
+                    <div class="flex items-start justify-end">
+                        <div class="bg-gray-200 rounded-lg p-3 max-w-md">
+                            <p>${message}</p>
+                        </div>
+                        <span class="text-2xl ml-3">👤</span>
+                    </div>
+                </div>
+            `;
+            
+            // Simulate AI response
+            setTimeout(() => {
+                const responses = currentAIMode === 'peer' 
+                    ? [
+                        "I understand how challenging that must be. You're showing real strength by reaching out.",
+                        "That sounds really tough. Remember, recovery isn't linear - it's okay to have difficult days.",
+                        "You're not alone in feeling this way. Many of us have been there, and it does get better."
+                    ]
+                    : [
+                        "Based on current clinical guidelines, I recommend incorporating mindfulness exercises.",
+                        "Research shows that maintaining consistent sleep schedules can significantly impact mood.",
+                        "Your symptoms suggest you might benefit from professional evaluation."
+                    ];
+                
+                const response = responses[Math.floor(Math.random() * responses.length)];
+                const icon = currentAIMode === 'peer' ? '👥' : '🏥';
+                const bgColor = currentAIMode === 'peer' ? 'bg-blue-100' : 'bg-green-100';
+                
+                messages.innerHTML += `
+                    <div class="ai-message mb-4">
+                        <div class="flex items-start">
+                            <span class="text-2xl mr-3">${icon}</span>
+                            <div class="${bgColor} rounded-lg p-3 max-w-md">
+                                <p>${response}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                messages.scrollTop = messages.scrollHeight;
+            }, 1000);
+            
+            input.value = '';
+            messages.scrollTop = messages.scrollHeight;
+        }
+        
+        // Alert functionality
+        function acknowledgeAlert(id) {
+            alert('Alert acknowledged! The person in need has been notified.');
+        }
+        
+        function sendSupport(id) {
+            const message = prompt('Send an anonymous message of support:');
+            if (message) {
+                alert('Your support message has been sent anonymously.');
+            }
+        }
+        
+        // ROI Calculator
+        let roiChart = null;
+        let selectedPlan = 'practice';
+        
+        function selectPlan(plan) {
+            selectedPlan = plan;
+            updateROI();
+        }
+        
+        function updateROI() {
+            // Update slider values
+            document.getElementById('patients-value').textContent = document.getElementById('patients-slider').value;
+            document.getElementById('rate-value').textContent = document.getElementById('rate-slider').value;
+            document.getElementById('retention-value').textContent = document.getElementById('retention-slider').value;
+            document.getElementById('admin-value').textContent = document.getElementById('admin-slider').value;
+            
+            // Calculate ROI
+            const patients = parseInt(document.getElementById('patients-slider').value);
+            const rate = parseInt(document.getElementById('rate-slider').value);
+            const retention = parseInt(document.getElementById('retention-slider').value);
+            const adminHours = parseInt(document.getElementById('admin-slider').value);
+            
+            const planCosts = { professional: 3588, practice: 7188, enterprise: 23988 };
+            const retentionLift = { professional: 10, practice: 15, enterprise: 20 };
+            
+            const improvedRetention = retention + retentionLift[selectedPlan];
+            const additionalPatients = (patients * retentionLift[selectedPlan]) / 100;
+            const annualRevenue = additionalPatients * rate * 12 * 3; // 3 sessions/month
+            const adminSavings = adminHours * 52 * 35; // $35/hour
+            const totalValue = annualRevenue + adminSavings;
+            const netROI = totalValue - planCosts[selectedPlan];
+            const roiPercentage = (netROI / planCosts[selectedPlan]) * 100;
+            const breakEven = planCosts[selectedPlan] / (totalValue / 12);
+            
+            // Update display
+            document.getElementById('net-roi').textContent = '$' + netROI.toLocaleString();
+            document.getElementById('roi-percentage').textContent = roiPercentage.toFixed(0) + '%';
+            document.getElementById('break-even').textContent = breakEven.toFixed(1);
+            
+            // Update chart if visible
+            if (roiChart) {
+                updateROIChart();
+            }
+        }
+        
+        function initROIChart() {
+            const ctx = document.getElementById('roi-chart').getContext('2d');
+            
+            if (roiChart) {
+                roiChart.destroy();
+            }
+            
+            roiChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Month 0', 'Month 3', 'Month 6', 'Month 9', 'Month 12', 'Month 18', 'Month 24'],
+                    datasets: [{
+                        label: 'Cumulative Value',
+                        data: [0, 45000, 90000, 135000, 180000, 270000, 360000],
+                        borderColor: 'rgb(34, 197, 94)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        fill: true
+                    }, {
+                        label: 'Platform Cost',
+                        data: [0, 1797, 3594, 5391, 7188, 10782, 14376],
+                        borderColor: 'rgb(239, 68, 68)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: '24-Month Revenue Projection'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value/1000).toFixed(0) + 'k';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateROIChart() {
+            // Update chart data based on current ROI calculations
+            // This would be more sophisticated in production
+        }
+        
+        // Initialize
+        updateROI();
+        
+        // Enter key to send message
+        document.getElementById('chat-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

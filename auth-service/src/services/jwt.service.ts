@@ -34,6 +34,16 @@ class JWTService {
   private readonly audience: string;
 
   constructor() {
+    // Check for production environment requirements
+    if (process.env.NODE_ENV === 'production') {
+      if (!process.env.JWT_SECRET) {
+        throw new Error('JWT_SECRET environment variable is required in production');
+      }
+      if (!process.env.JWT_REFRESH_SECRET) {
+        throw new Error('JWT_REFRESH_SECRET environment variable is required in production');
+      }
+    }
+
     this.accessTokenSecret = process.env.JWT_SECRET || this.generateSecretKey();
     this.refreshTokenSecret = process.env.JWT_REFRESH_SECRET || this.generateSecretKey();
     this.accessTokenExpiry = process.env.JWT_ACCESS_EXPIRY || '15m';
@@ -42,7 +52,7 @@ class JWTService {
     this.audience = process.env.JWT_AUDIENCE || 'serenity-platform';
 
     if (!process.env.JWT_SECRET || !process.env.JWT_REFRESH_SECRET) {
-      logger.warn('JWT secrets not provided in environment variables, using generated secrets');
+      logger.warn('⚠️  Generated temporary JWT secrets for development. Set JWT_SECRET and JWT_REFRESH_SECRET in production.');
     }
   }
 

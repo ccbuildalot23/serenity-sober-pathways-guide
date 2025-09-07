@@ -30,8 +30,20 @@ export class EncryptionService {
    */
   private static getMasterKey(): Buffer {
     const masterKeyHex = process.env.VITE_ENCRYPTION_MASTER_KEY || 
-      // Default key for testing - NEVER use in production
-      'a'.repeat(64);
+                        process.env.ENCRYPTION_KEY || 
+                        process.env.PHI_ENCRYPTION_KEY;
+    
+    if (!masterKeyHex) {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('ENCRYPTION_KEY environment variable is required in production');
+      }
+      
+      // Generate a secure key for development only
+      const crypto = require('crypto');
+      const developmentKey = crypto.randomBytes(32).toString('hex');
+      console.warn('⚠️  Generated temporary encryption key for development. Set ENCRYPTION_KEY in production.');
+      return Buffer.from(developmentKey, 'hex');
+    }
     
     if (masterKeyHex.length !== 64) {
       throw new Error('Master key must be 32 bytes (64 hex characters)');

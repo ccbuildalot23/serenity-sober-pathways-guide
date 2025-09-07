@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Registration</title>
+</head>
+<body>
+    <h1>Test Registration</h1>
+    <button onclick="testRegistration()">Test Registration API</button>
+    <div id="result"></div>
+    
+    <script>
+        async function testRegistration() {
+            const API_URL = 'https://hiheb8cthc.execute-api.us-east-1.amazonaws.com/dev';
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        password: 'TestPass123!',
+                        firstName: 'Test',
+                        lastName: 'User'
+                    })
+                });
+                
+                const result = await response.json();
+                resultDiv.innerHTML = `<pre>Status: ${response.status}\n${JSON.stringify(result, null, 2)}</pre>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<pre>Error: ${error.message}</pre>`;
+                console.error('Full error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

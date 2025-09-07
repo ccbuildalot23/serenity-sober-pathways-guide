@@ -62,6 +62,18 @@ const server = createServer((req, res) => {
     }
   }
   
+  // Serve Phase 2 Demo
+  if ((req.url === '/phase2-demo' || req.url === '/phase2-demo.html' || req.url === '/demo') && req.method === 'GET') {
+    try {
+      const html = readFileSync(join(__dirname, 'phase2-demo.html'), 'utf8');
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      return res.end(html);
+    } catch (err) {
+      res.writeHead(404);
+      return res.end('Phase 2 demo not found');
+    }
+  }
+  
   // API Routes
   let body = '';
   req.on('data', chunk => body += chunk);
@@ -147,6 +159,7 @@ server.listen(PORT, () => {
 ║                                           ║
 ║  Patient Portal:  http://localhost:${PORT}/ ║
 ║  Provider Portal: http://localhost:${PORT}/provider ║
+║  Phase 2 Demo:    http://localhost:${PORT}/phase2-demo ║
 ║                                           ║
 ║  Patient: user@example.com / TestPass123!  ║
 ║  Provider: provider@example.com / ProviderPass123! ║

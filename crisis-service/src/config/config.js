@@ -4,6 +4,27 @@
  */
 
 const joi = require('joi');
+const crypto = require('crypto');
+
+// Helper function to generate secure keys for development
+const generateSecureKey = (length = 32) => {
+  return crypto.randomBytes(length).toString('hex');
+};
+
+// Helper function to get or generate environment variable
+const getOrGenerate = (envVar, generator, warningMessage) => {
+  if (process.env[envVar]) {
+    return process.env[envVar];
+  }
+  
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(`${envVar} is required in production`);
+  }
+  
+  const generated = generator();
+  console.warn(`⚠️  ${warningMessage}`);
+  return generated;
+};
 
 // Configuration schema validation
 const schema = joi.object({
@@ -27,19 +48,47 @@ const schema = joi.object({
     JWT_EXPIRES_IN: joi.string().default('15m'), // Short expiry for PHI access
     JWT_REFRESH_EXPIRES_IN: joi.string().default('7d'),
     
-    // Encryption keys
-    ENCRYPTION_KEY: joi.string().length(64).default('0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'), // 32 bytes hex
+    // Encryption keys - require in production, generate secure defaults in development
+    ENCRYPTION_KEY: joi.string().length(64).when('NODE_ENV', {
+      is: 'production',
+      then: joi.required(),
+      otherwise: joi.optional()
+    }),
     ENCRYPTION_IV_LENGTH: joi.number().default(16),
     
     // Emergency services configuration
-    EMERGENCY_OVERRIDE_KEY: joi.string().min(32).default('emergency-override-development-key-32-characters'),
-    EMERGENCY_SERVICE_API_KEY: joi.string().default('dev_emergency_api_key'),
-    TWILIO_ACCOUNT_SID: joi.string().default('AC_development_sid'),
-    TWILIO_AUTH_TOKEN: joi.string().default('development_auth_token'),
-    TWILIO_PHONE_NUMBER: joi.string().default('+15551234567'),
+    EMERGENCY_OVERRIDE_KEY: joi.string().min(32).when('NODE_ENV', {
+      is: 'production',
+      then: joi.required(),
+      otherwise: joi.optional()
+    }),
+    EMERGENCY_SERVICE_API_KEY: joi.string().when('NODE_ENV', {
+      is: 'production',
+      then: joi.required(),
+      otherwise: joi.optional()
+    }),
+    TWILIO_ACCOUNT_SID: joi.string().when('NODE_ENV', {
+      is: 'production',
+      then: joi.required(),
+      otherwise: joi.optional()
+    }),
+    TWILIO_AUTH_TOKEN: joi.string().when('NODE_ENV', {
+      is: 'production',
+      then: joi.required(),
+      otherwise: joi.optional()
+    }),
+    TWILIO_PHONE_NUMBER: joi.string().when('NODE_ENV', {
+      is: 'production',
+      then: joi.required(),
+      otherwise: joi.optional()
+    }),
     
     // Location services
-    GOOGLE_MAPS_API_KEY: joi.string().default('development_google_maps_key'),
+    GOOGLE_MAPS_API_KEY: joi.string().when('NODE_ENV', {
+      is: 'production',
+      then: joi.required(),
+      otherwise: joi.optional()
+    }),
     GEOFENCE_RADIUS_METERS: joi.number().default(500),
     
     // Machine Learning
@@ -67,10 +116,18 @@ const schema = joi.object({
     
     // Notifications
     NOTIFICATION_SERVICE_URL: joi.string().uri().default('http://localhost:8000'),
-    NOTIFICATION_SERVICE_API_KEY: joi.string().default('development_api_key'),
+    NOTIFICATION_SERVICE_API_KEY: joi.string().when('NODE_ENV', {
+      is: 'production',
+      then: joi.required(),
+      otherwise: joi.optional()
+    }),
     
     // Audio processing
-    VOICE_ANALYSIS_API_KEY: joi.string().default('development_voice_key'),
+    VOICE_ANALYSIS_API_KEY: joi.string().when('NODE_ENV', {
+      is: 'production',
+      then: joi.required(),
+      otherwise: joi.optional()
+    }),
     VOICE_ANALYSIS_ENDPOINT: joi.string().uri().default('http://localhost:9000/analyze'),
     
     // Biometric monitoring
@@ -93,7 +150,37 @@ const schema = joi.object({
     SESSION_TIMEOUT_MINUTES: joi.number().default(15)
 }).unknown();
 
-const { error, value: envVars } = schema.validate(process.env);
+// Pre-populate missing environment variables with secure defaults
+const processEnvWithDefaults = {
+  ...process.env,
+  ENCRYPTION_KEY: getOrGenerate('ENCRYPTION_KEY', 
+    () => generateSecureKey(32), 
+    'Generated temporary encryption key for development. Set ENCRYPTION_KEY in production.'),
+  EMERGENCY_OVERRIDE_KEY: getOrGenerate('EMERGENCY_OVERRIDE_KEY', 
+    () => generateSecureKey(32), 
+    'Generated temporary emergency override key for development. Set EMERGENCY_OVERRIDE_KEY in production.'),
+  EMERGENCY_SERVICE_API_KEY: getOrGenerate('EMERGENCY_SERVICE_API_KEY', 
+    () => `dev_${generateSecureKey(16)}`, 
+    'Generated temporary emergency service API key for development. Set EMERGENCY_SERVICE_API_KEY in production.'),
+  TWILIO_ACCOUNT_SID: getOrGenerate('TWILIO_ACCOUNT_SID', 
+    () => `AC${generateSecureKey(16)}`, 
+    'Using development Twilio Account SID. Set TWILIO_ACCOUNT_SID in production.'),
+  TWILIO_AUTH_TOKEN: getOrGenerate('TWILIO_AUTH_TOKEN', 
+    () => generateSecureKey(32), 
+    'Generated temporary Twilio auth token for development. Set TWILIO_AUTH_TOKEN in production.'),
+  TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER || '+15551234567',
+  GOOGLE_MAPS_API_KEY: getOrGenerate('GOOGLE_MAPS_API_KEY', 
+    () => `dev_maps_${generateSecureKey(16)}`, 
+    'Generated temporary Google Maps API key for development. Set GOOGLE_MAPS_API_KEY in production.'),
+  NOTIFICATION_SERVICE_API_KEY: getOrGenerate('NOTIFICATION_SERVICE_API_KEY', 
+    () => `dev_notif_${generateSecureKey(16)}`, 
+    'Generated temporary notification service API key for development. Set NOTIFICATION_SERVICE_API_KEY in production.'),
+  VOICE_ANALYSIS_API_KEY: getOrGenerate('VOICE_ANALYSIS_API_KEY', 
+    () => `dev_voice_${generateSecureKey(16)}`, 
+    'Generated temporary voice analysis API key for development. Set VOICE_ANALYSIS_API_KEY in production.')
+};
+
+const { error, value: envVars } = schema.validate(processEnvWithDefaults);
 
 if (error) {
     throw new Error(`Config validation error: ${error.message}`);

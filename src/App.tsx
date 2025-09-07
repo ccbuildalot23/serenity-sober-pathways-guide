@@ -73,6 +73,9 @@ const RecoveryStrengthPage = lazy(() => import('@/pages/RelapsePrevention'));
 // Eagerly load CrisisSupport to avoid lazy loading issues in E2E
 import CrisisSupport from '@/pages/CrisisSupport';
 
+// Phase 2 Demo Page
+const Phase2Demo = lazy(() => import('@/pages/Phase2Demo'));
+
 // Clinical & Admin Features - Lowest priority
 const ClinicalProtocols = lazy(() => import('@/pages/ClinicalProtocols'));
 const RegulatoryCompliance = lazy(() => import('@/pages/RegulatoryCompliance'));
@@ -182,6 +185,11 @@ const AppContent = () => {
           {/* Public Routes */}
           <Route path="/" element={<HomePage />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/demo" element={
+            <Suspense fallback={<LoadingState />}>
+              <Phase2Demo />
+            </Suspense>
+          } />
           <Route path="/login" element={<Login />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

@@ -1,32 +1,33 @@
 /**
  * Unified Auth Service
- * Switches between local auth (development) and Supabase (production)
+ * Switches between AWS Cognito (production) and local auth (development)
  */
 
-import { supabase } from '@/integrations/supabase/client';
+import { awsAuth } from './awsAuthService';
 import { localAuth } from './localAuthService';
-import { apiService } from './apiService';
 
-// Determine which auth to use - ALWAYS use backend API now
-const USE_LOCAL_AUTH = false; // Deprecated - using backend API
-const USE_BACKEND_API = true; // Always use backend API
+// Determine which auth to use - Use AWS Cognito in production
+const USE_AWS_AUTH = import.meta.env.VITE_USE_AWS_AUTH !== 'false';
+const USE_LOCAL_AUTH = !USE_AWS_AUTH && import.meta.env.DEV;
 
 class AuthService {
   private provider: any;
   
   constructor() {
-    this.provider = USE_LOCAL_AUTH ? localAuth : supabase.auth;
-    console.log(`🔐 Using ${USE_LOCAL_AUTH ? 'LOCAL' : 'SUPABASE'} authentication`);
+    if (USE_LOCAL_AUTH) {
+      this.provider = localAuth;
+      console.log('🔐 Using LOCAL authentication (development)');
+    } else {
+      this.provider = awsAuth.auth;
+      console.log('🔐 Using AWS Cognito authentication');
+    }
   }
   
   async signInWithPassword(credentials: { email: string; password: string }) {
-    if (USE_BACKEND_API) {
-      return await apiService.login(credentials.email, credentials.password);
-    }
     if (USE_LOCAL_AUTH) {
       return await localAuth.signIn(credentials.email, credentials.password);
     }
-    return await supabase.auth.signInWithPassword(credentials);
+    return await awsAuth.signIn(credentials.email, credentials.password);
   }
   
   async signUp(credentials: { email: string; password: string; options?: any }) {
@@ -34,7 +35,7 @@ class AuthService {
       // For local auth, sign up is the same as sign in for test users
       return await localAuth.signIn(credentials.email, credentials.password);
     }
-    return await supabase.auth.signUp(credentials);
+    return await awsAuth.signUp(credentials.email, credentials.password, credentials.options?.data);
   }
   
   async signOut() {

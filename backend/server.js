@@ -14,7 +14,25 @@ const http = require('http');
 
 // Environment configuration
 const PORT = process.env.PORT || 3001;
-const JWT_SECRET = process.env.JWT_SECRET || 'development-secret-key-12345';
+
+// Generate secure JWT secret for development if not provided
+const getJwtSecret = () => {
+  if (process.env.JWT_SECRET) {
+    return process.env.JWT_SECRET;
+  }
+  
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('JWT_SECRET environment variable is required in production');
+  }
+  
+  // Generate a secure key for development
+  const crypto = require('crypto');
+  const developmentSecret = crypto.randomBytes(64).toString('hex');
+  console.warn('⚠️  Generated temporary JWT secret for development. Set JWT_SECRET in production.');
+  return developmentSecret;
+};
+
+const JWT_SECRET = getJwtSecret();
 const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://serenity_user:serenity_password@localhost:5432/serenity';
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 

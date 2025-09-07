@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Read(//c/c/dev/**)",
-      "Read(//c/dev/serenity-aws/**)"
+      "Read(//c/dev/serenity-aws/**)",
+      "Bash(git push:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": [],

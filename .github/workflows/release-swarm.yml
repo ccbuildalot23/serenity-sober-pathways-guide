@@ -50,7 +50,7 @@ jobs:
         test-agent: [unit, integration, e2e, security, performance]
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -112,7 +112,7 @@ jobs:
         build-target: [web, lambda, docker]
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Setup Build Environment
         uses: actions/setup-node@v4
@@ -166,7 +166,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Run Trivy Security Scan
         uses: aquasecurity/trivy-action@master
@@ -204,7 +204,7 @@ jobs:
       url: ${{ steps.deploy.outputs.url }}
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -278,7 +278,7 @@ jobs:
     if: success()
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Setup CloudWatch Alarms
         run: |
@@ -318,7 +318,7 @@ jobs:
     if: github.event_name == 'release'
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       
@@ -348,7 +348,7 @@ jobs:
     if: failure()
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4

@@ -477,7 +477,7 @@ jobs:
           aws-region: us-east-1
 
       - name: Install kubectl
-        uses: azure/setup-kubectl@v3
+        uses: azure/setup-kubectl@v4
 
       - name: Deploy to staging
         env:
@@ -534,7 +534,7 @@ jobs:
           aws-region: us-east-1
 
       - name: Install kubectl
-        uses: azure/setup-kubectl@v3
+        uses: azure/setup-kubectl@v4
 
       - name: Blue-Green Deployment to Production
         env:
@@ -647,7 +647,7 @@ jobs:
           aws-region: us-east-1
 
       - name: Install kubectl
-        uses: azure/setup-kubectl@v3
+        uses: azure/setup-kubectl@v4
 
       - name: Rollback to previous version
         run: |
